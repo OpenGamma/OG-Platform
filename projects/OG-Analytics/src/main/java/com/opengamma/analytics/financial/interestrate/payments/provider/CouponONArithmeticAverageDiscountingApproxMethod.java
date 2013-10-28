@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -24,26 +24,26 @@ import com.opengamma.util.tuple.DoublesPair;
  * The estimation is done through an approximation.
  * <p>Reference: Overnight Indexes Related Products. OpenGamma Documentation n. 20, Version 1.0, February 2013.
  */
-public final class CouponArithmeticAverageONDiscountingApproxMethod {
+public final class CouponONArithmeticAverageDiscountingApproxMethod {
  // FIXME: Class under construction, don't use yet.
 
   /**
    * The method unique instance.
    */
-  private static final CouponArithmeticAverageONDiscountingApproxMethod INSTANCE = new CouponArithmeticAverageONDiscountingApproxMethod();
+  private static final CouponONArithmeticAverageDiscountingApproxMethod INSTANCE = new CouponONArithmeticAverageDiscountingApproxMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CouponArithmeticAverageONDiscountingApproxMethod getInstance() {
+  public static CouponONArithmeticAverageDiscountingApproxMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CouponArithmeticAverageONDiscountingApproxMethod() {
+  private CouponONArithmeticAverageDiscountingApproxMethod() {
   }
 
   /**
@@ -52,7 +52,7 @@ public final class CouponArithmeticAverageONDiscountingApproxMethod {
    * @param multicurve The multi-curve provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final CouponArithmeticAverageON coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyAmount presentValue(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
     final double[] times = coupon.getFixingPeriodTimes();
@@ -71,7 +71,7 @@ public final class CouponArithmeticAverageONDiscountingApproxMethod {
    * @param multicurve The multi-curve provider.
    * @return The present value curve sensitivities.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponArithmeticAverageON coupon, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
     // Forward sweep

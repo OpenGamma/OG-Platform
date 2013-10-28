@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -27,7 +27,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
  */
-public class CouponArithmeticAverageONTest {
+public class CouponONArithmeticAverageTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 4, 16);
 
@@ -44,26 +44,26 @@ public class CouponArithmeticAverageONTest {
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE, -1 + FEDFUND.getPublicationLag() + PAYMENT_LAG, NYC);
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_2_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, NYC);
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3M_2_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, NYC);
   private static final double[] FIXING_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_2_DEF.getFixingPeriodDates());
 
   private static final double ACCRUED_RATE = 0.0001;
-  private static final CouponArithmeticAverageON CPN_AA_ON = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
+  private static final CouponONArithmeticAverage CPN_AA_ON = CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
       NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(), ACCRUED_RATE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, null, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(), ACCRUED_RATE);
+    CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, null, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(), ACCRUED_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFixTimes() {
-    CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, null, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(), ACCRUED_RATE);
+    CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, null, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(), ACCRUED_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFixAF() {
-    CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, FIXING_TIMES, null, ACCRUED_RATE);
+    CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, FIXING_TIMES, null, ACCRUED_RATE);
   }
 
   @Test
@@ -81,26 +81,26 @@ public class CouponArithmeticAverageONTest {
   @Test
   public void equalHash() {
     assertEquals("CouponArithmeticAverageON: equal-hash", CPN_AA_ON, CPN_AA_ON);
-    final CouponArithmeticAverageON other = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
+    final CouponONArithmeticAverage other = CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
         NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(), ACCRUED_RATE);
     assertEquals("CouponArithmeticAverageON: equal-hash", CPN_AA_ON, other);
     assertEquals("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.hashCode(), other.hashCode());
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(null));
-    CouponArithmeticAverageON modified;
-    modified = CouponArithmeticAverageON.from(PAYMENT_TIME + 0.1, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
+    CouponONArithmeticAverage modified;
+    modified = CouponONArithmeticAverage.from(PAYMENT_TIME + 0.1, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
         ACCRUED_RATE);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction() + 0.1, NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
+    modified = CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction() + 0.1, NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
         ACCRUED_RATE);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL + 10, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
+    modified = CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL + 10, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
         ACCRUED_RATE);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
     final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA");
-    modified = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, modifiedIndex, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
+    modified = CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, modifiedIndex, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
         ACCRUED_RATE);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponArithmeticAverageON.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
+    modified = CouponONArithmeticAverage.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, FIXING_TIMES, FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactors(),
         ACCRUED_RATE + 0.1);
     assertFalse("CouponArithmeticAverageON: equal-hash", CPN_AA_ON.equals(modified));
   }

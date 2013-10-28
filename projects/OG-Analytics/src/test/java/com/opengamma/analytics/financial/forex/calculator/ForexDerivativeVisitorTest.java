@@ -89,9 +89,9 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
@@ -1040,12 +1040,12 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final T data) {
+    public String visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
+    public String visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment) {
       return null;
     }
 
@@ -1100,22 +1100,22 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final T data) {
+    public String visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+    public String visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final T data) {
+    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
+    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
       return null;
     }
 

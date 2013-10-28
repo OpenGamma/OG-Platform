@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
  */
-public final class CouponArithmeticAverageONSpread extends Coupon {
+public final class CouponONArithmeticAverageSpread extends Coupon {
 
   /**
    * The overnight index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
@@ -63,7 +63,7 @@ public final class CouponArithmeticAverageONSpread extends Coupon {
    * @param fixingPeriodRemainingAccrualFactor ??
    * @param spread The spread rate paid above the arithmetic average.
    */
-  private CouponArithmeticAverageONSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
+  private CouponONArithmeticAverageSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
       final double[] fixingPeriodTimes, final double[] fixingPeriodAccrualFactors, final double rateAccrued, final double fixingPeriodRemainingAccrualFactor, final double spread) {
     super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
@@ -87,7 +87,7 @@ public final class CouponArithmeticAverageONSpread extends Coupon {
    * @param spread The spread rate paid above the arithmetic average.
    * @return The coupon.
    */
-  public static CouponArithmeticAverageONSpread from(final double paymentTime, final double paymentAccrualFactor, final double notional, final IndexON index, final double[] fixingPeriodTimes,
+  public static CouponONArithmeticAverageSpread from(final double paymentTime, final double paymentAccrualFactor, final double notional, final IndexON index, final double[] fixingPeriodTimes,
       final double[] fixingPeriodAccrualFactors,
       final double rateAccrued, final double spread) {
     ArgumentChecker.notNull(index, "Index");
@@ -97,7 +97,7 @@ public final class CouponArithmeticAverageONSpread extends Coupon {
     for (final double fixingPeriodAccrualFactor : fixingPeriodAccrualFactors) {
       fixingPeriodRemainingAccrualFactor += fixingPeriodAccrualFactor;
     }
-    return new CouponArithmeticAverageONSpread(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
+    return new CouponONArithmeticAverageSpread(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
         fixingPeriodRemainingAccrualFactor, spread);
   }
 
@@ -204,7 +204,7 @@ public final class CouponArithmeticAverageONSpread extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponArithmeticAverageONSpread other = (CouponArithmeticAverageONSpread) obj;
+    final CouponONArithmeticAverageSpread other = (CouponONArithmeticAverageSpread) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }

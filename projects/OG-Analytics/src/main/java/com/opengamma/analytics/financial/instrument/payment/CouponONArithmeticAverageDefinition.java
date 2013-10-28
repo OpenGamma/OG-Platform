@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -34,12 +34,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates) with a spread.
+ * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
  */
-public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public final class CouponONArithmeticAverageDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
-   * The overnight index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
+   * The overnight index on which the coupon fixes. The index currency should be the same as the coupon currency.
    */
   private final IndexON _index;
   /**
@@ -50,14 +50,6 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
    * The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    */
   private final double[] _fixingPeriodAccrualFactors;
-  /**
-   * The spread rate paid above the arithmetic average.
-   */
-  private final double _spread;
-  /**
-   * The fixed amount related to the spread.
-   */
-  private final double _spreadAmount;
 
   // TODO: Implement the rate cut-off mechanism (the two last periods use the same fixing)
 
@@ -67,21 +59,20 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
    * @param accrualEndDate End date of the accrual period.
-   * @param paymentYearFraction Accrual factor of the accrual period.
+   * @param paymentAccrualFactor Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param index The OIS-like index on which the coupon fixes.
    * @param fixingPeriodStartDate The start date of the fixing period.
    * @param fixingPeriodEndDate The end date of the fixing period.
-   * @param spread The spread rate paid above the arithmetic average.
-   * @param calendar The holiday calendar for the overnight index.
+   * @param calendar The holiday calendar for the overnight leg.
    */
-  public CouponArithmeticAverageONSpreadDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double spread,
+  public CouponONArithmeticAverageDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentAccrualFactor, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
       final Calendar calendar) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
-    ArgumentChecker.notNull(index, "CouponOISDefinition: index");
-    ArgumentChecker.notNull(fixingPeriodStartDate, "CouponOISDefinition: fixingPeriodStartDate");
-    ArgumentChecker.notNull(fixingPeriodEndDate, "CouponOISDefinition: fixingPeriodEndDate");
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
+    ArgumentChecker.notNull(index, "CouponArithmeticAverageONDefinition: index");
+    ArgumentChecker.notNull(fixingPeriodStartDate, "CouponArithmeticAverageONDefinition: fixingPeriodStartDate");
+    ArgumentChecker.notNull(fixingPeriodEndDate, "CouponArithmeticAverageONDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
     final List<ZonedDateTime> fixingDateList = new ArrayList<>();
@@ -92,14 +83,11 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
     while (currentDate.isBefore(fixingPeriodEndDate)) {
       nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
       fixingDateList.add(nextDate);
-      final double af = index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar);
-      fixingAccrualFactorList.add(af);
+      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar));
       currentDate = nextDate;
     }
     _fixingPeriodDates = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
     _fixingPeriodAccrualFactors = ArrayUtils.toPrimitive(fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]));
-    _spread = spread;
-    _spreadAmount = spread * paymentYearFraction * notional;
   }
 
   /**
@@ -109,37 +97,37 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
    * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
    * @param tenor The coupon tenor.
    * @param notional The notional.
-   * @param paymentLag The number of days between last fixing date and the payment date (also called payment delay).
+   * @param paymentLag The number of days between last fixing and the payment (also called payment delay).
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
-   * @param spread The spread rate paid above the arithmetic average.
    * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
-  public static CouponArithmeticAverageONSpreadDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
-      final BusinessDayConvention businessDayConvention, final boolean isEOM, final double spread, final Calendar calendar) {
+  public static CouponONArithmeticAverageDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
+      final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar) {
+    ArgumentChecker.notNull(index, "Index");
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, tenor, businessDayConvention, calendar, isEOM);
-    return from(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, spread, calendar);
+    return from(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, calendar);
   }
 
   /**
-   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
+   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one of the index.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param fixingPeriodStartDate The coupon settlement date and start of the fixing period.
    * @param fixingPeriodEndDate The last date of the fixing period. Interest accrues up to this date. If publicationLag==0, 1 day following publication. If lag==1, the publication date.
    * @param notional The notional.
-   * @param paymentLag The number of days between last fixing date and the payment date (also called payment delay).
-   * @param spread The spread rate paid above the arithmetic average.
+   * @param paymentLag The number of days between last fixing and the payment (also called payment delay).
    * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
-  public static CouponArithmeticAverageONSpreadDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
-      final int paymentLag, final double spread, final Calendar calendar) {
+  public static CouponONArithmeticAverageDefinition from(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
+      final int paymentLag, final Calendar calendar) {
+    ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing Period End Date");
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, calendar);
-    final double paymentYearFraction = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate, calendar);
-    return new CouponArithmeticAverageONSpreadDefinition(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentYearFraction, notional, index, fixingPeriodStartDate,
-        fixingPeriodEndDate, spread, calendar);
+    final double paymentAccrualFactor = index.getDayCount().getDayCountFraction(fixingPeriodStartDate, fixingPeriodEndDate, calendar);
+    return new CouponONArithmeticAverageDefinition(index.getCurrency(), paymentDate, fixingPeriodStartDate, fixingPeriodEndDate, paymentAccrualFactor,
+        notional, index, fixingPeriodStartDate, fixingPeriodEndDate, calendar);
   }
 
   /**
@@ -167,30 +155,16 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
   }
 
   /**
-   * Returns the spread rate paid above the arithmetic average.
-   * @return The spread.
-   */
-  public double getSpread() {
-    return _spread;
-  }
-
-  /**
-   * Returns the fixed amount related to the spread.
-   * @return The amount.
-   */
-  public double getSpreadAmount() {
-    return _spreadAmount;
-  }
-
-  /**
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
   @Deprecated
   @Override
-  public CouponArithmeticAverageONSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponONArithmeticAverage toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    return toDerivative(date);
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDates);
+    return CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactors, 0);
   }
 
   /**
@@ -204,11 +178,11 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
   }
 
   @Override
-  public CouponArithmeticAverageONSpread toDerivative(final ZonedDateTime date) {
+  public CouponONArithmeticAverage toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDates);
-    return CouponArithmeticAverageONSpread.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactors, 0, _spread);
+    return CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactors, 0);
   }
 
   @Override
@@ -265,8 +239,8 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
           fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod + fixedPeriod];
         }
-        final CouponArithmeticAverageONSpread cpn = CouponArithmeticAverageONSpread.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes,
-            fixingAccrualFactorsLeft, accruedRate, _spread);
+        final CouponONArithmeticAverage cpn = CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes,
+            fixingAccrualFactorsLeft, accruedRate);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), accruedRate / getPaymentYearFraction());
@@ -280,13 +254,13 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageONSpreadDefinition(this, data);
+    return visitor.visitCouponArithmeticAverageONDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageONSpreadDefinition(this);
+    return visitor.visitCouponArithmeticAverageONDefinition(this);
   }
 
   @Override
@@ -296,11 +270,6 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
     result = prime * result + Arrays.hashCode(_fixingPeriodAccrualFactors);
     result = prime * result + Arrays.hashCode(_fixingPeriodDates);
     result = prime * result + _index.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_spread);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_spreadAmount);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -315,7 +284,7 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponArithmeticAverageONSpreadDefinition other = (CouponArithmeticAverageONSpreadDefinition) obj;
+    final CouponONArithmeticAverageDefinition other = (CouponONArithmeticAverageDefinition) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }
@@ -323,12 +292,6 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
       return false;
     }
     if (!ObjectUtils.equals(_index, other._index)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_spreadAmount) != Double.doubleToLongBits(other._spreadAmount)) {
       return false;
     }
     return true;

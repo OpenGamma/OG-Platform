@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMa
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscounting2Calculator;
@@ -38,7 +38,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
-public class CouponArithmeticAverageONDiscountingMethodTest {
+public class CouponONArithmeticAverageDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IndexON FEDFUND = MulticurveProviderDiscountDataSets.getIndexesON()[0];
@@ -53,21 +53,21 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
   private static final Period TENOR_1Y = Period.ofYears(1);
   private static final double NOTIONAL = 100000000; // 100m
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, REFERENCE_DATE, TENOR_3M, NOTIONAL, 0,
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3M_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, REFERENCE_DATE, TENOR_3M, NOTIONAL, 0,
       USDLIBOR3M.getBusinessDayConvention(), true, NYC);
-  private static final CouponArithmeticAverageON FEDFUND_CPN_3M = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
+  private static final CouponONArithmeticAverage FEDFUND_CPN_3M = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3MFWD_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND,
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3MFWD_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND,
       ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_1Y, USDLIBOR3M, NYC), TENOR_3M, NOTIONAL, 0,
       USDLIBOR3M.getBusinessDayConvention(), true, NYC);
-  private static final CouponArithmeticAverageON FEDFUND_CPN_3MFWD = FEDFUND_CPN_3MFWD_DEF.toDerivative(REFERENCE_DATE);
+  private static final CouponONArithmeticAverage FEDFUND_CPN_3MFWD = FEDFUND_CPN_3MFWD_DEF.toDerivative(REFERENCE_DATE);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_1Y_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, REFERENCE_DATE, TENOR_1Y, NOTIONAL, 0,
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_1Y_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, REFERENCE_DATE, TENOR_1Y, NOTIONAL, 0,
       USDLIBOR3M.getBusinessDayConvention(), true, NYC);
-  private static final CouponArithmeticAverageON FEDFUND_CPN_1Y = FEDFUND_CPN_1Y_DEF.toDerivative(REFERENCE_DATE);
+  private static final CouponONArithmeticAverage FEDFUND_CPN_1Y = FEDFUND_CPN_1Y_DEF.toDerivative(REFERENCE_DATE);
 
-  private static final CouponArithmeticAverageONDiscountingMethod METHOD_FF_EXACT = CouponArithmeticAverageONDiscountingMethod.getInstance();
-  private static final CouponArithmeticAverageONDiscountingApproxMethod METHOD_FF_APPRO = CouponArithmeticAverageONDiscountingApproxMethod.getInstance();
+  private static final CouponONArithmeticAverageDiscountingMethod METHOD_FF_EXACT = CouponONArithmeticAverageDiscountingMethod.getInstance();
+  private static final CouponONArithmeticAverageDiscountingApproxMethod METHOD_FF_APPRO = CouponONArithmeticAverageDiscountingApproxMethod.getInstance();
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -147,9 +147,9 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      final CouponArithmeticAverageONDefinition ffDefinition = CouponArithmeticAverageONDefinition.from(FEDFUND, ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_1Y, USDLIBOR3M, NYC), TENOR_3M,
+      final CouponONArithmeticAverageDefinition ffDefinition = CouponONArithmeticAverageDefinition.from(FEDFUND, ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_1Y, USDLIBOR3M, NYC), TENOR_3M,
           NOTIONAL, 0, USDLIBOR3M.getBusinessDayConvention(), true, NYC);
-      final CouponArithmeticAverageON ff = ffDefinition.toDerivative(REFERENCE_DATE);
+      final CouponONArithmeticAverage ff = ffDefinition.toDerivative(REFERENCE_DATE);
       pvExact = METHOD_FF_EXACT.presentValue(ff, MULTICURVES);
       //      pvExact = METHOD_FF_EXACT.presentValue(FEDFUND_CPN_3MFWD, MULTICURVES);
     }
@@ -160,9 +160,9 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      final CouponArithmeticAverageONDefinition ffDefinition = CouponArithmeticAverageONDefinition.from(FEDFUND, ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_1Y, USDLIBOR3M, NYC), TENOR_3M,
+      final CouponONArithmeticAverageDefinition ffDefinition = CouponONArithmeticAverageDefinition.from(FEDFUND, ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_1Y, USDLIBOR3M, NYC), TENOR_3M,
           NOTIONAL, 0, USDLIBOR3M.getBusinessDayConvention(), true, NYC);
-      final CouponArithmeticAverageON ff = ffDefinition.toDerivative(REFERENCE_DATE);
+      final CouponONArithmeticAverage ff = ffDefinition.toDerivative(REFERENCE_DATE);
       pvAppro = METHOD_FF_APPRO.presentValue(ff, MULTICURVES);
       //      pvAppro = METHOD_FF_APPRO.presentValue(FEDFUND_CPN_3MFWD, MULTICURVES);
     }
@@ -220,8 +220,8 @@ public class CouponArithmeticAverageONDiscountingMethodTest {
       for (int loopstart = 0; loopstart < nbStart; loopstart++) {
         effectiveDate[loopstart] = ScheduleCalculator.getAdjustedDate(effectiveDate[0], step.multipliedBy(loopstart), USDLIBOR3M, NYC);
         final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(effectiveDate[loopstart], TENOR_3M, USDLIBOR3M, NYC);
-        final CouponArithmeticAverageONDefinition cpnONDefinition = CouponArithmeticAverageONDefinition.from(FEDFUND, effectiveDate[loopstart], endDate, NOTIONAL, 0, NYC);
-        final CouponArithmeticAverageON cpnON = cpnONDefinition.toDerivative(REFERENCE_DATE);
+        final CouponONArithmeticAverageDefinition cpnONDefinition = CouponONArithmeticAverageDefinition.from(FEDFUND, effectiveDate[loopstart], endDate, NOTIONAL, 0, NYC);
+        final CouponONArithmeticAverage cpnON = cpnONDefinition.toDerivative(REFERENCE_DATE);
         // Compute daily forwards
         final int nbON = cpnON.getFixingPeriodAccrualFactors().length;
         final double fwdON[] = new double[nbON];

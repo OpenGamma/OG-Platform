@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a Fed Fund swap-like floating coupon (arithmetic average on overnight rates).
  */
-public final class CouponArithmeticAverageONSpreadSimplified extends Coupon {
+public final class CouponONArithmeticAverageSpreadSimplified extends Coupon {
 
   /**
    * The overnight index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
@@ -49,7 +49,7 @@ public final class CouponArithmeticAverageONSpreadSimplified extends Coupon {
    * @param fixingPeriodEndTime The spread rate paid above the arithmetic average.
    * @param spread The spread rate paid above the arithmetic average.
    */
-  private CouponArithmeticAverageONSpreadSimplified(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, final double fixingPeriodStartTime,
+  private CouponONArithmeticAverageSpreadSimplified(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, final double fixingPeriodStartTime,
       double fixingPeriodEndTime, final double spread) {
     super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
@@ -70,10 +70,10 @@ public final class CouponArithmeticAverageONSpreadSimplified extends Coupon {
    * @param spread The spread rate paid above the arithmetic average.
    * @return The coupon.
    */
-  public static CouponArithmeticAverageONSpreadSimplified from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, final double fixingPeriodStartTime,
+  public static CouponONArithmeticAverageSpreadSimplified from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, final double fixingPeriodStartTime,
       double fixingPeriodEndTime, final double spread) {
     ArgumentChecker.notNull(index, "Index");
-    return new CouponArithmeticAverageONSpreadSimplified(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodStartTime, fixingPeriodEndTime, spread);
+    return new CouponONArithmeticAverageSpreadSimplified(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodStartTime, fixingPeriodEndTime, spread);
   }
 
   /**
@@ -161,7 +161,7 @@ public final class CouponArithmeticAverageONSpreadSimplified extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponArithmeticAverageONSpreadSimplified other = (CouponArithmeticAverageONSpreadSimplified) obj;
+    CouponONArithmeticAverageSpreadSimplified other = (CouponONArithmeticAverageSpreadSimplified) obj;
     if (Double.doubleToLongBits(_fixingPeriodEndTime) != Double.doubleToLongBits(other._fixingPeriodEndTime)) {
       return false;
     }

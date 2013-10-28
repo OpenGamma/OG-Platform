@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
-public class CouponArithmeticAverageONDefinitionTest {
+public class CouponONArithmeticAverageDefinitionTest {
 
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -59,41 +59,41 @@ public class CouponArithmeticAverageONDefinitionTest {
   private static final double ACCURAL_FACTOR_7D = USDLIBOR3M.getDayCount().getDayCountFraction(EFFECTIVE_DATE, ACCRUAL_END_DATE_7D);
   private static final ZonedDateTime PAYMENT_DATE_7D = ScheduleCalculator.getAdjustedDate(ACCRUAL_END_DATE_3M, -1 + FEDFUND.getPublicationLag() + PAYMENT_LAG, NYC);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG,
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3M_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG,
       MOD_FOL, true, NYC);
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_2_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M, NOTIONAL, PAYMENT_LAG, NYC);
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3M_2_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M, NOTIONAL, PAYMENT_LAG, NYC);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_7D_DEF = new CouponArithmeticAverageONDefinition(Currency.USD, PAYMENT_DATE_7D, EFFECTIVE_DATE, ACCRUAL_END_DATE_7D,
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_7D_DEF = new CouponONArithmeticAverageDefinition(Currency.USD, PAYMENT_DATE_7D, EFFECTIVE_DATE, ACCRUAL_END_DATE_7D,
       ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_7D, NYC);
 
-  private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_7D_FROM_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_7D, NOTIONAL, PAYMENT_LAG,
+  private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_7D_FROM_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_7D, NOTIONAL, PAYMENT_LAG,
       MOD_FOL, true, NYC);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 4, 16);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    CouponArithmeticAverageONDefinition.from(null, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, 0, MOD_FOL, true, NYC);
+    CouponONArithmeticAverageDefinition.from(null, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, 0, MOD_FOL, true, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullStartDate() {
-    CouponArithmeticAverageONDefinition.from(FEDFUND, null, TENOR_3M, NOTIONAL, 0, MOD_FOL, true, NYC);
+    CouponONArithmeticAverageDefinition.from(FEDFUND, null, TENOR_3M, NOTIONAL, 0, MOD_FOL, true, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullTenor() {
-    CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, null, NOTIONAL, 0, MOD_FOL, true, NYC);
+    CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, null, NOTIONAL, 0, MOD_FOL, true, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullBD() {
-    CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, 0, null, true, NYC);
+    CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, 0, null, true, NYC);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullEndDate() {
-    CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, null, NOTIONAL, PAYMENT_LAG, NYC);
+    CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, null, NOTIONAL, PAYMENT_LAG, NYC);
   }
 
   @Test
@@ -115,30 +115,30 @@ public class CouponArithmeticAverageONDefinitionTest {
   @Test
   public void equalHash() {
     assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF, FEDFUND_CPN_3M_DEF);
-    final CouponArithmeticAverageONDefinition other = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG,
+    final CouponONArithmeticAverageDefinition other = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG,
         MOD_FOL, true, NYC);
     assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF, other);
     assertEquals("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.hashCode(), other.hashCode());
-    CouponArithmeticAverageONDefinition modified;
+    CouponONArithmeticAverageDefinition modified;
     final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA");
-    modified = CouponArithmeticAverageONDefinition.from(modifiedIndex, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG, MOD_FOL, true, NYC);
+    modified = CouponONArithmeticAverageDefinition.from(modifiedIndex, EFFECTIVE_DATE, TENOR_3M, NOTIONAL, PAYMENT_LAG, MOD_FOL, true, NYC);
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
-    modified = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE.plusDays(1), ACCRUAL_END_DATE_3M, NOTIONAL, PAYMENT_LAG, NYC);
+    modified = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE.plusDays(1), ACCRUAL_END_DATE_3M, NOTIONAL, PAYMENT_LAG, NYC);
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
-    modified = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M.plusDays(1), NOTIONAL, PAYMENT_LAG, NYC);
+    modified = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M.plusDays(1), NOTIONAL, PAYMENT_LAG, NYC);
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
-    modified = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M, NOTIONAL + 1000, PAYMENT_LAG, NYC);
+    modified = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M, NOTIONAL + 1000, PAYMENT_LAG, NYC);
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
-    modified = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M, NOTIONAL, PAYMENT_LAG + 1, NYC);
+    modified = CouponONArithmeticAverageDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE_3M, NOTIONAL, PAYMENT_LAG + 1, NYC);
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
   }
 
   @Test
   public void toDerivativesNoData() {
-    final CouponArithmeticAverageON cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
+    final CouponONArithmeticAverage cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
     final double payTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getPaymentDate());
     final double[] fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(payTime, FEDFUND_CPN_3M_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, fixingTime,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(payTime, FEDFUND_CPN_3M_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, fixingTime,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0);
     assertEquals("CouponArithmeticAverageONDefinition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -149,10 +149,10 @@ public class CouponArithmeticAverageONDefinitionTest {
    */
   public void toDerivativeNoFixing() {
     final String[] curvesNames = new String[] {"Funding", "Forward" };
-    final CouponArithmeticAverageON cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE, curvesNames);
+    final CouponONArithmeticAverage cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE, curvesNames);
     final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE_3M);
     final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -164,10 +164,10 @@ public class CouponArithmeticAverageONDefinitionTest {
   public void toDerivativeFixingBeforeStart() {
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, 1, NYC);
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7) }, new double[] {0.01 });
-    final CouponArithmeticAverageON cpnConverted = (CouponArithmeticAverageON) FEDFUND_CPN_3M_DEF.toDerivative(referenceDate, fixingTS);
+    final CouponONArithmeticAverage cpnConverted = (CouponONArithmeticAverage) FEDFUND_CPN_3M_DEF.toDerivative(referenceDate, fixingTS);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_3M);
     final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
 
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
@@ -184,7 +184,7 @@ public class CouponArithmeticAverageONDefinitionTest {
     final Payment cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(referenceDate, fixingTS);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_3M);
     final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -211,7 +211,7 @@ public class CouponArithmeticAverageONDefinitionTest {
     for (int loopperiod = 1; loopperiod < FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors().length; loopperiod++) {
       fixingAccrualFactorsLeft[loopperiod - 1] = FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors()[loopperiod];
     }
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
         fixingAccrualFactorsLeft, rateAccrued);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -238,7 +238,7 @@ public class CouponArithmeticAverageONDefinitionTest {
     for (int loopperiod = 2; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors().length; loopperiod++) {
       fixingAccrualFactorsLeft[loopperiod - 2] = FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[loopperiod];
     }
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodTimes,
         fixingAccrualFactorsLeft, rateAccrued);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -266,7 +266,7 @@ public class CouponArithmeticAverageONDefinitionTest {
     for (int loopperiod = 3; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors().length; loopperiod++) {
       fixingAccrualFactorsLeft[loopperiod - 3] = FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[loopperiod];
     }
-    final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodTimes,
         fixingAccrualFactorsLeft, rateAccrued);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }

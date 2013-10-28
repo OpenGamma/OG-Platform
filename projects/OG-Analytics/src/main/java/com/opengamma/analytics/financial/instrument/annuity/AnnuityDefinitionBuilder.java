@@ -12,12 +12,14 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -745,7 +747,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final boolean isStubLegShort = stubLeg.equals(StubType.SHORT_END) || stubLeg.equals(StubType.SHORT_START);
     final boolean isStubLegStart = stubLeg.equals(StubType.LONG_START) || stubLeg.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
     final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubLegShort, isStubLegStart);
@@ -755,6 +757,47 @@ public class AnnuityDefinitionBuilder {
     for (int loopcpn = 1; loopcpn < unadjustedDateSchedule.length; loopcpn++) {
       coupons[loopcpn] = CouponIborCompoundingFlatSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubLeg,
           businessDayConvention, endOfMonth, calendar);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Annuity of coupon with arithmetic average of ON rates. Simplified version (i.e. only the start date and end date of coupon periods are computed) with spread.
+   * @param settlementDate The annuity settlement date. The date is not adjusted for the calendar.
+   * @param maturityDate The annuity maturity date. The date is adjusted according to the calendar and conventions.
+   * @param paymentPeriod The annuity payment period.
+   * @param notional The notional.
+   * @param spread The spread rate.
+   * @param index The overnight index associated to all the coupons of the leg.
+   * @param isPayer The payer flag.
+   * @param businessDayConvention The leg business day convention.
+   * @param endOfMonth The leg end-of-month convention.
+   * @param calendar The calendar associated to the payments.
+   * @param stubLeg The type of stub for the leg.
+   * @return The annuity.
+   */
+  public static AnnuityDefinition<CouponONArithmeticAverageSpreadSimplifiedDefinition> couponONArithmeticAverageSpreadSimplified(final ZonedDateTime settlementDate,
+      final ZonedDateTime maturityDate, final Period paymentPeriod, final double notional, final double spread, final IndexON index, final boolean isPayer,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, final StubType stubLeg) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
+    final boolean isStubLegShort = stubLeg.equals(StubType.SHORT_END) || stubLeg.equals(StubType.SHORT_START);
+    final boolean isStubLegStart = stubLeg.equals(StubType.LONG_START) || stubLeg.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
+    final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubLegShort,
+        isStubLegStart, businessDayConvention, calendar, endOfMonth);
+    final double signedNotional = isPayer ? -notional : notional;
+    CouponONArithmeticAverageSpreadSimplifiedDefinition[] coupons = new CouponONArithmeticAverageSpreadSimplifiedDefinition[adjustedDateSchedule.length];
+    double af = index.getDayCount().getDayCountFraction(settlementDate, adjustedDateSchedule[0]);
+    coupons[0] = new CouponONArithmeticAverageSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[0], settlementDate, adjustedDateSchedule[0],
+        af, signedNotional, index, spread);
+    for (int loopcpn = 1; loopcpn < adjustedDateSchedule.length; loopcpn++) {
+      af = index.getDayCount().getDayCountFraction(adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn]);
+      coupons[loopcpn] = new CouponONArithmeticAverageSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[loopcpn], adjustedDateSchedule[loopcpn - 1],
+          adjustedDateSchedule[loopcpn], af, signedNotional, index, spread);
     }
     return new AnnuityDefinition<>(coupons, calendar);
   }

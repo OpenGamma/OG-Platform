@@ -13,12 +13,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -35,6 +38,7 @@ public class AnnuityDefinitionBuilderTest {
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M");
   private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
+  private static final IndexON FED_FUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
 
   private static final double NOTIONAL = 10000000; // 10m
@@ -545,6 +549,28 @@ public class AnnuityDefinitionBuilderTest {
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -leg.getNthPayment(loopcpn).getNotional()); // Payer
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", SPREAD, leg.getNthPayment(loopcpn).getSpread());
     }
+  }
+
+  @Test
+  public void couponONArithmeticAverageSpreadSimplified() {
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 9, 20);
+    ZonedDateTime maturityDate = settlementDate.plusYears(2);
+    Period paymentPeriod = USDLIBOR3M.getTenor();
+    final StubType stub = StubType.SHORT_START;
+    AnnuityDefinition<CouponONArithmeticAverageSpreadSimplifiedDefinition> legONAA = AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(settlementDate, maturityDate, paymentPeriod,
+        NOTIONAL, SPREAD, FED_FUND, true, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), NYC, stub);
+    AnnuityDefinition<CouponIborSpreadDefinition> legLibor3M = AnnuityDefinitionBuilder.couponIborSpread(settlementDate, maturityDate, paymentPeriod, NOTIONAL, SPREAD,
+        USDLIBOR3M, true, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), USDLIBOR3M.getDayCount(), NYC, stub);
+    assertEquals("AnnuityDefinitionBuilder: couponONArithmeticAverageSpreadSimplified", legLibor3M.getNumberOfPayments(), legONAA.getNumberOfPayments());
+    for (int loopcpn = 0; loopcpn < legONAA.getNumberOfPayments(); loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", legLibor3M.getNthPayment(loopcpn).getPaymentDate(), legONAA.getNthPayment(loopcpn).getPaymentDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", legLibor3M.getNthPayment(loopcpn).getAccrualStartDate(), legONAA.getNthPayment(loopcpn).getAccrualStartDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", legLibor3M.getNthPayment(loopcpn).getAccrualEndDate(), legONAA.getNthPayment(loopcpn).getAccrualEndDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", legLibor3M.getNthPayment(loopcpn).getPaymentYearFraction(), legONAA.getNthPayment(loopcpn).getPaymentYearFraction());
+      assertEquals("AnnuityDefinitionBuilder: couponONArithmeticAverageSpreadSimplified", NOTIONAL, -legONAA.getNthPayment(loopcpn).getNotional()); // Payer
+      assertEquals("AnnuityDefinitionBuilder: couponONArithmeticAverageSpreadSimplified", SPREAD, legONAA.getNthPayment(loopcpn).getSpread());
+    }
+
   }
 
 }

@@ -81,9 +81,9 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
@@ -334,17 +334,17 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponONSpread(CouponONSpread payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageON(CouponONArithmeticAverage payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment);
+  RESULT_TYPE visitCouponArithmeticAverageON(CouponONArithmeticAverage payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponONArithmeticAverageSpread payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment);
+  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponONArithmeticAverageSpread payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment);
 
   // -----     Swap     -----
 
