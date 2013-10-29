@@ -36,6 +36,7 @@ import com.opengamma.util.time.DateUtils;
 public class AnnuityDefinitionBuilderTest {
 
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();
+  private static final IborIndex USDLIBOR1M = IBOR_MASTER.getIndex("USDLIBOR1M");
   private static final IborIndex USDLIBOR3M = IBOR_MASTER.getIndex("USDLIBOR3M");
   private static final IborIndex USDLIBOR6M = IBOR_MASTER.getIndex("USDLIBOR6M");
   private static final IndexON FED_FUND = IndexONMaster.getInstance().getIndex("FED FUND");
@@ -525,6 +526,42 @@ public class AnnuityDefinitionBuilderTest {
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -leg.getNthPayment(loopcpn).getNotional()); // Payer
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", SPREAD, leg.getNthPayment(loopcpn).getSpread());
     }
+  }
+
+  @Test
+  /**
+   * Test the couponIborCompoundingSpread with payment period stub SHORT_END and compounding stub LONG_START
+   */
+  public void couponIborCompoundingSpreadShorEndLongStart() {
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 8, 20);
+    ZonedDateTime maturityDate = settlementDate.plusYears(1).plusMonths(2).plusDays(14); // 1Y 2M 14D
+    Period paymentPeriod = Period.ofMonths(3);
+    final StubType stubLeg = StubType.SHORT_END;
+    final StubType stubComp = StubType.LONG_START;
+    AnnuityDefinition<CouponIborCompoundingSpreadDefinition> leg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(settlementDate, maturityDate, paymentPeriod, NOTIONAL, SPREAD,
+        USDLIBOR1M, stubComp, true, USDLIBOR1M.getBusinessDayConvention(), USDLIBOR1M.isEndOfMonth(), NYC, stubLeg);
+    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 11, 20), DateUtils.getUTCDate(2014, 2, 20),
+      DateUtils.getUTCDate(2014, 5, 20), DateUtils.getUTCDate(2014, 8, 20), DateUtils.getUTCDate(2014, 11, 4) };
+    assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedPaymentDates.length, leg.getNumberOfPayments());
+    assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", settlementDate, leg.getNthPayment(0).getAccrualStartDate());
+    final int finalIndex = leg.getNumberOfPayments() - 1;
+    for (int loopcpn = 0; loopcpn < finalIndex; loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedPaymentDates[loopcpn], leg.getNthPayment(loopcpn).getPaymentDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg.getNthPayment(loopcpn).getAccrualStartDate(), leg.getNthPayment(loopcpn).getFixingPeriodStartDates()[0]);
+      for (int loopsub = 0; loopsub < leg.getNthPayment(loopcpn).getAccrualEndDates().length; loopsub++) {
+        assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg.getNthPayment(loopcpn).getFixingPeriodEndDates()[loopsub],
+            ScheduleCalculator.getAdjustedDate(leg.getNthPayment(loopcpn).getFixingPeriodStartDates()[loopsub], USDLIBOR1M, NYC));
+      }
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", USDLIBOR1M, leg.getNthPayment(loopcpn).getIndex());
+    }
+    ZonedDateTime[] expectedDatesLast = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 8, 20), DateUtils.getUTCDate(2014, 10, 3), DateUtils.getUTCDate(2014, 11, 3) };
+    assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedDatesLast.length - 1, leg.getNthPayment(finalIndex).getAccrualStartDates().length);
+    for (int loopsub = 0; loopsub < leg.getNthPayment(finalIndex).getAccrualEndDates().length; loopsub++) {
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedDatesLast[loopsub + 1], leg.getNthPayment(finalIndex).getAccrualEndDates()[loopsub]);
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg.getNthPayment(finalIndex).getFixingPeriodEndDates()[loopsub],
+          ScheduleCalculator.getAdjustedDate(leg.getNthPayment(finalIndex).getFixingPeriodStartDates()[loopsub], USDLIBOR1M, NYC));
+    }
+    assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", USDLIBOR1M, leg.getNthPayment(finalIndex).getIndex());
   }
 
   @Test
