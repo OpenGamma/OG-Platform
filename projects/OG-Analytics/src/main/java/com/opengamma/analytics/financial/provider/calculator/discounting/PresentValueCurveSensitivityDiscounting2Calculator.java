@@ -51,7 +51,7 @@ public final class PresentValueCurveSensitivityDiscounting2Calculator extends In
   // -----     Payment/Coupon     ------
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_AAON_EXACT.presentValueCurveSensitivity(payment, multicurve);
   }
 

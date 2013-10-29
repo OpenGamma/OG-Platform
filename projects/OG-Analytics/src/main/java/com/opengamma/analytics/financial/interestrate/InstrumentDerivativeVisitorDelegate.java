@@ -550,33 +550,33 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
-    return _delegate.visitCouponArithmeticAverageON(payment, data);
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONArithmeticAverage(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment) {
-    return _delegate.visitCouponArithmeticAverageON(payment);
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
+    return _delegate.visitCouponONArithmeticAverage(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
-    return _delegate.visitCouponArithmeticAverageONSpread(payment, data);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONArithmeticAverageSpread(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment) {
-    return _delegate.visitCouponArithmeticAverageONSpread(payment);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
+    return _delegate.visitCouponONArithmeticAverageSpread(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
-    return _delegate.visitCouponArithmeticAverageONSpreadSimplified(payment, data);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONArithmeticAverageSpreadSimplified(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
-    return _delegate.visitCouponArithmeticAverageONSpreadSimplified(payment);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
+    return _delegate.visitCouponONArithmeticAverageSpreadSimplified(payment);
   }
 
   @Override

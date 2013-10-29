@@ -101,8 +101,8 @@ public class ONArithmeticAverageLegConvention extends Convention {
    * @param paymentLag The payment lag
    */
   public ONArithmeticAverageLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId overnightIndexConvention, final Tenor paymentTenor,
-      final BusinessDayConvention businessDayConvention, final int settlementDays, final boolean isEOM, final StubType stubType,
-      final boolean isExchangeNotional, final int paymentLag) {
+      final BusinessDayConvention businessDayConvention, final int settlementDays, final boolean isEOM, final StubType stubType, final boolean isExchangeNotional, 
+      final int paymentLag) {
     super(name, externalIdBundle);
     setOvernightIndexConvention(overnightIndexConvention);
     setPaymentTenor(paymentTenor);

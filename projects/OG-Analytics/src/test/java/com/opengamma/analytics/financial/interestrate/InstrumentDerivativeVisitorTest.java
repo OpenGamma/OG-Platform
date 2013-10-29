@@ -1116,12 +1116,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment, final T data) {
+    public String visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment) {
+    public String visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
       return null;
     }
 
@@ -1176,22 +1176,22 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment, final T data) {
+    public String visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment) {
+    public String visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final T data) {
+    public String visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
+    public String visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
       return null;
     }
 

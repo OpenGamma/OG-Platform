@@ -46,15 +46,16 @@ public class CouponONArithmeticAverageSpreadSimplifiedTest {
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
   private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATE);
   private static final double ACCRUAL_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);
+  private static final double ACCRUAL_FACTOR = FEDFUND.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
 
   private static final CouponONArithmeticAverageDefinition FEDFUND_CPN_3M_2_DEF = CouponONArithmeticAverageDefinition.from(FEDFUND, ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, NYC);
 
   private static final CouponONArithmeticAverageSpreadSimplified CPN_AA_ON = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
-      NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+      NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, ACCRUAL_FACTOR, SPREAD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, null, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+    CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, null, ACCRUAL_START_TIME, ACCRUAL_END_TIME, ACCRUAL_FACTOR, SPREAD);
   }
 
   @Test
@@ -76,24 +77,29 @@ public class CouponONArithmeticAverageSpreadSimplifiedTest {
   public void equalHash() {
     assertEquals("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON, CPN_AA_ON);
     final CouponONArithmeticAverageSpreadSimplified other = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
-        NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+        NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, ACCRUAL_FACTOR, SPREAD);
     assertEquals("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON, other);
     assertEquals("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.hashCode(), other.hashCode());
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(null));
     CouponONArithmeticAverageSpreadSimplified modified;
     modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME + 0.1, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(),
-        NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+        NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, ACCRUAL_FACTOR, SPREAD);
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction() + 0.1, NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction() + 0.1, NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME,
+        ACCRUAL_FACTOR, SPREAD);
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL + 0.1, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL + 0.1, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME,
+        ACCRUAL_FACTOR, SPREAD);
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(modified));
     final IndexON modifiedIndex = IndexONMaster.getInstance().getIndex("EONIA");
-    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, modifiedIndex, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, modifiedIndex, ACCRUAL_START_TIME, ACCRUAL_END_TIME,
+        ACCRUAL_FACTOR, SPREAD);
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, ACCRUAL_START_TIME + 0.1, ACCRUAL_END_TIME, SPREAD);
+    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, ACCRUAL_START_TIME + 0.1, ACCRUAL_END_TIME,
+        ACCRUAL_FACTOR, SPREAD);
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(modified));
-    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME + 0.1, SPREAD + 0.1);
+    modified = CouponONArithmeticAverageSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, ACCRUAL_START_TIME, ACCRUAL_END_TIME + 0.1,
+        ACCRUAL_FACTOR, SPREAD + 0.1);
     assertFalse("CouponArithmeticAverageONSpreadSimplified: equal-hash", CPN_AA_ON.equals(modified));
   }
 

@@ -30,6 +30,10 @@ public final class CouponONArithmeticAverageSpreadSimplified extends Coupon {
    */
   private final double _fixingPeriodEndTime;
   /**
+   * The fixing period end time (in years).
+   */
+  private final double _fixingPeriodAccrualFactor;
+  /**
    * The spread rate paid above the arithmetic average.
    */
   private final double _spread;
@@ -42,19 +46,21 @@ public final class CouponONArithmeticAverageSpreadSimplified extends Coupon {
    * Constructor.
    * @param currency The coupon currency.
    * @param paymentTime The coupon payment time.
-   * @param paymentAccrualFactor The year fraction of the full coupon.
    * @param notional The coupon notional.
    * @param index The index associated to the coupon.
    * @param fixingPeriodStartTime The fixing period start time (in years).
-   * @param fixingPeriodEndTime The spread rate paid above the arithmetic average.
+   * @param fixingPeriodEndTime The fixing period end time (in years).
+   * @param fixingPeriodAccrualFactor The fixing period accrual factor.
    * @param spread The spread rate paid above the arithmetic average.
+   * @param paymentAccrualFactor The year fraction of the full coupon.
    */
   private CouponONArithmeticAverageSpreadSimplified(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, final double fixingPeriodStartTime,
-      double fixingPeriodEndTime, final double spread) {
+      double fixingPeriodEndTime, double fixingPeriodAccrualFactor, final double spread) {
     super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
     _spread = spread;
     _spreadAmount = spread * paymentYearFraction * notional;
   }
@@ -66,14 +72,16 @@ public final class CouponONArithmeticAverageSpreadSimplified extends Coupon {
    * @param notional The coupon notional.
    * @param index The index associated to the coupon.
    * @param fixingPeriodStartTime The fixing period start time (in years).
-   * @param fixingPeriodEndTime The spread rate paid above the arithmetic average.
+   * @param fixingPeriodEndTime The fixing period end time (in years).
+   * @param fixingPeriodAccrualFactor The fixing period accrual factor.
    * @param spread The spread rate paid above the arithmetic average.
    * @return The coupon.
    */
   public static CouponONArithmeticAverageSpreadSimplified from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, final double fixingPeriodStartTime,
-      double fixingPeriodEndTime, final double spread) {
+      double fixingPeriodEndTime, double fixingPeriodAccrualFactor, final double spread) {
     ArgumentChecker.notNull(index, "Index");
-    return new CouponONArithmeticAverageSpreadSimplified(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodStartTime, fixingPeriodEndTime, spread);
+    return new CouponONArithmeticAverageSpreadSimplified(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodStartTime, fixingPeriodEndTime,
+        fixingPeriodAccrualFactor, spread);
   }
 
   /**
@@ -109,11 +117,19 @@ public final class CouponONArithmeticAverageSpreadSimplified extends Coupon {
   }
 
   /**
-   * Returns the spread rate paid above the arithmetic average.
+   * Returns the fixing period end time (in years).
    * @return The time.
    */
   public double getFixingPeriodEndTime() {
     return _fixingPeriodEndTime;
+  }
+
+  /**
+   * Returns the fixing period accrual factor.
+   * @return The factor.
+   */
+  public double getFixingPeriodAccrualFactor() {
+    return _fixingPeriodAccrualFactor;
   }
 
   @Override
@@ -124,13 +140,13 @@ public final class CouponONArithmeticAverageSpreadSimplified extends Coupon {
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageONSpreadSimplified(this, data);
+    return visitor.visitCouponONArithmeticAverageSpreadSimplified(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageONSpreadSimplified(this);
+    return visitor.visitCouponONArithmeticAverageSpreadSimplified(this);
   }
 
   @Override

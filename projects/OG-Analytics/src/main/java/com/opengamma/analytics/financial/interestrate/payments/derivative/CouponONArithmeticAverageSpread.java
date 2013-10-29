@@ -165,13 +165,13 @@ public final class CouponONArithmeticAverageSpread extends Coupon {
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageONSpread(this, data);
+    return visitor.visitCouponONArithmeticAverageSpread(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitCouponArithmeticAverageONSpread(this);
+    return visitor.visitCouponONArithmeticAverageSpread(this);
   }
 
   @Override

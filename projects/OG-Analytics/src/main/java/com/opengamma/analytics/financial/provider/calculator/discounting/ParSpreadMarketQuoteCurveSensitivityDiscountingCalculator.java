@@ -91,6 +91,12 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
 
   //     -----     Swaps     -----
 
+  /**
+   * For swaps, the par spread is the spread to be added to the first leg to have a present value of zero.
+   * @param swap The swap
+   * @param multicurves The multi-curve provider
+   * @return The spread.
+   */
   @Override
   public MulticurveSensitivity visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(multicurves, "multicurve");

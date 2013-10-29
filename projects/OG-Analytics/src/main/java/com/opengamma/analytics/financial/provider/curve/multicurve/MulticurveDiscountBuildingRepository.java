@@ -183,7 +183,8 @@ public class MulticurveDiscountBuildingRepository {
       final int nbCurve = curveBundle.size();
       final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
       final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<>();
-      final int[] nbIns = new int[curveBundle.getNumberOfInstruments()];
+      //      final int[] nbIns = new int[curveBundle.getNumberOfInstruments()];
+      final int[] nbIns = new int[nbCurve];
       int nbInsUnit = 0; // Number of instruments in the unit.
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
         final SingleCurveBundle<GeneratorYDCurve> singleCurve = curveBundle.getCurveBundle(iCurve);

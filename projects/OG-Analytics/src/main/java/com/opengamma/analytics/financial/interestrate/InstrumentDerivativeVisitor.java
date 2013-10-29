@@ -334,17 +334,17 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponONSpread(CouponONSpread payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageON(CouponONArithmeticAverage payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponONArithmeticAverage(CouponONArithmeticAverage payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageON(CouponONArithmeticAverage payment);
+  RESULT_TYPE visitCouponONArithmeticAverage(CouponONArithmeticAverage payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponONArithmeticAverageSpread payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponONArithmeticAverageSpread payment);
+  RESULT_TYPE visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment);
+  RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment);
 
   // -----     Swap     -----
 

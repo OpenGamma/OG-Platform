@@ -554,32 +554,32 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponONArithmeticAverage payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
     return visit(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponONArithmeticAverageSpread payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
     return visit(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
     return visit(payment);
   }
 

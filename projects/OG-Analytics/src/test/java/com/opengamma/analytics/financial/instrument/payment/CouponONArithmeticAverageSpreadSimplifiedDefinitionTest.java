@@ -122,7 +122,7 @@ public class CouponONArithmeticAverageSpreadSimplifiedDefinitionTest {
     final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, ACCRUAL_START_DATE);
     final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, ACCRUAL_END_DATE);
     final CouponONArithmeticAverageSpreadSimplified cpnExpected = CouponONArithmeticAverageSpreadSimplified
-        .from(paymentTime, ACCURAL_FACTOR, NOTIONAL, FEDFUND, fixingStartTime, fixingEndTime, SPREAD);
+        .from(paymentTime, ACCURAL_FACTOR, NOTIONAL, FEDFUND, fixingStartTime, fixingEndTime, FEDFUND_CPN_3M_DEF.getPaymentYearFraction(), SPREAD);
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 }

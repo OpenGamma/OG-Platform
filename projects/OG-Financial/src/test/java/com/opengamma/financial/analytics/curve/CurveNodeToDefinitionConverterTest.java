@@ -44,6 +44,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
@@ -66,9 +67,9 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
@@ -79,14 +80,15 @@ import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.FixedLegRollDateConvention;
-import com.opengamma.financial.convention.RollDateFRAConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
-import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
+import com.opengamma.financial.convention.ONArithmeticAverageLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.RollDateFRAConvention;
+import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -141,6 +143,8 @@ public class CurveNodeToDefinitionConverterTest {
   private static final ExternalId LIBOR_1M_CMP_3M_ID = ExternalId.of(SCHEME, "USD 1M x 3M Ibor Cmp Leg");
   private static final ExternalId OVERNIGHT_ID = ExternalId.of(SCHEME, "USD Overnight");
   private static final ExternalId OIS_ID = ExternalId.of(SCHEME, "USD OIS Leg");
+  private static final String ON_AA_NAME = "USD ON Arith. Average Leg";
+  private static final ExternalId ON_AA_ID = ExternalId.of(SCHEME, ON_AA_NAME);
   private static final ExternalId FX_FORWARD_ID = ExternalId.of(SCHEME, "FX Forward");
   private static final ExternalId FX_SPOT_ID = ExternalId.of(SCHEME, "FX Spot");
   private static final ExternalId IMM_3M_FUTURE_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
@@ -157,6 +161,8 @@ public class CurveNodeToDefinitionConverterTest {
       Tenor.ONE_MONTH, StubType.SHORT_START, 2, false, StubType.LONG_START, false, 0);
   private static final OISLegConvention OIS = new OISLegConvention("USD OIS Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD OIS Leg")), OVERNIGHT_ID,
       Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, false, StubType.NONE, false, 1);
+  private static final ONArithmeticAverageLegConvention ON_AA = new ONArithmeticAverageLegConvention(ON_AA_NAME, ExternalIdBundle.of(ExternalId.of(SCHEME, ON_AA_NAME)), 
+      OVERNIGHT_ID, Tenor.THREE_MONTHS, MODIFIED_FOLLOWING, 2, true, StubType.SHORT_START, false, 0);
   private static final DepositConvention DEPOSIT_1D = new DepositConvention("USD 1d Deposit", ExternalIdBundle.of(DEPOSIT_1D_ID),
       ACT_360, MODIFIED_FOLLOWING, 0, false, Currency.USD, US);
   private static final DepositConvention DEPOSIT_1M = new DepositConvention("USD 1m Deposit", ExternalIdBundle.of(DEPOSIT_1M_ID),
@@ -223,6 +229,7 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTIONS.put(LIBOR_1M_CMP_3M_ID, LIBOR_1M_CMP_3M_IBOR);
     CONVENTIONS.put(OVERNIGHT_ID, OVERNIGHT);
     CONVENTIONS.put(OIS_ID, OIS);
+    CONVENTIONS.put(ON_AA_ID, ON_AA);
     CONVENTIONS.put(FX_SPOT_ID, FX_SPOT);
     CONVENTIONS.put(FX_FORWARD_ID, FX_FORWARD);
     CONVENTIONS.put(FED_FUND_FUTURE_ID, FED_FUND);
@@ -781,6 +788,35 @@ public class CurveNodeToDefinitionConverterTest {
   }
 
   @Test
+  public void testIborONAASwap() {
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "FF basis spread");
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    final double spread = 0.001;
+    marketValues.setDataPoint(marketDataId, spread);
+    final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 3, 5);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new SwapNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    Tenor tenor = Tenor.ONE_YEAR;
+    SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), tenor, SWAP_3M_IBOR_ID, ON_AA_ID, "Mapper");
+    InstrumentDefinition<?> definition = swapNode.accept(converter);
+    assertTrue(definition instanceof SwapDefinition);
+    final SwapDefinition swap = (SwapDefinition) definition;
+    final ZonedDateTime maturity = settlementDate.plus(tenor.getPeriod());
+    final IborIndex index3m = NodeConverterUtils.indexIbor(LIBOR_ACT_360, SWAP_3M_LIBOR.getResetTenor().getPeriod());
+    AnnuityDefinition<CouponIborDefinition> payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturity, SWAP_3M_LIBOR.getResetTenor().getPeriod(), 1.0d, index3m, true, 
+        LIBOR_ACT_360.getBusinessDayConvention(), LIBOR_ACT_360.isIsEOM(), ACT_360, CALENDAR, SWAP_3M_LIBOR.getStubType());
+    for(int loopcpn=0; loopcpn<payLeg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("IborONAASwap: first leg - cpn " + loopcpn, payLeg.getNthPayment(loopcpn), (swap.getFirstLeg().getNthPayment(loopcpn)));
+    }
+    final IndexON indexON = NodeConverterUtils.indexON(OVERNIGHT);
+    AnnuityDefinition<CouponONArithmeticAverageSpreadSimplifiedDefinition> recLeg = AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(settlementDate, maturity, 
+        ON_AA.getPaymentTenor().getPeriod(), 1.0, spread, indexON, false, ON_AA.getBusinessDayConvention(), ON_AA.isIsEOM(), CALENDAR, ON_AA.getStubType());
+    for(int loopcpn=0; loopcpn<recLeg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("IborONAASwap: second leg - cpn " + loopcpn, recLeg.getNthPayment(loopcpn), (swap.getSecondLeg().getNthPayment(loopcpn)));
+    }
+  }
+
+  @Test
   public void testIborIborCompoundingSwap() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "3Mx6M basis spread");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
@@ -801,7 +837,7 @@ public class CurveNodeToDefinitionConverterTest {
     final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread,
         index1m, StubType.SHORT_START, false, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
     assertEquals("IborIborCompoundingSwap: first leg", payLeg, ((SwapDefinition)definition).getFirstLeg());
-    for(int loopcpn=9; loopcpn<receiveLeg.getNumberOfPayments(); loopcpn++) {
+    for(int loopcpn=0; loopcpn<receiveLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals("IborIborCompoundingSwap: first leg - cpn " + loopcpn, receiveLeg.getNthPayment(loopcpn), ((SwapDefinition)definition).getSecondLeg().getNthPayment(loopcpn));
     }
     assertEquals("IborIborCompoundingSwap: first leg", receiveLeg, ((SwapDefinition)definition).getSecondLeg());
