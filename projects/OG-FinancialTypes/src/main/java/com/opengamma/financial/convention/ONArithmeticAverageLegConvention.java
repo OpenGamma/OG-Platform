@@ -38,71 +38,67 @@ public class ONArithmeticAverageLegConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _overnightIndexConvention;
-
   /**
    * The payment tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _paymentTenor;
-
   /**
    * The payment lag in days.
    */
   @PropertyDefinition
   private int _paymentLag;
-
   /**
-   * The business day convention
+   * The business day convention.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _businessDayConvention;
-
   /**
    * The settlement days.
    */
   @PropertyDefinition
   private int _settlementDays;
-
   /**
-   * Is the schedule end-of-month
+   * Whether the schedule end-of-month.
    */
   @PropertyDefinition
   private boolean _isEOM;
-
   /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
   private StubType _stubType;
-
   /**
-   * Is the notional exchanged.
+   * Whether the notional exchanged.
    */
   @PropertyDefinition
   private boolean _isExchangeNotional;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
   ONArithmeticAverageLegConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param overnightIndexConvention The id of the overnight index, not null
-   * @param paymentTenor The payment tenor, not null
-   * @param businessDayConvention The business-day convention, not null
-   * @param settlementDays The number of settlement days
-   * @param isEOM True if dates follow the end-of-month rule
-   * @param stubType The stub type, not null
-   * @param isExchangeNotional True if notional is to be exchanged
-   * @param paymentLag The payment lag
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param overnightIndexConvention  the id of the overnight index, not null
+   * @param paymentTenor  the payment tenor, not null
+   * @param businessDayConvention  the business-day convention, not null
+   * @param settlementDays  the number of settlement days
+   * @param isEOM  true if dates follow the end-of-month rule
+   * @param stubType  the stub type, not null
+   * @param isExchangeNotional  true if notional is to be exchanged
+   * @param paymentLag  the payment lag
    */
-  public ONArithmeticAverageLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId overnightIndexConvention, final Tenor paymentTenor,
-      final BusinessDayConvention businessDayConvention, final int settlementDays, final boolean isEOM, final StubType stubType, final boolean isExchangeNotional, 
-      final int paymentLag) {
+  public ONArithmeticAverageLegConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId overnightIndexConvention,
+      final Tenor paymentTenor, final BusinessDayConvention businessDayConvention, final int settlementDays,
+      final boolean isEOM, final StubType stubType, final boolean isExchangeNotional, final int paymentLag) {
     super(name, externalIdBundle);
     setOvernightIndexConvention(overnightIndexConvention);
     setPaymentTenor(paymentTenor);
@@ -114,12 +110,13 @@ public class ONArithmeticAverageLegConvention extends Convention {
     setPaymentLag(paymentLag);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -225,7 +222,7 @@ public class ONArithmeticAverageLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the business day convention
+   * Gets the business day convention.
    * @return the value of the property, not null
    */
   public BusinessDayConvention getBusinessDayConvention() {
@@ -233,7 +230,7 @@ public class ONArithmeticAverageLegConvention extends Convention {
   }
 
   /**
-   * Sets the business day convention
+   * Sets the business day convention.
    * @param businessDayConvention  the new value of the property, not null
    */
   public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
@@ -276,7 +273,7 @@ public class ONArithmeticAverageLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the schedule end-of-month
+   * Gets whether the schedule end-of-month.
    * @return the value of the property
    */
   public boolean isIsEOM() {
@@ -284,7 +281,7 @@ public class ONArithmeticAverageLegConvention extends Convention {
   }
 
   /**
-   * Sets is the schedule end-of-month
+   * Sets whether the schedule end-of-month.
    * @param isEOM  the new value of the property
    */
   public void setIsEOM(boolean isEOM) {
@@ -327,7 +324,7 @@ public class ONArithmeticAverageLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the notional exchanged.
+   * Gets whether the notional exchanged.
    * @return the value of the property
    */
   public boolean isIsExchangeNotional() {
@@ -335,7 +332,7 @@ public class ONArithmeticAverageLegConvention extends Convention {
   }
 
   /**
-   * Sets is the notional exchanged.
+   * Sets whether the notional exchanged.
    * @param isExchangeNotional  the new value of the property
    */
   public void setIsExchangeNotional(boolean isExchangeNotional) {

@@ -37,27 +37,30 @@ public class EquityConvention extends Convention {
   private int _exDividendPeriod;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ EquityConvention() {
+  protected EquityConvention() {
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param exDividendPeriod The ex-dividend period
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param exDividendPeriod  the ex-dividend period
    */
   public EquityConvention(final String name, final ExternalIdBundle externalIdBundle, final int exDividendPeriod) {
     super(name, externalIdBundle);
     setExDividendPeriod(exDividendPeriod);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

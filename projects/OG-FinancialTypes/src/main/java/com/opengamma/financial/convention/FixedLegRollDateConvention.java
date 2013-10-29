@@ -39,63 +39,61 @@ public class FixedLegRollDateConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _paymentTenor;
-
   /**
    * The day count for the coupon payments.
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _dayCount;
-
   /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
   /**
    * The region calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionCalendar;
-
   /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
   private StubType _stubType;
-
   /**
-   * Is the notional exchanged at the start and at the end.
+   * Whether the notional exchanged at the start and at the end.
    */
   @PropertyDefinition
   private boolean _isExchangeNotional;
-
   /**
-   * The payment lag in days
+   * The payment lag in days.
    */
   @PropertyDefinition
   private int _paymentLag;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ FixedLegRollDateConvention() {
+  protected FixedLegRollDateConvention() {
     super();
   }
 
   /**
-   * @param name The name of the convention, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param paymentTenor The payment tenor, not null
-   * @param dayCount The day-count, not null
-   * @param currency The currency, not null
-   * @param regionCalendar The region calendar, not null
-   * @param stubType The stub type, not null
-   * @param isExchangeNotional True if notional is to be exchanged
-   * @param paymentLag The payment lag
+   * Creates an instance.
+   * 
+   * @param name  the name of the convention, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param paymentTenor  the payment tenor, not null
+   * @param dayCount  the day-count, not null
+   * @param currency  the currency, not null
+   * @param regionCalendar  the region calendar, not null
+   * @param stubType  the stub type, not null
+   * @param isExchangeNotional  true if notional is to be exchanged
+   * @param paymentLag  the payment lag
    */
-  public FixedLegRollDateConvention(final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor, final DayCount dayCount,
-      final Currency currency, final ExternalId regionCalendar, final StubType stubType, final boolean isExchangeNotional, final int paymentLag) {
+  public FixedLegRollDateConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor, final DayCount dayCount,
+      final Currency currency, final ExternalId regionCalendar, final StubType stubType, final boolean isExchangeNotional,
+      final int paymentLag) {
     super(name, externalIdBundle);
     setPaymentTenor(paymentTenor);
     setDayCount(dayCount);
@@ -106,12 +104,13 @@ public class FixedLegRollDateConvention extends Convention {
     setPaymentLag(paymentLag);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -270,7 +269,7 @@ public class FixedLegRollDateConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the notional exchanged at the start and at the end.
+   * Gets whether the notional exchanged at the start and at the end.
    * @return the value of the property
    */
   public boolean isIsExchangeNotional() {
@@ -278,7 +277,7 @@ public class FixedLegRollDateConvention extends Convention {
   }
 
   /**
-   * Sets is the notional exchanged at the start and at the end.
+   * Sets whether the notional exchanged at the start and at the end.
    * @param isExchangeNotional  the new value of the property
    */
   public void setIsExchangeNotional(boolean isExchangeNotional) {
@@ -295,7 +294,7 @@ public class FixedLegRollDateConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payment lag in days
+   * Gets the payment lag in days.
    * @return the value of the property
    */
   public int getPaymentLag() {
@@ -303,7 +302,7 @@ public class FixedLegRollDateConvention extends Convention {
   }
 
   /**
-   * Sets the payment lag in days
+   * Sets the payment lag in days.
    * @param paymentLag  the new value of the property
    */
   public void setPaymentLag(int paymentLag) {

@@ -39,31 +39,26 @@ public class DepositConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _dayCount;
-
   /**
    * The business day convention.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _businessDayConvention;
-
   /**
    * The number of settlement days.
    */
   @PropertyDefinition
   private int _settlementDays;
-
   /**
-   * Should dates follow the end-of-month rule.
+   * Whether dates follow the end-of-month rule.
    */
   @PropertyDefinition
   private boolean _isEOM;
-
   /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
   /**
    * The region calendar.
    */
@@ -71,24 +66,28 @@ public class DepositConvention extends Convention {
   private ExternalId _regionCalendar;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ DepositConvention() {
+  protected DepositConvention() {
     super();
   }
 
   /**
-   * @param name The name of the convention, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param dayCount The day-count, not null
-   * @param businessDayConvention The businessDayConvention, not null
-   * @param settlementDays The number of settlement days
-   * @param isEOM True if the dates follow the end-of-month rule
-   * @param currency The currency, not null
-   * @param regionCalendar The identifier for the region calendar, not null
+   * Creates an instance.
+   * 
+   * @param name  the name of the convention, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param dayCount  the day-count, not null
+   * @param businessDayConvention  the businessDayConvention, not null
+   * @param settlementDays  the number of settlement days
+   * @param isEOM  true if the dates follow the end-of-month rule
+   * @param currency  the currency, not null
+   * @param regionCalendar  the identifier for the region calendar, not null
    */
-  public DepositConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays, final boolean isEOM, final Currency currency, final ExternalId regionCalendar) {
+  public DepositConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount,
+      final BusinessDayConvention businessDayConvention, final int settlementDays, final boolean isEOM,
+      final Currency currency, final ExternalId regionCalendar) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
@@ -98,12 +97,13 @@ public class DepositConvention extends Convention {
     setRegionCalendar(regionCalendar);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -209,7 +209,7 @@ public class DepositConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets should dates follow the end-of-month rule.
+   * Gets whether dates follow the end-of-month rule.
    * @return the value of the property
    */
   public boolean isIsEOM() {
@@ -217,7 +217,7 @@ public class DepositConvention extends Convention {
   }
 
   /**
-   * Sets should dates follow the end-of-month rule.
+   * Sets whether dates follow the end-of-month rule.
    * @param isEOM  the new value of the property
    */
   public void setIsEOM(boolean isEOM) {

@@ -37,31 +37,26 @@ public class VanillaIborLegRollDateConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _iborIndexConvention;
-
   /**
-   * Is the fixing in advance (true) or in arrears (false).
+   * Whether the fixing in advance (true) or in arrears (false).
    */
   @PropertyDefinition
   private boolean _isAdvanceFixing;
-
   /**
    * The reset tenor of the underlying index
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _resetTenor;
-
   /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
   private StubType _stubType;
-
   /**
-   * Is the notional exchanged.
+   * Wheter the notional exchanged.
    */
   @PropertyDefinition
   private boolean _isExchangeNotional;
-
   /**
    * The payment lag in days.
    */
@@ -69,24 +64,28 @@ public class VanillaIborLegRollDateConvention extends Convention {
   private int _paymentLag;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ VanillaIborLegRollDateConvention() {
+  protected VanillaIborLegRollDateConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param iborIndexConvention The underlying ibor index convention, not null
-   * @param isAdvanceFixing True if fixing is in advance
-   * @param resetTenor The reset tenor, not null
-   * @param stubType The stub type, not null
-   * @param isExchangeNotional True if notional is to be exchanged
-   * @param paymentLag The payment lag in days
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param iborIndexConvention  the underlying ibor index convention, not null
+   * @param isAdvanceFixing  true if fixing is in advance
+   * @param resetTenor  the reset tenor, not null
+   * @param stubType  the stub type, not null
+   * @param isExchangeNotional  true if notional is to be exchanged
+   * @param paymentLag  the payment lag in days
    */
-  public VanillaIborLegRollDateConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final boolean isAdvanceFixing,
-      final Tenor resetTenor, final StubType stubType, final boolean isExchangeNotional, final int paymentLag) {
+  public VanillaIborLegRollDateConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention,
+      final boolean isAdvanceFixing, final Tenor resetTenor, final StubType stubType,
+      final boolean isExchangeNotional, final int paymentLag) {
     super(name, externalIdBundle);
     setIborIndexConvention(iborIndexConvention);
     setIsAdvanceFixing(isAdvanceFixing);
@@ -96,12 +95,13 @@ public class VanillaIborLegRollDateConvention extends Convention {
     setPaymentLag(paymentLag);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -156,7 +156,7 @@ public class VanillaIborLegRollDateConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the fixing in advance (true) or in arrears (false).
+   * Gets whether the fixing in advance (true) or in arrears (false).
    * @return the value of the property
    */
   public boolean isIsAdvanceFixing() {
@@ -164,7 +164,7 @@ public class VanillaIborLegRollDateConvention extends Convention {
   }
 
   /**
-   * Sets is the fixing in advance (true) or in arrears (false).
+   * Sets whether the fixing in advance (true) or in arrears (false).
    * @param isAdvanceFixing  the new value of the property
    */
   public void setIsAdvanceFixing(boolean isAdvanceFixing) {
@@ -233,7 +233,7 @@ public class VanillaIborLegRollDateConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the notional exchanged.
+   * Gets wheter the notional exchanged.
    * @return the value of the property
    */
   public boolean isIsExchangeNotional() {
@@ -241,7 +241,7 @@ public class VanillaIborLegRollDateConvention extends Convention {
   }
 
   /**
-   * Sets is the notional exchanged.
+   * Sets wheter the notional exchanged.
    * @param isExchangeNotional  the new value of the property
    */
   public void setIsExchangeNotional(boolean isExchangeNotional) {

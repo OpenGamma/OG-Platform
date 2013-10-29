@@ -40,84 +40,79 @@ public class SwapFixedLegConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _paymentTenor;
-
   /**
    * The day count.
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _dayCount;
-
   /**
    * The business day convention.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _businessDayConvention;
-
   /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
   /**
    * The region calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionCalendar;
-
   /**
    * The number of settlement days.
    */
   @PropertyDefinition
   private int _settlementDays;
-
   /**
-   * Should dates follow the end-of-month rule.
+   * Whether dates follow the end-of-month rule.
    */
   @PropertyDefinition
   private boolean _isEOM;
-
   /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
   private StubType _stubType;
-
   /**
-   * Is the notional exchanged.
+   * Whether the notional exchanged.
    */
   @PropertyDefinition
   private boolean _isExchangeNotional;
-
   /**
-   * The payment lag in days
+   * The payment lag in days.
    */
   @PropertyDefinition
   private int _paymentLag;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ SwapFixedLegConvention() {
+  protected SwapFixedLegConvention() {
     super();
   }
 
   /**
-   * @param name The name of the convention, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param paymentTenor The payment tenor, not null
-   * @param dayCount The day-count, not null
-   * @param businessDayConvention The business-day convention, not null
-   * @param currency The currency, not null
-   * @param regionCalendar The region calendar, not null
-   * @param settlementDays The number of days to settle
-   * @param isEOM True if dates follow the end-of-month rule
-   * @param stubType The stub type, not null
-   * @param isExchangeNotional True if notional is to be exchanged
-   * @param paymentLag The payment lag
+   * Creates an instance.
+   * 
+   * @param name  the name of the convention, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param paymentTenor  the payment tenor, not null
+   * @param dayCount  the day-count, not null
+   * @param businessDayConvention  the business-day convention, not null
+   * @param currency  the currency, not null
+   * @param regionCalendar  the region calendar, not null
+   * @param settlementDays  the number of days to settle
+   * @param isEOM  true if dates follow the end-of-month rule
+   * @param stubType  the stub type, not null
+   * @param isExchangeNotional  true if notional is to be exchanged
+   * @param paymentLag  the payment lag
    */
-  public SwapFixedLegConvention(final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor, final DayCount dayCount,
-      final BusinessDayConvention businessDayConvention, final Currency currency, final ExternalId regionCalendar, final int settlementDays, final boolean isEOM,
+  public SwapFixedLegConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final Tenor paymentTenor,
+      final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Currency currency,
+      final ExternalId regionCalendar, final int settlementDays, final boolean isEOM,
       final StubType stubType, final boolean isExchangeNotional, final int paymentLag) {
     super(name, externalIdBundle);
     setPaymentTenor(paymentTenor);
@@ -132,12 +127,13 @@ public class SwapFixedLegConvention extends Convention {
     setPaymentLag(paymentLag);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -321,7 +317,7 @@ public class SwapFixedLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets should dates follow the end-of-month rule.
+   * Gets whether dates follow the end-of-month rule.
    * @return the value of the property
    */
   public boolean isIsEOM() {
@@ -329,7 +325,7 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   /**
-   * Sets should dates follow the end-of-month rule.
+   * Sets whether dates follow the end-of-month rule.
    * @param isEOM  the new value of the property
    */
   public void setIsEOM(boolean isEOM) {
@@ -372,7 +368,7 @@ public class SwapFixedLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the notional exchanged.
+   * Gets whether the notional exchanged.
    * @return the value of the property
    */
   public boolean isIsExchangeNotional() {
@@ -380,7 +376,7 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   /**
-   * Sets is the notional exchanged.
+   * Sets whether the notional exchanged.
    * @param isExchangeNotional  the new value of the property
    */
   public void setIsExchangeNotional(boolean isExchangeNotional) {
@@ -397,7 +393,7 @@ public class SwapFixedLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the payment lag in days
+   * Gets the payment lag in days.
    * @return the value of the property
    */
   public int getPaymentLag() {
@@ -405,7 +401,7 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   /**
-   * Sets the payment lag in days
+   * Sets the payment lag in days.
    * @param paymentLag  the new value of the property
    */
   public void setPaymentLag(int paymentLag) {

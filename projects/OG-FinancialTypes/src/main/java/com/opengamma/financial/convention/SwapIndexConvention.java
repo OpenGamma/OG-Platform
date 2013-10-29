@@ -37,7 +37,6 @@ public class SwapIndexConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private LocalTime _fixingTime;
-
   /**
    * The swap convention.
    */
@@ -45,30 +44,35 @@ public class SwapIndexConvention extends Convention {
   private ExternalId _swapConvention;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ SwapIndexConvention() {
+  protected SwapIndexConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param fixingTime The fixing time, not null
-   * @param swapConvention The swap convention, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param fixingTime  the fixing time, not null
+   * @param swapConvention  the swap convention, not null
    */
-  public SwapIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final LocalTime fixingTime, final ExternalId swapConvention) {
+  public SwapIndexConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final LocalTime fixingTime,
+      final ExternalId swapConvention) {
     super(name, externalIdBundle);
     setFixingTime(fixingTime);
     setSwapConvention(swapConvention);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

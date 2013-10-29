@@ -37,47 +37,49 @@ public class CMSLegConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _swapIndexConvention;
-
   /**
    * The payment tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _paymentTenor;
-
   /**
-   * Is the fixing in advance (true) or in arrears (false).
+   * Whether fixing in advance (true) or in arrears (false).
    */
   @PropertyDefinition
   private boolean _isAdvanceFixing;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ CMSLegConvention() {
+  protected CMSLegConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param swapIndexConvention The id of the swap index convention, not null
-   * @param paymentTenor The payment tenor, not null
-   * @param isAdvanceFixing True if the fixing is in advance
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param swapIndexConvention  the id of the swap index convention, not null
+   * @param paymentTenor  the payment tenor, not null
+   * @param isAdvanceFixing  true if the fixing is in advance
    */
-  public CMSLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId swapIndexConvention, final Tenor paymentTenor,
-      final boolean isAdvanceFixing) {
+  public CMSLegConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId swapIndexConvention,
+      final Tenor paymentTenor, final boolean isAdvanceFixing) {
     super(name, externalIdBundle);
     setSwapIndexConvention(swapIndexConvention);
     setPaymentTenor(paymentTenor);
     setIsAdvanceFixing(isAdvanceFixing);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -158,7 +160,7 @@ public class CMSLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the fixing in advance (true) or in arrears (false).
+   * Gets whether fixing in advance (true) or in arrears (false).
    * @return the value of the property
    */
   public boolean isIsAdvanceFixing() {
@@ -166,7 +168,7 @@ public class CMSLegConvention extends Convention {
   }
 
   /**
-   * Sets is the fixing in advance (true) or in arrears (false).
+   * Sets whether fixing in advance (true) or in arrears (false).
    * @param isAdvanceFixing  the new value of the property
    */
   public void setIsAdvanceFixing(boolean isAdvanceFixing) {

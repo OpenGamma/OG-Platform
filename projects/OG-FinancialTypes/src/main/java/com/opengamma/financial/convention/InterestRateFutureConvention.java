@@ -38,31 +38,35 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   private ExternalId _indexConvention;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ InterestRateFutureConvention() {
+  protected InterestRateFutureConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param expiryConvention The expiry convention, not null
-   * @param exchangeCalendar The exchange calendar, not null
-   * @param indexConvention The index convention, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param expiryConvention  the expiry convention, not null
+   * @param exchangeCalendar  the exchange calendar, not null
+   * @param indexConvention  the index convention, not null
    */
-  public InterestRateFutureConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
+  public InterestRateFutureConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
       final ExternalId exchangeCalendar, final ExternalId indexConvention) {
     super(name, externalIdBundle, expiryConvention, exchangeCalendar);
     setIndexConvention(indexConvention);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

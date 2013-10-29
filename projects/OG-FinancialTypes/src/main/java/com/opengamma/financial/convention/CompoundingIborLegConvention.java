@@ -38,55 +38,47 @@ public class CompoundingIborLegConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _iborIndexConvention;
-
   /**
    * The payment tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _paymentTenor;
-
   /**
    * The compounding type.
    */
   @PropertyDefinition(validate = "notNull")
   private CompoundingType _compoundingType;
-
   /**
-   * The composition tenor, i.e. the tenor of the sub-periods compounded into the payment tenor.
+   * The composition tenor.
+   * This is the tenor of the sub-periods compounded into the payment tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _compositionTenor;
-
   /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
   private StubType _stubTypeCompound;
-
   /**
-   * Is the notional exchanged.
+   * Whether the notional exchanged.
    */
   @PropertyDefinition
   private boolean _isExchangeNotional;
-
   /**
    * The number of settlement days.
    */
   @PropertyDefinition
   private int _settlementDays;
-
   /**
-   * Is the schedule end-of-month.
+   * Whether the schedule end-of-month.
    */
   @PropertyDefinition
   private boolean _isEOM;
-
   /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
   private StubType _stubTypeLeg;
-
   /**
    * The payment lag in days.
    */
@@ -94,27 +86,31 @@ public class CompoundingIborLegConvention extends Convention {
   private int _paymentLag;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ CompoundingIborLegConvention() {
+  protected CompoundingIborLegConvention() {
   }
 
   /**
-   * @param name The name of the convention, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param iborIndexConvention The id of the underlying ibor index convention, not null
-   * @param paymentTenor The payment tenor, not null
-   * @param compoundingType The compounding type, not null
-   * @param compositionTenor The composition tenor. Not null.
-   * @param stubTypeCompound The stub type used in each coupon for the compounding. Not null.
-   * @param settlementDays The number of settlement days
-   * @param isEOM True if dates follow the end-of-month rule
-   * @param stubTypeLeg The stub type used in the leg for the different coupons. Not null
-   * @param isExchangeNotional True if notional is to be exchanged
-   * @param paymentLag The payment lag in days
+   * Creates an instance.
+   * 
+   * @param name  the name of the convention, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param iborIndexConvention  the id of the underlying ibor index convention, not null
+   * @param paymentTenor  the payment tenor, not null
+   * @param compoundingType  the compounding type, not null
+   * @param compositionTenor  the composition tenor, not null
+   * @param stubTypeCompound  the stub type used in each coupon for the compounding, not null
+   * @param settlementDays  the number of settlement days
+   * @param isEOM  true if dates follow the end-of-month rule
+   * @param stubTypeLeg  the stub type used in the leg for the different coupons, not null
+   * @param isExchangeNotional  true if notional is to be exchanged
+   * @param paymentLag  the payment lag in days
    */
-  public CompoundingIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final Tenor paymentTenor,
-      final CompoundingType compoundingType, final Tenor compositionTenor, final StubType stubTypeCompound, final int settlementDays, final boolean isEOM,
+  public CompoundingIborLegConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention,
+      final Tenor paymentTenor, final CompoundingType compoundingType, final Tenor compositionTenor,
+      final StubType stubTypeCompound, final int settlementDays, final boolean isEOM,
       final StubType stubTypeLeg, final boolean isExchangeNotional, final int paymentLag) {
     super(name, externalIdBundle);
     setIborIndexConvention(iborIndexConvention);
@@ -129,12 +125,13 @@ public class CompoundingIborLegConvention extends Convention {
     setPaymentLag(paymentLag);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -241,7 +238,8 @@ public class CompoundingIborLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the composition tenor, i.e. the tenor of the sub-periods compounded into the payment tenor.
+   * Gets the composition tenor.
+   * This is the tenor of the sub-periods compounded into the payment tenor.
    * @return the value of the property, not null
    */
   public Tenor getCompositionTenor() {
@@ -249,7 +247,8 @@ public class CompoundingIborLegConvention extends Convention {
   }
 
   /**
-   * Sets the composition tenor, i.e. the tenor of the sub-periods compounded into the payment tenor.
+   * Sets the composition tenor.
+   * This is the tenor of the sub-periods compounded into the payment tenor.
    * @param compositionTenor  the new value of the property, not null
    */
   public void setCompositionTenor(Tenor compositionTenor) {
@@ -259,6 +258,7 @@ public class CompoundingIborLegConvention extends Convention {
 
   /**
    * Gets the the {@code compositionTenor} property.
+   * This is the tenor of the sub-periods compounded into the payment tenor.
    * @return the property, not null
    */
   public final Property<Tenor> compositionTenor() {
@@ -293,7 +293,7 @@ public class CompoundingIborLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the notional exchanged.
+   * Gets whether the notional exchanged.
    * @return the value of the property
    */
   public boolean isIsExchangeNotional() {
@@ -301,7 +301,7 @@ public class CompoundingIborLegConvention extends Convention {
   }
 
   /**
-   * Sets is the notional exchanged.
+   * Sets whether the notional exchanged.
    * @param isExchangeNotional  the new value of the property
    */
   public void setIsExchangeNotional(boolean isExchangeNotional) {
@@ -343,7 +343,7 @@ public class CompoundingIborLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is the schedule end-of-month.
+   * Gets whether the schedule end-of-month.
    * @return the value of the property
    */
   public boolean isIsEOM() {
@@ -351,7 +351,7 @@ public class CompoundingIborLegConvention extends Convention {
   }
 
   /**
-   * Sets is the schedule end-of-month.
+   * Sets whether the schedule end-of-month.
    * @param isEOM  the new value of the property
    */
   public void setIsEOM(boolean isEOM) {

@@ -38,19 +38,16 @@ public class OvernightIndexConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _dayCount;
-
   /**
    * The publication lag.
    */
   @PropertyDefinition
   private int _publicationLag;
-
   /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
   /**
    * The region calendar.
    */
@@ -58,22 +55,25 @@ public class OvernightIndexConvention extends Convention {
   private ExternalId _regionCalendar;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ OvernightIndexConvention() {
+  protected OvernightIndexConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param dayCount The day-count, not null
-   * @param publicationLag The publication lag
-   * @param currency The currency, not null
-   * @param regionCalendar The region calendar, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param dayCount  the day-count, not null
+   * @param publicationLag  the publication lag
+   * @param currency  the currency, not null
+   * @param regionCalendar  the region calendar, not null
    */
-  public OvernightIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final int publicationLag, final Currency currency,
-      final ExternalId regionCalendar) {
+  public OvernightIndexConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount,
+      final int publicationLag, final Currency currency, final ExternalId regionCalendar) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
     setPublicationLag(publicationLag);
@@ -81,12 +81,13 @@ public class OvernightIndexConvention extends Convention {
     setRegionCalendar(regionCalendar);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

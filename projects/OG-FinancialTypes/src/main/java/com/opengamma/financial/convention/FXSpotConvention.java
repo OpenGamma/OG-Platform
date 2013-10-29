@@ -36,7 +36,6 @@ public class FXSpotConvention extends Convention {
    */
   @PropertyDefinition
   private int _settlementDays;
-
   /**
    * The settlement region.
    */
@@ -44,29 +43,34 @@ public class FXSpotConvention extends Convention {
   private ExternalId _settlementRegion;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ FXSpotConvention() {
+  protected FXSpotConvention() {
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param settlementDays The number of settlement days
-   * @param settlementRegion The settlement region, can be null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param settlementDays  the number of settlement days
+   * @param settlementRegion  the settlement region, can be null
    */
-  public FXSpotConvention(final String name, final ExternalIdBundle externalIdBundle, final int settlementDays, final ExternalId settlementRegion) {
+  public FXSpotConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final int settlementDays,
+      final ExternalId settlementRegion) {
     super(name, externalIdBundle);
     setSettlementDays(settlementDays);
     setSettlementRegion(settlementRegion);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

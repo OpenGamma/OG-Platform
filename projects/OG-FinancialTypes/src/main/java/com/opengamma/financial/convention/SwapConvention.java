@@ -36,7 +36,6 @@ public class SwapConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _payLegConvention;
-
   /**
    * The receive leg convention.
    */
@@ -44,30 +43,35 @@ public class SwapConvention extends Convention {
   private ExternalId _receiveLegConvention;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ SwapConvention() {
+  protected SwapConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param payLegConvention The pay leg convention, not null
-   * @param receiveLegConvention The receive leg convention, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param payLegConvention  the pay leg convention, not null
+   * @param receiveLegConvention  the receive leg convention, not null
    */
-  public SwapConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId payLegConvention, final ExternalId receiveLegConvention) {
+  public SwapConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId payLegConvention,
+      final ExternalId receiveLegConvention) {
     super(name, externalIdBundle);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

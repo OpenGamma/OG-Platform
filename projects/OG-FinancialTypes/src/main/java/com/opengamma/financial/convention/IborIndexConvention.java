@@ -52,43 +52,36 @@ public class IborIndexConvention extends Convention {
    */
   @PropertyDefinition
   private int _settlementDays;
-
   /**
-   * Should dates follow the end-of-month rule.
+   * Whether dates follow the end-of-month rule.
    */
   @PropertyDefinition
   private boolean _isEOM;
-
   /**
    * The currency.
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
   /**
    * The fixing time.
    */
   @PropertyDefinition(validate = "notNull")
   private LocalTime _fixingTime;
-
   /**
    * The fixing time zone.
    */
   @PropertyDefinition(validate = "notNull")
   private String _fixingTimeZone;
-
   /**
    * The fixing calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _fixingCalendar;
-
   /**
    * The region calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionCalendar;
-
   /**
    * The fixing page information.
    */
@@ -96,29 +89,33 @@ public class IborIndexConvention extends Convention {
   private String _fixingPage;
 
   /**
-   * For the builder
+   * Creates an instance.
    */
-  /* package */ IborIndexConvention() {
+  protected IborIndexConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param dayCount The day-count, not null
-   * @param businessDayConvention The business-day convention, not null
-   * @param settlementDays The settlement days
-   * @param isEOM True if dates follow the end-of-month rule
-   * @param currency The currency, not null
-   * @param fixingTime The fixing time, not null
-   * @param fixingTimeZone The fixing time zone, not null
-   * @param fixingCalendar The fixing calendar, not null
-   * @param regionCalendar The region calendar, not null
-   * @param fixingPage The fixing page name, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param dayCount  the day-count, not null
+   * @param businessDayConvention  the business-day convention, not null
+   * @param settlementDays  the settlement days
+   * @param isEOM  true if dates follow the end-of-month rule
+   * @param currency  the currency, not null
+   * @param fixingTime  the fixing time, not null
+   * @param fixingTimeZone  the fixing time zone, not null
+   * @param fixingCalendar  the fixing calendar, not null
+   * @param regionCalendar  the region calendar, not null
+   * @param fixingPage  the fixing page name, not null
    */
-  public IborIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int settlementDays, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final String fixingTimeZone, final ExternalId fixingCalendar,
-      final ExternalId regionCalendar, final String fixingPage) {
+  public IborIndexConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount,
+      final BusinessDayConvention businessDayConvention, final int settlementDays, final boolean isEOM,
+      final Currency currency, final LocalTime fixingTime, final String fixingTimeZone,
+      final ExternalId fixingCalendar, final ExternalId regionCalendar, final String fixingPage) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
@@ -132,12 +129,13 @@ public class IborIndexConvention extends Convention {
     setFixingPage(fixingPage);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
@@ -243,7 +241,7 @@ public class IborIndexConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets should dates follow the end-of-month rule.
+   * Gets whether dates follow the end-of-month rule.
    * @return the value of the property
    */
   public boolean isIsEOM() {
@@ -251,7 +249,7 @@ public class IborIndexConvention extends Convention {
   }
 
   /**
-   * Sets should dates follow the end-of-month rule.
+   * Sets whether dates follow the end-of-month rule.
    * @param isEOM  the new value of the property
    */
   public void setIsEOM(boolean isEOM) {

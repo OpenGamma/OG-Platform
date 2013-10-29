@@ -35,7 +35,6 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _expiryConvention;
-
   /**
    * The exchange calendar.
    */
@@ -43,19 +42,22 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   private ExternalId _exchangeCalendar;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
   protected ExchangeTradedFutureAndOptionConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param expiryConvention The expiry convention, not null
-   * @param exchangeCalendar The exchange calendar, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param expiryConvention  the expiry convention, not null
+   * @param exchangeCalendar  the exchange calendar, not null
    */
-  public ExchangeTradedFutureAndOptionConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
+  public ExchangeTradedFutureAndOptionConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId expiryConvention,
       final ExternalId exchangeCalendar) {
     super(name, externalIdBundle);
     setExpiryConvention(expiryConvention);

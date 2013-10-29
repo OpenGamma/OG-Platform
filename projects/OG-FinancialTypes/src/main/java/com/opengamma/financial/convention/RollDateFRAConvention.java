@@ -36,7 +36,6 @@ public class RollDateFRAConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _indexConvention;
-
   /**
    * The IMM date convention.
    */
@@ -44,30 +43,35 @@ public class RollDateFRAConvention extends Convention {
   private ExternalId _rollDateConvention;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
   RollDateFRAConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param indexConvention The index convention, not null
-   * @param rollDateConvention The roll date convention, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param indexConvention  the index convention, not null
+   * @param rollDateConvention  the roll date convention, not null
    */
-  public RollDateFRAConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId indexConvention, final ExternalId rollDateConvention) {
+  public RollDateFRAConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final ExternalId indexConvention,
+      final ExternalId rollDateConvention) {
     super(name, externalIdBundle);
     setIndexConvention(indexConvention);
     setRollDateConvention(rollDateConvention);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {

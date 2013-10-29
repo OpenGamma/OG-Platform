@@ -37,13 +37,11 @@ public class PriceIndexConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
   /**
    * The region.
    */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _region;
-
   /**
    * The id of the price index.
    */
@@ -51,33 +49,37 @@ public class PriceIndexConvention extends Convention {
   private ExternalId _priceIndexId;
 
   /**
-   * For the builder.
+   * Creates an instance.
    */
-  /* package */ PriceIndexConvention() {
+  protected PriceIndexConvention() {
     super();
   }
 
   /**
-   * @param name The convention name, not null
-   * @param externalIdBundle The external identifiers for this convention, not null
-   * @param currency The currency, not null
-   * @param region The region, not null
-   * @param priceIndexId The price time series id, not null
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param currency  the currency, not null
+   * @param region  the region, not null
+   * @param priceIndexId  the price time series id, not null
    */
-  public PriceIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final Currency currency, final ExternalId region,
-      final ExternalId priceIndexId) {
+  public PriceIndexConvention(
+      final String name, final ExternalIdBundle externalIdBundle, final Currency currency,
+      final ExternalId region, final ExternalId priceIndexId) {
     super(name, externalIdBundle);
     setCurrency(currency);
     setRegion(region);
     setPriceIndexId(priceIndexId);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
-   * @param <T> The result type of the visitor
-   * @param visitor The visitor, not null
-   * @return The result
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
    */
   @Override
   public <T> T accept(final ConventionVisitor<T> visitor) {
