@@ -32,7 +32,6 @@ import com.opengamma.master.security.SecurityHistoryResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
-import com.opengamma.masterdb.bean.DbBeanMaster;
 import com.opengamma.masterdb.security.DbSecurityBeanMaster;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
