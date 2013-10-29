@@ -52,7 +52,7 @@ $.register_module({
         };
         var Data = function (source, config) {
             var data = this, api = og.api.rest.views, meta, label = config.label ? config.label + '-' : '',
-                viewport = null, viewport_cache, view_id = config.view_id, viewport_version,
+                viewport = null, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
                 ROWS = 'rowCount', CALC = 'calculationDuration', grid_type = null, depgraph = !!source.depgraph,
                 loading_viewport_id = false, fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'},
@@ -210,7 +210,7 @@ $.register_module({
                 }
             };
             var structure_setup_impl = function (result) {
-                var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports, promise;
+                var promise;
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }
@@ -220,7 +220,7 @@ $.register_module({
                             graph_id: graph_id, viewport_id: data.viewport_id})
                             .pipe(structure_handler)
                             .pipe(
-                            (promise = viewports.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                            (promise = api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                                 rows: meta.viewport.rows, cols: meta.viewport.cols, format: meta.viewport.format,
                                 cells: meta.viewport ? meta.viewport.cells : null, log: viewport.log,
                                 viewport_id: data.viewport_id
@@ -354,10 +354,7 @@ $.register_module({
                     og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport);
                     return data;
                 }
-                if (Object.equals(viewport_cache, new_viewport)) { // duplicate viewport, do nothing
-                    return data;
-                }
-                viewport_cache = Object.clone(data.meta.viewport = viewport = new_viewport);
+                data.meta.viewport = viewport = new_viewport;
                 if (!data.viewport_id) { //if no viewport id get data, unless we are in already loading viewport
                     loading_viewport_id ? data : data_setup();
                     return data;
