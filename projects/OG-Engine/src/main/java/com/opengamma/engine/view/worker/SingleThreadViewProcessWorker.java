@@ -991,6 +991,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         if (inputValues == null) {
           inputValues = DependencyNodeImpl.getInputValueArray(node);
         }
+        inputNodes[i] = newInput;
         inputValues[i] = MemoryUtils.instance(new ValueSpecification(inputValues[i].getValueName(), newInput.getTarget(), inputValues[i].getProperties()));
       }
     }
@@ -1090,6 +1091,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         for (DependencyNode oldRoot : oldRoots) {
           newRoots.add(remapNode(oldRoot, terminalOutputs, remapper, remapped));
         }
+        previousGraph.getRoots().clear();
+        previousGraph.getRoots().addAll(newRoots);
       }
     }
   }
@@ -1379,6 +1382,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       }
       if (previousGraphs != null) {
         s_logger.info("Performing incremental graph compilation");
+        if (unchangedNodes != null) {
+          System.err.println(unchangedNodes.size() + " unchanged node(s)");
+        }
         _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
             changedPositions, unchangedNodes);
       } else {
