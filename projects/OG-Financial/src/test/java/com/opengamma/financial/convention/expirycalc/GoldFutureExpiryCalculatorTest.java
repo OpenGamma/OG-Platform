@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention;
+package com.opengamma.financial.convention.expirycalc;
 
 import static org.testng.AssertJUnit.assertEquals;
 

@@ -3,15 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention;
+package com.opengamma.financial.convention.expirycalc;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 /**
- * Factory containing instances of {@link ExchangeTradedInstrumentExpiryCalculator}.
+ * Factory containing instances of {@code ExchangeTradedInstrumentExpiryCalculator}.
  */
 public class ExchangeTradedInstrumentExpiryCalculatorFactory {
+
   /** Map containing the instances */
   private static final BiMap<String, ExchangeTradedInstrumentExpiryCalculator> s_instances = HashBiMap.create();
 
@@ -27,8 +28,9 @@ public class ExchangeTradedInstrumentExpiryCalculatorFactory {
 
   /**
    * Gets the named calculator.
-   * @param name The name of the expiry calculator
-   * @return The calculator
+   * 
+   * @param name  the name of the expiry calculator, not null
+   * @return  the calculator, not null
    * @throws IllegalArgumentException if the calculator was not found in the map
    */
   public static ExchangeTradedInstrumentExpiryCalculator getCalculator(final String name) {

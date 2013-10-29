@@ -7,6 +7,15 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M3
+-----------
+
+API compatibility
+- [PLAT-4969] Move convention expiry calculators
+  The expiry calculators have moved package to com.opengamma.financial.convention.expirycalc.
+  Organize imports should fix broken code.
+
+
 To 2.2.0-M2
 -----------
 

@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention;
+package com.opengamma.financial.convention.expirycalc;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
+import com.opengamma.financial.convention.HMUZAdjuster;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
