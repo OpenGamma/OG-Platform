@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class LiveCattleFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
-  public static final String NAME = "SoybeanFutureOptionExpiryCalculator";
+  public static final String NAME = "LiveCattleFutureOptionExpiryCalculator";
   private static final TemporalAdjuster FIRST_FRIDAY_ADJUSTER = TemporalAdjusters.firstInMonth(DayOfWeek.FRIDAY);
   private static final LiveCattleFutureOptionExpiryCalculator INSTANCE = new LiveCattleFutureOptionExpiryCalculator();
 
