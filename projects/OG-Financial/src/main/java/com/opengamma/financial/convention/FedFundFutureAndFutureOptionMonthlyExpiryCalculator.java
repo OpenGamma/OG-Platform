@@ -13,22 +13,35 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for Fed fund futures.
  */
 public final class FedFundFutureAndFutureOptionMonthlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "FedFundFutureAndFutureOptionMonthlyExpiryCalculator";
-  private static final TemporalAdjuster EOM_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
-  private static final int WORKING_DAYS_TO_SETTLE = 2;
+  /** Singleton. */
   private static final FedFundFutureAndFutureOptionMonthlyExpiryCalculator INSTANCE = new FedFundFutureAndFutureOptionMonthlyExpiryCalculator();
+  /** Adjuster. */
+  private static final TemporalAdjuster EOM_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  /** Working days to settle. */
+  private static final int WORKING_DAYS_TO_SETTLE = 2;
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static FedFundFutureAndFutureOptionMonthlyExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private FedFundFutureAndFutureOptionMonthlyExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
@@ -45,11 +58,6 @@ public final class FedFundFutureAndFutureOptionMonthlyExpiryCalculator implement
     return today.plusMonths(n - 1);
   }
 
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
   private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) {
     int days = 0;
     LocalDate result = date;
@@ -61,4 +69,10 @@ public final class FedFundFutureAndFutureOptionMonthlyExpiryCalculator implement
     }
     return result;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

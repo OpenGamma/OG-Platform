@@ -14,24 +14,39 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Computes the expiration dates for IMM futures with two days spot lag.
+ * Expiry calculator for IMM futures with two days spot lag.
  */
 public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "IMMFutureOptionQuarterlyExpiryCalculator";
-  private static final TemporalAdjuster THIRD_WEDNESDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
-  private static final TemporalAdjuster MONTH_ADJUSTER = HMUZAdjuster.getInstance();
-  private static final int WORKING_DAYS_TO_SETTLE = 2;
+  /** Singleton. */
   private static final IMMFutureAndFutureOptionQuarterlyExpiryCalculator INSTANCE = new IMMFutureAndFutureOptionQuarterlyExpiryCalculator();
+  /** Adjuster. */
+  private static final TemporalAdjuster THIRD_WEDNESDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
+  /** Adjuster. */
+  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
+  /** Adjuster. */
+  private static final TemporalAdjuster MONTH_ADJUSTER = HMUZAdjuster.getInstance();
+  /** Working days to settle. */
+  private static final int WORKING_DAYS_TO_SETTLE = 2;
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static IMMFutureAndFutureOptionQuarterlyExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private IMMFutureAndFutureOptionQuarterlyExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
@@ -63,11 +78,6 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     return nextExpiryMonth.plusMonths(3 * (n - 1));
   }
 
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
   private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) { // Use ScheduleCalculator
     int days = 0;
     LocalDate result = date;
@@ -79,4 +89,10 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     }
     return result;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

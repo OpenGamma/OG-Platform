@@ -18,25 +18,38 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Get expires for gold future contracts
+ * Expiry calculator for gold future contracts.
  */
 public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "GoldFutureExpiryCalculator";
-  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  /** Singleton. */
   private static final GoldFutureExpiryCalculator INSTANCE = new GoldFutureExpiryCalculator();
+  /** Adjuster. */
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static GoldFutureExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private GoldFutureExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * get trading months (not static as depends on current date)
-   * @param now
-   * @return the valid trading months
+   * Gets trading months (not static as depends on current date).
+   * 
+   * @param now  the date today, not null
+   * @return the valid trading months, not null
    */
   private Month[] getTradingMonths(final LocalDate now) {
     // this may need improvements as the year end approaches
@@ -58,12 +71,13 @@ public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumen
 
   /**
    * Expiry date of Soybean Futures:
-   * The 3rd last business day of the month
+   * The 3rd last business day of the month.
    * See http://www.cmegroup.com/trading/metals/precious/gold_contract_specifications.html
-   * @param n n'th expiry date after today
-   * @param today valuation date
-   * @param holidayCalendar holiday calendar
-   * @return True expiry date of the option
+   * 
+   * @param n  the n'th expiry date after today, greater than zero
+   * @param today  the valuation date, not null
+   * @param holidayCalendar  the holiday calendar, not null
+   * @return the expiry date, not null
    */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
@@ -86,13 +100,6 @@ public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumen
     return expiryDate;
   }
 
-  /**
-   * Get the month of the nth expiry
-   *
-   * @param n the nth future
-   * @param today the date
-   * @return a date in the expiry month
-   */
   @Override
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
@@ -121,4 +128,5 @@ public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumen
   public String getName() {
     return NAME;
   }
+
 }

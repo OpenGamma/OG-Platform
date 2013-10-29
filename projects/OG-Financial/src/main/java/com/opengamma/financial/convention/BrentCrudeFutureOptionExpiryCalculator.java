@@ -11,29 +11,40 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for Brent crude future options.
  */
 public final class BrentCrudeFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "BrentCrudeFutureOptionExpiryCalculator";
+  /** Singleton. */
   private static final BrentCrudeFutureOptionExpiryCalculator INSTANCE = new BrentCrudeFutureOptionExpiryCalculator();
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static BrentCrudeFutureOptionExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private BrentCrudeFutureOptionExpiryCalculator() {
   }
 
-
+  //-------------------------------------------------------------------------
   /**
    * Expiry date of Brent Crude Future Options:
-   * 3 business days prior to the future expiry
+   * 3 business days prior to the future expiry.
    * See http://www.cmegroup.com/trading/energy/crude-oil/brent-crude-oil-last-day_contractSpecs_options.html#prodType=AME
-   * @param n n'th expiry date after today
-   * @param today valuation date
-   * @param holidayCalendar holiday calendar
-   * @return True expiry date of the option
+   * 
+   * @param n  the n'th expiry date after today, greater than zero
+   * @param today  the valuation date, not null
+   * @param holidayCalendar  the holiday calendar, not null
+   * @return the expiry date, not null
    */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
@@ -54,24 +65,15 @@ public final class BrentCrudeFutureOptionExpiryCalculator implements ExchangeTra
   }
 
   @Override
-  /**
-   * Given a LocalDate representing the valuation date and
-   * an integer representing the n'th expiry after that date,
-   * returns a date in the expiry month
-   *
-   */
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     return BrentCrudeFutureExpiryCalculator.getInstance().getExpiryMonth(n, today);
   }
 
-  private LocalDate getNextExpiryMonth(final LocalDate dtCurrent) {
-    return dtCurrent.plusMonths(1);
-  }
-
   @Override
   public String getName() {
     return NAME;
   }
+
 }

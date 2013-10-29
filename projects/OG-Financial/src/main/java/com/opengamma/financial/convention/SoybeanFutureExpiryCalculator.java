@@ -14,33 +14,45 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for soybean futures.
  */
 public final class SoybeanFutureExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "SoybeanFutureExpiryCalculator";
+  /** Singleton. */
   private static final SoybeanFutureExpiryCalculator INSTANCE = new SoybeanFutureExpiryCalculator();
-
-  private static final Month[] SOYBEAN_FUTURE_EXPIRY_MONTHS =
-  {Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY,
+  /** Months when futures expire. */
+  private static final Month[] SOYBEAN_FUTURE_EXPIRY_MONTHS = {
+    Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY,
     Month.AUGUST, Month.SEPTEMBER, Month.NOVEMBER
   };
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static SoybeanFutureExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private SoybeanFutureExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Expiry date of Soybean Futures:
    * The business day preceding the 15th day of the contract month.
    * See http://www.cmegroup.com/trading/agricultural/grain-and-oilseed/soybean_contractSpecs_futures.html#prodType=AME
-   * @param n n'th expiry date after today
-   * @param today valuation date
-   * @param holidayCalendar holiday calendar
-   * @return True expiry date of the option
+   * 
+   * @param n  the n'th expiry date after today, greater than zero
+   * @param today  the valuation date, not null
+   * @param holidayCalendar  the holiday calendar, not null
+   * @return the expiry date, not null
    */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
@@ -57,13 +69,6 @@ public final class SoybeanFutureExpiryCalculator implements ExchangeTradedInstru
   }
 
   @Override
-  /**
-   * Given a LocalDate representing the valuation date and
-   * an integer representing the n'th expiry after that date,
-   * returns a date in the expiry month
-   * Used in BloombergFutureUtils.getExpiryCodeForSoybeanFutures()
-   *
-   */
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
@@ -94,4 +99,5 @@ public final class SoybeanFutureExpiryCalculator implements ExchangeTradedInstru
   public String getName() {
     return NAME;
   }
+
 }

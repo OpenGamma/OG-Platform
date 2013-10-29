@@ -15,32 +15,43 @@ import com.opengamma.util.ArgumentChecker;
 // Some future options which appear to exist don't seem to fit the exchange rules - need to investigate these
 
 /**
- * Calculates expiry dates for gold future options
+ * Expiry calculator for gold future options.
  */
 public final class GoldFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "GoldFutureOptionExpiryCalculator";
-  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  /** Singleton. */
   private static final GoldFutureOptionExpiryCalculator INSTANCE = new GoldFutureOptionExpiryCalculator();
+  /** Adjuster. */
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static GoldFutureOptionExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private GoldFutureOptionExpiryCalculator() {
   }
 
-
+  //-------------------------------------------------------------------------
   /**
    * Expiry date of Gold Future Options:
    * Four days before the end of the month preceding the option month.
    * If expiration falls on a Friday or a day before a holiday it moves to the previous business day
    * See http://www.cmegroup.com/trading/metals/precious/gold_contractSpecs_options.html#prodType=AME
    *
-   * @param n n'th expiry date after today
-   * @param today valuation date
-   * @param holidayCalendar holiday calendar
-   * @return expiry date of the option
+   * @param n  the n'th expiry date after today, greater than zero
+   * @param today  the valuation date, not null
+   * @param holidayCalendar  the holiday calendar, not null
+   * @return the expiry date, not null
    */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
@@ -72,16 +83,6 @@ public final class GoldFutureOptionExpiryCalculator implements ExchangeTradedIns
   }
 
   @Override
-  /**
-   * Given a LocalDate representing the valuation date and
-   * an integer representing the n'th expiry after that date,
-   * returns a date in the expiry month
-   *
-   * @param n the nth expiry
-   * @param today the date
-   * @return a date in the nth expiry month
-   *
-   */
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     return GoldFutureExpiryCalculator.getInstance().getExpiryMonth(n, today);
   }
@@ -90,4 +91,5 @@ public final class GoldFutureOptionExpiryCalculator implements ExchangeTradedIns
   public String getName() {
     return NAME;
   }
+
 }

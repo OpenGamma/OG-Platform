@@ -14,23 +14,37 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for IMM futures.
  */
 public final class IMMFutureAndFutureOptionMonthlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "IMMFutureOptionMonthlyExpiryCalculator";
-  private static final TemporalAdjuster THIRD_WEDNESDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
-  private static final int WORKING_DAYS_TO_SETTLE = 2;
+  /** Singleton. */
   private static final IMMFutureAndFutureOptionMonthlyExpiryCalculator INSTANCE = new IMMFutureAndFutureOptionMonthlyExpiryCalculator();
+  /** Adjuster. */
+  private static final TemporalAdjuster THIRD_WEDNESDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
+  /** Adjuster. */
+  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
+  /** Working days to settle. */
+  private static final int WORKING_DAYS_TO_SETTLE = 2;
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static IMMFutureAndFutureOptionMonthlyExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private IMMFutureAndFutureOptionMonthlyExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
@@ -56,11 +70,6 @@ public final class IMMFutureAndFutureOptionMonthlyExpiryCalculator implements Ex
     return today.plusMonths(n - 1);
   }
 
-  @Override
-  public String getName() {
-    return NAME;
-  }
-
   private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) {
     int days = 0;
     LocalDate result = date;
@@ -72,4 +81,10 @@ public final class IMMFutureAndFutureOptionMonthlyExpiryCalculator implements Ex
     }
     return result;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

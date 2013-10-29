@@ -14,23 +14,37 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for bond futures.
  */
 public final class BondFutureExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "BondFutureOptionExpiryCalculator";
-  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
-  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
-  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
+  /** Singleton. */
   private static final BondFutureExpiryCalculator INSTANCE = new BondFutureExpiryCalculator();
+  /** Adjuster. */
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  /** Adjuster. */
+  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
+  /** Adjuster. */
+  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static BondFutureExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private BondFutureExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero; have {}", n);
@@ -78,4 +92,5 @@ public final class BondFutureExpiryCalculator implements ExchangeTradedInstrumen
   public String getName() {
     return NAME;
   }
+
 }

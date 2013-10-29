@@ -16,32 +16,46 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for live cattle futures.
  */
 public final class LiveCattleFutureExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "LiveCattleFutureExpiryCalculator";
+  /** Singleton. */
   private static final LiveCattleFutureExpiryCalculator INSTANCE = new LiveCattleFutureExpiryCalculator();
+  /** Adjuster. */
   private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  /** Months when futures expire. */
+  private static final Month[] CATTLE_FUTURE_EXPIRY_MONTHS = {
+    Month.FEBRUARY, Month.APRIL, Month.JUNE, Month.AUGUST, Month.OCTOBER, Month.DECEMBER
+  };
 
-  private static final Month[] CATTLE_FUTURE_EXPIRY_MONTHS =
-  {Month.FEBRUARY, Month.APRIL, Month.JUNE, Month.AUGUST, Month.OCTOBER, Month.DECEMBER };
-
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static LiveCattleFutureExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private LiveCattleFutureExpiryCalculator() {
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Expiry date of Soybean Futures:
    * The last business day of the contract month.
    * See http://www.cmegroup.com/trading/agricultural/livestock/live-cattle_contractSpecs_futures.html
-   * @param n n'th expiry date after today
-   * @param today valuation date
-   * @param holidayCalendar holiday calendar
-   * @return True expiry date of the option
+   * 
+   * @param n  the n'th expiry date after today, greater than zero
+   * @param today  the valuation date, not null
+   * @param holidayCalendar  the holiday calendar, not null
+   * @return the expiry date, not null
    */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
@@ -58,12 +72,6 @@ public final class LiveCattleFutureExpiryCalculator implements ExchangeTradedIns
   }
 
   @Override
-  /**
-   * Given a LocalDate representing the valuation date and
-   * an integer representing the n'th expiry after that date,
-   * returns a date in the expiry month
-   *
-   */
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
@@ -90,4 +98,5 @@ public final class LiveCattleFutureExpiryCalculator implements ExchangeTradedIns
   public String getName() {
     return NAME;
   }
+
 }

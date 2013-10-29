@@ -17,38 +17,52 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Expiry calculator for soybean future options.
  */
 public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
+
   /** Name of the calculator */
   public static final String NAME = "SoybeanFutureOptionExpiryCalculator";
-  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
-  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
-  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
+  /** Singleton. */
   private static final SoybeanFutureOptionExpiryCalculator INSTANCE = new SoybeanFutureOptionExpiryCalculator();
-
-  private static final Month[] SOYBEAN_FUTURE_EXPIRY_MONTHS =
-  {Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY,
+  /** Adjuster. */
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  /** Adjuster. */
+  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
+  /** Adjuster. */
+  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
+  /** Months when futures expire. */
+  private static final Month[] SOYBEAN_FUTURE_EXPIRY_MONTHS = {
+    Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY,
     Month.AUGUST, Month.SEPTEMBER, Month.NOVEMBER
   };
 
+  /**
+   * Gets the singleton instance.
+   * 
+   * @return the instance, not null
+   */
   public static SoybeanFutureOptionExpiryCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Restricted constructor.
+   */
   private SoybeanFutureOptionExpiryCalculator() {
   }
 
-
+  //-------------------------------------------------------------------------
   /**
    * Expiry date of Soybean Future Options:
    * The last Friday which precedes by at least two business days the last business day of the month preceding the option month.
    * See http://www.cmegroup.com/trading/agricultural/grain-and-oilseed/soybean_contractSpecs_options.html#prodType=AME
    * TODO Confirm adjustment made if Friday is not a business day. We use the business day before
-   * @param n n'th expiry date after today
-   * @param today valuation date
-   * @param holidayCalendar holiday calendar
-   * @return True expiry date of the option
+   * 
+   * @param n  the n'th expiry date after today, greater than zero
+   * @param today  the valuation date, not null
+   * @param holidayCalendar  the holiday calendar, not null
+   * @return the expiry date, not null
    */
   @Override
   public LocalDate getExpiryDate(final int n, final LocalDate today, final Calendar holidayCalendar) {
@@ -84,13 +98,6 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
   }
 
   @Override
-  /**
-   * Given a LocalDate representing the valuation date and
-   * an integer representing the n'th expiry after that date,
-   * returns a date in the expiry month
-   * Used in BloombergFutureUtils.getExpiryCodeForSoybeanFutureOptions()
-   *
-   */
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
@@ -123,4 +130,5 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
   public String getName() {
     return NAME;
   }
+
 }
