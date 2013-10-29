@@ -57,7 +57,6 @@ public class RemoteConventionMaster extends AbstractRemoteDocumentMaster<Convent
   //}
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   public ConventionSearchResult search(final ConventionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
 

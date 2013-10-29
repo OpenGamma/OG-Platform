@@ -36,9 +36,7 @@ public class BRConventions {
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final BusinessDayConvention modifiedFollowing = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final DayCount bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
-    final Frequency annual = PeriodFrequency.ANNUAL;
     final ExternalId br = ExternalSchemes.financialRegionId("BR");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
