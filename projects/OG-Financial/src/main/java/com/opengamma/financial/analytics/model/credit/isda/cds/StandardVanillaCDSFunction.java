@@ -126,7 +126,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       marketSpreads[i] = marketSpreadObjects[i] * 1e-4;
     }
     ISDACompliantCreditCurve hazardCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(0, definition.getCouponFrequency().getPeriod())
+    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(recoveryRate, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
