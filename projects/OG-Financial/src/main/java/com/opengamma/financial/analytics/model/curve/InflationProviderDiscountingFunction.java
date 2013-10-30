@@ -92,7 +92,7 @@ import com.opengamma.util.tuple.Pairs;
  * Produces price index curves using the discounting method.
  */
 public class InflationProviderDiscountingFunction extends
-  MultiCurveFunction<InflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
+    MultiCurveFunction<InflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
   /** The calculator */
   private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
@@ -232,7 +232,7 @@ public class InflationProviderDiscountingFunction extends
           // seasonal curve construction
           // TODO : inputs () should be retrieve from historical data, for this we need two things :
           // 1) historical value of the price index (this can be retrieve from bloomberg using the appropriate ticker)
-          // 2) A statistical treatment on this data should be done, usually am kind of specific ARIMA.
+          // 2) A statistical treatment on this data should be done, usually a kind of specific ARIMA.
         }
         final MultiCurveBundle<GeneratorPriceIndexCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
         curveBundles[i++] = groupBundle;
