@@ -21,10 +21,11 @@ import com.opengamma.id.VersionCorrection;
  * 
  * @param <V> the type returned by the source
  */
-public interface SourceWithExternalBundle<V extends UniqueIdentifiable & ExternalBundleIdentifiable> extends Source<V>, ChangeProvider {
+public interface SourceWithExternalBundle<V extends UniqueIdentifiable & ExternalBundleIdentifiable>
+    extends Source<V>, ChangeProvider {
 
   /**
-   * Gets all objects at the given version-correction that match the specified external identifier bundle.
+   * Gets objects by external identifier bundle and version-correction.
    * <p>
    * A bundle represents the set of external identifiers which in theory map to a single object.
    * Unfortunately, not all external identifiers uniquely identify a single version of a single object.
@@ -33,20 +34,29 @@ public interface SourceWithExternalBundle<V extends UniqueIdentifiable & Externa
    * identifier in the bundle. While specific implementations may modify this behavior,
    * this should be explicitly documented to avoid confusion. 
    *
-   * @param bundle  the bundle keys to match, not null
+   * @param bundle  the external identifier bundle to search for, not null
    * @param versionCorrection  the version-correction, not null
    * @return all objects matching the bundle, empty if no matches, not null
-   * @throws IllegalArgumentException if the identifier bundle is invalid
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   Collection<V> get(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
   /**
-   * Bulk operation form of {@link #get(ExternalIdBundle, VersionCorrection)}.
+   * Bulk gets objects by external identifier bundle and version-correction.
+   * <p>
+   * This retrieves a set of objects stored using the object identifiers at the instant
+   * specified by the version-correction.
+   * If not found, the external identifier will be missing from the result map.
+   * <p>
+   * This bulk method is equivalent to {@link #get(ExternalIdBundle, VersionCorrection)}
+   * for multiple lookups and potentially more efficient.
    * 
-   * @param bundles the identifiers to search for, not null
+   * @param bundles  the set of bundles to search for, not null
    * @param versionCorrection the version-correction to search at, not null
    * @return the map of results, not null
+   * @throws IllegalArgumentException if an identifier is invalid
+   * @throws RuntimeException if an error occurs
    */
   Map<ExternalIdBundle, Collection<V>> getAll(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection);
 
@@ -54,58 +64,76 @@ public interface SourceWithExternalBundle<V extends UniqueIdentifiable & Externa
   // TODO: remove below here
 
   /**
-   * Gets all objects at the latest version-correction that match the specified bundle of keys.
+   * Gets objects by external identifier bundle at the latest version-correction.
    * <p>
-   * The identifier bundle represents those keys associated with a single object. In an ideal world, all the identifiers in a bundle would refer to the same object. However, since each identifier is
-   * not completely unique, multiple may match. To further complicate matters, some identifiers are more unique than others.
-   * <p>
-   * The simplest implementation of this method will return a object if it matches one of the keys. A more advanced implementation will choose using some form of priority order which key or keys from
-   * the bundle to search for.
-   * 
-   * @param bundle the bundle keys to match, not null
-   * @return all objects matching the specified key, empty if no matches, not null
-   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * A bundle represents the set of external identifiers which in theory map to a single object.
+   * Unfortunately, not all external identifiers uniquely identify a single version of a single object.
+   * The default behavior in standard implementations should be to return any
+   * element with <strong>any</strong> external identifier that matches <strong>any</strong>
+   * identifier in the bundle. While specific implementations may modify this behavior,
+   * this should be explicitly documented to avoid confusion. 
+   *
+   * @param bundle  the external identifier bundle to search for, not null
+   * @return all objects matching the bundle, empty if no matches, not null
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   Collection<V> get(ExternalIdBundle bundle);
 
   /**
-   * Gets the single best-fit object at the latest version-correction that matches the specified bundle of keys.
+   * Gets an object by external identifier bundle at the latest version-correction.
    * <p>
-   * The identifier bundle represents those keys associated with a single object. In an ideal world, all the identifiers in a bundle would refer to the same object. However, since each identifier is
-   * not completely unique, multiple may match. To further complicate matters, some identifiers are more unique than others.
+   * This retrieves the object stored using the external identifier at the latest
+   * version-correction. If not found, an exception is thrown.
    * <p>
-   * An implementation will need some mechanism to decide what the best-fit match is.
+   * The identifier bundle represents those keys associated with a single object.
+   * In an ideal world, all the identifiers in a bundle would refer to the same object.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * The best-match mechanism is implementation specific.
    * 
-   * @param bundle the bundle keys to match, not null
-   * @return the single object matching the bundle of keys, null if not found
-   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * @param bundle  the external identifier bundle to search for, not null
+   * @return the matched object, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   V getSingle(ExternalIdBundle bundle);
 
   /**
-   * Gets the single best-fit object at the given version-correction that matches the specified bundle of keys.
+   * Gets an object by external identifier bundle and version-correction.
    * <p>
-   * The identifier bundle represents those keys associated with a single object. In an ideal world, all the identifiers in a bundle would refer to the same object. However, since each identifier is
-   * not completely unique, multiple may match. To further complicate matters, some identifiers are more unique than others.
+   * This retrieves the object stored using the external identifier at the instant
+   * specified by the version-correction. If not found, an exception is thrown.
    * <p>
-   * An implementation will need some mechanism to decide what the best-fit match is.
+   * The identifier bundle represents those keys associated with a single object.
+   * In an ideal world, all the identifiers in a bundle would refer to the same object.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * The best-match mechanism is implementation specific.
    * 
-   * @param bundle the bundle keys to match, not null
-   * @param versionCorrection the version-correction, not null
-   * @return the single object matching the bundle of keys, null if not found
-   * @throws IllegalArgumentException if the identifier bundle is invalid (e.g. empty)
+   * @param bundle  the external identifier bundle to search for, not null
+   * @param versionCorrection  the version-correction, not null
+   * @return the matched object, null if not found
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws RuntimeException if an error occurs
    */
   V getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection);
 
   /**
-   * Bulk operation form of {@link #getSingle(ExternalIdBundle, VersionCorrection)}.
+   * Bulk gets objects by external identifier and version-correction.
+   * <p>
+   * This retrieves a set of objects stored using the external identifiers at the instant
+   * specified by the version-correction.
+   * If not found, the external identifier will be missing from the result map.
+   * <p>
+   * This bulk method is equivalent to {@link #getSingle(ExternalIdBundle, VersionCorrection)}
+   * for multiple lookups and potentially more efficient.
    * 
-   * @param bundles the identifiers to search for, not null
-   * @param versionCorrection the version-correction to search at, not null
-   * @return the map of results, not null
+   * @param bundles  the external identifier bundles to search for, not null
+   * @param versionCorrection  the version-correction, not null
+   * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
+   * @throws IllegalArgumentException if an identifier is invalid
+   * @throws RuntimeException if an error occurs
    */
   Map<ExternalIdBundle, V> getSingle(Collection<ExternalIdBundle> bundles, VersionCorrection versionCorrection);
 

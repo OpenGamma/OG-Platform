@@ -25,9 +25,11 @@ public interface Source<V> {
   /**
    * Gets an object by unique identifier.
    * <p>
+   * This retrieves the object stored using the unique identifier.
+   * If not found, an exception is thrown.
    * 
-   * @param uniqueId the unique identifier, not null
-   * @return the UniqueIdentifiable object, not null
+   * @param uniqueId  the unique identifier to search for, not null
+   * @return the matched object, not null
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
@@ -37,36 +39,54 @@ public interface Source<V> {
   /**
    * Gets an object by object identifier and version-correction.
    * <p>
-   * In combination, the object identifier and version-correction exactly specify a single object at a single version-correction.
+   * This retrieves the object stored using the object identifier at the instant
+   * specified by the version-correction. If not found, an exception is thrown.
+   * In combination, the object identifier and version-correction are equivalent to 
+   * a unique identifier.
    * 
-   * @param objectId the object identifier to find, not null
-   * @param versionCorrection the version-correction, not null
+   * @param objectId  the object identifier to search for, not null
+   * @param versionCorrection  the version-correction, not null
    * @return the matched object, not null
-   * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
    */
   V get(ObjectId objectId, VersionCorrection versionCorrection);
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets objects by unique identifier.
+   * Bulk gets objects by unique identifier.
    * <p>
-   * A unique identifier exactly specifies a single object at a single version-correction. This bulk method is potentially a more efficient form of {@link #get(UniqueId)} for multiple lookups.
+   * This retrieves a set of objects stored using the unique identifiers.
+   * If not found, the unique identifier will be missing from the result map.
+   * <p>
+   * This bulk method is equivalent to {@link #get(UniqueId)}
+   * for multiple lookups and potentially more efficient.
    * 
-   * @param uniqueIds the unique identifiers to query, not null
+   * @param uniqueIds  the unique identifiers to search for, not null
    * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
+   * @throws IllegalArgumentException if an identifier is invalid
+   * @throws RuntimeException if an error occurs
    */
   Map<UniqueId, V> get(Collection<UniqueId> uniqueIds);
 
   /**
-   * Gets objects by object identifier and version-correction.
+   * Bulk gets objects by object identifier and version-correction.
    * <p>
-   * In combination, the object identifier and version-correction exactly specify a single object at a single version-correction. This bulk method is potentially a more efficient form of
-   * {@link #get(ObjectId,VersionCorrection)} for multiple lookups.
+   * This retrieves a set of objects stored using the object identifiers at the instant
+   * specified by the version-correction.
+   * If not found, the object identifier will be missing from the result map.
+   * In combination, the object identifier and version-correction are equivalent to 
+   * a unique identifier.
+   * <p>
+   * This bulk method is equivalent to {@link #get(ObjectId, VersionCorrection)}
+   * for multiple lookups and potentially more efficient.
    * 
-   * @param objectIds the object identifiers to query, not null
-   * @param versionCorrection the version-correction, not null
+   * @param objectIds  the object identifiers to search for, not null
+   * @param versionCorrection  the version-correction, not null
    * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
+   * @throws IllegalArgumentException if an identifier is invalid
+   * @throws RuntimeException if an error occurs
    */
   Map<ObjectId, V> get(Collection<ObjectId> objectIds, VersionCorrection versionCorrection);
 
