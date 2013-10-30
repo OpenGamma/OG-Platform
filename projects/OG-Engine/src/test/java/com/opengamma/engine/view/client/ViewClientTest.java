@@ -175,8 +175,9 @@ public class ViewClientTest {
 
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleStarted(TIMEOUT);
-    final ViewResultModel result1Fragment = resultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment();
+    ViewResultModel result1Fragment = resultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment(); // Initial market data
     assertNotNull(result1Fragment);
+    assertNotNull(resultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment()); // Calculated data
     final ViewComputationResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertNotNull(result1);
 
@@ -194,11 +195,11 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 4);
 
     env.getCurrentWorker(viewProcess).requestCycle();
-
+    Thread.sleep(TIMEOUT);
     // Should have been merging results received in the meantime
     client.resume();
     final UniqueId cycleStartedId = resultListener.getCycleStarted(TIMEOUT).getCycleMetadata().getViewCycleId();
-    resultListener.assertCycleFragmentCompleted(TIMEOUT);
+    resultListener.assertCycleFragmentCompleted(TIMEOUT); // Single merged fragment
     final ViewComputationResultModel result2 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertEquals(result2.getViewCycleId(), cycleStartedId);
 
@@ -238,7 +239,8 @@ public class ViewClientTest {
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live(), ExecutionFlags.none().get()));
     resultListener.assertViewDefinitionCompiled(TIMEOUT);
     resultListener.assertCycleStarted(TIMEOUT);
-    resultListener.assertCycleFragmentCompleted(TIMEOUT);
+    resultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    resultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     final ViewDeltaResultModel result1 = resultListener.getCycleCompleted(TIMEOUT).getDeltaResult();
     assertNotNull(result1);
 
@@ -292,7 +294,8 @@ public class ViewClientTest {
     // Wait for first computation cycle
     client1ResultListener.assertViewDefinitionCompiled(TIMEOUT);
     client1ResultListener.expectNextCall(CycleStartedCall.class, TIMEOUT);
-    client1ResultListener.assertCycleFragmentCompleted(TIMEOUT);
+    client1ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    client1ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     client1ResultListener.assertCycleCompleted(TIMEOUT);
 
     final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
@@ -314,11 +317,12 @@ public class ViewClientTest {
     client1.pause();
     client1ResultListener.assertNoCalls(TIMEOUT);
 
-    // Now client 1 is paused, so any changes should be batched.
+    // Now client 1 is paused, so any changes should be batched for it, but passed immediately to client 2
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
     env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
-    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
@@ -326,7 +330,8 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 2);
     env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
-    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
@@ -347,9 +352,11 @@ public class ViewClientTest {
     env.getCurrentWorker(viewProcess1).requestCycle();
     client1ResultListener.assertCycleStarted(TIMEOUT);
     client2ResultListener.assertCycleStarted(TIMEOUT);
-    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     client2ResultListener.assertCycleCompleted(TIMEOUT);
-    final ViewComputationResultModel result3Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment();
+    final ViewComputationResultModel result3Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment(); // Market data
+    client1ResultListener.getCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     final ViewComputationResultModel result3 = client1ResultListener.getCycleCompleted(TIMEOUT).getFullResult();
     expected = new HashMap<ValueRequirement, Object>();
     expected.put(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
@@ -365,7 +372,8 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 1);
     env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
-    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
@@ -373,7 +381,8 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
     env.getCurrentWorker(viewProcess1).requestCycle();
     client2ResultListener.assertCycleStarted(TIMEOUT);
-    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    client2ResultListener.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.assertNoCalls(TIMEOUT);
@@ -381,7 +390,7 @@ public class ViewClientTest {
     // Start results again
     client1.resume();
     client1ResultListener.assertCycleStarted(TIMEOUT);
-    final ViewComputationResultModel result4Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment();
+    final ViewComputationResultModel result4Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment(); // One giant fragment
     final ViewComputationResultModel result4 = client1ResultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertEquals(0, client1ResultListener.getQueueSize());
     client2ResultListener.assertNoCalls(TIMEOUT);
@@ -450,7 +459,8 @@ public class ViewClientTest {
     final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
     resultListener1.assertViewDefinitionCompiled(TIMEOUT);
     resultListener1.assertCycleStarted(TIMEOUT);
-    resultListener1.assertCycleFragmentCompleted(TIMEOUT);
+    resultListener1.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    resultListener1.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     resultListener1.assertCycleCompleted(TIMEOUT);
     assertEquals(0, resultListener1.getQueueSize());
 
@@ -458,7 +468,8 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 3);
     worker.requestCycle();
     resultListener1.assertCycleStarted(TIMEOUT);
-    resultListener1.assertCycleFragmentCompleted(TIMEOUT);
+    resultListener1.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    resultListener1.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     resultListener1.assertCycleCompleted(TIMEOUT);
     assertEquals(0, resultListener1.getQueueSize());
 
@@ -469,7 +480,8 @@ public class ViewClientTest {
     // Push through a result which should arrive at the new listener
     worker.requestCycle();
     resultListener2.assertCycleStarted(TIMEOUT);
-    resultListener2.assertCycleFragmentCompleted(TIMEOUT);
+    resultListener2.assertCycleFragmentCompleted(TIMEOUT); // Initial market data
+    resultListener2.assertCycleFragmentCompleted(TIMEOUT); // Calculated data (single job)
     resultListener2.assertCycleCompleted(TIMEOUT);
     assertEquals(0, resultListener1.getQueueSize());
     assertEquals(0, resultListener2.getQueueSize());

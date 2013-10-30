@@ -68,10 +68,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final Semaphore _processLock = new Semaphore(1);
 
   /**
-   * Key is the listener to which events will be dispatched.
-   * Value is true iff that listener requires delta calculations to be performed.
-   * When there are no listeners remaining that require delta calculations,
-   * they will stop being computed to save CPU and heap.
+   * Key is the listener to which events will be dispatched. Value is true iff that listener requires delta calculations to be performed. When there are no listeners remaining that require delta
+   * calculations, they will stop being computed to save CPU and heap.
    */
   private final Map<ViewResultListener, Boolean> _listeners = new HashMap<>();
   private volatile int _internalListenerCount; // only safe if used within lock
@@ -86,7 +84,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
       new AtomicReference<>();
 
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<>();
-  
+
   private final AtomicBoolean _mustCalculateDeltas = new AtomicBoolean(false);
 
   private final ChangeListener _viewDefinitionChangeListener;
@@ -96,8 +94,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private volatile Object _description;
 
   /**
-   * Indicates if this view process should be run persistently. If true, then even if
-   * all clients detach, the process will be kept running.
+   * Indicates if this view process should be run persistently. If true, then even if all clients detach, the process will be kept running.
    */
   private final boolean _isPersistentViewProcess;
 
@@ -112,23 +109,20 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // END TEMPORARY CODE
 
   /**
-   * Constructs an instance. Note that if runPersistently is true, the
-   * view process will start calculating immediately rather than waiting
-   * for a listener to attach. It will continue running regardless of the
-   * number of attached listeners.
-   *
+   * Constructs an instance. Note that if runPersistently is true, the view process will start calculating immediately rather than waiting for a listener to attach. It will continue running regardless
+   * of the number of attached listeners.
+   * 
    * @param viewDefinitionId the name of the view definition, not null
    * @param executionOptions the view execution options, not null
    * @param viewProcessContext the process context, not null
    * @param viewProcessor the parent view processor, not null
-   * @param runPersistently if true, then the process will start running
-   * and continue running, regardless of the number of attached listeners
+   * @param runPersistently if true, then the process will start running and continue running, regardless of the number of attached listeners
    */
   public ViewProcessImpl(final UniqueId viewDefinitionId,
-                         final ViewExecutionOptions executionOptions,
-                         final ViewProcessContext viewProcessContext,
-                         final ViewProcessorImpl viewProcessor,
-                         boolean runPersistently) {
+      final ViewExecutionOptions executionOptions,
+      final ViewProcessContext viewProcessContext,
+      final ViewProcessorImpl viewProcessor,
+      boolean runPersistently) {
 
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -190,10 +184,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   }
 
   /**
-   * Forces the dependency graph to be rebuilt. Invoked when a market data provider becomes available and failed
-   * subscriptions need to be retried.
-   * @deprecated There should be a better way to do this in the market data layer but PLAT-3908 is a problem.
-   * This method will be removed once it's fixed
+   * Forces the dependency graph to be rebuilt. Invoked when a market data provider becomes available and failed subscriptions need to be retried.
+   * 
+   * @deprecated There should be a better way to do this in the market data layer but PLAT-3908 is a problem. This method will be removed once it's fixed
    */
   @Deprecated
   public void forceGraphRebuild() {
@@ -221,7 +214,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   public ViewProcessState getState() {
     return _state;
   }
-  
+
   public ViewResultListener[] getListenerArray() {
     return _listeners.keySet().toArray(new ViewResultListener[_listeners.size()]);
   }
@@ -398,9 +391,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     lock();
     try {
       result = cycle.getResultModel();
+      // We swap these first so that in the callback the process is consistent.
+      final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
       if (_mustCalculateDeltas.get()) {
-        // We swap these first so that in the callback the process is consistent.
-        final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
         // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
         deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
       }
@@ -573,15 +566,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
-   *
    * @param listener the listener, not null
    * @param resultMode the result mode for the listener, not null
    * @param fragmentResultMode the fragment result mode for the listener, not null
    * @return the permission context for the process, not null
    */
   public ViewPermissionContext attachListener(final ViewResultListener listener,
-                                              final ViewResultMode resultMode,
-                                              final ViewResultMode fragmentResultMode) {
+      final ViewResultMode resultMode,
+      final ViewResultMode fragmentResultMode) {
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(resultMode, "resultMode");
     ArgumentChecker.notNull(fragmentResultMode, "fragmentResultMode");
@@ -595,9 +587,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         if (listenerRequiresDeltas) {
           _mustCalculateDeltas.set(true);
         }
-        
+
         // keep track of number of internal listeners
-        if (listener instanceof InternalViewResultListener) { 
+        if (listener instanceof InternalViewResultListener) {
           _internalListenerCount++;
         }
         // exclude internal listeners from test
@@ -649,13 +641,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   private static boolean doesListenerRequireDeltas(ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
     boolean requiresDeltas = false;
-    switch(resultMode) {
+    switch (resultMode) {
       case BOTH:
       case DELTA_ONLY:
       case FULL_THEN_DELTA:
         requiresDeltas = true;
     }
-    switch(fragmentResultMode) {
+    switch (fragmentResultMode) {
       case BOTH:
       case DELTA_ONLY:
       case FULL_THEN_DELTA:
@@ -665,9 +657,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   }
 
   /**
-   * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop.
-   * We allow instances extending InternalViewResultListener to be ignored for the purposes of reference counting.  This allows e.g. JMX MBeans
-   * to track view events without affecting execution.
+   * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop. We allow instances extending InternalViewResultListener to be
+   * ignored for the purposes of reference counting. This allows e.g. JMX MBeans to track view events without affecting execution.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
@@ -687,14 +678,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         if ((_listeners.size() - _internalListenerCount) == 0) {
           stopComputationJobIfRequired();
         }
-        
+
         checkIfDeltasRequired();
       }
     } finally {
       unlock();
     }
   }
-  
+
   protected void checkIfDeltasRequired() {
     boolean deltasRequired = false;
     for (Boolean requiresDeltas : _listeners.values()) {
