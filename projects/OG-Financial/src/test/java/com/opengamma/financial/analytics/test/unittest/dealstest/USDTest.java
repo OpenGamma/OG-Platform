@@ -103,23 +103,23 @@ public class USDTest extends AbstractMockSourcesTest {
     List<SwapDefinition> swapsDefinition = Lists.newArrayList();
     List<ForwardRateAgreementDefinition> frasDefinition = Lists.newArrayList();
     List<DepositZeroDefinition> zcsDefinition = Lists.newArrayList();
-    for (IRSwapSecurity irSwapSecurity : tradesClean) {
+    /*for (IRSwapSecurity irSwapSecurity : tradesClean) {
       switch (irSwapSecurity.getRawInput().getString("PRODUCT_TYPE")) {
         case "SWAP":
           swapsDefinition.add((SwapDefinition) swapConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));
 
           // we don't treat the fra case at the moment
-          /*case "FRA":
-            frasDefinition.add((ForwardRateAgreementDefinition) fraConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));*/
-          /*case "OIS":
-            swapsDefinition.add((SwapDefinition) swapConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));*/
+          case "FRA":
+            frasDefinition.add((ForwardRateAgreementDefinition) fraConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));
+          case "OIS":
+            swapsDefinition.add((SwapDefinition) swapConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));
 
           // we don't treat the fra case at the moment
-          /* case "ZCS":
-             zcsDefinition.add((DepositZeroDefinition) ZeroCouponConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));*/
+           case "ZCS":
+             zcsDefinition.add((DepositZeroDefinition) ZeroCouponConverter.visitSwapSecurity(irSwapSecurity.getSwapSecurity()));
       }
     }
-
+    */
     // Load the historical time series from a csv file
 
     /* NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
