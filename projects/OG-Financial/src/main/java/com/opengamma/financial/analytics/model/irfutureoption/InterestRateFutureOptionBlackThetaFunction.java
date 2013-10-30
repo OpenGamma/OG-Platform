@@ -39,6 +39,6 @@ public class InterestRateFutureOptionBlackThetaFunction extends InterestRateFutu
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
       final Set<ValueRequirement> desiredValues) {
     final double theta = irFutureOptionTransaction.accept(CALCULATOR, curveBundle);
-    return Collections.singleton(new ComputedValue(spec, theta));
+    return Collections.singleton(new ComputedValue(spec, theta / 365.25));
   }
 }
