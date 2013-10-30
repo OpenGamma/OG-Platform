@@ -244,6 +244,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
   /**
+   * The bucketed PV01.
+   */
+  public static final String BUCKETED_PV01 = "Bucketed PV01";
+  /**
    * Curve property metadata.
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";

@@ -54,6 +54,20 @@ public class ValueSpecification implements Serializable {
 
   /**
    * Obtains a {@code ValueSpecification} from a target, building the target specification according to the type of object the target refers to. The properties must include the function identifier.
+   *
+   * @param valueName the name of the value created, not null
+   * @param computationTargetSpecification the ComputationTargetSpecification, not null
+   * @param properties the value properties, not null and must include the function identifier
+   * @return the created specification, not null
+   */
+  public static ValueSpecification of(final String valueName, final ComputationTargetSpecification computationTargetSpecification, final ValueProperties properties) {
+    ArgumentChecker.notNull(computationTargetSpecification, "computationTargetSpecification");
+    ArgumentChecker.notNull(properties, "uid");
+    return new ValueSpecification(valueName, computationTargetSpecification, properties);
+  }
+
+  /**
+   * Obtains a {@code ValueSpecification} from a target, building the target specification according to the type of object the target refers to. The properties must include the function identifier.
    * 
    * @param valueName the name of the value created, not null
    * @param targetType the ComputationTargetType, not null

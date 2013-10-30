@@ -96,7 +96,7 @@ public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName.getFirst();
     Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName.getSecond();
 
-    Set<ValueSpecification> valueSpecifications = new HashSet<ValueSpecification>();
+    Set<ValueSpecification> valueSpecifications = new HashSet<>();
 
     for (String name : outputsByName.keySet()) {
       StreamI<FunctionOutput> functionOutputs = outputsByName.get(name);
@@ -191,7 +191,7 @@ public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     Map<String, StreamI<FunctionInput>> inputsByName = ioputsByName.getFirst();
     Map<String, StreamI<FunctionOutput>> outputsByName = ioputsByName.getSecond();
 
-    Set<ValueSpecification> valueSpecifications = new HashSet<ValueSpecification>();
+    Set<ValueSpecification> valueSpecifications = new HashSet<>();
 
     for (final String name : outputsByName.keySet()) {
       StreamI<FunctionOutput> functionOutputs = outputsByName.get(name);
@@ -256,7 +256,7 @@ public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
     FunctionSignature signature = getFunctionSignature();
     ComputationTargetType ctt = signature.getComputationTargetType();
     Class ctc = signature.getComputationTargetClass();
-    if (ctt != null && !target.getType().equals(ctt)) {
+    if (ctt != null && !ctt.isCompatible(target.getType())) {
       return false;
     }
     if (ctc != null && !ctc.isAssignableFrom(target.getValue().getClass())) {
