@@ -49,11 +49,11 @@ public class ViewRegressionTestTool {
    */
   public static void main(String[] args) throws Exception { // CSIGNORE
     try {
-      ViewRegressionTestTool.run(args);
-      System.exit(0);
+      TestStatus status = ViewRegressionTestTool.run(args);
+      System.exit(status.ordinal());
     } catch (Exception e) {
       e.printStackTrace();
-      System.exit(1);
+      System.exit(TestStatus.ERROR.ordinal());
     }
   }
 
@@ -63,18 +63,18 @@ public class ViewRegressionTestTool {
     formatter.printHelp("java " + ViewRegressionTestTool.class.getName(), OPTIONS, true);
   }
 
-  private static void run(String[] args) throws Exception {
+  private static TestStatus run(String[] args) throws Exception {
     CommandLineParser parser = new PosixParser();
     CommandLine cl;
     try {
       cl = parser.parse(OPTIONS, args);
     } catch (final ParseException e) {
       printUsage();
-      return;
+      return TestStatus.ERROR;
     }
     if (cl.hasOption(HELP)) {
       printUsage();
-      return;
+      return TestStatus.ERROR;
     }
     Instant valuationTime;
     if (cl.hasOption(VALUATION_TIME)) {
@@ -107,10 +107,13 @@ public class ViewRegressionTestTool {
       writer.append("\n");
       fudgeMsgWriter.flush();
     }*/
+    return results.getStatus();
   }
 
   private static Options createOptions() {
     Options options = new Options();
+
+    // TODO extra options - java executable, arbitrary additional jvm args (for memory, GC config etc)
 
     Option projectNameOption = new Option(PROJECT_NAME, "projectname", true, "Project name (as used in the build artifacts)");
     projectNameOption.setRequired(true);
@@ -130,11 +133,11 @@ public class ViewRegressionTestTool {
     Option valuationTimeOption = new Option(VALUATION_TIME, "valuationtime", true, "Valuation time for the views");
     options.addOption(valuationTimeOption);
 
-    Option baseDirOption = new Option(BASE_DIR, "basedir", true, "Working directory for the base version of the server");
+    Option baseDirOption = new Option(BASE_DIR, "basedir", true, "Installation directory for the base version of the server");
     baseDirOption.setRequired(true);
     options.addOption(baseDirOption);
 
-    Option newDirOption = new Option(TEST_DIR, "testdir", true, "Working directory for the test version of the server");
+    Option newDirOption = new Option(TEST_DIR, "testdir", true, "Installation directory for the test version of the server");
     newDirOption.setRequired(true);
     options.addOption(newDirOption);
 
