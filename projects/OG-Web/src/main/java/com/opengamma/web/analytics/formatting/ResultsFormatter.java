@@ -125,7 +125,8 @@ public class ResultsFormatter {
                   new ValuePropertiesFormatter(),
                   new FixedPaymentMatrixFormatter(currencyAmountFormatter),
                   new FloatingPaymentMatrixFormatter(currencyAmountFormatter),
-                  new FixedSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter));
+                  new FixedSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter),
+                  new FloatingSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

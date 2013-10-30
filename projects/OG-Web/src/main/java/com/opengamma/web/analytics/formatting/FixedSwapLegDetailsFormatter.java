@@ -9,6 +9,7 @@ import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDe
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.END_ACCRUAL_DATES;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.FIXED_RATE;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.NOTIONAL;
+import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.PAYMENT_AMOUNT;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.PAYMENT_TIME;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.PAYMENT_YEAR_FRACTION;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.START_ACCRUAL_DATES;
@@ -27,10 +28,10 @@ import com.opengamma.util.money.CurrencyAmount;
  */
 /* package */ class FixedSwapLegDetailsFormatter extends AbstractFormatter<FixedSwapLegDetails> {
   /** Number of columns */
-  private static final int COLUMN_COUNT = 7;
+  private static final int COLUMN_COUNT = 8;
   /** Column labels */
   private static final String[] COLUMN_LABELS = new String[] {START_ACCRUAL_DATES, END_ACCRUAL_DATES, DISCOUNT_FACTOR,
-    PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXED_RATE};
+    PAYMENT_TIME, PAYMENT_YEAR_FRACTION, PAYMENT_AMOUNT, NOTIONAL, FIXED_RATE};
   /** x labels field */
   private static final String X_LABELS = "xLabels";
   /** y labels field */
@@ -80,14 +81,14 @@ import com.opengamma.util.money.CurrencyAmount;
     results.put(Y_LABELS, yLabels);
     Object[][] values = new Object[rowCount][COLUMN_COUNT];
     for (int i = 0; i < rowCount; i++) {
-      values[i][0] = value.getStartCouponDates()[i].toString();
-      values[i][1] = value.getEndCouponDates()[i].toString();
+      values[i][0] = value.getAccrualStart()[i].toString();
+      values[i][1] = value.getAccrualEnd()[i].toString();
       values[i][2] = value.getDiscountFactors()[i];
       values[i][3] = value.getPaymentTimes()[i];
       values[i][4] = value.getPaymentFractions()[i];
-      values[i][5] = _caFormatter.formatCell(value.getNotionals()[i], valueSpec, null);
-      //TODO why does this always come back with a currency attached?
-      values[i][6] = _rateFormatter.formatCell(value.getFixedRates()[i], valueSpec, null); 
+      values[i][5] = _caFormatter.formatCell(value.getPaymentAmounts()[i], valueSpec, null);
+      values[i][6] = _caFormatter.formatCell(value.getNotionals()[i], valueSpec, null);
+      values[i][7] = _rateFormatter.formatCell(value.getFixedRates()[i], valueSpec, null); 
     }
     results.put(MATRIX, values);
     return results;
