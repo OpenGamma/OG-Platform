@@ -40,6 +40,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -412,7 +413,7 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
           final Frequency freqFixed = legFixed.getFrequency();
           final Period tenorFixed = getTenor(freqFixed);
           legDefinition.add(AnnuityDefinitionBuilder.couponFixedWithNotional(currency[loopleg], settlementDate, maturityDate, tenorFixed,
-              calendar[loopleg], legFixed.getDayCount(), businessDay, isEOM, notional[loopleg], legFixed.getRate(), payer[loopleg]));
+              calendar[loopleg], legFixed.getDayCount(), businessDay, isEOM, notional[loopleg], legFixed.getRate(), payer[loopleg], StubType.SHORT_START));
         } else {
           throw new OpenGammaRuntimeException("X Ccy Swap legs should be Fixed or Floating legs");
         }

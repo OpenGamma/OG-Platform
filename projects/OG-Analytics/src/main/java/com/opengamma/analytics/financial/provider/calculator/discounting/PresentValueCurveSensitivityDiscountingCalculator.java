@@ -57,6 +57,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponON
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -242,6 +243,16 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Ins
   @Override
   public MultipleCurrencyMulticurveSensitivity visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurve) {
     return visitSwap(swap, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitSwapMultileg(final SwapMultileg swap, final MulticurveProviderInterface multicurve) {
+    final int nbLegs = swap.getLegs().length;
+    MultipleCurrencyMulticurveSensitivity pvcs = swap.getLegs()[0].accept(this, multicurve);
+    for (int loopleg = 1; loopleg < nbLegs; loopleg++) {
+      pvcs = pvcs.plus(swap.getLegs()[loopleg].accept(this, multicurve));
+    }
+    return pvcs;
   }
 
   // -----     Futures     ------

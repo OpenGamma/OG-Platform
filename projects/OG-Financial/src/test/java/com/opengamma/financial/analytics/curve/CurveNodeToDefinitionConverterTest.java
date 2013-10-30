@@ -804,7 +804,7 @@ public class CurveNodeToDefinitionConverterTest {
     final ZonedDateTime maturity = settlementDate.plus(tenor.getPeriod());
     final IborIndex index3m = NodeConverterUtils.indexIbor(LIBOR_ACT_360, SWAP_3M_LIBOR.getResetTenor().getPeriod());
     AnnuityDefinition<CouponIborDefinition> payLeg = AnnuityDefinitionBuilder.couponIbor(settlementDate, maturity, SWAP_3M_LIBOR.getResetTenor().getPeriod(), 1.0d, index3m, true, 
-        LIBOR_ACT_360.getBusinessDayConvention(), LIBOR_ACT_360.isIsEOM(), ACT_360, CALENDAR, SWAP_3M_LIBOR.getStubType());
+        ACT_360, LIBOR_ACT_360.getBusinessDayConvention(), LIBOR_ACT_360.isIsEOM(), CALENDAR, SWAP_3M_LIBOR.getStubType());
     for(int loopcpn=0; loopcpn<payLeg.getNumberOfPayments(); loopcpn++) {
       assertEquals("IborONAASwap: first leg - cpn " + loopcpn, payLeg.getNthPayment(loopcpn), (swap.getFirstLeg().getNthPayment(loopcpn)));
     }

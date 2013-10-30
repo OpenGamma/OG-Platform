@@ -59,6 +59,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponON
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -245,6 +246,16 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   @Override
   public MultipleCurrencyAmount visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final MulticurveProviderInterface multicurves) {
     return visitSwap(swap, multicurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final MulticurveProviderInterface multicurve) {
+    final int nbLegs = swap.getLegs().length;
+    MultipleCurrencyAmount pv = swap.getLegs()[0].accept(this, multicurve);
+    for (int loopleg = 1; loopleg < nbLegs; loopleg++) {
+      pv = pv.plus(swap.getLegs()[loopleg].accept(this, multicurve));
+    }
+    return pv;
   }
 
   // -----     Futures     ------
