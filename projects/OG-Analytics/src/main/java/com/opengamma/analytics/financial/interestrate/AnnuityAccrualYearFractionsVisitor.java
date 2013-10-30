@@ -11,17 +11,26 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 
 /**
- *
+ * Gets the accrual year fractions for the coupons in an annuity.
  */
-public final class AnnuityAccrualFractionsVisitor extends InstrumentDerivativeVisitorAdapter<Void, double[]> {
+public final class AnnuityAccrualYearFractionsVisitor extends InstrumentDerivativeVisitorAdapter<Void, double[]> {
+  /** The coupon accrual year fraction visitor */
   private static final InstrumentDerivativeVisitor<Void, Double> COUPON_VISITOR = new CouponFixingAccrualFactorVisitor();
-  private static final InstrumentDerivativeVisitor<Void, double[]> INSTANCE = new AnnuityAccrualFractionsVisitor();
+  /** A singleton instance */
+  private static final InstrumentDerivativeVisitor<Void, double[]> INSTANCE = new AnnuityAccrualYearFractionsVisitor();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static InstrumentDerivativeVisitor<Void, double[]> getInstance() {
     return INSTANCE;
   }
 
-  private AnnuityAccrualFractionsVisitor() {
+  /**
+   * Private constructor.
+   */
+  private AnnuityAccrualYearFractionsVisitor() {
   }
 
   @Override

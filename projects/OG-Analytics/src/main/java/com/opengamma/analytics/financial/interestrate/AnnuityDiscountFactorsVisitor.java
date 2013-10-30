@@ -11,16 +11,27 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 
 /**
- *
+ * Gets the discount factors for the payment times of the coupons in an annuity.
+ * @deprecated This class uses deprecated functionality.
  */
+@Deprecated
 public final class AnnuityDiscountFactorsVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, double[]> {
+  /** Gets the discount factors for coupons */
   private static final InstrumentDerivativeVisitor<YieldCurveBundle, Double> COUPON_VISITOR = new CouponPaymentDiscountFactorVisitor();
+  /** A singleton instance */
   private static final InstrumentDerivativeVisitor<YieldCurveBundle, double[]> INSTANCE = new AnnuityDiscountFactorsVisitor();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static InstrumentDerivativeVisitor<YieldCurveBundle, double[]> getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor.
+   */
   private AnnuityDiscountFactorsVisitor() {
   }
 

@@ -14,43 +14,44 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.time.Tenor;
 
 /**
- * Gets all notionals for an annuity.
+ * Gets the index tenors for the coupons in an annuity.
  */
-public final class AnnuityNotionalsVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, CurrencyAmount[]> {
-  /** Gets the notional for a coupon */
-  private static final InstrumentDefinitionVisitor<Void, CurrencyAmount> COUPON_VISITOR = new CouponNotionalVisitor();
-  /** The singleton instance */
-  private static final InstrumentDefinitionVisitor<LocalDate, CurrencyAmount[]> INSTANCE = new AnnuityNotionalsVisitor();
+public final class AnnuityIndexTenorsVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, Tenor[]> {
+  /** The coupon accrual year fraction visitor */
+  private static final InstrumentDefinitionVisitor<Void, Tenor> COUPON_VISITOR = CouponTenorVisitor.getInstance();
+  /** A singleton instance */
+  private static final InstrumentDefinitionVisitor<LocalDate, Tenor[]> INSTANCE = new AnnuityIndexTenorsVisitor();
 
   /**
    * Gets the singleton instance.
    * @return The instance
    */
-  public static InstrumentDefinitionVisitor<LocalDate, CurrencyAmount[]> getInstance() {
+  public static InstrumentDefinitionVisitor<LocalDate, Tenor[]> getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private AnnuityNotionalsVisitor() {
+  private AnnuityIndexTenorsVisitor() {
   }
 
   @Override
-  public CurrencyAmount[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
+  public Tenor[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
     final int n = annuity.getNumberOfPayments();
-    final List<CurrencyAmount> ca = new ArrayList<>();
+    final List<Tenor> tenors = new ArrayList<>();
     int count = 0;
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
       if (payment.getPaymentDate().toLocalDate().isAfter(date)) {
-        ca.add(payment.accept(COUPON_VISITOR));
+        tenors.add(payment.accept(COUPON_VISITOR));
         count++;
       }
     }
-    return ca.toArray(new CurrencyAmount[count]);
+    return tenors.toArray(new Tenor[count]);
   }
+
 }

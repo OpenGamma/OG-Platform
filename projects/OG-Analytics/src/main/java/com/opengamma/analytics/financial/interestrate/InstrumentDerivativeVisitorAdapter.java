@@ -1202,7 +1202,7 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
    */
   private RESULT_TYPE getException(final InstrumentDerivative derivative) {
     if (derivative != null) {
-      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + derivative.getClass().getSimpleName());
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + derivative.getClass().getSimpleName() + " without data");
     }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }

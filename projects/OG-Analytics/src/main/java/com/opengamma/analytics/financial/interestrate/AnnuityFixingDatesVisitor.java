@@ -18,13 +18,13 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- * Gets the accrual start and end dates for an annuity.
+ * Gets the fixing period start and end dates for annuity from a particular date.
  */
-public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, Pair<LocalDate[], LocalDate[]>> {
+public final class AnnuityFixingDatesVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, Pair<LocalDate[], LocalDate[]>> {
   /** The visitor for coupon types */
-  private static final InstrumentDefinitionVisitor<Void, Pair<LocalDate, LocalDate>> COUPON_VISITOR = new CouponAccrualDatesVisitor();
+  private static final InstrumentDefinitionVisitor<Void, Pair<LocalDate, LocalDate>> COUPON_VISITOR = new CouponFixingDatesVisitor();
   /** A singleton instance */
-  private static final InstrumentDefinitionVisitor<LocalDate, Pair<LocalDate[], LocalDate[]>> INSTANCE = new AnnuityAccrualDatesVisitor();
+  private static final InstrumentDefinitionVisitor<LocalDate, Pair<LocalDate[], LocalDate[]>> INSTANCE = new AnnuityFixingDatesVisitor();
 
   /**
    * Gets the single instance of this class.
@@ -37,7 +37,7 @@ public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisito
   /**
    * Private constructor.
    */
-  private AnnuityAccrualDatesVisitor() {
+  private AnnuityFixingDatesVisitor() {
   }
 
   @Override
@@ -48,8 +48,8 @@ public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisito
     int count = 0;
     for (int i = 0; i < n; i++) {
       final PaymentDefinition payment = annuity.getNthPayment(i);
-      final Pair<LocalDate, LocalDate> dates = payment.accept(COUPON_VISITOR);
       if (payment.getPaymentDate().toLocalDate().isAfter(date)) {
+        final Pair<LocalDate, LocalDate> dates = annuity.getNthPayment(i).accept(COUPON_VISITOR);
         startDates.add(dates.getFirst());
         endDates.add(dates.getSecond());
         count++;

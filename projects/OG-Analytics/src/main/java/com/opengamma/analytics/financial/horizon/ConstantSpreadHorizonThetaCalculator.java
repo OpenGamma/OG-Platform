@@ -28,7 +28,9 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
@@ -63,11 +65,11 @@ public final class ConstantSpreadHorizonThetaCalculator {
   }
 
   public MultipleCurrencyAmount getTheta(final SwapDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
+      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward, final Calendar calendar) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
-    final ZonedDateTime horizonDate = date.plusDays(daysForward);
-    final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
+    final ZonedDateTime horizonDate = ScheduleCalculator.getAdjustedDate(date, daysForward, calendar);
+    final double shiftTime = TimeCalculator.getTimeBetween(date, date.plusDays(daysForward));
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
     final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
     final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);

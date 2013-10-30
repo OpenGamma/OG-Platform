@@ -6,12 +6,12 @@
 package com.opengamma.web.analytics.formatting;
 
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.DISCOUNT_FACTOR;
-import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.END_PAYMENT_DATES;
+import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.END_ACCRUAL_DATES;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.FIXED_RATE;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.NOTIONAL;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.PAYMENT_TIME;
 import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.PAYMENT_YEAR_FRACTION;
-import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.START_PAYMENT_DATES;
+import static com.opengamma.financial.analytics.model.fixedincome.FixedSwapLegDetails.START_ACCRUAL_DATES;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import com.opengamma.util.money.CurrencyAmount;
   /** Number of columns */
   private static final int COLUMN_COUNT = 7;
   /** Column labels */
-  private static final String[] COLUMN_LABELS = new String[] {START_PAYMENT_DATES, END_PAYMENT_DATES, DISCOUNT_FACTOR,
+  private static final String[] COLUMN_LABELS = new String[] {START_ACCRUAL_DATES, END_ACCRUAL_DATES, DISCOUNT_FACTOR,
     PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXED_RATE};
   /** x labels field */
   private static final String X_LABELS = "xLabels";

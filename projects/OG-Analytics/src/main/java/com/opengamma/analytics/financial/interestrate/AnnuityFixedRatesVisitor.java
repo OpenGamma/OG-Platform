@@ -11,36 +11,50 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 
 /**
- *
+ * Gets the fixed rates for an annuity.
  */
-public final class AnnuityFixedRatesVisitor extends InstrumentDerivativeVisitorAdapter<Void, double[]> {
+public final class AnnuityFixedRatesVisitor extends InstrumentDerivativeVisitorAdapter<Void, Double[]> {
+  /** Gets the fixed rates for coupons */
   private static final InstrumentDerivativeVisitor<Void, Double> COUPON_VISITOR = new CouponFixedRateVisitor();
-  private static final InstrumentDerivativeVisitor<Void, double[]> INSTANCE = new AnnuityFixedRatesVisitor();
+  /** The singleton instance */
+  private static final InstrumentDerivativeVisitor<Void, Double[]> INSTANCE = new AnnuityFixedRatesVisitor();
 
-  public static InstrumentDerivativeVisitor<Void, double[]> getInstance() {
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
+  public static InstrumentDerivativeVisitor<Void, Double[]> getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor.
+   */
   private AnnuityFixedRatesVisitor() {
   }
 
   @Override
-  public double[] visitGenericAnnuity(final Annuity<? extends Payment> annuity) {
+  public Double[] visitGenericAnnuity(final Annuity<? extends Payment> annuity) {
     final int n = annuity.getNumberOfPayments();
-    final double[] ca = new double[n];
+    final Double[] ca = new Double[n];
     for (int i = 0; i < n; i++) {
-      ca[i] = annuity.getNthPayment(i).accept(COUPON_VISITOR);
+      try {
+        ca[i] = annuity.getNthPayment(i).accept(COUPON_VISITOR);
+      } catch (final UnsupportedOperationException e) {
+        // expected in the case where the coupon is floating
+        ca[i] = null;
+      }
     }
     return ca;
   }
 
   @Override
-  public double[] visitFixedCouponAnnuity(final AnnuityCouponFixed annuity) {
+  public Double[] visitFixedCouponAnnuity(final AnnuityCouponFixed annuity) {
     return visitGenericAnnuity(annuity);
   }
 
   @Override
-  public double[] visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity) {
+  public Double[] visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity) {
     return visitGenericAnnuity(annuity);
   }
 }
