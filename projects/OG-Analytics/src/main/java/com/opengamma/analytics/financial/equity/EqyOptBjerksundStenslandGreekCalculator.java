@@ -68,18 +68,48 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = r; //TODO
+    final double b = Math.log(data.getForwardCurve().getForward(t) / s) / t;
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
+
     final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
     final GreekResultCollection result = new GreekResultCollection();
     result.put(Greek.DELTA, greeks[1]);
     result.put(Greek.DUAL_DELTA, greeks[2]);
-    result.put(Greek.RHO, greeks[3] / 100.);
+    result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
     result.put(Greek.CARRY_RHO, greeks[4] / 100.);
     result.put(Greek.THETA, -greeks[5] / 365.);
     result.put(Greek.VEGA, greeks[6] / 100.);
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
+    result.put(Greek.GAMMA, pdg[2]);
+    return result;
+  }
+
+  /**
+   * If MARKET_VALUE is available, volatility implied by Bjerksund-Stensland model is used. 
+   * @param option Equity option
+   * @param data Market data
+   * @param impliedVol The implied volatility
+   * @return Greeks
+   */
+  public GreekResultCollection getGreeksDirectEquityOption(final EquityOption option, final StaticReplicationDataBundle data, final double impliedVol) {
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(data, "data");
+    final double s = data.getForwardCurve().getSpot();
+    final double k = option.getStrike();
+    final double t = option.getTimeToExpiry();
+    final double r = data.getDiscountCurve().getInterestRate(t);
+    final double b = Math.log(data.getForwardCurve().getForward(t) / s) / t;
+    final boolean isCall = option.isCall();
+    final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, impliedVol, isCall);
+    final GreekResultCollection result = new GreekResultCollection();
+    result.put(Greek.DELTA, greeks[1]);
+    result.put(Greek.DUAL_DELTA, greeks[2]);
+    result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
+    result.put(Greek.CARRY_RHO, greeks[4] / 100.);
+    result.put(Greek.THETA, -greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, impliedVol, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;
   }
