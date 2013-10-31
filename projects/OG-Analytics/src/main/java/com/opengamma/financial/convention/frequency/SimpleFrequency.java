@@ -124,8 +124,18 @@ public final class SimpleFrequency implements Frequency, Serializable {
   }
 
   // -------------------------------------------------------------------------
+  /**
+   * @deprecated use getName()
+   * @return the name of the convention
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
+    return getName();
+  }
+
+  @Override
+  public String getName() {
     return _name;
   }
 

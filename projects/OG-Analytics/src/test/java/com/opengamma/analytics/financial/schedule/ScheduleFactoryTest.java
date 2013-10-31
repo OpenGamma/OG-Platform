@@ -51,6 +51,11 @@ public class ScheduleFactoryTest {
       public String getConventionName() {
         return null;
       }
+
+      @Override
+      public String getName() {
+        return null;
+      }
     };
     ScheduleFactory.getSchedule(START1, END1, frequency, true, false, false);
   }
@@ -91,6 +96,11 @@ public class ScheduleFactoryTest {
 
       @Override
       public String getConventionName() {
+        return null;
+      }
+
+      @Override
+      public String getName() {
         return null;
       }
     };

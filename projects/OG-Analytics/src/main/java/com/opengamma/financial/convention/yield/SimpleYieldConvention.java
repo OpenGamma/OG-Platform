@@ -151,11 +151,21 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
     _name = name;
   }
 
+  /**
+   * @return name of the convention
+   * @deprecated use getName()
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
+    return getName();
+  }
+  
+  @Override
+  public String getName() {
     return _name;
   }
-
+    
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);

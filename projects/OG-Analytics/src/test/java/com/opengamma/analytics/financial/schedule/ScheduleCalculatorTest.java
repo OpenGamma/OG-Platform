@@ -415,6 +415,11 @@ public class ScheduleCalculatorTest {
         return null;
       }
 
+      @Override
+      public String getName() {
+        return null;
+      }
+
     });
   }
 
@@ -569,6 +574,21 @@ public class ScheduleCalculatorTest {
         return 0;
       }
 
+      @Override
+      public double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, Calendar calendar) {
+        return 0;
+      }
+
+      @Override
+      public double getDayCountFraction(ZonedDateTime firstDate, ZonedDateTime secondDate, Calendar calendar) {
+        return 0;
+      }
+
+      @Override
+      public String getName() {
+        return "";
+      }
+
     };
     final ZonedDateTime now = DateUtils.getUTCDate(2010, 1, 1);
     final ZonedDateTime dates[] = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 1, 1), DateUtils.getUTCDate(2010, 2, 1), DateUtils.getUTCDate(2010, 3, 1), DateUtils.getUTCDate(2010, 4, 1),
@@ -612,6 +632,11 @@ public class ScheduleCalculatorTest {
       }
       return true;
     }
+
+    @Override
+    public String getName() {
+      return "";
+    }
   }
 
   private static class WeekendCalendar implements Calendar {
@@ -629,6 +654,11 @@ public class ScheduleCalculatorTest {
       }
       return true;
     }
+
+    @Override
+    public String getName() {
+      return "";
+    }
   }
 
   private static class AllCalendar implements Calendar {
@@ -641,6 +671,11 @@ public class ScheduleCalculatorTest {
     @Override
     public boolean isWorkingDay(final LocalDate date) {
       return true;
+    }
+
+    @Override
+    public String getName() {
+      return "";
     }
   }
 }

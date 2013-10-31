@@ -46,7 +46,7 @@ public class ActualTwoFiveTwo extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Actual/252";
   }
 

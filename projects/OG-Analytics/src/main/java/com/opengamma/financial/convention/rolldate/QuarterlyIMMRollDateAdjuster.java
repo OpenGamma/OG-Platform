@@ -66,5 +66,10 @@ public final class QuarterlyIMMRollDateAdjuster implements RollDateAdjuster {
   public long getMonthsToAdjust() {
     return 3L;
   }
+  
+  @Override
+  public String getName() {
+    return RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING;
+  }
 
 }

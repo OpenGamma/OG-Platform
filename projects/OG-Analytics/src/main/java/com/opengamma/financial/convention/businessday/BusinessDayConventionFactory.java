@@ -7,8 +7,10 @@ package com.opengamma.financial.convention.businessday;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -37,7 +39,7 @@ public final class BusinessDayConventionFactory {
   /**
    * All convention instances.
    */
-  private final Collection<BusinessDayConvention> _conventions;
+  private final List<BusinessDayConvention> _conventions;
 
   //-------------------------------------------------------------------------
   /**
@@ -99,9 +101,19 @@ public final class BusinessDayConventionFactory {
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
    *
    * @return the available conventions, not null
+   * @deprecated use values()
    */
+  @Deprecated
   public Iterator<BusinessDayConvention> enumerateAvailableBusinessDayConventions() {
     return Iterators.unmodifiableIterator(_conventions.iterator());
+  }
+  
+  /**
+   * Lists the available conventions.
+   * @return 
+   */
+  public List<BusinessDayConvention> values() {
+    return Collections.unmodifiableList(_conventions);
   }
 
 }

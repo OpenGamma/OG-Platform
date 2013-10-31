@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.convention.daycount;
 
 import org.joda.convert.FromStringFactory;
@@ -5,14 +10,13 @@ import org.joda.convert.ToString;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.financial.convention.NamedInstance;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Interface of a Day count convention
+ * Convention for calculating the day count.
  */
-@FromStringFactory(factory = DayCountFactory.class)
-public interface DayCount extends NamedInstance {
+public abstract class AbstractDayCount implements DayCount {
 
   /**
    * Gets the day count between the specified dates.
@@ -24,7 +28,8 @@ public interface DayCount extends NamedInstance {
    * @param secondDate  the later date, not null
    * @return the day count fraction
    */
-  double getDayCountFraction(LocalDate firstDate, LocalDate secondDate);
+  @Override
+  public abstract double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate);
 
   /**
    * Gets the day count between the specified dates using the supplied calendar to provide business days
@@ -37,7 +42,10 @@ public interface DayCount extends NamedInstance {
    * @param calendar  a calendar
    * @return the day count fraction
    */
-  double getDayCountFraction(LocalDate firstDate, LocalDate secondDate, Calendar calendar);
+  @Override
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final Calendar calendar) {
+    return getDayCountFraction(firstDate, secondDate);
+  }
 
   /**
    * Gets the day count between the specified dates.
@@ -49,7 +57,12 @@ public interface DayCount extends NamedInstance {
    * @param secondDate  the later date, not null
    * @return the day count fraction
    */
-  double getDayCountFraction(ZonedDateTime firstDate, ZonedDateTime secondDate);
+  @Override
+  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+    ArgumentChecker.notNull(firstDate, "first date");
+    ArgumentChecker.notNull(secondDate, "second date");
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
+  }
 
   /**
    * Gets the day count between the specified dates using the supplied calendar to provide business days
@@ -62,7 +75,12 @@ public interface DayCount extends NamedInstance {
    * @param calendar  a calendar
    * @return the day count fraction
    */
-  double getDayCountFraction(ZonedDateTime firstDate, ZonedDateTime secondDate, Calendar calendar);
+  @Override
+  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final Calendar calendar) {
+    ArgumentChecker.notNull(firstDate, "first date");
+    ArgumentChecker.notNull(secondDate, "second date");
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
+  }
 
   /**
    * Calculates the accrued interest for the coupon according to the convention.
@@ -74,7 +92,8 @@ public interface DayCount extends NamedInstance {
    * @param paymentsPerYear  the number of payments per year, one, two, three, four, six or twelve
    * @return the accrued interest
    */
-  double getAccruedInterest(LocalDate previousCouponDate, LocalDate date, LocalDate nextCouponDate, double coupon, double paymentsPerYear);
+  @Override
+  public abstract double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear);
 
   /**
    * Calculates the accrued interest for the coupon according to the convention.
@@ -86,22 +105,31 @@ public interface DayCount extends NamedInstance {
    * @param paymentsPerYear  the number of payments per year, one, two, three, four, six or twelve
    * @return the accrued interest
    */
-  double getAccruedInterest(ZonedDateTime previousCouponDate, ZonedDateTime date, ZonedDateTime nextCouponDate, double coupon, double paymentsPerYear);
+  @Override
+  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
+    ArgumentChecker.notNull(previousCouponDate, "previous coupon date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(nextCouponDate, "next coupon date");
+    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
+  }
 
   /**
    * Gets the name of the convention.
    *
    * @return the name, not null
-   * @deprecated use getName()
    */
+  @Override
   @Deprecated
-  String getConventionName();
+  public String getConventionName() {
+    return getName();
+  }
   
   /**
    * Gets the name of the convention.
    *
    * @return the name, not null
    */
-  @ToString
-  String getName();
+  @Override
+  public abstract String getName();
+
 }

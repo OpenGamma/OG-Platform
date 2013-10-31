@@ -56,7 +56,7 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "30U/360";
   }
 

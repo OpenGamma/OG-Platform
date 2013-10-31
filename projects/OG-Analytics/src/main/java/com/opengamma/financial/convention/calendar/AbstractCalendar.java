@@ -15,7 +15,7 @@ import org.threeten.bp.LocalDate;
  * <p>
  * This class exists to simplify common patterns of normal+exception data.
  */
-public abstract class CalendarBase implements Calendar, Serializable {
+public abstract class AbstractCalendar implements Calendar, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public abstract class CalendarBase implements Calendar, Serializable {
    * Creates an instance.
    * @param name  the convention name, not null
    */
-  protected CalendarBase(final String name) {
+  protected AbstractCalendar(final String name) {
     Validate.notNull(name, "name");
     _name = name;
   }
@@ -54,7 +54,13 @@ public abstract class CalendarBase implements Calendar, Serializable {
   }
 
   @Override
+  @Deprecated
   public String getConventionName() {
+    return getName();
+  }
+  
+  @Override
+  public String getName() {
     return _name;
   }
 

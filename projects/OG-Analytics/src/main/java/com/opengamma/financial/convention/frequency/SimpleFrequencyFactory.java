@@ -18,11 +18,12 @@ import org.joda.convert.FromString;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.NamedInstanceFactory;
 
 /**
  * Factory to obtain instances of {@code SimpleFrequency}.
  */
-public final class SimpleFrequencyFactory {
+public final class SimpleFrequencyFactory implements NamedInstanceFactory<SimpleFrequency> {
 
   /**
    * Singleton instance.
@@ -136,7 +137,6 @@ public final class SimpleFrequencyFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
-   *
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -148,7 +148,6 @@ public final class SimpleFrequencyFactory {
    * Gets a convention by the number of periods per year.
    * <p>
    * Some underlying data systems use this representation for frequency.
-   *
    * @param periods  the number of periods per year, zero means once at end
    * @return the convention, null if not found
    */
@@ -159,11 +158,20 @@ public final class SimpleFrequencyFactory {
   /**
    * Iterates over the available frequencies. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
-   *
    * @return the available conventions, not null
    */
   public Iterator<SimpleFrequency> enumerateAvailableFrequencies() {
     return Iterators.unmodifiableIterator(_frequencies.iterator());
+  }
+  
+  /**
+   * Returns a list of available frequencies. No particular ordering is specified and conventions may
+   * exist in the system not provided by this factory that aren't included as part of this enumeration.
+   * @return the available conventions, not null
+   */
+  @Override
+  public List<SimpleFrequency> values() {
+    return _frequencies;
   }
 
 }

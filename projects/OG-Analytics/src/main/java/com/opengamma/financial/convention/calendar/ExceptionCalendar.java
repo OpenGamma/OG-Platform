@@ -13,7 +13,7 @@ import org.threeten.bp.LocalDate;
 /**
  * Simple implementation of a calendar using sets of dates for exceptions.
  */
-public abstract class ExceptionCalendar extends CalendarBase {
+public abstract class ExceptionCalendar extends AbstractCalendar {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

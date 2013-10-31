@@ -35,6 +35,7 @@ import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.AbstractDayCount;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -138,7 +139,7 @@ public class InstrumentTestHelper {
     IBOR_FIXING_SERIES = ImmutableLocalDateDoubleTimeSeries.of(dates, fixings);
   }
 
-  public static final class SemiAnnualDayCount extends DayCount {
+  public static final class SemiAnnualDayCount extends AbstractDayCount {
 
     public SemiAnnualDayCount() {
     }
@@ -155,13 +156,13 @@ public class InstrumentTestHelper {
     }
 
     @Override
-    public String getConventionName() {
+    public String getName() {
       return null;
     }
 
   }
 
-  public static final class QuarterlyDayCount extends DayCount {
+  public static final class QuarterlyDayCount extends AbstractDayCount {
 
     public QuarterlyDayCount() {
     }
@@ -178,7 +179,7 @@ public class InstrumentTestHelper {
     }
 
     @Override
-    public String getConventionName() {
+    public String getName() {
       return null;
     }
 
