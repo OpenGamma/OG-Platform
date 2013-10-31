@@ -38,8 +38,7 @@ import com.opengamma.master.security.SecurityMaster;
 /**
  * Component factory for the security source.
  * <p>
- * This factory creates security sources for the underlying and user masters
- * as well as a combined source.
+ * This factory creates security sources for the underlying and user masters as well as a combined source.
  */
 @BeanDefinition
 public class UserFinancialSecuritySourceComponentFactory extends AbstractComponentFactory {
@@ -84,7 +83,6 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     FinancialSecuritySource source = initUnderlying(repo, configuration);
-    
     // add user level if requested
     FinancialSecuritySource userSource = initUser(repo, configuration);
     Map<String, FinancialSecuritySource> map = new HashMap<String, FinancialSecuritySource>();
@@ -93,7 +91,10 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
       map.put(scheme, userSource);
       source = new DelegatingFinancialSecuritySource(source, map);
     }
-    
+    // wrap it in a cache
+    if (getCacheManager() != null) {
+      source = new EHCachingFinancialSecuritySource(source, getCacheManager());
+    }
     // register
     ComponentInfo info = new ComponentInfo(SecuritySource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
@@ -106,17 +107,14 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
 
   protected FinancialSecuritySource initUnderlying(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     FinancialSecuritySource source = new MasterFinancialSecuritySource(getUnderlyingSecurityMaster());
-    
+
     // REVIEW kirk 2013-04-19 -- The block below should only be enabled when developing
     // the RedisCachingFinancialSecuritySource.
     /*JedisPool jedisPool = new JedisPool("localhost");
     source = new RedisCachingFinancialSecuritySource(source, jedisPool, "", OpenGammaFudgeContext.getInstance());*/
-    
-    if (getCacheManager() != null) {
-      source = new EHCachingFinancialSecuritySource(source, getCacheManager());
-    }
-    
+
     if (getUnderlyingClassifier() != null) {
+      // [PLAT-4986] Note: the composite source is wrapped in a cache, but the underlying source isn't and will not be very efficient to use
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUnderlyingClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
       info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFinancialSecuritySource.class);
@@ -134,6 +132,7 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
     }
     FinancialSecuritySource source = new MasterFinancialSecuritySource(getUserSecurityMaster());
     if (getUserClassifier() != null) {
+      // [PLAT-4986] Note: the composite source is wrapped in a cache, but the user source isn't and will not be very efficient to use
       ComponentInfo info = new ComponentInfo(SecuritySource.class, getUserClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
       info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteFinancialSecuritySource.class);
