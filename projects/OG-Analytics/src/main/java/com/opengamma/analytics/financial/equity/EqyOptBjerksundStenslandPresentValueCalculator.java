@@ -56,7 +56,8 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double forward = data.getForwardCurve().getForward(time);
+    final double costOfCarry = Math.log(forward / spot) / time;
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 
