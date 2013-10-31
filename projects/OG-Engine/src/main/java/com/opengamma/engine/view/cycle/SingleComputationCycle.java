@@ -239,7 +239,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     return Duration.between(getStartTime(), getEndTime() == null ? Instant.now() : getEndTime());
   }
-  
+
   @Override
   public ViewCycleExecutionOptions getExecutionOptions() {
     return _executionOptions;
@@ -413,6 +413,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         fullResultModel.addValue(calcConfigName, valueResult);
       }
     }
+    fragmentResultModel.setCalculationTime(Instant.now());
     notifyFragmentCompleted(fragmentResultModel);
   }
 
@@ -507,6 +508,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       // REVIEW jonathan 2012-11-01 -- probably need a cycle-level execution log for things like this
       s_logger.info("Missing {} market data elements", missingMarketData);
     }
+    fragmentResultModel.setCalculationTime(Instant.now());
     notifyFragmentCompleted(fragmentResultModel);
     return true;
   }
@@ -604,6 +606,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       }
     }
     if (!fragmentResultModel.getAllResults().isEmpty()) {
+      fragmentResultModel.setCalculationTime(Instant.now());
       notifyFragmentCompleted(fragmentResultModel);
     }
   }

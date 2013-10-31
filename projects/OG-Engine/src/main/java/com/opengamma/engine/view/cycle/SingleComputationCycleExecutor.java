@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.cache.ViewComputationCache;
@@ -78,6 +79,8 @@ import com.opengamma.util.tuple.Pair;
         SingleComputationCycle cycle = executor.getCycle();
         final InMemoryViewComputationResultModel fragmentResultModel = cycle.constructTemplateResultModel();
         calcConfig.buildResults(fragmentResultModel, cycle.getResultModel());
+        // TODO: Populate with durations from the component jobs
+        fragmentResultModel.setCalculationTime(Instant.now());
         cycle.notifyFragmentCompleted(fragmentResultModel);
       }
     }
@@ -197,6 +200,8 @@ import com.opengamma.util.tuple.Pair;
               calcConfig.buildResults(fragmentResultModel, fullResultModel);
             }
             s_logger.info("Fragment execution complete");
+            // TODO: Populate the calculation duration with information from the component jobs
+            fragmentResultModel.setCalculationTime(Instant.now());
             getCycle().notifyFragmentCompleted(fragmentResultModel);
           }
           _issueFragmentResults = false;

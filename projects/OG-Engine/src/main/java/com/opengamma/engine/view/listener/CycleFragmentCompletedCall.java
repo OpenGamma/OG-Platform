@@ -32,4 +32,9 @@ public class CycleFragmentCompletedCall extends AbstractCompletedResultsCall {
     return null;
   }
 
+  @Override
+  protected void newFull(final ViewComputationResultModel full) {
+    updateFull(full);
+  }
+
 }
