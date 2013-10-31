@@ -16,6 +16,7 @@ import java.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.resource.EngineResourceManagerImpl;
@@ -25,10 +26,10 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.impl.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
@@ -118,8 +119,11 @@ public class RateLimitingMergingViewProcessListenerTest {
     mergingListener.viewDefinitionCompiled(preCompilation, true);
 
     addResults(mergingListener, 10);
-    mergingListener.cycleCompleted(mock(ViewComputationResultModel.class), getDeltaResult(1));
-    final ViewComputationResultModel latestResult = mock(ViewComputationResultModel.class);
+    final InMemoryViewComputationResultModel initialResult = new InMemoryViewComputationResultModel();
+    initialResult.setCalculationTime(Instant.now());
+    mergingListener.cycleCompleted(initialResult, getDeltaResult(1));
+    final InMemoryViewComputationResultModel latestResult = new InMemoryViewComputationResultModel();
+    latestResult.setCalculationTime(Instant.now());
     mergingListener.cycleCompleted(latestResult, getDeltaResult(2));
 
     final CompiledViewDefinitionWithGraphsImpl postCompilation = mock(CompiledViewDefinitionWithGraphsImpl.class);
@@ -152,6 +156,7 @@ public class RateLimitingMergingViewProcessListenerTest {
 
   private ViewDeltaResultModel getDeltaResult(final int value) {
     final InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
+    deltaResult.setCalculationTime(Instant.now());
     deltaResult.addValue("DEFAULT", getComputedValueResult("value" + value, value));
     return deltaResult;
   }
@@ -188,17 +193,19 @@ public class RateLimitingMergingViewProcessListenerTest {
       addResults(mergingListener, 10);
     }
     // Wait a couple of periods for any stragglers
-    Thread.sleep (2 * period);
+    Thread.sleep(2 * period);
     // Check that the results didn't come any faster than we asked for (give or take 10%), and not too slowly (allow up to twice)
-    assertTrue ("Expecting results no faster than " + period + " ms, but got a result after " + testListener.getShortestDelay() + " ms", testListener.getShortestDelay() >= (period - period / 10));
-    assertTrue ("Expecting results no slower than " + (period * 2) + " ms, but got a result after " + testListener.getShortestDelay() + " ms", testListener.getShortestDelay() <= (period * 2));
+    assertTrue("Expecting results no faster than " + period + " ms, but got a result after " + testListener.getShortestDelay() + " ms", testListener.getShortestDelay() >= (period - period / 10));
+    assertTrue("Expecting results no slower than " + (period * 2) + " ms, but got a result after " + testListener.getShortestDelay() + " ms", testListener.getShortestDelay() <= (period * 2));
     s_logger.info("Size = {}", testListener.getQueueSize());
     testListener.clear();
   }
 
   private void addResults(final ViewResultListener listener, final int count) {
     for (int i = 0; i < count; i++) {
-      listener.cycleCompleted(mock(ViewComputationResultModel.class), null);
+      final InMemoryViewComputationResultModel model = new InMemoryViewComputationResultModel();
+      model.setCalculationTime(Instant.now());
+      listener.cycleCompleted(model, null);
     }
   }
 
