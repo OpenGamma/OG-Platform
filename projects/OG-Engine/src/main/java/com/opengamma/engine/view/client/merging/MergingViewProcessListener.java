@@ -33,42 +33,40 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Collects and merges view process updates, releasing them only when {@code drain()} is called.
- * Also ensures that different update types are passed to the underlying listener
- * in the correct order when drained.
+ * Collects and merges view process updates, releasing them only when {@code drain()} is called. Also ensures that different update types are passed to the underlying listener in the correct order
+ * when drained.
  */
 public class MergingViewProcessListener implements ViewResultListener {
-  
+
   private final ReentrantLock _mergerLock = new ReentrantLock();
   private final ViewResultListener _underlying;
-  
+
   private boolean _isPassThrough = true;
   private boolean _isLatestResultCycleRetained;
   private EngineResourceRetainer _cycleRetainer;
-  
+
   /**
    * The time at which an update was last received.
    */
   private final AtomicLong _lastUpdateMillis = new AtomicLong(0);
-  
+
   private final List<Function<ViewResultListener, ?>> _callQueue = new LinkedList<Function<ViewResultListener, ?>>();
-  
+
   private int _previousCycleStartedIndex = -1;
   private int _latestCycleStartedIndex = -1;
   private int _cycleCompletedIndex = -1;
   private int _cycleFragmentCompletedIndex = -1;
-  
+
   public MergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
     _cycleRetainer = new EngineResourceRetainer(cycleManager);
   }
-  
+
   //-------------------------------------------------------------------------
   /**
-   * Gets whether incoming updates should be allowed to pass straight through without merging.
-   * If this is false then updates will not be released unless an update is triggered.
-   *  
+   * Gets whether incoming updates should be allowed to pass straight through without merging. If this is false then updates will not be released unless an update is triggered.
+   * 
    * @return true if updates should be passed straight to listeners without merging
    */
   protected boolean isPassThrough() {
@@ -79,14 +77,12 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   /**
-   * Sets whether incoming updates should be allowed to pass straight through without merging. If this is changed to
-   * <code>true</code> then an update is first triggered to clear any existing merged updates. Subsequent updates will
-   * pass straight through until this is set to <code>false</code>.
+   * Sets whether incoming updates should be allowed to pass straight through without merging. If this is changed to <code>true</code> then an update is first triggered to clear any existing merged
+   * updates. Subsequent updates will pass straight through until this is set to <code>false</code>.
    * 
-   * @param passThrough  true if incoming updates should be allowed to pass straight through without
-   *                     merging, or false to merge updates until an update is triggered
+   * @param passThrough true if incoming updates should be allowed to pass straight through without merging, or false to merge updates until an update is triggered
    */
   protected void setPassThrough(boolean passThrough) {
     _mergerLock.lock();
@@ -100,21 +96,21 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   /**
    * Gets the time at which the last update was received.
    * 
-   * @return  the time at which the last udpate was received, in milliseconds
+   * @return the time at which the last udpate was received, in milliseconds
    */
   protected long getLastUpdateTimeMillis() {
     return _lastUpdateMillis.get();
   }
-  
+
   //-------------------------------------------------------------------------
   public boolean isLatestResultCycleRetained() {
     return _isLatestResultCycleRetained;
   }
-  
+
   public void setLatestResultCycleRetained(boolean isLatestResultCycleRetained) {
     _mergerLock.lock();
     try {
@@ -126,7 +122,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public UserPrincipal getUser() {
@@ -147,7 +143,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
     _mergerLock.lock();
@@ -161,7 +157,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
   public void cycleStarted(ViewCycleMetadata cycleMetadata) {
     _mergerLock.lock();
@@ -188,11 +184,11 @@ public class MergingViewProcessListener implements ViewResultListener {
       if (isPassThrough()) {
         getUnderlying().cycleCompleted(fullResult, deltaResult);
       } else {
-        
+
         // Result merging is the most complicated. It is based on the following rules:
         //  - only one result call in the queue, kept up-to-date by merging new result calls into it 
         //  - the updated result call is repositioned to the end of the queue
-        
+
         // Result collapsing
         if (_cycleCompletedIndex != -1) {
           // There's an old cycle completed call in the queue - find it and move to end
@@ -205,7 +201,7 @@ public class MergingViewProcessListener implements ViewResultListener {
           _cycleCompletedIndex = _callQueue.size();
           _callQueue.add(cycleCompletedCall);
         }
-        
+
         // Only keep the cycle started call for the latest complete result
         if (_previousCycleStartedIndex != -1) {
           removeCall(_previousCycleStartedIndex);
@@ -216,7 +212,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
   public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
     _mergerLock.lock();
@@ -284,12 +280,12 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   @Override
   public void clientShutdown(Exception e) {
     // Client shutdowns are not queued
   }
-  
+
   //-------------------------------------------------------------------------
   public void drain() {
     _mergerLock.lock();
@@ -306,7 +302,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   /**
    * Consumes any updates waiting in the merger without notifying the underlying listener.
    */
@@ -323,7 +319,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _mergerLock.unlock();
     }
   }
-  
+
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   private <T extends Function<ViewResultListener, ?>> T pullCallToEnd(int fromIndex) {
@@ -338,12 +334,12 @@ public class MergingViewProcessListener implements ViewResultListener {
     adjustIndices(fromIndex, lastIndex);
     return call;
   }
-  
+
   private void removeCall(int fromIndex) {
     _callQueue.remove(fromIndex);
     adjustIndices(fromIndex, -1);
   }
-  
+
   private void adjustIndices(int fromIndex, int newIndex) {
     if (_cycleFragmentCompletedIndex > fromIndex) {
       _cycleFragmentCompletedIndex--;
@@ -366,13 +362,13 @@ public class MergingViewProcessListener implements ViewResultListener {
       _latestCycleStartedIndex = newIndex;
     }
   }
-  
+
   private ViewResultListener getUnderlying() {
     return _underlying;
   }
-  
+
   private EngineResourceRetainer getCycleRetainer() {
     return _cycleRetainer;
   }
-  
+
 }

@@ -84,8 +84,7 @@ public class ViewClientImpl implements ViewClient {
   private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<>();
 
   /**
-   * Holds the context information to be passed to the view process where it will be
-   * added to each log statement (using the MDC mechanism).
+   * Holds the context information to be passed to the view process where it will be added to each log statement (using the MDC mechanism).
    */
   private Map<String, String> _viewProcessContextMap;
 
@@ -117,14 +116,14 @@ public class ViewClientImpl implements ViewClient {
 
       @Override
       public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition,
-                                         boolean hasMarketDataPermissions) {
+          boolean hasMarketDataPermissions) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
 
         _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(),
-                                                                                               compiledViewDefinition);
+            compiledViewDefinition);
         _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(),
-                                                                                       compiledViewDefinition,
-                                                                                       hasMarketDataPermissions);
+            compiledViewDefinition,
+            hasMarketDataPermissions);
 
         PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
@@ -141,7 +140,6 @@ public class ViewClientImpl implements ViewClient {
             compiledViewDefinition.getCompiledCalculationConfigurations(),
             compiledViewDefinition.getValidFrom(),
             compiledViewDefinition.getValidTo());
-
 
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
@@ -167,10 +165,8 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
-                                                                             isFirstResult) ? fullResult : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
-                                                                         isFirstResult) ? deltaResult : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, isFirstResult) ? fullResult : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, isFirstResult) ? deltaResult : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleCompleted(userFullResult, userDeltaResult);
             } else if (!isFirstResult || resultMode != ViewResultMode.DELTA_ONLY) {
@@ -188,15 +184,15 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getFragmentResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
-                                                                             prevResult == null) ? fullFragment : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
-                                                                         prevResult == null) ? deltaFragment : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullFragment : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaFragment : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleFragmentCompleted(userFullResult, userDeltaResult);
-            } else if (prevResult == null || resultMode != ViewResultMode.DELTA_ONLY) {
-              // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
-              s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
+            } else {
+              if ((prevResult != null) || (resultMode != ViewResultMode.DELTA_ONLY)) {
+                // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
+                s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
+              }
             }
           }
         }
@@ -291,9 +287,9 @@ public class ViewClientImpl implements ViewClient {
       ViewProcessorImpl viewProcessor = getViewProcessor();
       ViewPermissionContext context = privateProcess ?
           viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
-                                                         executionOptions, _viewProcessContextMap) :
+              executionOptions, _viewProcessContextMap) :
           viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
-                                                        executionOptions, _viewProcessContextMap);
+              executionOptions, _viewProcessContextMap);
       attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();

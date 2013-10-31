@@ -5,40 +5,25 @@
  */
 package com.opengamma.engine.view.listener;
 
-import com.google.common.base.Function;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.client.merging.ViewComputationResultModelMerger;
-import com.opengamma.engine.view.client.merging.ViewDeltaResultModelMerger;
 
 /**
  * Represents a call to {@link ViewResultListener#cycleFragmentCompleted(ViewResultModel, ViewDeltaResultModel)}
  */
-public class CycleFragmentCompletedCall implements Function<ViewResultListener, Object> {
-
-  private final ViewComputationResultModelMerger _fullFragmentMerger = new ViewComputationResultModelMerger();
-  private final ViewDeltaResultModelMerger _deltaFragmentMerger = new ViewDeltaResultModelMerger();
+public class CycleFragmentCompletedCall extends AbstractCompletedResultsCall {
 
   public CycleFragmentCompletedCall(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-    update(fullResult, deltaResult);
+    super(fullResult, deltaResult);
   }
 
-  public void update(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
-    if (fullFragment != null) {
-      _fullFragmentMerger.merge(fullFragment);
-    }
-    if (deltaFragment != null) {
-      _deltaFragmentMerger.merge(deltaFragment);
-    }
-  }
-    
   public ViewComputationResultModel getFullFragment() {
-    return _fullFragmentMerger.getLatestResult();
+    return getViewComputationResultModel();
   }
 
   public ViewDeltaResultModel getDeltaFragment() {
-    return _deltaFragmentMerger.getLatestResult();
+    return getViewDeltaResultModel();
   }
 
   @Override
