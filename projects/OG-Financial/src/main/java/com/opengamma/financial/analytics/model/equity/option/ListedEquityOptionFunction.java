@@ -332,7 +332,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     final ValueProperties additionalConstraints = (additionalConstraintsBuilder != null) ? additionalConstraintsBuilder.get() : ValueProperties.none();
-
     // Get security and its underlying's ExternalId.
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
@@ -348,13 +347,18 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final ValueRequirement forwardCurveReq;
     if (security instanceof EquityIndexFutureOptionSecurity) {
       final SecuritySource securitySource = context.getSecuritySource();
-      IndexFutureSecurity future = (IndexFutureSecurity) securitySource.get(ExternalIdBundle.of(underlyingId)).iterator().next();
+      IndexFutureSecurity future = (IndexFutureSecurity) securitySource.getSingle(ExternalIdBundle.of(underlyingId), context.getComputationTargetResolver().getVersionCorrection());
+      if (future == null) {
+        return null;
+      }
       final ExternalId indexId = future.getUnderlyingId();
+      if (indexId == null) {
+        return null;
+      }
       forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, indexId, additionalConstraints);
     } else {
       forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
     }
-
     if (forwardCurveReq == null) {
       return null;
     }
