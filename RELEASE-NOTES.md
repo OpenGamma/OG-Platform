@@ -75,6 +75,16 @@ To 2.1.6
     [PLAT-4953] Display security level black gamma for ir future options.
     [PLAT-4952] Changed SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.forward() so that it returns forward instead forwardModified
 
+To 2.1.7
+--------
+
+    [PLAT-4949] Support clone-free InMemoryMasters
+    [PLAT-4950] InMemoryPortfolioMaster performance enhancements
+    [PLAT-4947] Mutable delegating PositionMaster and PortfolioMaster and SecurityMaster
+    [PLAT-4972] Removed unnecessary log lines
+    [] Corrected swaption valueTheta calculation so that the final value is scaled by annuity numeraire for PhysicalFixedIbor
+    [] Scale the theoretical Black Theta by a factor of 365.25
+
 
 OpenGamma Platform 2.1
 ---------------------------------
@@ -246,6 +256,23 @@ Analytics compatibility
 - No expected differences
 
 To 2.1.6
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.7
 -----------
 
 As above, and:
