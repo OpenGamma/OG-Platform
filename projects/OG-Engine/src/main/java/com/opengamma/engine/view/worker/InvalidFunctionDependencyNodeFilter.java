@@ -37,9 +37,15 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
     final Boolean expired = _expired.get(functionId);
     if (expired == null) {
       final CompiledFunctionDefinition cfd = _functions.getFunction(functionId);
+      if (cfd == null) {
+        // Function no longer in compiled repository
+        _expired.put(functionId, Boolean.FALSE);
+        return false;
+      }
       Instant t = cfd.getEarliestInvocationTime();
       if (t != null) {
         if (_valuationTime.isBefore(t)) {
+          // Function has expired
           _expired.put(functionId, Boolean.FALSE);
           return false;
         }
@@ -47,10 +53,12 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
       t = cfd.getLatestInvocationTime();
       if (t != null) {
         if (_valuationTime.isAfter(t)) {
+          // Function has expired
           _expired.put(functionId, Boolean.FALSE);
           return false;
         }
       }
+      // Function is still valid
       _expired.put(functionId, Boolean.TRUE);
       return true;
     }
