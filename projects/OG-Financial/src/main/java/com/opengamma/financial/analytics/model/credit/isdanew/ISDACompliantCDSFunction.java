@@ -192,9 +192,9 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final double accruedPremium = isIMM ? analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor : 0;
     final int accruedDays = isIMM ? analytic.getAccuredDays() : 0;
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
-    final double upfrontAmount = isIMM ? getUpfrontAmount(analytic, puf, notional, buySellProtection) : 0;
+    final double upfrontAmount = getUpfrontAmount(analytic, puf, notional, buySellProtection);
     final double cleanPV = puf.getPointsUpFront() * notional;
-    final double principal = isIMM ? cleanPV : 0;
+    final double principal = cleanPV;
     final double cleanPrice = getCleanPrice(puf);
     final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
     final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
