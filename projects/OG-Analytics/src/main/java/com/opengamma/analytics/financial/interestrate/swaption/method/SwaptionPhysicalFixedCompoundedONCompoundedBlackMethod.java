@@ -243,7 +243,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
     final double numeraire = curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
     final double sign = (swaption.isLong() ? 1.0 : -1.0);
-    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curves) * numeraire * sign / -10000000000.0);
+    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curves) * numeraire * sign);
   }
 
   /**

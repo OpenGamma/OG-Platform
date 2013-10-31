@@ -275,13 +275,16 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
   public CurrencyAmount theta(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curves) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curves, "Curves with Black volatility");
+    /**
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curves.getBlackParameters().getGeneratorSwap();
     final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
     final Calendar calendar = fixedIborGenerator.getCalendar();
     final DayCount dayCountModification = fixedIborGenerator.getFixedLegDayCount();
     final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curves, calendar);
+    */
     final double sign = swaption.isLong() ? 1.0 : -1.0;
-    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curves) * forwardModified * sign);
+//    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curves) * forwardModified * sign);
+    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curves) * sign);
   }
 
   /**
@@ -357,9 +360,9 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
 
     final double expiry = swaption.getTimeToExpiry();
     final boolean isCall = swaption.isCall();
-
-    return forwardModified * BlackFormulaRepository.price(forwardModified, strikeModified, expiry, volatility, isCall) * (swaption.isLong() ? 1.0 : -1.0) +
-        BlackFormulaRepository.driftlessTheta(forwardModified, strikeModified, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
+    final double notional = Math.abs(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(1).getNotional());
+    return //notional * forwardModified * BlackFormulaRepository.price(forwardModified, strikeModified, expiry, volatility, isCall) * (swaption.isLong() ? 1.0 : -1.0) +
+        pvbpModified * BlackFormulaRepository.driftlessTheta(forwardModified, strikeModified, expiry, volatility); // * (swaption.isLong() ? 1.0 : -1.0);
   }
 
   /**
