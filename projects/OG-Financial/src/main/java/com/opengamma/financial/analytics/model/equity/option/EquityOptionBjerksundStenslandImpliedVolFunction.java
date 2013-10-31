@@ -19,6 +19,8 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -99,8 +101,11 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
     }
     final double spot = market.getForwardCurve().getSpot();
     final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
-    final double costOfCarry = discountRate - Math.log(market.getForwardCurve().getForward(timeToExpiry) / spot) / timeToExpiry;
-    final double impliedVol = (new BjerksundStenslandModel()).impliedVolatility(optionPrice, spot, strike, discountRate, costOfCarry, timeToExpiry, isCall);
+    final double forward = market.getForwardCurve().getForward(timeToExpiry);
+    final double costOfCarry =  Math.log(forward / spot) / timeToExpiry;
+    final double volatility = market.getVolatilitySurface().getVolatility(timeToExpiry, strike);
+    final BjerksundStenslandModel model = new BjerksundStenslandModel();
+    final double impliedVol = model.impliedVolatility(optionPrice, spot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.2));
 
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));

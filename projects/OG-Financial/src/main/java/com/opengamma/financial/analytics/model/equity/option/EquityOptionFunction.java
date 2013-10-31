@@ -287,8 +287,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     if (volReq == null) {
       return null;
     }
-    // Return the set
-    return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);
+    final ValueRequirement marketValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
+    // Return the set    
+    return Sets.newHashSet(discountingReq, volReq, forwardCurveReq, marketValueRequirement);
   }
 
   @Override
@@ -341,7 +342,6 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       } else if (inputName.equals(MarketDataRequirementNames.MARKET_VALUE) && !surfacePropertiesSet) { // BlackBasic case
         // TODO: Add any additional properties for the BlackBasic MarketValue result
         // FIXME: For prototyping, I am adding stubs for what the default functions are going to add anyway...
-        // FIXME: This is garbage that has to go. It's not right to spoof a bunch of properties here. What I really want is for the caller not to expect them at all.
         //        ValueProperties surfaceProperties = BlackVolatilitySurfacePropertyUtils.addAllBlackSurfaceProperties(ValueProperties.none(), 
         //            InstrumentTypeProperties.EQUITY_OPTION, BlackVolatilitySurfacePropertyNamesAndValues.SPLINE).get();
         //        for (final String property : surfaceProperties.getProperties()) {
