@@ -76,6 +76,7 @@ public class ResultsFormatter {
     ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
     LocalDateDoubleTimeSeriesFormatter localDateDoubleTimeSeriesFormatter = new LocalDateDoubleTimeSeriesFormatter();
     RateFormatter rateFormatter = new RateFormatter();
+    BasisPointsFormatter basisPointFormatter = new BasisPointsFormatter();
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
                   currencyAmountFormatter,
@@ -126,7 +127,8 @@ public class ResultsFormatter {
                   new FixedPaymentMatrixFormatter(currencyAmountFormatter),
                   new FloatingPaymentMatrixFormatter(currencyAmountFormatter),
                   new FixedSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter),
-                  new FloatingSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter));
+                  new FloatingSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter,
+                      basisPointFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

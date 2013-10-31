@@ -52,16 +52,23 @@ import com.opengamma.util.money.CurrencyAmount;
   private final AbstractFormatter<CurrencyAmount> _caFormatter;
   /** Formats rates */
   private final AbstractFormatter<Double> _rateFormatter;
+  /** Formats the spread into basis points */
+  private final AbstractFormatter<Double> _basisPointFormatter;
 
   /**
    * @param caFormatter The currency amount formatter, not null
+   * @param rateFormatter The rate formatter, not null
+   * @param basisPointFormatter The basis point formatter, not null
    */
-  /* package */ FloatingSwapLegDetailsFormatter(final AbstractFormatter<CurrencyAmount> caFormatter, final AbstractFormatter<Double> rateFormatter) {
+  /* package */ FloatingSwapLegDetailsFormatter(final AbstractFormatter<CurrencyAmount> caFormatter, final AbstractFormatter<Double> rateFormatter,
+      final AbstractFormatter<Double> basisPointFormatter) {
     super(FloatingSwapLegDetails.class);
     ArgumentChecker.notNull(caFormatter, "currency amount formatter");
     ArgumentChecker.notNull(rateFormatter, "rate formatter");
+    ArgumentChecker.notNull(basisPointFormatter, "basis point formatter");
     _caFormatter = caFormatter;
     _rateFormatter = rateFormatter;
+    _basisPointFormatter = basisPointFormatter;
     addFormatter(new Formatter<FloatingSwapLegDetails>(Format.EXPANDED) {
       @Override
       Map<String, Object> format(FloatingSwapLegDetails value, ValueSpecification valueSpec, Object inlineKey) {
@@ -105,9 +112,9 @@ import com.opengamma.util.money.CurrencyAmount;
       values[i][11] = value.getPaymentAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getPaymentAmounts()[i], valueSpec, null);
       values[i][12] = value.getProjectedAmounts()[i] == null ? "-" : _caFormatter.formatCell(value.getProjectedAmounts()[i], valueSpec, null);
       values[i][13] = _caFormatter.formatCell(value.getNotionals()[i], valueSpec, null);
-      values[i][14] = value.getSpreads()[i];
+      values[i][14] = _basisPointFormatter.formatCell(value.getSpreads()[i], valueSpec, null);
       values[i][15] = value.getGearings()[i];
-      values[i][16] = value.getIndexTenors()[i];
+      values[i][16] = value.getIndexTenors()[i].toFormattedString();
     }
     results.put(MATRIX, values);
     return results;
