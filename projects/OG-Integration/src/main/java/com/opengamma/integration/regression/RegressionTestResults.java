@@ -158,7 +158,8 @@ public final class RegressionTestResults implements ImmutableBean {
       RegressionTestResults other = (RegressionTestResults) obj;
       return JodaBeanUtils.equal(getBaseVersion(), other.getBaseVersion()) &&
           JodaBeanUtils.equal(getTestVersion(), other.getTestVersion()) &&
-          JodaBeanUtils.equal(getDifferences(), other.getDifferences());
+          JodaBeanUtils.equal(getDifferences(), other.getDifferences()) &&
+          JodaBeanUtils.equal(getStatus(), other.getStatus());
     }
     return false;
   }
@@ -169,16 +170,18 @@ public final class RegressionTestResults implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getBaseVersion());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTestVersion());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDifferences());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("RegressionTestResults{");
     buf.append("baseVersion").append('=').append(getBaseVersion()).append(',').append(' ');
     buf.append("testVersion").append('=').append(getTestVersion()).append(',').append(' ');
-    buf.append("differences").append('=').append(JodaBeanUtils.toString(getDifferences()));
+    buf.append("differences").append('=').append(getDifferences()).append(',').append(' ');
+    buf.append("status").append('=').append(JodaBeanUtils.toString(getStatus()));
     buf.append('}');
     return buf.toString();
   }
@@ -210,13 +213,19 @@ public final class RegressionTestResults implements ImmutableBean {
     private final MetaProperty<List<CalculationDifference>> _differences = DirectMetaProperty.ofImmutable(
         this, "differences", RegressionTestResults.class, (Class) List.class);
     /**
+     * The meta-property for the {@code status} property.
+     */
+    private final MetaProperty<TestStatus> _status = DirectMetaProperty.ofDerived(
+        this, "status", RegressionTestResults.class, TestStatus.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "baseVersion",
         "testVersion",
-        "differences");
+        "differences",
+        "status");
 
     /**
      * Restricted constructor.
@@ -233,6 +242,8 @@ public final class RegressionTestResults implements ImmutableBean {
           return _testVersion;
         case 2039608022:  // differences
           return _differences;
+        case -892481550:  // status
+          return _status;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -277,6 +288,14 @@ public final class RegressionTestResults implements ImmutableBean {
       return _differences;
     }
 
+    /**
+     * The meta-property for the {@code status} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<TestStatus> status() {
+      return _status;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -287,6 +306,8 @@ public final class RegressionTestResults implements ImmutableBean {
           return ((RegressionTestResults) bean).getTestVersion();
         case 2039608022:  // differences
           return ((RegressionTestResults) bean).getDifferences();
+        case -892481550:  // status
+          return ((RegressionTestResults) bean).getStatus();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
