@@ -152,7 +152,7 @@ public class NodeConverterUtils {
    * @return An annuity definition
    * @throws UnsupportedOperationException If the convention type has not been implemented
    */
-  private static AnnuityDefinition<? extends PaymentDefinition> getSwapLeg(final Convention legConvention, final Period startTenor,
+  public static AnnuityDefinition<? extends PaymentDefinition> getSwapLeg(final Convention legConvention, final Period startTenor,
       final Period maturityTenor, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final boolean isPayer,
       final boolean isMarketDataSpread) {
@@ -237,7 +237,7 @@ public class NodeConverterUtils {
       }
 
       @Override
-      public AnnuityDefinition<? extends PaymentDefinition> visitSwapFixedLegConvention(final SwapFixedLegConvention convention) {
+      public AnnuityCouponFixedDefinition visitSwapFixedLegConvention(final SwapFixedLegConvention convention) {
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, convention.getRegionCalendar());
         final Double rate = marketData.getDataPoint(dataId);
         if (rate == null) {
@@ -253,7 +253,7 @@ public class NodeConverterUtils {
         final StubType stub = convention.getStubType();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-        return AnnuityCouponFixedDefinition.from(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 1, rate, isPayer, stub);
+        return AnnuityDefinitionBuilder.couponFixed(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 1.0d, rate, isPayer, stub);
       }
 
       @Override

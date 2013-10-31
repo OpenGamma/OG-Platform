@@ -5,10 +5,13 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -76,6 +79,19 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
       throw new OpenGammaRuntimeException("Convention with id " + threeLegBasisSwapNode.getReceiveLegConvention() + " was null");
     }
     final Convention spreadLegConvention = _conventionSource.getConvention(threeLegBasisSwapNode.getSpreadLegConvention());
-    return null;
+    if (spreadLegConvention == null) {
+      throw new OpenGammaRuntimeException("Convention with id " + threeLegBasisSwapNode.getSpreadLegConvention() + " was null");
+    }
+    final Period startTenor = threeLegBasisSwapNode.getStartTenor().getPeriod();
+    final Period maturityTenor = threeLegBasisSwapNode.getMaturityTenor().getPeriod();
+    final AnnuityDefinition<?>[] legs = new AnnuityDefinition[3];
+    legs[0] = NodeConverterUtils.getSwapLeg(spreadLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
+        _marketData, _dataId, _valuationTime, true, false); // Spread leg
+    legs[1] = NodeConverterUtils.getSwapLeg(payLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
+        _marketData, _dataId, _valuationTime, true, false); // Leg associated to the spread (same pay/receive)
+    legs[2] = NodeConverterUtils.getSwapLeg(receiveLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
+        _marketData, _dataId, _valuationTime, false, false); // Other leg
+    return new SwapMultilegDefinition(legs);
   }
+  
 }

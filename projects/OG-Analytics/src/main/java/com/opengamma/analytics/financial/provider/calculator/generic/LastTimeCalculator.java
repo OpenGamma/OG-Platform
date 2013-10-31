@@ -58,6 +58,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 
 /**
@@ -158,6 +159,15 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
     final double a = swap.getFirstLeg().accept(this);
     final double b = swap.getSecondLeg().accept(this);
     return Math.max(a, b);
+  }
+
+  @Override
+  public Double visitSwapMultileg(final SwapMultileg swap) {
+    double timeMax = swap.getLegs()[0].accept(this);
+    for (int looleg = 1; looleg < swap.getLegs().length; looleg++) {
+      timeMax = Math.max(timeMax, swap.getLegs()[0].accept(this));
+    }
+    return timeMax;
   }
 
   @Override

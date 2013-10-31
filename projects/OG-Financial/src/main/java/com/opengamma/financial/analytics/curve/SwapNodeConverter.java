@@ -82,4 +82,5 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,
         _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }
+  
 }
