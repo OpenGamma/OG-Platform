@@ -50,7 +50,7 @@ import com.opengamma.util.PublicAPI;
 @PublicAPI
 @BeanDefinition(builderScope = "private")
 public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalId>,
-    Serializable, Comparable<ExternalIdBundle>, ExternalBundleIdentifiable {
+    Serializable, Comparable<ExternalIdBundle>, ExternalBundleIdentifiable, ExternalIdOrBundle {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -387,7 +387,19 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
   }
 
   /**
-   * Gets the external identifier bundle.
+   * Converts this to an external identifier bundle.
+   * <p>
+   * This method trivially returns {@code this}
+   * 
+   * @return {@code this}, not null
+   */
+  @Override
+  public ExternalIdBundle toBundle() {
+    return this;
+  }
+
+  /**
+   * Converts this to an external identifier bundle.
    * <p>
    * This method trivially returns {@code this}
    * 
