@@ -335,6 +335,7 @@ $.register_module({
                     return data;
                 }
                 if (nonsensical_viewport(new_viewport)) {
+                    fire('fatal', data.prefix + 'viewport no longer contains rows or columns');
                     og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport);
                     return data;
                 }
