@@ -228,7 +228,8 @@ $.register_module({
             })(false);
             grid.elements.parent.html(templates.loading({text: 'preparing view...'}));
             grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: grid.label})
-                .on('meta', init_grid, grid).on('data', render_rows, grid)
+                .on('meta', init_grid, grid)
+                .on('data', render_rows, grid)
                 .on('cycle', function (cycle) {grid.fire('cycle', cycle);})
                 .on('disconnect', function () {
                     if (grid.selector) grid.selector.clear(); // may not have been instantiated yet
@@ -609,10 +610,15 @@ $.register_module({
                 scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv, reorder,
                 row_end = Math.min(row_start + meta.visible_rows + buffer.row, grid.state.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
-            lcv = Math.max(0, row_start - buffer.row); viewport.rows = [];
-            while (lcv < row_end) viewport.rows.push(grid.state.available[lcv++]);
+            lcv = Math.max(0, row_start - buffer.row);
+            viewport.rows = [];
+            while (lcv < row_end) {
+                viewport.rows.push(grid.state.available[lcv++]);
+            }
             (viewport.cols = []), (lcv = 0);
-            while (lcv < fixed_len) viewport.cols.push(lcv++);
+            while (lcv < fixed_len) {
+                viewport.cols.push(lcv++);
+            }
             reorder = grid.state.col_reorder.length && grid.state.col_reorder;
             viewport.cols = viewport.cols.concat(scroll_cols.reduce(function (acc, col, idx) {
                 var lcv;

@@ -188,7 +188,7 @@ $.register_module({
             var structure_setup = function () {
                 if(config.pool) return; // we are not interested in pool structure
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
-                // If there is no viewport ID or no graph ID for a depgraph this will result in a new ones
+                // If there is no viewport ID or no graph ID for a depgraph this will result in a new one
                 if (data.viewport_id === null) {
                     api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
                         .pipe(structure_setup_impl);
@@ -210,30 +210,12 @@ $.register_module({
                 }
             };
             var structure_setup_impl = function (result) {
-                var promise;
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }
                 if (depgraph) { //TODO unravel this, structure updates are not working for depgraphs
                     if (graph_id) {
-                        api.grid.depgraphs.viewports.structure.get({view_id: view_id, grid_type: grid_type,
-                            graph_id: graph_id, viewport_id: data.viewport_id})
-                            .pipe(structure_handler)
-                            .pipe(
-                            (promise = api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
-                                rows: meta.viewport.rows, cols: meta.viewport.cols, format: meta.viewport.format,
-                                cells: meta.viewport ? meta.viewport.cells : null, log: viewport.log,
-                                viewport_id: data.viewport_id
-                            }))
-                            .pipe(function (put_result) {
-                                loading_viewport_id = false;
-                                if (put_result.error) {
-                                    data.prefix = module.name + ' (' + label + view_id + '-dead):\n';
-                                    data.connection = view_id = graph_id = data.viewport_id = subscribed = null;
-                                    return put_result;
-                                }
-                                viewport_version = promise.id;
-                            }));
+                        structure_handler(result);
                     } else {
                         api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, row: source.row, col: source.col})
                         .pipe(function (result) {
