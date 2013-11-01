@@ -27,7 +27,7 @@ public class ISDACompliantCurveTest {
     final double rtOffset = offset * r[0];
     for (int i = 0; i < 100; i++) {
       final double time = 3.5 * i / 100.0 + offset;
-      final double rt1 = baseCurve.getRT(time - offset) + rtOffset;
+      final double rt1 = baseCurve.getRT(time + offset) - rtOffset;
       final double rt2 = offsetCurve.getRT(time);
       assertEquals(rt1, rt2, 1e-15);
     }
@@ -281,15 +281,15 @@ public class ISDACompliantCurveTest {
     final ISDACompliantCurve c2 = new ISDACompliantCurve(timesFromBase, r, offset);
 
     final double rtb = offset * r[0];
-    final double pb = Math.exp(rtb);
+    final double pb = Math.exp(-rtb);
 
-    final int steps = 1;// 1001;
+    final int steps = 1001;
     for (int i = 0; i < steps; i++) {
-      final double time = 9.96;// (12.0 * i) / (steps - 1);
-      final double p1 = c1.getDiscountFactor(time - offset) / pb;
+      final double time = (12.0 * i) / (steps - 1) - offset;
+      final double p1 = c1.getDiscountFactor(time + offset) / pb;
       final double p2 = c2.getDiscountFactor(time);
 
-      final double rt1 = c1.getRT(time - offset) + rtb;
+      final double rt1 = c1.getRT(time + offset) - rtb;
       final double rt2 = c2.getRT(time);
 
       assertEquals("discount " + time, p1, p2, 1e-15);

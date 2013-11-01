@@ -7,12 +7,11 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,6 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points (where t is time and r is the zero rate)
  */
+@BeanDefinition
 public class ISDACompliantCurve extends DoublesCurve {
 
   // number of knots in curve
@@ -45,14 +45,6 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   @PropertyDefinition(get = "manual")
   private final double[] _df;
-
-  // These are use in the case that the curve is build with a particular base-date but is then 'seen' from a different base-date.
-  // They are zero if both base-dates coincide
-  @PropertyDefinition(get = "manual")
-  private final double _offsetTime;
-
-  @PropertyDefinition(get = "manual")
-  private final double _offsetRT;
 
   /**
    * Flat curve at level r
@@ -88,9 +80,6 @@ public class ISDACompliantCurve extends DoublesCurve {
       _rt[i] = _r[i] * _t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
       _df[i] = Math.exp(-_rt[i]);
     }
-
-    _offsetTime = 0.0;
-    _offsetRT = 0.0;
   }
 
   protected ISDACompliantCurve(final ISDACompliantCurve from) {
@@ -101,9 +90,6 @@ public class ISDACompliantCurve extends DoublesCurve {
     _r = from._r;
     _rt = from._rt;
     _df = from._df;
-
-    _offsetTime = from._offsetTime;
-    _offsetRT = from._offsetRT;
   }
 
   /**
@@ -116,9 +102,9 @@ public class ISDACompliantCurve extends DoublesCurve {
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
    * @param timesFromBaseDate times measured from the base date of the curve
    * @param r zero rates
-   * @param offsetFromNewBaseDate if this curve is to be used from a new base-date, what is the offset from the curve base
+   * @param newBaseFromOriginalBase if this curve is to be used from a new base-date, what is the offset from the original curve base
    */
-  protected ISDACompliantCurve(final double[] timesFromBaseDate, final double[] r, final double offsetFromNewBaseDate) {
+  protected ISDACompliantCurve(final double[] timesFromBaseDate, final double[] r, final double newBaseFromOriginalBase) {
     ArgumentChecker.notEmpty(timesFromBaseDate, "t empty");
     ArgumentChecker.notEmpty(r, "r empty");
     _n = timesFromBaseDate.length;
@@ -126,39 +112,35 @@ public class ISDACompliantCurve extends DoublesCurve {
     ArgumentChecker.isTrue(timesFromBaseDate[0] >= 0.0, "timesFromBaseDate must be >= 0");
 
     // TODO allow larger offsets
-    ArgumentChecker.isTrue(timesFromBaseDate[0] + offsetFromNewBaseDate >= 0, "offsetFromNewBaseDate too negative");
+    ArgumentChecker.isTrue(timesFromBaseDate[0] - newBaseFromOriginalBase > 0, "offsetFromNewBaseDate too negative");
     for (int i = 1; i < _n; i++) {
       ArgumentChecker.isTrue(timesFromBaseDate[i] > timesFromBaseDate[i - 1], "Times must be ascending");
     }
 
     _t = new double[_n];
-    if (offsetFromNewBaseDate == 0.0) {
-      System.arraycopy(timesFromBaseDate, 0, _t, 0, _n);
-    } else {
-      for (int i = 0; i < _n; i++) {
-        _t[i] = timesFromBaseDate[i] + offsetFromNewBaseDate;
-      }
-    }
-
     _r = new double[_n];
     _rt = new double[_n];
     _df = new double[_n];
     final double r0 = r[0];
-    if (offsetFromNewBaseDate == 0.0) {
+    if (newBaseFromOriginalBase == 0.0) {
+      System.arraycopy(timesFromBaseDate, 0, _t, 0, _n);
       System.arraycopy(r, 0, _r, 0, _n);
+      for (int i = 0; i < _n; i++) {
+        _rt[i] = _r[i] * _t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
+      }
     } else {
       _r[0] = r0;
+      for (int i = 0; i < _n; i++) {
+        _t[i] = timesFromBaseDate[i] - newBaseFromOriginalBase;
+        _rt[i] = r[i] * timesFromBaseDate[i] - r0 * newBaseFromOriginalBase;
+      }
       for (int i = 1; i < _n; i++) {
-        _r[i] = r[i] + offsetFromNewBaseDate / _t[i] * (r0 - r[i]);
+        _r[i] = _rt[i] / _t[i];
       }
     }
 
-    _offsetTime = offsetFromNewBaseDate;
-    _offsetRT = r0 * _offsetTime;
-
     for (int i = 0; i < _n; i++) {
-      _rt[i] = r[i] * timesFromBaseDate[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
-      _df[i] = Math.exp(-_rt[i] - _offsetRT);
+      _df[i] = Math.exp(-_rt[i]);
     }
   }
 
@@ -167,14 +149,12 @@ public class ISDACompliantCurve extends DoublesCurve {
    * a strict copy of the original. This should not be the main constructor used in the general case.
    */
   @Deprecated
-  public ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
+  public ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
     _n = t.length;
     _t = t;
     _r = r;
     _rt = rt;
     _df = df;
-    _offsetTime = offsetTime;
-    _offsetRT = offsetRT;
   }
 
   public double[] getKnotTimes() {
@@ -266,7 +246,7 @@ public class ISDACompliantCurve extends DoublesCurve {
 
     final int index = Arrays.binarySearch(_t, t);
     if (index >= 0) {
-      return _rt[index] + _offsetRT;
+      return _rt[index];
     }
 
     final int insertionPoint = -(1 + index);
@@ -284,7 +264,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     final double t1 = _t[insertionPoint - 1];
     final double t2 = _t[insertionPoint];
     final double dt = t2 - t1;
-    return ((t2 - t) * _rt[insertionPoint - 1] + (t - t1) * _rt[insertionPoint]) / dt + _offsetRT;
+    return ((t2 - t) * _rt[insertionPoint - 1] + (t - t1) * _rt[insertionPoint]) / dt;
   }
 
   public double getForwardRate(final double t) {
@@ -491,16 +471,16 @@ public class ISDACompliantCurve extends DoublesCurve {
     System.arraycopy(_df, 0, df, 0, _n);
 
     r[index] = rate;
-    rt[index] = rate * (t[index] - _offsetTime);
-    df[index] = Math.exp(-rt[index] - _offsetRT);
-    return new ISDACompliantCurve(t, r, rt, df, _offsetTime, _offsetRT);
+    rt[index] = rate * t[index];
+    df[index] = Math.exp(-rt[index]);
+    return new ISDACompliantCurve(t, r, rt, df);
   }
 
   public void setRate(final double rate, final int index) {
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
     _r[index] = rate;
-    _rt[index] = rate * (_t[index] - _offsetTime);
-    _df[index] = Math.exp(-_rt[index] - _offsetRT);
+    _rt[index] = rate * _t[index];
+    _df[index] = Math.exp(-_rt[index]);
   }
 
   /**
@@ -510,9 +490,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * @return a new curve
    */
   public ISDACompliantCurve withDiscountFactor(final double discountFactor, final int index) {
-    if (_offsetTime != 0) { // TODO implement
-      throw new NotImplementedException("Please implement");
-    }
+
     ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
     final double[] t = new double[_n];
     final double[] r = new double[_n];
@@ -526,7 +504,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     df[index] = discountFactor;
     rt[index] = -Math.log(discountFactor);
     r[index] = rt[index] / t[index];
-    return new ISDACompliantCurve(t, r, rt, df, 0, 0);
+    return new ISDACompliantCurve(t, r, rt, df);
   }
 
   public double[] getT() {
@@ -545,14 +523,6 @@ public class ISDACompliantCurve extends DoublesCurve {
     return _df;
   }
 
-  public double getOffsetTime() {
-    return _offsetTime;
-  }
-
-  public double getOffsetRT() {
-    return _offsetRT;
-  }
-
   @Override
   public boolean equals(final Object o) {
     if (this == o) {
@@ -565,12 +535,6 @@ public class ISDACompliantCurve extends DoublesCurve {
     final ISDACompliantCurve that = (ISDACompliantCurve) o;
 
     if (_n != that._n) {
-      return false;
-    }
-    if (Double.compare(that._offsetRT, _offsetRT) != 0) {
-      return false;
-    }
-    if (Double.compare(that._offsetTime, _offsetTime) != 0) {
       return false;
     }
     if (!Arrays.equals(_df, that._df)) {
@@ -592,16 +556,12 @@ public class ISDACompliantCurve extends DoublesCurve {
   @Override
   public int hashCode() {
     int result;
-    long temp;
+    final long temp;
     result = _n;
     result = 31 * result + (_t != null ? Arrays.hashCode(_t) : 0);
     result = 31 * result + (_r != null ? Arrays.hashCode(_r) : 0);
     result = 31 * result + (_rt != null ? Arrays.hashCode(_rt) : 0);
     result = 31 * result + (_df != null ? Arrays.hashCode(_df) : 0);
-    temp = Double.doubleToLongBits(_offsetTime);
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_offsetRT);
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -637,6 +597,7 @@ public class ISDACompliantCurve extends DoublesCurve {
   public Double getYValue(final Double x) {
     return getZeroRate(x);
   }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -654,16 +615,6 @@ public class ISDACompliantCurve extends DoublesCurve {
   @Override
   public ISDACompliantCurve.Meta metaBean() {
     return ISDACompliantCurve.Meta.INSTANCE;
-  }
-
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
   }
 
   //-----------------------------------------------------------------------
@@ -720,44 +671,16 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the the {@code offsetTime} property.
-   * @return the property, not null
-   */
-  public final Property<Double> offsetTime() {
-    return metaBean().offsetTime().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the the {@code offsetRT} property.
-   * @return the property, not null
-   */
-  public final Property<Double> offsetRT() {
-    return metaBean().offsetRT().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public ISDACompliantCurve clone() {
-    BeanBuilder<? extends ISDACompliantCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (ISDACompliantCurve) super.clone();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    final StringBuilder buf = new StringBuilder(192);
     buf.append("ISDACompliantCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -766,14 +689,14 @@ public class ISDACompliantCurve extends DoublesCurve {
     return buf.toString();
   }
 
-  protected void toString(StringBuilder buf) {
-    buf.append("n").append('=').append(getN()).append(',').append(' ');
-    buf.append("t").append('=').append(getT()).append(',').append(' ');
-    buf.append("r").append('=').append(getR()).append(',').append(' ');
-    buf.append("rt").append('=').append(getRt()).append(',').append(' ');
-    buf.append("df").append('=').append(getDf()).append(',').append(' ');
-    buf.append("offsetTime").append('=').append(getOffsetTime()).append(',').append(' ');
-    buf.append("offsetRT").append('=').append(getOffsetRT()).append(',').append(' ');
+  @Override
+  protected void toString(final StringBuilder buf) {
+    super.toString(buf);
+    buf.append("n").append('=').append(JodaBeanUtils.toString(getN())).append(',').append(' ');
+    buf.append("t").append('=').append(JodaBeanUtils.toString(getT())).append(',').append(' ');
+    buf.append("r").append('=').append(JodaBeanUtils.toString(getR())).append(',').append(' ');
+    buf.append("rt").append('=').append(JodaBeanUtils.toString(getRt())).append(',').append(' ');
+    buf.append("df").append('=').append(JodaBeanUtils.toString(getDf())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -789,50 +712,27 @@ public class ISDACompliantCurve extends DoublesCurve {
     /**
      * The meta-property for the {@code n} property.
      */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadOnly(
-        this, "n", ISDACompliantCurve.class, Integer.TYPE);
+    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadOnly(this, "n", ISDACompliantCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code t} property.
      */
-    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadOnly(
-        this, "t", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadOnly(this, "t", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code r} property.
      */
-    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadOnly(
-        this, "r", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadOnly(this, "r", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code rt} property.
      */
-    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadOnly(
-        this, "rt", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadOnly(this, "rt", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code df} property.
      */
-    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadOnly(
-        this, "df", ISDACompliantCurve.class, double[].class);
-    /**
-     * The meta-property for the {@code offsetTime} property.
-     */
-    private final MetaProperty<Double> _offsetTime = DirectMetaProperty.ofReadOnly(
-        this, "offsetTime", ISDACompliantCurve.class, Double.TYPE);
-    /**
-     * The meta-property for the {@code offsetRT} property.
-     */
-    private final MetaProperty<Double> _offsetRT = DirectMetaProperty.ofReadOnly(
-        this, "offsetRT", ISDACompliantCurve.class, Double.TYPE);
+    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadOnly(this, "df", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "n",
-        "t",
-        "r",
-        "rt",
-        "df",
-        "offsetTime",
-        "offsetRT");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "n", "t", "r", "rt", "df");
 
     /**
      * Restricted constructor.
@@ -841,7 +741,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           return _n;
@@ -853,10 +753,6 @@ public class ISDACompliantCurve extends DoublesCurve {
           return _rt;
         case 3202:  // df
           return _df;
-        case -651908608:  // offsetTime
-          return _offsetTime;
-        case -755984875:  // offsetRT
-          return _offsetRT;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -917,25 +813,9 @@ public class ISDACompliantCurve extends DoublesCurve {
       return _df;
     }
 
-    /**
-     * The meta-property for the {@code offsetTime} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> offsetTime() {
-      return _offsetTime;
-    }
-
-    /**
-     * The meta-property for the {@code offsetRT} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> offsetRT() {
-      return _offsetRT;
-    }
-
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           return ((ISDACompliantCurve) bean).getN();
@@ -947,16 +827,12 @@ public class ISDACompliantCurve extends DoublesCurve {
           return ((ISDACompliantCurve) bean).getRt();
         case 3202:  // df
           return ((ISDACompliantCurve) bean).getDf();
-        case -651908608:  // offsetTime
-          return ((ISDACompliantCurve) bean).getOffsetTime();
-        case -755984875:  // offsetRT
-          return ((ISDACompliantCurve) bean).getOffsetRT();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           if (quiet) {
@@ -983,16 +859,6 @@ public class ISDACompliantCurve extends DoublesCurve {
             return;
           }
           throw new UnsupportedOperationException("Property cannot be written: df");
-        case -651908608:  // offsetTime
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: offsetTime");
-        case -755984875:  // offsetRT
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: offsetRT");
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }

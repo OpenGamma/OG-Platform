@@ -177,7 +177,7 @@ public class ISDACompliantYieldCurveBuild {
         _swaps[swapCount++] = new BasicFixedLeg(spotDate, matDates[i], swapInterval, swapDCC, curveDCC, convention, calendar);
       }
     }
-    _offset = cdsTradeDate.isAfter(spotDate) ? -curveDCC.getDayCountFraction(spotDate, cdsTradeDate) : curveDCC.getDayCountFraction(cdsTradeDate, spotDate);
+    _offset = cdsTradeDate.isAfter(spotDate) ? curveDCC.getDayCountFraction(spotDate, cdsTradeDate) : -curveDCC.getDayCountFraction(cdsTradeDate, spotDate);
   }
 
   /**

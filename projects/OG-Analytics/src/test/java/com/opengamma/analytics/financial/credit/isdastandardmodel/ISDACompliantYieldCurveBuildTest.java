@@ -115,6 +115,24 @@ public class ISDACompliantYieldCurveBuildTest {
 
   }
 
+  @Test
+  public void offsetTest() {
+    final double[] t = new double[] {1, 2, 3, 4, 5 };
+    final double[] r = new double[] {0.8, 0.9, 1, 0.9, 0.8 };
+    final double delta = -0.5;
+
+    final ISDACompliantCurve curve1 = new ISDACompliantCurve(t, r);
+    final ISDACompliantCurve curve2 = new ISDACompliantCurve(t, r, delta);
+    for (int i = 0; i < 100; i++) {
+      final double time = i * 5.0 / 100 - delta;
+      final double rt1 = curve1.getRT(time + delta) - delta * curve1.getZeroRateAtIndex(0);
+      final double rt2 = curve2.getRT(time);
+      //System.out.println(time + "\t" + rt1 + "\t" + rt2);
+      assertEquals(rt1, rt2, 1e-15);
+    }
+
+  }
+
   @Test(enabled = false)
   public void timingTest() {
     //TODO extract timing to another test

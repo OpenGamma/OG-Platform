@@ -5,21 +5,15 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang.ArrayUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.math.curve.DoublesCurve;
 
 /**
  * Fudge builder for objects used in ISDA pricing of CDS, CDX and CDS options
@@ -41,8 +35,6 @@ final class ISDAResultsBuilder {
     private static final String R_FIELD_NAME = "r";
     private static final String RT_FIELD_NAME = "rt";
     private static final String DF_FIELD_NAME = "df";
-    private static final String OFFSET_R_FIELD_NAME = "or";
-    private static final String OFFSET_RT_FIELD_NAME = "ort";
 
     @Override
     public ISDACompliantCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
@@ -50,9 +42,7 @@ final class ISDAResultsBuilder {
       final double[] r = deserializer.fieldValueToObject(double[].class, message.getByName(R_FIELD_NAME));
       final double[] rt = deserializer.fieldValueToObject(double[].class, message.getByName(RT_FIELD_NAME));
       final double[] df = deserializer.fieldValueToObject(double[].class, message.getByName(DF_FIELD_NAME));
-      final double offsetR  =  message.getDouble(OFFSET_R_FIELD_NAME);
-      final double offsetRt =  message.getDouble(OFFSET_RT_FIELD_NAME);
-      return new ISDACompliantCurve(t, r, rt, df, offsetR, offsetRt);
+      return new ISDACompliantCurve(t, r, rt, df);
     }
 
     @Override
@@ -61,8 +51,6 @@ final class ISDAResultsBuilder {
       serializer.addToMessage(message, R_FIELD_NAME, null, object.getR());
       serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());
       serializer.addToMessage(message, DF_FIELD_NAME, null, object.getDf());
-      serializer.addToMessage(message, OFFSET_R_FIELD_NAME, null, object.getOffsetTime());
-      serializer.addToMessage(message, OFFSET_RT_FIELD_NAME, null, object.getOffsetRT());
     }
   }
 
@@ -75,8 +63,6 @@ final class ISDAResultsBuilder {
     private static final String R_FIELD_NAME = "r";
     private static final String RT_FIELD_NAME = "rt";
     private static final String DF_FIELD_NAME = "df";
-    private static final String OFFSET_R_FIELD_NAME = "or";
-    private static final String OFFSET_RT_FIELD_NAME = "ort";
 
     @Override
     public ISDACompliantYieldCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
@@ -84,9 +70,7 @@ final class ISDAResultsBuilder {
       final double[] r = deserializer.fieldValueToObject(double[].class, message.getByName(R_FIELD_NAME));
       final double[] rt = deserializer.fieldValueToObject(double[].class, message.getByName(RT_FIELD_NAME));
       final double[] df = deserializer.fieldValueToObject(double[].class, message.getByName(DF_FIELD_NAME));
-      final double offsetR  =  message.getDouble(OFFSET_R_FIELD_NAME);
-      final double offsetRt =  message.getDouble(OFFSET_RT_FIELD_NAME);
-      return new ISDACompliantYieldCurve(t, r, rt, df, offsetR, offsetRt);
+      return new ISDACompliantYieldCurve(t, r, rt, df);
     }
 
     @Override
@@ -95,8 +79,6 @@ final class ISDAResultsBuilder {
       serializer.addToMessage(message, R_FIELD_NAME, null, object.getR());
       serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());
       serializer.addToMessage(message, DF_FIELD_NAME, null, object.getDf());
-      serializer.addToMessage(message, OFFSET_R_FIELD_NAME, null, object.getOffsetTime());
-      serializer.addToMessage(message, OFFSET_RT_FIELD_NAME, null, object.getOffsetRT());
     }
   }
 
@@ -109,8 +91,6 @@ final class ISDAResultsBuilder {
     private static final String R_FIELD_NAME = "r";
     private static final String RT_FIELD_NAME = "rt";
     private static final String DF_FIELD_NAME = "df";
-    private static final String OFFSET_R_FIELD_NAME = "or";
-    private static final String OFFSET_RT_FIELD_NAME = "ort";
 
     @Override
     public ISDACompliantCreditCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
@@ -118,9 +98,7 @@ final class ISDAResultsBuilder {
       final double[] r = deserializer.fieldValueToObject(double[].class, message.getByName(R_FIELD_NAME));
       final double[] rt = deserializer.fieldValueToObject(double[].class, message.getByName(RT_FIELD_NAME));
       final double[] df = deserializer.fieldValueToObject(double[].class, message.getByName(DF_FIELD_NAME));
-      final double offsetR  =  message.getDouble(OFFSET_R_FIELD_NAME);
-      final double offsetRt =  message.getDouble(OFFSET_RT_FIELD_NAME);
-      return new ISDACompliantCreditCurve(t, r, rt, df, offsetR, offsetRt);
+      return new ISDACompliantCreditCurve(t, r, rt, df);
     }
 
     @Override
@@ -129,8 +107,6 @@ final class ISDAResultsBuilder {
       serializer.addToMessage(message, R_FIELD_NAME, null, object.getR());
       serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());
       serializer.addToMessage(message, DF_FIELD_NAME, null, object.getDf());
-      serializer.addToMessage(message, OFFSET_R_FIELD_NAME, null, object.getOffsetTime());
-      serializer.addToMessage(message, OFFSET_RT_FIELD_NAME, null, object.getOffsetRT());
     }
   }
 

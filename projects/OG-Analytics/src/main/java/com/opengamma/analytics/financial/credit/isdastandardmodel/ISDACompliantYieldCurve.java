@@ -49,10 +49,10 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
    * @param timesFromBaseDate times measured from the base date of the curve
    * @param r zero rates
-   * @param offsetFromNewBaseDate if this curve is to be used from a new base-date, what is the offset from the curve base
+   * @param newBaseFromOriginalBase if this curve is to be used from a new base-date, what is the offset of the new base from the original 
    */
-  ISDACompliantYieldCurve(final double[] timesFromBaseDate, final double[] r, final double offsetFromNewBaseDate) {
-    super(timesFromBaseDate, r, offsetFromNewBaseDate);
+  ISDACompliantYieldCurve(final double[] timesFromBaseDate, final double[] r, final double newBaseFromOriginalBase) {
+    super(timesFromBaseDate, r, newBaseFromOriginalBase);
   }
 
   /**
@@ -68,13 +68,11 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
    * @param r Set of zero rates
    * @param rt Set of rates at the knot times
    * @param df Set of discount factors at the knot times
-   * @param offsetTime The offset to the base date
-   * @param offsetRT The offset rate
    * @deprecated This constructor is deprecated
    */
   @Deprecated
-  public ISDACompliantYieldCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
-    super(t, r, rt, df, offsetTime, offsetRT);
+  public ISDACompliantYieldCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
+    super(t, r, rt, df);
   }
 
   /**
@@ -121,7 +119,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   @Override
-  public <R> Property<R> property(String propertyName) {
+  public <R> Property<R> property(final String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -133,8 +131,8 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   //-----------------------------------------------------------------------
   @Override
   public ISDACompliantYieldCurve clone() {
-    BeanBuilder<? extends ISDACompliantYieldCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    final BeanBuilder<? extends ISDACompliantYieldCurve> builder = metaBean().builder();
+    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -147,7 +145,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -159,15 +157,15 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    final int hash = getClass().hashCode();
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    final StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantYieldCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -176,7 +174,8 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
     return buf.toString();
   }
 
-  protected void toString(StringBuilder buf) {
+  @Override
+  protected void toString(final StringBuilder buf) {
   }
 
   //-----------------------------------------------------------------------
@@ -192,8 +191,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.
