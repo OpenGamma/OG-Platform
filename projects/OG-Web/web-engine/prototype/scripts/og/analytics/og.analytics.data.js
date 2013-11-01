@@ -213,21 +213,18 @@ $.register_module({
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }
-                if (depgraph) { //TODO unravel this, structure updates are not working for depgraphs
-                    if (graph_id) {
-                        structure_handler(result);
-                    } else {
-                        api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, row: source.row, col: source.col})
-                        .pipe(function (result) {
-                            if (result.error) {
-                                fire('fatal', data.prefix + result.message);
-                            }
-                            api.grid.depgraphs.structure.get({view_id: view_id, grid_type: grid_type,
-                            graph_id: (graph_id = result.meta.id)}).pipe(structure_handler);
-                        });
-                    }
-                } else {
-                    structure_handler(result); //update meta info regarding structure
+                // if this is a depgraph and we have no graph_id
+                if (depgraph && !graph_id) {
+                    api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, row: source.row, col: source.col})
+                    .pipe(function (result) {
+                        if (result.error) {
+                            fire('fatal', data.prefix + result.message);
+                        }
+                        api.grid.depgraphs.structure.get({view_id: view_id, grid_type: grid_type,
+                        graph_id: (graph_id = result.meta.id)}).pipe(structure_handler);
+                    });
+                } else {// else for normal grids and depgraphs with graph_ids
+                    structure_handler(result);
                 }
             };
             var structure_handler = function (result) {
