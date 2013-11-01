@@ -3,14 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.marketdata.manipulator.dsl;
+package com.opengamma.integration.server;
 
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.financial.tool.ToolContext;
 
 /**
  * A connection to a remote server that provides an easy way to access remote component implementations.
- * TODO this is generally useful, move to another package / project when PLAT-2746 has been tackled
  */
 public class RemoteServer extends ToolContext {
 

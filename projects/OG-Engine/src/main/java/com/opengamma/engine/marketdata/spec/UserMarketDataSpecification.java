@@ -1,6 +1,9 @@
 // Automatically created - do not modify - CSOFF
 ///CLOVER:OFF
 package com.opengamma.engine.marketdata.spec;
+
+import com.opengamma.id.UniqueId;
+
 public class UserMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
   private static final long serialVersionUID = -12218260552l;
   private com.opengamma.id.UniqueId _userSnapshotId;
@@ -16,11 +19,15 @@ public class UserMarketDataSpecification extends com.opengamma.engine.marketdata
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (USER_SNAPSHOT_ID_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a UserMarketDataSpecification - field 'userSnapshotId' is not present");
-    try {
-      _userSnapshotId = com.opengamma.id.UniqueId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a UserMarketDataSpecification - field 'userSnapshotId' is not UniqueId message", e);
+    if (fudgeField.getType().getJavaType().equals(String.class)) {
+      _userSnapshotId = UniqueId.parse(deserializer.fieldValueToObject(String.class, fudgeField));
+    } else {
+      try {
+        _userSnapshotId = com.opengamma.id.UniqueId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      }
+      catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException ("Fudge message is not a UserMarketDataSpecification - field 'userSnapshotId' is not UniqueId message", e);
+      }
     }
   }
   protected UserMarketDataSpecification (final UserMarketDataSpecification source) {
