@@ -3,16 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.convention.percurrency;
+package com.opengamma.financial.convention.initializer;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Helper for per-currency conventions.
  */
 public class PerCurrencyConventionHelper {
+
   /** The convention scheme name string **/
   public static final String SCHEME_NAME = "CONVENTION";
   /** Overnight Index string **/

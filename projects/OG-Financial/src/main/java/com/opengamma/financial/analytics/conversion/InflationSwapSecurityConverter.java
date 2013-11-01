@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.INFLATION_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_FIXED_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.PRICE_INDEX;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_FIXED_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.PRICE_INDEX;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
 
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;

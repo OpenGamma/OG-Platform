@@ -5,16 +5,16 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.percurrency.EUConventions.EURIBOR;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_FIXED_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_IBOR_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.LIBOR;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_ON_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OVERNIGHT;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SWAP_INDEX;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.EUConventions.EURIBOR;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IBOR;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_FIXED_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_IBOR_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.LIBOR;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OIS_ON_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OVERNIGHT;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SWAP_INDEX;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;

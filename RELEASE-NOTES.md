@@ -21,6 +21,7 @@ API compatibility
   Rename Convention class to FinancialConvention.
   Rename ConventionVisitor class to FinancialConventionVisitor.
   Rename ConventionVisitorAdapter class to FinancialConventionVisitorAdapter.
+  Move com.opengamma.financial.convention.percurrency package to .initializer and refactor.
 
 
 To 2.2.0-M2
