@@ -29,7 +29,7 @@ import com.opengamma.master.holiday.impl.InMemoryHolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory holiday master.
  */
 @BeanDefinition
 public class InMemoryHolidayMasterComponentFactory extends AbstractComponentFactory {

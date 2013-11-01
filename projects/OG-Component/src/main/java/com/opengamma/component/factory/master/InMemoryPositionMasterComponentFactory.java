@@ -29,7 +29,7 @@ import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory position master.
  */
 @BeanDefinition
 public class InMemoryPositionMasterComponentFactory extends AbstractComponentFactory {

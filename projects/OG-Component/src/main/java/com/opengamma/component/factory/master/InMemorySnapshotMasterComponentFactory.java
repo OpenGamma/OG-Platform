@@ -29,7 +29,7 @@ import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory snapshot master.
  */
 @BeanDefinition
 public class InMemorySnapshotMasterComponentFactory extends AbstractComponentFactory {

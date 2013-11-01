@@ -29,7 +29,7 @@ import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory config master.
  */
 @BeanDefinition
 public class InMemoryConfigMasterComponentFactory extends AbstractComponentFactory {

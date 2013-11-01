@@ -29,7 +29,7 @@ import com.opengamma.engine.calcnode.stats.InMemoryFunctionCostsMaster;
 import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory function costs master.
  */
 @BeanDefinition
 public class InMemoryFunctionCostsMasterComponentFactory extends AbstractComponentFactory {

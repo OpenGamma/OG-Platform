@@ -79,12 +79,19 @@ import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
- * Constructs components exposed by a remote component server. =
+ * Constructs components exposed by a remote component server.
  */
 public class RemoteComponentFactory {
+
+  /**
+   * The base URI.
+   */
   private final URI _baseUri;
+  /**
+   * The component server.
+   */
   private final ComponentServer _componentServer;
-  
+
   /**
    * Constructs an instance.
    * 
@@ -93,7 +100,7 @@ public class RemoteComponentFactory {
   public RemoteComponentFactory(String componentServerUri) {
     this(URI.create(componentServerUri));
   }
-  
+
   /**
    * Constructs an instance.
    * 
@@ -105,12 +112,17 @@ public class RemoteComponentFactory {
     _baseUri = componentServerUri;
     _componentServer = remoteComponentServer.getComponentServer();
   }
-  
+
   //-------------------------------------------------------------------------
+  /**
+   * Gets the base URI.
+   * 
+   * @return the base URI, not null
+   */
   public URI getBaseUri() {
     return _baseUri;
   }
-  
+
   private ComponentInfo getTopLevelComponent(List<String> preferenceList, Class<?> type) {
     if (preferenceList != null) {
       for (String preference : preferenceList) {
@@ -127,7 +139,7 @@ public class RemoteComponentFactory {
     List<ComponentInfo> componentInfos = getComponentServer().getComponentInfos();
     return componentInfos.size() == 0 ? null : componentInfos.get(0);
   }
-  
+
   //-------------------------------------------------------------------------
   public RemoteViewProcessor getViewProcessor(String vpId) {
     ComponentInfo info = getComponentServer().getComponentInfo(ViewProcessor.class, "main");
@@ -146,7 +158,7 @@ public class RemoteComponentFactory {
     }
     return result;
   }
-  
+
   //-------------------------------------------------------------------------
   // Configs
   /**

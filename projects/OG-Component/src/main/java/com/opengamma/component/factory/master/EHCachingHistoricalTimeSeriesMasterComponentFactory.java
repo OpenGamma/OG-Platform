@@ -31,9 +31,9 @@ import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSer
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 
 /**
- * Component factory for the combined historicalTimeSeries master.
+ * Component factory for the combined historical time-series master.
  * <p>
- * This factory creates a combined historicalTimeSeries master from an underlying and user master.
+ * This factory creates a combined historical time-series master from an underlying and user master.
  */
 @BeanDefinition
 public class EHCachingHistoricalTimeSeriesMasterComponentFactory extends AbstractComponentFactory {

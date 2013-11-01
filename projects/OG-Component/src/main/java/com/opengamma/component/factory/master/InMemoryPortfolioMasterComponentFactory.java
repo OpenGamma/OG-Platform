@@ -29,7 +29,7 @@ import com.opengamma.master.portfolio.impl.InMemoryPortfolioMaster;
 import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory portfolio master.
  */
 @BeanDefinition
 public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFactory {

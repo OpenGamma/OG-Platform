@@ -29,7 +29,7 @@ import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeri
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory historical time-series master.
  */
 @BeanDefinition
 public class InMemoryHistoricalTimeSeriesMasterComponentFactory extends AbstractComponentFactory {

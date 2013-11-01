@@ -31,7 +31,7 @@ import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /**
- * Component factory for the database time-series master.
+ * Component factory for the database historical time-series master.
  */
 @BeanDefinition
 public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDbMasterComponentFactory {
