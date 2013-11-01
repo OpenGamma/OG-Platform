@@ -63,10 +63,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Loads the data required to run views from Fudge XML files into an empty database.
- * TODO split this up to allow a subset of data to be dumped and restored?
+ * Loads the data required to run views from Fudge XML files into an empty database. TODO split this up to allow a subset of data to be dumped and restored?
  */
-/* package */ class DatabaseRestore {
+/* package */class DatabaseRestore {
 
   /** Attribute name holding a position's original unique ID from the source database. */
   public static final String REGRESSION_ID = "regressionId";
@@ -87,15 +86,15 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final FudgeDeserializer _deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
 
   public DatabaseRestore(String dataDir,
-                         SecurityMaster securityMaster,
-                         PositionMaster positionMaster,
-                         PortfolioMaster portfolioMaster,
-                         ConfigMaster configMaster,
-                         HistoricalTimeSeriesMaster timeSeriesMaster,
-                         HolidayMaster holidayMaster,
-                         ExchangeMaster exchangeMaster,
-                         MarketDataSnapshotMaster snapshotMaster,
-                         OrganizationMaster organizationMaster) {
+      SecurityMaster securityMaster,
+      PositionMaster positionMaster,
+      PortfolioMaster portfolioMaster,
+      ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster,
+      HolidayMaster holidayMaster,
+      ExchangeMaster exchangeMaster,
+      MarketDataSnapshotMaster snapshotMaster,
+      OrganizationMaster organizationMaster) {
     ArgumentChecker.notEmpty(dataDir, "dataDir");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
@@ -128,15 +127,15 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     String serverUrl = args[1];
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore databaseRestore = new DatabaseRestore(dataDir,
-                                                            server.getSecurityMaster(),
-                                                            server.getPositionMaster(),
-                                                            server.getPortfolioMaster(),
-                                                            server.getConfigMaster(),
-                                                            server.getHistoricalTimeSeriesMaster(),
-                                                            server.getHolidayMaster(),
-                                                            server.getExchangeMaster(),
-                                                            server.getMarketDataSnapshotMaster(),
-                                                            server.getOrganizationMaster());
+          server.getSecurityMaster(),
+          server.getPositionMaster(),
+          server.getPortfolioMaster(),
+          server.getConfigMaster(),
+          server.getHistoricalTimeSeriesMaster(),
+          server.getHolidayMaster(),
+          server.getExchangeMaster(),
+          server.getMarketDataSnapshotMaster(),
+          server.getOrganizationMaster());
       databaseRestore.restoreDatabase();
     }
   }
@@ -248,7 +247,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     }
     // TODO maybe this should be pluggable to handle new config types that need post processing
     for (ViewDefinition viewDef : viewDefs) {
-      ObjectId oldPortfolioId = viewDef.getPortfolioId().getObjectId();
+      ObjectId oldPortfolioId = (viewDef.getPortfolioId() != null) ? viewDef.getPortfolioId().getObjectId() : null;
       UniqueId newPortfolioId;
       if (oldPortfolioId != null) {
         if (portfolioIdMappings.containsKey(oldPortfolioId)) {
