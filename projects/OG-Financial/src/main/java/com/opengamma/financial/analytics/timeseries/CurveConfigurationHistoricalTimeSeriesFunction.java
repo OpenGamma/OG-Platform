@@ -104,8 +104,8 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
           if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
             final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
             final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-            InflationLegConvention inflationLegConvention = conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
-            PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
+            InflationLegConvention inflationLegConvention = conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+            PriceIndexConvention priceIndexConvention = conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
             ids = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
             final HistoricalTimeSeries priceIndexSeries = bundleForCurve.get(dataField, ids);
             if (priceIndexSeries != null) {

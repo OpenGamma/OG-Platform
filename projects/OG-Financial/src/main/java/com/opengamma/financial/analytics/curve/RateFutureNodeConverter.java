@@ -86,7 +86,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
 
   @Override
   public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
-    final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+    final Convention futureConvention = _conventionSource.getSingle(rateFuture.getFutureConvention());
     final Double price = _marketData.getDataPoint(_dataId);
     if (price == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
@@ -109,7 +109,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, futureConvention.getIndexConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), IborIndexConvention.class);
     final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
     final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
     final Currency currency = indexConvention.getCurrency();
@@ -140,7 +140,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, futureConvention.getIndexConvention());
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), OvernightIndexConvention.class);
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final int publicationLag = indexConvention.getPublicationLag();

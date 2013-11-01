@@ -178,8 +178,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public FinancialSecurity visitSwapNode(final SwapNode swapNode) {
-    final FinancialConvention payLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapNode.getPayLegConvention());
-    final FinancialConvention receiveLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapNode.getReceiveLegConvention());
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(swapNode.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention = _conventionSource.getSingle(swapNode.getReceiveLegConvention(), FinancialConvention.class);
 
     final boolean isFloatFloat = NodeConverterUtils.isFloatFloat(payLegConvention, receiveLegConvention);
     final SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
@@ -226,7 +226,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public CashSecurity visitCashNode(final CashNode cashNode) {
-    final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
+    final Convention convention = _conventionSource.getSingle(cashNode.getConvention());
     final Period startPeriod = cashNode.getStartTenor().getPeriod();
     final Period maturityPeriod = cashNode.getMaturityTenor().getPeriod();
     if (convention instanceof DepositConvention) {
@@ -309,7 +309,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   @Override
   public FutureSecurity visitRateFutureNode(final RateFutureNode rateFuture) {
     final FutureSecurity security;
-    final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+    final Convention futureConvention = _conventionSource.getSingle(rateFuture.getFutureConvention());
     if (futureConvention instanceof InterestRateFutureConvention) {
       security = getInterestRateFuture(rateFuture, (InterestRateFutureConvention) futureConvention, _rate);
     } else if (futureConvention instanceof FederalFundsFutureConvention) {
@@ -334,8 +334,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                            final InterestRateFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class,
-                                                                                futureConvention.getIndexConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(),
+                                                                                IborIndexConvention.class);
     final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
     final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
     final Currency currency = indexConvention.getCurrency();
@@ -400,8 +400,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                            final FederalFundsFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class,
-                                                                                     futureConvention.getIndexConvention());
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(),
+                                                                                     OvernightIndexConvention.class);
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final int publicationLag = indexConvention.getPublicationLag();

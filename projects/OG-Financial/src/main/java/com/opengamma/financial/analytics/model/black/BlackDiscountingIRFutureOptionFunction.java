@@ -175,8 +175,8 @@ public abstract class BlackDiscountingIRFutureOptionFunction extends Discounting
       final Currency currency = security.getCurrency();
       // TODO the convention name should not be hard-coded, but there's no way of getting this information until
       // there's a convention link in the security.
-      final InterestRateFutureConvention convention = conventionSource.getConvention(InterestRateFutureConvention.class, ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE));
-      final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
+      final InterestRateFutureConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE), InterestRateFutureConvention.class);
+      final IborIndexConvention iborIndexConvention = conventionSource.getSingle(convention.getIndexConvention(), IborIndexConvention.class);
       final Period period = Period.ofMonths(3); //TODO
       final int spotLag = iborIndexConvention.getSettlementDays();
       final IborIndex iborIndex = new IborIndex(currency, period, spotLag, iborIndexConvention.getDayCount(),

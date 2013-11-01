@@ -64,9 +64,9 @@ public class RollDateSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
 
   @Override
   public InstrumentDefinition<?> visitRollDateSwapNode(final RollDateSwapNode rollDateSwapNode) {
-    final RollDateSwapConvention swapConvention = _conventionSource.getConvention(RollDateSwapConvention.class, rollDateSwapNode.getRollDateSwapConvention());
-    final FinancialConvention payLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapConvention.getPayLegConvention());
-    final FinancialConvention receiveLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapConvention.getReceiveLegConvention());
+    final RollDateSwapConvention swapConvention = _conventionSource.getSingle(rollDateSwapNode.getRollDateSwapConvention(), RollDateSwapConvention.class);
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(swapConvention.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention = _conventionSource.getSingle(swapConvention.getReceiveLegConvention(), FinancialConvention.class);
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(swapConvention.getRollDateConvention().getValue());
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(rollDateSwapNode.getStartTenor().getPeriod());
     return NodeConverterUtils.getSwapRollDateDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, rollDateSwapNode.getRollDateStartNumber(),

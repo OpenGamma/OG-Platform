@@ -182,7 +182,7 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
       final CapFloorSecurity security = (CapFloorSecurity) target.getTrade().getSecurity();
       final Currency currency = FinancialSecurityUtils.getCurrency(security);
       final String iborConventionName = getConventionName(currency, IBOR);
-      final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+      final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
       final Frequency freqIbor = security.getFrequency();
       final Period tenorIbor = getTenor(freqIbor);
       final int spotLag = iborIndexConvention.getSettlementDays();

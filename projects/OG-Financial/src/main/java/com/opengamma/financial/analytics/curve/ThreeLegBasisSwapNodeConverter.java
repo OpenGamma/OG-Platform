@@ -71,9 +71,9 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode threeLegBasisSwapNode) {
-    final FinancialConvention payLegConvention = _conventionSource.getConvention(FinancialConvention.class, threeLegBasisSwapNode.getPayLegConvention());
-    final FinancialConvention receiveLegConvention = _conventionSource.getConvention(FinancialConvention.class, threeLegBasisSwapNode.getReceiveLegConvention());
-    final FinancialConvention spreadLegConvention = _conventionSource.getConvention(FinancialConvention.class, threeLegBasisSwapNode.getSpreadLegConvention());
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(threeLegBasisSwapNode.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention = _conventionSource.getSingle(threeLegBasisSwapNode.getReceiveLegConvention(), FinancialConvention.class);
+    final FinancialConvention spreadLegConvention = _conventionSource.getSingle(threeLegBasisSwapNode.getSpreadLegConvention(), FinancialConvention.class);
     final Period startTenor = threeLegBasisSwapNode.getStartTenor().getPeriod();
     final Period maturityTenor = threeLegBasisSwapNode.getMaturityTenor().getPeriod();
     final AnnuityDefinition<?>[] legs = new AnnuityDefinition[3];

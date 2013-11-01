@@ -56,7 +56,7 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final long months = getMonths(accrualStartDate, accrualEndDate);
     final String tenorString = months + "M";
     final VanillaIborLegConvention vanillaIborLegConvention = getIborLegConvention(currency, tenorString);
-    final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, vanillaIborLegConvention.getIborIndexConvention());
+    final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(vanillaIborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?
     final int spotLag = iborIndexConvention.getSettlementDays();
@@ -73,9 +73,9 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
 
   private VanillaIborLegConvention getIborLegConvention(final Currency currency, final String tenorString) {
     String vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-    VanillaIborLegConvention vanillaIborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
+    VanillaIborLegConvention vanillaIborLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName), VanillaIborLegConvention.class);
     vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-    return _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
+    return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName), VanillaIborLegConvention.class);
   }
 
 }

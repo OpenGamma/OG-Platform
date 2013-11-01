@@ -100,8 +100,8 @@ public class CurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompi
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
         final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
         final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-        InflationLegConvention inflationLegConvention = conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
-        PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
+        InflationLegConvention inflationLegConvention = conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+        PriceIndexConvention priceIndexConvention = conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
         final String priceIndexField = MarketDataRequirementNames.MARKET_VALUE; //TODO
         final ExternalIdBundle priceIndexId = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
         final HistoricalTimeSeries priceIndexSeries = timeSeriesSource.getHistoricalTimeSeries(priceIndexField, priceIndexId, resolutionKey, startDate, includeStart, endDate, true);

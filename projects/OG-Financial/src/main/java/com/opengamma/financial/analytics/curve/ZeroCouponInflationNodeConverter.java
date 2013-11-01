@@ -94,9 +94,9 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, inflationNode.getFixedLegConvention());
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
-    final PriceIndexConvention priceIndexConvention = _conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(inflationNode.getFixedLegConvention(), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+    final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
     final int settlementDays = fixedLegConvention.getSettlementDays();
     final Period tenor = inflationNode.getTenor().getPeriod();
     final double notional = 1;

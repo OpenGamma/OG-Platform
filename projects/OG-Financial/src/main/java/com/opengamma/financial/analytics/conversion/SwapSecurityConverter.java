@@ -158,19 +158,19 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
   private IborIndexConvention getIborLegConvention(final Currency currency) {
     String iborConventionName = getConventionName(currency, EURIBOR);
     try {
-      return _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
     } catch (DataNotFoundException ex) {
       // continue
     }
     iborConventionName = getConventionName(currency, LIBOR);
     try {
-      return _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
     } catch (DataNotFoundException ex) {
       // continue
     }
     iborConventionName = getConventionName(currency, IBOR);
     try {
-      return _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
     } catch (DataNotFoundException ex) {
       // continue
     }
@@ -186,7 +186,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final String overnightConventionName = getConventionName(currency, OVERNIGHT);
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, ExternalId.of(SCHEME_NAME, overnightConventionName));
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, overnightConventionName), OvernightIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
@@ -238,7 +238,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final InterestRateNotional interestRateNotional = (InterestRateNotional) swapLeg.getNotional();
         final Currency currency = interestRateNotional.getCurrency();
         final String fixedLegConventionName = getConventionName(currency, IRS_FIXED_LEG);
-        final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, ExternalId.of(SCHEME_NAME, fixedLegConventionName));
+        final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, fixedLegConventionName), SwapFixedLegConvention.class);
         final Frequency freqFixed = swapLeg.getFrequency();
         final Period tenorFixed = getTenor(freqFixed);
         final double notional = interestRateNotional.getAmount();
@@ -317,8 +317,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
           final Currency currency, final Calendar calendar) {
         final String tenorString = getTenorString(swapLeg.getFrequency());
         final String iborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-        final VanillaIborLegConvention iborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, iborLegConventionName));
-        final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
+        final VanillaIborLegConvention iborLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborLegConventionName), VanillaIborLegConvention.class);
+        final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(iborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
         final Frequency freqIbor = swapLeg.getFrequency();
         final Period tenorIbor = getTenor(freqIbor);
         final int spotLag = iborIndexConvention.getSettlementDays();
@@ -339,8 +339,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       private AnnuityDefinition<? extends PaymentDefinition> getOISAnnuity(final FloatingInterestRateLeg swapLeg, final InterestRateNotional interestRateNotional,
           final Currency currency) {
         final String oisConventionName = getConventionName(currency, OIS_ON_LEG);
-        final OISLegConvention oisConvention = _conventionSource.getConvention(OISLegConvention.class, ExternalId.of(SCHEME_NAME, oisConventionName));
-        final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, oisConvention.getOvernightIndexConvention());
+        final OISLegConvention oisConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, oisConventionName), OISLegConvention.class);
+        final OvernightIndexConvention indexConvention = _conventionSource.getSingle(oisConvention.getOvernightIndexConvention(), OvernightIndexConvention.class);
         final String currencyString = currency.getCode();
         final Integer publicationLag = indexConvention.getPublicationLag();
         final Period paymentFrequency = getTenor(swapLeg.getFrequency());
@@ -365,14 +365,14 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         }
         final String tenorString = getTenorString(swapLeg.getFrequency());
         final String iborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-        final VanillaIborLegConvention iborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class,
-            ExternalId.of(SCHEME_NAME, getConventionName(currency, tenorString, IRS_IBOR_LEG)));
-        final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
+        final VanillaIborLegConvention iborLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(currency, tenorString, IRS_IBOR_LEG)),
+            VanillaIborLegConvention.class);
+        final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(iborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
         final String swapIndexConventionName = getConventionName(currency, tenorString, SWAP_INDEX);
-        final SwapIndexConvention swapIndexConvention = _conventionSource.getConvention(SwapIndexConvention.class, ExternalId.of(SCHEME_NAME, swapIndexConventionName));
-        final SwapConvention underlyingSwapConvention = _conventionSource.getConvention(SwapConvention.class, swapIndexConvention.getSwapConvention());
-        final SwapFixedLegConvention payLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, underlyingSwapConvention.getPayLegConvention());
-        final VanillaIborLegConvention receiveLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, underlyingSwapConvention.getReceiveLegConvention());
+        final SwapIndexConvention swapIndexConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, swapIndexConventionName), SwapIndexConvention.class);
+        final SwapConvention underlyingSwapConvention = _conventionSource.getSingle(swapIndexConvention.getSwapConvention(), SwapConvention.class);
+        final SwapFixedLegConvention payLegConvention = _conventionSource.getSingle(underlyingSwapConvention.getPayLegConvention(), SwapFixedLegConvention.class);
+        final VanillaIborLegConvention receiveLegConvention = _conventionSource.getSingle(underlyingSwapConvention.getReceiveLegConvention(), VanillaIborLegConvention.class);
         final Frequency freqIbor = swapLeg.getFrequency();
         final Period tenorIbor = getTenor(freqIbor);
         final int spotLag = iborIndexConvention.getSettlementDays();
@@ -391,8 +391,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       private AnnuityDefinition<? extends PaymentDefinition> getOvernightAAverageAnnuity(final FloatingInterestRateLeg swapLeg, final InterestRateNotional interestRateNotional,
           final Currency currency) {
         final String oisConventionName = getConventionName(currency, OIS_ON_LEG);
-        final OISLegConvention oisConvention = _conventionSource.getConvention(OISLegConvention.class, ExternalId.of(SCHEME_NAME, oisConventionName));
-        final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, oisConvention.getOvernightIndexConvention());
+        final OISLegConvention oisConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, oisConventionName), OISLegConvention.class);
+        final OvernightIndexConvention indexConvention = _conventionSource.getSingle(oisConvention.getOvernightIndexConvention(), OvernightIndexConvention.class);
         final String currencyString = currency.getCode();
         final Integer publicationLag = indexConvention.getPublicationLag();
         final Period paymentFrequency = getTenor(swapLeg.getFrequency());

@@ -82,7 +82,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitCashNode(final CashNode node) {
-    final FinancialConvention convention = _conventionSource.getConvention(FinancialConvention.class, node.getConvention());
+    final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
     return convention.accept(this);
   }
 
@@ -98,7 +98,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
-    final FinancialConvention convention = _conventionSource.getConvention(FinancialConvention.class, node.getFutureConvention());
+    final FinancialConvention convention = _conventionSource.getSingle(node.getFutureConvention(), FinancialConvention.class);
     return convention.accept(this);
   }
 
@@ -109,7 +109,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitFRANode(final FRANode node) {
-    final FinancialConvention convention = _conventionSource.getConvention(FinancialConvention.class, node.getConvention());
+    final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
     return convention.accept(this);
   }
 
@@ -120,26 +120,26 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitRollDateFRANode(final RollDateFRANode node) {
-    final RollDateFRAConvention convention = _conventionSource.getConvention(RollDateFRAConvention.class, node.getRollDateFRAConvention());
+    final RollDateFRAConvention convention = _conventionSource.getSingle(node.getRollDateFRAConvention(), RollDateFRAConvention.class);
     return convention.accept(this);
   }
 
   @Override
   public Set<Currency> visitRollDateSwapNode(final RollDateSwapNode node) {
-    final RollDateSwapConvention convention = _conventionSource.getConvention(RollDateSwapConvention.class, node.getRollDateSwapConvention());
+    final RollDateSwapConvention convention = _conventionSource.getSingle(node.getRollDateSwapConvention(), RollDateSwapConvention.class);
     return convention.accept(this);
   }
 
   @Override
   public Set<Currency> visitRateFutureNode(final RateFutureNode node) {
-    final FinancialConvention convention = _conventionSource.getConvention(FinancialConvention.class, node.getFutureConvention());
+    final FinancialConvention convention = _conventionSource.getSingle(node.getFutureConvention(), FinancialConvention.class);
     return convention.accept(this);
   }
 
   @Override
   public Set<Currency> visitSwapNode(final SwapNode node) {
-    final FinancialConvention payConvention = _conventionSource.getConvention(FinancialConvention.class, node.getPayLegConvention());
-    final FinancialConvention receiveConvention = _conventionSource.getConvention(FinancialConvention.class, node.getReceiveLegConvention());
+    final FinancialConvention payConvention = _conventionSource.getSingle(node.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveConvention = _conventionSource.getSingle(node.getReceiveLegConvention(), FinancialConvention.class);
     final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
     currencies.addAll(receiveConvention.accept(this));
     return currencies;
@@ -147,9 +147,9 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
-    final FinancialConvention payConvention = _conventionSource.getConvention(FinancialConvention.class, node.getPayLegConvention());
-    final FinancialConvention receiveConvention = _conventionSource.getConvention(FinancialConvention.class, node.getReceiveLegConvention());
-    final FinancialConvention spreadConvention = _conventionSource.getConvention(FinancialConvention.class, node.getSpreadLegConvention());
+    final FinancialConvention payConvention = _conventionSource.getSingle(node.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveConvention = _conventionSource.getSingle(node.getReceiveLegConvention(), FinancialConvention.class);
+    final FinancialConvention spreadConvention = _conventionSource.getSingle(node.getSpreadLegConvention(), FinancialConvention.class);
     final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
     currencies.addAll(receiveConvention.accept(this));
     currencies.addAll(spreadConvention.accept(this));
@@ -158,19 +158,19 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitZeroCouponInflationNode(final ZeroCouponInflationNode node) {
-    final FinancialConvention convention = _conventionSource.getConvention(InflationLegConvention.class, node.getInflationLegConvention());
+    final FinancialConvention convention = _conventionSource.getSingle(node.getInflationLegConvention(), InflationLegConvention.class);
     return convention.accept(this);
   }
 
   @Override
   public Set<Currency> visitCMSLegConvention(final CMSLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getSwapIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getSwapIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitCompoundingIborLegConvention(final CompoundingIborLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getIborIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIborIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
@@ -186,13 +186,13 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitDeliverablePriceQuotedSwapFutureConvention(final DeliverablePriceQuotedSwapFutureConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getSwapConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getSwapConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitFederalFundsFutureConvention(final FederalFundsFutureConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
@@ -213,14 +213,14 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitIMMFRAConvention(final RollDateFRAConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitIMMSwapConvention(final RollDateSwapConvention convention) {
-    final FinancialConvention payConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getPayLegConvention());
-    final FinancialConvention receiveConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getReceiveLegConvention());
+    final FinancialConvention payConvention = _conventionSource.getSingle(convention.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveConvention = _conventionSource.getSingle(convention.getReceiveLegConvention(), FinancialConvention.class);
     final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
     currencies.addAll(receiveConvention.accept(this));
     return currencies;
@@ -228,25 +228,25 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitInflationLegConvention(final InflationLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getPriceIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getPriceIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitInterestRateFutureConvention(final InterestRateFutureConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitOISLegConvention(final OISLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getOvernightIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getOvernightIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitONArithmeticAverageLegConvention(final ONArithmeticAverageLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getOvernightIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getOvernightIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
@@ -262,8 +262,8 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitSwapConvention(final SwapConvention convention) {
-    final FinancialConvention payConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getPayLegConvention());
-    final FinancialConvention receiveConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getReceiveLegConvention());
+    final FinancialConvention payConvention = _conventionSource.getSingle(convention.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveConvention = _conventionSource.getSingle(convention.getReceiveLegConvention(), FinancialConvention.class);
     final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
     currencies.addAll(receiveConvention.accept(this));
     return currencies;
@@ -281,19 +281,19 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitSwapIndexConvention(final SwapIndexConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getSwapConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getSwapConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getIborIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIborIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 
   @Override
   public Set<Currency> visitVanillaIborLegRollDateConvention(final VanillaIborLegRollDateConvention convention) {
-    final FinancialConvention underlyingConvention = _conventionSource.getConvention(FinancialConvention.class, convention.getIborIndexConvention());
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIborIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }
 

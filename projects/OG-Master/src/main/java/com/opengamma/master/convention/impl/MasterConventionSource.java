@@ -134,6 +134,31 @@ public class MasterConventionSource
   }
 
   @Override
+  public Convention getSingle(ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    return getSingle(externalId.toBundle());
+  }
+
+  @Override
+  public <T extends Convention> T getSingle(ExternalId externalId, Class<T> type) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    ArgumentChecker.notNull(type, "type");
+    return getSingle(externalId.toBundle(), type);
+  }
+
+  @Override
+  public <T extends Convention> T getSingle(ExternalIdBundle bundle, Class<T> type) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    ArgumentChecker.notNull(type, "type");
+    VersionCorrection overrideVersionCorrection = getVersionCorrection();
+    if (overrideVersionCorrection != null) {
+      return getSingle(bundle, overrideVersionCorrection, type);
+    } else {
+      return getSingle(bundle, VersionCorrection.LATEST, type);
+    }
+  }
+
+  @Override
   public <T extends Convention> T getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection, Class<T> type) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
@@ -158,26 +183,6 @@ public class MasterConventionSource
   @Override
   public ChangeManager changeManager() {
     return getMaster().changeManager();
-  }
-
-  @Override
-  public Convention getConvention(ExternalId externalId) {
-    return getSingle(externalId.toBundle());
-  }
-
-  @Override
-  public <T extends Convention> T getConvention(Class<T> type, ExternalId externalId) {
-    return getConvention(type, externalId.toBundle());
-  }
-
-  @Override
-  public <T extends Convention> T getConvention(Class<T> type, ExternalIdBundle bundle) {
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-    if (overrideVersionCorrection != null) {
-      return getSingle(bundle, overrideVersionCorrection, type);
-    } else {
-      return getSingle(bundle, VersionCorrection.LATEST, type);
-    }
   }
 
 }

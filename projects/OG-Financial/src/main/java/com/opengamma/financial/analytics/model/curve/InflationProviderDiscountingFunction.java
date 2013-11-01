@@ -209,7 +209,7 @@ public class InflationProviderDiscountingFunction extends
             if (type instanceof InflationCurveTypeConfiguration) {
               final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
               final String reference = inflationConfiguration.getReference();
-              final PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationConfiguration.getPriceIndex());
+              final PriceIndexConvention priceIndexConvention = conventionSource.getSingle(inflationConfiguration.getPriceIndex(), PriceIndexConvention.class);
               try {
                 final Currency currency = Currency.of(reference);
                 //should this map check that the curve name has not already been entered?

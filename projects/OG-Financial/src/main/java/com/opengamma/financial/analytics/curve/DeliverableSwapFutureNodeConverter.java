@@ -10,7 +10,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
@@ -18,7 +17,6 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -94,11 +92,11 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
 //      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
     final DeliverablePriceQuotedSwapFutureConvention futureConvention =
-        _conventionSource.getConvention(DeliverablePriceQuotedSwapFutureConvention.class, swapFuture.getFutureConvention());
-    final SwapConvention underlyingSwapConvention = _conventionSource.getConvention(SwapConvention.class, swapFuture.getSwapConvention());
+        _conventionSource.getSingle(swapFuture.getFutureConvention(), DeliverablePriceQuotedSwapFutureConvention.class);
+    final SwapConvention underlyingSwapConvention = _conventionSource.getSingle(swapFuture.getSwapConvention(), SwapConvention.class);
     final Tenor maturityTenor = swapFuture.getUnderlyingTenor();
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, underlyingSwapConvention.getPayLegConvention());
-    final VanillaIborLegConvention iborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, underlyingSwapConvention.getReceiveLegConvention());
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(underlyingSwapConvention.getPayLegConvention(), SwapFixedLegConvention.class);
+    final VanillaIborLegConvention iborLegConvention = _conventionSource.getSingle(underlyingSwapConvention.getReceiveLegConvention(), VanillaIborLegConvention.class);
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
     final ZonedDateTime startDate = _valuationTime.plus(swapFuture.getStartTenor().getPeriod());
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, futureConvention.getExchangeCalendar());
@@ -109,7 +107,7 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
     final int spotLagSwap = fixedLegConvention.getSettlementDays();
     final ZonedDateTime lastTradeDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(swapFuture.getFutureNumber(), startDate.toLocalDate(), calendar), time, timeZone);
     final ZonedDateTime deliveryDate = ScheduleCalculator.getAdjustedDate(lastTradeDate, spotLagSwap, calendar);
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(iborLegConvention.getIborIndexConvention(), IborIndexConvention.class);
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();

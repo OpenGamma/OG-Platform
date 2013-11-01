@@ -139,32 +139,34 @@ public class RemoteConventionSource
 
   //-------------------------------------------------------------------------
   @Override
+  public Convention getSingle(final ExternalId externalId) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    return doGetSingle(externalId.toBundle(), null, null);
+  }
+
+  @Override
+  public <T extends Convention> T getSingle(ExternalId externalId, Class<T> type) {
+    ArgumentChecker.notNull(externalId, "externalId");
+    return doGetSingle(externalId.toBundle(), null, type);
+  }
+
+  @Override
   public Convention getSingle(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
+    return doGetSingle(bundle, null, null);
+  }
 
-    try {
-      URI uri = DataConventionSourceResource.uriSearchSingle(getBaseUri(), bundle, null);
-      return accessRemote(uri).get(Convention.class);
-    } catch (DataNotFoundException ex) {
-      return null;
-    } catch (UniformInterfaceException404NotFound ex) {
-      return null;
-    }
+  @Override
+  public <T extends Convention> T getSingle(ExternalIdBundle bundle, Class<T> type) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    return doGetSingle(bundle, null, type);
   }
 
   @Override
   public Convention getSingle(final ExternalIdBundle bundle, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-
-    try {
-      URI uri = DataConventionSourceResource.uriSearchSingle(getBaseUri(), bundle, versionCorrection);
-      return accessRemote(uri).get(Convention.class);
-    } catch (DataNotFoundException ex) {
-      return null;
-    } catch (UniformInterfaceException404NotFound ex) {
-      return null;
-    }
+    return doGetSingle(bundle, versionCorrection, null);
   }
 
   @Override
@@ -172,7 +174,10 @@ public class RemoteConventionSource
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ArgumentChecker.notNull(type, "type");
+    return doGetSingle(bundle, versionCorrection, type);
+  }
 
+  protected <T extends Convention> T doGetSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection, Class<T> type) {
     try {
       URI uri = DataConventionSourceResource.uriSearchSingle(getBaseUri(), bundle, versionCorrection, type);
       Convention convention = accessRemote(uri).get(Convention.class);
@@ -194,21 +199,6 @@ public class RemoteConventionSource
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
-  }
-
-  @Override
-  public Convention getConvention(ExternalId externalId) {
-    return getSingle(externalId.toBundle());
-  }
-
-  @Override
-  public <T extends Convention> T getConvention(Class<T> type, ExternalId externalId) {
-    return getSingle(externalId.toBundle(), VersionCorrection.LATEST, type);
-  }
-
-  @Override
-  public <T extends Convention> T getConvention(Class<T> type, ExternalIdBundle bundle) {
-    return getSingle(bundle, VersionCorrection.LATEST, type);
   }
 
 }

@@ -30,7 +30,7 @@ public class TestConventionSource implements ConventionSource {
   }
 
   @Override
-  public Convention getConvention(final ExternalId identifier) {
+  public Convention getSingle(final ExternalId identifier) {
     Convention convention = _conventions.get(identifier);
     if (convention == null) {
       throw new DataNotFoundException("No convention found: " + identifier);
@@ -40,7 +40,7 @@ public class TestConventionSource implements ConventionSource {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalId identifier) {
+  public <T extends Convention> T getSingle(final ExternalId identifier, final Class<T> clazz) {
     final Convention convention = _conventions.get(identifier);
     if (convention == null) {
       throw new DataNotFoundException("No convention found: " + identifier);
@@ -52,7 +52,7 @@ public class TestConventionSource implements ConventionSource {
   }
 
   @Override
-  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalIdBundle identifiers) {
+  public <T extends Convention> T getSingle(final ExternalIdBundle identifiers, final Class<T> clazz) {
     return null;
   }
 

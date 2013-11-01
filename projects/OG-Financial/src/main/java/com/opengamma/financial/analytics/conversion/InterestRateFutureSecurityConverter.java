@@ -60,8 +60,8 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
     final String conventionName = getConventionName(currency, STIR_FUTURES + QUARTERLY);
-    final InterestRateFutureConvention convention = _conventionSource.getConvention(InterestRateFutureConvention.class, ExternalId.of(SCHEME_NAME, conventionName)); // PLAT-4532
-    final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
+    final InterestRateFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, conventionName), InterestRateFutureConvention.class); // PLAT-4532
+    final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), IborIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final Period period = Period.ofMonths(3); //TODO
     final double paymentAccrualFactor = getAccrualFactor(period);

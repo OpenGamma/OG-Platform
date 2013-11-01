@@ -57,8 +57,8 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
+    final FederalFundsFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class);
+    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), OvernightIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());
     final double paymentAccrualFactor = 1 / 12.; //TODO should not be hard-coded
@@ -71,8 +71,8 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
+    final FederalFundsFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class);
+    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), OvernightIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());
     final double paymentAccrualFactor = 1 / 12.; //TODO should not be hard-coded

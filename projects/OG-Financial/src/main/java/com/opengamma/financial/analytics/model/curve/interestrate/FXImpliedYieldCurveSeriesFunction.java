@@ -208,7 +208,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     final Map<LocalDate, YieldAndDiscountCurve> domesticCurves = new LinkedHashMap<>();
     final Calendar calendar = CalendarUtils.getCalendar(holidaySource, domesticCurrency, foreignCurrency);
     final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-    final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
+    final FXSpotConvention fxSpotConvention = conventionSource.getSingle(ExternalId.of("CONVENTION", "FX Spot"), FXSpotConvention.class);
     final int spotLag = fxSpotConvention.getSettlementDays();
     final boolean isRegular = specification.isMarketQuoteConvention();
     final ExternalId conventionSettlementRegion = fxSpotConvention.getSettlementRegion();

@@ -69,10 +69,10 @@ public class CurveNodeConverter {
         ArgumentChecker.notNull(timeSeries, "time series");
 
         ExternalId priceIndexId;
-        final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(
-            InflationLegConvention.class, ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention());
+        final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(
+            ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention(), InflationLegConvention.class);
         final ExternalId priceIndexConventionId = inflationLegConvention.getPriceIndexConvention();
-        final PriceIndexConvention priceIndexConvention = _conventionSource.getConvention(PriceIndexConvention.class, priceIndexConventionId);
+        final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(priceIndexConventionId, PriceIndexConvention.class);
         priceIndexId = priceIndexConvention.getPriceIndexId();
 
         final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);

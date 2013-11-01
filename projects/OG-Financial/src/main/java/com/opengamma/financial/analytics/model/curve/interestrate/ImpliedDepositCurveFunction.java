@@ -254,7 +254,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
-      final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
+      final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
       final int spotLag = convention.getSettlementDays();
       final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
       ZonedDateTime spotDate;

@@ -208,7 +208,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Calendar calendar = CalendarUtils.getCalendar(holidaySource, domesticCurrency, foreignCurrency);
     final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-    final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
+    final FXSpotConvention fxSpotConvention = conventionSource.getSingle(ExternalId.of("CONVENTION", "FX Spot"), FXSpotConvention.class);
     final int spotLag = fxSpotConvention.getSettlementDays();
     final ExternalId conventionSettlementRegion = fxSpotConvention.getSettlementRegion();
     ZonedDateTime spotDate;

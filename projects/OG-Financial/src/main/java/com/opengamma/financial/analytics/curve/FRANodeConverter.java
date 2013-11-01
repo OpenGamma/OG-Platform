@@ -80,7 +80,7 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, fraNode.getConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(fraNode.getConvention(), IborIndexConvention.class);
     final Period startPeriod = fraNode.getFixingStart().getPeriod();
     final Period endPeriod = fraNode.getFixingEnd().getPeriod();
     //TODO probably need a specific FRA convention to hold the reset tenor

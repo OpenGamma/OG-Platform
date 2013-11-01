@@ -66,6 +66,28 @@ public interface ConventionSource
   <T extends Convention> T get(ObjectId objectId, VersionCorrection versionCorrection, Class<T> type);
 
   /**
+   * Gets an object by external identifier bundle and version-correction.
+   * <p>
+   * This retrieves the object stored using the external identifier at the instant
+   * specified by the version-correction. If not found, an exception is thrown.
+   * <p>
+   * The identifier bundle represents those keys associated with a single object.
+   * In an ideal world, all the identifiers in a bundle would refer to the same object.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * The best-match mechanism is implementation specific.
+   * 
+   * @param bundle  the external identifier bundle to search for, not null
+   * @param versionCorrection  the version-correction, not null
+   * @return the matched object, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the object could not be found
+   * @throws RuntimeException if an error occurs
+   */
+  @Override
+  Convention getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+
+  /**
    * Gets an object by external identifier bundle and version-correction, ensuring it is of a particular type.
    * <p>
    * This retrieves the object stored using the external identifier at the instant
@@ -89,24 +111,49 @@ public interface ConventionSource
   <T extends Convention> T getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection, Class<T> type);
 
   //-------------------------------------------------------------------------
+  // these methods are primarily for use by the engine
+  // which locks the version-correction behind the scenes
   /**
-   * Gets objects by external identifier bundle at the latest version-correction.
+   * Gets an object by external identifier at the latest version-correction.
    * <p>
-   * A bundle represents the set of external identifiers which in theory map to a single object.
-   * Unfortunately, not all external identifiers uniquely identify a single version of a single object.
-   * The default behavior in standard implementations should be to return any
-   * element with <strong>any</strong> external identifier that matches <strong>any</strong>
-   * identifier in the bundle. While specific implementations may modify this behavior,
-   * this should be explicitly documented to avoid confusion. 
-   *
-   * @param bundle  the external identifier bundle to search for, not null
-   * @return all objects matching the bundle, empty if no matches, not null
+   * This retrieves the object stored using the external identifier at the latest
+   * version-correction. If not found, an exception is thrown.
+   * <p>
+   * The identifier represents one of the keys associated with a single object.
+   * In an ideal world, all the identifiers in a bundle would refer to the same object.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * The best-match mechanism is implementation specific.
+   * 
+   * @param externalId  the external identifier to search for, not null
+   * @return the matched object, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
-   * @deprecated Use {@link #get(ExternalIdBundle, VersionCorrection)}
    */
-  @Deprecated
-  Collection<Convention> get(ExternalIdBundle bundle);
+  Convention getSingle(ExternalId externalId);
+
+  /**
+   * Gets an object by external identifier at the latest version-correction, ensuring it is of a particular type.
+   * <p>
+   * This retrieves the object stored using the external identifier at the latest
+   * version-correction. If not found, an exception is thrown.
+   * <p>
+   * The identifier represents one of the keys associated with a single object.
+   * In an ideal world, all the identifiers in a bundle would refer to the same object.
+   * However, since each identifier is not completely unique, multiple may match.
+   * To further complicate matters, some identifiers are more unique than others.
+   * The best-match mechanism is implementation specific.
+   * 
+   * @param <T>  the type of the convention to get
+   * @param externalId  the external identifier to search for, not null
+   * @param type  the type of the convention to get, not null
+   * @return the matched object, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the object could not be found
+   * @throws RuntimeException if an error occurs
+   */
+  <T extends Convention> T getSingle(ExternalId externalId, Class<T> type);
 
   /**
    * Gets an object by external identifier bundle at the latest version-correction.
@@ -125,16 +172,15 @@ public interface ConventionSource
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
-   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection)}
    */
-  @Deprecated
+  @Override
   Convention getSingle(ExternalIdBundle bundle);
 
   /**
-   * Gets an object by external identifier bundle and version-correction.
+   * Gets an object by external identifier bundle at the latest version-correction, ensuring it is of a particular type.
    * <p>
-   * This retrieves the object stored using the external identifier at the instant
-   * specified by the version-correction. If not found, an exception is thrown.
+   * This retrieves the object stored using the external identifier at the latest
+   * version-correction. If not found, an exception is thrown.
    * <p>
    * The identifier bundle represents those keys associated with a single object.
    * In an ideal world, all the identifiers in a bundle would refer to the same object.
@@ -142,46 +188,6 @@ public interface ConventionSource
    * To further complicate matters, some identifiers are more unique than others.
    * The best-match mechanism is implementation specific.
    * 
-   * @param bundle  the external identifier bundle to search for, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return the matched object, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the object could not be found
-   * @throws RuntimeException if an error occurs
-   */
-  Convention getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection);
-
-  /**
-   * Gets an object by external identifier.
-   * 
-   * @param externalId  the external identifier to search for, not null
-   * @return the matched object, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the object could not be found
-   * @throws RuntimeException if an error occurs
-   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection, Class)}
-   */
-  @Deprecated
-  Convention getConvention(ExternalId externalId);
-
-  /**
-   * Gets an object by external identifier.
-   * 
-   * @param <T>  the type of the convention to get
-   * @param externalId  the external identifier to search for, not null
-   * @param type  the type of the convention to get, not null
-   * @return the matched object, not null
-   * @throws IllegalArgumentException if the identifier is invalid
-   * @throws DataNotFoundException if the object could not be found
-   * @throws RuntimeException if an error occurs
-   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection, Class)}
-   */
-  @Deprecated
-  <T extends Convention> T getConvention(Class<T> type, ExternalId externalId);
-
-  /**
-   * Gets an object by external identifier.
-   * 
    * @param <T>  the type of the convention to get
    * @param bundle  the external identifier bundle to search for, not null
    * @param type  the type of the convention to get, not null
@@ -189,9 +195,28 @@ public interface ConventionSource
    * @throws IllegalArgumentException if the identifier is invalid
    * @throws DataNotFoundException if the object could not be found
    * @throws RuntimeException if an error occurs
-   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection, Class)}
+   */
+  <T extends Convention> T getSingle(ExternalIdBundle bundle, Class<T> type);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets objects by external identifier bundle at the latest version-correction.
+   * <p>
+   * A bundle represents the set of external identifiers which in theory map to a single object.
+   * Unfortunately, not all external identifiers uniquely identify a single version of a single object.
+   * The default behavior in standard implementations should be to return any
+   * element with <strong>any</strong> external identifier that matches <strong>any</strong>
+   * identifier in the bundle. While specific implementations may modify this behavior,
+   * this should be explicitly documented to avoid confusion. 
+   *
+   * @param bundle  the external identifier bundle to search for, not null
+   * @return all objects matching the bundle, empty if no matches, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws RuntimeException if an error occurs
+   * @deprecated Use {@link #get(ExternalIdBundle, VersionCorrection)}
    */
   @Deprecated
-  <T extends Convention> T getConvention(Class<T> type, ExternalIdBundle bundle);
+  @Override
+  Collection<Convention> get(ExternalIdBundle bundle);
 
 }

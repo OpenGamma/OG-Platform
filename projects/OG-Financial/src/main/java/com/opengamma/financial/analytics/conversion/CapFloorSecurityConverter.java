@@ -66,7 +66,7 @@ public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<I
     final Period tenorPayment = getTenor(payFreq);
     final boolean isIbor = capFloorSecurity.isIbor();
     final String iborConventionName = getConventionName(currency, IBOR);
-    final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
     final Frequency freqIbor = capFloorSecurity.getFrequency();
     final Period iborTenor = getTenor(freqIbor);
     final int spotLag = iborIndexConvention.getSettlementDays();
@@ -79,14 +79,14 @@ public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<I
     if (isIbor) { // Cap/floor on Ibor
       final String vanillaIborLegConventionName = getConventionName(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG);
       final VanillaIborLegConvention vanillaIborLegConvention =
-          _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
+          _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName), VanillaIborLegConvention.class);
       return AnnuityCapFloorIborDefinition.from(startDate, endDate, notional, index, capFloorSecurity.getDayCount(), tenorPayment, capFloorSecurity.isPayer(), capFloorSecurity.getStrike(),
           capFloorSecurity.isCap(), calendar);
     }
     // Cap/floor on CMS
     final String swapIndexConventionName = getConventionName(currency, SWAP_INDEX);
-    final SwapIndexConvention swapIndexConvention = _conventionSource.getConvention(SwapIndexConvention.class, ExternalId.of(SCHEME_NAME, swapIndexConventionName));
-    final SwapConvention swapConvention = _conventionSource.getConvention(SwapConvention.class, swapIndexConvention.getSwapConvention());
+    final SwapIndexConvention swapIndexConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, swapIndexConventionName), SwapIndexConvention.class);
+    final SwapConvention swapConvention = _conventionSource.getSingle(swapIndexConvention.getSwapConvention(), SwapConvention.class);
     final IndexSwap swapIndex = getSwapIndex(swapConvention, iborIndex);
     return AnnuityCapFloorCMSDefinition.from(startDate, endDate, notional, swapIndex, tenorPayment, capFloorSecurity.getDayCount(), capFloorSecurity.isPayer(), capFloorSecurity.getStrike(),
         capFloorSecurity.isCap(), calendar);
@@ -111,8 +111,8 @@ public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<I
 
   private IndexSwap getSwapIndex(final SwapConvention swapConvention, final IborIndex iborIndex) {
     SwapFixedLegConvention fixedConvention;
-    final Convention payLegConvention = _conventionSource.getConvention(swapConvention.getPayLegConvention());
-    final Convention receiveLegConvention = _conventionSource.getConvention(swapConvention.getReceiveLegConvention());
+    final Convention payLegConvention = _conventionSource.getSingle(swapConvention.getPayLegConvention());
+    final Convention receiveLegConvention = _conventionSource.getSingle(swapConvention.getReceiveLegConvention());
     if (payLegConvention instanceof SwapFixedLegConvention) {
       fixedConvention = (SwapFixedLegConvention) payLegConvention;
     } else if (receiveLegConvention instanceof SwapFixedLegConvention) {

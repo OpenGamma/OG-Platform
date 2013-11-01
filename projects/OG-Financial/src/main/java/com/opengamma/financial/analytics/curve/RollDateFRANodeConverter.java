@@ -78,8 +78,8 @@ public class RollDateFRANodeConverter extends CurveNodeVisitorAdapter<Instrument
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final RollDateFRAConvention convention = _conventionSource.getConvention(RollDateFRAConvention.class, immFRANode.getRollDateFRAConvention());
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
+    final RollDateFRAConvention convention = _conventionSource.getSingle(immFRANode.getRollDateFRAConvention(), RollDateFRAConvention.class);
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(convention.getIndexConvention(), IborIndexConvention.class);
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(convention.getRollDateConvention().getValue());
     final Tenor indexTenor = immFRANode.getIndexTenor();

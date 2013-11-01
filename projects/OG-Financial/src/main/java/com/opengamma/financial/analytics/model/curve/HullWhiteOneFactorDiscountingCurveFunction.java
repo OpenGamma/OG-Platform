@@ -218,13 +218,13 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ibor.getConvention());
+              final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ibor.getConvention(), IborIndexConvention.class);
               final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final OvernightIndexConvention overnightConvention = conventionSource.getConvention(OvernightIndexConvention.class, overnight.getConvention());
+              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnight.getConvention(), OvernightIndexConvention.class);
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());

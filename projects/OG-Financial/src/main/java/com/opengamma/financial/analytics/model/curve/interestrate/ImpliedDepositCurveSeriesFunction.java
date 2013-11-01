@@ -280,7 +280,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
-      final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
+      final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
       final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
       final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
       final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,

@@ -73,9 +73,9 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
   @Override
   public InstrumentDefinition<?> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final PriceIndexConvention indexConvention = _conventionSource.getConvention(PriceIndexConvention.class, getIds(currency, PRICE_INDEX));
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, getIds(currency, IRS_FIXED_LEG));
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, getIds(currency, INFLATION_LEG));
+    final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(getIds(currency, IRS_FIXED_LEG), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class);
     final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
@@ -129,9 +129,9 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final PriceIndexConvention indexConvention = _conventionSource.getConvention(PriceIndexConvention.class, getIds(currency, PRICE_INDEX));
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, getIds(currency, IRS_FIXED_LEG));
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, getIds(currency, INFLATION_LEG));
+    final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(getIds(currency, IRS_FIXED_LEG), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class);
     final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();

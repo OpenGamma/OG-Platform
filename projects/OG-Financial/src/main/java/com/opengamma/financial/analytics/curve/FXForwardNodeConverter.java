@@ -79,10 +79,10 @@ public class FXForwardNodeConverter extends CurveNodeVisitorAdapter<InstrumentDe
     if (forward == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final FXForwardAndSwapConvention convention = _conventionSource.getConvention(FXForwardAndSwapConvention.class, conventionId);
+    final FXForwardAndSwapConvention convention = _conventionSource.getSingle(conventionId, FXForwardAndSwapConvention.class);
     final FXForwardAndSwapConvention forwardConvention = (FXForwardAndSwapConvention) convention;
     final ExternalId underlyingConventionId = forwardConvention.getSpotConvention();
-    final FXSpotConvention underlyingConvention = _conventionSource.getConvention(FXSpotConvention.class, underlyingConventionId);
+    final FXSpotConvention underlyingConvention = _conventionSource.getSingle(underlyingConventionId, FXSpotConvention.class);
     final FXSpotConvention spotConvention = (FXSpotConvention) underlyingConvention;
     final Currency payCurrency = fxForward.getPayCurrency();
     final Currency receiveCurrency = fxForward.getReceiveCurrency();

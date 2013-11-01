@@ -114,7 +114,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
         final ExternalId cashConventionId = ((CashNode) node.getCurveNode()).getConvention();
         if (cashConvention == null) {
           try {
-            cashConvention = conventionSource.getConvention(DepositConvention.class, cashConventionId);
+            cashConvention = conventionSource.getSingle(cashConventionId, DepositConvention.class);
           } catch (DataNotFoundException ex) {
             // ignore, continue around loop
           }
@@ -124,9 +124,9 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
       } else if (node.getCurveNode() instanceof SwapNode) {
         instruments[k] = ISDAInstrumentTypes.Swap;
         final ExternalId payConventionId = ((SwapNode) node.getCurveNode()).getPayLegConvention();
-        final Convention payConvention = conventionSource.getConvention(payConventionId);
+        final Convention payConvention = conventionSource.getSingle(payConventionId);
         final ExternalId receiveConventionId = ((SwapNode) node.getCurveNode()).getReceiveLegConvention();
-        final Convention receiveConvention = conventionSource.getConvention(receiveConventionId);
+        final Convention receiveConvention = conventionSource.getSingle(receiveConventionId);
         if (payConvention instanceof VanillaIborLegConvention) {  // float leg
           if (floatLegConvention == null) {
             floatLegConvention = (VanillaIborLegConvention) payConvention;
@@ -166,7 +166,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
     ArgumentChecker.notNull(cashConvention, "Cash convention");
     ArgumentChecker.notNull(floatLegConvention, "Floating leg convention");
     ArgumentChecker.notNull(fixLegConvention, "Fixed leg convention");
-    liborConvention = conventionSource.getConvention(IborIndexConvention.class, floatLegConvention.getIborIndexConvention());
+    liborConvention = conventionSource.getSingle(floatLegConvention.getIborIndexConvention(), IborIndexConvention.class);
     ArgumentChecker.notNull(liborConvention, floatLegConvention.getIborIndexConvention().toString());
 
     final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(spotDate, spotDate, instruments, tenors, marketDataForCurve, cashConvention.getDayCount(),

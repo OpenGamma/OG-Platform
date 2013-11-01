@@ -78,7 +78,7 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
 
   @Override
   public InstrumentDefinition<?> visitCashNode(final CashNode cashNode) {
-    final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
+    final Convention convention = _conventionSource.getSingle(cashNode.getConvention());
     final Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
