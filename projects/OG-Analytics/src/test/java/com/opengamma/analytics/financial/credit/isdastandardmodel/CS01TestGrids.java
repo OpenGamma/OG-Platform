@@ -24,9 +24,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class RopemakerTest extends ISDABaseTest {
+public class CS01TestGrids extends ISDABaseTest {
 
-  private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();
+  private static final MarketQuoteConverter QUOTE_CONVERTER = new MarketQuoteConverter();
 
   private static final Period[] PILLARS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(7),
     Period.ofYears(10) };
@@ -89,7 +89,7 @@ public class RopemakerTest extends ISDABaseTest {
       0.0271 };
     final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
 
-    runGrid(name, tradeDate, maturities, spreads, yieldCurve);
+    runGrid(name, tradeDate, maturities, COUPON, RECOVERY, spreads, yieldCurve);
   }
 
   @Test(enabled = false)
@@ -117,7 +117,7 @@ public class RopemakerTest extends ISDABaseTest {
       0.035505, 0.036425, 0.03691500 };
     final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
-    runGrid(name, tradeDate, maturities, spreads, yieldCurve);
+    runGrid(name, tradeDate, maturities, COUPON, RECOVERY, spreads, yieldCurve);
   }
 
   @Test(enabled = false)
@@ -145,7 +145,7 @@ public class RopemakerTest extends ISDABaseTest {
       0.035505, 0.036425, 0.03691500 };
     final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
-    runGrid(name, tradeDate, maturities, spreads, yieldCurve);
+    runGrid(name, tradeDate, maturities, COUPON, 0.25, spreads, yieldCurve);
   }
 
   @Test(enabled = false)
@@ -173,46 +173,174 @@ public class RopemakerTest extends ISDABaseTest {
       0.035505, 0.036425, 0.03691500 };
     final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
-    runGrid(name, tradeDate, maturities, spreads, yieldCurve);
+    runGrid(name, tradeDate, maturities, COUPON, RECOVERY, spreads, yieldCurve);
   }
 
-  private void runGrid(final String name, final LocalDate tradeDate, final LocalDate[] maturities, final double[] spreads, final ISDACompliantYieldCurve yieldCurve) {
+  /**
+   * This test data given as PUF 
+   */
+  @Test(enabled = false)
+  public void argentTest() {
+    final String name = "Argent";
+    final double coupon = 0.05;
+    final double rr = 0.25;
+
+    final LocalDate tradeDate = LocalDate.of(2013, Month.OCTOBER, 17);
+    final LocalDate firstMaturity = LocalDate.of(2013, Month.OCTOBER, 20);
+    final LocalDate lastMaturity = LocalDate.of(2023, Month.DECEMBER, 20);
+    final LocalDate[] maturities = getAllMaturities(firstMaturity, lastMaturity);
+
+    final double[] puf = new double[] {0.0017, 0.0155, 0.0286, 0.0417, 0.0546, 0.0659, 0.0882, 0.109, 0.1296, 0.146, 0.1624, 0.1782, 0.1965, 0.2145, 0.2313, 0.2458, 0.2597, 0.2717, 0.2846, 0.2967,
+      0.3086, 0.3196, 0.3306, 0.3411, 0.3507, 0.3603, 0.3691, 0.3723, 0.3754, 0.3782, 0.3806, 0.3828, 0.3851, 0.387, 0.3889, 0.3908, 0.3927, 0.3946, 0.3964, 0.3981, 0.3998, 0.4012, 0.4029, 0.4044,
+      0.406, 0.4076, 0.4091, 0.4106, 0.4122, 0.4137, 0.415, 0.4167, 0.4182, 0.4195, 0.4212, 0.4226, 0.4241, 0.4256, 0.4271, 0.4284, 0.4298, 0.4311, 0.4323, 0.4332, 0.434, 0.4346, 0.4354, 0.4361,
+      0.4367, 0.4374, 0.4381, 0.4386, 0.4394, 0.44, 0.4405, 0.4412, 0.4417, 0.4421, 0.4427, 0.4433, 0.4437, 0.4443, 0.4448, 0.4452, 0.4457, 0.4462, 0.4466, 0.4471, 0.4475, 0.4478, 0.4483, 0.4486,
+      0.4489, 0.4493, 0.4497, 0.4499, 0.4504, 0.4508, 0.451, 0.4513, 0.4516, 0.4516, 0.452, 0.4523, 0.4524, 0.4527, 0.4529, 0.453, 0.4534, 0.4536, 0.4537, 0.454, 0.4542, 0.4542, 0.4545, 0.4546,
+      0.4547, 0.455, 0.4551, 0.4551, 0.4554, 0.4555, 0.4555 };
+
+    //yield curve
+    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
+    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    final double[] rates = new double[] {0.001755, 0.002163, 0.002461, 0.003644, 0.006296, 0.004685, 0.00757, 0.01152, 0.015555, 0.019, 0.021885, 0.024305, 0.026315, 0.02804, 0.03069, 0.03322,
+      0.035355, 0.03643, 0.03697 };
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
+
+    runPUFGrid(name, tradeDate, maturities, coupon, rr, puf, yieldCurve);
+
+  }
+
+  @Test(enabled = false)
+  public void argentTest2() {
+    final String name = "Argent";
+    final double coupon = 0.05;
+    final double rr = 0.25;
+
+    final LocalDate tradeDate = LocalDate.of(2013, Month.OCTOBER, 17);
+    final LocalDate firstMaturity = LocalDate.of(2013, Month.OCTOBER, 20);
+    final LocalDate lastMaturity = LocalDate.of(2023, Month.DECEMBER, 20);
+    final LocalDate[] maturities = getAllMaturities(firstMaturity, lastMaturity);
+
+    final double[] qSpreads = new double[] {0.20, 0.216339819827789, 0.215026975292814, 0.2140784051537, 0.213986209900337, 0.213733114478896, 0.236019328256488, 0.251607596246203, 0.26362232382798,
+      0.268042726166823, 0.271780439052978, 0.274797009215456, 0.282095157839183, 0.288300465146796, 0.293561155538839, 0.295591514818445, 0.29729057005055, 0.298517390580295, 0.299803497765076,
+      0.300993122482366, 0.301936387699877, 0.302639692320837, 0.303343347699392, 0.303880329866993, 0.304138762809806, 0.304430335706418, 0.304527338232278, 0.299061023763049, 0.293974349695976,
+      0.289496800367118, 0.284522691790816, 0.279961135583844, 0.275603109124033, 0.271387082299889, 0.267275587121691, 0.263430343128684, 0.259988447239805, 0.256620429569045, 0.253528850163382,
+      0.250395611588397, 0.24746221669694, 0.244855071581835, 0.242231733937488, 0.239740525695391, 0.237339961842982, 0.235175168343644, 0.232961310022416, 0.230862732649384, 0.229036482110206,
+      0.227157070953311, 0.22532597412706, 0.223767825467926, 0.222170697637686, 0.220761519883318, 0.219447432039878, 0.218093713278725, 0.216798529925898, 0.215636968947012, 0.214478293265545,
+      0.21324943813095, 0.21220501810934, 0.211097614146918, 0.210040091113559, 0.208779319222011, 0.207518649012888, 0.206345676987996, 0.20517599772974, 0.204051722843812, 0.202857480006609,
+      0.201813591489336, 0.200770647273373, 0.199645293132785, 0.1987811426371, 0.197796948605989, 0.196829332793193, 0.195969669292786, 0.195033278349195, 0.194145290528741, 0.193324674700498,
+      0.192578433887757, 0.191705833636468, 0.19100815408059, 0.190252430070042, 0.189463716602488, 0.188786025531258, 0.188108350903912, 0.18742568528085, 0.186788889440548, 0.18612527281304,
+      0.185508037546637, 0.184936293649623, 0.184305735541621, 0.183666614884945, 0.183124570127554, 0.18258230910081, 0.18194485032407, 0.181512245858378, 0.181023830671359, 0.180461170291072,
+      0.179944609474692, 0.179450226660242, 0.178866018589262, 0.178450528319099, 0.1780202969245, 0.177472840937738, 0.177064341863839, 0.176601428646639, 0.176095220061246, 0.175779436454306,
+      0.17535517129127, 0.174903632782417, 0.174552288005534, 0.174163744280323, 0.173723383428186, 0.173405169706597, 0.173010120198239, 0.172608427416311, 0.172335663591248, 0.171956095953899,
+      0.171530931604331, 0.17128614937871, 0.170935016451065, 0.170550536934353 };
+
+    //yield curve
+    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
+    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    final double[] rates = new double[] {0.001755, 0.002163, 0.002461, 0.003644, 0.006296, 0.004685, 0.00757, 0.01152, 0.015555, 0.019, 0.021885, 0.024305, 0.026315, 0.02804, 0.03069, 0.03322,
+      0.035355, 0.03643, 0.03697 };
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
+
+    runGrid(name, tradeDate, maturities, coupon, rr, qSpreads, yieldCurve);
+
+  }
+
+  private void runPUFGrid(final String name, final LocalDate tradeDate, final LocalDate[] maturities, final double coupon, final double recovery, final double[] puf,
+      final ISDACompliantYieldCurve yieldCurve) {
+    final int nMat = maturities.length;
+    ArgumentChecker.isTrue(nMat == puf.length, "wrong number of spreads");
+    final CDSAnalyticFactory immFactory = IMM_CDS_FACTORY.withRecoveryRate(recovery);
+    final CDSAnalyticFactory nonImmFactory = NON_IMM_CDS_FACTORY.withRecoveryRate(recovery);
+    final LocalDate startDate = getPrevIMMDate(tradeDate);
+    final LocalDate nextIMM = getNextIMMDate(tradeDate);
+    final LocalDate[] pillarDates = getIMMDateSet(nextIMM, PILLARS);
+    final double[] pillarPUF = getSpreadsAtDates(maturities, puf, pillarDates);
+
+    //NOTE the curve is build with SA coupons and T+1 accrual for non-IMM - is this correct?
+    final CDSAnalytic[] pillarCDSsIMM = immFactory.makeCDS(tradeDate, startDate, pillarDates);
+    final CDSAnalytic[] pillarCDSsNonIMM = nonImmFactory.makeCDS(tradeDate, tradeDate.plusDays(1), pillarDates);
+    final LocalDate[] bucketDates = getIMMDateSet(nextIMM, BUCKETS);
+    final CDSAnalytic[] bucketCDSsIMM = immFactory.makeIMMCDS(tradeDate, BUCKETS);
+    final CDSAnalytic[] bucketCDSsNonIMM = nonImmFactory.makeCDS(tradeDate, tradeDate.plusDays(1), bucketDates);
+    final int nPillars = pillarDates.length;
+    final double[] premiums = new double[nPillars];
+    Arrays.fill(premiums, coupon);
+
+    final double[] upfrontAmount = new double[nMat];
+    final double[] parellelCS01_A = new double[nMat];
+    final double[] parellelCS01_B = new double[nMat];
+    final double[][] bucketedCS01 = new double[nMat][];
+    final int[] accDays = new int[nMat];
+
+    for (int i = 0; i < nMat; i++) {
+      if (isIMMDate(maturities[i])) {
+        final CDSAnalytic pricingCDS = immFactory.makeCDS(tradeDate, startDate, maturities[i]);
+        System.out.println(QUOTE_CONVERTER.pufToQuotedSpread(pricingCDS, coupon, yieldCurve, puf[i]));
+        accDays[i] = pricingCDS.getAccuredDays();
+        parellelCS01_A[i] = CS01_CAL.parallelCS01FromPUF(pricingCDS, coupon, yieldCurve, puf[i], ONE_BP);
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromPUF(pricingCDS, new PointsUpFront(coupon, puf[i]), yieldCurve, bucketCDSsIMM, ONE_BP);
+      } else {
+        final CDSAnalytic pricingCDS = immFactory.makeCDS(tradeDate, tradeDate.plusDays(1), maturities[i]); //nonImmFactory.makeCDS(tradeDate, tradeDate.plusDays(1), maturities[i]);
+
+        accDays[i] = pricingCDS.getAccuredDays();
+
+        parellelCS01_A[i] = CS01_CAL.parallelCS01FromPUF(pricingCDS, coupon, yieldCurve, puf[i], ONE_BP);
+
+        final double[] pillarQS = QUOTE_CONVERTER.pufToQuotedSpreads(pillarCDSsIMM, coupon, yieldCurve, pillarPUF);
+        final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pillarCDSsIMM, premiums, yieldCurve, pillarPUF);
+        final double qSpread = QUOTE_CONVERTER.pufToQuotedSpread(pricingCDS, coupon, yieldCurve, puf[i]);
+        System.out.println(QUOTE_CONVERTER.pufToQuotedSpread(pricingCDS, coupon, yieldCurve, puf[i]));
+        parellelCS01_B[i] = CS01_CAL.parallelCS01FromParSpreads(pricingCDS, qSpread, yieldCurve, pillarCDSsIMM, pillarQS, ONE_BP, BumpType.ADDITIVE);
+        //  parellelCS01_B[i] = CS01_CAL.parallelCS01FromCreditCurve(pricingCDS, parSpread, pillarCDSsNonIMM, yieldCurve, creditCurve, ONE_BP);
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, coupon, bucketCDSsNonIMM, yieldCurve, creditCurve, ONE_BP);
+      }
+    }
+    final double scale = ONE_BP * NOTIONAL;
+    outputPUF(name, maturities, BUCKETS, puf, upfrontAmount, bucketedCS01, parellelCS01_A, parellelCS01_B, scale, accDays);
+  }
+
+  private void runGrid(final String name, final LocalDate tradeDate, final LocalDate[] maturities, final double coupon, final double recovery, final double[] spreads,
+      final ISDACompliantYieldCurve yieldCurve) {
     final int nMat = maturities.length;
     ArgumentChecker.isTrue(nMat == spreads.length, "wrong number of spreads");
 
     final double scale = ONE_BP * NOTIONAL;
+    final CDSAnalyticFactory immFactory = IMM_CDS_FACTORY.withRecoveryRate(recovery);
+    final CDSAnalyticFactory nonImmFactory = NON_IMM_CDS_FACTORY.withRecoveryRate(recovery);
 
-    final LocalDate stepinDate = tradeDate.plusDays(1); // AKA stepin date
-    final LocalDate cashSettleDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR); // AKA valuation date
     final LocalDate startDate = getPrevIMMDate(tradeDate);
     final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final LocalDate[] pillarDates = getIMMDateSet(nextIMM, PILLARS);
 
     final double[] pillarSpreads = getSpreadsAtDates(maturities, spreads, pillarDates);
-    final CDSAnalytic[] pillarCDSsNonIMM = NON_IMM_CDS_FACTORY.makeCDS(tradeDate, startDate, pillarDates); //TODO check this start date
+
+    final CDSAnalytic[] pillarCDSsNonIMM = nonImmFactory.makeCDS(tradeDate, tradeDate.plusDays(1), pillarDates); //TODO check this start date
     final LocalDate[] bucketDates = getIMMDateSet(nextIMM, BUCKETS);
-    final CDSAnalytic[] bucketCDSsIMM = IMM_CDS_FACTORY.makeCDS(tradeDate, startDate, bucketDates);
-    final CDSAnalytic[] bucketCDSsNonIMM = NON_IMM_CDS_FACTORY.makeCDS(tradeDate, startDate, bucketDates);
+    final CDSAnalytic[] bucketCDSsIMM = immFactory.makeCDS(tradeDate, startDate, bucketDates);
+    final CDSAnalytic[] bucketCDSsNonIMM = nonImmFactory.makeCDS(tradeDate, tradeDate.plusDays(1), bucketDates);
 
     final double[] puf = new double[nMat];
     final double[] upfrontAmount = new double[nMat];
     final double[] parellelCS01 = new double[nMat];
     final double[][] bucketedCS01 = new double[nMat][];
+    final int[] accDays = new int[nMat];
 
-    final int accDays = pillarCDSsNonIMM[0].getAccuredDays();
     for (int i = 0; i < nMat; i++) {
       if (isIMMDate(maturities[i])) {
-        final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY);
-        final QuotedSpread quote = new QuotedSpread(COUPON, spreads[i]);
-        puf[i] = PUF_CONVERTER.convert(pricingCDS, quote, yieldCurve).getPointsUpFront();
-        upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(COUPON)) * NOTIONAL;
+        final CDSAnalytic pricingCDS = immFactory.makeCDS(tradeDate, startDate, maturities[i]);
+        accDays[i] = pricingCDS.getAccuredDays();
+        final QuotedSpread quote = new QuotedSpread(coupon, spreads[i]);
+        puf[i] = QUOTE_CONVERTER.convert(pricingCDS, quote, yieldCurve).getPointsUpFront();
+        upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(coupon)) * NOTIONAL;
         parellelCS01[i] = CS01_CAL.parallelCS01(pricingCDS, quote, yieldCurve, ONE_BP);
         //a flat (constant) hazard rate does not give a completely flat spread term structure 
-        //TODO repeat calculation (already done fro PUF) and parallelCS01
+        //TODO repeat calculation (already done for PUF) and parallelCS01
         final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pricingCDS, quote.getQuotedSpread(), yieldCurve);
-        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, COUPON, bucketCDSsIMM, yieldCurve, creditCurve, ONE_BP);
+        bucketedCS01[i] = CS01_CAL.bucketedCS01FromCreditCurve(pricingCDS, coupon, bucketCDSsIMM, yieldCurve, creditCurve, ONE_BP);
       } else {
-        final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, NON_IMM_TENOR, STUB, PROCTECTION_START, RECOVERY);
+        final CDSAnalytic pricingCDS = nonImmFactory.makeCDS(tradeDate, tradeDate.plusDays(1), maturities[i]);
+        accDays[i] = pricingCDS.getAccuredDays();
         final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(pillarCDSsNonIMM, pillarSpreads, yieldCurve);
         puf[i] = PRICER.pv(pricingCDS, yieldCurve, creditCurve, spreads[i]);
         upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(spreads[i])) * NOTIONAL;
@@ -263,7 +391,7 @@ public class RopemakerTest extends ISDABaseTest {
   }
 
   private void output(final String name, final LocalDate[] maturities, final Period[] buckets, final double[] puf, final double[] upfrontAmount, final double[][] bCS01, final double[] pCS01,
-      final double scale, final int accDays) {
+      final double scale, final int[] accDays) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.noNulls(maturities, "maturities");
     ArgumentChecker.noNulls(buckets, "pillars");
@@ -279,12 +407,12 @@ public class RopemakerTest extends ISDABaseTest {
     final int columns = buckets.length;
     ArgumentChecker.isTrue(columns == bCS01[0].length, "bCS01 width wrong");
 
-    System.out.println(name + "\t Accured Days:\t" + accDays);
+    System.out.println(name);
     System.out.print("Maturity");
     for (int j = 0; j < columns; j++) {
       System.out.print("\t" + buckets[j]);
     }
-    System.out.print("\t\tSum\tParallel\tPUF\tUpFront Amount\n");
+    System.out.print("\t\tSum\tParallel\tPUF\tUpFront Amount\tAccured Days\n");
 
     for (int i = 0; i < rows; i++) {
       System.out.print(maturities[i]);
@@ -294,7 +422,44 @@ public class RopemakerTest extends ISDABaseTest {
         sum += temp;
         System.out.print("\t" + temp);
       }
-      System.out.print("\t\t" + sum + "\t" + scale * pCS01[i] + "\t" + ONE_HUNDRED * puf[i] + "\t" + upfrontAmount[i] + "\n");
+      System.out.print("\t\t" + sum + "\t" + scale * pCS01[i] + "\t" + ONE_HUNDRED * puf[i] + "\t" + upfrontAmount[i] + "\t" + accDays[i] + "\n");
+    }
+    System.out.print("\n");
+  }
+
+  private void outputPUF(final String name, final LocalDate[] maturities, final Period[] buckets, final double[] puf, final double[] upfrontAmount, final double[][] bCS01, final double[] pCS01A,
+      final double[] pCS01B, final double scale, final int[] accDays) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.noNulls(maturities, "maturities");
+    ArgumentChecker.noNulls(buckets, "pillars");
+    ArgumentChecker.notEmpty(puf, "puf");
+    ArgumentChecker.notEmpty(upfrontAmount, "upfrontAmount");
+    ArgumentChecker.noNulls(bCS01, "bCS01");
+    ArgumentChecker.notEmpty(pCS01A, "pCS01");
+    final int rows = maturities.length;
+    ArgumentChecker.isTrue(rows == bCS01.length, "bCS01 length wrong");
+    ArgumentChecker.isTrue(rows == pCS01A.length, "pCS01 length wrong");
+    ArgumentChecker.isTrue(rows == puf.length, "puf length wrong");
+    ArgumentChecker.isTrue(rows == upfrontAmount.length, "upfrontAmount length wrong");
+    final int columns = buckets.length;
+    ArgumentChecker.isTrue(columns == bCS01[0].length, "bCS01 width wrong");
+
+    System.out.println(name);
+    System.out.print("Maturity");
+    for (int j = 0; j < columns; j++) {
+      System.out.print("\t" + buckets[j]);
+    }
+    System.out.print("\t\tSum\tParallel A\tParallel B \tPUF\tUpFront Amount\tAccured Days\n");
+
+    for (int i = 0; i < rows; i++) {
+      System.out.print(maturities[i]);
+      double sum = 0.0;
+      for (int j = 0; j < columns; j++) {
+        final double temp = bCS01[i][j] * scale;
+        sum += temp;
+        System.out.print("\t" + temp);
+      }
+      System.out.print("\t\t" + sum + "\t" + scale * pCS01A[i] + "\t" + scale * pCS01B[i] + "\t" + ONE_HUNDRED * puf[i] + "\t" + upfrontAmount[i] + "\t" + accDays[i] + "\n");
     }
     System.out.print("\n");
   }

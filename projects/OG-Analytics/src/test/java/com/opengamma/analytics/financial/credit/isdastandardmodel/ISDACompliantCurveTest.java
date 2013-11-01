@@ -11,13 +11,27 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
-
 /**
  * 
  */
 public class ISDACompliantCurveTest {
   private static final double EPS = 1e-5;
+
+  @Test
+  public void baseShiftTest() {
+    final double[] t = new double[] {0.03, 0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4 };
+    final double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    final double offset = 0.01;
+    final ISDACompliantCurve baseCurve = new ISDACompliantCurve(t, r);
+    final ISDACompliantCurve offsetCurve = new ISDACompliantCurve(t, r, offset);
+    final double rtOffset = offset * r[0];
+    for (int i = 0; i < 100; i++) {
+      final double time = 3.5 * i / 100.0 + offset;
+      final double rt1 = baseCurve.getRT(time - offset) + rtOffset;
+      final double rt2 = offsetCurve.getRT(time);
+      assertEquals(rt1, rt2, 1e-15);
+    }
+  }
 
   @Test
   public void getRTTest() {

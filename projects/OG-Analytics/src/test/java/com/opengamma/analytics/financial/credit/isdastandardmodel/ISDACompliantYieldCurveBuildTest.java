@@ -12,8 +12,10 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
+import cern.jet.random.engine.MersenneTwister;
+
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -21,7 +23,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * This tests yield curve construction against numbers from ISDA C code. Note,  the ISDA C code has a tolerance of 1e-10 on the root finder (Brent) 
+ *so it is not possible to get a accuracy greater that around 1e-10 using a different numerical procedure  
  */
 public class ISDACompliantYieldCurveBuildTest {
 
@@ -29,6 +32,8 @@ public class ISDACompliantYieldCurveBuildTest {
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+
+  private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister(MersenneTwister.DEFAULT_SEED));
 
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -87,7 +92,7 @@ public class ISDACompliantYieldCurveBuildTest {
 
     final DayCount moneyMarketDCC = ACT360;
     final DayCount swapDCC = D30360;
-    final DayCount curveDCC = ACT365;
+    //  final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
 
     final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, MOD_FOLLOWING);
@@ -99,7 +104,7 @@ public class ISDACompliantYieldCurveBuildTest {
     for (int i = 0; i < nSamplePoints; i++) {
       final double time = sampleTimes[i];
       final double zr = hc.getZeroRate(time);
-      assertEquals("time:" + time, zeroRates[i], zr, 1e-10);
+      assertEquals("time:" + time, zeroRates[i], zr, 1e-10); //see Javadocs
     }
 
     if (print) {
@@ -108,22 +113,68 @@ public class ISDACompliantYieldCurveBuildTest {
       }
     }
 
+  }
+
+  @Test(enabled = false)
+  public void timingTest() {
     //TODO extract timing to another test
-    final int warmup = 1;
-    final int hotSpot = 0;
+    final int warmup = 200;
+    final int hotSpot = 1000;
+    final double vol = 0.05;
+
+    final double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332, 0.0227369218210212,
+      0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
+      0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999 };
+
+    final LocalDate spotDate = LocalDate.of(2013, 5, 31);
+
+    final int nMoneyMarket = 6;
+    final int nSwaps = 14;
+    final int nInstruments = nMoneyMarket + nSwaps;
+
+    final ISDAInstrumentTypes[] types = new ISDAInstrumentTypes[nInstruments];
+    final Period[] tenors = new Period[nInstruments];
+    final int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12 };
+    final int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
+
+    final DayCount moneyMarketDCC = ACT360;
+    final DayCount swapDCC = D30360;
+    // final DayCount curveDCC = ACT365;
+    final Period swapInterval = Period.ofMonths(6);
+
+    for (int i = 0; i < nMoneyMarket; i++) {
+      types[i] = ISDAInstrumentTypes.MoneyMarket;
+      tenors[i] = Period.ofMonths(mmMonths[i]);
+    }
+    for (int i = nMoneyMarket; i < nInstruments; i++) {
+      types[i] = ISDAInstrumentTypes.Swap;
+      tenors[i] = Period.ofYears(swapYears[i - nMoneyMarket]);
+    }
+
+    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, MOD_FOLLOWING);
 
     for (int i = 0; i < warmup; i++) {
-      final ISDACompliantCurve hc1 = bob.build(rates);
+      @SuppressWarnings("unused")
+      final ISDACompliantCurve hc1 = bob.build(bumpRates(rates, vol));
     }
 
     if (hotSpot > 0) {
       final long t0 = System.nanoTime();
-      for (int i = 0; i < warmup; i++) {
-        final ISDACompliantCurve hc1 = bob.build(rates);
+      for (int i = 0; i < hotSpot; i++) {
+        @SuppressWarnings("unused")
+        final ISDACompliantCurve hc1 = bob.build(bumpRates(rates, vol));
       }
       System.out.println("time to build yield curve: " + (System.nanoTime() - t0) / 1e6 / hotSpot + "ms");
     }
+  }
 
+  private double[] bumpRates(final double[] rates, final double vol) {
+    final int n = rates.length;
+    final double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      res[i] = rates[i] * Math.exp(vol * NORMAL.nextRandom());
+    }
+    return res;
   }
 
   @Test
@@ -188,7 +239,7 @@ public class ISDACompliantYieldCurveBuildTest {
     for (int i = 0; i < nSamplePoints; i++) {
       final double time = sampleTimes[i];
       final double zr = hc.getZeroRate(time);
-      assertEquals("time:" + time, zeroRates[i], zr, 1e-10);
+      assertEquals("time:" + time, zeroRates[i], zr, 1e-10); //see Javadocs
     }
 
     if (print) {

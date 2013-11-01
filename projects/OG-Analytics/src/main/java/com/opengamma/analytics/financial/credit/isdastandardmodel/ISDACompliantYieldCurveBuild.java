@@ -223,19 +223,19 @@ public class ISDACompliantYieldCurveBuild {
     double temp2 = 0;
     int i1 = 0;
     int i2 = nPayments;
+    final double[] paymentAmounts = new double[nPayments];
     for (int i = 0; i < nPayments; i++) {
       final double t = swap.getPaymentTime(i);
+      paymentAmounts[i] = swap.getPaymentAmounts(i, swapRate);
       if (t <= t1) {
-        final double c = swap.getPaymentAmounts(i, swapRate);
         final double df = curve.getDiscountFactor(t);
-        temp += c * df;
-        temp2 -= c * curve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
+        temp += paymentAmounts[i] * df;
+        temp2 -= paymentAmounts[i] * curve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
         i1++;
       } else if (t >= t2) {
-        final double c = swap.getPaymentAmounts(i, swapRate);
         final double df = curve.getDiscountFactor(t);
-        temp += c * df;
-        temp2 += c * curve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
+        temp += paymentAmounts[i] * df;
+        temp2 += paymentAmounts[i] * curve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
         i2--;
       }
     }
@@ -252,7 +252,7 @@ public class ISDACompliantYieldCurveBuild {
         double sum = 1.0 - cachedValues; // Floating leg at par
         for (int i = index1; i < index2; i++) {
           final double t = swap.getPaymentTime(i);
-          sum -= swap.getPaymentAmounts(i, swapRate) * tempCurve.getDiscountFactor(t);
+          sum -= paymentAmounts[i] * tempCurve.getDiscountFactor(t);
         }
         return sum;
       }
@@ -292,7 +292,7 @@ public class ISDACompliantYieldCurveBuild {
   private class BasicFixedLeg {
     private final int _nPayments;
     private final double[] _swapPaymentTimes;
-    private final double[] _paymentAmounts;
+    private final double[] _yearFraction;
 
     public BasicFixedLeg(final LocalDate spotDate, final LocalDate mat, final Period swapInterval, final DayCount swapDCC, final DayCount curveDCC, final BusinessDayConvention convention,
         final Calendar calendar) {
@@ -311,14 +311,14 @@ public class ISDACompliantYieldCurveBuild {
 
       _nPayments = list.size();
       _swapPaymentTimes = new double[_nPayments];
-      _paymentAmounts = new double[_nPayments];
+      _yearFraction = new double[_nPayments];
 
       LocalDate prev = spotDate;
       int j = _nPayments - 1;
       for (int i = 0; i < _nPayments; i++, j--) {
         final LocalDate current = list.get(j);
         final LocalDate adjCurr = convention.adjustDate(calendar, current);
-        _paymentAmounts[i] = swapDCC.getDayCountFraction(prev, adjCurr);
+        _yearFraction[i] = swapDCC.getDayCountFraction(prev, adjCurr);
         _swapPaymentTimes[i] = curveDCC.getDayCountFraction(spotDate, adjCurr); // Payment times always good business days
         prev = adjCurr;
       }
@@ -330,7 +330,7 @@ public class ISDACompliantYieldCurveBuild {
     }
 
     public double getPaymentAmounts(final int index, final double rate) {
-      return index == _nPayments - 1 ? 1 + rate * _paymentAmounts[index] : rate * _paymentAmounts[index];
+      return index == _nPayments - 1 ? 1 + rate * _yearFraction[index] : rate * _yearFraction[index];
     }
 
     public double getPaymentTime(final int index) {
