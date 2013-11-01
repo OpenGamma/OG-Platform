@@ -30,6 +30,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ClassUtils;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -182,6 +183,7 @@ public class DataConventionSourceResource extends AbstractDataResource {
   @Path("conventionSearches/list")
   public Response searchList(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
+    @SuppressWarnings("deprecation")
     Collection<? extends Convention> result = getConventionSource().get(bundle);
     return responseOkFudge(FudgeListWrapper.of(result));
   }
@@ -191,15 +193,17 @@ public class DataConventionSourceResource extends AbstractDataResource {
   public Response searchSingle(
       @QueryParam("id") List<String> externalIdStrs,
       @QueryParam("versionAsOf") String versionAsOf,
-      @QueryParam("correctedTo") String correctedTo) {
+      @QueryParam("correctedTo") String correctedTo,
+      @QueryParam("type") String typeStr) {
     
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-    if (versionAsOf != null || correctedTo != null) {
-      Convention result = getConventionSource().getSingle(bundle, vc);
+    if (typeStr != null) {
+      Class<? extends Convention> type = ClassUtils.loadClassRuntime(typeStr, Convention.class);
+      Convention result = getConventionSource().getSingle(bundle, vc, type);
       return responseOkFudge(result);
     } else {
-      Convention result = getConventionSource().getSingle(bundle);
+      Convention result = getConventionSource().getSingle(bundle, vc);
       return responseOkFudge(result);
     }
   }
@@ -230,6 +234,28 @@ public class DataConventionSourceResource extends AbstractDataResource {
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
+    }
+    bld.queryParam("id", bundle.toStringList().toArray());
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @param bundle  the bundle, may be null
+   * @param vc  the version-correction, may be null
+   * @param type  the required type, may be null
+   * @return the URI, not null
+   */
+  public static URI uriSearchSingle(URI baseUri, ExternalIdBundle bundle, VersionCorrection vc, Class<?> type) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("conventionSearches/single");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
+    }
+    if (type != null) {
+      bld.queryParam("type", type.getName());
     }
     bld.queryParam("id", bundle.toStringList().toArray());
     return bld.build();
