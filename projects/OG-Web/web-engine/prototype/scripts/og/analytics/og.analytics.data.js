@@ -351,6 +351,10 @@ $.register_module({
                     data.viewport_id = data.parent.viewport_id;
                     return data;
                 }
+                if (new_viewport.clipboard === 'clear') {
+                    data.viewport_id = null;
+                    return data;
+                }
                 if (nonsensical_viewport(new_viewport)) {
                     og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport);
                     return data;
