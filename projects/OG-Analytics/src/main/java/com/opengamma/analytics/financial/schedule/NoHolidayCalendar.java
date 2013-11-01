@@ -24,8 +24,18 @@ public class NoHolidayCalendar implements Calendar, Serializable {
     return true;
   }
 
+  /**
+   * @deprecated use getName()
+   * @return the convention name
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
+    return getName();
+  }
+
+  @Override
+  public String getName() {
     return "No holidays";
   }
 
