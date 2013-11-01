@@ -109,6 +109,21 @@ public abstract class MastersTestUtils {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the convention source.
+   *
+   * @return the convention source, not null
+   */
+  public abstract ConventionSource getConventionSource();
+
+  /**
+   * Gets the convention master.
+   *
+   * @return the convention master, not null
+   */
+  public abstract ConventionMaster getConventionMaster();
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the snapshot source.
    *
    * @return the snapshot source, not null

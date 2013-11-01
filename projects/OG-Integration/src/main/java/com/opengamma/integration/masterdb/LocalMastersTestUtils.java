@@ -110,6 +110,25 @@ public final class LocalMastersTestUtils extends MastersTestUtils {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the convention source.
+   *
+   * @return the convention source, not null
+   */
+  public ConventionSource getConventionSource() {
+    return _toolContext.getConventionSource();
+  }
+
+  /**
+   * Gets the convention master.
+   *
+   * @return the convention master, not null
+   */
+  public ConventionMaster getConventionMaster() {
+    return _toolContext.getConventionMaster();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the snapshot source.
    * 
    * @return the snapshot source, not null

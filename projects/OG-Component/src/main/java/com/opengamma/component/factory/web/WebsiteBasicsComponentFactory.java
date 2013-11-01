@@ -37,6 +37,7 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -106,6 +107,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private SecurityLoader _securityLoader;
+  /**
+   * The convention master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConventionMaster _conventionMaster;
   /**
    * The position master.
    */
@@ -451,6 +457,32 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<SecurityLoader> securityLoader() {
     return metaBean().securityLoader().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the convention master.
+   * @return the value of the property, not null
+   */
+  public ConventionMaster getConventionMaster() {
+    return _conventionMaster;
+  }
+
+  /**
+   * Sets the convention master.
+   * @param conventionMaster  the new value of the property, not null
+   */
+  public void setConventionMaster(ConventionMaster conventionMaster) {
+    JodaBeanUtils.notNull(conventionMaster, "conventionMaster");
+    this._conventionMaster = conventionMaster;
+  }
+
+  /**
+   * Gets the the {@code conventionMaster} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionMaster> conventionMaster() {
+    return metaBean().conventionMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -896,6 +928,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
@@ -927,6 +960,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
@@ -948,7 +982,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(768);
+    StringBuilder buf = new StringBuilder(800);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -969,6 +1003,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
     buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
     buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
+    buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("batchMaster").append('=').append(JodaBeanUtils.toString(getBatchMaster())).append(',').append(' ');
@@ -1032,6 +1067,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
         this, "securityLoader", WebsiteBasicsComponentFactory.class, SecurityLoader.class);
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     */
+    private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
+        this, "conventionMaster", WebsiteBasicsComponentFactory.class, ConventionMaster.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
@@ -1124,6 +1164,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "securityMaster",
         "securitySource",
         "securityLoader",
+        "conventionMaster",
         "positionMaster",
         "portfolioMaster",
         "batchMaster",
@@ -1164,6 +1205,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _securitySource;
         case -903470221:  // securityLoader
           return _securityLoader;
+        case 41113907:  // conventionMaster
+          return _conventionMaster;
         case -1840419605:  // positionMaster
           return _positionMaster;
         case -772274742:  // portfolioMaster
@@ -1270,6 +1313,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<SecurityLoader> securityLoader() {
       return _securityLoader;
+    }
+
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionMaster> conventionMaster() {
+      return _conventionMaster;
     }
 
     /**
@@ -1420,6 +1471,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getSecuritySource();
         case -903470221:  // securityLoader
           return ((WebsiteBasicsComponentFactory) bean).getSecurityLoader();
+        case 41113907:  // conventionMaster
+          return ((WebsiteBasicsComponentFactory) bean).getConventionMaster();
         case -1840419605:  // positionMaster
           return ((WebsiteBasicsComponentFactory) bean).getPositionMaster();
         case -772274742:  // portfolioMaster
@@ -1479,6 +1532,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return;
         case -903470221:  // securityLoader
           ((WebsiteBasicsComponentFactory) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case 41113907:  // conventionMaster
+          ((WebsiteBasicsComponentFactory) bean).setConventionMaster((ConventionMaster) newValue);
           return;
         case -1840419605:  // positionMaster
           ((WebsiteBasicsComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
@@ -1541,6 +1597,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityMaster, "securityMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securitySource, "securitySource");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityLoader, "securityLoader");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._conventionMaster, "conventionMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._positionMaster, "positionMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._portfolioMaster, "portfolioMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._batchMaster, "batchMaster");
