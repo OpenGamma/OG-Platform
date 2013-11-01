@@ -52,6 +52,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.web.WebAboutResource;
 import com.opengamma.web.WebHomeResource;
 import com.opengamma.web.config.WebConfigsResource;
+import com.opengamma.web.convention.WebConventionsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.function.WebFunctionsResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
@@ -221,6 +222,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     resource = new JerseyRestResourceFactory(WebHolidaysResource.class, getHolidayMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebConventionsResource.class, getConventionMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getOrganizationMaster());
     repo.getRestComponents().publishResource(resource);
