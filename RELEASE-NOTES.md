@@ -8,10 +8,10 @@ Changes since 2.1.0
 
 To 2.1.1
 --------
-	[PLAT-4799] Add greek functions for BRL swaptions
-	[PLAT-4574] CombinedHistoricalTimeSeriesMaster
-	For payer swaptions, the fixed leg notionals was negative, resulting in negative numeraire.  
-	Now the absolute value of the fixed leg's notional is used, so that the numeraire is positive.
+	  [PLAT-4799] Add greek functions for BRL swaptions
+	  [PLAT-4574] CombinedHistoricalTimeSeriesMaster
+	  For payer swaptions, the fixed leg notionals was negative, resulting in negative numeraire.  
+	  Now the absolute value of the fixed leg's notional is used, so that the numeraire is positive.
 
 To 2.1.2
 --------
@@ -84,6 +84,11 @@ To 2.1.7
     [PLAT-4972] Removed unnecessary log lines
     [] Corrected swaption valueTheta calculation so that the final value is scaled by annuity numeraire for PhysicalFixedIbor
     [] Scale the theoretical Black Theta by a factor of 365.25
+
+To 2.1.8
+--------
+
+    [] Reverted the changes made for the FX Forward currency conversion issues from the 2.1.5 release due to their unintended side-effects.
 
 
 OpenGamma Platform 2.1
@@ -288,3 +293,21 @@ API compatibility
 
 Analytics compatibility
 - No expected differences
+
+To 2.1.8
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
