@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.resource.EngineResourceRetainer;
@@ -29,6 +32,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -130,9 +134,39 @@ public class ViewClientImpl implements ViewClient {
         // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
         // pass to downstream listeners? Some special perm denied message in place of results on each computation
         // cycle?
+        CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
 
-        // Would be better if there was a builder for this!
-        CompiledViewDefinition replacementViewDef = new CompiledViewDefinitionImpl(
+        ViewResultListener listener = _userResultListener.get();
+        if (listener != null) {
+          listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+        }
+      }
+
+      private CompiledViewDefinition createFilteredViewDefinition(CompiledViewDefinition compiledViewDefinition,
+                                                                  PortfolioFilter filter) {
+
+        // TODO see [PLAT-2478] and DependencyGraphStructureBuilder
+        if (compiledViewDefinition instanceof CompiledViewDefinitionWithGraphsImpl) {
+          CompiledViewDefinitionWithGraphsImpl cvdwg = (CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition;
+          Collection<DependencyGraphExplorer> dependencyGraphExplorers = cvdwg.getDependencyGraphExplorers();
+          Collection<DependencyGraph> graphs = new HashSet<>();
+          for (DependencyGraphExplorer explorer : dependencyGraphExplorers) {
+            graphs.add(explorer.getWholeGraph());
+          }
+
+          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(),
+                                                                        cvdwg.getCompilationIdentifier(),
+                                                                        cvdwg.getViewDefinition(),
+                                                                        graphs, cvdwg.getResolvedIdentifiers(),
+                                                                        filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+                                                                        cvdwg.getFunctionInitId(),
+                                                                        cvdwg.getCompiledCalculationConfigurations(),
+                                                                        cvdwg.getValidFrom(),
+                                                                        cvdwg.getValidTo());
+        } else {
+
+          // Would be better if there was a builder for this!
+          return new CompiledViewDefinitionImpl(
             compiledViewDefinition.getResolverVersionCorrection(),
             compiledViewDefinition.getCompilationIdentifier(),
             compiledViewDefinition.getViewDefinition(),
@@ -140,10 +174,6 @@ public class ViewClientImpl implements ViewClient {
             compiledViewDefinition.getCompiledCalculationConfigurations(),
             compiledViewDefinition.getValidFrom(),
             compiledViewDefinition.getValidTo());
-
-        ViewResultListener listener = _userResultListener.get();
-        if (listener != null) {
-          listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
         }
       }
 
