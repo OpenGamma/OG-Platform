@@ -23,6 +23,14 @@ API compatibility
   Rename ConventionVisitorAdapter class to FinancialConventionVisitorAdapter.
   Move com.opengamma.financial.convention.percurrency package to .initializer and refactor.
 
+Configuration compatibility
+- [PLAT-4955] Add full convention source and master
+  All convention master entries require work.
+  Use 'com.opengamma.component.factory.master.InMemoryConventionMasterComponentFactory'.
+  or 'com.opengamma.component.factory.master.DbConventionMasterComponentFactory'.
+  Each have a 'populateDefaultConventions' option which can be set to true to initialize from hard coded values.
+  The 'ConventionSourceComponentFactory' takes an extra 'conventionMaster' argument.  
+
 
 To 2.2.0-M2
 -----------
