@@ -183,18 +183,19 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     }
     final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention, true)[0];
 
-    boolean isIMM = IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate());
+    boolean isNonIMMFAndFromPUF = !IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate()) && quote instanceof PointsUpFront;
+    boolean isNonIMMAndFromSpread = !IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate()) && (quote instanceof QuotedSpread || quote instanceof ParSpread);
     int buySellPremiumFactor = security.isBuy() ? -1 : 1;
     
     final double notional = security.getNotional().getAmount();
     final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
-    final double accruedPremium = isIMM ? analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor : 0;
-    final int accruedDays = isIMM ? analytic.getAccuredDays() : 0;
+    final double accruedPremium = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor;
+    final int accruedDays = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccuredDays();
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
-    final double upfrontAmount = getUpfrontAmount(analytic, puf, notional, buySellProtection);
+    final double upfrontAmount = isNonIMMAndFromSpread ? 0 : getUpfrontAmount(analytic, puf, notional, buySellProtection);
     final double cleanPV = puf.getPointsUpFront() * notional;
-    final double principal = cleanPV;
+    final double principal = isNonIMMAndFromSpread ? 0 : cleanPV;
     final double cleanPrice = getCleanPrice(puf);
     final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
     final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
