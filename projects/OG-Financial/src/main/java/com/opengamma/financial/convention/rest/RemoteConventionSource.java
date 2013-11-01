@@ -7,7 +7,7 @@ package com.opengamma.financial.convention.rest;
 
 import java.net.URI;
 
-import com.opengamma.financial.convention.Convention;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

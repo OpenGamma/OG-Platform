@@ -16,7 +16,6 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;

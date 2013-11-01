@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTra
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -28,10 +29,10 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -177,11 +178,11 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public FinancialSecurity visitSwapNode(final SwapNode swapNode) {
-    final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
+    final FinancialConvention payLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapNode.getPayLegConvention());
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
     }
-    final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
+    final FinancialConvention receiveLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapNode.getReceiveLegConvention());
     if (receiveLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
     }

@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalTime;
 
+import com.opengamma.core.convention.ConventionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -27,7 +28,12 @@ import com.opengamma.util.ArgumentChecker;
  * Convention for a swap index.
  */
 @BeanDefinition
-public class SwapIndexConvention extends Convention {
+public class SwapIndexConvention extends FinancialConvention {
+
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("SwapIndex");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -68,6 +74,16 @@ public class SwapIndexConvention extends Convention {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T>  the result type of the visitor
@@ -75,7 +91,7 @@ public class SwapIndexConvention extends Convention {
    * @return the result
    */
   @Override
-  public <T> T accept(final ConventionVisitor<T> visitor) {
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapIndexConvention(this);
   }
@@ -203,7 +219,7 @@ public class SwapIndexConvention extends Convention {
   /**
    * The meta-bean for {@code SwapIndexConvention}.
    */
-  public static class Meta extends Convention.Meta {
+  public static class Meta extends FinancialConvention.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

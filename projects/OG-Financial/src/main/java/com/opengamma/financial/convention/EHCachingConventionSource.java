@@ -13,6 +13,7 @@ import net.sf.ehcache.Element;
 
 import com.google.common.collect.MapMaker;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;

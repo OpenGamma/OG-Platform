@@ -11,8 +11,8 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 
 import org.threeten.bp.LocalTime;
 
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;

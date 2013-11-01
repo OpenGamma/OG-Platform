@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.convention.ConventionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -27,6 +28,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class FederalFundsFutureConvention extends ExchangeTradedFutureAndOptionConvention {
+
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("FederalFundsFuture");
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
@@ -69,6 +75,16 @@ public class FederalFundsFutureConvention extends ExchangeTradedFutureAndOptionC
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T>  the result type of the visitor
@@ -76,7 +92,7 @@ public class FederalFundsFutureConvention extends ExchangeTradedFutureAndOptionC
    * @return the result
    */
   @Override
-  public <T> T accept(final ConventionVisitor<T> visitor) {
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFederalFundsFutureConvention(this);
   }

@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.convention.ConventionType;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,7 +26,12 @@ import com.opengamma.util.ArgumentChecker;
  * Convention for equities.
  */
 @BeanDefinition
-public class EquityConvention extends Convention {
+public class EquityConvention extends FinancialConvention {
+
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("Equity");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -56,6 +62,16 @@ public class EquityConvention extends Convention {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T>  the result type of the visitor
@@ -63,7 +79,7 @@ public class EquityConvention extends Convention {
    * @return the result
    */
   @Override
-  public <T> T accept(final ConventionVisitor<T> visitor) {
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEquityConvention(this);
   }
@@ -161,7 +177,7 @@ public class EquityConvention extends Convention {
   /**
    * The meta-bean for {@code EquityConvention}.
    */
-  public static class Meta extends Convention.Meta {
+  public static class Meta extends FinancialConvention.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

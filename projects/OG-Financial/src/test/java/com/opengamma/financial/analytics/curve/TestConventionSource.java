@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.Convention;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

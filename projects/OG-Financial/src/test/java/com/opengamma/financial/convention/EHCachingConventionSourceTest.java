@@ -15,10 +15,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.convention.Convention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -45,10 +47,8 @@ public class EHCachingConventionSourceTest {
   }
 
   private Convention convention() {
-    final Convention c = new Convention();
-    c.setUniqueId(UniqueId.of("Convention", "Test"));
-    c.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("Test", "Foo"), ExternalId.of("Test", "Bar")));
-    return c;
+    ExternalIdBundle bundle = ExternalIdBundle.of(ExternalId.of("Test", "Foo"), ExternalId.of("Test", "Bar"));
+    return new MockConvention(UniqueId.of("Convention", "Test"), "Mock", bundle, Currency.GBP);
   }
 
   public void testGetConventionByExternalId() {

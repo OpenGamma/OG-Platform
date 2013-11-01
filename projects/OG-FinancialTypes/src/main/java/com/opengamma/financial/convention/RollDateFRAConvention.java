@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.convention.ConventionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -26,7 +27,12 @@ import com.opengamma.util.ArgumentChecker;
  * Convention for IMM FRAs.
  */
 @BeanDefinition
-public class RollDateFRAConvention extends Convention {
+public class RollDateFRAConvention extends FinancialConvention {
+
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("RollDateFRA");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -67,6 +73,16 @@ public class RollDateFRAConvention extends Convention {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T>  the result type of the visitor
@@ -74,7 +90,7 @@ public class RollDateFRAConvention extends Convention {
    * @return the result
    */
   @Override
-  public <T> T accept(final ConventionVisitor<T> visitor) {
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitIMMFRAConvention(this);
   }
@@ -202,7 +218,7 @@ public class RollDateFRAConvention extends Convention {
   /**
    * The meta-bean for {@code RollDateFRAConvention}.
    */
-  public static class Meta extends Convention.Meta {
+  public static class Meta extends FinancialConvention.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

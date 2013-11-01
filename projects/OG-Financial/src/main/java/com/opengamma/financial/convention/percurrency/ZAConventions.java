@@ -15,8 +15,8 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import org.threeten.bp.LocalTime;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;

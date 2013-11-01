@@ -18,7 +18,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.convention.Convention;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

@@ -6,10 +6,11 @@
 package com.opengamma.financial.convention;
 
 /**
- * Visitor for {@link Convention}s.
- * @param <T> The return type.
+ * Visitor pattern interface used to access {@code Convention} instances.
+ * 
+ * @param <T> the return type of the visitor query
  */
-public interface ConventionVisitor<T> {
+public interface FinancialConventionVisitor<T> {
 
   /**
    * Visits {@link CMSLegConvention}s.

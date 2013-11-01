@@ -46,9 +46,9 @@ import org.threeten.bp.LocalTime;
 
 import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;

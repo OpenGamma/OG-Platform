@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.convention.ConventionType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -28,7 +29,12 @@ import com.opengamma.util.time.Tenor;
  * Conventions for overnight swap legs.
  */
 @BeanDefinition
-public class OISLegConvention extends Convention {
+public class OISLegConvention extends FinancialConvention {
+
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("OvernightIndexSwapLeg");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -112,6 +118,16 @@ public class OISLegConvention extends Convention {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T>  the result type of the visitor
@@ -119,7 +135,7 @@ public class OISLegConvention extends Convention {
    * @return the result
    */
   @Override
-  public <T> T accept(final ConventionVisitor<T> visitor) {
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitOISLegConvention(this);
   }
@@ -417,7 +433,7 @@ public class OISLegConvention extends Convention {
   /**
    * The meta-bean for {@code OISLegConvention}.
    */
-  public static class Meta extends Convention.Meta {
+  public static class Meta extends FinancialConvention.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

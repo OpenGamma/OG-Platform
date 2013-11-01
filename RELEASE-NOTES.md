@@ -15,6 +15,13 @@ API compatibility
   The expiry calculators have moved package to com.opengamma.financial.convention.expirycalc.
   Organize imports should fix broken code.
 
+- [PLAT-4955] Add full convention source and master
+  Major refactor of convention code adding support by database.
+  Add ConventionType class to give types a name.
+  Rename Convention class to FinancialConvention.
+  Rename ConventionVisitor class to FinancialConventionVisitor.
+  Rename ConventionVisitorAdapter class to FinancialConventionVisitorAdapter.
+
 
 To 2.2.0-M2
 -----------

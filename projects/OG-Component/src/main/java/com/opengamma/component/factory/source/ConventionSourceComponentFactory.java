@@ -23,14 +23,14 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.convention.ConventionMaster;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DefaultConventionSource;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
-import com.opengamma.financial.convention.rest.DataConventionMasterResource;
 import com.opengamma.financial.convention.rest.DataConventionSourceResource;
-import com.opengamma.financial.convention.rest.RemoteConventionMaster;
 import com.opengamma.financial.convention.rest.RemoteConventionSource;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.DataConventionMasterResource;
+import com.opengamma.master.convention.impl.RemoteConventionMaster;
 
 /**
  * Component factory provider the {@link ConventionSource}.

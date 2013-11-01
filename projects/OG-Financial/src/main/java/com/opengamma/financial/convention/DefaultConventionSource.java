@@ -5,18 +5,23 @@
  */
 package com.opengamma.financial.convention;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.convention.Convention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.ConventionSearchRequest;
+import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.sleepycat.je.DatabaseNotFoundException;
 
 /**
  * Default implementation of {@link ConventionSource} that uses an underlying {@link ConventionMaster}
  * as a data source.
  */
 public class DefaultConventionSource implements ConventionSource {
+
   /** The convention master */
   private final ConventionMaster _conventionMaster;
 
@@ -30,39 +35,23 @@ public class DefaultConventionSource implements ConventionSource {
 
   @Override
   public Convention getConvention(final ExternalId identifier) {
-    final ConventionSearchResult result = _conventionMaster.searchConvention(new ConventionSearchRequest(identifier));
-    final int size = result.getResults().size();
-    switch (size) {
-      case 0:
-        return null;
-      case 1:
-        return Iterables.getOnlyElement(result.getResults()).getConvention();
-      default:
-        throw new OpenGammaRuntimeException("Multiple matches (" + size + ") to " + identifier + "; expecting one");
-    }
+    final ConventionSearchResult result = _conventionMaster.search(new ConventionSearchRequest(identifier));
+    return result.getSingleConvention();
   }
 
   @Override
   public Convention getConvention(final ExternalIdBundle identifiers) {
-    final ConventionSearchResult result = _conventionMaster.searchConvention(new ConventionSearchRequest(identifiers));
-    final int size = result.getResults().size();
-    switch (size) {
-      case 0:
-        return null;
-      case 1:
-        return Iterables.getOnlyElement(result.getResults()).getConvention();
-      default:
-        throw new OpenGammaRuntimeException("Multiple matches (" + size + ") to " + identifiers + "; expecting one");
-    }
+    final ConventionSearchResult result = _conventionMaster.search(new ConventionSearchRequest(identifiers));
+    return result.getSingleConvention();
   }
 
   @Override
   public Convention getConvention(final UniqueId identifier) {
-    final ConventionDocument doc = _conventionMaster.getConvention(identifier);
-    if (doc != null) {
-      return doc.getConvention();
+    try {
+      return _conventionMaster.get(identifier).getConvention();
+    } catch (DatabaseNotFoundException ex) {
+      return null;
     }
-    return null;
   }
 
   @SuppressWarnings("unchecked")
@@ -103,4 +92,5 @@ public class DefaultConventionSource implements ConventionSource {
     }
     throw new OpenGammaRuntimeException("Convention for " + identifier + " was not of expected type " + clazz);
   }
+
 }

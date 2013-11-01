@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.convention.ConventionType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -29,7 +30,12 @@ import com.opengamma.util.time.Tenor;
  * Convention for a fixed leg based on roll date adjuster. This convention should be used only in a IMMSwapConvention.
  */
 @BeanDefinition
-public class FixedLegRollDateConvention extends Convention {
+public class FixedLegRollDateConvention extends FinancialConvention {
+
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("FixedLegRollDate");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -106,6 +112,16 @@ public class FixedLegRollDateConvention extends Convention {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T>  the result type of the visitor
@@ -113,7 +129,7 @@ public class FixedLegRollDateConvention extends Convention {
    * @return the result
    */
   @Override
-  public <T> T accept(final ConventionVisitor<T> visitor) {
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitFixedLegRollDateConvention(this);
   }
@@ -384,7 +400,7 @@ public class FixedLegRollDateConvention extends Convention {
   /**
    * The meta-bean for {@code FixedLegRollDateConvention}.
    */
-  public static class Meta extends Convention.Meta {
+  public static class Meta extends FinancialConvention.Meta {
     /**
      * The singleton instance of the meta-bean.
      */

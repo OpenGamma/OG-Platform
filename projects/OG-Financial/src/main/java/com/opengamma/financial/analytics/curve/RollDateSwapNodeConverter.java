@@ -13,8 +13,8 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
@@ -68,11 +68,11 @@ public class RollDateSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
     if (swapConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + rollDateSwapNode.getRollDateSwapConvention() + " was null");
     }
-    final Convention payLegConvention = _conventionSource.getConvention(swapConvention.getPayLegConvention());
+    final FinancialConvention payLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapConvention.getPayLegConvention());
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getPayLegConvention() + " was null");
     }
-    final Convention receiveLegConvention = _conventionSource.getConvention(swapConvention.getReceiveLegConvention());
+    final FinancialConvention receiveLegConvention = _conventionSource.getConvention(FinancialConvention.class, swapConvention.getReceiveLegConvention());
     if (receiveLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getReceiveLegConvention() + " was null");
     }
