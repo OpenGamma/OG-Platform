@@ -10,12 +10,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,6 +29,32 @@ public class BeanCompare {
   private final Map<MetaProperty<?>, Comparator<Object>> _propertyComparators;
   private final Map<Class<?>, Comparator<Object>> _typeComparators;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if two beans are equal ignoring one or more properties.
+   * 
+   * @param bean1  the first bean, not null
+   * @param bean2  the second bean, not null
+   * @param properties  the properties to ignore, not null
+   * @return true if equal
+   */
+  public static boolean equalIgnoring(Bean bean1, Bean bean2, MetaProperty<?>... properties) {
+    ArgumentChecker.notNull(bean1, "bean1");
+    ArgumentChecker.notNull(bean2, "bean2");
+    ArgumentChecker.notNull(properties, "properties");
+    if (bean1.getClass() != bean2.getClass()) {
+      return false;
+    }
+    Set<MetaProperty<?>> ignored = ImmutableSet.copyOf(properties);
+    for (MetaProperty<?> mp : bean1.metaBean().metaPropertyIterable()) {
+      if (ignored.contains(mp) == false && JodaBeanUtils.equal(mp.get(bean1), mp.get(bean2)) == false) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a new instance that uses the default comparison logic when comparing bean property values.
    */
