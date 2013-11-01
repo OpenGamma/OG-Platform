@@ -22,9 +22,9 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCapFloorIborD
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -67,9 +67,6 @@ public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<I
     final boolean isIbor = capFloorSecurity.isIbor();
     final String iborConventionName = getConventionName(currency, IBOR);
     final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-    if (iborIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get ibor convention called " + iborConventionName);
-    }
     final Frequency freqIbor = capFloorSecurity.getFrequency();
     final Period iborTenor = getTenor(freqIbor);
     final int spotLag = iborIndexConvention.getSettlementDays();
@@ -83,18 +80,12 @@ public class CapFloorSecurityConverter extends FinancialSecurityVisitorAdapter<I
       final String vanillaIborLegConventionName = getConventionName(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG);
       final VanillaIborLegConvention vanillaIborLegConvention =
           _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
-      if (vanillaIborLegConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get vanilla ibor leg convention called " + vanillaIborLegConventionName);
-      }
       return AnnuityCapFloorIborDefinition.from(startDate, endDate, notional, index, capFloorSecurity.getDayCount(), tenorPayment, capFloorSecurity.isPayer(), capFloorSecurity.getStrike(),
           capFloorSecurity.isCap(), calendar);
     }
     // Cap/floor on CMS
     final String swapIndexConventionName = getConventionName(currency, SWAP_INDEX);
     final SwapIndexConvention swapIndexConvention = _conventionSource.getConvention(SwapIndexConvention.class, ExternalId.of(SCHEME_NAME, swapIndexConventionName));
-    if (swapIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get swap index convention called " + capFloorSecurity.getUnderlyingId().toString());
-    }
     final SwapConvention swapConvention = _conventionSource.getConvention(SwapConvention.class, swapIndexConvention.getSwapConvention());
     final IndexSwap swapIndex = getSwapIndex(swapConvention, iborIndex);
     return AnnuityCapFloorCMSDefinition.from(startDate, endDate, notional, swapIndex, tenorPayment, capFloorSecurity.getDayCount(), capFloorSecurity.isPayer(), capFloorSecurity.getStrike(),

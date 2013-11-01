@@ -19,6 +19,7 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponArithmeticAverageONDefinition;
@@ -39,10 +40,10 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
@@ -156,19 +157,22 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
 
   private IborIndexConvention getIborLegConvention(final Currency currency) {
     String iborConventionName = getConventionName(currency, EURIBOR);
-    IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-    if (iborIndexConvention != null) {
-      return iborIndexConvention;
+    try {
+      return _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    } catch (DataNotFoundException ex) {
+      // continue
     }
     iborConventionName = getConventionName(currency, LIBOR);
-    iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-    if (iborIndexConvention != null) {
-      return iborIndexConvention;
+    try {
+      return _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    } catch (DataNotFoundException ex) {
+      // continue
     }
     iborConventionName = getConventionName(currency, IBOR);
-    iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-    if (iborIndexConvention != null) {
-      return iborIndexConvention;
+    try {
+      return _conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+    } catch (DataNotFoundException ex) {
+      // continue
     }
     throw new OpenGammaRuntimeException("Could not get ibor index convention with the identifier " + ExternalId.of(SCHEME_NAME, iborConventionName));
   }
@@ -183,9 +187,6 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final String overnightConventionName = getConventionName(currency, OVERNIGHT);
     final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, ExternalId.of(SCHEME_NAME, overnightConventionName));
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get OIS index convention with the identifier " + ExternalId.of(SCHEME_NAME, overnightConventionName));
-    }
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
@@ -238,9 +239,6 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final Currency currency = interestRateNotional.getCurrency();
         final String fixedLegConventionName = getConventionName(currency, IRS_FIXED_LEG);
         final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, ExternalId.of(SCHEME_NAME, fixedLegConventionName));
-        if (fixedLegConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get fixed leg convention with the identifier " + ExternalId.of(SCHEME_NAME, fixedLegConventionName));
-        }
         final Frequency freqFixed = swapLeg.getFrequency();
         final Period tenorFixed = getTenor(freqFixed);
         final double notional = interestRateNotional.getAmount();
@@ -320,9 +318,6 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final String tenorString = getTenorString(swapLeg.getFrequency());
         final String iborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
         final VanillaIborLegConvention iborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, iborLegConventionName));
-        if (iborLegConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get Ibor leg convention with the identifier " + ExternalId.of(SCHEME_NAME, iborLegConventionName));
-        }
         final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
         final Frequency freqIbor = swapLeg.getFrequency();
         final Period tenorIbor = getTenor(freqIbor);
@@ -345,13 +340,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
           final Currency currency) {
         final String oisConventionName = getConventionName(currency, OIS_ON_LEG);
         final OISLegConvention oisConvention = _conventionSource.getConvention(OISLegConvention.class, ExternalId.of(SCHEME_NAME, oisConventionName));
-        if (oisConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get OIS leg convention with the identifier " + ExternalId.of(SCHEME_NAME, oisConventionName));
-        }
         final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, oisConvention.getOvernightIndexConvention());
-        if (indexConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get OIS index convention with the identifier " + oisConvention.getOvernightIndexConvention());
-        }
         final String currencyString = currency.getCode();
         final Integer publicationLag = indexConvention.getPublicationLag();
         final Period paymentFrequency = getTenor(swapLeg.getFrequency());
@@ -378,27 +367,12 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final String iborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
         final VanillaIborLegConvention iborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class,
             ExternalId.of(SCHEME_NAME, getConventionName(currency, tenorString, IRS_IBOR_LEG)));
-        if (iborLegConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get Ibor leg convention with the identifier " + ExternalId.of(SCHEME_NAME, iborLegConventionName));
-        }
         final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
         final String swapIndexConventionName = getConventionName(currency, tenorString, SWAP_INDEX);
         final SwapIndexConvention swapIndexConvention = _conventionSource.getConvention(SwapIndexConvention.class, ExternalId.of(SCHEME_NAME, swapIndexConventionName));
-        if (swapIndexConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get swap index convention with the identifier " + ExternalId.of(SCHEME_NAME, swapIndexConventionName));
-        }
         final SwapConvention underlyingSwapConvention = _conventionSource.getConvention(SwapConvention.class, swapIndexConvention.getSwapConvention());
-        if (underlyingSwapConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get swap convention with the identifier " + swapIndexConvention.getSwapConvention());
-        }
         final SwapFixedLegConvention payLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, underlyingSwapConvention.getPayLegConvention());
-        if (payLegConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get convention with the identifier " + underlyingSwapConvention.getPayLegConvention());
-        }
         final VanillaIborLegConvention receiveLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, underlyingSwapConvention.getReceiveLegConvention());
-        if (receiveLegConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get convention with the identifier " + underlyingSwapConvention.getReceiveLegConvention());
-        }
         final Frequency freqIbor = swapLeg.getFrequency();
         final Period tenorIbor = getTenor(freqIbor);
         final int spotLag = iborIndexConvention.getSettlementDays();
@@ -418,13 +392,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
           final Currency currency) {
         final String oisConventionName = getConventionName(currency, OIS_ON_LEG);
         final OISLegConvention oisConvention = _conventionSource.getConvention(OISLegConvention.class, ExternalId.of(SCHEME_NAME, oisConventionName));
-        if (oisConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get OIS leg convention with the identifier " + ExternalId.of(SCHEME_NAME, oisConventionName));
-        }
         final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, oisConvention.getOvernightIndexConvention());
-        if (indexConvention == null) {
-          throw new OpenGammaRuntimeException("Could not get OIS index convention with the identifier " + oisConvention.getOvernightIndexConvention());
-        }
         final String currencyString = currency.getCode();
         final Integer publicationLag = indexConvention.getPublicationLag();
         final Period paymentFrequency = getTenor(swapLeg.getFrequency());

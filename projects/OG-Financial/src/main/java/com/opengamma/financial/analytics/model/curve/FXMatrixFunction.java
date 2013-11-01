@@ -17,11 +17,11 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -42,7 +42,6 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSou
 import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;

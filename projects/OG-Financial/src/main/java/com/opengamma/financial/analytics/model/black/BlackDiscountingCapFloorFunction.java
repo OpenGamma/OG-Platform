@@ -32,6 +32,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -52,7 +53,6 @@ import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -172,9 +172,6 @@ public abstract class BlackDiscountingCapFloorFunction extends DiscountingFuncti
       final Currency currency = FinancialSecurityUtils.getCurrency(security);
       final String iborConventionName = getConventionName(currency, IBOR);
       final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-      if (iborIndexConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get ibor index convention with the identifier " + ExternalId.of(SCHEME_NAME, iborConventionName));
-      }
       final Frequency freqIbor = security.getFrequency();
       final Period tenorIbor = getTenor(freqIbor);
       final int spotLag = iborIndexConvention.getSettlementDays();

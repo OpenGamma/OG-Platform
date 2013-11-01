@@ -50,6 +50,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -70,17 +71,16 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -210,9 +210,6 @@ public class InflationProviderDiscountingFunction extends
               final InflationCurveTypeConfiguration inflationConfiguration = (InflationCurveTypeConfiguration) type;
               final String reference = inflationConfiguration.getReference();
               final PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationConfiguration.getPriceIndex());
-              if (priceIndexConvention == null) {
-                throw new OpenGammaRuntimeException("Could not get convention called " + inflationConfiguration.getPriceIndex());
-              }
               try {
                 final Currency currency = Currency.of(reference);
                 //should this map check that the curve name has not already been entered?

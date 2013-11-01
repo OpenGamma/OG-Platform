@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
@@ -45,7 +46,6 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalIdBundle;
@@ -104,22 +104,9 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
           if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
             final ZeroCouponInflationNode inflationNode = (ZeroCouponInflationNode) node.getCurveNode();
             final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-            Convention convention = conventionSource.getConvention(inflationNode.getInflationLegConvention());
-            if (convention == null) {
-              throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
-            }
-            if (!(convention instanceof InflationLegConvention)) {
-              throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
-            }
-            final InflationLegConvention inflationLegConvention = (InflationLegConvention) convention;
-            convention = conventionSource.getConvention(inflationLegConvention.getPriceIndexConvention());
-            if (convention == null) {
-              throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
-            }
-            if (!(convention instanceof PriceIndexConvention)) {
-              throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
-            }
-            ids = ExternalIdBundle.of(((PriceIndexConvention) convention).getPriceIndexId());
+            InflationLegConvention inflationLegConvention = conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
+            PriceIndexConvention priceIndexConvention = conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
+            ids = ExternalIdBundle.of(priceIndexConvention.getPriceIndexId());
             final HistoricalTimeSeries priceIndexSeries = bundleForCurve.get(dataField, ids);
             if (priceIndexSeries != null) {
               if (priceIndexSeries.getTimeSeries().isEmpty()) {

@@ -15,12 +15,12 @@ import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -79,9 +79,6 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   @Override
   public InstrumentDefinition<?> visitCashNode(final CashNode cashNode) {
     final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + cashNode.getConvention() + " was null");
-    }
     final Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);

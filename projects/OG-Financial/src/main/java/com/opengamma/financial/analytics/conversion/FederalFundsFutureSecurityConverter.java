@@ -14,9 +14,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -58,9 +58,6 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
     final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    }
     final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());
@@ -75,9 +72,6 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
     final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    }
     final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());

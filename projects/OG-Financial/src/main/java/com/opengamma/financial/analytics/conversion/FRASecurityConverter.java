@@ -17,10 +17,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -57,9 +57,6 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
     final String tenorString = months + "M";
     final VanillaIborLegConvention vanillaIborLegConvention = getIborLegConvention(currency, tenorString);
     final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, vanillaIborLegConvention.getIborIndexConvention());
-    if (iborIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get ibor index convention with the identifier " + vanillaIborLegConvention.getIborIndexConvention());
-    }
     final double notional = security.getAmount();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?
     final int spotLag = iborIndexConvention.getSettlementDays();
@@ -77,14 +74,8 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
   private VanillaIborLegConvention getIborLegConvention(final Currency currency, final String tenorString) {
     String vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
     VanillaIborLegConvention vanillaIborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
-    if (vanillaIborLegConvention != null) {
-      return vanillaIborLegConvention;
-    }
     vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
-    vanillaIborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
-    if (vanillaIborLegConvention != null) {
-      return vanillaIborLegConvention;
-    }
-    throw new OpenGammaRuntimeException("Could not get vanilla ibor leg convention with the identifier " + ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
+    return _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
   }
+
 }

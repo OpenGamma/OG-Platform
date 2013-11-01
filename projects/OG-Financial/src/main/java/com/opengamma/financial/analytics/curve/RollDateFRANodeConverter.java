@@ -12,12 +12,12 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.RollDateFRAConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -79,13 +79,7 @@ public class RollDateFRANodeConverter extends CurveNodeVisitorAdapter<Instrument
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
     final RollDateFRAConvention convention = _conventionSource.getConvention(RollDateFRAConvention.class, immFRANode.getRollDateFRAConvention());
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + immFRANode.getRollDateFRAConvention() + " was null");
-    }
     final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Underlying ibor convention with id " + convention.getIndexConvention() + " was null");
-    }
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(convention.getRollDateConvention().getValue());
     final Tenor indexTenor = immFRANode.getIndexTenor();

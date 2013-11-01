@@ -23,13 +23,13 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.DefaultConventionSource;
+import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.core.convention.impl.DataConventionSourceResource;
+import com.opengamma.core.convention.impl.RemoteConventionSource;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
-import com.opengamma.financial.convention.rest.DataConventionSourceResource;
-import com.opengamma.financial.convention.rest.RemoteConventionSource;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.impl.DataConventionMasterResource;
+import com.opengamma.master.convention.impl.MasterConventionSource;
 import com.opengamma.master.convention.impl.RemoteConventionMaster;
 
 /**
@@ -78,7 +78,7 @@ public class ConventionSourceComponentFactory extends AbstractComponentFactory {
    * @return the convention source, not null
    */
   protected ConventionSource createConventionSource(final ComponentRepository repo) {
-    return new DefaultConventionSource(createConventionMaster(repo));
+    return new MasterConventionSource(createConventionMaster(repo));
   }
 
   /**

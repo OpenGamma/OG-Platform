@@ -31,6 +31,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -52,7 +53,6 @@ import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctionHelper;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -176,9 +176,6 @@ public abstract class BlackDiscountingIRFutureOptionFunction extends Discounting
       // TODO the convention name should not be hard-coded, but there's no way of getting this information until
       // there's a convention link in the security.
       final InterestRateFutureConvention convention = conventionSource.getConvention(InterestRateFutureConvention.class, ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE));
-      if (convention == null) {
-        throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE));
-      }
       final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
       final Period period = Period.ofMonths(3); //TODO
       final int spotLag = iborIndexConvention.getSettlementDays();

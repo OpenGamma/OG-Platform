@@ -20,11 +20,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -45,7 +47,6 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -112,7 +113,11 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
         instruments[k] = ISDAInstrumentTypes.MoneyMarket;
         final ExternalId cashConventionId = ((CashNode) node.getCurveNode()).getConvention();
         if (cashConvention == null) {
-          cashConvention = conventionSource.getConvention(DepositConvention.class, cashConventionId);
+          try {
+            cashConvention = conventionSource.getConvention(DepositConvention.class, cashConventionId);
+          } catch (DataNotFoundException ex) {
+            // ignore, continue around loop
+          }
         } else if (!cashConvention.getExternalIdBundle().contains(cashConventionId)) {
           throw new OpenGammaRuntimeException("Got 2 types of cash convention: " + cashConvention.getExternalIdBundle() + " " + cashConventionId);
         }
@@ -120,14 +125,8 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
         instruments[k] = ISDAInstrumentTypes.Swap;
         final ExternalId payConventionId = ((SwapNode) node.getCurveNode()).getPayLegConvention();
         final Convention payConvention = conventionSource.getConvention(payConventionId);
-        if (payConvention == null) {
-          throw new OpenGammaRuntimeException("Convention '" + payConventionId + "' not found");
-        }
         final ExternalId receiveConventionId = ((SwapNode) node.getCurveNode()).getReceiveLegConvention();
         final Convention receiveConvention = conventionSource.getConvention(receiveConventionId);
-        if (receiveConvention == null) {
-          throw new OpenGammaRuntimeException("Convention '" + receiveConventionId + "' not found");
-        }
         if (payConvention instanceof VanillaIborLegConvention) {  // float leg
           if (floatLegConvention == null) {
             floatLegConvention = (VanillaIborLegConvention) payConvention;

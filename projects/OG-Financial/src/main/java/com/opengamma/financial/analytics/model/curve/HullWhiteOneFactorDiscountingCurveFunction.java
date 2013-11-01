@@ -46,6 +46,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -82,7 +83,6 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
@@ -218,27 +218,13 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final Convention convention = conventionSource.getConvention(ibor.getConvention());
-              if (convention == null) {
-                throw new OpenGammaRuntimeException("Convention " + ibor.getConvention() + " was null");
-              }
-              if (!(convention instanceof IborIndexConvention)) {
-                throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
-              }
-              final IborIndexConvention iborIndexConvention = (IborIndexConvention) convention;
+              final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ibor.getConvention());
               final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final Convention convention = conventionSource.getConvention(overnight.getConvention());
-              if (convention == null) {
-                throw new OpenGammaRuntimeException("Convention " + overnight.getConvention() + " was null");
-              }
-              if (!(convention instanceof OvernightIndexConvention)) {
-                throw new OpenGammaRuntimeException("Expecting convention of type OvernightIndexConvention; have " + convention.getClass());
-              }
-              final OvernightIndexConvention overnightConvention = (OvernightIndexConvention) convention;
+              final OvernightIndexConvention overnightConvention = conventionSource.getConvention(OvernightIndexConvention.class, overnight.getConvention());
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());

@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -22,7 +23,6 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
@@ -69,18 +69,11 @@ public class CurveNodeConverter {
         ArgumentChecker.notNull(timeSeries, "time series");
 
         ExternalId priceIndexId;
-        final Convention inflationLegConvention = _conventionSource.getConvention(((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention());
-        if (inflationLegConvention instanceof InflationLegConvention) {
-          final ExternalId priceIndexConventionId = ((InflationLegConvention) inflationLegConvention).getPriceIndexConvention();
-          final Convention priceIndexConvention = _conventionSource.getConvention(priceIndexConventionId);
-          if (priceIndexConvention instanceof PriceIndexConvention) {
-            priceIndexId = ((PriceIndexConvention) priceIndexConvention).getPriceIndexId();
-          } else {
-            throw new OpenGammaRuntimeException("Unexpected convention type for price index");
-          }
-        } else {
-          throw new OpenGammaRuntimeException("Unexpected convention on inflation leg, expected an inflation leg convention");
-        }
+        final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(
+            InflationLegConvention.class, ((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention());
+        final ExternalId priceIndexConventionId = inflationLegConvention.getPriceIndexConvention();
+        final PriceIndexConvention priceIndexConvention = _conventionSource.getConvention(PriceIndexConvention.class, priceIndexConventionId);
+        priceIndexId = priceIndexConvention.getPriceIndexId();
 
         final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {

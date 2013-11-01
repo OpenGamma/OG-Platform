@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -35,7 +36,6 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;

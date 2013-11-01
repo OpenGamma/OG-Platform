@@ -14,6 +14,7 @@ import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -157,6 +158,26 @@ public class MasterConventionSource
   @Override
   public ChangeManager changeManager() {
     return getMaster().changeManager();
+  }
+
+  @Override
+  public Convention getConvention(ExternalId externalId) {
+    return getSingle(externalId.toBundle());
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(Class<T> type, ExternalId externalId) {
+    return getConvention(type, externalId.toBundle());
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(Class<T> type, ExternalIdBundle bundle) {
+    VersionCorrection overrideVersionCorrection = getVersionCorrection();
+    if (overrideVersionCorrection != null) {
+      return getSingle(bundle, overrideVersionCorrection, type);
+    } else {
+      return getSingle(bundle, VersionCorrection.LATEST, type);
+    }
   }
 
 }

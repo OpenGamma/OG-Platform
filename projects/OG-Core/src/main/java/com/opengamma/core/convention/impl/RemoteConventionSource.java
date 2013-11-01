@@ -18,6 +18,7 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -193,6 +194,21 @@ public class RemoteConventionSource
   @Override
   public ChangeManager changeManager() {
     return _changeManager;
+  }
+
+  @Override
+  public Convention getConvention(ExternalId externalId) {
+    return getSingle(externalId.toBundle());
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(Class<T> type, ExternalId externalId) {
+    return getSingle(externalId.toBundle(), VersionCorrection.LATEST, type);
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(Class<T> type, ExternalIdBundle bundle) {
+    return getSingle(bundle, VersionCorrection.LATEST, type);
   }
 
 }

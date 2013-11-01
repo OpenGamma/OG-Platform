@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.SourceWithExternalBundle;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -149,5 +150,48 @@ public interface ConventionSource
    * @throws RuntimeException if an error occurs
    */
   Convention getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection);
+
+  /**
+   * Gets an object by external identifier.
+   * 
+   * @param externalId  the external identifier to search for, not null
+   * @return the matched object, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the object could not be found
+   * @throws RuntimeException if an error occurs
+   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection, Class)}
+   */
+  @Deprecated
+  Convention getConvention(ExternalId externalId);
+
+  /**
+   * Gets an object by external identifier.
+   * 
+   * @param <T>  the type of the convention to get
+   * @param externalId  the external identifier to search for, not null
+   * @param type  the type of the convention to get, not null
+   * @return the matched object, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the object could not be found
+   * @throws RuntimeException if an error occurs
+   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection, Class)}
+   */
+  @Deprecated
+  <T extends Convention> T getConvention(Class<T> type, ExternalId externalId);
+
+  /**
+   * Gets an object by external identifier.
+   * 
+   * @param <T>  the type of the convention to get
+   * @param bundle  the external identifier bundle to search for, not null
+   * @param type  the type of the convention to get, not null
+   * @return the matched object, not null
+   * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the object could not be found
+   * @throws RuntimeException if an error occurs
+   * @deprecated Use {@link #getSingle(ExternalIdBundle, VersionCorrection, Class)}
+   */
+  @Deprecated
+  <T extends Convention> T getConvention(Class<T> type, ExternalIdBundle bundle);
 
 }
