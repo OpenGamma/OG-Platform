@@ -34,20 +34,29 @@ public abstract class AbstractCompletedResultsCall implements Function<ViewResul
   // NOTE: The calculation time is machine time, not valuation time so we know which was computed first, unless the cycle times are
   // smaller than the resolution of the Instant clock.
 
-  protected void updateFull(final ViewComputationResultModel full) {
+  protected InMemoryViewComputationResultModel getViewComputationResultModelCopy() {
     if (_fullCopy == null) {
       _fullCopy = new InMemoryViewComputationResultModel(_full);
       _full = _fullCopy;
     }
-    _fullCopy.update(full);
+    return _fullCopy;
   }
 
-  protected void replaceFull(final ViewComputationResultModel full) {
+  protected void setViewComputationResultModel(final ViewComputationResultModel full) {
     _full = full;
     _fullCopy = null;
   }
 
-  protected abstract void newFull(ViewComputationResultModel full);
+  protected void setViewComputationResultModelCopy(final InMemoryViewComputationResultModel full) {
+    _fullCopy = full;
+    _full = full;
+  }
+
+  protected abstract void newResult(ViewComputationResultModel full);
+
+  protected abstract void ambiguousResult(ViewComputationResultModel full);
+
+  protected abstract void oldResult(ViewComputationResultModel full);
 
   public void update(ViewComputationResultModel full, ViewDeltaResultModel delta) {
     if (full != null) {
@@ -55,16 +64,11 @@ public abstract class AbstractCompletedResultsCall implements Function<ViewResul
         final Instant previous = _full.getCalculationTime();
         final Instant current = full.getCalculationTime();
         if (previous.isBefore(current)) {
-          // New full result replaces, or updates, the old one
-          s_logger.debug("New full result from {} replaces/updates one from {}", current, previous);
-          newFull(full);
+          newResult(full);
         } else if (previous.equals(current)) {
-          // Two results calculated so close together they appear "at the same time". Better merge them, but the result might be wrong.
-          s_logger.warn("Merging two results both calculated at {}", current);
-          updateFull(full);
+          ambiguousResult(full);
         } else {
-          // The previous full result is newer than the new one - discard the new one
-          s_logger.info("Ignoring full result from {} that is newer than the previous one from {}", current, previous);
+          oldResult(full);
         }
       } else {
         s_logger.debug("Got initial full result");
