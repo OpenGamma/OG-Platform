@@ -10,10 +10,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSimplifiedDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -235,9 +231,11 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityCouponONSpreadSimplifiedDefinition.from(startDate, maturityDate, 1, spread, isPayer, paymentPeriod, indexON, paymentLag, businessDayConvention, eomLeg, calendar, stub);
+          return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(startDate, maturityDate, paymentPeriod, 1.0d, spread, indexON, isPayer, 
+              businessDayConvention, eomLeg, calendar, stub, paymentLag);
         }
-        return AnnuityCouponONSimplifiedDefinition.from(startDate, maturityDate, 1, isPayer, paymentPeriod, indexON, paymentLag, businessDayConvention, eomLeg, calendar, stub);
+        return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(startDate, maturityDate, paymentPeriod, 1.0d, 0.0d, indexON, isPayer, 
+            businessDayConvention, eomLeg, calendar, stub, paymentLag);
       }
 
       @Override
@@ -252,12 +250,14 @@ public class NodeConverterUtils {
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
         final boolean eomLeg = convention.isIsEOM();
         final int spotLagLeg = convention.getSettlementDays();
+        final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
         final StubType stub = convention.getStubType();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-        return AnnuityDefinitionBuilder.couponFixed(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 1.0d, rate, isPayer, stub);
+        return AnnuityDefinitionBuilder.couponFixed(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 
+            1.0d, rate, isPayer, stub, paymentLag);
       }
 
       @Override
@@ -271,17 +271,18 @@ public class NodeConverterUtils {
         final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, iborIndex.getBusinessDayConvention(), calendar, eomLeg);
         final StubType stub = convention.getStubType();
-        final boolean eom = convention.isIsEOM();
+        final int paymentLag = convention.getPaymentLag();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
         if (!isPayer && isMarketDataSpread) {
           final Double spread = marketData.getDataPoint(dataId);
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityCouponIborSpreadDefinition.from(startDate, maturityDate, indexTenor, 1, spread, iborIndex, isPayer, iborIndex.getBusinessDayConvention(), eom, 
-              iborIndex.getDayCount(), calendar, stub);
+          return AnnuityDefinitionBuilder.couponIborSpread(startDate, maturityDate, indexTenor, 1.0d, spread, iborIndex, isPayer, iborIndex.getDayCount(), 
+              iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
         }
-        return AnnuityCouponIborDefinition.from(startDate, maturityDate, indexTenor, 1, iborIndex, isPayer, iborIndex.getBusinessDayConvention(), eom, iborIndex.getDayCount(), calendar, stub);
+        return AnnuityDefinitionBuilder.couponIbor(startDate, maturityDate, indexTenor, 1.0d, iborIndex, isPayer, iborIndex.getDayCount(), 
+            iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
       }
     };
     return legConvention.accept(visitor);
