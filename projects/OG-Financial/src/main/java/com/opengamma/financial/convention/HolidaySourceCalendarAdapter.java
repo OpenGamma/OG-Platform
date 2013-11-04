@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.exchange.Exchange;
@@ -20,6 +22,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.core.region.Region;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -35,6 +38,7 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   private Exchange _exchange;
   private Set<Currency> _currencies;
   private final HolidayType _type;
+  private Set<ExternalId> _customIds; // or bundle?
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Region[] regions) {
     Validate.notNull(regions, "Region set is null");
@@ -70,6 +74,19 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     this(holidaySource, new Currency[] {currency });
   }
 
+  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final ExternalId customId) {
+    this(holidaySource, new ExternalId[] {customId });
+  }
+
+  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final ExternalId[] customIds) {
+    Validate.notNull(holidaySource);
+    Validate.notNull(customIds);
+    Validate.noNullElements(customIds);
+    _holidaySource = holidaySource;
+    _customIds = Sets.newHashSet(customIds);
+    _type = HolidayType.CUSTOM;
+  }
+
   @Override
   public String getConventionName() {
     switch (_type) {
@@ -101,6 +118,8 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
         return _exchange.getName() + " Settlement";
       case TRADING:
         return _exchange.getName() + " Trading";
+      case CUSTOM:
+        return Iterables.toString(_customIds);
     }
     return null;
   }
@@ -137,6 +156,13 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
         return !_holidaySource.isHoliday(date, _type, _exchange.getExternalIdBundle());
       case TRADING:
         return !_holidaySource.isHoliday(date, _type, _exchange.getExternalIdBundle());
+      case CUSTOM:
+        for (final ExternalId id : _customIds) {
+          if (_holidaySource.isHoliday(date, _type, id)) {
+            return false;
+          }
+        }
+        return true;
     }
     throw new OpenGammaRuntimeException("switch doesn't support " + _type);
   }
