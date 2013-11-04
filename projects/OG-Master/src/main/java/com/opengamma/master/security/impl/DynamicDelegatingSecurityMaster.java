@@ -1,8 +1,3 @@
-/**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
- */
 package com.opengamma.master.security.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -12,9 +7,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -35,10 +31,17 @@ import com.opengamma.util.ArgumentChecker;
  * underlying master should handle the request.
  * <p/>
  * The underlying masters, or delegates, can be registered or deregistered at run time.
- * By default there is an InMemory master that will be used if specific scheme/delegate
+ * By default there is an {@link InMemorySecurityMaster} that will be used if specific scheme/delegate
  * combinations have not been registered.
  * <p/>
  * Change events are aggregated from the different masters and presented through a single change manager.
+ * <p/>
+ * The {@link #register(String, SecurityMaster)}, {@link #deregister(String)} and
+ * {@link #add(String, SecurityDocument)} methods are public API outside
+ * of the normal Master interface. Therefore to properly use this class the caller must have
+ * a concrete instance of this class and use these methods to properly initialize the delegates
+ * as well as clean up resources when a delegate is no longer needed. But the engine itself will
+ * be able to interact with the component via standard Master interface.
  */
 public class DynamicDelegatingSecurityMaster implements SecurityMaster {
 
@@ -70,11 +73,11 @@ public class DynamicDelegatingSecurityMaster implements SecurityMaster {
    * @param scheme the external scheme associated with this delegate master, not null
    * @param delegate the master to be used for this scheme, not null
    */
-  public void register(ExternalScheme scheme, SecurityMaster delegate) {
+  public void register(final String scheme, final SecurityMaster delegate) {
     ArgumentChecker.notNull(scheme, "scheme");
     ArgumentChecker.notNull(delegate, "delegate");
     _changeManager.addChangeManager(delegate.changeManager());
-    _delegator.registerDelegate(scheme.getName(), delegate);
+    _delegator.registerDelegate(scheme, delegate);
   }
 
   /**
@@ -86,14 +89,20 @@ public class DynamicDelegatingSecurityMaster implements SecurityMaster {
    *
    * @param scheme the external scheme associated with the delegate master to be removed, not null
    */
-  public void deregister(ExternalScheme scheme) {
+  public void deregister(final String scheme) {
     ArgumentChecker.notNull(scheme, "scheme");
-    _changeManager.removeChangeManager(chooseDelegate(scheme.getName()).changeManager());
-    _delegator.removeDelegate(scheme.getName());
+    _changeManager.removeChangeManager(chooseDelegate(scheme).changeManager());
+    _delegator.removeDelegate(scheme);
   }
 
   private SecurityMaster chooseDelegate(final String scheme) {
     return _delegator.chooseDelegate(scheme);
+  }
+
+  public SecurityDocument add(final String scheme, final SecurityDocument document) {
+    ArgumentChecker.notNull(scheme, "scheme");
+    ArgumentChecker.notNull(document, "document");
+    return chooseDelegate(scheme).add(document);
   }
 
   @Override
@@ -153,13 +162,14 @@ public class DynamicDelegatingSecurityMaster implements SecurityMaster {
 
   @Override
   public SecurityDocument add(SecurityDocument document) {
-    ArgumentChecker.notNull(document, "document");
-    return chooseDelegate(document.getObjectId().getScheme()).add(document);
+    throw new UnsupportedOperationException("Cannot add document without explicitly specifying the scheme");
   }
 
   @Override
   public SecurityDocument update(SecurityDocument document) {
     ArgumentChecker.notNull(document, "document");
+    Validate.notNull(document.getUniqueId(), "document has no unique id");
+    Validate.notNull(document.getObjectId(), "document has no object id");
     return chooseDelegate(document.getObjectId().getScheme()).update(document);
   }
 
