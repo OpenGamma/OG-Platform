@@ -25,7 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Specialization of {@code NodalObjectsCurve} with Tenor and Double.
  */
-public class NodalTenorDoubleCurve extends NodalObjectsCurve<Tenor, Double> {
+public class NodalTenorDoubleCurve
+    extends NodalObjectsCurve<Tenor, Double> {
 
   public static NodalTenorDoubleCurve from(final Tenor[] xData, final Double[] yData) {
     return new NodalTenorDoubleCurve(xData, yData, false);
@@ -43,6 +44,7 @@ public class NodalTenorDoubleCurve extends NodalObjectsCurve<Tenor, Double> {
     return new NodalTenorDoubleCurve(xData, yData, true, name);
   }
 
+  //-------------------------------------------------------------------------
   public NodalTenorDoubleCurve(List<Tenor> xData, List<Double> yData, boolean isSorted, String name) {
     super(xData, yData, isSorted, name);
   }

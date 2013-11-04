@@ -35,7 +35,8 @@ import com.opengamma.util.tuple.Pair;
  * @param <U> The type of the y data
  */
 @BeanDefinition
-public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, U> {
+public abstract class ObjectsCurve<T extends Comparable<T>, U>
+    extends Curve<T, U> {
 
   @PropertyDefinition
   private final int _n;
@@ -47,10 +48,11 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   private final U[] _yData;
 
   /**
+   * Creates an instance.
    * 
-   * @param xData An array of <i>x</i> data, not null
-   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-   * @param isSorted Is the <i>x</i>-data sorted
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
    */
   public ObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted) {
     super();
@@ -70,9 +72,10 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param data A map of <i>x-y</i> data, not null
-   * @param isSorted Is the <i>x</i>-data sorted
+   * @param data  the map of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
    */
   @SuppressWarnings("unchecked")
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted) {
@@ -89,9 +92,10 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param data A set of <i>x-y</i> pairs, not null
-   * @param isSorted Is the <i>x</i>-data sorted
+   * @param data  the set of <i>x-y</i> pairs, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
    */
   @SuppressWarnings("unchecked")
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted) {
@@ -114,10 +118,11 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param xData A list of <i>x</i> data points, assumed to be sorted ascending, not null
-   * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
-   * @param isSorted Is the <i>x</i>-data sorted
+   * @param xData  the list of <i>x</i> data, not null
+   * @param yData  the list of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
    */
   @SuppressWarnings("unchecked")
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
@@ -133,12 +138,14 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
+   * Creates an instance.
    * 
-   * @param xData An array of <i>x</i> data, not null
-   * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-   * @param isSorted Is the <i>x</i>-data sorted
-   * @param name The name of the curve
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
    */
   public ObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted, final String name) {
     super(name);
@@ -154,10 +161,11 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param data A map of <i>x-y</i> data, not null
-   * @param isSorted Is the <i>x</i>-data sorted
-   * @param name The name of the curve
+   * @param data  the map of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
    */
   @SuppressWarnings("unchecked")
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted, final String name) {
@@ -175,10 +183,11 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param data A set of <i>x-y</i> pairs, not null
-   * @param isSorted Is the <i>x</i>-data sorted
-   * @param name The name of the curve
+   * @param data the set of <i>x-y</i> pairs, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
    */
   @SuppressWarnings("unchecked")
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
@@ -202,11 +211,12 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   /**
+   * Creates an instance.
    * 
-   * @param xData A list of <i>x</i> data, not null
-   * @param yData A list of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-   * @param isSorted Is the <i>x</i>-data sorted
-   * @param name The name of the curve
+   * @param xData  the list of <i>x</i> data, not null
+   * @param yData  the list of <i>y</i> data, not null, contains same number of entries as <i>x</i>
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
    */
   @SuppressWarnings("unchecked")
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
@@ -222,6 +232,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public T[] getXData() {
     return _xData;
@@ -237,15 +248,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     return _n;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Arrays.hashCode(_xData);
-    result = prime * result + Arrays.hashCode(_yData);
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -259,6 +262,15 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     }
     final ObjectsCurve<?, ?> other = (ObjectsCurve<?, ?>) obj;
     return ArrayUtils.isEquals(_xData, other._xData) && ArrayUtils.isEquals(_yData, other._yData);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_xData);
+    result = prime * result + Arrays.hashCode(_yData);
+    return result;
   }
 
   //------------------------- AUTOGENERATED START -------------------------

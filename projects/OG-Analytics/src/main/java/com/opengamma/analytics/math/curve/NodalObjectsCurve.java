@@ -21,11 +21,13 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
+ * A curve.
  * 
- * @param <T> Type of the x data
- * @param <U> Type of the y data
+ * @param <T>  the type of the x data
+ * @param <U>  the type of the y data
  */
-public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<T, U> {
+public class NodalObjectsCurve<T extends Comparable<T>, U>
+    extends ObjectsCurve<T, U> {
 
   public static <T extends Comparable<T>, U> NodalObjectsCurve<T, U> from(final T[] xData, final U[] yData) {
     return new NodalObjectsCurve<>(xData, yData, false);
@@ -91,6 +93,7 @@ public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<
     return new NodalObjectsCurve<>(xData, yData, true, name);
   }
 
+  //-------------------------------------------------------------------------
   public NodalObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted) {
     super(xData, yData, isSorted);
   }
@@ -123,6 +126,7 @@ public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<
     super(xData, yData, isSorted, name);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public U getYValue(final T x) {
     ArgumentChecker.notNull(x, "x");
