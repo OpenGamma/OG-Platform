@@ -31,21 +31,21 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   // number of knots in curve
   @PropertyDefinition(get = "private")
-  private final int _n;
+  private int _n;
 
   // the knot positions and values
   @PropertyDefinition(get = "manual")
-  private final double[] _t;
+  private double[] _t;
 
   @PropertyDefinition(get = "manual")
-  private final double[] _r;
+  private double[] _r;
 
   // these are simply cached values (they can be recalculated from _t & _r)
   @PropertyDefinition(get = "manual")
-  private final double[] _rt;
+  private double[] _rt;
 
   @PropertyDefinition(get = "manual")
-  private final double[] _df;
+  private double[] _df;
 
   /**
    * Flat curve at level r
@@ -156,6 +156,9 @@ public class ISDACompliantCurve extends DoublesCurve {
     _r = r;
     _rt = rt;
     _df = df;
+  }
+
+  /* package */ ISDACompliantCurve() { // for builder
   }
 
   public double[] getKnotTimes() {
@@ -628,6 +631,14 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   /**
+   * Sets the n.
+   * @param n  the new value of the property
+   */
+  public void setN(int n) {
+    this._n = n;
+  }
+
+  /**
    * Gets the the {@code n} property.
    * @return the property, not null
    */
@@ -636,6 +647,14 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Sets the t.
+   * @param t  the new value of the property
+   */
+  public void setT(double[] t) {
+    this._t = t;
+  }
+
   /**
    * Gets the the {@code t} property.
    * @return the property, not null
@@ -646,6 +665,14 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
+   * Sets the r.
+   * @param r  the new value of the property
+   */
+  public void setR(double[] r) {
+    this._r = r;
+  }
+
+  /**
    * Gets the the {@code r} property.
    * @return the property, not null
    */
@@ -655,6 +682,14 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
+   * Sets the rt.
+   * @param rt  the new value of the property
+   */
+  public void setRt(double[] rt) {
+    this._rt = rt;
+  }
+
+  /**
    * Gets the the {@code rt} property.
    * @return the property, not null
    */
@@ -663,6 +698,14 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Sets the df.
+   * @param df  the new value of the property
+   */
+  public void setDf(double[] df) {
+    this._df = df;
+  }
+
   /**
    * Gets the the {@code df} property.
    * @return the property, not null
@@ -713,27 +756,27 @@ public class ISDACompliantCurve extends DoublesCurve {
     /**
      * The meta-property for the {@code n} property.
      */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(
         this, "n", ISDACompliantCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code t} property.
      */
-    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(
         this, "t", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code r} property.
      */
-    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadWrite(
         this, "r", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code rt} property.
      */
-    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(
         this, "rt", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code df} property.
      */
-    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadWrite(
         this, "df", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-properties.
@@ -847,30 +890,20 @@ public class ISDACompliantCurve extends DoublesCurve {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: n");
+          ((ISDACompliantCurve) bean).setN((Integer) newValue);
+          return;
         case 116:  // t
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: t");
+          ((ISDACompliantCurve) bean).setT((double[]) newValue);
+          return;
         case 114:  // r
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: r");
+          ((ISDACompliantCurve) bean).setR((double[]) newValue);
+          return;
         case 3650:  // rt
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: rt");
+          ((ISDACompliantCurve) bean).setRt((double[]) newValue);
+          return;
         case 3202:  // df
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: df");
+          ((ISDACompliantCurve) bean).setDf((double[]) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
