@@ -106,7 +106,7 @@ public class CommodityFutureOptionBlackLognormalDefaults extends DefaultProperty
       return null;
     }
     final Set<String> values = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
-    if ((values != null) && !values.isEmpty() && !values.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
+    if ((values == null) || (!values.isEmpty() && !values.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL))) {
       return null;
     }
     return super.getRequirements(context, target, desiredValue);
