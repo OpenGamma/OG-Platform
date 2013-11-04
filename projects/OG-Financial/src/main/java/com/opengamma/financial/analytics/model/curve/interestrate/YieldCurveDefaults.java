@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -32,17 +33,17 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
       ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES
   };
   /** The absolute tolerance */
-  private final String _absoluteTolerance;
+  private final Set<String> _absoluteTolerance;
   /** The relative tolerance */
-  private final String _relativeTolerance;
+  private final Set<String> _relativeTolerance;
   /** The maximum number of iterations */
-  private final String _maxIterations;
+  private final Set<String> _maxIterations;
   /** The matrix decomposition method */
-  private final String _decomposition;
+  private final Set<String> _decomposition;
   /** Whether to use finite difference or analytic derivatives */
-  private final String _useFiniteDifference;
+  private final Set<String> _useFiniteDifference;
   /** The currencies for which these defaults apply */
-  private final String[] _applicableCurrencies;
+  private final Set<String> _applicableCurrencies;
 
   /**
    * @param absoluteTolerance The absolute tolerance used in root-finding
@@ -61,12 +62,12 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(decomposition, "decomposition");
     ArgumentChecker.notNull(useFiniteDifference, "use finite difference");
     ArgumentChecker.notNull(applicableCurrencies, "applicable currencies");
-    _absoluteTolerance = absoluteTolerance;
-    _relativeTolerance = relativeTolerance;
-    _maxIterations = maxIterations;
-    _decomposition = decomposition;
-    _useFiniteDifference = useFiniteDifference;
-    _applicableCurrencies = applicableCurrencies;
+    _absoluteTolerance = Collections.singleton(absoluteTolerance);
+    _relativeTolerance = Collections.singleton(relativeTolerance);
+    _maxIterations = Collections.singleton(maxIterations);
+    _decomposition = Collections.singleton(decomposition);
+    _useFiniteDifference = Collections.singleton(useFiniteDifference);
+    _applicableCurrencies = Sets.newHashSet(applicableCurrencies);
   }
 
   @Override
@@ -74,12 +75,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
     if (target.getUniqueId() == null) {
       return false;
     }
-    for (final String applicableCurrencyName : _applicableCurrencies) {
-      if (applicableCurrencyName.equals(target.getUniqueId().getValue())) {
-        return true;
-      }
-    }
-    return false;
+    return _applicableCurrencies.contains(target.getUniqueId().getValue());
   }
 
   @Override
@@ -108,22 +104,20 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION.equals(propertyName)) {
-      return Collections.singleton(_decomposition);
+    switch (propertyName) {
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION:
+        return _decomposition;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE:
+        return _absoluteTolerance;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE:
+        return _relativeTolerance;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS:
+        return _maxIterations;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE:
+        return _useFiniteDifference;
+      default:
+        return null;
     }
-    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE.equals(propertyName)) {
-      return Collections.singleton(_absoluteTolerance);
-    }
-    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE.equals(propertyName)) {
-      return Collections.singleton(_relativeTolerance);
-    }
-    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS.equals(propertyName)) {
-      return Collections.singleton(_maxIterations);
-    }
-    if (MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE.equals(propertyName)) {
-      return Collections.singleton(_useFiniteDifference);
-    }
-    return null;
   }
 
   @Override

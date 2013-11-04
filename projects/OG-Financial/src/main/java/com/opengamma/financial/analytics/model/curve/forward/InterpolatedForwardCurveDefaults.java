@@ -20,18 +20,19 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class InterpolatedForwardCurveDefaults extends DefaultPropertyFunction {
-  private final String _forwardCurveInterpolator;
-  private final String _forwardCurveLeftExtrapolator;
-  private final String _forwardCurveRightExtrapolator;
+
+  private final Set<String> _forwardCurveInterpolator;
+  private final Set<String> _forwardCurveLeftExtrapolator;
+  private final Set<String> _forwardCurveRightExtrapolator;
 
   public InterpolatedForwardCurveDefaults(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     super(ComputationTargetType.ANYTHING, true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
     ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
     ArgumentChecker.notNull(forwardCurveRightExtrapolator, "forward curve right extrapolator");
-    _forwardCurveInterpolator = forwardCurveInterpolator;
-    _forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolator;
-    _forwardCurveRightExtrapolator = forwardCurveRightExtrapolator;
+    _forwardCurveInterpolator = Collections.singleton(forwardCurveInterpolator);
+    _forwardCurveLeftExtrapolator = Collections.singleton(forwardCurveLeftExtrapolator);
+    _forwardCurveRightExtrapolator = Collections.singleton(forwardCurveRightExtrapolator);
   }
 
   @Override
@@ -43,15 +44,16 @@ public class InterpolatedForwardCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveInterpolator);
+    switch (propertyName) {
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR:
+        return _forwardCurveInterpolator;
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR:
+        return _forwardCurveLeftExtrapolator;
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR:
+        return _forwardCurveRightExtrapolator;
+      default:
+        return null;
     }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveLeftExtrapolator);
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveRightExtrapolator);
-    }
-    return null;
   }
+
 }

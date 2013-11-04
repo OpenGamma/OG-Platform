@@ -111,20 +111,19 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
-      return _discountingCurveConfig;
+    switch (propertyName) {
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG:
+        return _discountingCurveConfig;
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME:
+        return _discountingCurveName;
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+        return _forwardCurveName;
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _forwardCurveCalculationMethodName;
+      default:
+        s_logger.error("Cannot get a default value for {}", propertyName);
+        return null;
     }
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return _discountingCurveName;
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      return _forwardCurveName;
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return _forwardCurveCalculationMethodName;
-    }
-    s_logger.error("Cannot get a default value for {}", propertyName);
-    return null;
   }
 
   @Override
