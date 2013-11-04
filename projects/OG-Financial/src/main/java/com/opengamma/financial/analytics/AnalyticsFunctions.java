@@ -102,6 +102,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
     functions.add(functionConfiguration(BucketedPV01Function.class));
+    functions.add(functionConfiguration(ISINFunction.class));
 
     //security attribute functions
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.DIRECTION.name(), ValueRequirementNames.PAY_REC));
@@ -300,6 +301,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
 
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.BUCKETED_PV01);
+
+    functions.add(functionConfiguration(ISINFunction.class));
 
     functions.add(functionConfiguration(MarketQuotePositionFunction.class));
   }

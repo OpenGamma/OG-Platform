@@ -248,6 +248,10 @@ public final class ValueRequirementNames {
    */
   public static final String BUCKETED_PV01 = "Bucketed PV01";
   /**
+   * The bucketed PV01.
+   */
+  public static final String ISIN = "ISIN";
+  /**
    * Curve property metadata.
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";

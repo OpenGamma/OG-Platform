@@ -2,16 +2,15 @@ package com.opengamma.financial.analytics;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.engine.function.dsl.Function.function;
-import static com.opengamma.engine.function.dsl.Function.input;
 import static com.opengamma.engine.function.dsl.Function.output;
 import static com.opengamma.engine.function.dsl.TargetSpecificationReference.originalTarget;
-import static com.opengamma.engine.function.dsl.properties.RecordingValueProperties.copyFrom;
-import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
-import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+import static com.opengamma.engine.value.ValueRequirementNames.ISIN;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Set;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -19,12 +18,11 @@ import com.opengamma.engine.function.dsl.FunctionSignature;
 import com.opengamma.engine.function.dsl.functions.BaseNonCompiledInvoker;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.LabelledMatrix1D;
-import com.opengamma.lambdava.functions.Function3;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
@@ -32,22 +30,18 @@ import com.opengamma.util.async.AsynchronousExecution;
  * <p/>
  * Please see distribution for license.
  */
-public class BucketedPV01Function extends BaseNonCompiledInvoker {
+public class ISINFunction extends BaseNonCompiledInvoker {
 
   @Override
   protected FunctionSignature functionSignature() {
 
-    return function("Bucketed PV01", ComputationTargetType.POSITION)
+    return function("Bucketed PV01", ComputationTargetType.POSITION_OR_TRADE)
         .outputs(
-            output(BUCKETED_PV01)
+            output(ISIN)
                 .targetSpec(originalTarget())
-                .properties(copyFrom(YIELD_CURVE_NODE_SENSITIVITIES)
-                                .withReplacement(ValuePropertyNames.FUNCTION, getUniqueId()))
+                .properties(ValueProperties.all())
         )
-        .inputs(
-            input(YIELD_CURVE_NODE_SENSITIVITIES)
-                .properties(copyFrom(BUCKETED_PV01))
-                .targetSpec(originalTarget()));
+        .inputs();
   }
 
   @Override
@@ -56,23 +50,34 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
                                     ComputationTarget target,
                                     Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
-    DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) inputs.getComputedValue(YIELD_CURVE_NODE_SENSITIVITIES).getValue();
-    LabelledMatrix1D<Double, Double> matrixDividedBy10k = matrix.mapValues(new Function3<Double, Double, Object, Double>() {
-      @Override
-      public Double execute(Double _, Double value, Object __) {
-        return value / 10000.0;
-      }
-    });
 
     ValueRequirement desiredValue = functional(desiredValues).first();
     ValueSpecification valueSpecification = ValueSpecification.of(desiredValue.getValueName(),
                                                                   target.toSpecification(),
                                                                   desiredValue.getConstraints());
-    return newHashSet(new ComputedValue(valueSpecification, matrixDividedBy10k));
+
+    Security security = null;
+    if (target.getType().equals(ComputationTargetType.POSITION)) {
+      security = target.getPosition().getSecurity();
+    }
+    if (target.getType().equals(ComputationTargetType.TRADE)) {
+      security = target.getTrade().getSecurity();
+    }
+    if (security != null) {
+      ExternalIdBundle externalIdBundle = security.getExternalIdBundle();
+      if (externalIdBundle != null) {
+        ExternalId externalId = externalIdBundle.getExternalId(ExternalSchemes.ISIN);
+        if (externalId != null) {
+          return newHashSet(new ComputedValue(valueSpecification, externalId.getValue()));
+        }
+      }
+    }
+    return newHashSet(new ComputedValue(valueSpecification, ""));
+
   }
 
   @Override
   public String getUniqueId() {
-    return "Bucketed PV01 Function";
+    return "ISIN";
   }
 }
