@@ -34,24 +34,34 @@ public abstract class AbstractCompletedResultsCall implements Function<ViewResul
   // NOTE: The calculation time is machine time, not valuation time so we know which was computed first, unless the cycle times are
   // smaller than the resolution of the Instant clock.
 
+  protected void updateFull(final ViewComputationResultModel full) {
+    if (_fullCopy == null) {
+      _fullCopy = new InMemoryViewComputationResultModel(_full);
+      _full = _fullCopy;
+    }
+    _fullCopy.update(full);
+  }
+
+  protected void replaceFull(final ViewComputationResultModel full) {
+    _full = full;
+    _fullCopy = null;
+  }
+
+  protected abstract void newFull(ViewComputationResultModel full);
+
   public void update(ViewComputationResultModel full, ViewDeltaResultModel delta) {
     if (full != null) {
       if (_full != null) {
         final Instant previous = _full.getCalculationTime();
         final Instant current = full.getCalculationTime();
         if (previous.isBefore(current)) {
-          // New full result replaces the old one
-          s_logger.debug("New full result from {} replaces one from {}", current, previous);
-          _full = full;
-          _fullCopy = null;
+          // New full result replaces, or updates, the old one
+          s_logger.debug("New full result from {} replaces/updates one from {}", current, previous);
+          newFull(full);
         } else if (previous.equals(current)) {
           // Two results calculated so close together they appear "at the same time". Better merge them, but the result might be wrong.
           s_logger.warn("Merging two results both calculated at {}", current);
-          if (_fullCopy == null) {
-            _fullCopy = new InMemoryViewComputationResultModel(_full);
-            _full = _fullCopy;
-          }
-          _fullCopy.update(full);
+          updateFull(full);
         } else {
           // The previous full result is newer than the new one - discard the new one
           s_logger.info("Ignoring full result from {} that is newer than the previous one from {}", current, previous);

@@ -31,4 +31,9 @@ public class CycleCompletedCall extends AbstractCompletedResultsCall {
     return null;
   }
 
+  @Override
+  protected void newFull(final ViewComputationResultModel full) {
+    replaceFull(full);
+  }
+
 }
