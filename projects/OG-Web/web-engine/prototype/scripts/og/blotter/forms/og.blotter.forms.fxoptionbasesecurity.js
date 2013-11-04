@@ -65,7 +65,9 @@ $.register_module({
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
-                    if (data.security.length) return;
+                    if (data.security.length) {
+                        return;
+                    }
                     util.set_select("trade.premiumCurrency", data.trade.premiumCurrency);
                     util.set_select("security.putCurrency", data.security.putCurrency);
                     util.set_select("security.callCurrency", data.security.callCurrency);
