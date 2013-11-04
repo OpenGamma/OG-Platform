@@ -20,6 +20,10 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  */
 public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
+  protected ISDACompliantYieldCurve() {
+    super();
+  }
+
   /**
    * Flat yield curve at level r
    * @param t (arbitrary) single knot point (t > 0)
