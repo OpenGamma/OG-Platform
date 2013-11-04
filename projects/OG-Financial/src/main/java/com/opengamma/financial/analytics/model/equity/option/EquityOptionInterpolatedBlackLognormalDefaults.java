@@ -12,7 +12,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -50,37 +49,37 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.SPOT,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA,
-    ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
-    ValueRequirementNames.POSITION_DELTA,
-    ValueRequirementNames.POSITION_GAMMA,
-    ValueRequirementNames.POSITION_RHO,
-    ValueRequirementNames.POSITION_THETA,
-    ValueRequirementNames.POSITION_VEGA,
-    ValueRequirementNames.POSITION_WEIGHTED_VEGA
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.VEGA_QUOTE_MATRIX,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.SPOT,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.VALUE_VOMMA,
+      ValueRequirementNames.VALUE_VANNA,
+      ValueRequirementNames.VALUE_RHO,
+      ValueRequirementNames.VALUE_CARRY_RHO,
+      ValueRequirementNames.VALUE_THETA,
+      ValueRequirementNames.VALUE_DUAL_DELTA,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.VEGA,
+      ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+      ValueRequirementNames.POSITION_DELTA,
+      ValueRequirementNames.POSITION_GAMMA,
+      ValueRequirementNames.POSITION_RHO,
+      ValueRequirementNames.POSITION_THETA,
+      ValueRequirementNames.POSITION_VEGA,
+      ValueRequirementNames.POSITION_WEIGHTED_VEGA
   };
 
   /**
@@ -135,18 +134,17 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final Set<String> surfaceCalculationMethod = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
-    if (surfaceCalculationMethod != null && surfaceCalculationMethod.size() == 1) {
-      if (!Iterables.getOnlyElement(surfaceCalculationMethod).equals(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
-        return null;
-      }
-    }
-    final String id = getId(target.getSecurity());
-    if (!_idToDiscountingCurveConfig.containsKey(id)) {
-      s_logger.error("Could not find defaults for {}", id);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> surfaceCalculationMethods = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    if ((surfaceCalculationMethods != null) && !surfaceCalculationMethods.isEmpty() && !surfaceCalculationMethods.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
       return null;
     }
+    return super.getRequirements(context, target, desiredValue);
+  }
+
+  @Override
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    final String id = getId(target.getSecurity());
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
       return Collections.singleton(_idToDiscountingCurveConfig.get(id));
     }
@@ -176,7 +174,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_OPTION_DEFAULTS;
+    return OpenGammaFunctionExclusions.INTERPOLATED_BLACK_LOGNORMAL_DEFAULTS;
   }
 
   /**

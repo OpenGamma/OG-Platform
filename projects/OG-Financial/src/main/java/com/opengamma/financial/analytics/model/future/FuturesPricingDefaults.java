@@ -15,6 +15,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -28,21 +29,21 @@ public class FuturesPricingDefaults extends DefaultPropertyFunction {
 
   /** The priority */
   private final PriorityClass _priority;
-  
+
   /** The default values */
   private final String _calculationMethod;
-  
+
   /** The value requirements for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.PRESENT_VALUE,
   };
-  
+
   public FuturesPricingDefaults(final String priority, final String calculationMethod) {
     super(ComputationTargetType.TRADE, true);
     ArgumentChecker.notNull(priority, "No priority was provided.");
     ArgumentChecker.notNull(calculationMethod, "No calculationMethod was provided. Try MarkToMarket");
     _priority = PriorityClass.valueOf(priority);
-    _calculationMethod = calculationMethod;  
+    _calculationMethod = calculationMethod;
   }
 
   @Override
@@ -56,7 +57,7 @@ public class FuturesPricingDefaults extends DefaultPropertyFunction {
   protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
     return Collections.singleton(_calculationMethod);
   }
-  
+
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security sec = target.getTrade().getSecurity();
@@ -69,6 +70,11 @@ public class FuturesPricingDefaults extends DefaultPropertyFunction {
   @Override
   public PriorityClass getPriority() {
     return _priority;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.CALCULATION_METHOD_DEFAULTS;
   }
 
 }
