@@ -16,12 +16,12 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
 
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points,
@@ -31,23 +31,28 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 public class ISDACompliantCurve
     extends DoublesCurve {
 
-  // number of knots in curve
-  @PropertyDefinition(get = "private")
-  private int _n;
-
-  // the knot positions and values
-  @PropertyDefinition(get = "manual")
+  /**
+   * The knot times.
+   */
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _t;
-
-  @PropertyDefinition(get = "manual")
+  /**
+   * The knot zero rates.
+   */
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _r;
 
   // these are simply cached values (they can be recalculated from _t & _r)
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _rt;
-
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _df;
+
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected ISDACompliantCurve() {
+  }
 
   /**
    * Creates a flat curve at level r.
@@ -68,20 +73,20 @@ public class ISDACompliantCurve
   public ISDACompliantCurve(final double[] times, final double[] rates) {
     ArgumentChecker.notEmpty(times, "times empty");
     ArgumentChecker.notEmpty(rates, "rates empty");
-    _n = times.length;
-    ArgumentChecker.isTrue(_n == rates.length, "rates and times different lengths");
+    int size = times.length;
+    ArgumentChecker.isTrue(size == rates.length, "rates and times different lengths");
     ArgumentChecker.isTrue(times[0] >= 0, "first time must be >= 0.0");
-    for (int i = 1; i < _n; i++) {
+    for (int i = 1; i < size; i++) {
       ArgumentChecker.isTrue(times[i] > times[i - 1], "Times must be ascending");
     }
 
-    _t = new double[_n];
-    _r = new double[_n];
-    _rt = new double[_n];
-    _df = new double[_n];
-    System.arraycopy(times, 0, _t, 0, _n);
-    System.arraycopy(rates, 0, _r, 0, _n);
-    for (int i = 0; i < _n; i++) {
+    _t = new double[size];
+    _r = new double[size];
+    _rt = new double[size];
+    _df = new double[size];
+    System.arraycopy(times, 0, _t, 0, size);
+    System.arraycopy(rates, 0, _r, 0, size);
+    for (int i = 0; i < size; i++) {
       _rt[i] = _r[i] * _t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
       _df[i] = Math.exp(-_rt[i]);
     }
@@ -95,7 +100,6 @@ public class ISDACompliantCurve
   protected ISDACompliantCurve(final ISDACompliantCurve from) {
     ArgumentChecker.notNull(from, "null from");
     // Shallow copy
-    _n = from._n;
     _t = from._t;
     _r = from._r;
     _rt = from._rt;
@@ -118,39 +122,38 @@ public class ISDACompliantCurve
   protected ISDACompliantCurve(final double[] timesFromBaseDate, final double[] rates, final double newBaseFromOriginalBase) {
     ArgumentChecker.notEmpty(timesFromBaseDate, "times empty");
     ArgumentChecker.notEmpty(rates, "rates empty");
-    _n = timesFromBaseDate.length;
-    ArgumentChecker.isTrue(_n == rates.length, "times and rates different lengths");
+    int size = timesFromBaseDate.length;
+    ArgumentChecker.isTrue(size == rates.length, "times and rates different lengths");
     ArgumentChecker.isTrue(timesFromBaseDate[0] >= 0.0, "timesFromBaseDate must be >= 0");
 
     // TODO allow larger offsets
     ArgumentChecker.isTrue(timesFromBaseDate[0] - newBaseFromOriginalBase > 0, "offsetFromNewBaseDate too negative");
-    for (int i = 1; i < _n; i++) {
+    for (int i = 1; i < size; i++) {
       ArgumentChecker.isTrue(timesFromBaseDate[i] > timesFromBaseDate[i - 1], "Times must be ascending");
     }
 
-    _t = new double[_n];
-    _r = new double[_n];
-    _rt = new double[_n];
-    _df = new double[_n];
+    _t = new double[size];
+    _r = new double[size];
+    _rt = new double[size];
+    _df = new double[size];
     final double r0 = rates[0];
     if (newBaseFromOriginalBase == 0.0) {
-      System.arraycopy(timesFromBaseDate, 0, _t, 0, _n);
-      System.arraycopy(rates, 0, _r, 0, _n);
-      for (int i = 0; i < _n; i++) {
+      System.arraycopy(timesFromBaseDate, 0, _t, 0, size);
+      System.arraycopy(rates, 0, _r, 0, size);
+      for (int i = 0; i < size; i++) {
         _rt[i] = _r[i] * _t[i]; // We make no check that rt is ascending (i.e. we allow negative forward rates)
       }
     } else {
       _r[0] = r0;
-      for (int i = 0; i < _n; i++) {
+      for (int i = 0; i < size; i++) {
         _t[i] = timesFromBaseDate[i] - newBaseFromOriginalBase;
         _rt[i] = rates[i] * timesFromBaseDate[i] - r0 * newBaseFromOriginalBase;
       }
-      for (int i = 1; i < _n; i++) {
+      for (int i = 1; i < size; i++) {
         _r[i] = _rt[i] / _t[i];
       }
     }
-
-    for (int i = 0; i < _n; i++) {
+    for (int i = 0; i < size; i++) {
       _df[i] = Math.exp(-_rt[i]);
     }
   }
@@ -167,14 +170,10 @@ public class ISDACompliantCurve
    */
   @Deprecated
   public ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
-    _n = t.length;
     _t = t;
     _r = r;
     _rt = rt;
     _df = df;
-  }
-
-  /* package */ ISDACompliantCurve() { // for builder
   }
 
   //-------------------------------------------------------------------------
@@ -260,8 +259,8 @@ public class ISDACompliantCurve
     if (t <= _t[0]) {
       return _r[0];
     }
-    if (t > _t[_n - 1]) {
-      final double rt = getRT(t, _n - 1);
+    if (t > _t[size() - 1]) {
+      final double rt = getRT(t, size() - 1);
       return rt / t;
     }
     final int index = Arrays.binarySearch(_t, t);
@@ -287,8 +286,8 @@ public class ISDACompliantCurve
     if (t <= _t[0]) {
       return _r[0] * t;
     }
-    if (t > _t[_n - 1]) {
-      return getRT(t, _n - 1); //linear extrapolation
+    if (t > _t[size() - 1]) {
+      return getRT(t, size() - 1); //linear extrapolation
     }
     final int index = Arrays.binarySearch(_t, t);
     if (index >= 0) {
@@ -302,7 +301,7 @@ public class ISDACompliantCurve
     if (insertionPoint == 0) {
       return t * _r[0];
     }
-    if (insertionPoint == _n) {
+    if (insertionPoint == size()) {
       return getRT(t, insertionPoint - 1); //linear extrapolation
     }
 
@@ -317,8 +316,8 @@ public class ISDACompliantCurve
     if (t <= _t[0]) {
       return _r[0];
     }
-    if (t > _t[_n - 1]) {
-      return getForwardRate(_n - 1); //linear extrapolation
+    if (t > _t[size() - 1]) {
+      return getForwardRate(size() - 1); //linear extrapolation
     }
 
     final int index = Arrays.binarySearch(_t, t);
@@ -335,7 +334,7 @@ public class ISDACompliantCurve
     if (insertionPoint == 0) {
       return _r[0];
     }
-    if (insertionPoint == _n) {
+    if (insertionPoint == size()) {
       return getForwardRate(insertionPoint - 1);
     }
     final double t1 = _t[insertionPoint - 1];
@@ -350,7 +349,7 @@ public class ISDACompliantCurve
    * @return number of knots in curve
    */
   public int getNumberOfKnots() {
-    return _n;
+    return size();
   }
 
   /**
@@ -362,16 +361,15 @@ public class ISDACompliantCurve
    * @return the sensitivity to the nodes, not null
    */
   public double[] getNodeSensitivity(final double t) {
-
-    final double[] res = new double[_n];
+    final double[] res = new double[size()];
 
     // short-cut doing binary search
     if (t <= _t[0]) {
       res[0] = 1.0;
       return res;
     }
-    if (t >= _t[_n - 1]) {
-      final int insertionPoint = _n - 1;
+    if (t >= _t[size() - 1]) {
+      final int insertionPoint = size() - 1;
       final double t1 = _t[insertionPoint - 1];
       final double t2 = _t[insertionPoint];
       final double dt = t2 - t1;
@@ -405,14 +403,14 @@ public class ISDACompliantCurve
    */
   public double getSingleNodeSensitivity(final double t, final int nodeIndex) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
-    ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < _n, "index out of range");
+    ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < size(), "index out of range");
 
     if (t <= _t[0]) {
       return nodeIndex == 0 ? 1.0 : 0.0;
     }
-    //    if (t >= _t[_n - 1]) {
+    //    if (t >= _t[size() - 1]) {
     //
-    //      return nodeIndex == _n - 1 ? 1.0 : 0.0;
+    //      return nodeIndex == size() - 1 ? 1.0 : 0.0;
     //    }
 
     final int index = Arrays.binarySearch(_t, t);
@@ -420,7 +418,7 @@ public class ISDACompliantCurve
       return nodeIndex == index ? 1.0 : 0.0;
     }
 
-    final int insertionPoint = Math.min(_n - 1, -(1 + index));
+    final int insertionPoint = Math.min(size() - 1, -(1 + index));
     if (nodeIndex != insertionPoint && nodeIndex != insertionPoint - 1) {
       return 0.0;
     }
@@ -445,7 +443,7 @@ public class ISDACompliantCurve
    */
   public double getSingleNodeDiscountFactorSensitivity(final double t, final int nodeIndex) {
     ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
-    ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < _n, "index out of range");
+    ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < size(), "index out of range");
 
     if (t == 0.0) {
       return 0.0;
@@ -453,8 +451,8 @@ public class ISDACompliantCurve
     if (t <= _t[0]) {
       return nodeIndex == 0 ? -t * Math.exp(-t * _r[0]) : 0.0;
     }
-    //    if (t >= _t[_n - 1]) {
-    //      return nodeIndex == _n - 1 ? -t * Math.exp(-t * _r[_n - 1]) : 0.0;
+    //    if (t >= _t[size() - 1]) {
+    //      return nodeIndex == size() - 1 ? -t * Math.exp(-t * _r[size() - 1]) : 0.0;
     //    }
 
     final int index = Arrays.binarySearch(_t, t);
@@ -462,7 +460,7 @@ public class ISDACompliantCurve
       return nodeIndex == index ? -t * _df[nodeIndex] : 0.0;
     }
 
-    final int insertionPoint = Math.min(_n - 1, -(1 + index));
+    final int insertionPoint = Math.min(size() - 1, -(1 + index));
     if (nodeIndex != insertionPoint && nodeIndex != insertionPoint - 1) {
       return 0.0;
     }
@@ -512,15 +510,16 @@ public class ISDACompliantCurve
    * @return a new curve
    */
   public ISDACompliantCurve withRate(final double rate, final int index) {
-    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    final double[] t = new double[_n];
-    final double[] r = new double[_n];
-    final double[] rt = new double[_n];
-    final double[] df = new double[_n];
-    System.arraycopy(_t, 0, t, 0, _n);
-    System.arraycopy(_r, 0, r, 0, _n);
-    System.arraycopy(_rt, 0, rt, 0, _n);
-    System.arraycopy(_df, 0, df, 0, _n);
+    int size = size();
+    ArgumentChecker.isTrue(index >= 0 && index < size, "index out of range");
+    final double[] t = new double[size];
+    final double[] r = new double[size];
+    final double[] rt = new double[size];
+    final double[] df = new double[size];
+    System.arraycopy(_t, 0, t, 0, size);
+    System.arraycopy(_r, 0, r, 0, size);
+    System.arraycopy(_rt, 0, rt, 0, size);
+    System.arraycopy(_df, 0, df, 0, size);
 
     r[index] = rate;
     rt[index] = rate * t[index];
@@ -529,7 +528,7 @@ public class ISDACompliantCurve
   }
 
   public void setRate(final double rate, final int index) {
-    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
+    ArgumentChecker.isTrue(index >= 0 && index < size(), "index out of range");
     _r[index] = rate;
     _rt[index] = rate * _t[index];
     _df[index] = Math.exp(-_rt[index]);
@@ -542,16 +541,16 @@ public class ISDACompliantCurve
    * @return a new curve
    */
   public ISDACompliantCurve withDiscountFactor(final double discountFactor, final int index) {
-
-    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
-    final double[] t = new double[_n];
-    final double[] r = new double[_n];
-    final double[] rt = new double[_n];
-    final double[] df = new double[_n];
-    System.arraycopy(_t, 0, t, 0, _n);
-    System.arraycopy(_r, 0, r, 0, _n);
-    System.arraycopy(_rt, 0, rt, 0, _n);
-    System.arraycopy(_df, 0, df, 0, _n);
+    int size = size();
+    ArgumentChecker.isTrue(index >= 0 && index < size, "index out of range");
+    final double[] t = new double[size];
+    final double[] r = new double[size];
+    final double[] rt = new double[size];
+    final double[] df = new double[size];
+    System.arraycopy(_t, 0, t, 0, size);
+    System.arraycopy(_r, 0, r, 0, size);
+    System.arraycopy(_rt, 0, rt, 0, size);
+    System.arraycopy(_df, 0, df, 0, size);
 
     df[index] = discountFactor;
     rt[index] = -Math.log(discountFactor);
@@ -594,12 +593,7 @@ public class ISDACompliantCurve
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     final ISDACompliantCurve that = (ISDACompliantCurve) o;
-
-    if (_n != that._n) {
-      return false;
-    }
     if (!Arrays.equals(_df, that._df)) {
       return false;
     }
@@ -618,9 +612,7 @@ public class ISDACompliantCurve
 
   @Override
   public int hashCode() {
-    int result;
-    final long temp;
-    result = _n;
+    int result = 19;
     result = 31 * result + (_t != null ? Arrays.hashCode(_t) : 0);
     result = 31 * result + (_r != null ? Arrays.hashCode(_r) : 0);
     result = 31 * result + (_rt != null ? Arrays.hashCode(_rt) : 0);
@@ -653,7 +645,7 @@ public class ISDACompliantCurve
 
   @Override
   public int size() {
-    return _n;
+    return _t.length;
   }
 
   @Override
@@ -682,35 +674,10 @@ public class ISDACompliantCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the n.
-   * @return the value of the property
-   */
-  private int getN() {
-    return _n;
-  }
-
-  /**
-   * Sets the n.
-   * @param n  the new value of the property
-   */
-  public void setN(int n) {
-    this._n = n;
-  }
-
-  /**
-   * Gets the the {@code n} property.
-   * @return the property, not null
-   */
-  public final Property<Integer> n() {
-    return metaBean().n().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Sets the t.
+   * Sets the knot times.
    * @param t  the new value of the property
    */
-  public void setT(double[] t) {
+  private void setT(double[] t) {
     this._t = t;
   }
 
@@ -724,10 +691,10 @@ public class ISDACompliantCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Sets the r.
+   * Sets the knot zero rates.
    * @param r  the new value of the property
    */
-  public void setR(double[] r) {
+  private void setR(double[] r) {
     this._r = r;
   }
 
@@ -744,7 +711,7 @@ public class ISDACompliantCurve
    * Sets the rt.
    * @param rt  the new value of the property
    */
-  public void setRt(double[] rt) {
+  private void setRt(double[] rt) {
     this._rt = rt;
   }
 
@@ -761,7 +728,7 @@ public class ISDACompliantCurve
    * Sets the df.
    * @param df  the new value of the property
    */
-  public void setDf(double[] df) {
+  private void setDf(double[] df) {
     this._df = df;
   }
 
@@ -781,7 +748,7 @@ public class ISDACompliantCurve
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("ISDACompliantCurve{");
     int len = buf.length();
     toString(buf);
@@ -795,7 +762,6 @@ public class ISDACompliantCurve
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("n").append('=').append(JodaBeanUtils.toString(getN())).append(',').append(' ');
     buf.append("t").append('=').append(JodaBeanUtils.toString(getT())).append(',').append(' ');
     buf.append("r").append('=').append(JodaBeanUtils.toString(getR())).append(',').append(' ');
     buf.append("rt").append('=').append(JodaBeanUtils.toString(getRt())).append(',').append(' ');
@@ -812,11 +778,6 @@ public class ISDACompliantCurve
      */
     static final Meta INSTANCE = new Meta();
 
-    /**
-     * The meta-property for the {@code n} property.
-     */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(
-        this, "n", ISDACompliantCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code t} property.
      */
@@ -842,7 +803,6 @@ public class ISDACompliantCurve
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "n",
         "t",
         "r",
         "rt",
@@ -857,8 +817,6 @@ public class ISDACompliantCurve
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 110:  // n
-          return _n;
         case 116:  // t
           return _t;
         case 114:  // r
@@ -887,14 +845,6 @@ public class ISDACompliantCurve
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code n} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Integer> n() {
-      return _n;
-    }
-
     /**
      * The meta-property for the {@code t} property.
      * @return the meta-property, not null
@@ -931,8 +881,6 @@ public class ISDACompliantCurve
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 110:  // n
-          return ((ISDACompliantCurve) bean).getN();
         case 116:  // t
           return ((ISDACompliantCurve) bean).getT();
         case 114:  // r
@@ -948,9 +896,6 @@ public class ISDACompliantCurve
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 110:  // n
-          ((ISDACompliantCurve) bean).setN((Integer) newValue);
-          return;
         case 116:  // t
           ((ISDACompliantCurve) bean).setT((double[]) newValue);
           return;

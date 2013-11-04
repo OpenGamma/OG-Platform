@@ -7,14 +7,15 @@ package com.opengamma.analytics.math.curve;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -24,14 +25,15 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Defines a constant curve (i.e. a curve with <i>y = constant</i>).
  */
+@BeanDefinition
 public class ConstantDoublesCurve
     extends DoublesCurve {
 
   /**
    * The constant value of the curve.
    */
-  @PropertyDefinition(get = "private")
-  private final double _y;
+  @PropertyDefinition(get = "private", set = "private")
+  private double _y;
 
   /**
    * Creates an instance specifying the <i>y</i> level of the curve.
@@ -55,6 +57,12 @@ public class ConstantDoublesCurve
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected ConstantDoublesCurve() {
+  }
+
   /**
    * Creates an instance specifying the <i>y</i> level of the curve.
    * 
@@ -204,23 +212,21 @@ public class ConstantDoublesCurve
     return ConstantDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * Gets the y.
+   * Gets the constant value of the curve.
    * @return the value of the property
    */
   private double getY() {
     return _y;
+  }
+
+  /**
+   * Sets the constant value of the curve.
+   * @param y  the new value of the property
+   */
+  private void setY(double y) {
+    this._y = y;
   }
 
   /**
@@ -234,17 +240,7 @@ public class ConstantDoublesCurve
   //-----------------------------------------------------------------------
   @Override
   public ConstantDoublesCurve clone() {
-    BeanBuilder<? extends ConstantDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (ConstantDoublesCurve) super.clone();
   }
 
   //-----------------------------------------------------------------------
@@ -260,7 +256,7 @@ public class ConstantDoublesCurve
     /**
      * The meta-property for the {@code y} property.
      */
-    private final MetaProperty<Double> _y = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Double> _y = DirectMetaProperty.ofReadWrite(
         this, "y", ConstantDoublesCurve.class, Double.TYPE);
     /**
      * The meta-properties.
@@ -286,7 +282,7 @@ public class ConstantDoublesCurve
 
     @Override
     public BeanBuilder<? extends ConstantDoublesCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<ConstantDoublesCurve>(new ConstantDoublesCurve());
     }
 
     @Override
@@ -322,10 +318,8 @@ public class ConstantDoublesCurve
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 121:  // y
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: y");
+          ((ConstantDoublesCurve) bean).setY((Double) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }

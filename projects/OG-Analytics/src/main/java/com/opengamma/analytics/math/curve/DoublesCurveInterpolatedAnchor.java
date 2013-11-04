@@ -6,15 +6,16 @@
 package com.opengamma.analytics.math.curve;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -31,14 +32,15 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * spread could be shifted in opposite directions for the same total result.
  * To anchor is used to remove the translation indetermination.
  */
+@BeanDefinition
 public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCurve {
 
   /**
    * The anchor index.
    * The index in the x value of the anchor.
    */
-  @PropertyDefinition(get = "manual", set = "")
-  private final int _anchorIndex;
+  @PropertyDefinition(get = "manual", set = "private")
+  private int _anchorIndex;
 
   //-------------------------------------------------------------------------
   /**
@@ -105,6 +107,13 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     ParallelArrayBinarySort.parallelBinarySort(xExtended, yExtended);
     int anchorIndex = ArrayUtils.indexOf(xExtended, anchor);
     return new DoublesCurveInterpolatedAnchor(xExtended, yExtended, anchorIndex, interpolator, name);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected DoublesCurveInterpolatedAnchor() {
   }
 
   //-------------------------------------------------------------------------
@@ -184,19 +193,19 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     return DoublesCurveInterpolatedAnchor.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   /**
+   * Sets the anchor index.
+   * The index in the x value of the anchor.
+   * @param anchorIndex  the new value of the property
+   */
+  private void setAnchorIndex(int anchorIndex) {
+    this._anchorIndex = anchorIndex;
+  }
+
+  /**
    * Gets the the {@code anchorIndex} property.
+   * The index in the x value of the anchor.
    * @return the property, not null
    */
   public Property<Integer> anchorIndex() {
@@ -206,26 +215,26 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
   //-----------------------------------------------------------------------
   @Override
   public DoublesCurveInterpolatedAnchor clone() {
-    BeanBuilder<? extends DoublesCurveInterpolatedAnchor> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (DoublesCurveInterpolatedAnchor) super.clone();
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("DoublesCurveInterpolatedAnchor{");
-    buf.append("anchorIndex").append('=').append(getAnchorIndex());
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
     buf.append('}');
     return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("anchorIndex").append('=').append(JodaBeanUtils.toString(getAnchorIndex())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -241,7 +250,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     /**
      * The meta-property for the {@code anchorIndex} property.
      */
-    private final MetaProperty<Integer> _anchorIndex = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Integer> _anchorIndex = DirectMetaProperty.ofReadWrite(
         this, "anchorIndex", DoublesCurveInterpolatedAnchor.class, Integer.TYPE);
     /**
      * The meta-properties.
@@ -267,7 +276,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
 
     @Override
     public BeanBuilder<? extends DoublesCurveInterpolatedAnchor> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<DoublesCurveInterpolatedAnchor>(new DoublesCurveInterpolatedAnchor());
     }
 
     @Override
@@ -303,10 +312,8 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1564745955:  // anchorIndex
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: anchorIndex");
+          ((DoublesCurveInterpolatedAnchor) bean).setAnchorIndex((Integer) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }

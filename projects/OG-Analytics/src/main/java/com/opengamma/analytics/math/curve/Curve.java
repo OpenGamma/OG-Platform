@@ -43,13 +43,13 @@ public abstract class Curve<T extends Comparable<T>, U>
   /**
    * The curve name.
    */
-  @PropertyDefinition(validate = "notNull")
-  private final String _name;
+  @PropertyDefinition(validate = "notNull", set = "private")
+  private String _name;
 
   /**
    * Constructs a curve with an automatically-generated name.
    */
-  public Curve() {
+  protected Curve() {
     this(Long.toString(ATOMIC.getAndIncrement()));
   }
 
@@ -58,21 +58,12 @@ public abstract class Curve<T extends Comparable<T>, U>
    * 
    * @param name  the name of the curve, not null
    */
-  public Curve(final String name) {
+  protected Curve(final String name) {
     ArgumentChecker.notNull(name, "name");
     _name = name;
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the name of the curve.
-   * 
-   * @return the name of the curve, not null
-   */
-  public String getName() {
-    return _name;
-  }
-
   /**
    * Gets the <i>x</i> data for this curve.
    * 
@@ -187,6 +178,23 @@ public abstract class Curve<T extends Comparable<T>, U>
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the curve name.
+   * @return the value of the property, not null
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the curve name.
+   * @param name  the new value of the property, not null
+   */
+  private void setName(String name) {
+    JodaBeanUtils.notNull(name, "name");
+    this._name = name;
+  }
+
+  /**
    * Gets the the {@code name} property.
    * @return the property, not null
    */
@@ -242,7 +250,7 @@ public abstract class Curve<T extends Comparable<T>, U>
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", Curve.class, String.class);
     /**
      * The meta-properties.
@@ -301,14 +309,13 @@ public abstract class Curve<T extends Comparable<T>, U>
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: name");
+          ((Curve<T, U>) bean).setName((String) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }

@@ -24,7 +24,6 @@ public abstract class DoublesCurve
    * Constructor
    */
   protected DoublesCurve() {
-    super();
   }
 
   /**

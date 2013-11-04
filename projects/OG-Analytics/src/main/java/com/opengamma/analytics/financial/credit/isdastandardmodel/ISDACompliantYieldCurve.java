@@ -6,20 +6,26 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * An ISDA compliant yield curve.
  */
+@BeanDefinition
 public class ISDACompliantYieldCurve
     extends ISDACompliantCurve {
+
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected ISDACompliantYieldCurve() {
+  }
 
   /**
    * Creates a flat yield curve at level r.
@@ -117,54 +123,34 @@ public class ISDACompliantYieldCurve
     return ISDACompliantYieldCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(final String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   @Override
   public ISDACompliantYieldCurve clone() {
-    final BeanBuilder<? extends ISDACompliantYieldCurve> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (ISDACompliantYieldCurve) super.clone();
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return true;
+      return super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    final int hash = getClass().hashCode();
-    return hash;
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(32);
+    StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantYieldCurve{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -174,7 +160,8 @@ public class ISDACompliantYieldCurve
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------
@@ -190,7 +177,8 @@ public class ISDACompliantYieldCurve
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.
@@ -200,7 +188,7 @@ public class ISDACompliantYieldCurve
 
     @Override
     public BeanBuilder<? extends ISDACompliantYieldCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<ISDACompliantYieldCurve>(new ISDACompliantYieldCurve());
     }
 
     @Override

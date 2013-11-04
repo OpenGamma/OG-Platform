@@ -6,12 +6,12 @@
 package com.opengamma.analytics.math.curve;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,6 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied).
  */
+@BeanDefinition
 public class FunctionalDoublesCurve extends DoublesCurve {
 
   private static final ScalarFirstOrderDifferentiator DIFF = new ScalarFirstOrderDifferentiator();
@@ -35,13 +36,13 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   /**
    * The function.
    */
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final Function1D<Double, Double> _function;
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
+  private Function1D<Double, Double> _function;
   /**
    * The first derivative function.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
-  private final Function1D<Double, Double> _derivative;
+  @PropertyDefinition(validate = "notNull", get = "private", set = "private")
+  private Function1D<Double, Double> _derivative;
 
   //-------------------------------------------------------------------------
   /**
@@ -90,13 +91,9 @@ public class FunctionalDoublesCurve extends DoublesCurve {
 
   //-------------------------------------------------------------------------
   /**
-   * TODO This is awaiting changes to Joda Beans to support final fields in Bean implementations
-   * not ImmutableBean which is too restrictive as it forces implementations to be final
-   *
-   * @throws UnsupportedOperationException Always
+   * Constructor for Joda-Beans.
    */
-  private FunctionalDoublesCurve() {
-    throw new UnsupportedOperationException("this constructor only exists for the benefit of Joda Beans");
+  protected FunctionalDoublesCurve() {
   }
 
   /**
@@ -282,17 +279,16 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     return FunctionalDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
+  /**
+   * Sets the function.
+   * @param function  the new value of the property, not null
+   */
+  private void setFunction(Function1D<Double, Double> function) {
+    JodaBeanUtils.notNull(function, "function");
+    this._function = function;
+  }
+
   /**
    * Gets the the {@code function} property.
    * @return the property, not null
@@ -303,11 +299,20 @@ public class FunctionalDoublesCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the derivative.
+   * Gets the first derivative function.
    * @return the value of the property, not null
    */
   private Function1D<Double, Double> getDerivative() {
     return _derivative;
+  }
+
+  /**
+   * Sets the first derivative function.
+   * @param derivative  the new value of the property, not null
+   */
+  private void setDerivative(Function1D<Double, Double> derivative) {
+    JodaBeanUtils.notNull(derivative, "derivative");
+    this._derivative = derivative;
   }
 
   /**
@@ -321,17 +326,7 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public FunctionalDoublesCurve clone() {
-    BeanBuilder<? extends FunctionalDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (FunctionalDoublesCurve) super.clone();
   }
 
   @Override
@@ -347,9 +342,11 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
-    buf.append("function").append('=').append(getFunction()).append(',').append(' ');
-    buf.append("derivative").append('=').append(getDerivative()).append(',').append(' ');
+    super.toString(buf);
+    buf.append("function").append('=').append(JodaBeanUtils.toString(getFunction())).append(',').append(' ');
+    buf.append("derivative").append('=').append(JodaBeanUtils.toString(getDerivative())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -366,13 +363,13 @@ public class FunctionalDoublesCurve extends DoublesCurve {
      * The meta-property for the {@code function} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Function1D<Double, Double>> _function = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Function1D<Double, Double>> _function = DirectMetaProperty.ofReadWrite(
         this, "function", FunctionalDoublesCurve.class, (Class) Function1D.class);
     /**
      * The meta-property for the {@code derivative} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Function1D<Double, Double>> _derivative = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Function1D<Double, Double>> _derivative = DirectMetaProperty.ofReadWrite(
         this, "derivative", FunctionalDoublesCurve.class, (Class) Function1D.class);
     /**
      * The meta-properties.
@@ -443,19 +440,16 @@ public class FunctionalDoublesCurve extends DoublesCurve {
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1380938712:  // function
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: function");
+          ((FunctionalDoublesCurve) bean).setFunction((Function1D<Double, Double>) newValue);
+          return;
         case -1353885305:  // derivative
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: derivative");
+          ((FunctionalDoublesCurve) bean).setDerivative((Function1D<Double, Double>) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -464,6 +458,7 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FunctionalDoublesCurve) bean)._function, "function");
       JodaBeanUtils.notNull(((FunctionalDoublesCurve) bean)._derivative, "derivative");
+      super.validate(bean);
     }
 
   }

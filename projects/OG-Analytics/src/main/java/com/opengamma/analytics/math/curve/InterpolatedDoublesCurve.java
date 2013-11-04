@@ -13,6 +13,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -24,22 +25,24 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 
 /**
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator
  * to return values of <i>y</i> for values of <i>x</i> that do not lie on nodal <i>x</i> values. 
  */
+@BeanDefinition
 public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
   /**
    * The data bundle.
    */
-  @PropertyDefinition(validate = "notNull", get = "manual", set = "")
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
   private Interpolator1DDataBundle _dataBundle;
   /**
    * The interpolator.
    */
-  @PropertyDefinition(validate = "notNull", get = "manual", set = "")
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
   private Interpolator1D _interpolator;
 
   //-------------------------------------------------------------------------
@@ -351,6 +354,12 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
   //-------------------------------------------------------------------------
   /**
+   * Constructor for Joda-Beans.
+   */
+  protected InterpolatedDoublesCurve() {
+  }
+
+  /**
    * 
    * @param xData An array of <i>x</i> data, not null, contains at least 2 data points
    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
@@ -594,17 +603,16 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     return InterpolatedDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
+  /**
+   * Sets the data bundle.
+   * @param dataBundle  the new value of the property, not null
+   */
+  private void setDataBundle(Interpolator1DDataBundle dataBundle) {
+    JodaBeanUtils.notNull(dataBundle, "dataBundle");
+    this._dataBundle = dataBundle;
+  }
+
   /**
    * Gets the the {@code dataBundle} property.
    * @return the property, not null
@@ -614,6 +622,15 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Sets the interpolator.
+   * @param interpolator  the new value of the property, not null
+   */
+  private void setInterpolator(Interpolator1D interpolator) {
+    JodaBeanUtils.notNull(interpolator, "interpolator");
+    this._interpolator = interpolator;
+  }
+
   /**
    * Gets the the {@code interpolator} property.
    * @return the property, not null
@@ -625,17 +642,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public InterpolatedDoublesCurve clone() {
-    BeanBuilder<? extends InterpolatedDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (InterpolatedDoublesCurve) super.clone();
   }
 
   @Override
@@ -651,9 +658,11 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
-    buf.append("dataBundle").append('=').append(getDataBundle()).append(',').append(' ');
-    buf.append("interpolator").append('=').append(getInterpolator()).append(',').append(' ');
+    super.toString(buf);
+    buf.append("dataBundle").append('=').append(JodaBeanUtils.toString(getDataBundle())).append(',').append(' ');
+    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(getInterpolator())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -669,12 +678,12 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     /**
      * The meta-property for the {@code dataBundle} property.
      */
-    private final MetaProperty<Interpolator1DDataBundle> _dataBundle = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Interpolator1DDataBundle> _dataBundle = DirectMetaProperty.ofReadWrite(
         this, "dataBundle", InterpolatedDoublesCurve.class, Interpolator1DDataBundle.class);
     /**
      * The meta-property for the {@code interpolator} property.
      */
-    private final MetaProperty<Interpolator1D> _interpolator = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Interpolator1D> _interpolator = DirectMetaProperty.ofReadWrite(
         this, "interpolator", InterpolatedDoublesCurve.class, Interpolator1D.class);
     /**
      * The meta-properties.
@@ -703,7 +712,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
     @Override
     public BeanBuilder<? extends InterpolatedDoublesCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<InterpolatedDoublesCurve>(new InterpolatedDoublesCurve());
     }
 
     @Override
@@ -749,15 +758,11 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 791094476:  // dataBundle
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: dataBundle");
+          ((InterpolatedDoublesCurve) bean).setDataBundle((Interpolator1DDataBundle) newValue);
+          return;
         case 2096253127:  // interpolator
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: interpolator");
+          ((InterpolatedDoublesCurve) bean).setInterpolator((Interpolator1D) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -766,6 +771,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((InterpolatedDoublesCurve) bean)._dataBundle, "dataBundle");
       JodaBeanUtils.notNull(((InterpolatedDoublesCurve) bean)._interpolator, "interpolator");
+      super.validate(bean);
     }
 
   }

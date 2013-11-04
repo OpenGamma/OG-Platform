@@ -14,6 +14,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -23,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 
 /**
  * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation
@@ -31,24 +33,25 @@ import com.opengamma.util.ArgumentChecker;
  * hierarchy as the other curves, a spread curve can be defined on another spread curve,
  * e.g. <i>E = C * D = D * (A - B)</i>.
  */
+@BeanDefinition
 public class SpreadDoublesCurve
     extends DoublesCurve {
 
   /**
    * The spread function.
    */
-  @PropertyDefinition(get = "private")
-  private final CurveSpreadFunction _spreadFunction;
+  @PropertyDefinition(get = "private", set = "private")
+  private CurveSpreadFunction _spreadFunction;
   /**
    * The evaluated function.
    */
-  @PropertyDefinition(get = "private")
-  private final Function<Double, Double> _f;
+  @PropertyDefinition(get = "private", set = "private")
+  private Function<Double, Double> _f;
   /**
    * The curves.
    */
-  @PropertyDefinition(get = "private")
-  private final DoublesCurve[] _curves;
+  @PropertyDefinition(get = "private", set = "private")
+  private DoublesCurve[] _curves;
 
   //-------------------------------------------------------------------------
   /**
@@ -76,6 +79,12 @@ public class SpreadDoublesCurve
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected SpreadDoublesCurve() {
+  }
+
   /**
    * Creates a spread curve.
    * 
@@ -259,23 +268,21 @@ public class SpreadDoublesCurve
     return SpreadDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * Gets the spreadFunction.
+   * Gets the spread function.
    * @return the value of the property
    */
   private CurveSpreadFunction getSpreadFunction() {
     return _spreadFunction;
+  }
+
+  /**
+   * Sets the spread function.
+   * @param spreadFunction  the new value of the property
+   */
+  private void setSpreadFunction(CurveSpreadFunction spreadFunction) {
+    this._spreadFunction = spreadFunction;
   }
 
   /**
@@ -288,11 +295,19 @@ public class SpreadDoublesCurve
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the f.
+   * Gets the evaluated function.
    * @return the value of the property
    */
   private Function<Double, Double> getF() {
     return _f;
+  }
+
+  /**
+   * Sets the evaluated function.
+   * @param f  the new value of the property
+   */
+  private void setF(Function<Double, Double> f) {
+    this._f = f;
   }
 
   /**
@@ -313,6 +328,14 @@ public class SpreadDoublesCurve
   }
 
   /**
+   * Sets the curves.
+   * @param curves  the new value of the property
+   */
+  private void setCurves(DoublesCurve[] curves) {
+    this._curves = curves;
+  }
+
+  /**
    * Gets the the {@code curves} property.
    * @return the property, not null
    */
@@ -323,17 +346,7 @@ public class SpreadDoublesCurve
   //-----------------------------------------------------------------------
   @Override
   public SpreadDoublesCurve clone() {
-    BeanBuilder<? extends SpreadDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (SpreadDoublesCurve) super.clone();
   }
 
   @Override
@@ -349,10 +362,12 @@ public class SpreadDoublesCurve
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
-    buf.append("spreadFunction").append('=').append(getSpreadFunction()).append(',').append(' ');
-    buf.append("f").append('=').append(getF()).append(',').append(' ');
-    buf.append("curves").append('=').append(getCurves()).append(',').append(' ');
+    super.toString(buf);
+    buf.append("spreadFunction").append('=').append(JodaBeanUtils.toString(getSpreadFunction())).append(',').append(' ');
+    buf.append("f").append('=').append(JodaBeanUtils.toString(getF())).append(',').append(' ');
+    buf.append("curves").append('=').append(JodaBeanUtils.toString(getCurves())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -368,18 +383,18 @@ public class SpreadDoublesCurve
     /**
      * The meta-property for the {@code spreadFunction} property.
      */
-    private final MetaProperty<CurveSpreadFunction> _spreadFunction = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<CurveSpreadFunction> _spreadFunction = DirectMetaProperty.ofReadWrite(
         this, "spreadFunction", SpreadDoublesCurve.class, CurveSpreadFunction.class);
     /**
      * The meta-property for the {@code f} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Function<Double, Double>> _f = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Function<Double, Double>> _f = DirectMetaProperty.ofReadWrite(
         this, "f", SpreadDoublesCurve.class, (Class) Function.class);
     /**
      * The meta-property for the {@code curves} property.
      */
-    private final MetaProperty<DoublesCurve[]> _curves = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<DoublesCurve[]> _curves = DirectMetaProperty.ofReadWrite(
         this, "curves", SpreadDoublesCurve.class, DoublesCurve[].class);
     /**
      * The meta-properties.
@@ -411,7 +426,7 @@ public class SpreadDoublesCurve
 
     @Override
     public BeanBuilder<? extends SpreadDoublesCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<SpreadDoublesCurve>(new SpreadDoublesCurve());
     }
 
     @Override
@@ -463,24 +478,19 @@ public class SpreadDoublesCurve
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: spreadFunction");
+          ((SpreadDoublesCurve) bean).setSpreadFunction((CurveSpreadFunction) newValue);
+          return;
         case 102:  // f
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: f");
+          ((SpreadDoublesCurve) bean).setF((Function<Double, Double>) newValue);
+          return;
         case -1349116572:  // curves
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: curves");
+          ((SpreadDoublesCurve) bean).setCurves((DoublesCurve[]) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
