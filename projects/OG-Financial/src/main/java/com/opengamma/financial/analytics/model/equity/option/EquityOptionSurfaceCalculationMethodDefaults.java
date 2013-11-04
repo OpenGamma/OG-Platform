@@ -37,38 +37,38 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.SPOT,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA,
-    ValueRequirementNames.BARRIER_DISTANCE,
-    ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
-    ValueRequirementNames.POSITION_DELTA,
-    ValueRequirementNames.POSITION_GAMMA,
-    ValueRequirementNames.POSITION_RHO,
-    ValueRequirementNames.POSITION_THETA,
-    ValueRequirementNames.POSITION_VEGA,
-    ValueRequirementNames.POSITION_WEIGHTED_VEGA
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.VEGA_QUOTE_MATRIX,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.SPOT,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.VALUE_VOMMA,
+      ValueRequirementNames.VALUE_VANNA,
+      ValueRequirementNames.VALUE_RHO,
+      ValueRequirementNames.VALUE_CARRY_RHO,
+      ValueRequirementNames.VALUE_THETA,
+      ValueRequirementNames.VALUE_DUAL_DELTA,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.VEGA,
+      ValueRequirementNames.BARRIER_DISTANCE,
+      ValueRequirementNames.PNL, // Produced by EquityOption*ScenarioFunction
+      ValueRequirementNames.POSITION_DELTA,
+      ValueRequirementNames.POSITION_GAMMA,
+      ValueRequirementNames.POSITION_RHO,
+      ValueRequirementNames.POSITION_THETA,
+      ValueRequirementNames.POSITION_VEGA,
+      ValueRequirementNames.POSITION_WEIGHTED_VEGA
   };
 
   /**
@@ -103,6 +103,15 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    }
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    if (desiredValue.getConstraints().isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return super.getRequirements(context, target, desiredValue);
+    } else {
+      return null;
     }
   }
 

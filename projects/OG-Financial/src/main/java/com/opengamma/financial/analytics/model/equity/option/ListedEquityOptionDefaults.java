@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
@@ -31,20 +33,20 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VEGA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VEGA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
   };
 
   /** Map of id name to discounting curve configuration */
@@ -99,8 +101,16 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    if (!constraints.isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
+  }
 
+  @Override
+  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
       return Collections.singleton(_discountingCurveConfig);
     }

@@ -97,6 +97,15 @@ public class CommodityFutureOptionSurfaceCalculationMethodDefaults extends Defau
   }
 
   @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    if (desiredValue.getConstraints().isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return super.getRequirements(context, target, desiredValue);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     if (!_currencyToSurfaceCalculationMethod.containsKey(currency)) {

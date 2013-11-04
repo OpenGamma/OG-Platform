@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -101,8 +102,12 @@ public class EquityFutureOptionBlackLognormalDefaults extends DefaultPropertyFun
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> surfaceCalculationMethods = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
-    if ((surfaceCalculationMethods != null) && !surfaceCalculationMethods.isEmpty() && !surfaceCalculationMethods.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    if (!constraints.isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return null;
+    }
+    final Set<String> values = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    if ((values != null) && !values.isEmpty() && !values.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
       return null;
     }
     return super.getRequirements(context, target, desiredValue);
