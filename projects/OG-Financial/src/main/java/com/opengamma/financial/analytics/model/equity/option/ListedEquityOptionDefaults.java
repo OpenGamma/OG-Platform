@@ -50,13 +50,13 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
   };
 
   /** Map of id name to discounting curve configuration */
-  private final String _discountingCurveConfig;
+  private final Set<String> _discountingCurveConfig;
   /** Map of id name to discounting curve name */
-  private final String _discountingCurveName;
+  private final Set<String> _discountingCurveName;
   /** Map of id name to forward curve name */
-  private final String _forwardCurveName;
+  private final Set<String> _forwardCurveName;
   /** Map of id name to forward curve calculation method name */
-  private final String _forwardCurveCalculationMethodName;
+  private final Set<String> _forwardCurveCalculationMethodName;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** The logger */
@@ -84,10 +84,10 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(forwardCurveCalculationMethodName, "forwardCurveCalculationMethodName");
     ArgumentChecker.notNull(forwardCurveName, "forwardCurveName");
     _priority = PriorityClass.valueOf(priority);
-    _discountingCurveConfig = discountingCurveConfig;
-    _discountingCurveName = discountingCurveName;
-    _forwardCurveName = forwardCurveName;
-    _forwardCurveCalculationMethodName = forwardCurveCalculationMethodName;
+    _discountingCurveConfig = Collections.singleton(discountingCurveConfig);
+    _discountingCurveName = Collections.singleton(discountingCurveName);
+    _forwardCurveName = Collections.singleton(forwardCurveName);
+    _forwardCurveCalculationMethodName = Collections.singleton(forwardCurveCalculationMethodName);
   }
 
   @Override
@@ -112,16 +112,16 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
   @Override
   protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_discountingCurveConfig);
+      return _discountingCurveConfig;
     }
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_discountingCurveName);
+      return _discountingCurveName;
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveName);
+      return _forwardCurveName;
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethodName);
+      return _forwardCurveCalculationMethodName;
     }
     s_logger.error("Cannot get a default value for {}", propertyName);
     return null;
