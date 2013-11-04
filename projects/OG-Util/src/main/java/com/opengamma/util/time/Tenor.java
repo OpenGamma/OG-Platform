@@ -337,9 +337,9 @@ public class Tenor implements Comparable<Tenor>, Serializable {
       thisDur = DateUtils.estimatedDuration(_period);
     }
     if (other._period == null) {
-      otherDur = _businessDayTenor.getApproximateDuration();
+      otherDur = other._businessDayTenor.getApproximateDuration();
     } else {
-      otherDur = DateUtils.estimatedDuration(_period);
+      otherDur = DateUtils.estimatedDuration(other._period);
     }
     return thisDur.compareTo(otherDur);
   }

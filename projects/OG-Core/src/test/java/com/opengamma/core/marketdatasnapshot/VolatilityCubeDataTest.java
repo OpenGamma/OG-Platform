@@ -35,7 +35,7 @@ public class VolatilityCubeDataTest {
 
   private static VolatilityCubeData getSimpleData() {
     final VolatilityCubeData data = new VolatilityCubeData();
-    final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
+    final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<>();
     dataPoints.put(new VolatilityPoint(Tenor.DAY, Tenor.DAY, 0), 0.0);
     dataPoints.put(new VolatilityPoint(Tenor.DAY, Tenor.DAY, 1), 1.0);
     dataPoints.put(new VolatilityPoint(Tenor.DAY, Tenor.DAY, 2), 2.0);
