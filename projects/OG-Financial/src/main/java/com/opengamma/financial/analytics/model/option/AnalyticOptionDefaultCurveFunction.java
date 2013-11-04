@@ -14,20 +14,21 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * 
  * @deprecated The functions for which these defaults apply are deprecated.
  */
 @Deprecated
-public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction {
+public class AnalyticOptionDefaultCurveFunction extends StaticDefaultPropertyFunction {
 
-  private final String _curveName;
+  private final Set<String> _curveName;
 
   public AnalyticOptionDefaultCurveFunction(final String curveName) {
-    super(ComputationTargetType.SECURITY, true);
-    _curveName = curveName;
+    super(ComputationTargetType.SECURITY, ValuePropertyNames.CURVE, true, AvailableGreeks.getAllGreekNames().toArray(new String[0]));
+    _curveName = Collections.singleton(curveName);
   }
 
   @Override
@@ -38,11 +39,8 @@ public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction 
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(_curveName);
-    }
-    return null;
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    return _curveName;
   }
 
   @Override

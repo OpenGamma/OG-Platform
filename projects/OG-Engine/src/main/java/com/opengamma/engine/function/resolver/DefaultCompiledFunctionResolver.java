@@ -509,41 +509,47 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       final LinkedList<Collection<ValueSpecification>> resolutionResults = new LinkedList<Collection<ValueSpecification>>();
       final Iterable<Collection<ResolutionRule>> typeRules = _type2Rules.get(target.getType());
       if (typeRules != null) {
-        final Map<ComputationTargetType, ComputationTarget> adjusted = new HashMap<ComputationTargetType, ComputationTarget>();
-        for (Collection<ResolutionRule> rules : typeRules) {
-          int rulesFound = 0;
-          for (ResolutionRule rule : rules) {
-            final ComputationTarget adjustedTarget = rule.adjustTarget(adjusted, target);
-            if (adjustedTarget != null) {
-              final Set<ValueSpecification> results = rule.getResults(adjustedTarget, getFunctionCompilationContext());
-              if ((results != null) && !results.isEmpty()) {
-                resolutionRules.add(rule);
-                resolutionResults.add(reduceMemory(results, resolver));
-                rulesFound++;
+        try {
+          final Map<ComputationTargetType, ComputationTarget> adjusted = new HashMap<ComputationTargetType, ComputationTarget>();
+          for (Collection<ResolutionRule> rules : typeRules) {
+            int rulesFound = 0;
+            for (ResolutionRule rule : rules) {
+              final ComputationTarget adjustedTarget = rule.adjustTarget(adjusted, target);
+              if (adjustedTarget != null) {
+                final Set<ValueSpecification> results = rule.getResults(adjustedTarget, getFunctionCompilationContext());
+                if ((results != null) && !results.isEmpty()) {
+                  resolutionRules.add(rule);
+                  resolutionResults.add(reduceMemory(results, resolver));
+                  rulesFound++;
+                }
+              }
+            }
+            if (rulesFound > 1) {
+              // sort only the sub-list of rules associated with the priority
+              final Iterator<ResolutionRule> rulesIterator = resolutionRules.descendingIterator();
+              final Iterator<Collection<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
+              final Pair<ResolutionRule, Collection<ValueSpecification>>[] found = new Pair[rulesFound];
+              for (int i = 0; i < rulesFound; i++) {
+                found[i] = Pairs.of(rulesIterator.next(), resultsIterator.next());
+                rulesIterator.remove();
+                resultsIterator.remove();
+              }
+              // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
+              // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
+              // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
+              // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
+              // We should wrap it at construction in something that will detect the equality case and trigger an exception.
+              Arrays.sort(found, RULE_COMPARATOR);
+              for (int i = 0; i < rulesFound; i++) {
+                resolutionRules.add(found[i].getFirst());
+                resolutionResults.add(found[i].getSecond());
               }
             }
           }
-          if (rulesFound > 1) {
-            // sort only the sub-list of rules associated with the priority
-            final Iterator<ResolutionRule> rulesIterator = resolutionRules.descendingIterator();
-            final Iterator<Collection<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
-            final Pair<ResolutionRule, Collection<ValueSpecification>>[] found = new Pair[rulesFound];
-            for (int i = 0; i < rulesFound; i++) {
-              found[i] = Pairs.of(rulesIterator.next(), resultsIterator.next());
-              rulesIterator.remove();
-              resultsIterator.remove();
-            }
-            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
-            // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
-            // We should wrap it at construction in something that will detect the equality case and trigger an exception.
-            Arrays.sort(found, RULE_COMPARATOR);
-            for (int i = 0; i < rulesFound; i++) {
-              resolutionRules.add(found[i].getFirst());
-              resolutionResults.add(found[i].getSecond());
-            }
-          }
+        } catch (RuntimeException e) {
+          s_logger.error("Couldn't process rules for {}: {}", target, e.getMessage());
+          s_logger.info("Caught exception", e);
+          // Now have an incomplete rule set for the target, possibly even an empty one
         }
       } else {
         s_logger.warn("No rules for target type {}", target);

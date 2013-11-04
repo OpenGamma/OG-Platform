@@ -51,9 +51,7 @@ import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -160,9 +158,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       return null;
     }
     final String givenName = Iterables.getOnlyElement(surfaceNames);
-    //FIXME: Modify to take ExternalId to avoid incorrect cast to UniqueId
-    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(UniqueId.parse(target.getValue().toString()));
-
+    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(((ExternalIdentifiable) target.getValue()).getExternalId());
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
@@ -201,7 +197,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationValues);
       final Currency ccy = Currency.of(Iterables.getOnlyElement(curveCurrencyValues));
       // DiscountCurve
-      final ValueProperties fundingProperties = ValueProperties.builder()  // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
+      final ValueProperties fundingProperties = ValueProperties.builder() // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
           .with(ValuePropertyNames.CURVE, curveName)
           .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
           .get();

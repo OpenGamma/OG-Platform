@@ -36,34 +36,34 @@ public class EquityFutureBlackVolatilitySurfacePerCurrencyDefaults extends Defau
   private static final Logger s_logger = LoggerFactory.getLogger(EquityFutureBlackVolatilitySurfacePerCurrencyDefaults.class);
   /** The value requirements for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
-    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
-    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
-    ValueRequirementNames.FORWARD_DELTA,
-    ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.DUAL_GAMMA,
-    ValueRequirementNames.FORWARD_GAMMA,
-    ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_VOMMA,
-    ValueRequirementNames.FORWARD_VANNA,
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_DUAL_DELTA,
-    ValueRequirementNames.GRID_DUAL_GAMMA,
-    ValueRequirementNames.GRID_FORWARD_DELTA,
-    ValueRequirementNames.GRID_FORWARD_GAMMA,
-    ValueRequirementNames.GRID_FORWARD_VEGA,
-    ValueRequirementNames.GRID_FORWARD_VANNA,
-    ValueRequirementNames.GRID_FORWARD_VOMMA,
-    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
-    ValueRequirementNames.GRID_PRESENT_VALUE
+      ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+      ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+      ValueRequirementNames.PURE_VOLATILITY_SURFACE,
+      ValueRequirementNames.FORWARD_DELTA,
+      ValueRequirementNames.DUAL_DELTA,
+      ValueRequirementNames.DUAL_GAMMA,
+      ValueRequirementNames.FORWARD_GAMMA,
+      ValueRequirementNames.FORWARD_VEGA,
+      ValueRequirementNames.FORWARD_VOMMA,
+      ValueRequirementNames.FORWARD_VANNA,
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.GRID_DUAL_DELTA,
+      ValueRequirementNames.GRID_DUAL_GAMMA,
+      ValueRequirementNames.GRID_FORWARD_DELTA,
+      ValueRequirementNames.GRID_FORWARD_GAMMA,
+      ValueRequirementNames.GRID_FORWARD_VEGA,
+      ValueRequirementNames.GRID_FORWARD_VANNA,
+      ValueRequirementNames.GRID_FORWARD_VOMMA,
+      ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+      ValueRequirementNames.GRID_PRESENT_VALUE
   };
   /** Ids to forward curve names */
-  private final Map<String, String> _forwardCurveNames;
+  private final Map<String, Set<String>> _forwardCurveNames;
   /** Ids to curve calculation method names */
-  private final Map<String, String> _forwardCurveCalculationMethodNames;
+  private final Map<String, Set<String>> _forwardCurveCalculationMethodNames;
   /** Ids to surface names */
-  private final Map<String, String> _surfaceNames;
+  private final Map<String, Set<String>> _surfaceNames;
   /** The priority of these defaults */
   private final PriorityClass _priority;
 
@@ -83,9 +83,9 @@ public class EquityFutureBlackVolatilitySurfacePerCurrencyDefaults extends Defau
     _surfaceNames = new HashMap<>();
     for (int i = 0; i < n; i += 4) {
       final String currencyName = defaults[i];
-      _forwardCurveNames.put(currencyName, defaults[i + 1]);
-      _forwardCurveCalculationMethodNames.put(currencyName, defaults[i + 2]);
-      _surfaceNames.put(currencyName, defaults[i + 3]);
+      _forwardCurveNames.put(currencyName, Collections.singleton(defaults[i + 1]));
+      _forwardCurveCalculationMethodNames.put(currencyName, Collections.singleton(defaults[i + 2]));
+      _surfaceNames.put(currencyName, Collections.singleton(defaults[i + 3]));
     }
   }
 
@@ -119,22 +119,17 @@ public class EquityFutureBlackVolatilitySurfacePerCurrencyDefaults extends Defau
       s_logger.error("Could not get currency for {}; should never happen", target.getUniqueId());
       return null;
     }
-    final String forwardCurveName = _forwardCurveNames.get(currency);
-    if (forwardCurveName == null) {
-      s_logger.error("Could not get defaults for {}; should never happen", currency);
-      return null;
+    switch (propertyName) {
+      case ValuePropertyNames.CURVE:
+        return _forwardCurveNames.get(currency);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _forwardCurveCalculationMethodNames.get(currency);
+      case ValuePropertyNames.SURFACE:
+        return _surfaceNames.get(currency);
+      default:
+        s_logger.error("Could not find default value for {} in this function", propertyName);
+        return null;
     }
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(forwardCurveName);
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethodNames.get(currency));
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceNames.get(currency));
-    }
-    s_logger.error("Could not find default value for {} in this function", propertyName);
-    return null;
   }
 
   @Override

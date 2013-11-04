@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
@@ -31,30 +33,30 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.DELTA,
-    ValueRequirementNames.GAMMA,
-    ValueRequirementNames.VEGA,
-    ValueRequirementNames.VOMMA,
-    ValueRequirementNames.VANNA,
-    ValueRequirementNames.RHO,
-    ValueRequirementNames.CARRY_RHO,
-    ValueRequirementNames.THETA,
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.FORWARD,
-    ValueRequirementNames.IMPLIED_VOLATILITY,
-    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
+      ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.DELTA,
+      ValueRequirementNames.GAMMA,
+      ValueRequirementNames.VEGA,
+      ValueRequirementNames.VOMMA,
+      ValueRequirementNames.VANNA,
+      ValueRequirementNames.RHO,
+      ValueRequirementNames.CARRY_RHO,
+      ValueRequirementNames.THETA,
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_GAMMA,
+      ValueRequirementNames.FORWARD,
+      ValueRequirementNames.IMPLIED_VOLATILITY,
+      ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
   };
 
   /** Map of id name to discounting curve configuration */
-  private final String _discountingCurveConfig;
+  private final Set<String> _discountingCurveConfig;
   /** Map of id name to discounting curve name */
-  private final String _discountingCurveName;
+  private final Set<String> _discountingCurveName;
   /** Map of id name to forward curve name */
-  private final String _forwardCurveName;
+  private final Set<String> _forwardCurveName;
   /** Map of id name to forward curve calculation method name */
-  private final String _forwardCurveCalculationMethodName;
+  private final Set<String> _forwardCurveCalculationMethodName;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** The logger */
@@ -82,10 +84,10 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(forwardCurveCalculationMethodName, "forwardCurveCalculationMethodName");
     ArgumentChecker.notNull(forwardCurveName, "forwardCurveName");
     _priority = PriorityClass.valueOf(priority);
-    _discountingCurveConfig = discountingCurveConfig;
-    _discountingCurveName = discountingCurveName;
-    _forwardCurveName = forwardCurveName;
-    _forwardCurveCalculationMethodName = forwardCurveCalculationMethodName;
+    _discountingCurveConfig = Collections.singleton(discountingCurveConfig);
+    _discountingCurveName = Collections.singleton(discountingCurveName);
+    _forwardCurveName = Collections.singleton(forwardCurveName);
+    _forwardCurveCalculationMethodName = Collections.singleton(forwardCurveCalculationMethodName);
   }
 
   @Override
@@ -99,22 +101,29 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    if (!constraints.isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
+      return null;
+    }
+    return super.getRequirements(context, target, desiredValue);
+  }
 
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_discountingCurveConfig);
+  @Override
+  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
+    switch (propertyName) {
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG:
+        return _discountingCurveConfig;
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME:
+        return _discountingCurveName;
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+        return _forwardCurveName;
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _forwardCurveCalculationMethodName;
+      default:
+        s_logger.error("Cannot get a default value for {}", propertyName);
+        return null;
     }
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_discountingCurveName);
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveName);
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethodName);
-    }
-    s_logger.error("Cannot get a default value for {}", propertyName);
-    return null;
   }
 
   @Override

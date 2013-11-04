@@ -21,7 +21,7 @@ public class BlackVolatilitySurfaceMixedLogNormalDefaults extends BlackVolatilit
 
   public BlackVolatilitySurfaceMixedLogNormalDefaults(final String timeAxis, final String yAxis,
       final String volatilityTransform, final String timeInterpolator, final String timeLeftExtrapolator, final String timeRightExtrapolator, final String weightingFunction) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL);
     _weightingFunction = weightingFunction;
   }
 

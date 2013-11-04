@@ -30,9 +30,9 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class CommodityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(CommodityBlackVolatilitySurfaceDefaults.class);
   private final String[] _valueRequirementNames;
-  private final Map<String, String> _currencyToCurveName;
-  private final Map<String, String> _currencyToCurveCalculationMethodName;
-  private final Map<String, String> _currencyToSurfaceName;
+  private final Map<String, Set<String>> _currencyToCurveName;
+  private final Map<String, Set<String>> _currencyToCurveCalculationMethodName;
+  private final Map<String, Set<String>> _currencyToSurfaceName;
 
   public CommodityBlackVolatilitySurfaceDefaults(final ComputationTargetType target, final String[] valueRequirementNames, final String... defaultsPerCurrency) {
     super(target, true);
@@ -46,9 +46,9 @@ public abstract class CommodityBlackVolatilitySurfaceDefaults extends DefaultPro
     _currencyToSurfaceName = Maps.newLinkedHashMap();
     for (int i = 0; i < n; i += 4) {
       final String currencyPair = defaultsPerCurrency[i];
-      _currencyToCurveName.put(currencyPair, defaultsPerCurrency[i + 1]);
-      _currencyToCurveCalculationMethodName.put(currencyPair, defaultsPerCurrency[i + 2]);
-      _currencyToSurfaceName.put(currencyPair, defaultsPerCurrency[i + 3]);
+      _currencyToCurveName.put(currencyPair, Collections.singleton(defaultsPerCurrency[i + 1]));
+      _currencyToCurveCalculationMethodName.put(currencyPair, Collections.singleton(defaultsPerCurrency[i + 2]));
+      _currencyToSurfaceName.put(currencyPair, Collections.singleton(defaultsPerCurrency[i + 3]));
     }
   }
 
@@ -67,22 +67,17 @@ public abstract class CommodityBlackVolatilitySurfaceDefaults extends DefaultPro
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String currencyPair = getCurrency(target);
-    final String curveName = _currencyToCurveName.get(currencyPair);
-    if (curveName == null) {
-      s_logger.error("Could not get curve name for {}; should never happen", target.getValue());
-      return null;
+    switch (propertyName) {
+      case ValuePropertyNames.CURVE:
+        return _currencyToCurveName.get(currencyPair);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _currencyToCurveCalculationMethodName.get(currencyPair);
+      case ValuePropertyNames.SURFACE:
+        return _currencyToSurfaceName.get(currencyPair);
+      default:
+        s_logger.error("Could not find default value for {} in this function", propertyName);
+        return null;
     }
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(curveName);
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_currencyToCurveCalculationMethodName.get(currencyPair));
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_currencyToSurfaceName.get(currencyPair));
-    }
-    s_logger.error("Could not find default value for {} in this function", propertyName);
-    return null;
   }
 
   protected Collection<String> getAllCurrencies() {
