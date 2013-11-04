@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -28,33 +29,50 @@ import com.opengamma.util.tuple.DoublesPair;
  * Parent class for a family of curves where the data is stored as arrays.
  * It is possible to construct a curve using either unsorted (in <i>x</i>) data or sorted (ascending in <i>x</i>). 
  * Note that if the constructor is told that unsorted data are sorted then no sorting will take place, which will give unpredictable results.
- * 
  */
+@BeanDefinition
 public abstract class ArraysDoublesCurve extends DoublesCurve {
 
-  @PropertyDefinition(get = "private")
-  private final int _n;
-
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final double[] _xData;
-
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final double[] _yData;
-
-  @PropertyDefinition(get = "private", set = "")
+  /**
+   * The size of the data points.
+   */
+  @PropertyDefinition(get = "private", set = "private")
+  private int _n;
+  /**
+   * The <i>x</i> values.
+   */
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
+  private double[] _xData;
+  /**
+   * The <i>y</i> values.
+   */
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
+  private double[] _yData;
+  /**
+   * The <i>x</i> values.
+   */
+  @PropertyDefinition(get = "private", set = "private")
   private Double[] _xDataObject;
-
-  @PropertyDefinition(get = "private", set = "")
+  /**
+   * The <i>y</i> values.
+   */
+  @PropertyDefinition(get = "private", set = "private")
   private Double[] _yDataObject;
 
   /**
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Constructor for Joda-Beans.
+   */
+  protected ArraysDoublesCurve() {
+  }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
-    super();
     ArgumentChecker.notNull(xData, "x data");
     ArgumentChecker.notNull(yData, "y data");
     ArgumentChecker.isTrue(xData.length == yData.length, "x data size {} must be equal to y data size {}", xData.length, yData.length);
@@ -67,12 +85,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
-
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(xData, "x data");
@@ -95,10 +113,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    *
-    * @param data A map of <i>x-y</i> data, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the map of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final Map<Double, Double> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -120,10 +139,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data An array of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the array of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final DoublesPair[] data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -142,10 +162,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A set of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the set of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final Set<DoublesPair> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -164,11 +185,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData A list of <i>x</i> data points, assumed to be sorted ascending, not null
-    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the list of <i>x</i> data, not null
+   * @param yData  the list of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(xData, "x data");
@@ -191,10 +213,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A list of <i>x-y</i> data points, assumed to be sorted ascending, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the list of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -213,12 +236,13 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -233,12 +257,13 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -259,11 +284,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A map of <i>x-y</i> data, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the map of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final Map<Double, Double> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -283,11 +309,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data An array of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the array of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -305,11 +332,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A set of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the set of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -328,12 +356,13 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData A list of <i>x</i> data, not null
-    * @param yData A list of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the list of <i>x</i> data, not null
+   * @param yData  the list of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -354,11 +383,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A list of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the list of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -376,11 +406,10 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Double[] getXData() {
-
     if (_xDataObject != null) {
-
       return _xDataObject;
     }
     _xDataObject = new Double[_n];
@@ -403,16 +432,18 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * Returns the <i>x</i> data points as a primitive array
-    * @return The <i>x</i> data
+    * Returns the <i>x</i> data points as a primitive array.
+    * 
+    * @return the <i>x</i> data, not null
     */
   public double[] getXDataAsPrimitive() {
     return _xData;
   }
 
   /**
-    * Returns the <i>y</i> data points as a primitive array
-    * @return The <i>y</i> data
+    * Returns the <i>y</i> data points as a primitive array.
+    * 
+    * @return the <i>y</i> data, not null
     */
   public double[] getYDataAsPrimitive() {
     return _yData;
@@ -423,15 +454,7 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     return _n;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Arrays.hashCode(_xData);
-    result = prime * result + Arrays.hashCode(_yData);
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -445,6 +468,15 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     }
     final ArraysDoublesCurve other = (ArraysDoublesCurve) obj;
     return ArrayUtils.isEquals(_xData, other._xData) && ArrayUtils.isEquals(_yData, other._yData);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_xData);
+    result = prime * result + Arrays.hashCode(_yData);
+    return result;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -466,23 +498,21 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     return ArraysDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   /**
-   * Gets the n.
+   * Gets the size of the data points.
    * @return the value of the property
    */
   private int getN() {
     return _n;
+  }
+
+  /**
+   * Sets the size of the data points.
+   * @param n  the new value of the property
+   */
+  private void setN(int n) {
+    this._n = n;
   }
 
   /**
@@ -495,6 +525,15 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
+   * Sets the <i>x</i> values.
+   * @param xData  the new value of the property, not null
+   */
+  private void setXData(double[] xData) {
+    JodaBeanUtils.notNull(xData, "xData");
+    this._xData = xData;
+  }
+
+  /**
    * Gets the the {@code xData} property.
    * @return the property, not null
    */
@@ -503,6 +542,15 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Sets the <i>y</i> values.
+   * @param yData  the new value of the property, not null
+   */
+  private void setYData(double[] yData) {
+    JodaBeanUtils.notNull(yData, "yData");
+    this._yData = yData;
+  }
+
   /**
    * Gets the the {@code yData} property.
    * @return the property, not null
@@ -513,11 +561,19 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the xDataObject.
+   * Gets the <i>x</i> values.
    * @return the value of the property
    */
   private Double[] getXDataObject() {
     return _xDataObject;
+  }
+
+  /**
+   * Sets the <i>x</i> values.
+   * @param xDataObject  the new value of the property
+   */
+  private void setXDataObject(Double[] xDataObject) {
+    this._xDataObject = xDataObject;
   }
 
   /**
@@ -530,11 +586,19 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the yDataObject.
+   * Gets the <i>y</i> values.
    * @return the value of the property
    */
   private Double[] getYDataObject() {
     return _yDataObject;
+  }
+
+  /**
+   * Sets the <i>y</i> values.
+   * @param yDataObject  the new value of the property
+   */
+  private void setYDataObject(Double[] yDataObject) {
+    this._yDataObject = yDataObject;
   }
 
   /**
@@ -546,21 +610,6 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public ArraysDoublesCurve clone() {
-    BeanBuilder<? extends ArraysDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
-  }
-
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
@@ -574,12 +623,14 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
-    buf.append("n").append('=').append(getN()).append(',').append(' ');
-    buf.append("xData").append('=').append(getXData()).append(',').append(' ');
-    buf.append("yData").append('=').append(getYData()).append(',').append(' ');
-    buf.append("xDataObject").append('=').append(getXDataObject()).append(',').append(' ');
-    buf.append("yDataObject").append('=').append(getYDataObject()).append(',').append(' ');
+    super.toString(buf);
+    buf.append("n").append('=').append(JodaBeanUtils.toString(getN())).append(',').append(' ');
+    buf.append("xData").append('=').append(JodaBeanUtils.toString(getXData())).append(',').append(' ');
+    buf.append("yData").append('=').append(JodaBeanUtils.toString(getYData())).append(',').append(' ');
+    buf.append("xDataObject").append('=').append(JodaBeanUtils.toString(getXDataObject())).append(',').append(' ');
+    buf.append("yDataObject").append('=').append(JodaBeanUtils.toString(getYDataObject())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -595,27 +646,27 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     /**
      * The meta-property for the {@code n} property.
      */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(
         this, "n", ArraysDoublesCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code xData} property.
      */
-    private final MetaProperty<double[]> _xData = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<double[]> _xData = DirectMetaProperty.ofReadWrite(
         this, "xData", ArraysDoublesCurve.class, double[].class);
     /**
      * The meta-property for the {@code yData} property.
      */
-    private final MetaProperty<double[]> _yData = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<double[]> _yData = DirectMetaProperty.ofReadWrite(
         this, "yData", ArraysDoublesCurve.class, double[].class);
     /**
      * The meta-property for the {@code xDataObject} property.
      */
-    private final MetaProperty<Double[]> _xDataObject = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Double[]> _xDataObject = DirectMetaProperty.ofReadWrite(
         this, "xDataObject", ArraysDoublesCurve.class, Double[].class);
     /**
      * The meta-property for the {@code yDataObject} property.
      */
-    private final MetaProperty<Double[]> _yDataObject = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Double[]> _yDataObject = DirectMetaProperty.ofReadWrite(
         this, "yDataObject", ArraysDoublesCurve.class, Double[].class);
     /**
      * The meta-properties.
@@ -729,30 +780,20 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: n");
+          ((ArraysDoublesCurve) bean).setN((Integer) newValue);
+          return;
         case 112945218:  // xData
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: xData");
+          ((ArraysDoublesCurve) bean).setXData((double[]) newValue);
+          return;
         case 113868739:  // yData
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: yData");
+          ((ArraysDoublesCurve) bean).setYData((double[]) newValue);
+          return;
         case -2041692639:  // xDataObject
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: xDataObject");
+          ((ArraysDoublesCurve) bean).setXDataObject((Double[]) newValue);
+          return;
         case 456323298:  // yDataObject
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: yDataObject");
+          ((ArraysDoublesCurve) bean).setYDataObject((Double[]) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -761,6 +802,7 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((ArraysDoublesCurve) bean)._xData, "xData");
       JodaBeanUtils.notNull(((ArraysDoublesCurve) bean)._yData, "yData");
+      super.validate(bean);
     }
 
   }

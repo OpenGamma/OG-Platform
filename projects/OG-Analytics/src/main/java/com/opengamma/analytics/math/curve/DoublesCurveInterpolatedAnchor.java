@@ -6,16 +6,16 @@
 package com.opengamma.analytics.math.curve;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.Validate;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
@@ -24,22 +24,28 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
- * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator to return values of <i>y</i> for values 
- * of <i>x</i> that do not lie on nodal <i>x</i> values. 
- * One extra node point with a set value is added (called anchor point). The value is often 0.0 (rate anchor) or 1.0 (discount factor anchor).
- * This is used in particular for spread curves; without anchor points, each curve in the spread could be shifted in opposite directions for the same total result.
+ * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator
+ * to return values of <i>y</i> for values of <i>x</i> that do not lie on nodal <i>x</i> values. 
+ * One extra node point with a set value is added (called anchor point).
+ * The value is often 0.0 (rate anchor) or 1.0 (discount factor anchor).
+ * This is used in particular for spread curves; without anchor points, each curve in the
+ * spread could be shifted in opposite directions for the same total result.
  * To anchor is used to remove the translation indetermination.
  */
+@BeanDefinition
 public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCurve {
 
   /**
-   * Anchor index. The index in the x value of the anchor.
+   * The anchor index.
+   * The index in the x value of the anchor.
    */
-  @PropertyDefinition(get = "manual", set = "")
-  private final int _anchorIndex;
+  @PropertyDefinition(get = "manual", set = "private")
+  private int _anchorIndex;
 
+  //-------------------------------------------------------------------------
   /**
    * Private constructor.
+   * 
    * @param xData The sorted xData, including the anchor.
    * @param yData The yData, including the anchor.
    * @param anchorIndex The index in the xData at which the anchor is located.
@@ -53,6 +59,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
 
   /**
    * Constructor.
+   * 
    * @param xData The x data without the anchor.
    * @param yData The y data.
    * @param anchor The anchor point. Should not be in xData.
@@ -77,6 +84,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
 
   /**
    * Constructor.
+   * 
    * @param xData The x data without the anchor.
    * @param yData The y data.
    * @param anchor The anchor point. Should not be in xData.
@@ -101,9 +109,18 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     return new DoublesCurveInterpolatedAnchor(xExtended, yExtended, anchorIndex, interpolator, name);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected DoublesCurveInterpolatedAnchor() {
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the anchor index.
-   * @return The index.
+   * 
+   * @return the index
    */
   public int getAnchorIndex() {
     return _anchorIndex;
@@ -115,13 +132,14 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
   }
 
   /**
-   * The sensitivity is the sensitivity of the underlying interpolated 
-   * @param x The value for which the sensitivity is computed.
-   * @return The sensitivity.
+   * The sensitivity is the sensitivity of the underlying interpolated .
+   * 
+   * @param x  the value for which the sensitivity is computed, not null
+   * @return the sensitivity, not null
    */
   @Override
   public Double[] getYValueParameterSensitivity(Double x) {
-    Validate.notNull(x, "x");
+    ArgumentChecker.notNull(x, "x");
     Double[] sensitivityWithAnchor = super.getYValueParameterSensitivity(x);
     Double[] sensitivity = new Double[sensitivityWithAnchor.length - 1];
     System.arraycopy(sensitivityWithAnchor, 0, sensitivity, 0, _anchorIndex);
@@ -129,14 +147,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     return sensitivity;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + _anchorIndex;
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -153,6 +164,14 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
       return false;
     }
     return true;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _anchorIndex;
+    return result;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -174,19 +193,19 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     return DoublesCurveInterpolatedAnchor.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   /**
+   * Sets the anchor index.
+   * The index in the x value of the anchor.
+   * @param anchorIndex  the new value of the property
+   */
+  private void setAnchorIndex(int anchorIndex) {
+    this._anchorIndex = anchorIndex;
+  }
+
+  /**
    * Gets the the {@code anchorIndex} property.
+   * The index in the x value of the anchor.
    * @return the property, not null
    */
   public Property<Integer> anchorIndex() {
@@ -196,26 +215,26 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
   //-----------------------------------------------------------------------
   @Override
   public DoublesCurveInterpolatedAnchor clone() {
-    BeanBuilder<? extends DoublesCurveInterpolatedAnchor> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (DoublesCurveInterpolatedAnchor) super.clone();
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("DoublesCurveInterpolatedAnchor{");
-    buf.append("anchorIndex").append('=').append(getAnchorIndex());
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
     buf.append('}');
     return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("anchorIndex").append('=').append(JodaBeanUtils.toString(getAnchorIndex())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -231,7 +250,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     /**
      * The meta-property for the {@code anchorIndex} property.
      */
-    private final MetaProperty<Integer> _anchorIndex = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Integer> _anchorIndex = DirectMetaProperty.ofReadWrite(
         this, "anchorIndex", DoublesCurveInterpolatedAnchor.class, Integer.TYPE);
     /**
      * The meta-properties.
@@ -257,7 +276,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
 
     @Override
     public BeanBuilder<? extends DoublesCurveInterpolatedAnchor> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<DoublesCurveInterpolatedAnchor>(new DoublesCurveInterpolatedAnchor());
     }
 
     @Override
@@ -293,10 +312,8 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1564745955:  // anchorIndex
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: anchorIndex");
+          ((DoublesCurveInterpolatedAnchor) bean).setAnchorIndex((Integer) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }

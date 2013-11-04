@@ -22,8 +22,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data). Any attempt to find a <i>y</i> value 
- * for which there is no <i>x</i> nodal point will result in failure.
+ * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data).
+ * Any attempt to find a <i>y</i> value for which there is no <i>x</i> nodal point will result in failure.
  */
 public class NodalDoublesCurve extends ArraysDoublesCurve {
 
@@ -305,6 +305,7 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
     return new NodalDoublesCurve(data, true, name);
   }
 
+  //-------------------------------------------------------------------------
   /**
     * 
     * @param xData An array of <i>x</i> data, not null
@@ -444,6 +445,7 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
     super(data, isSorted, name);
   }
 
+  //-------------------------------------------------------------------------
   /**
     * {@inheritDoc}
     * @throws IllegalArgumentException If the <i>x</i> value was not in the nodal points

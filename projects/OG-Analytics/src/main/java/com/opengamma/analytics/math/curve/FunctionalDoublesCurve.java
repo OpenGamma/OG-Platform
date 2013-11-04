@@ -6,12 +6,12 @@
 package com.opengamma.analytics.math.curve;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,71 +26,80 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
+ * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied).
  */
+@BeanDefinition
 public class FunctionalDoublesCurve extends DoublesCurve {
 
   private static final ScalarFirstOrderDifferentiator DIFF = new ScalarFirstOrderDifferentiator();
 
   /**
+   * The function.
+   */
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
+  private Function1D<Double, Double> _function;
+  /**
+   * The first derivative function.
+   */
+  @PropertyDefinition(validate = "notNull", get = "private", set = "private")
+  private Function1D<Double, Double> _derivative;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains the curve.
    * 
-   * @param function The function that defines the curve, not null
-   * @return A functional curve with an automatically-generated name
+   * @param function  the function that defines the curve, not null
+   * @return a functional curve with an automatically-generated name, not null
    */
   public static FunctionalDoublesCurve from(final Function1D<Double, Double> function) {
     return new FunctionalDoublesCurve(function);
   }
 
   /**
+   * Obtains the curve.
    * 
-   * @param function The function that defines the curve, not null
-   * @param derivative The first derivative for the function, not null
-   * @return A functional curve with an automatically-generated name
+   * @param function  the function that defines the curve, not null
+   * @param derivative  the first derivative for the function, not null
+   * @return A functional curve with an automatically-generated name, not null
    */
   public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative) {
     return new FunctionalDoublesCurve(function, derivative);
   }
 
   /**
+   * Obtains the curve.
    * 
-   * @param function The function that defines the curve, not null
-   * @param name Name of the curve 
-   * @return A functional curve
+   * @param function  the function that defines the curve, not null
+   * @param name  the name of the curve, not null
+   * @return a functional curve, not null
    */
   public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final String name) {
     return new FunctionalDoublesCurve(function, name);
   }
 
   /**
+   * Obtains the curve.
    * 
-   * @param function The function that defines the curve, not null
-   * @param derivative The first derivative for the function, not null
-   * @param name Name of the curve 
-   * @return A functional curve
+   * @param function  the function that defines the curve, not null
+   * @param derivative  the first derivative for the function, not null
+   * @param name  the name of the curve, not null
+   * @return a functional curve, not null
    */
   public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final String name) {
     return new FunctionalDoublesCurve(function, derivative, name);
   }
 
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final Function1D<Double, Double> _function;
-
-  @PropertyDefinition(validate = "notNull", get = "private")
-  private final Function1D<Double, Double> _derivative;
-
+  //-------------------------------------------------------------------------
   /**
-   * TODO This is awaiting changes to Joda Beans to support final fields in Bean implementations
-   * not ImmutableBean which is too restrictive as it forces implementations to be final
-   *
-   * @throws UnsupportedOperationException Always
+   * Constructor for Joda-Beans.
    */
-  private FunctionalDoublesCurve() {
-    throw new UnsupportedOperationException("this constructor only exists for the benefit of Joda Beans");
+  protected FunctionalDoublesCurve() {
   }
 
   /**
+   * Creates a curve.
    * 
-   * @param function The function that defines the curve, not null
+   * @param function  the function that defines the curve, not null
    */
   public FunctionalDoublesCurve(final Function1D<Double, Double> function) {
     super();
@@ -100,9 +109,10 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Creates a curve.
    * 
-   * @param function The function that defines the curve, not null
-   * @param derivative The first derivative for the function, not null
+   * @param function  the function that defines the curve, not null
+   * @param derivative  the first derivative for the function, not null
    */
   private FunctionalDoublesCurve(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative) {
     super();
@@ -113,9 +123,10 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Creates a curve.
    * 
-   * @param function The function that defines the curve, not null
-   * @param name The name of the curve
+   * @param function  the function that defines the curve, not null
+   * @param name  the name of the curve, not null
    */
   public FunctionalDoublesCurve(final Function1D<Double, Double> function, final String name) {
     super(name);
@@ -125,10 +136,11 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Creates a curve.
    * 
-   * @param function The function that defines the curve, not null
-   *   * @param derivative The first derivative for the function, not null
-   * @param name The name of the curve
+   * @param function  the function that defines the curve, not null
+   * @param derivative  the first derivative for the function, not null
+   * @param name  the name of the curve, not null
    */
   private FunctionalDoublesCurve(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final String name) {
     super(name);
@@ -138,9 +150,12 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     _derivative = derivative;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>x</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public Double[] getXData() {
@@ -148,8 +163,10 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>y</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public Double[] getYData() {
@@ -173,8 +190,10 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>x</i> or <i>y</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public int size() {
@@ -182,10 +201,11 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Creates an interpolated curve using the specified <i>x</i> values and the evaluated <i>y</i> values.
    * 
-   * @param x An array of <i>x</i> values
-   * @param interpolator An interpolator
-   * @return An interpolated curve with values <i>(x, f(x))</i>
+   * @param x  the array of <i>x</i> values, not null
+   * @param interpolator  the interpolator, not null
+   * @return the interpolated curve with values <i>(x, f(x))</i>, not null
    */
   public InterpolatedDoublesCurve toInterpolatedDoublesCurve(final double[] x, final Interpolator1D interpolator) {
     Validate.notNull(x, "x");
@@ -199,29 +219,24 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Gets the function.
    * 
-   * @return The function
+   * @return the function, not null
    */
   public Function1D<Double, Double> getFunction() {
     return _function;
   }
 
   /**
+   * Gets the first derivative function.
    * 
-   * @return The function
+   * @return the function, not null
    */
   public Function1D<Double, Double> getFirstDerivativeFunction() {
     return _derivative;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + _function.hashCode();
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -235,6 +250,14 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     }
     final FunctionalDoublesCurve other = (FunctionalDoublesCurve) obj;
     return ObjectUtils.equals(_function, other._function);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _function.hashCode();
+    return result;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -256,17 +279,16 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     return FunctionalDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
+  /**
+   * Sets the function.
+   * @param function  the new value of the property, not null
+   */
+  private void setFunction(Function1D<Double, Double> function) {
+    JodaBeanUtils.notNull(function, "function");
+    this._function = function;
+  }
+
   /**
    * Gets the the {@code function} property.
    * @return the property, not null
@@ -277,11 +299,20 @@ public class FunctionalDoublesCurve extends DoublesCurve {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the derivative.
+   * Gets the first derivative function.
    * @return the value of the property, not null
    */
   private Function1D<Double, Double> getDerivative() {
     return _derivative;
+  }
+
+  /**
+   * Sets the first derivative function.
+   * @param derivative  the new value of the property, not null
+   */
+  private void setDerivative(Function1D<Double, Double> derivative) {
+    JodaBeanUtils.notNull(derivative, "derivative");
+    this._derivative = derivative;
   }
 
   /**
@@ -295,17 +326,7 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   //-----------------------------------------------------------------------
   @Override
   public FunctionalDoublesCurve clone() {
-    BeanBuilder<? extends FunctionalDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (FunctionalDoublesCurve) super.clone();
   }
 
   @Override
@@ -321,9 +342,11 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
-    buf.append("function").append('=').append(getFunction()).append(',').append(' ');
-    buf.append("derivative").append('=').append(getDerivative()).append(',').append(' ');
+    super.toString(buf);
+    buf.append("function").append('=').append(JodaBeanUtils.toString(getFunction())).append(',').append(' ');
+    buf.append("derivative").append('=').append(JodaBeanUtils.toString(getDerivative())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -340,13 +363,13 @@ public class FunctionalDoublesCurve extends DoublesCurve {
      * The meta-property for the {@code function} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Function1D<Double, Double>> _function = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Function1D<Double, Double>> _function = DirectMetaProperty.ofReadWrite(
         this, "function", FunctionalDoublesCurve.class, (Class) Function1D.class);
     /**
      * The meta-property for the {@code derivative} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Function1D<Double, Double>> _derivative = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Function1D<Double, Double>> _derivative = DirectMetaProperty.ofReadWrite(
         this, "derivative", FunctionalDoublesCurve.class, (Class) Function1D.class);
     /**
      * The meta-properties.
@@ -417,19 +440,16 @@ public class FunctionalDoublesCurve extends DoublesCurve {
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1380938712:  // function
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: function");
+          ((FunctionalDoublesCurve) bean).setFunction((Function1D<Double, Double>) newValue);
+          return;
         case -1353885305:  // derivative
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: derivative");
+          ((FunctionalDoublesCurve) bean).setDerivative((Function1D<Double, Double>) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -438,6 +458,7 @@ public class FunctionalDoublesCurve extends DoublesCurve {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FunctionalDoublesCurve) bean)._function, "function");
       JodaBeanUtils.notNull(((FunctionalDoublesCurve) bean)._derivative, "derivative");
+      super.validate(bean);
     }
 
   }
