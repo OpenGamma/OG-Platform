@@ -43,7 +43,7 @@ public class InterestRateNotional extends Notional {
   /**
    * Creates an instance.
    */
-  private InterestRateNotional() {
+  protected InterestRateNotional() {
   }
 
   /**
