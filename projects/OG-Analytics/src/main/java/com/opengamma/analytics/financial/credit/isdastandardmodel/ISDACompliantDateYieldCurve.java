@@ -164,7 +164,6 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
    * Gets the base date.
    * @return the value of the property
    */
-  @Override
   public LocalDate getBaseDate() {
     return _baseDate;
   }
@@ -173,7 +172,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
    * Sets the base date.
    * @param baseDate  the new value of the property
    */
-  private void setBaseDate(final LocalDate baseDate) {
+  private void setBaseDate(LocalDate baseDate) {
     this._baseDate = baseDate;
   }
 
@@ -198,7 +197,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
    * Sets the knot dates on the curve.
    * @param dates  the new value of the property
    */
-  private void setDates(final LocalDate[] dates) {
+  private void setDates(LocalDate[] dates) {
     this._dates = dates;
   }
 
@@ -223,7 +222,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
    * Sets the day count.
    * @param dayCount  the new value of the property
    */
-  private void setDayCount(final DayCount dayCount) {
+  private void setDayCount(DayCount dayCount) {
     this._dayCount = dayCount;
   }
 
@@ -242,13 +241,15 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ISDACompliantDateYieldCurve other = (ISDACompliantDateYieldCurve) obj;
-      return JodaBeanUtils.equal(getBaseDate(), other.getBaseDate()) && JodaBeanUtils.equal(getDates(), other.getDates()) && JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+      ISDACompliantDateYieldCurve other = (ISDACompliantDateYieldCurve) obj;
+      return JodaBeanUtils.equal(getBaseDate(), other.getBaseDate()) &&
+          JodaBeanUtils.equal(getDates(), other.getDates()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           super.equals(obj);
     }
     return false;
@@ -265,9 +266,9 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("ISDACompliantDateYieldCurve{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -277,7 +278,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("baseDate").append('=').append(JodaBeanUtils.toString(getBaseDate())).append(',').append(' ');
     buf.append("dates").append('=').append(JodaBeanUtils.toString(getDates())).append(',').append(' ');
@@ -297,19 +298,26 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
     /**
      * The meta-property for the {@code baseDate} property.
      */
-    private final MetaProperty<LocalDate> _baseDate = DirectMetaProperty.ofReadWrite(this, "baseDate", ISDACompliantDateYieldCurve.class, LocalDate.class);
+    private final MetaProperty<LocalDate> _baseDate = DirectMetaProperty.ofReadWrite(
+        this, "baseDate", ISDACompliantDateYieldCurve.class, LocalDate.class);
     /**
      * The meta-property for the {@code dates} property.
      */
-    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofReadWrite(this, "dates", ISDACompliantDateYieldCurve.class, LocalDate[].class);
+    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofReadWrite(
+        this, "dates", ISDACompliantDateYieldCurve.class, LocalDate[].class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
-    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(this, "dayCount", ISDACompliantDateYieldCurve.class, DayCount.class);
+    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", ISDACompliantDateYieldCurve.class, DayCount.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "baseDate", "dates", "dayCount");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "baseDate",
+        "dates",
+        "dayCount");
 
     /**
      * Restricted constructor.
@@ -318,7 +326,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1721984481:  // baseDate
           return _baseDate;
@@ -372,7 +380,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1721984481:  // baseDate
           return ((ISDACompliantDateYieldCurve) bean).getBaseDate();
@@ -385,7 +393,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1721984481:  // baseDate
           ((ISDACompliantDateYieldCurve) bean).setBaseDate((LocalDate) newValue);
