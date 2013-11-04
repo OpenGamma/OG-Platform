@@ -19,14 +19,14 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class DynamicDelegatingPortfolioMasterTest {
 
-  private final ExternalScheme schemeA = ExternalScheme.of("A");
-  private final ExternalScheme schemeB = ExternalScheme.of("B");
-  private final ObjectIdSupplier schemeAProvider = new ObjectIdSupplier(schemeA.getName());
-  private final ObjectIdSupplier schemeBProvider = new ObjectIdSupplier(schemeB.getName());
+  private final String schemeA = "A";
+  private final String schemeB = "B";
+  private final ObjectIdSupplier schemeAProvider = new ObjectIdSupplier(schemeA);
+  private final ObjectIdSupplier schemeBProvider = new ObjectIdSupplier(schemeB);
 
   @Test(expectedExceptions = DataNotFoundException.class)
   void test_DefaultDelegateShouldNotFindAnyData() {
-    final UniqueId doesNotExist = UniqueId.of(schemeA.getName(),"DoesNotExist");
+    final UniqueId doesNotExist = UniqueId.of(schemeA,"DoesNotExist");
     DynamicDelegatingPortfolioMaster sut = new DynamicDelegatingPortfolioMaster();
     sut.get(doesNotExist);
   }
@@ -39,13 +39,13 @@ public class DynamicDelegatingPortfolioMasterTest {
     DynamicDelegatingPortfolioMaster sut = new DynamicDelegatingPortfolioMaster();
 
     sut.register(schemeA, new InMemoryPortfolioMaster(schemeAProvider));
-    PortfolioDocument addedPortA = sut.add(portA);
+    PortfolioDocument addedPortA = sut.add(schemeA, portA);
     assertEquals(addedPortA, portA, "adding the document had unexpected side effect");
     PortfolioDocument fetchedPortA = sut.get(addedPortA.getUniqueId());
     assertEquals(fetchedPortA, portA, "unable to fetch same document right after adding");
 
     sut.register(schemeB, new InMemoryPortfolioMaster(schemeBProvider));
-    PortfolioDocument addedPortB = sut.add(portB);
+    PortfolioDocument addedPortB = sut.add(schemeB, portB);
     assertEquals(addedPortB, portB, "adding the document had unexpected side effect");
     PortfolioDocument fetchedPortB = sut.get(addedPortB.getUniqueId());
     assertEquals(fetchedPortB, portB, "unable to fetch same document right after adding");
@@ -65,10 +65,10 @@ public class DynamicDelegatingPortfolioMasterTest {
     DynamicDelegatingPortfolioMaster sut = new DynamicDelegatingPortfolioMaster();
 
     sut.register(schemeA, new InMemoryPortfolioMaster(schemeAProvider));
-    UniqueId addedPort = sut.add(portA).getUniqueId();
+    UniqueId addedPort = sut.add(schemeA, portA).getUniqueId();
 
     sut.register(schemeB, new InMemoryPortfolioMaster(schemeBProvider));
-    sut.add(portB);
+    sut.add(schemeB, portB);
 
     sut.deregister(schemeA);
 
@@ -78,7 +78,6 @@ public class DynamicDelegatingPortfolioMasterTest {
   private PortfolioDocument generatePortfolio(String name, ObjectIdSupplier provider) {
     ManageablePortfolioNode rootNode = generatePortfolioNodes(name, provider, 2, 2);
     PortfolioDocument document = new PortfolioDocument(new ManageablePortfolio(name, rootNode));
-    document.setUniqueId(provider.get().atLatestVersion());
     return document;
   }
 
