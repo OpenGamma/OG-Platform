@@ -16,42 +16,49 @@ import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- *
+ * An ISDA compliant credit curve.
  */
-public class ISDACompliantCreditCurve extends ISDACompliantCurve {
+public class ISDACompliantCreditCurve
+    extends ISDACompliantCurve {
 
   /**
-   * Flat credit (hazard) curve at hazard rate h
-   * @param t (arbitrary) single knot point (t > 0)
-   * @param h the level
+   * Creates a flat credit (hazard) curve at hazard rate h.
+   * 
+   * @param t  the (arbitrary) single knot point (t > 0)
+   * @param h  the level
    */
   public ISDACompliantCreditCurve(final double t, final double h) {
     super(t, h);
   }
 
   /**
-   * credit (hazard) curve with knots at times, t, zero hazard rates, h, at the knots and piecewise constant
-   * forward hazard rates between knots (i.e. linear interpolation of h*t or the -log(survival-probability)
-   * @param t knot (node) times
-   * @param h zero hazard rates
+   * Creates a credit (hazard) curve with knots at times, t, zero hazard rates, h,
+   * at the knots and piecewise constant forward hazard rates between knots
+   * (i.e. linear interpolation of h*t or the -log(survival-probability).
+   * 
+   * @param t  the knot (node) times, not null
+   * @param h  the zero hazard rates, not null
    */
   public ISDACompliantCreditCurve(final double[] t, final double[] h) {
     super(t, h);
   }
 
   /**
-   * Copy constructor - can be used to down cast from ISDACompliantCurve
-   * @param from a ISDACompliantCurve
+   * Creates a shallow copy of the specified curve, used to down cast from ISDACompliantCurve.
+   * 
+   * @param from  the curve to clone from, not null
    */
   public ISDACompliantCreditCurve(final ISDACompliantCurve from) {
     super(from);
   }
 
   /**
-   * @param t Set of times that form the knots of the curve. Must be ascending with the first value >= 0.
-   * @param r Set of zero rates
-   * @param rt Set of rates at the knot times
-   * @param df Set of discount factors at the knot times
+   * Creates an instance, used by deserialization.
+   * 
+   * @param t  the set of times that form the knots of the curve. Must be ascending with the first value >= 0.
+   * @param r  the set of zero rates
+   * @param rt  the set of rates at the knot times
+   * @param df  the set of discount factors at the knot times
    * @deprecated This constructor is deprecated
    */
   @Deprecated
@@ -59,9 +66,11 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
     super(t, r, rt, df);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Get the zero hazard rate at time t (note: this simply a pseudonym for getZeroRate)
-   * @param t time
+   * Get the zero hazard rate at time t (note: this simply a pseudonym for getZeroRate).
+   * 
+   * @param t  the time
    * @return zero hazard rate at time t
    */
   public double getHazardRate(final double t) {
@@ -69,8 +78,9 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   }
 
   /**
-   * Get the survival probability at time t (note: this simply a pseudonym for getDiscountFactor)
-   * @param t time
+   * Get the survival probability at time t (note: this simply a pseudonym for getDiscountFactor).
+   * 
+   * @param t  the time
    * @return survival probability at time t
    */
   public double getSurvivalProbability(final double t) {

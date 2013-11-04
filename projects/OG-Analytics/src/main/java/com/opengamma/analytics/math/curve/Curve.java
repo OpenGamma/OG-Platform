@@ -25,71 +25,88 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * Defines a general curve <i>(x, y)</i> class. The <i>x</i> and <i>y</i> data can be any type. The curves are named; if a name is not provided then a unique
- * ID will be used.
- * @param <T> The type of the <i>x</i> data
- * @param <U> The type of the <i>y</i> data
+ * Defines a general curve <i>(x, y)</i> class. The <i>x</i> and <i>y</i> data can be any type.
+ * The curves are named; if a name is not provided then a unique ID will be used.
+ * 
+ * @param <T>  the type of the <i>x</i> data
+ * @param <U>  the type of the <i>y</i> data
  */
 @BeanDefinition
-public abstract class Curve<T extends Comparable<T>, U> implements Bean {
+public abstract class Curve<T extends Comparable<T>, U>
+    implements Bean {
 
+  /**
+   * Atomic used to generate a name.
+   */
   private static final AtomicLong ATOMIC = new AtomicLong();
 
-  @PropertyDefinition(validate = "notNull", get = "manual")
+  /**
+   * The curve name.
+   */
+  @PropertyDefinition(validate = "notNull")
   private final String _name;
 
   /**
-   * Constructs a curve with an automatically-generated name
+   * Constructs a curve with an automatically-generated name.
    */
   public Curve() {
     this(Long.toString(ATOMIC.getAndIncrement()));
   }
 
   /**
-   * Constructs a curve with the given name
-   * @param name The name of the curve
+   * Constructs a curve with the given name.
+   * 
+   * @param name  the name of the curve, not null
    */
   public Curve(final String name) {
-    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.notNull(name, "name");
     _name = name;
   }
 
+  //-------------------------------------------------------------------------
   /**
+   * Gets the name of the curve.
    * 
-   * @return The name of the curve
+   * @return the name of the curve, not null
    */
   public String getName() {
     return _name;
   }
 
   /**
+   * Gets the <i>x</i> data for this curve.
    * 
-   * @return The <i>x</i> data for this curve
+   * @return the <i>x</i> data for this curve, not null
    */
   public abstract T[] getXData();
 
   /**
+   * Gets the <i>y</i> data for this curve.
    * 
-   * @return The <i>y</i> data for this curve
+   * @return the <i>y</i> data for this curve, not null
    */
   public abstract U[] getYData();
 
   /**
+   * Gets the number of data points used to construct this curve.
    * 
-   * @return The number of data points used to construct this curve
+   * @return the number of data points used to construct this curve
    */
   public abstract int size();
 
+  //-------------------------------------------------------------------------
   /**
-   * Given an <i>x</i> value, return the <i>y</i> value from this curve
-   * @param x The <i>x</i> value, not null
-   * @return The <i>y</i> value
+   * Given an <i>x</i> value, return the <i>y</i> value from this curve.
+   * 
+   * @param x  the <i>x</i> value, not null
+   * @return the <i>y</i> value, not null
    */
   public abstract U getYValue(T x);
 
   /**
-   * converts a curve to a Function1D
-   * @return The curve as a mapping f(x) -> y
+   * Converts a curve to a Function1D.
+   * 
+   * @return the curve as a mapping {@code f(x) -> y}, not null
    */
   public Function1D<T, U> toFunction1D() {
     return new Function1D<T, U>() {
@@ -100,6 +117,7 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
     };
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int hashCode() {
     final int prime = 31;

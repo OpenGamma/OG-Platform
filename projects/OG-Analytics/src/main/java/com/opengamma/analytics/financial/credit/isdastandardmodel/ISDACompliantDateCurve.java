@@ -23,21 +23,34 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * An ISDA compliant date curve.
  */
-public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACompliantCurveWithDates {
+public class ISDACompliantDateCurve
+    extends ISDACompliantCurve
+    implements ISDACompliantCurveWithDates {
 
+  /**
+   * The standard ACT/365 day count.
+   */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
+  /**
+   * The base date.
+   */
   @PropertyDefinition(get = "manual")
   private final LocalDate _baseDate;
-
+  /**
+   * The knot dates on the curve.
+   */
   @PropertyDefinition(get = "private")
   private final LocalDate[] _dates;
-
+  /**
+   * The day count.
+   */
   @PropertyDefinition(get = "private")
   private final DayCount _dayCount;
 
+  //-------------------------------------------------------------------------
   protected static ISDACompliantCurve makeISDACompliantCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates) {
     return makeISDACompliantCurve(baseDate, dates, rates, ACT_365);
   }
@@ -47,24 +60,27 @@ public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACo
     return new ISDACompliantCurve(t, rates);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Builds a curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates. The times (year-fractions)
-   * between the baseDate and the knot dates is calculated using ACT/365  
-   * @param baseDate The base date for the curve (i.e. this is time zero)
-   * @param dates Knot dates on the curve. These must be ascending with the first date after the baseDate
-   * @param rates Continually compounded zero rates at given knot dates
+   * Builds a curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates
+   * The times (year-fractions) between the baseDate and the knot dates is calculated using ACT/365.
+   * 
+   * @param baseDate  the base date for the curve (i.e. this is time zero), not null
+   * @param dates  the knot dates on the curve. These must be ascending with the first date after the baseDate, not null
+   * @param rates  the ontinually compounded zero rates at given knot dates, not null
    */
   public ISDACompliantDateCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates) {
     this(baseDate, dates, rates, ACT_365);
   }
 
   /**
-   * Builds a curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates. The times (year-fractions)
-   * between the baseDate and the knot dates is calculated using the specified day-count-convention   
-   * @param baseDate The base date for the curve (i.e. this is time zero)
-   * @param dates Knot dates on the curve. These must be ascending with the first date after the baseDate
-   * @param rates Continually compounded zero rates at given knot dates
-   * @param dayCount The day-count-convention
+   * Builds a curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates.
+   * The times (year-fractions) between the baseDate and the knot dates is calculated using the specified day-count-convention.
+   * 
+   * @param baseDate  the base date for the curve (i.e. this is time zero), not null
+   * @param dates  the knot dates on the curve. These must be ascending with the first date after the baseDate, not null
+   * @param rates  the ontinually compounded zero rates at given knot dates, not null
+   * @param dayCount  the day-count-convention, not null
    */
   public ISDACompliantDateCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates, final DayCount dayCount) {
     this(baseDate, dates, dayCount, makeISDACompliantCurve(baseDate, dates, rates, dayCount));
@@ -77,6 +93,7 @@ public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACo
     _dayCount = dayCount;
   }
 
+  //-------------------------------------------------------------------------
   public final LocalDate getBaseDate() {
     return _baseDate;
   }
@@ -86,10 +103,7 @@ public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACo
   }
 
   public final LocalDate[] getCurveDates() {
-    LocalDate[] res = new LocalDate[getNumberOfKnots()];
-    // TODO since this is only copying references anyway, do we need it
-    System.arraycopy(_dates, 0, res, 0, getNumberOfKnots());
-    return res;
+    return _dates.clone();
   }
 
   @Override

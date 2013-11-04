@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -20,36 +19,46 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Defines a constant curve (i.e. a curve with <i>y = constant</i>)
+ * Defines a constant curve (i.e. a curve with <i>y = constant</i>).
  */
-public class ConstantDoublesCurve extends DoublesCurve {
+public class ConstantDoublesCurve
+    extends DoublesCurve {
 
   /**
-   * @param y Level of the curve
-   * @return A constant curve with automatically-generated name
+   * The constant value of the curve.
+   */
+  @PropertyDefinition(get = "private")
+  private final double _y;
+
+  /**
+   * Creates an instance specifying the <i>y</i> level of the curve.
+   * 
+   * @param y  the level of the curve
+   * @return a constant curve with automatically-generated name, not null
    */
   public static ConstantDoublesCurve from(final double y) {
     return new ConstantDoublesCurve(y);
   }
 
   /**
+   * Creates an instance specifying the <i>y</i> level of the curve and the name.
    * 
-   * @param y Level of the curve
-   * @param name Name of the curve
-   * @return A constant curve
+   * @param y  the level of the curve
+   * @param name  the name of the curve, not null
+   * @return a constant curve with the specified name, not null
    */
   public static ConstantDoublesCurve from(final double y, final String name) {
     return new ConstantDoublesCurve(y, name);
   }
 
-  @PropertyDefinition(get = "private")
-  private final double _y;
-
+  //-------------------------------------------------------------------------
   /**
+   * Creates an instance specifying the <i>y</i> level of the curve.
    * 
-   * @param y The level of the curve
+   * @param y  the level of the curve
    */
   public ConstantDoublesCurve(final double y) {
     super();
@@ -57,18 +66,22 @@ public class ConstantDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Creates an instance specifying the <i>y</i> level of the curve and the name.
    * 
-   * @param y The level of the curve
-   * @param name The name of the curve
+   * @param y  the level of the curve
+   * @param name  the name of the curve, not null
    */
   public ConstantDoublesCurve(final double y, final String name) {
     super(name);
     _y = y;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>x</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public Double[] getXData() {
@@ -76,7 +89,9 @@ public class ConstantDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * @return An array containing one element (the level)
+   * Gets the <i>y</i> data for the curve.
+   * 
+   * @return an array containing one element, the level, not null
    */
   @Override
   public Double[] getYData() {
@@ -84,51 +99,62 @@ public class ConstantDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * @param x The value
-   * @return The level
+   * Gets the <i>y</i> data for the <i>x</i> value.
+   * <p>
+   * Any <i>x</i> value may be specified, including null.
+   * 
+   * @param x  the value, null ignored
+   * @return the constant level value in a length one array, not null
    */
   @Override
   public Double getYValue(final Double x) {
     return _y;
   }
 
+  /**
+   * Gets the parameter sensitivity for the <i>x</i> value.
+   * <p>
+   * Any <i>x</i> value may be specified, including null.
+   * 
+   * @param x  the value, null ignored
+   * @return the value 1.0 in a length one array, not null
+   */
   @Override
   public Double[] getYValueParameterSensitivity(final Double x) {
     return new Double[] {1.0d };
   }
 
   /**
+   * Creates an interpolated curve using the specified <i>x</i> values and this constant <i>y</i> value.
    * 
-   * @param x An array of <i>x</i> values, not null
-   * @param interpolator An interpolator, not null
-   * @return An interpolated curve with constant value 
+   * @param x  the array of <i>x</i> values, not null
+   * @param interpolator  the interpolator, not null
+   * @return the interpolated curve with constant value, not null
    */
   public InterpolatedDoublesCurve toInterpolatedDoublesCurve(final double[] x, final Interpolator1D interpolator) {
-    Validate.notNull(x, "x");
-    Validate.notNull(interpolator, "interpolator");
+    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.notNull(interpolator, "interpolator");
     final double[] y = new double[x.length];
     Arrays.fill(y, _y);
     return InterpolatedDoublesCurve.from(x, y, interpolator);
   }
 
+  @Override
+  public double getDyDx(final double x) {
+    return 0;
+  }
+
   /**
-   * @return The size of the curve is one
+   * Gets the size of the curve, which is one.
+   * 
+   * @return the size of the curve, one
    */
   @Override
   public int size() {
     return 1;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_y);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -145,17 +171,20 @@ public class ConstantDoublesCurve extends DoublesCurve {
   }
 
   @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_y);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
   public String toString() {
     return "ConstantDoublesCurve[name=" + getName() + ", y=" + _y + "]";
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public double getDyDx(final double x) {
-    return 0;
-  }
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**

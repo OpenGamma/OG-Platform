@@ -25,27 +25,39 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation (see {@link CurveSpreadFunction}) on two or more curves.
- * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same hierarchy as the other curves, a spread curve can be
- * defined on another spread curve, e.g. <i>E = C * D = D * (A - B)</i>.
+ * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation
+ * (see {@link CurveSpreadFunction}) on two or more curves.
+ * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same
+ * hierarchy as the other curves, a spread curve can be defined on another spread curve,
+ * e.g. <i>E = C * D = D * (A - B)</i>.
  */
-public class SpreadDoublesCurve extends DoublesCurve {
+public class SpreadDoublesCurve
+    extends DoublesCurve {
 
+  /**
+   * The spread function.
+   */
   @PropertyDefinition(get = "private")
   private final CurveSpreadFunction _spreadFunction;
-
+  /**
+   * The evaluated function.
+   */
   @PropertyDefinition(get = "private")
   private final Function<Double, Double> _f;
-
+  /**
+   * The curves.
+   */
   @PropertyDefinition(get = "private")
   private final DoublesCurve[] _curves;
 
+  //-------------------------------------------------------------------------
   /**
-   * Takes an array of curves that are to be operated on by the spread function. The name of the spread
-   * curve is automatically generated.
-   * @param spreadFunction The spread function, not null
-   * @param curves The curves, not null
-   * @return The spread curve
+   * Takes an array of curves that are to be operated on by the spread function.
+   * The name of the spread curve is automatically generated.
+   * 
+   * @param spreadFunction  the spread function, not null
+   * @param curves  the curves, not null
+   * @return the spread curve, not null
    */
   public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final DoublesCurve... curves) {
     return new SpreadDoublesCurve(spreadFunction, curves);
@@ -53,18 +65,22 @@ public class SpreadDoublesCurve extends DoublesCurve {
 
   /**
    * Takes an array of curves that are to be operated on by the spread function.
-   * @param spreadFunction The spread function, not null
-   * @param name The name of the curve
-   * @param curves The curves, not null
-   * @return The spread curve
+   * 
+   * @param spreadFunction  the spread function, not null
+   * @param name  the name of the curve, not null
+   * @param curves  the curves, not null
+   * @return the spread curve, not null
    */
   public static SpreadDoublesCurve from(final CurveSpreadFunction spreadFunction, final String name, final DoublesCurve... curves) {
     return new SpreadDoublesCurve(spreadFunction, name, curves);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param spreadFunction The spread function, not null
-   * @param curves The curves, not null, contains more than one curve
+   * Creates a spread curve.
+   * 
+   * @param spreadFunction  the spread function, not null
+   * @param curves  the curves, not null, contains more than one curve, not null
    */
   public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final DoublesCurve... curves) {
     super();
@@ -77,10 +93,11 @@ public class SpreadDoublesCurve extends DoublesCurve {
   }
 
   /**
+   * Creates a spread curve.
    * 
-   * @param spreadFunction The spread function, not null
-   * @param name The name of the curve
-   * @param curves The curves, not null, contains more than one curve
+   * @param spreadFunction  the spread function, not null
+   * @param name  the name of the curve, not null
+   * @param curves  the curves, not null, contains more than one curve, not null
    */
   public SpreadDoublesCurve(final CurveSpreadFunction spreadFunction, final String name, final DoublesCurve... curves) {
     super(name);
@@ -92,10 +109,12 @@ public class SpreadDoublesCurve extends DoublesCurve {
     _f = spreadFunction.evaluate(curves);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Returns a set of the <b>unique</b> names of the curves that were used to construct this curve. If a constituent curve is a spread curve,
-   * then all of its underlyings are included.
-   * @return The set of underlying names
+   * Returns a set of the <b>unique</b> names of the curves that were used to construct this curve.
+   * If a constituent curve is a spread curve, then all of its underlyings are included.
+   * 
+   * @return the set of underlying names, not null
    */
   public Set<String> getUnderlyingNames() {
     final Set<String> result = new HashSet<>();
@@ -110,40 +129,45 @@ public class SpreadDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * Returns a string that represents the mathematical form of this curve. For example, <i>D = (A + (B / C))</i>
-   * @return The long name of this curve
+   * Returns a string that represents the mathematical form of this curve.
+   * For example, <i>D = (A + (B / C))</i>.
+   * 
+   * @return the long name of this curve, not null
    */
   public String getLongName() {
-    final StringBuffer sb = new StringBuffer(getName());
-    sb.append("=");
+    final StringBuilder buf = new StringBuilder(getName());
+    buf.append("=");
     int i = 0;
-    sb.append("(");
+    buf.append("(");
     for (final Curve<Double, Double> curve : _curves) {
       if (curve instanceof SpreadDoublesCurve) {
-        sb.append(((SpreadDoublesCurve) curve).getLongName().substring(2));
+        buf.append(((SpreadDoublesCurve) curve).getLongName().substring(2));
       } else {
-        sb.append(curve.getName());
+        buf.append(curve.getName());
       }
       if (i != _curves.length - 1) {
-        sb.append(_spreadFunction.getOperationName());
+        buf.append(_spreadFunction.getOperationName());
       }
       i++;
     }
-    sb.append(")");
-    return sb.toString();
+    buf.append(")");
+    return buf.toString();
   }
 
   /**
+   * Gets the underlying curves.
    * 
-   * @return The underlying curves
+   * @return the underlying curves, not null
    */
   public DoublesCurve[] getUnderlyingCurves() {
     return _curves;
   }
 
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>x</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public Double[] getXData() {
@@ -151,8 +175,10 @@ public class SpreadDoublesCurve extends DoublesCurve {
   }
 
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>y</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public Double[] getYData() {
@@ -170,24 +196,23 @@ public class SpreadDoublesCurve extends DoublesCurve {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for SpreadDoublesCurve");
   }
 
+  @Override
+  public double getDyDx(final double x) {
+    throw new NotImplementedException();
+  }
+
   /**
-   * @return Not supported
-   * @throws UnsupportedOperationException
+   * Throws an exception as there is no <i>x</i> or <i>y</i> data.
+   * 
+   * @return throws UnsupportedOperationException
+   * @throws UnsupportedOperationException always
    */
   @Override
   public int size() {
     throw new UnsupportedOperationException("Size not supported yet for SpreadDoublesCurve");
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Arrays.hashCode(_curves);
-    result = prime * result + _spreadFunction.hashCode();
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -207,8 +232,12 @@ public class SpreadDoublesCurve extends DoublesCurve {
   }
 
   @Override
-  public double getDyDx(final double x) {
-    throw new NotImplementedException();
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_curves);
+    result = prime * result + _spreadFunction.hashCode();
+    return result;
   }
 
   //------------------------- AUTOGENERATED START -------------------------

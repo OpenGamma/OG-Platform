@@ -18,18 +18,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 
 /**
- * Class describing a monthly seasonal adjustment curve. The curve is piecewise constant on intervals defined by a set of times. 
- * Those times should be calculated using first of month dates and  the act/act day counter (the one used for derivatives file).
+ * Class describing a monthly seasonal adjustment curve.
+ * The curve is piecewise constant on intervals defined by a set of times. 
+ * Those times should be calculated using first of month dates and the
+ * act/act day counter (the one used for derivatives file).
  */
 public final class SeasonalCurve extends FunctionalDoublesCurve {
 
   /**
    * Construct a seasonal curve from a reference time and the monthly factors.
-   * @param steps the
-   * @param monthlyFactors The monthly seasonal factors from one month to the next. The size of the array is 11 (the 12th factor is deduced from the 11 other
-   * @param isAdditive 
-   * as the cumulative yearly adjustment is 1). The factors represent the multiplicative factor from one month to the next. The reference time represent the initial month
-   * for which there is no adjustment.
+   * 
+   * @param steps  the steps, not null
+   * @param monthlyFactors  the monthly seasonal factors from one month to the next.
+   *  The size of the array is 11 (the 12th factor is deduced from the 11 other.
+   * @param isAdditive  as the cumulative yearly adjustment is 1). The factors represent
+   *  the multiplicative factor from one month to the next. The reference time represent
+   *  the initial month for which there is no adjustment.
    */
   public SeasonalCurve(double[] steps, double[] monthlyFactors, boolean isAdditive) {
     super(new SeasonalFunction(steps, monthlyFactors, isAdditive));

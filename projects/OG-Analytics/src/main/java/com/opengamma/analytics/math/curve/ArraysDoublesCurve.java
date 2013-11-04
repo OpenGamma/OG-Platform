@@ -32,29 +32,40 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class ArraysDoublesCurve extends DoublesCurve {
 
+  /**
+   * The size of the data points.
+   */
   @PropertyDefinition(get = "private")
   private final int _n;
-
+  /**
+   * The <i>x</i> values.
+   */
   @PropertyDefinition(validate = "notNull", get = "manual")
   private final double[] _xData;
-
+  /**
+   * The <i>y</i> values.
+   */
   @PropertyDefinition(validate = "notNull", get = "manual")
   private final double[] _yData;
-
+  /**
+   * The <i>x</i> values.
+   */
   @PropertyDefinition(get = "private", set = "")
   private Double[] _xDataObject;
-
+  /**
+   * The <i>y</i> values.
+   */
   @PropertyDefinition(get = "private", set = "")
   private Double[] _yDataObject;
 
   /**
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
-
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final double[] xData, final double[] yData, final boolean isSorted) {
-    super();
     ArgumentChecker.notNull(xData, "x data");
     ArgumentChecker.notNull(yData, "y data");
     ArgumentChecker.isTrue(xData.length == yData.length, "x data size {} must be equal to y data size {}", xData.length, yData.length);
@@ -67,12 +78,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
-
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(xData, "x data");
@@ -95,10 +106,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    *
-    * @param data A map of <i>x-y</i> data, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the map of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final Map<Double, Double> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -120,10 +132,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data An array of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the array of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final DoublesPair[] data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -142,10 +155,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A set of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the set of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final Set<DoublesPair> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -164,11 +178,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData A list of <i>x</i> data points, assumed to be sorted ascending, not null
-    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the list of <i>x</i> data, not null
+   * @param yData  the list of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(xData, "x data");
@@ -191,10 +206,11 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A list of <i>x-y</i> data points, assumed to be sorted ascending, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    */
+   * Creates an instance.
+   * 
+   * @param data  the list of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   */
   public ArraysDoublesCurve(final List<DoublesPair> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -213,12 +229,13 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final double[] xData, final double[] yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -233,12 +250,13 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData An array of <i>x</i> data, not null
-    * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the array of <i>x</i> data, not null
+   * @param yData  the array of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final Double[] xData, final Double[] yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -259,11 +277,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A map of <i>x-y</i> data, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the map of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final Map<Double, Double> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -283,11 +302,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data An array of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the array of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final DoublesPair[] data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -305,11 +325,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A set of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the set of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final Set<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -328,12 +349,13 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param xData A list of <i>x</i> data, not null
-    * @param yData A list of <i>y</i> data, not null, contains same number of entries as <i>x</i>
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param xData  the list of <i>x</i> data, not null
+   * @param yData  the list of <i>y</i> data, contains same number of entries as <i>x</i>, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final List<Double> xData, final List<Double> yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -354,11 +376,12 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * 
-    * @param data A list of <i>x-y</i> pairs, not null
-    * @param isSorted Is the <i>x</i>-data sorted
-    * @param name The name of the curve
-    */
+   * Creates an instance.
+   * 
+   * @param data  the list of pairs of <i>x-y</i> data, not null
+   * @param isSorted  whether the <i>x</i>-data is sorted ascending
+   * @param name  the name of the curve, not null
+   */
   public ArraysDoublesCurve(final List<DoublesPair> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -376,11 +399,10 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Double[] getXData() {
-
     if (_xDataObject != null) {
-
       return _xDataObject;
     }
     _xDataObject = new Double[_n];
@@ -403,16 +425,18 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
   }
 
   /**
-    * Returns the <i>x</i> data points as a primitive array
-    * @return The <i>x</i> data
+    * Returns the <i>x</i> data points as a primitive array.
+    * 
+    * @return the <i>x</i> data, not null
     */
   public double[] getXDataAsPrimitive() {
     return _xData;
   }
 
   /**
-    * Returns the <i>y</i> data points as a primitive array
-    * @return The <i>y</i> data
+    * Returns the <i>y</i> data points as a primitive array.
+    * 
+    * @return the <i>y</i> data, not null
     */
   public double[] getYDataAsPrimitive() {
     return _yData;
@@ -423,15 +447,7 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     return _n;
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + Arrays.hashCode(_xData);
-    result = prime * result + Arrays.hashCode(_yData);
-    return result;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -445,6 +461,15 @@ public abstract class ArraysDoublesCurve extends DoublesCurve {
     }
     final ArraysDoublesCurve other = (ArraysDoublesCurve) obj;
     return ArrayUtils.isEquals(_xData, other._xData) && ArrayUtils.isEquals(_yData, other._yData);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_xData);
+    result = prime * result + Arrays.hashCode(_yData);
+    return result;
   }
 
   //------------------------- AUTOGENERATED START -------------------------
