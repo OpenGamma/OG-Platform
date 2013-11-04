@@ -12,6 +12,8 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDate
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
@@ -125,6 +127,26 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     //These take different paths, so the match will not be exact 
     for (int i = 0; i < nMat; i++) {
       assertEquals("pv (fixed)" + i, pvSC[i], pvMC[i], 1e-16);
+    }
+  }
+
+  @Test
+  public void multiCDSTest3() {
+    final int nValDates = 41;
+    final LocalDate tradeDate = LocalDate.of(2011, 6, 13);
+    final LocalDate nextIMM = getNextIMMDate(tradeDate);
+    final LocalDate accStartDate = FOLLOWING.adjustDate(DEFAULT_CALENDAR, getPrevIMMDate(tradeDate));
+    final LocalDate[] maturityDates = getIMMDateSet(nextIMM, nValDates); //maturity dates don't change (it is the same CDSs on each day of the scenario) 
+
+    final double[] coupons = new double[nValDates];
+    Arrays.fill(coupons, ONE_PC);
+    final CDSAnalytic[] cds = FACTORY.makeCDS(tradeDate, accStartDate, maturityDates);
+    final MultiCDSAnalytic multiCDS = FACTORY.makeMultiIMMCDS(tradeDate, 0, 40, coupons);
+    final MultiAnalyticCDSPricer mPricer = new MultiAnalyticCDSPricer(MARKIT_FIX);
+    final double[] mRPV01 = mPricer.pvPremiumLegPerUnitSpread(multiCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
+    for (int i = 0; i < nValDates; i++) {
+      final double rpv01 = PRICER_MARKIT_FIX.pvPremiumLegPerUnitSpread(cds[i], YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
+      assertEquals(rpv01, mRPV01[i], 1e-15 * rpv01);
     }
   }
 
