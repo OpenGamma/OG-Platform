@@ -9,22 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Specialization of {@code NodalObjectsCurve} with Tenor and Double.
  */
+@BeanDefinition
 public class NodalTenorDoubleCurve
     extends NodalObjectsCurve<Tenor, Double> {
 
@@ -45,6 +43,12 @@ public class NodalTenorDoubleCurve
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected NodalTenorDoubleCurve() {
+  }
+
   public NodalTenorDoubleCurve(List<Tenor> xData, List<Double> yData, boolean isSorted, String name) {
     super(xData, yData, isSorted, name);
   }
@@ -96,30 +100,10 @@ public class NodalTenorDoubleCurve
     return NodalTenorDoubleCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   @Override
   public NodalTenorDoubleCurve clone() {
-    BeanBuilder<? extends NodalTenorDoubleCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (NodalTenorDoubleCurve) super.clone();
   }
 
   @Override
@@ -128,15 +112,15 @@ public class NodalTenorDoubleCurve
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return true;
+      return super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    return hash;
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   @Override
@@ -152,14 +136,16 @@ public class NodalTenorDoubleCurve
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code NodalTenorDoubleCurve}.
    */
-  public static class Meta extends NodalObjectsCurve.Meta {
+  public static class Meta extends NodalObjectsCurve.Meta<Tenor, Double> {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -179,7 +165,7 @@ public class NodalTenorDoubleCurve
 
     @Override
     public BeanBuilder<? extends NodalTenorDoubleCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<NodalTenorDoubleCurve>(new NodalTenorDoubleCurve());
     }
 
     @Override

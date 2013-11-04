@@ -38,14 +38,20 @@ import com.opengamma.util.tuple.Pair;
 public abstract class ObjectsCurve<T extends Comparable<T>, U>
     extends Curve<T, U> {
 
-  @PropertyDefinition
-  private final int _n;
+  @PropertyDefinition(get = "private", set = "private")
+  private int _n;
 
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final T[] _xData;
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
+  private T[] _xData;
 
-  @PropertyDefinition(validate = "notNull", get = "manual")
-  private final U[] _yData;
+  @PropertyDefinition(validate = "notNull", get = "manual", set = "private")
+  private U[] _yData;
+
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected ObjectsCurve() {
+  }
 
   /**
    * Creates an instance.
@@ -312,8 +318,16 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U>
    * Gets the n.
    * @return the value of the property
    */
-  public int getN() {
+  private int getN() {
     return _n;
+  }
+
+  /**
+   * Sets the n.
+   * @param n  the new value of the property
+   */
+  private void setN(int n) {
+    this._n = n;
   }
 
   /**
@@ -326,6 +340,15 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U>
 
   //-----------------------------------------------------------------------
   /**
+   * Sets the xData.
+   * @param xData  the new value of the property, not null
+   */
+  private void setXData(T[] xData) {
+    JodaBeanUtils.notNull(xData, "xData");
+    this._xData = xData;
+  }
+
+  /**
    * Gets the the {@code xData} property.
    * @return the property, not null
    */
@@ -334,6 +357,15 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U>
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Sets the yData.
+   * @param yData  the new value of the property, not null
+   */
+  private void setYData(U[] yData) {
+    JodaBeanUtils.notNull(yData, "yData");
+    this._yData = yData;
+  }
+
   /**
    * Gets the the {@code yData} property.
    * @return the property, not null
@@ -378,19 +410,19 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U>
     /**
      * The meta-property for the {@code n} property.
      */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(
         this, "n", ObjectsCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code xData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T[]> _xData = (DirectMetaProperty) DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<T[]> _xData = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
         this, "xData", ObjectsCurve.class, Object[].class);
     /**
      * The meta-property for the {@code yData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<U[]> _yData = (DirectMetaProperty) DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<U[]> _yData = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
         this, "yData", ObjectsCurve.class, Object[].class);
     /**
      * The meta-properties.
@@ -475,24 +507,19 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U>
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: n");
+          ((ObjectsCurve<T, U>) bean).setN((Integer) newValue);
+          return;
         case 112945218:  // xData
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: xData");
+          ((ObjectsCurve<T, U>) bean).setXData((T[]) newValue);
+          return;
         case 113868739:  // yData
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: yData");
+          ((ObjectsCurve<T, U>) bean).setYData((U[]) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }

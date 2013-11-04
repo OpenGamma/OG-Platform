@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.ArgumentChecker;
@@ -26,6 +26,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <T>  the type of the x data
  * @param <U>  the type of the y data
  */
+@BeanDefinition
 public class NodalObjectsCurve<T extends Comparable<T>, U>
     extends ObjectsCurve<T, U> {
 
@@ -94,6 +95,12 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected NodalObjectsCurve() {
+  }
+
   public NodalObjectsCurve(final T[] xData, final U[] yData, final boolean isSorted) {
     super(xData, yData, isSorted);
   }
@@ -143,7 +150,21 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
    * The meta-bean for {@code NodalObjectsCurve}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static NodalObjectsCurve.Meta meta() {
+    return NodalObjectsCurve.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code NodalObjectsCurve}.
+   * @param <R>  the first generic type
+   * @param <S>  the second generic type
+   * @param cls1  the first generic type
+   * @param cls2  the second generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends Comparable<R>, S> NodalObjectsCurve.Meta<R, S> metaNodalObjectsCurve(Class<R> cls1, Class<S> cls2) {
     return NodalObjectsCurve.Meta.INSTANCE;
   }
 
@@ -151,58 +172,33 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
     JodaBeanUtils.registerMetaBean(NodalObjectsCurve.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public NodalObjectsCurve.Meta metaBean() {
+  public NodalObjectsCurve.Meta<T, U> metaBean() {
     return NodalObjectsCurve.Meta.INSTANCE;
-  }
-
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
   }
 
   //-----------------------------------------------------------------------
   @Override
-  public NodalObjectsCurve clone() {
-    BeanBuilder<? extends NodalObjectsCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+  public NodalObjectsCurve<T, U> clone() {
+    return (NodalObjectsCurve<T, U>) super.clone();
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
     if (obj == this) {
       return true;
     }
-    if (!super.equals(obj)) {
-      return false;
+    if (obj != null && obj.getClass() == this.getClass()) {
+      return super.equals(obj);
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    return hash;
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   @Override
@@ -218,17 +214,20 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code NodalObjectsCurve}.
    */
-  public static class Meta extends ObjectsCurve.Meta {
+  public static class Meta<T extends Comparable<T>, U> extends ObjectsCurve.Meta<T, U> {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -244,13 +243,14 @@ public class NodalObjectsCurve<T extends Comparable<T>, U>
     }
 
     @Override
-    public BeanBuilder<? extends NodalObjectsCurve> builder() {
-      throw new UnsupportedOperationException();
+    public BeanBuilder<? extends NodalObjectsCurve<T, U>> builder() {
+      return new DirectBeanBuilder<NodalObjectsCurve<T, U>>(new NodalObjectsCurve<T, U>());
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends NodalObjectsCurve> beanType() {
-      return NodalObjectsCurve.class;
+    public Class<? extends NodalObjectsCurve<T, U>> beanType() {
+      return (Class) NodalObjectsCurve.class;
     }
 
     @Override
