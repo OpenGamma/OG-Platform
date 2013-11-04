@@ -209,7 +209,8 @@ public class ISDACompliantYieldCurveBuild {
     if (_offset == 0.0) {
       return baseCurve;
     }
-    return new ISDACompliantYieldCurve(baseCurve.getKnotTimes(), baseCurve.getKnotZeroRates(), _offset);
+    return baseCurve.withOffset(_offset);
+    //  return new ISDACompliantYieldCurve(baseCurve.getKnotTimes(), baseCurve.getKnotZeroRates(), _offset);
   }
 
   private ISDACompliantCurve fitSwap(final int curveIndex, final BasicFixedLeg swap, final ISDACompliantCurve curve, final double swapRate) {
