@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.convention.initializer;
 
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
@@ -93,6 +94,11 @@ public class PerCurrencyConventionHelper {
   public static final String IMM = "IMM";
   /** Government (Simplified bond description) **/
   public static final String GOVT = "Govt ";
+  
+  /** Quarterly IMM roll dates **/
+  public static final ExternalId QUARTERLY_IMM_DATES = ExternalId.of(SCHEME_NAME, RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
+  /** Monthly IMM roll dates **/
+  public static final ExternalId MONTHLY_IMM_DATES = ExternalId.of(SCHEME_NAME, RollDateAdjusterFactory.MONTHLY_IMM_ROLL_STRING);
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);

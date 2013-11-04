@@ -258,7 +258,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final SwaptionBermudaFixedIborDefinition SWAPTION_BERMUDA = SwaptionBermudaFixedIborDefinition.from(SWAP_FIXED_IBOR, false, new ZonedDateTime[] {SETTLE_DATE.minusMonths(6),
     SETTLE_DATE.minusMonths(5), SETTLE_DATE.minusMonths(4), SETTLE_DATE.minusMonths(3) });
 
-  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true, C);
+  public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true);
   public static final CapFloorCMSDefinition CAP_FLOOR_CMS = CapFloorCMSDefinition.from(COUPON_CMS, FIXED_RATE, true);
   public static final CapFloorCMSSpreadDefinition CAP_FLOOR_CMS_SPREAD = CapFloorCMSSpreadDefinition.from(SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.1, NOTIONAL, CMS_INDEX,
       CMS_INDEX, FIXED_RATE, false, C, C);

@@ -87,16 +87,16 @@ public final class CapFloorIborHullWhiteMethod {
     final double t1 = cap.getFixingPeriodEndTime();
     final double deltaF = cap.getFixingAccrualFactor();
     final double deltaP = cap.getPaymentYearFraction();
-    final double k = cap.getStrike();
+    final double k = cap.getStrike(); // Add a check on strike above -1/deltaF
     final double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    final double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
+    final double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF); // Add a check on strike above -1/deltaF
     final double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
     final double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
     final double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
     final double omega = (cap.isCap() ? 1.0 : -1.0);
     double pv = deltaP / deltaF * dfPay * omega * ((1.0 + deltaF * forward) * NORMAL.getCDF(omega * (-kappa - alpha0)) - (1.0 + deltaF * k) * NORMAL.getCDF(omega * (-kappa - alpha1)));
     pv *= cap.getNotional();
-    return MultipleCurrencyAmount.of(cap.getCurrency(), pv);
+    return MultipleCurrencyAmount.of(ccy, pv);
   }
 
   /**
