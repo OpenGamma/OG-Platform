@@ -45,7 +45,6 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -367,16 +366,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         result.add(new ComputedValue(curveSpec, provider.getMulticurveProvider().getCurve(curveName)));
       }
       return result;
-    }
-
-    @Override
-    public boolean canHandleMissingRequirements() {
-      return true;
-    }
-
-    @Override
-    public boolean canHandleMissingInputs() {
-      return true;
     }
   }
 
