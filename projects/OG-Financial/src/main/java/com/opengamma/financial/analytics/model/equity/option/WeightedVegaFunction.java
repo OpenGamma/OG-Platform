@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.equity.option;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static String s_vega = ValueRequirementNames.VEGA;
   private static String s_weightedVega = ValueRequirementNames.WEIGHTED_VEGA;
-  private static int s_baseDays = 90; // TODO - Should be property available to the user 
+  private static int s_baseDays = 61; // TODO - Should be property available to the user 
   
   private String getValueRequirementName() {
     return s_weightedVega;
@@ -89,7 +90,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
     }
     
     final long daysToExpiry = ChronoUnit.DAYS.between(LocalDate.now(executionContext.getValuationClock()), expiry.getExpiry().toLocalDate()); 
-    final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));     
+    final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));  
     final double weightedVega = weighting * vega;
     
     // 3. Create specification and return
