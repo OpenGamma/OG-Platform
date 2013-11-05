@@ -1384,9 +1384,6 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       }
       if (previousGraphs != null) {
         s_logger.info("Performing incremental graph compilation");
-        if (unchangedNodes != null) {
-          System.err.println(unchangedNodes.size() + " unchanged node(s)");
-        }
         _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
             changedPositions, unchangedNodes);
       } else {
