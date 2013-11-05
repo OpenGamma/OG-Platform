@@ -35,7 +35,7 @@ public class ISINFunction extends BaseNonCompiledInvoker {
   @Override
   protected FunctionSignature functionSignature() {
 
-    return function("Bucketed PV01", ComputationTargetType.POSITION_OR_TRADE)
+    return function("ISIN", ComputationTargetType.POSITION_OR_TRADE)
         .outputs(
             output(ISIN)
                 .targetSpec(originalTarget())
