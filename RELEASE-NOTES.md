@@ -4,6 +4,14 @@ OpenGamma Platform 2.2 milestones
 These release notes cover changes from v2.1 to v2.2.
 
 
+2.2.0-M2p01
+===========
+
+[PLAT-4983] Fixed zeroing results based on puf/spread input
+[PLAT-4983] Allow principal and upfront results for non-IMM CDS
+
+
+
 Upgrading from 2.1.0
 ====================
 
