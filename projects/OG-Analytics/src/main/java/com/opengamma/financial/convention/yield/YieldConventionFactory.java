@@ -116,6 +116,9 @@ public final class YieldConventionFactory {
    */
   public YieldConvention getYieldConvention(final String name) {
     ArgumentChecker.notNull(name, "name");
+    if (_conventionMap.get(name.toLowerCase(Locale.ENGLISH)) == null) {
+      store(new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH)), name.toLowerCase(Locale.ENGLISH));
+    }
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
 

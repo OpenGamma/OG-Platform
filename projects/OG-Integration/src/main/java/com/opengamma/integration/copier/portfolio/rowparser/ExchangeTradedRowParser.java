@@ -59,14 +59,23 @@ public class ExchangeTradedRowParser extends RowParser {
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
     ArgumentChecker.notNull(row, "row");
-    
-    for (ExternalScheme scheme : s_schemeWaterfall) {
-      ExternalIdBundle id = ExternalId.of(scheme, getWithException(row, TICKER)).toBundle();
+    String idStr = getWithException(row, TICKER);
+    try {
+      ExternalIdBundle id = ExternalId.parse(idStr).toBundle();
       Security security = _securityProvider.getSecurity(id);
       if (security != null && security instanceof ManageableSecurity) {
         return new ManageableSecurity[] {(ManageableSecurity) security};
       }
+    } catch (IllegalArgumentException iae) {
+      for (ExternalScheme scheme : s_schemeWaterfall) {
+        ExternalIdBundle id = ExternalId.of(scheme, idStr).toBundle();
+        Security security = _securityProvider.getSecurity(id);
+        if (security != null && security instanceof ManageableSecurity) {
+          return new ManageableSecurity[] {(ManageableSecurity) security};
+        }
+      }
     }
+
     return new ManageableSecurity[] {};
   }
 
