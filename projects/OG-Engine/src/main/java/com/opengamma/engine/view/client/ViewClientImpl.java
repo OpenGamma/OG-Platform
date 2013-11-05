@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -143,37 +144,35 @@ public class ViewClientImpl implements ViewClient {
       }
 
       private CompiledViewDefinition createFilteredViewDefinition(CompiledViewDefinition compiledViewDefinition,
-                                                                  PortfolioFilter filter) {
+          PortfolioFilter filter) {
 
         // TODO see [PLAT-2478] and DependencyGraphStructureBuilder
         if (compiledViewDefinition instanceof CompiledViewDefinitionWithGraphsImpl) {
           CompiledViewDefinitionWithGraphsImpl cvdwg = (CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition;
           Collection<DependencyGraphExplorer> dependencyGraphExplorers = cvdwg.getDependencyGraphExplorers();
-          Collection<DependencyGraph> graphs = new HashSet<>();
+          Collection<DependencyGraph> graphs = new ArrayList<DependencyGraph>(dependencyGraphExplorers.size());
           for (DependencyGraphExplorer explorer : dependencyGraphExplorers) {
             graphs.add(explorer.getWholeGraph());
           }
-
           return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(),
-                                                                        cvdwg.getCompilationIdentifier(),
-                                                                        cvdwg.getViewDefinition(),
-                                                                        graphs, cvdwg.getResolvedIdentifiers(),
-                                                                        filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
-                                                                        cvdwg.getFunctionInitId(),
-                                                                        cvdwg.getCompiledCalculationConfigurations(),
-                                                                        cvdwg.getValidFrom(),
-                                                                        cvdwg.getValidTo());
+              cvdwg.getCompilationIdentifier(),
+              cvdwg.getViewDefinition(),
+              graphs, cvdwg.getResolvedIdentifiers(),
+              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+              cvdwg.getFunctionInitId(),
+              cvdwg.getCompiledCalculationConfigurations(),
+              cvdwg.getValidFrom(),
+              cvdwg.getValidTo());
         } else {
-
           // Would be better if there was a builder for this!
           return new CompiledViewDefinitionImpl(
-            compiledViewDefinition.getResolverVersionCorrection(),
-            compiledViewDefinition.getCompilationIdentifier(),
-            compiledViewDefinition.getViewDefinition(),
-            filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
-            compiledViewDefinition.getCompiledCalculationConfigurations(),
-            compiledViewDefinition.getValidFrom(),
-            compiledViewDefinition.getValidTo());
+              compiledViewDefinition.getResolverVersionCorrection(),
+              compiledViewDefinition.getCompilationIdentifier(),
+              compiledViewDefinition.getViewDefinition(),
+              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+              compiledViewDefinition.getCompiledCalculationConfigurations(),
+              compiledViewDefinition.getValidFrom(),
+              compiledViewDefinition.getValidTo());
         }
       }
 
