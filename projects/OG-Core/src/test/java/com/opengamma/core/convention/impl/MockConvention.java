@@ -78,6 +78,21 @@ public class MockConvention implements Bean, Convention {
     setConventionType(ConventionType.of(type));
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param type  the type, not null
+   * @param uniqueId  the unique identifier
+   * @param name  the name, not null
+   * @param bundle  the bundle, not null
+   */
+  public MockConvention(String type, UniqueId uniqueId, String name, ExternalIdBundle bundle) {
+    setConventionType(ConventionType.of(type));
+    setUniqueId(uniqueId);
+    setName(name);
+    setExternalIdBundle(bundle);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Adds an external identifier to the bundle representing this convention.
