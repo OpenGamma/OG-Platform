@@ -26,42 +26,32 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Calculates the Value (or Dollar) Delta of a FutureSecurity. 
- * The value delta is defined as the Delta (dV/dS) multiplied by the spot, S. 
- * As dS/dS == 1, ValueDelta = S, the spot value of the security.
- * ValueDelta can be roughly described as the delta hedge of the position expressed in currency value. 
- * It indicates how much currency must be used in order to delta hedge a position. 
+ * Calculates the Value (or Dollar) Delta of a FutureSecurity. The value delta is defined as the Delta (dV/dS) multiplied by the spot, S. As dS/dS == 1, ValueDelta = S, the spot value of the security.
+ * ValueDelta can be roughly described as the delta hedge of the position expressed in currency value. It indicates how much currency must be used in order to delta hedge a position.
  */
 public class FutureSecurityValueDeltaFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.FUTURE_SECURITY;
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getSecurity() instanceof FutureSecurity) {
-      return true;
-    }
-    return false;
-  }
-  
-  @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    
+
     ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    
+
     if (target.getSecurity() instanceof InterestRateFutureSecurity) {
       properties.withAny(ValuePropertyNames.SCALE);
     }
-   
+
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.VALUE_DELTA, target.toSpecification(), properties.get()));
   }
 
@@ -78,7 +68,7 @@ public class FutureSecurityValueDeltaFunction extends AbstractFunction.NonCompil
     }
     return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, getTargetType(), target.getUniqueId()));
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     FutureSecurity security = (FutureSecurity) target.getSecurity();
@@ -97,20 +87,19 @@ public class FutureSecurityValueDeltaFunction extends AbstractFunction.NonCompil
       }
       properties = properties.withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty);
     }
-    
-    
+
     final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.VALUE_DELTA, target.toSpecification(), properties.get());
-    
+
     // Get Market Value
     final Object marketValueObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (marketValueObject == null) {
       throw new OpenGammaRuntimeException("Could not get market value");
     }
     final Double marketValue = (Double) marketValueObject;
-    
+
     final ComputedValue result = new ComputedValue(valueSpecification, scaleFactor * marketValue * security.getUnitAmount());
     return Collections.singleton(result);
   }
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(FutureSecurityValueDeltaFunction.class);
 }

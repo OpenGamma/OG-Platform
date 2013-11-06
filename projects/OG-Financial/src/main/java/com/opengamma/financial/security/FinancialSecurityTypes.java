@@ -30,6 +30,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -200,6 +201,11 @@ public class FinancialSecurityTypes {
    * The FRA security type.
    */
   public static final ObjectComputationTargetType<FRASecurity> FRA_SECURITY = ObjectComputationTargetType.of(FRASecurity.class);
+
+  /**
+   * The Future security type.
+   */
+  public static final ObjectComputationTargetType<FutureSecurity> FUTURE_SECURITY = ObjectComputationTargetType.of(FutureSecurity.class);
 
   /**
    * The FX Barrier Option security type.

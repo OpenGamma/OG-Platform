@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.equity.option;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +29,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -38,24 +38,27 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * TODO - PROTOTYPE 
+ * TODO - PROTOTYPE
+ * 
  * @author casey
- *
  */
 public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.EQUITY_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY).or(
+      FinancialSecurityTypes.EQUITY_INDEX_FUTURE_OPTION_SECURITY);
 
   private static String s_vega = ValueRequirementNames.VEGA;
   private static String s_weightedVega = ValueRequirementNames.WEIGHTED_VEGA;
   private static int s_baseDays = 61; // TODO - Should be property available to the user 
-  
+
   private String getValueRequirementName() {
     return s_weightedVega;
   }
-  
+
   @Override
   // TODO - Pass Weighting Property - Base Days
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-        
+
     // 1. Get Vega
     Double vega = null;
     for (final ComputedValue input : inputs.getAllValues()) {
@@ -68,12 +71,12 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
         }
       }
     }
-    
+
     // 2. Compute Weighted Vega
-    
+
     Expiry expiry = null; // TODO: Create an ExpiryVisitor - this is the only reason we need to mention specific securities..
     final Security security = target.getSecurity();
-    
+
     if (security instanceof EquityOptionSecurity) {
       expiry = ((EquityOptionSecurity) security).getExpiry();
     } else if (security instanceof EquityIndexOptionSecurity) {
@@ -83,40 +86,26 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
     } else {
       s_logger.error("If applicable, please add the following SecurityType to WeightedVegaFunction, " + security.getSecurityType());
     }
-    
-    
+
     if (expiry.getAccuracy().equals(ExpiryAccuracy.MONTH_YEAR) || expiry.getAccuracy().equals(ExpiryAccuracy.YEAR)) {
       throw new OpenGammaRuntimeException("Security's Expiry is not accurate to the day, which is required: " + security.toString());
     }
-    
-    final long daysToExpiry = ChronoUnit.DAYS.between(LocalDate.now(executionContext.getValuationClock()), expiry.getExpiry().toLocalDate()); 
-    final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));  
+
+    final long daysToExpiry = ChronoUnit.DAYS.between(LocalDate.now(executionContext.getValuationClock()), expiry.getExpiry().toLocalDate());
+    final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));
     final double weightedVega = weighting * vega;
-    
+
     // 3. Create specification and return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpecification = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
     final ComputedValue result = new ComputedValue(valueSpecification, weightedVega);
     return Sets.newHashSet(result);
-    
+
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-  
-  @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    
-    final Security security = target.getSecurity();
-    if (security instanceof EquityOptionSecurity || 
-        security instanceof EquityIndexOptionSecurity ||
-        security instanceof EquityIndexFutureOptionSecurity) {
-      return true;
-    }
-    return false;
-    
+    return TYPE;
   }
 
   @Override
