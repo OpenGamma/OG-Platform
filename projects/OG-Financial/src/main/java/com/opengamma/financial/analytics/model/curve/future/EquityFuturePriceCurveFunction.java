@@ -50,6 +50,7 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpec
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.VersionCorrection;
 
 //TODO: Take account of holidays
 //TODO: Modify parent class to handle most of this logic
@@ -57,7 +58,6 @@ import com.opengamma.id.ExternalIdentifiable;
 
 /**
  * Function providing an equity future curve.
- *
  */
 public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
@@ -70,26 +70,26 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
-      final String definitionName) {
-    
+      final String definitionName, final VersionCorrection versionCorrection) {
+
     if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return null;
     }
     ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
     final String fullDefinitionName = definitionName + "_" + ticker;
-    return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType());
+    return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType(), versionCorrection);
   }
 
   private FuturePriceCurveSpecification getCurveSpecification(final ConfigDBFuturePriceCurveSpecificationSource source, final ComputationTarget target,
-      final String specificationName) {
+      final String specificationName, final VersionCorrection versionCorrection) {
     if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return null;
     }
     ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
     final String fullSpecificationName = specificationName + "_" + ticker;
-    return source.getSpecification(fullSpecificationName, getInstrumentType());
+    return source.getSpecification(fullSpecificationName, getInstrumentType(), versionCorrection);
   }
 
   @SuppressWarnings("unchecked")
@@ -108,7 +108,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
   protected Double getTimeToMaturity(final int n, final LocalDate date, final Calendar calendar) {
     return Double.valueOf(TimeCalculator.getTimeBetween(date, FutureOptionExpiries.EQUITY.getQuarterlyExpiry(n, date)));
   }
-  
+
   /* Spot value of the equity index or name */
   private ValueRequirement getSpotRequirement(final ComputationTarget target) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
@@ -152,21 +152,20 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         curveName = curveNames.iterator().next();
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
-        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target,
-            curveDefinitionName);
+        final VersionCorrection versionCorrection = myContext.getComputationTargetResolver().getVersionCorrection();
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName, versionCorrection);
         if (priceCurveDefinition == null) {
-          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType()});
+          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType() });
           return null;
         }
-        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target,
-            curveSpecificationName);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName, versionCorrection);
         if (priceCurveSpecification == null) {
-          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType()});
+          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType() });
           return null;
         }
-        
+
         Set<ValueRequirement> requirements = Sets.newHashSet();
-        requirements.add(getSpotRequirement(target)); 
+        requirements.add(getSpotRequirement(target));
         requirements.addAll(buildRequirements(priceCurveSpecification, priceCurveDefinition, atZDT));
         return requirements;
       }
@@ -181,7 +180,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         return true;
       }
 
-      @SuppressWarnings({ "synthetic-access" })
+      @SuppressWarnings({"synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
@@ -189,8 +188,9 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
-        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName);
-        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName);
+        final VersionCorrection versionCorrection = executionContext.getComputationTargetResolver().getVersionCorrection();
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName, versionCorrection);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName, versionCorrection);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final DoubleArrayList xList = new DoubleArrayList();

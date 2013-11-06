@@ -161,7 +161,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(((ExternalIdentifiable) target.getValue()).getExternalId());
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
+    final VolatilitySurfaceSpecification specification = volSpecSource
+        .getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION, context.getComputationTargetResolver().getVersionCorrection());
     if (specification == null) {
       s_logger.error("Could not get volatility surface specification with name " + fullName);
       return null;

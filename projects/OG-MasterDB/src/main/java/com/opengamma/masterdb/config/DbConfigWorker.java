@@ -136,7 +136,7 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getConfig(), "document.value");
     ArgumentChecker.notNull(document.getType(), "document.type");
-    
+
     Timer.Context context = _insertTimer.time();
     try {
       final Object value = document.getConfig().getValue();
@@ -180,7 +180,7 @@ import com.opengamma.util.paging.PagingRequest;
   //-------------------------------------------------------------------------
   public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
-    
+
     Timer.Context context = _metaDataTimer.time();
     try {
       ConfigMetaDataResult result = new ConfigMetaDataResult();
@@ -208,10 +208,13 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
     ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
     s_logger.debug("search {}", request);
-    
+
     Timer.Context context = _searchTimer.time();
     try {
-      final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+      VersionCorrection vc = request.getVersionCorrection();
+      if (vc.containsLatest()) {
+        vc = vc.withLatestFixed(now());
+      }
       final ConfigSearchResult<T> result = new ConfigSearchResult<T>(vc);
 
       final List<ObjectId> objectIds = request.getConfigIds();
@@ -368,7 +371,7 @@ import com.opengamma.util.paging.PagingRequest;
 
       } catch (Exception ex) {
         s_logger.warn("Bad fudge message in database, unable to deserialise docOid:" + docOid + " " + fudgeMsg +
-                          " to " + configType, ex);
+            " to " + configType, ex);
       }
     }
   }
