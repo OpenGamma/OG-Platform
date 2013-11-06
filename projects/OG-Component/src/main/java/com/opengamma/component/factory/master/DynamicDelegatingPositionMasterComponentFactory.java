@@ -66,8 +66,7 @@ public class DynamicDelegatingPositionMasterComponentFactory extends AbstractCom
     final ComponentInfo concreteInfo = new ComponentInfo(DynamicDelegatingPositionMaster.class, getClassifier());
     concreteInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
 
-    repo.registerComponent(info, concreteInfo);
-
+    repo.registerComponent(concreteInfo, master);
   }
 
 

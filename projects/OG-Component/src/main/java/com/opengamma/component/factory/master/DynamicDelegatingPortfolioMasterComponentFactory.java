@@ -66,8 +66,7 @@ public class DynamicDelegatingPortfolioMasterComponentFactory extends AbstractCo
     final ComponentInfo concreteInfo = new ComponentInfo(DynamicDelegatingPortfolioMaster.class, getClassifier());
     concreteInfo.addAttribute(ComponentInfoAttributes.LEVEL, 1);
 
-    repo.registerComponent(info, concreteInfo);
-
+    repo.registerComponent(concreteInfo, master);
   }
 
 
