@@ -1,5 +1,5 @@
 /**
- * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * Please see distribution for license.
  */
 $.register_module({
