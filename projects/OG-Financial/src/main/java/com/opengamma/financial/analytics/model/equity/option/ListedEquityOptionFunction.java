@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.equity.option;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
@@ -280,13 +278,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     return result;
   }
 
-  private static String oneOrNull(final Collection<String> values) {
-    if ((values == null) || values.isEmpty() || (values.size() != 1)) {
-      return null;
-    }
-    return Iterables.getOnlyElement(values);
-  }
-
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
@@ -303,28 +294,35 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     for (final String property : constraints.getProperties()) {
-      if (ValuePropertyNames.CALCULATION_METHOD.equals(property)) {
-        if (!constraints.getValues(property).contains(getCalculationMethod())) {
-          return null;
-        }
-      } else if (PROPERTY_DISCOUNTING_CURVE_NAME.equals(property)) {
-        discountingCurveName = oneOrNull(constraints.getValues(property));
-      } else if (PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(property)) {
-        discountingCurveConfig = oneOrNull(constraints.getValues(property));
-      } else if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(property)) {
-        forwardCurveName = oneOrNull(constraints.getValues(property));
-      } else if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(property)) {
-        forwardCurveCalculationMethod = oneOrNull(constraints.getValues(property));
-      } else {
-        if (additionalConstraintsBuilder == null) {
-          additionalConstraintsBuilder = ValueProperties.builder();
-        }
-        final Set<String> values = constraints.getValues(property);
-        if (values.isEmpty()) {
-          additionalConstraintsBuilder.withAny(property);
-        } else {
-          additionalConstraintsBuilder.with(property, values);
-        }
+      switch (property) {
+        case ValuePropertyNames.CALCULATION_METHOD:
+          if (!constraints.getValues(property).contains(getCalculationMethod())) {
+            return null;
+          }
+          break;
+        case PROPERTY_DISCOUNTING_CURVE_NAME:
+          discountingCurveName = constraints.getStrictValue(property);
+          break;
+        case PROPERTY_DISCOUNTING_CURVE_CONFIG:
+          discountingCurveConfig = constraints.getStrictValue(property);
+          break;
+        case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+          forwardCurveName = constraints.getStrictValue(property);
+          break;
+        case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+          forwardCurveCalculationMethod = constraints.getStrictValue(property);
+          break;
+        default:
+          if (additionalConstraintsBuilder == null) {
+            additionalConstraintsBuilder = ValueProperties.builder();
+          }
+          final Set<String> values = constraints.getValues(property);
+          if (values.isEmpty()) {
+            additionalConstraintsBuilder.withAny(property);
+          } else {
+            additionalConstraintsBuilder.with(property, values);
+          }
+          break;
       }
     }
     if ((discountingCurveName == null) || (discountingCurveConfig == null) ||

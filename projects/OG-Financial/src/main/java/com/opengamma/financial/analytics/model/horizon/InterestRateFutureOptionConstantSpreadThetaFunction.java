@@ -182,21 +182,19 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
+    String surfaceName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    if (daysForwardNames == null || daysForwardNames.size() != 1) {
+    final String daysForwardName = constraints.getStrictValue(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    if (daysForwardName == null) {
       return null;
     }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    surfaceName = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());

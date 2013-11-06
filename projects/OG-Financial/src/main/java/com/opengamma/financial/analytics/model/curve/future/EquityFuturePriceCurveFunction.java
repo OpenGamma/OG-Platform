@@ -143,13 +143,10 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
-        final String curveName;
-        final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-        if (curveNames == null || curveNames.size() != 1) {
-          s_logger.error("Can only get a single curve; asked for " + curveNames);
+        final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+        if (curveName == null) {
           return null;
         }
-        curveName = curveNames.iterator().next();
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
         final VersionCorrection versionCorrection = myContext.getComputationTargetResolver().getVersionCorrection();

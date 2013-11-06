@@ -162,20 +162,18 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curves = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curves == null || curves.size() != 1) {
-      s_logger.info("Must specify a curve against which to calculate the desired value " + _valueRequirementName);
+    final String curve = constraints.getStrictValue(ValuePropertyNames.CURVE);
+    if (curve == null) {
       return null;
     }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
+    String surfaceName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());
@@ -189,12 +187,11 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
       return null;
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String curve = curves.iterator().next();
     if (Arrays.binarySearch(curveNames, curve) < 0) {
       s_logger.info("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
+    surfaceName = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));

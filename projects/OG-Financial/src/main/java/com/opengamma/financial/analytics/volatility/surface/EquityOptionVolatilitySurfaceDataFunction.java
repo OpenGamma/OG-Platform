@@ -146,18 +146,16 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     // Function requires a VolatilitySurfaceData
     // Build the surface name, in two parts: the given name and the target
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> instrumentTypes = constraints.getValues(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-    if (instrumentTypes != null && instrumentTypes.size() == 1) {
-      if (!Iterables.getOnlyElement(instrumentTypes).equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+    final String instrumentType = constraints.getStrictValue(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
+    if (instrumentType != null) {
+      if (!InstrumentTypeProperties.EQUITY_OPTION.equals(instrumentType)) {
         return null;
       }
     }
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.error("Function takes only get a single surface. Asked for {}", surfaceNames);
+    final String givenName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (givenName == null) {
       return null;
     }
-    final String givenName = Iterables.getOnlyElement(surfaceNames);
     final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(((ExternalIdentifiable) target.getValue()).getExternalId());
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
@@ -182,21 +180,19 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     requirements.add(specificationReq);
     if (quoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
       // We require forward and discount curves to imply the volatility
-      final Set<String> curveNameValues = constraints.getValues(ValuePropertyNames.CURVE);
-      if (curveNameValues == null || curveNameValues.size() != 1) {
+      final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+      if (curveName == null) {
         return null;
       }
-      final Set<String> curveCalculationValues = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      if (curveCalculationValues == null || curveCalculationValues.size() != 1) {
+      final String curveCalculationConfig = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      if (curveCalculationConfig == null) {
         return null;
       }
-      final Set<String> curveCurrencyValues = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
-      if (curveCurrencyValues == null || curveCurrencyValues.size() != 1) {
+      final String curveCurrencyValue = constraints.getStrictValue(ValuePropertyNames.CURVE_CURRENCY);
+      if (curveCurrencyValue == null) {
         return null;
       }
-      final String curveName = Iterables.getOnlyElement(curveNameValues);
-      final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationValues);
-      final Currency ccy = Currency.of(Iterables.getOnlyElement(curveCurrencyValues));
+      final Currency ccy = Currency.of(curveCurrencyValue);
       // DiscountCurve
       final ValueProperties fundingProperties = ValueProperties.builder() // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
           .with(ValuePropertyNames.CURVE, curveName)

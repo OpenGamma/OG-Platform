@@ -205,28 +205,17 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-      final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
-      if (surfaceNames == null || surfaceNames.size() != 1) {
-        s_logger.info("Can only get a single surface; asked for " + surfaceNames);
-        return null;
-      }
-      final Set<String> instrumentTypes = desiredValue.getConstraints().getValues(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-      if (instrumentTypes == null || instrumentTypes.size() != 1) {
-        s_logger.info("Did not specify a single instrument type; asked for " + instrumentTypes);
-        return null;
-      }
-      final String surfaceName = Iterables.getOnlyElement(surfaceNames);
-      if (surfaceName == null) {
-        s_logger.error("Surface name was null");
-        return null;
-      }
-      final String instrumentType = Iterables.getOnlyElement(instrumentTypes);
+      // REVIEW 2013-11-06 Andrew -- This logic with the instrument type is not necessary - see getResults
+      final String instrumentType = desiredValue.getConstraints().getStrictValue(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
       if (instrumentType == null) {
-        s_logger.error("Instrument type was null");
         return null;
       }
       if (!_instrumentType.equals(instrumentType)) {
         s_logger.error("Instrument type {} did not match that required {}", instrumentType, _instrumentType);
+        return null;
+      }
+      final String surfaceName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.SURFACE);
+      if (surfaceName == null) {
         return null;
       }
       try {

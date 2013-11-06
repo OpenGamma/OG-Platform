@@ -120,42 +120,38 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.error("Could not get surface name from constraints {}", constraints);
+    final String surfaceName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final Set<String> instrumentTypeNames = constraints.getValues(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-    if (instrumentTypeNames == null || instrumentTypeNames.size() != 1) {
-      s_logger.error("Could not get instrument type from constraints {}", constraints);
+    final String instrumentType = constraints.getStrictValue(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
+    if (instrumentType == null) {
       return null;
     }
-    final Set<String> leftXExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    if (leftXExtrapolatorNames == null || leftXExtrapolatorNames.size() != 1) {
+    final String leftExtrapolatorName = constraints.getStrictValue(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    if (leftExtrapolatorName == null) {
       return null;
     }
-    final Set<String> rightXExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    if (rightXExtrapolatorNames == null || rightXExtrapolatorNames.size() != 1) {
+    final String rightXExtrapolatorName = constraints.getStrictValue(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    if (rightXExtrapolatorName == null) {
       return null;
     }
-    final Set<String> xInterpolatorNames = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-    if (xInterpolatorNames == null || xInterpolatorNames.size() != 1) {
+    final String xInterpolatorName = constraints.getStrictValue(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    if (xInterpolatorName == null) {
       return null;
     }
-    final Set<String> leftYExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME);
-    if (leftYExtrapolatorNames == null || leftYExtrapolatorNames.size() != 1) {
+    final String leftYExtrapolatorName = constraints.getStrictValue(InterpolatedDataProperties.LEFT_Y_EXTRAPOLATOR_NAME);
+    if (leftYExtrapolatorName == null) {
       return null;
     }
-    final Set<String> rightYExtrapolatorNames = constraints.getValues(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
-    if (rightYExtrapolatorNames == null || rightYExtrapolatorNames.size() != 1) {
+    final String rightYExtrapolatorName = constraints.getStrictValue(InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME);
+    if (rightYExtrapolatorName == null) {
       return null;
     }
-    final Set<String> yInterpolatorNames = constraints.getValues(InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
-    if (yInterpolatorNames == null || yInterpolatorNames.size() != 1) {
+    final String yInterpolatorName = constraints.getStrictValue(InterpolatedDataProperties.Y_INTERPOLATOR_NAME);
+    if (yInterpolatorName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next();
-    final String instrumentType = instrumentTypeNames.iterator().next();
     return Collections.singleton(getVolatilityDataRequirement(target, surfaceName, instrumentType));
   }
 

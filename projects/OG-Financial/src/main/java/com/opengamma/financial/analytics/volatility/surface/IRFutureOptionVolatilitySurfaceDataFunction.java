@@ -139,12 +139,10 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.error("Can only get a single surface; asked for {}", surfaceNames);
+    final String surfaceName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceSpecificationSource source = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final String fullSpecificationName = surfaceName + "_" + target.getUniqueId().getValue();

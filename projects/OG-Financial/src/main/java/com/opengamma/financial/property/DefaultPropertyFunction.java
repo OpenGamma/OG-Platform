@@ -277,6 +277,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
                 constraints.withoutAny(propertyName).with(propertyName, defaultValues);
                 matched = true;
               } else {
+                // REVIEW 2013-11-06 Andrew -- This can be quite inefficient; the isEmpty will create iterators on the underlyings, as will then the with operation if the intersection is non-empty
                 final Set<String> intersect = Sets.intersection(existingValues, defaultValues);
                 if (intersect.isEmpty()) {
                   s_logger.debug("Default {} incompatible with {}", defaultValues, existingValues);
