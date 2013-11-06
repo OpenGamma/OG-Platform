@@ -72,8 +72,6 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount DCC_30_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final DayCount MONEY_MARKET_DCC = ACT_360;
-  private static final DayCount SWAP_DCC = DCC_30_360;
   private static final DayCount CURVE_DCC = ACT_365;
 
 
@@ -116,6 +114,8 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
         final double[] values = new double[specificationWithSecurities.getStrips().size()];
 
         Period swapIvl = null;
+        DayCount moneyDCC = null;
+        DayCount swapFixLegDCC = null;
         int i = 0;
         for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
           final String securityType = strip.getSecurity().getSecurityType();
@@ -128,9 +128,11 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
           }
           if (CashSecurity.SECURITY_TYPE.equals(strip.getSecurity().getSecurityType())) {
             instruments[i] = ISDAInstrumentTypes.MoneyMarket;
+            moneyDCC = ((CashSecurity) strip.getSecurity()).getDayCount();
           } else if (SwapSecurity.SECURITY_TYPE.equals(strip.getSecurity().getSecurityType())) {
             instruments[i] = ISDAInstrumentTypes.Swap;
             swapIvl = getFixedLegPaymentTenor((SwapSecurity) strip.getSecurity());
+            swapFixLegDCC = getFixedLegDCC((SwapSecurity) strip.getSecurity());
           } else {
             throw new OpenGammaRuntimeException("Unexpected curve instument type, can only handle cash and swaps, got: " + strip.getSecurity());
           }
@@ -146,8 +148,8 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
                 spotDate,
                 instruments,
                 tenors,
-                MONEY_MARKET_DCC,
-                SWAP_DCC,
+                moneyDCC,
+                swapFixLegDCC,
                 swapIvl, 
                 CURVE_DCC,
                 badDayConv,
@@ -173,7 +175,18 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
         } else {
           throw new OpenGammaRuntimeException("Got a swap without a fixed leg " + swap);
         }
+      }
 
+      private DayCount getFixedLegDCC(final SwapSecurity swap) {
+        if (swap.getReceiveLeg() instanceof FixedInterestRateLeg) {
+          FixedInterestRateLeg fixLeg = (FixedInterestRateLeg) swap.getReceiveLeg();
+          return fixLeg.getDayCount();
+        } else if (swap.getPayLeg() instanceof FixedInterestRateLeg) {
+          FixedInterestRateLeg fixLeg = (FixedInterestRateLeg) swap.getPayLeg();
+          return fixLeg.getDayCount();
+        } else {
+          throw new OpenGammaRuntimeException("Got a swap without a fixed leg " + swap);
+        }
       }
 
       @Override
