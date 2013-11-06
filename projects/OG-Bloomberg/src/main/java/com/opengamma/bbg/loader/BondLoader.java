@@ -235,7 +235,7 @@ public class BondLoader extends SecurityLoader {
         throw new OpenGammaRuntimeException("Cannot get yield Convention called " + yieldConventionStr);
       }
       String guaranteeType = fieldData.getString(FIELD_GUARANTOR); // bit unsure about this one.
-      String maturityStr = validateAndGetStringField(fieldData, FIELD_MATURITY);
+      String maturityStr = validateAndGetNullableStringField(fieldData, FIELD_MATURITY);
       if (maturityStr == null && isPerpetual) {
         maturityStr = "2049-06-29"; // fake date, need to remove.
       }
