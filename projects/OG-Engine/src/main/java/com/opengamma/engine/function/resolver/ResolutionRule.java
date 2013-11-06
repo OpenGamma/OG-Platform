@@ -437,8 +437,8 @@ public class ResolutionRule {
         return null;
       } else if (adjusted == ComputationTargetType.NULL) {
         // Exact match
-        functionCache.put(target, target);
-        return target;
+        functionCache.put(target, type);
+        return type;
       } else {
         // Type replacement
         functionCache.put(target, adjusted);
