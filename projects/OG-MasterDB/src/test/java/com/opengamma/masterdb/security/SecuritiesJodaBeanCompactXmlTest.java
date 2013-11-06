@@ -24,11 +24,11 @@ import com.opengamma.util.test.TestGroup;
  * Test the Joda Bean XML encoding of securities.
  */
 @Test(groups = TestGroup.UNIT)
-public class SecuritiesJodaBeanXmlTest extends SecurityTestCase {
+public class SecuritiesJodaBeanCompactXmlTest extends SecurityTestCase {
 
   @Override
   protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
-    String xml = JodaBeanSer.PRETTY.xmlWriter().write(security);
+    String xml = JodaBeanSer.COMPACT.xmlWriter().write(security);
 //    System.out.println(xml);
     
     StringWriter writer = new StringWriter();
@@ -43,7 +43,7 @@ public class SecuritiesJodaBeanXmlTest extends SecurityTestCase {
 //    System.out.println(xml.length() + " vs " + writerXml.length());
 //    System.out.println("");
     
-    T readIn = securityClass.cast(JodaBeanSer.PRETTY.xmlReader().read(xml));
+    T readIn = securityClass.cast(JodaBeanSer.COMPACT.xmlReader().read(xml));
     assertEquals(security, readIn);
   }
 
