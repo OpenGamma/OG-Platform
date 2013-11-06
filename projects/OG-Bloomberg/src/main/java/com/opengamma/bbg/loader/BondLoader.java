@@ -28,6 +28,9 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MATURITY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_MTY_TYPE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_IS_PERPETUAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BULLET;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_INCREMENT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
@@ -112,6 +115,9 @@ public class BondLoader extends SecurityLoader {
       FIELD_REDEMP_VAL,
       FIELD_FLOATER,
       FIELD_INFLATION_LINKED_INDICATOR,
+      FIELD_MTY_TYPE,
+      FIELD_IS_PERPETUAL,
+      FIELD_BULLET,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
@@ -212,6 +218,13 @@ public class BondLoader extends SecurityLoader {
       String issuerName = validateAndGetStringField(fieldData, FIELD_ISSUER);
       String issuerType = validateAndGetStringField(fieldData, FIELD_INDUSTRY_GROUP);
       String inflationIndicator = validateAndGetNullableStringField(fieldData, FIELD_INFLATION_LINKED_INDICATOR);
+      String isPerpetualStr = validateAndGetNullableStringField(fieldData, FIELD_IS_PERPETUAL);
+      boolean isPerpetual = (isPerpetualStr != null && isPerpetualStr.trim().toUpperCase().contains("Y"));
+      String isBulletStr = validateAndGetNullableStringField(fieldData, FIELD_BULLET);
+      boolean isBullet = (isBulletStr != null && isBulletStr.trim().toUpperCase().contains("Y"));
+      String maturityType = validateAndGetNullableStringField(fieldData, FIELD_MTY_TYPE);
+      boolean isCallable = (maturityType != null && maturityType.trim().toUpperCase().contains("CALL"));
+      String bullet = validateAndGetNullableStringField(fieldData, FIELD_BULLET);
       String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
       String market = validateAndGetStringField(fieldData, FIELD_SECURITY_TYP);
       String currencyStr = validateAndGetStringField(fieldData, FIELD_CRNCY);
@@ -223,6 +236,9 @@ public class BondLoader extends SecurityLoader {
       }
       String guaranteeType = fieldData.getString(FIELD_GUARANTOR); // bit unsure about this one.
       String maturityStr = validateAndGetStringField(fieldData, FIELD_MATURITY);
+      if (maturityStr == null && isPerpetual) {
+        maturityStr = "2049-06-29"; // fake date, need to remove.
+      }
       // These will need to be sorted out.
       LocalTime expiryTime = LocalTime.of(17, 00);
       ZoneId zone = ZoneOffset.UTC;
@@ -310,6 +326,9 @@ public class BondLoader extends SecurityLoader {
       }
       
       bondSecurity.setName(des.trim());
+      bondSecurity.addAttribute("Bullet", isBullet ? "Y" : "N");
+      bondSecurity.addAttribute("Callable", isCallable ? "Y" : "N");
+      bondSecurity.addAttribute("Perpetual", isPerpetual ? "Y" : "N");
       // set identifiers
       parseIdentifiers(fieldData, bondSecurity);
       return bondSecurity;
