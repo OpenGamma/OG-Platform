@@ -224,7 +224,6 @@ public class BondLoader extends SecurityLoader {
       boolean isBullet = (isBulletStr != null && isBulletStr.trim().toUpperCase().contains("Y"));
       String maturityType = validateAndGetNullableStringField(fieldData, FIELD_MTY_TYPE);
       boolean isCallable = (maturityType != null && maturityType.trim().toUpperCase().contains("CALL"));
-      String bullet = validateAndGetNullableStringField(fieldData, FIELD_BULLET);
       String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
       String market = validateAndGetStringField(fieldData, FIELD_SECURITY_TYP);
       String currencyStr = validateAndGetStringField(fieldData, FIELD_CRNCY);
@@ -260,7 +259,11 @@ public class BondLoader extends SecurityLoader {
       }
       String dayCountString = validateAndGetStringField(fieldData, FIELD_DAY_CNT_DES);
       // REVIEW: jim 27-Jan-2011 -- remove this and fix it properly.
-      if (dayCountString.equals("ACT/ACT")) {
+      boolean isEOM = true;
+      if (dayCountString.endsWith("NON-EOM")) {
+        isEOM = false;
+      }
+      if (dayCountString.equals("ACT/ACT") || dayCountString.equals("ACT/ACT NON-EOM")) {
         dayCountString = "Actual/Actual ICMA";
       }
       ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
@@ -329,6 +332,7 @@ public class BondLoader extends SecurityLoader {
       bondSecurity.addAttribute("Bullet", isBullet ? "Y" : "N");
       bondSecurity.addAttribute("Callable", isCallable ? "Y" : "N");
       bondSecurity.addAttribute("Perpetual", isPerpetual ? "Y" : "N");
+      bondSecurity.addAttribute("EOM", isEOM ? "Y" : "N");
       // set identifiers
       parseIdentifiers(fieldData, bondSecurity);
       return bondSecurity;
