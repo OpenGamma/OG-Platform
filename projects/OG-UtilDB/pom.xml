@@ -64,11 +64,11 @@
       <artifactId>derby</artifactId>
       <optional>true</optional>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>com.opengamma.external.microsoft</groupId>
       <artifactId>sqljdbc</artifactId>
       <optional>true</optional>
-    </dependency>
+    </dependency-->
 
     <dependency>
       <groupId>org.testng</groupId>
