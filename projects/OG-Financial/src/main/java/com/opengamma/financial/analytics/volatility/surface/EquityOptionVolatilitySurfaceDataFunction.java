@@ -48,9 +48,12 @@ import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -180,30 +183,43 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     requirements.add(specificationReq);
     if (quoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
       // We require forward and discount curves to imply the volatility
-      final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
-      if (curveName == null) {
+      // DiscountCurve
+      final String discountingCurveName = constraints.getStrictValue(ValuePropertyNames.DISCOUNTING_CURVE_NAME);
+      if (discountingCurveName == null) {
         return null;
       }
+
       final String curveCalculationConfig = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       if (curveCalculationConfig == null) {
         return null;
       }
-      final String curveCurrencyValue = constraints.getStrictValue(ValuePropertyNames.CURVE_CURRENCY);
-      if (curveCurrencyValue == null) {
+      
+      final String ccyCode = constraints.getStrictValue(ValuePropertyNames.CURVE_CURRENCY);
+      if (ccyCode == null) {
         return null;
       }
-      final Currency ccy = Currency.of(curveCurrencyValue);
-      // DiscountCurve
-      final ValueProperties fundingProperties = ValueProperties.builder() // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
-          .with(ValuePropertyNames.CURVE, curveName)
+      final Currency ccy = Currency.of(ccyCode);
+      
+      final ValueProperties fundingProperties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, discountingCurveName)
           .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
           .get();
       final ValueRequirement discountCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(ccy), fundingProperties);
       requirements.add(discountCurveRequirement);
+
       // ForwardCurve
-      final String curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD; // TODO Remove hard-coding of forward curve calculation method by adding as property
+      final String forwardCurveName = constraints.getStrictValue(ValuePropertyNames.FORWARD_CURVE_NAME);
+      if (forwardCurveName == null) {
+        return null;
+      }     
+     
+      final String curveCalculationMethod = constraints.getStrictValue(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+      if (curveCalculationMethod == null) {
+        return null;
+      }
+      
       final ValueProperties curveProperties = ValueProperties.builder()
-          .with(ValuePropertyNames.CURVE, curveName)
+          .with(ValuePropertyNames.CURVE, forwardCurveName)
           .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
           .get();
       final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), curveProperties);
@@ -223,13 +239,22 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         properties.with(ValuePropertyNames.SURFACE, key.getProperty(ValuePropertyNames.SURFACE));
         surfaceNameSet = true;
       } else if (key.getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
-        final ValueProperties curveProperties = key.getProperties().copy()
-            .withoutAny(ValuePropertyNames.FUNCTION)
-            .get();
-        for (final String property : curveProperties.getProperties()) {
-          properties.with(property, curveProperties.getValues(property));
-        }
-        //don't check if forward curve is set, because it isn't needed if the quotes are volatility
+        
+//        !!! TODO: ONCE DEFAULTS ARE FLOWING THROUGH, extractInputProperties AS IN EquityOptionFunction !!!
+        
+//        final ValueProperties curveProperties = key.getProperties().copy()
+//            .withoutAny(ValuePropertyNames.FUNCTION)
+//            .get();
+//        for (final String property : curveProperties.getProperties()) {
+//          properties.with(property, curveProperties.getValues(property));
+//        }
+        properties.with(ValuePropertyNames.FORWARD_CURVE_NAME, key.getProperty(ValuePropertyNames.CURVE));
+        properties.with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, 
+            key.getProperty(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD));
+      } else if (key.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        properties.with(ValuePropertyNames.DISCOUNTING_CURVE_NAME, key.getProperty(ValuePropertyNames.CURVE));
+        properties.with(ValuePropertyNames.CURVE_CURRENCY, key.getTargetSpecification().getUniqueId().getValue());
+        properties.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, key.getProperty(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
       }
     }
     assert surfaceNameSet;
@@ -287,8 +312,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
     }
     // exercise type
-    //TODO REVIEW emcleod 9-7-2013 why is this not using specification.getExerciseType() instanceof AmericanExerciseType?
-    final boolean isAmerican = (specification.getExerciseType()).getName().startsWith("A");
+    final boolean isAmerican = specification.getExerciseType() instanceof AmericanExerciseType;
     BjerksundStenslandModel americanModel = null;
     final double spot = forwardCurve.getSpot();
     if (isAmerican) {
