@@ -53,9 +53,13 @@ public class InMemoryHolidayMasterPopulator {
 
       ManageableHoliday holiday = holidays.get(regionCode);
       if (holiday == null) {
+        //// old style with region
         holiday = new ManageableHoliday();
-        holiday.setType(HolidayType.BANK);
-        holiday.setRegionExternalId(ExternalId.of(regionScheme, regionCode));
+        //holiday.setType(HolidayType.BANK);
+        //holiday.setRegionExternalId(ExternalId.of(regionScheme, regionCode));
+        //holidays.put(regionCode, holiday);
+        holiday.setType(HolidayType.CUSTOM);
+        holiday.setCustomExternalId(ExternalId.of(regionScheme, regionCode));
         holidays.put(regionCode, holiday);
       }
 

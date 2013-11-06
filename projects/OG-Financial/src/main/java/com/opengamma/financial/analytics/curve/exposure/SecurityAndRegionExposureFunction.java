@@ -51,6 +51,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -467,4 +468,8 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     return result;
   }
 
+  @Override
+  public List<ExternalId> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return null;  // SwapLegs currently do not hold region
+  }
 }

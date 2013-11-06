@@ -45,6 +45,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -382,5 +383,10 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   @Override
   public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     return _delegate.visitYearOnYearInflationSwapSecurity(security);
+  }
+
+  @Override
+  public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return  _delegate.visitInterestRateSwapSecurity(security);
   }
 }
