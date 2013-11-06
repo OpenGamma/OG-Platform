@@ -281,6 +281,12 @@ public final class ValuePropertyNames {
    * The name of a property that provides the name of a forward curve.
    */
   public static final String FORWARD_CURVE_NAME = "ForwardCurveName";
+
+  /**
+   * The name of a property that provides the name of a discounting curve.<p>
+   * Used to different this from {@link ValuePropertyNames#FORWARD_CURVE_NAME}
+   */
+  public static final String DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
   
   /**
    * A general name for a property describing a transformation method to use.
