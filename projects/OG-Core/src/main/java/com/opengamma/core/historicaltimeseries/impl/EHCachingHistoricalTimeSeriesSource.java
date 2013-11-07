@@ -156,13 +156,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     };
   }
 
-  private void cleanCaches(ObjectId oid) {
+  private void cleanCaches(ObjectId _oid) {
     // Only care where the unversioned ID has been cached since it now represents something else
-    _dataCache.remove(oid);
-    _identifierBundleCache.remove(oid);
-    // Destroy all version/correction cached values for the object
-    _dataCache.remove(oid);
-    _identifierBundleCache.remove(oid);
+    _dataCache.removeAll();
+    _identifierBundleCache.removeAll();
   }
 
   //-------------------------------------------------------------------------
