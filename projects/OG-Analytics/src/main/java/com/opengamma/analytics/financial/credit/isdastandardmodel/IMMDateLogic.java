@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
-import java.util.Arrays;
-
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
@@ -51,16 +49,16 @@ public abstract class IMMDateLogic {
 
   /**
    * Get a set of IMM dates fixed periods from an initial IMM date. 
-   * @param startIMMDate The starting IMM date (this will be the first entry)
+   * @param baseIMMDate The base IMM date (all dates are some interval on from this)
    * @param tenors The periods (typically this would look like 6M, 1Y, 2Y, 3Y, 5Y, 10Y) 
    * @return Set of IMM dates 
    */
-  public static LocalDate[] getIMMDateSet(final LocalDate startIMMDate, final Period[] tenors) {
-    ArgumentChecker.notNull(startIMMDate, "startIMMDate");
+  public static LocalDate[] getIMMDateSet(final LocalDate baseIMMDate, final Period[] tenors) {
+    ArgumentChecker.notNull(baseIMMDate, "startIMMDate");
     ArgumentChecker.noNulls(tenors, "tenors");
     final int n = tenors.length;
-    ArgumentChecker.isTrue(isIMMDate(startIMMDate), "start is not an IMM date");
-    final LocalDate nextIMM = startIMMDate;
+    ArgumentChecker.isTrue(isIMMDate(baseIMMDate), "start is not an IMM date");
+    final LocalDate nextIMM = baseIMMDate;
     final LocalDate[] res = new LocalDate[n];
     for (int i = 0; i < n; i++) {
       res[i] = nextIMM.plus(tenors[i]);
@@ -101,27 +99,18 @@ public abstract class IMMDateLogic {
     final int day = date.getDayOfMonth();
     final int month = date.getMonthValue();
     final int year = date.getYear();
-    if (isIMMDate(date)) { //on an IMM date 
-      if (month != 12) {
-        return LocalDate.of(year, month + 3, IMM_DAY);
+    if (month % 3 == 0) { //in an IMM month
+      if (day < IMM_DAY) {
+        return LocalDate.of(year, month, IMM_DAY);
       } else {
-        return LocalDate.of(year + 1, IMM_MONTHS[0], IMM_DAY);
+        if (month != 12) {
+          return LocalDate.of(year, month + 3, IMM_DAY);
+        } else {
+          return LocalDate.of(year + 1, IMM_MONTHS[0], IMM_DAY);
+        }
       }
     } else {
-      final int index = Arrays.binarySearch(IMM_MONTHS, month);
-      if (index >= 0) { //in an IMM month
-        if (day < IMM_DAY) {
-          return LocalDate.of(year, month, IMM_DAY);
-        } else {
-          if (month != 12) {
-            return LocalDate.of(year, month + 3, IMM_DAY);
-          } else {
-            return LocalDate.of(year + 1, IMM_MONTHS[0], IMM_DAY);
-          }
-        }
-      } else {
-        return LocalDate.of(year, IMM_MONTHS[-(index + 1)], IMM_DAY);
-      }
+      return LocalDate.of(year, IMM_MONTHS[month / 3], IMM_DAY);
     }
   }
 
@@ -136,31 +125,22 @@ public abstract class IMMDateLogic {
     final int day = date.getDayOfMonth();
     final int month = date.getMonthValue();
     final int year = date.getYear();
-    if (isIMMDate(date)) { //on an IMM date 
-      if (month != 3) {
-        return LocalDate.of(year, month - 3, IMM_DAY);
+    if (month % 3 == 0) { //in an IMM month
+      if (day > IMM_DAY) {
+        return LocalDate.of(year, month, IMM_DAY);
       } else {
-        return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
+        if (month != 3) {
+          return LocalDate.of(year, month - 3, IMM_DAY);
+        } else {
+          return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
+        }
       }
     } else {
-      final int index = Arrays.binarySearch(IMM_MONTHS, month);
-      if (index >= 0) { //in an IMM month
-        if (day > IMM_DAY) {
-          return LocalDate.of(year, month, IMM_DAY);
-        } else {
-          if (month != 3) {
-            return LocalDate.of(year, month - 3, IMM_DAY);
-          } else {
-            return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
-          }
-        }
+      final int i = month / 3;
+      if (i == 0) {
+        return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
       } else {
-        final int i = -(index + 1);
-        if (i == 0) {
-          return LocalDate.of(year - 1, IMM_MONTHS[3], IMM_DAY);
-        } else {
-          return LocalDate.of(year, IMM_MONTHS[i - 1], IMM_DAY);
-        }
+        return LocalDate.of(year, IMM_MONTHS[i - 1], IMM_DAY);
       }
     }
   }
