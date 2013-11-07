@@ -1050,7 +1050,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         final ValueSpecification output = node.getOutputValue(i);
         final ValueSpecification newOutput = MemoryUtils.instance(new ValueSpecification(output.getValueName(), newTarget, output.getProperties()));
         outputValues[i] = newOutput;
-        Set<ValueRequirement> oldReqs = terminalOutputs.remove(output);
+        final Set<ValueRequirement> oldReqs = terminalOutputs.remove(output);
         if (oldReqs != null) {
           Set<ValueRequirement> newReqs = Sets.newHashSetWithExpectedSize(oldReqs.size());
           for (ValueRequirement req : oldReqs) {
@@ -1065,6 +1065,36 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         }
       }
     } else {
+      final int outputValueCount = node.getOutputCount();
+      for (int i = 0; i < outputValueCount; i++) {
+        final ValueSpecification output = node.getOutputValue(i);
+        final Set<ValueRequirement> oldReqs = terminalOutputs.get(output);
+        if (oldReqs != null) {
+          Set<ValueRequirement> newReqs = null;
+          for (ValueRequirement req : oldReqs) {
+            final ComputationTargetReference newRequirementTarget = req.getTargetReference().accept(remapper);
+            if (newRequirementTarget != null) {
+              if (newReqs == null) {
+                newReqs = Sets.newHashSetWithExpectedSize(oldReqs.size());
+                for (ValueRequirement req2 : oldReqs) {
+                  if (req2 == req) {
+                    break;
+                  }
+                  newReqs.add(req2);
+                }
+              }
+              newReqs.add(MemoryUtils.instance(new ValueRequirement(req.getValueName(), newRequirementTarget, req.getConstraints())));
+            } else {
+              if (newReqs != null) {
+                newReqs.add(req);
+              }
+            }
+          }
+          if (newReqs != null) {
+            terminalOutputs.put(output, newReqs);
+          }
+        }
+      }
       if (inputValues == null) {
         // No change to the node
         remapped.put(node, node);
