@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalBundleIdentifiable;
@@ -24,10 +27,26 @@ import com.opengamma.util.PoolExecutor;
  */
 public abstract class AbstractSourceWithExternalBundle<V extends UniqueIdentifiable & ExternalBundleIdentifiable> extends AbstractSource<V> implements SourceWithExternalBundle<V> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractSourceWithExternalBundle.class);
+
+  private static final PoolExecutor.CompletionListener<Void> s_reportExceptions = new PoolExecutor.CompletionListener<Void>() {
+
+    @Override
+    public void success(final Void result) {
+      s_logger.debug("Asynchronous job completed");
+    }
+
+    @Override
+    public void failure(final Throwable error) {
+      s_logger.error("Asynchronous job error: {}", error.getMessage());
+      s_logger.warn("Caught exception", error);
+    }
+  };
+
   public static <V extends UniqueIdentifiable & ExternalBundleIdentifiable> Map<ExternalIdBundle, Collection<V>> getAllMultiThread(final PoolExecutor executor,
       final SourceWithExternalBundle<V> source, final Collection<ExternalIdBundle> bundles,
       final VersionCorrection versionCorrection) {
-    final PoolExecutor.Service<Void> jobs = executor.createService(null);
+    final PoolExecutor.Service<Void> jobs = executor.createService(s_reportExceptions);
     final Map<ExternalIdBundle, Collection<V>> results = Maps.newHashMapWithExpectedSize(bundles.size());
     for (final ExternalIdBundle bundle : bundles) {
       jobs.execute(new Runnable() {
@@ -35,16 +54,20 @@ public abstract class AbstractSourceWithExternalBundle<V extends UniqueIdentifia
         public void run() {
           final Collection<V> result = source.get(bundle, versionCorrection);
           if ((result != null) && !result.isEmpty()) {
-            results.put(bundle, result);
+            synchronized (results) {
+              results.put(bundle, result);
+            }
           }
         }
       });
     }
     try {
+      s_logger.debug("Joining asynchronous jobs in getAllMultiThread");
       jobs.join();
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
+    s_logger.debug("Returning {} results from getAllMultiThread", results.size());
     return results;
   }
 
@@ -120,7 +143,7 @@ public abstract class AbstractSourceWithExternalBundle<V extends UniqueIdentifia
 
   public static <V extends UniqueIdentifiable & ExternalBundleIdentifiable> Map<ExternalIdBundle, V> getSingleMultiThread(final PoolExecutor executor, final SourceWithExternalBundle<V> source,
       final Collection<ExternalIdBundle> bundles, final VersionCorrection versionCorrection) {
-    final PoolExecutor.Service<Void> jobs = executor.createService(null);
+    final PoolExecutor.Service<Void> jobs = executor.createService(s_reportExceptions);
     final Map<ExternalIdBundle, V> results = Maps.newHashMapWithExpectedSize(bundles.size());
     for (final ExternalIdBundle bundle : bundles) {
       jobs.execute(new Runnable() {
@@ -128,16 +151,20 @@ public abstract class AbstractSourceWithExternalBundle<V extends UniqueIdentifia
         public void run() {
           final V result = source.getSingle(bundle, versionCorrection);
           if (result != null) {
-            results.put(bundle, result);
+            synchronized (results) {
+              results.put(bundle, result);
+            }
           }
         }
       });
     }
     try {
+      s_logger.debug("Joining asynchronous jobs in getSingleMultiThread");
       jobs.join();
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
+    s_logger.debug("Returning {} results from getSingleMultiThread", results.size());
     return results;
   }
 
