@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -16,6 +17,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.convention.Convention;
 import com.opengamma.core.convention.ConventionSource;
@@ -55,7 +57,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Utilities to convert the nodes used in curve construction to OG-Analytics objects.
  */
 public class NodeConverterUtils {
 
@@ -199,6 +201,7 @@ public class NodeConverterUtils {
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, iborIndex.getBusinessDayConvention(), calendar, eomLeg);
         final StubType stubLeg = convention.getStubTypeLeg();
         final StubType stubComp = convention.getStubTypeCompound();
+        final CompoundingType compound = convention.getCompoundingType();
         final boolean eom = convention.isIsEOM();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
         if (!isPayer && isMarketDataSpread) {
@@ -206,11 +209,27 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
-              iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+          switch (compound) {
+            case COMPOUNDING:
+              return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
+                  iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+            case FLAT_COMPOUNDING:
+              return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
+                  iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+            default:
+              throw new NotImplementedException("Compounding method unimplemented: only COMPOUNDING and FLAT_COMPOUNDING implemented");
+          }
         }
-        return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
-            iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+        switch (compound) {
+          case COMPOUNDING:
+            return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
+              iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+          case FLAT_COMPOUNDING:
+            return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, 1, 0.0, iborIndex, stubComp, isPayer,
+                iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
+          default:
+            throw new NotImplementedException("Compounding method unimplemented: only COMPOUNDING and FLAT_COMPOUNDING implemented");
+        }
       }
 
       @Override

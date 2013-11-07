@@ -49,8 +49,10 @@ public class PerCurrencyConventionHelper {
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
   /** Ibor leg convention string **/
   public static final String IBOR_LEG = "Ibor Leg";
-  /** Compounded Ibor leg convention string **/
+  /** Compounding Ibor leg convention string **/
   public static final String IBOR_CMP_LEG = "Comp Ibor Leg";
+  /** Flat Compounding Ibor leg convention string **/
+  public static final String IBOR_CMP_FLAT_LEG = "Comp Flat Ibor Leg";
   /** Swap string */
   public static final String SWAP = "Swap";
   /** Quarterly Eurodollar futures string */

@@ -48,6 +48,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -147,6 +148,11 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
   @Override
   public Double visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
     return Math.max(payment.getFixingPeriodEndTimes()[payment.getFixingPeriodEndTimes().length - 1], payment.getPaymentTime());
+  }
+
+  @Override
+  public Double visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment) {
+    return Math.max(payment.getFixingSubperiodsEndTimes()[payment.getFixingSubperiodsEndTimes().length - 1], payment.getPaymentTime());
   }
 
   @Override
