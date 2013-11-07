@@ -174,11 +174,21 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
           swapSecurity.getExternalIdBundle());
     }
     final Frequency freqIbor = iborLeg.getFrequency();
-    final Period tenorIbor = getTenor(freqIbor);
+    final Period tenorIbor;
+    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+      tenorIbor = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+    } else {
+      tenorIbor = getTenor(freqIbor);
+    }
     final IborIndex indexIbor = new IborIndex(currency, tenorIbor, iborIndexConvention.getSettlementDays(), iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention(), iborIndexConvention.getName());
     final Frequency freqFixed = fixedLeg.getFrequency();
-    final Period tenorFixed = getTenor(freqFixed);
+    final Period tenorFixed;
+    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+      tenorFixed = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+    } else {
+      tenorFixed = getTenor(freqFixed);
+    }
     final double fixedLegNotional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
     if (hasSpread) {
