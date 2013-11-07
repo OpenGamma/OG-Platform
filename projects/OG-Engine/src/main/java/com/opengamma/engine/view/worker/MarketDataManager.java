@@ -339,7 +339,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
 
   @Override
   public void valuesChanged(Collection<ValueSpecification> specifications) {
-    s_logger.info("Received change notification for {} specifications", specifications.size());
+    s_logger.debug("Received change notification for {} specifications", specifications.size());
     _marketDataChangeListener.onMarketDataValuesChanged(specifications);
   }
 
