@@ -135,18 +135,21 @@ public class MasterHolidaySource
         }
         return isHoliday(cachedDates, dateToCheck);
       }
-      
     }
-    
-    request.setDateToCheck(dateToCheck);
-    HolidayDocument doc = getMaster().search(request).getFirstDocument();
-    
+
+    HolidayDocument doc;
     if (_cacheHolidayCalendars) {
+      // get all holidays and cache
+      doc = getMaster().search(cacheKey).getFirstDocument();
       if (doc == null) {
         _cachedHolidays.put(cacheKey, Collections.<LocalDate>emptyList());
       } else {
         _cachedHolidays.put(cacheKey, doc.getHoliday().getHolidayDates());
       }
+    } else {
+      // Not caching, search for this date only.
+      request.setDateToCheck(dateToCheck);
+      doc = getMaster().search(request).getFirstDocument();
     }
     return isHoliday(doc, dateToCheck);
   }
