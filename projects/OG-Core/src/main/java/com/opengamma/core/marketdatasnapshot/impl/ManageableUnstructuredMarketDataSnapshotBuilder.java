@@ -14,8 +14,12 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -33,13 +37,18 @@ import com.opengamma.id.ExternalIdBundle;
  */
 @FudgeBuilderFor(ManageableUnstructuredMarketDataSnapshot.class)
 public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBuilder<ManageableUnstructuredMarketDataSnapshot> {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(ManageableUnstructuredMarketDataSnapshot.class);
+  
   /** Field name. */
   public static final String IDENTIFIERS_FIELD_NAME = "identifiers";
   /** Field name. */
   public static final String VALUE_NAME_FIELD_NAME = "valueName";
   /** Field name. */
   public static final String VALUE_FIELD_NAME = "value";
+  /** Field name. */
+  public static final String VALUE_SPEC_NAME = "valueSpec";
+  /** Field name. */
+  public static final String UNIQUE_ID_NAME = "uniqueId";
 
   // TODO: This is not the most efficient representation. Either keep the repeat and use a 3-tuple approach rather
   // than a set for the outer message, or use a map of value specs to a map of names and values. Which is the more
@@ -65,7 +74,18 @@ public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBui
     final ManageableUnstructuredMarketDataSnapshot object = new ManageableUnstructuredMarketDataSnapshot();
     for (final FudgeField fudgeField : message.getAllByOrdinal(1)) {
       final FudgeMsg innerValue = (FudgeMsg) fudgeField.getValue();
-      final ExternalIdBundle identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, innerValue.getByName(IDENTIFIERS_FIELD_NAME));
+      ExternalIdBundle identifiers;
+      if (innerValue.hasField(VALUE_SPEC_NAME)) {
+        s_logger.warn("Massively old version of snapshot deserializer being used, trying to convert...");
+        FudgeMsg valueSpec = (FudgeMsg) innerValue.getValue(VALUE_SPEC_NAME);
+        if (innerValue.hasField(UNIQUE_ID_NAME)) {
+          identifiers = ExternalId.parse(valueSpec.getString(UNIQUE_ID_NAME)).toBundle();          
+        } else {
+          throw new OpenGammaRuntimeException("Detected out of date unstructured snapshot encoding, tried to convert but failed");
+        }
+      } else {
+        identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, innerValue.getByName(IDENTIFIERS_FIELD_NAME));
+      }
       final String valueName = innerValue.getFieldValue(String.class, innerValue.getByName(VALUE_NAME_FIELD_NAME));
       final FudgeField valueField = innerValue.getByName(VALUE_FIELD_NAME);
       final ValueSnapshot value = valueField == null ? null : deserializer.fieldValueToObject(ValueSnapshot.class, valueField);
