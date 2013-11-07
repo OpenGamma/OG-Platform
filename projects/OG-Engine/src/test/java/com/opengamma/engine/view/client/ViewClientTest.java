@@ -532,7 +532,6 @@ public class ViewClientTest {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     final SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 0);
-    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 0);
     env.setMarketDataProvider(marketDataProvider);
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
 
@@ -548,6 +547,7 @@ public class ViewClientTest {
 
     };
     final ValueRequirement requirement1 = new ValueRequirement("value1", target.toSpecification());
+    fn1.addRequirement(ViewProcessorTestEnvironment.getPrimitive1());
     fn1.addResult(new ValueSpecification(requirement1.getValueName(), target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "fn1").get()), "result1");
     functionRepository.addFunction(fn1);
 
@@ -667,13 +667,10 @@ public class ViewClientTest {
     // Delta cycle - should reuse the previous result which *does* include logs.
     assertNotNull(log3.getLogs());
 
-    // Force a full cycle - should *not* reuse any previous result, so back to indicators only
-    // TODO: [PLAT-3215] This is bad; future optimizations will not necessarily mean a full cycle happens just because a new view definition got posted
-    vd.setUniqueId(UniqueId.of(vd.getUniqueId().getScheme(), vd.getUniqueId().getValue(), "PLAT-3215"));
-    worker.updateViewDefinition(vd);
+    // Force a full cycle by changing all of the market data - should *not* reuse any previous result, so back to indicators only
+    marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), 1);
     worker.triggerCycle();
 
-    resultListener.assertViewDefinitionCompiled(TIMEOUT);
     final ViewComputationResultModel result4 = resultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertEquals(0, resultListener.getQueueSize());
 

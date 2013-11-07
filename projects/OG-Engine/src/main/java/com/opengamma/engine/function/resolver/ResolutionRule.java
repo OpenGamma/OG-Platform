@@ -365,8 +365,7 @@ public class ResolutionRule {
         // Target does not match the type - not enough context
         return null;
       }
-      final ComputationTargetType leafType = targetTypes.get(length - 1);
-      final ComputationTargetType adjustedLeaf = leafType.accept(this, target);
+      final ComputationTargetType adjustedLeaf = types.get(length - 1).accept(this, targetTypes.get(length - 1));
       if (adjustedLeaf == null) {
         // Target not compatible at leaf type
         return null;
@@ -437,8 +436,8 @@ public class ResolutionRule {
         return null;
       } else if (adjusted == ComputationTargetType.NULL) {
         // Exact match
-        functionCache.put(target, target);
-        return target;
+        functionCache.put(target, type);
+        return type;
       } else {
         // Type replacement
         functionCache.put(target, adjusted);

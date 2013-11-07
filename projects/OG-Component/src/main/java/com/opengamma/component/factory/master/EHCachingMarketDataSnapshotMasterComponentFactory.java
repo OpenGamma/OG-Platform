@@ -31,9 +31,9 @@ import com.opengamma.master.marketdatasnapshot.impl.EHCachingMarketDataSnapshotM
 import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 
 /**
- * Component factory for the combined marketdatasnapshot master.
+ * Component factory for the combined snapshot master.
  * <p>
- * This factory creates a combined marketdatasnapshot master from an underlying and user master.
+ * This factory creates a combined snapshot master from an underlying and user master.
  */
 @BeanDefinition
 public class EHCachingMarketDataSnapshotMasterComponentFactory extends AbstractComponentFactory {

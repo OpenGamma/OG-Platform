@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundin
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -62,8 +63,8 @@ public class AnnuityDefinitionBuilder {
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition couponFixed(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
-      final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate,
-      final boolean isPayer, final StubType stub) {
+      final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
+      final double fixedRate, final boolean isPayer, final StubType stub) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "Maturity date");
@@ -71,11 +72,9 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(calendar, "calendar");
     ArgumentChecker.notNull(dayCount, "day count");
     ArgumentChecker.notNull(businessDay, "business day convention");
-    final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
-    final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
     final double sign = isPayer ? -1.0 : 1.0;
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubShort,
-        isStubStart, businessDay, calendar, isEOM);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
+        businessDay, calendar, isEOM);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
     coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
@@ -83,6 +82,48 @@ public class AnnuityDefinitionBuilder {
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
+    }
+    return new AnnuityCouponFixedDefinition(coupons, calendar);
+  }
+
+  /**
+   * Annuity builder from the conventions and common characteristics. The dates are constructed from the settlement date. If required the stub will be short.
+   * @param currency The annuity currency.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The (unadjusted) maturity date of the annuity.
+   * @param paymentPeriod The period between payments.
+   * @param calendar The calendar.
+   * @param dayCount The day count.
+   * @param businessDay The business day convention.
+   * @param isEOM The end-of-month flag.
+   * @param notional The notional.
+   * @param fixedRate The fixed rate.
+   * @param isPayer The payer flag.
+   * @param stub The stub type.
+   * @param paymentLag The payment lag (in days).
+   * @return The fixed annuity.
+   */
+  public static AnnuityCouponFixedDefinition couponFixed(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
+      final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
+      final double fixedRate, final boolean isPayer, final StubType stub, final int paymentLag) {
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "Maturity date");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(dayCount, "day count");
+    ArgumentChecker.notNull(businessDay, "business day convention");
+    final double sign = isPayer ? -1.0 : 1.0;
+    final ZonedDateTime[] adjustedEndAccrualDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
+        businessDay, calendar, isEOM);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
+    final CouponFixedDefinition[] coupons = new CouponFixedDefinition[adjustedEndAccrualDates.length];
+    //First coupon uses settlement date
+    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, adjustedEndAccrualDates[0],
+        dayCount.getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], calendar), sign * notional, fixedRate);
+    for (int loopcpn = 1; loopcpn < adjustedEndAccrualDates.length; loopcpn++) {
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn],
+          dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar), sign * notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons, calendar);
   }
@@ -121,86 +162,32 @@ public class AnnuityDefinitionBuilder {
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
    * @param paymentPeriod The payment period. The payment period is used in the following way: the ratio "n" of number of month in the payment period 
    * and of the "MonthsToAdjust" of the "adjuster" is computed. The ratio is computed with the long division. The payment dates are the adjuster n-th dates.
-   * For example if paymentPeriod is P6M and the period in the adjuster is P3M, n is 2.
+   * Examples: If the payment period is P6M and the period in the adjuster is P3M, n is 2. If the payment period is P3M and the period in the adjuster is P3M, n is 1.
+   * If the payment period is P1M and the period in the adjuster is P3M, n is 1.
    * @param notional The swap notional.
    * @param rate The fixed rate.
    * @param isPayer The payer flag.
    * @param dayCount The day count for the coupon accrual factors.
    * @param calendar The calendar for the date adjustments.
    * @param stub The stub type.
+   * @param paymentLag The payment lag.
    * @return The fixed coupons annuity.
    */
   public static AnnuityDefinition<CouponFixedDefinition> couponFixedRollDate(final Currency currency, final ZonedDateTime startDate, final int startNumberRollDate,
       final int endNumberRollDate, final RollDateAdjuster adjuster, final Period paymentPeriod, final double notional, final double rate, final boolean isPayer,
-      final DayCount dayCount, final Calendar calendar, final StubType stub) {
+      final DayCount dayCount, final Calendar calendar, final StubType stub, final int paymentLag) {
     long rollMonths = adjuster.getMonthsToAdjust();
     long paymentMonths = paymentPeriod.toTotalMonths();
-    int rollJump = (int) (paymentMonths / rollMonths); // The roll jumps is rounded
+    int rollJump = Math.max(1, (int) (paymentMonths / rollMonths)); // The roll jumps is rounded (toward 0) and is at least 1.
     int nbRoll = endNumberRollDate - startNumberRollDate;
-    // Start -- Construct the list of dates
-    final List<ZonedDateTime> legDates = new ArrayList<>();
-    ZonedDateTime currentDate = RollDateAdjusterUtils.nthDate(startDate, adjuster, startNumberRollDate);
-    legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-    int nbPeriods = nbRoll / rollJump; // Number of full periods
-    int stubPeriod = nbRoll % rollJump;
-    if (stubPeriod == 0) { // No stub, the number of periods from the adjuster is in line with the required number.
-      for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-        currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-        legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-      }
-    } else {
-      switch (stub) {
-        case SHORT_START:
-          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          break;
-        case LONG_START:
-          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          } else {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
-              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            }
-          }
-          break;
-        case SHORT_END:
-          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          break;
-        case LONG_END:
-          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          } else {
-            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
-              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            }
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          break;
-      }
-    }
-    // End -- Construct the list of dates
+    final List<ZonedDateTime> legDates = rollDateSchedule(startDate, startNumberRollDate, adjuster, calendar, stub, rollJump, nbRoll);
     final double sign = isPayer ? -1.0 : 1.0;
     final int nbCpn = legDates.size() - 1;
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[nbCpn];
     for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
+      ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(legDates.get(loopcpn + 1), paymentLag, calendar);
       double accrualFactor = dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1));
-      coupons[loopcpn] = new CouponFixedDefinition(currency, legDates.get(loopcpn + 1), legDates.get(loopcpn), legDates.get(loopcpn + 1), accrualFactor, notional * sign, rate);
+      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDate, legDates.get(loopcpn), legDates.get(loopcpn + 1), accrualFactor, notional * sign, rate);
     }
     return new AnnuityDefinition<>(coupons, calendar);
   }
@@ -287,10 +274,8 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(dayCount, "Day count convention");
     ArgumentChecker.isTrue(notional > 0, "notional <= 0");
-    final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
-    final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubShort,
-        isStubStart, businessDayConvention, calendar, endOfMonth);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
+        businessDayConvention, calendar, endOfMonth);
     final double sign = isPayer ? -1.0 : 1.0;
     final CouponIborDefinition[] coupons = new CouponIborDefinition[paymentDates.length];
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
@@ -300,6 +285,48 @@ public class AnnuityDefinitionBuilder {
       fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar);
       coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, calendar);
+    }
+    return new AnnuityCouponIborDefinition(coupons, index, calendar);
+  }
+
+  /**
+   * Annuity coupon ibor with spread builder.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param paymentPeriod The payment period.
+   * @param notional The notional.
+   * @param index The Ibor index.
+   * @param isPayer The payer flag.
+   * @param dayCount The coupons day count.
+   * @param businessDayConvention The leg business day convention.
+   * @param endOfMonth The leg end-of-month convention.
+   * @param calendar The holiday calendar for the ibor leg.
+   * @param stub The stub type.
+   * @param paymentLag The payment lag (in days).
+   * @return The Ibor annuity.
+   */
+  public static AnnuityCouponIborDefinition couponIbor(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period paymentPeriod,
+      final double notional, final IborIndex index, final boolean isPayer, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+      final Calendar calendar, final StubType stub, final int paymentLag) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(dayCount, "Day count convention");
+    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    final ZonedDateTime[] adjustedEndAccrualDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
+        businessDayConvention, calendar, endOfMonth);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
+    final double sign = isPayer ? -1.0 : 1.0;
+    final CouponIborDefinition[] coupons = new CouponIborDefinition[adjustedEndAccrualDates.length];
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
+    coupons[0] = new CouponIborDefinition(index.getCurrency(), paymentDates[0], settlementDate, adjustedEndAccrualDates[0],
+        dayCount.getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], calendar), sign * notional, fixingDate, index, calendar);
+    for (int loopcpn = 1; loopcpn < adjustedEndAccrualDates.length; loopcpn++) {
+      fixingDate = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates[loopcpn - 1], -index.getSpotLag(), calendar);
+      coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), paymentDates[loopcpn], adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn],
+          dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar), sign * notional, fixingDate, index, calendar);
     }
     return new AnnuityCouponIborDefinition(coupons, index, calendar);
   }
@@ -347,9 +374,10 @@ public class AnnuityDefinitionBuilder {
    * @param index The Ibor index. There is no check that the index is coherent with the adjuster. 
    * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed. 
    * The ratio is computed with the long division (i.e. with rounding). The payment and accrual dates are the adjuster n-th dates.
-   * For example if the index tenor is P6M and the period in the adjuster is P3M, n is 2.
    * The start and end dates of the fixing period are given by the end and start accrual dates of the coupon that are given by the adjuster. 
    * The may differ from the theoretical date of the index.
+   * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
+   * If the index tenor is P1M and the period in the adjuster is P3M, n is 1.
    * @param notional The swap notional.
    * @param isPayer The payer flag.
    * @param dayCount The coupons day count. Can be different from the one of the index.
@@ -361,66 +389,9 @@ public class AnnuityDefinitionBuilder {
       final RollDateAdjuster adjuster, final IborIndex index, final double notional, final boolean isPayer, final DayCount dayCount, final Calendar calendar, final StubType stub) {
     long rollMonths = adjuster.getMonthsToAdjust();
     long paymentMonths = index.getTenor().toTotalMonths();
-    int rollJump = (int) (paymentMonths / rollMonths); // The roll jumps is rounded
+    int rollJump = Math.max(1, (int) (paymentMonths / rollMonths)); // The roll jumps is rounded (toward 0) and is at least 1.
     int nbRoll = endNumberRollDate - startNumberRollDate;
-    // Start -- Construct the list of dates
-    final List<ZonedDateTime> legDates = new ArrayList<>();
-    ZonedDateTime currentDate = RollDateAdjusterUtils.nthDate(startDate, adjuster, startNumberRollDate);
-    legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-    int nbPeriods = nbRoll / rollJump; // Number of full periods
-    int stubPeriod = nbRoll % rollJump;
-    if (stubPeriod == 0) { // No stub, the number of periods from the adjuster is in line with the required number.
-      for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-        currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-        legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-      }
-    } else {
-      switch (stub) {
-        case SHORT_START:
-          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          break;
-        case LONG_START:
-          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          } else {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
-              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            }
-          }
-          break;
-        case SHORT_END:
-          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          break;
-        case LONG_END:
-          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          } else {
-            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
-              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            }
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          break;
-      }
-    }
-    // End -- Construct the list of dates
+    final List<ZonedDateTime> legDates = rollDateSchedule(startDate, startNumberRollDate, adjuster, calendar, stub, rollJump, nbRoll);
     final double sign = isPayer ? -1.0 : 1.0;
     final int nbCpn = legDates.size() - 1;
     final CouponIborDefinition[] coupons = new CouponIborDefinition[nbCpn];
@@ -441,9 +412,10 @@ public class AnnuityDefinitionBuilder {
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
    * @param index The Ibor index. There is no check that the index is coherent with the adjuster. 
    * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed. 
-   * The ratio is computed with the long division (i.e. with rounding). The payemnt and accrual dates are the adjuster n-th dates.
-   * For example if the index tenor is P6M and the period in the adjuster is P3M, n is 2.
-   * The start and end dates of the fixing period are given by the index, they may be different from the end and start accrual dates of the coupon that are given by the adjuster.
+   * The ratio is computed with the long division (i.e. with rounding toward 0) and minimum at 1. The payment and accrual dates are the adjuster n-th dates.
+   * The start and end dates of the fixing period are given by the start and end accrual dates of the coupon that are given by the adjuster, they may differ from the theoretical index dates.
+   * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
+   * If the index tenor is P1M and the period in the adjuster is P3M, n is 1.
    * @param spread The spread.
    * @param notional The swap notional.
    * @param isPayer The payer flag.
@@ -455,75 +427,21 @@ public class AnnuityDefinitionBuilder {
   public static AnnuityDefinition<CouponIborSpreadDefinition> couponIborSpreadRollDateIndexAdjusted(final ZonedDateTime startDate, final int startNumberRollDate, final int endNumberRollDate,
       final RollDateAdjuster adjuster, final IborIndex index, final double spread, final double notional, final boolean isPayer, final DayCount dayCount, final Calendar calendar,
       final StubType stub) {
+    ArgumentChecker.isTrue(startNumberRollDate > 0, "number of start roll dates negative");
+    ArgumentChecker.isTrue(endNumberRollDate > 0, "number of end roll dates negative");
     long rollMonths = adjuster.getMonthsToAdjust();
     long paymentMonths = index.getTenor().toTotalMonths();
-    int rollJump = (int) (paymentMonths / rollMonths); // The roll jumps is rounded
+    int rollJump = Math.max(1, (int) (paymentMonths / rollMonths)); // The roll jumps is rounded (toward 0) and is at least 1.
     int nbRoll = endNumberRollDate - startNumberRollDate;
-    // Start -- Construct the list of dates
-    final List<ZonedDateTime> legDates = new ArrayList<>();
-    ZonedDateTime currentDate = RollDateAdjusterUtils.nthDate(startDate, adjuster, startNumberRollDate);
-    legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-    int nbPeriods = nbRoll / rollJump; // Number of full periods
-    int stubPeriod = nbRoll % rollJump;
-    if (stubPeriod == 0) { // No stub, the number of periods from the adjuster is in line with the required number.
-      for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-        currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-        legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-      }
-    } else {
-      switch (stub) {
-        case SHORT_START:
-          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          break;
-        case LONG_START:
-          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          } else {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
-              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            }
-          }
-          break;
-        case SHORT_END:
-          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          break;
-        case LONG_END:
-          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          } else {
-            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
-              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
-              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-            }
-            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
-            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
-          }
-          break;
-      }
-    }
-    // End -- Construct the list of dates
+    final List<ZonedDateTime> legDates = rollDateSchedule(startDate, startNumberRollDate, adjuster, calendar, stub, rollJump, nbRoll);
     final double sign = isPayer ? -1.0 : 1.0;
     final int nbCpn = legDates.size() - 1;
     final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[nbCpn];
     for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
       ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(legDates.get(loopcpn), -index.getSpotLag(), calendar);
-      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), legDates.get(loopcpn), legDates.get(loopcpn), legDates.get(loopcpn + 1),
-          dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1), calendar), sign * notional, fixingDate, index, spread, calendar);
+      double af = dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1), calendar);
+      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), legDates.get(loopcpn + 1), legDates.get(loopcpn), legDates.get(loopcpn + 1),
+          af, sign * notional, fixingDate, legDates.get(loopcpn), legDates.get(loopcpn + 1), af, index, spread, calendar);
     }
     return new AnnuityDefinition<>(coupons, calendar);
   }
@@ -554,10 +472,8 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(dayCount, "Day count convention");
     ArgumentChecker.isTrue(notional > 0, "notional <= 0");
-    final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
-    final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubShort,
-        isStubStart, businessDayConvention, calendar, endOfMonth);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
+        businessDayConvention, calendar, endOfMonth);
     final double sign = isPayer ? -1.0 : 1.0;
     final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[paymentDates.length];
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
@@ -567,6 +483,49 @@ public class AnnuityDefinitionBuilder {
       fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar);
       coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, spread, calendar);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Annuity coupon ibor with spread builder.
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param paymentPeriod The payment period.
+   * @param notional The notional.
+   * @param spread The spread rate.
+   * @param index The Ibor index.
+   * @param isPayer The payer flag.
+   * @param dayCount The coupons day count.
+   * @param businessDayConvention The leg business day convention.
+   * @param endOfMonth The leg end-of-month convention.
+   * @param calendar The holiday calendar for the ibor leg.
+   * @param stub The stub type.
+   * @param paymentLag The payment lag (in days).
+   * @return The Ibor annuity.
+   */
+  public static AnnuityDefinition<CouponIborSpreadDefinition> couponIborSpread(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period paymentPeriod,
+      final double notional, final double spread, final IborIndex index, final boolean isPayer, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+      final Calendar calendar, final StubType stub, final int paymentLag) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(dayCount, "Day count convention");
+    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    final ZonedDateTime[] adjustedEndAccrualDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
+        businessDayConvention, calendar, endOfMonth);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
+    final double sign = isPayer ? -1.0 : 1.0;
+    final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[adjustedEndAccrualDates.length];
+    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
+    coupons[0] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[0], settlementDate, adjustedEndAccrualDates[0],
+        dayCount.getDayCountFraction(settlementDate, adjustedEndAccrualDates[0], calendar), sign * notional, fixingDate, index, spread, calendar);
+    for (int loopcpn = 1; loopcpn < adjustedEndAccrualDates.length; loopcpn++) {
+      fixingDate = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates[loopcpn - 1], -index.getSpotLag(), calendar);
+      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn],
+          dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar), sign * notional, fixingDate, index, spread, calendar);
     }
     return new AnnuityDefinition<>(coupons, calendar);
   }
@@ -682,9 +641,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.isTrue(notional > 0, "notional <= 0");
-    final boolean isStubLegShort = stubLeg.equals(StubType.SHORT_END) || stubLeg.equals(StubType.SHORT_START);
-    final boolean isStubLegStart = stubLeg.equals(StubType.LONG_START) || stubLeg.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubLegShort, isStubLegStart);
+    final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingDefinition[] coupons = new CouponIborCompoundingDefinition[unadjustedDateSchedule.length];
     coupons[0] = CouponIborCompoundingDefinition.from(signedNotional, settlementDate, unadjustedDateSchedule[0], index, stubCompound, businessDayConvention, endOfMonth, calendar);
@@ -720,9 +677,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.isTrue(notional > 0, "notional <= 0");
-    final boolean isStubLegShort = stubLeg.equals(StubType.SHORT_END) || stubLeg.equals(StubType.SHORT_START);
-    final boolean isStubLegStart = stubLeg.equals(StubType.LONG_START) || stubLeg.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubLegShort, isStubLegStart);
+    final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingSpreadDefinition[] coupons = new CouponIborCompoundingSpreadDefinition[unadjustedDateSchedule.length];
     coupons[0] = CouponIborCompoundingSpreadDefinition.from(signedNotional, settlementDate, unadjustedDateSchedule[0], index, spread, stubCompound, businessDayConvention, endOfMonth, calendar);
@@ -758,15 +713,135 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.isTrue(notional >= 0, "notional < 0");
-    final boolean isStubLegShort = stubLeg.equals(StubType.SHORT_END) || stubLeg.equals(StubType.SHORT_START);
-    final boolean isStubLegStart = stubLeg.equals(StubType.LONG_START) || stubLeg.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubLegShort, isStubLegStart);
+    final ZonedDateTime[] unadjustedDateSchedule = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingFlatSpreadDefinition[] coupons = new CouponIborCompoundingFlatSpreadDefinition[unadjustedDateSchedule.length];
     coupons[0] = CouponIborCompoundingFlatSpreadDefinition.from(signedNotional, settlementDate, unadjustedDateSchedule[0], index, spread, stubCompound, businessDayConvention, endOfMonth, calendar);
     for (int loopcpn = 1; loopcpn < unadjustedDateSchedule.length; loopcpn++) {
       coupons[loopcpn] = CouponIborCompoundingFlatSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubCompound,
           businessDayConvention, endOfMonth, calendar);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Annuity of coupon with compunded of ON simple rates. Simplified version (i.e. only the start date and end date of coupon periods are computed) with spread.
+   * @param settlementDate The annuity settlement date. The date is not adjusted for the calendar.
+   * @param maturityDate The annuity maturity date. The date is adjusted according to the calendar and conventions.
+   * @param paymentPeriod The annuity payment period.
+   * @param notional The notional.
+   * @param spread The spread rate.
+   * @param index The overnight index associated to all the coupons of the leg.
+   * @param isPayer The payer flag.
+   * @param businessDayConvention The leg business day convention.
+   * @param endOfMonth The leg end-of-month convention.
+   * @param calendar The calendar associated to the payments.
+   * @param stubLeg The type of stub for the leg.
+   * @return The annuity.
+   */
+  public static AnnuityDefinition<CouponONSpreadSimplifiedDefinition> couponONSimpleCompoundedSpreadSimplified(final ZonedDateTime settlementDate,
+      final ZonedDateTime maturityDate, final Period paymentPeriod, final double notional, final double spread, final IndexON index, final boolean isPayer,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, final StubType stubLeg) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
+    final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg,
+        businessDayConvention, calendar, endOfMonth);
+    final double signedNotional = isPayer ? -notional : notional;
+    final CouponONSpreadSimplifiedDefinition[] coupons = new CouponONSpreadSimplifiedDefinition[adjustedDateSchedule.length];
+    double af = index.getDayCount().getDayCountFraction(settlementDate, adjustedDateSchedule[0]);
+    coupons[0] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[0], settlementDate, adjustedDateSchedule[0], af, signedNotional,
+        index, settlementDate, adjustedDateSchedule[0], af, spread);
+    for (int loopcpn = 1; loopcpn < adjustedDateSchedule.length; loopcpn++) {
+      af = index.getDayCount().getDayCountFraction(adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn]);
+      coupons[loopcpn] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[loopcpn], adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn],
+          af, signedNotional, index, adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn], af, spread);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Annuity of coupon with compunded of ON simple rates. Simplified version (i.e. only the start date and end date of coupon periods are computed) with spread.
+   * @param settlementDate The annuity settlement date. The date is not adjusted for the calendar.
+   * @param maturityDate The annuity maturity date. The date is adjusted according to the calendar and conventions.
+   * @param paymentPeriod The annuity payment period.
+   * @param notional The notional.
+   * @param spread The spread rate.
+   * @param index The overnight index associated to all the coupons of the leg.
+   * @param isPayer The payer flag.
+   * @param businessDayConvention The leg business day convention.
+   * @param endOfMonth The leg end-of-month convention.
+   * @param calendar The calendar associated to the payments.
+   * @param stubLeg The type of stub for the leg.
+   * @param paymentLag 
+   * @return The annuity.
+   */
+  public static AnnuityDefinition<CouponONSpreadSimplifiedDefinition> couponONSimpleCompoundedSpreadSimplified(final ZonedDateTime settlementDate,
+      final ZonedDateTime maturityDate, final Period paymentPeriod, final double notional, final double spread, final IndexON index, final boolean isPayer,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, final StubType stubLeg, final int paymentLag) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
+    final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg,
+        businessDayConvention, calendar, endOfMonth);
+    final ZonedDateTime[] paymentDateSchedule = ScheduleCalculator.getAdjustedDate(adjustedDateSchedule, paymentLag, calendar);
+    final double signedNotional = isPayer ? -notional : notional;
+    final CouponONSpreadSimplifiedDefinition[] coupons = new CouponONSpreadSimplifiedDefinition[adjustedDateSchedule.length];
+    double af = index.getDayCount().getDayCountFraction(settlementDate, adjustedDateSchedule[0]);
+    coupons[0] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), paymentDateSchedule[0], settlementDate, adjustedDateSchedule[0], af, signedNotional,
+        index, settlementDate, adjustedDateSchedule[0], af, spread);
+    for (int loopcpn = 1; loopcpn < adjustedDateSchedule.length; loopcpn++) {
+      af = index.getDayCount().getDayCountFraction(adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn]);
+      coupons[loopcpn] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), paymentDateSchedule[loopcpn], adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn],
+          af, signedNotional, index, adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn], af, spread);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Annuity of coupon with compunded of ON simple rates. Simplified version (i.e. only the start date and end date of coupon periods are computed) with spread.
+   * @param startDate The start/reference date of the computation.
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param endNumberRollDate The number of roll dates to the maturity of the swap.
+   * @param adjuster The date adjuster, e.g. IMM quarterly dates.
+   * @param paymentPeriod The annuity payment period.
+   * @param notional The notional.
+   * @param spread The spread rate.
+   * @param index The overnight index associated to all the coupons of the leg.
+   * @param isPayer The payer flag.
+   * @param calendar The calendar associated to the payments.
+   * @param stub The type of stub for the leg.
+   * @param paymentLag The payment lag.
+   * @return The annuity.
+   */
+  public static AnnuityDefinition<CouponONSpreadSimplifiedDefinition> couponONSimpleCompoundedSpreadSimplifiedRollDate(final ZonedDateTime startDate,
+      final int startNumberRollDate, final int endNumberRollDate, final RollDateAdjuster adjuster, final Period paymentPeriod, final double notional,
+      final double spread, final IndexON index, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag) {
+    ArgumentChecker.notNull(startDate, "settlement date");
+    ArgumentChecker.notNull(adjuster, "roll date adjuster");
+    ArgumentChecker.notNull(paymentPeriod, "payment period");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
+    long rollMonths = adjuster.getMonthsToAdjust();
+    long paymentMonths = paymentPeriod.toTotalMonths();
+    int rollJump = (int) (paymentMonths / rollMonths); // The roll jumps is rounded
+    int nbRoll = endNumberRollDate - startNumberRollDate;
+    final List<ZonedDateTime> legDates = rollDateSchedule(startDate, startNumberRollDate, adjuster, calendar, stub, rollJump, nbRoll);
+    final double sign = isPayer ? -1.0 : 1.0;
+    final int nbCpn = legDates.size() - 1;
+    final DayCount dayCount = index.getDayCount();
+    final CouponONSpreadSimplifiedDefinition[] coupons = new CouponONSpreadSimplifiedDefinition[nbCpn];
+    for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
+      double accrualFactor = dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1));
+      ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(legDates.get(loopcpn + 1), paymentLag, calendar);
+      coupons[loopcpn] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), paymentDate, legDates.get(loopcpn), legDates.get(loopcpn + 1), accrualFactor,
+          notional * sign, index, legDates.get(loopcpn), legDates.get(loopcpn + 1), accrualFactor, spread);
     }
     return new AnnuityDefinition<>(coupons, calendar);
   }
@@ -795,12 +870,10 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.isTrue(notional >= 0, "notional < 0");
-    final boolean isStubLegShort = stubLeg.equals(StubType.SHORT_END) || stubLeg.equals(StubType.SHORT_START);
-    final boolean isStubLegStart = stubLeg.equals(StubType.LONG_START) || stubLeg.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, isStubLegShort,
-        isStubLegStart, businessDayConvention, calendar, endOfMonth);
+    final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg,
+        businessDayConvention, calendar, endOfMonth);
     final double signedNotional = isPayer ? -notional : notional;
-    CouponONArithmeticAverageSpreadSimplifiedDefinition[] coupons = new CouponONArithmeticAverageSpreadSimplifiedDefinition[adjustedDateSchedule.length];
+    final CouponONArithmeticAverageSpreadSimplifiedDefinition[] coupons = new CouponONArithmeticAverageSpreadSimplifiedDefinition[adjustedDateSchedule.length];
     double af = index.getDayCount().getDayCountFraction(settlementDate, adjustedDateSchedule[0]);
     coupons[0] = new CouponONArithmeticAverageSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[0], settlementDate, adjustedDateSchedule[0],
         af, signedNotional, index, spread);
@@ -810,6 +883,78 @@ public class AnnuityDefinitionBuilder {
           adjustedDateSchedule[loopcpn], af, signedNotional, index, spread);
     }
     return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Computes the roll dates for a given adjuster.
+   * @param referenceDate The computation reference date.
+   * @param startNumberRollDate The number of roll to the start date.
+   * @param adjuster The roll date adjuster.
+   * @param calendar The calendar.
+   * @param stub The stub type.
+   * @param rollJump The jump between dates, i.e. 2 will create a schedule with every second date of the adjuster.
+   * @param nbRoll The total number of rolls, i.e. n will create n+1 dates separated each by rollJump adjuster dates.
+   * @return The list of dates.
+   */
+  private static List<ZonedDateTime> rollDateSchedule(final ZonedDateTime referenceDate, final int startNumberRollDate, final RollDateAdjuster adjuster, final Calendar calendar,
+      final StubType stub, int rollJump, int nbRoll) {
+    final List<ZonedDateTime> legDates = new ArrayList<>();
+    ZonedDateTime currentDate = RollDateAdjusterUtils.nthDate(referenceDate, adjuster, startNumberRollDate);
+    legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+    int nbPeriods = nbRoll / rollJump; // Number of full periods
+    int stubPeriod = nbRoll % rollJump;
+    if (stubPeriod == 0) { // No stub, the number of periods from the adjuster is in line with the required number.
+      for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
+        currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
+        legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+      }
+    } else {
+      switch (stub) {
+        case SHORT_START:
+          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
+          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
+            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
+            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          }
+          break;
+        case LONG_START:
+          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
+            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
+            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          } else {
+            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
+            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
+              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
+              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+            }
+          }
+          break;
+        case SHORT_END:
+          for (int loopperiod = 1; loopperiod <= nbPeriods; loopperiod++) {
+            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
+            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          }
+          currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
+          legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          break;
+        case LONG_END:
+          if (nbPeriods == 0) { // Not enough full periods to have a "long" period, only one short period
+            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod);
+            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          } else {
+            for (int loopperiod = 1; loopperiod <= nbPeriods - 1; loopperiod++) {
+              currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, rollJump);
+              legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+            }
+            currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, stubPeriod + rollJump);
+            legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+          }
+          break;
+      }
+    }
+    return legDates;
   }
 
 }

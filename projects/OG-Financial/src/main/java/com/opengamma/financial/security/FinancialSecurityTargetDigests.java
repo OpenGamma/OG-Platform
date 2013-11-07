@@ -51,6 +51,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -527,6 +528,11 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
 
   @Override
   public Object visitSwapSecurity(final SwapSecurity security) {
+    return _swapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
+  }
+
+  @Override
+  public Object visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     return _swapSecurity.get(pair(security.getPayLeg().getNotional().accept(this), security.getReceiveLeg().getNotional().accept(this)));
   }
 

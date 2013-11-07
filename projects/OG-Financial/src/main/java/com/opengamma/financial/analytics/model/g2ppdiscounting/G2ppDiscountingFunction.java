@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.G2ppP
 import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -56,7 +57,6 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;

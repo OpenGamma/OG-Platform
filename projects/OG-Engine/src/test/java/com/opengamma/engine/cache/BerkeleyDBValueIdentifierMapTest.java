@@ -83,7 +83,7 @@ public class BerkeleyDBValueIdentifierMapTest extends AbstractIdentifierMapTest 
     idMap.start();
     return idMap;
   }
-  
+
   @AfterMethod
   public void tearDownEnvironment() {
     if (_currDBEnvironment != null) {
@@ -153,6 +153,8 @@ public class BerkeleyDBValueIdentifierMapTest extends AbstractIdentifierMapTest 
           } else {
             break;
           }
+        } finally {
+          tearDownEnvironment();
         }
       } while (true);
     } finally {

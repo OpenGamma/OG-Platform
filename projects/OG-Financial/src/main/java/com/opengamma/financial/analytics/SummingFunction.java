@@ -122,18 +122,18 @@ public class SummingFunction extends MissingInputsFunction {
       final boolean[] homogenousProperties = new boolean[_homogenousProperties.length];
       for (final ValueSpecification input : inputs.keySet()) {
         final ValueProperties properties = input.getProperties();
-        final Set<String> inputPositionCountValues = properties.getValues(POSITION_COUNT);
-        if (inputPositionCountValues == null) {
-          positionCount++;
-        } else {
-          if (inputPositionCountValues.size() == 1) {
-            final int inputPositionCount = Integer.parseInt(inputPositionCountValues.iterator().next());
+        if (properties.isDefined(POSITION_COUNT)) {
+          final String inputPositionCountValue = properties.getStrictValue(POSITION_COUNT);
+          if (inputPositionCountValue != null) {
+            final int inputPositionCount = Integer.parseInt(inputPositionCountValue);
             if (inputPositionCount == 0) {
               // Ignore this one
               continue;
             }
             positionCount += inputPositionCount;
           }
+        } else {
+          positionCount++;
         }
         if (common == null) {
           common = properties;

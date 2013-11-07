@@ -22,9 +22,9 @@ import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesF
 import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY;
 import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY;
 import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils.YES_VALUE;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +69,7 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
@@ -97,7 +98,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -280,7 +280,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
-      final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
+      final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
       final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
       final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
       final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,

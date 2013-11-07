@@ -59,7 +59,7 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
     DoubleLabelledMatrix1D matrix = (DoubleLabelledMatrix1D) inputs.getComputedValue(YIELD_CURVE_NODE_SENSITIVITIES).getValue();
     LabelledMatrix1D<Double, Double> matrixDividedBy10k = matrix.mapValues(new Function3<Double, Double, Object, Double>() {
       @Override
-      public Double execute(Double _key, Double value, Object _) {
+      public Double execute(Double _, Double value, Object __) {
         return value / 10000.0;
       }
     });

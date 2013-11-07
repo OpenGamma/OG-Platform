@@ -70,8 +70,6 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackFunction.class);
   /** The name of the value that will be calculated */
   private final String _valueRequirementName;
-  /** Converts a {@link Trade} to an {@link InstrumentDefinition} */
-  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   /** Converts an {@link InstrumentDefinition} to an {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _dataConverter;
 
@@ -83,15 +81,28 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     _valueRequirementName = valueRequirementName;
   }
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
-        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
@@ -131,7 +142,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
-    final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
+    final InstrumentDefinition<?> irFutureOptionDefinition = getConverter(executionContext).convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, fullCurveNames, timeSeries);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), desiredValue.getConstraints());
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
@@ -157,20 +168,18 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
+    String surfaceName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    surfaceName = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -184,7 +193,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     try {
-      final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
+      final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), getConverter(context).convert(target.getTrade()));
       if (tsRequirements == null) {
         return null;
       }

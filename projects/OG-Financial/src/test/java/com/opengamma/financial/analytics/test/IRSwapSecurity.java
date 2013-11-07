@@ -144,7 +144,7 @@ public final class IRSwapSecurity implements ImmutableBean {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IRSwapSecurity{");
     buf.append("swapSecurity").append('=').append(getSwapSecurity()).append(',').append(' ');
-    buf.append("rawInput").append('=').append(getRawInput());
+    buf.append("rawInput").append('=').append(JodaBeanUtils.toString(getRawInput()));
     buf.append('}');
     return buf.toString();
   }

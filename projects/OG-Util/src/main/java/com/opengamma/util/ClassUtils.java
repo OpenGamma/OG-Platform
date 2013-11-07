@@ -68,6 +68,51 @@ public final class ClassUtils {
   }
 
   /**
+   * Loads a class from a class name, or fetches one from the calling thread's cache.
+   * The calling thread's class loader is used.
+   * <p>
+   * Some class loaders involve quite heavy synchronization overheads which can impact
+   * performance on multi-core systems if called heavy (for example as part of decoding a Fudge message).
+   * <p>
+   * The class will be fully initialized (static initializers invoked).
+   * 
+   * @param className  the class name, not null
+   * @return the class object, not null
+   * @throws RuntimeException if the class cannot be found
+   */
+  public static Class<?> loadClassRuntime(String className) {
+    try {
+      return loadClass(className);
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  /**
+   * Loads a class from a class name, or fetches one from the calling thread's cache.
+   * The calling thread's class loader is used.
+   * <p>
+   * Some class loaders involve quite heavy synchronization overheads which can impact
+   * performance on multi-core systems if called heavy (for example as part of decoding a Fudge message).
+   * <p>
+   * The class will be fully initialized (static initializers invoked).
+   * 
+   * @param <T>  the type to cast to
+   * @param className  the class name, not null
+   * @param type  the type to cast to, not null
+   * @return the class object, not null
+   * @throws RuntimeException if the class cannot be found
+   * @throws ClassCastException if the class is not a subtype of the specified type
+   */
+  public static <T> Class<? extends T> loadClassRuntime(String className, Class<T> type) {
+    try {
+      return loadClass(className).asSubclass(type);
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  /**
    * Initializes a class to ensure it is fully loaded.
    * <p>
    * The JVM has two separate steps in class loading, the initial load

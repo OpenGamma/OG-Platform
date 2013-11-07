@@ -8,14 +8,13 @@ package com.opengamma.financial.analytics.curve;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -69,14 +68,8 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
 
   @Override
   public InstrumentDefinition<?> visitSwapNode(final SwapNode swapNode) {
-    final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
-    if (payLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
-    }
-    final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
-    if (receiveLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapNode.getReceiveLegConvention() + " was null");
-    }
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(swapNode.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention =  _conventionSource.getSingle(swapNode.getReceiveLegConvention(), FinancialConvention.class);
     final Period startTenor = swapNode.getStartTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
     return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,

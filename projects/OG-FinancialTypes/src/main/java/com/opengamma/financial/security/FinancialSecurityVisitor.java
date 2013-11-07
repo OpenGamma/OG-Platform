@@ -50,6 +50,7 @@ import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 
 /**
  * General visitor for top level asset classes.
@@ -161,5 +162,7 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security);
   
   T visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security);
+
+  T visitInterestRateSwapSecurity(InterestRateSwapSecurity security);
 }
 

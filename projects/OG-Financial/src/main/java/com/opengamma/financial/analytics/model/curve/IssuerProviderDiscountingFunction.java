@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -63,19 +64,18 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
-import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
@@ -202,19 +202,13 @@ public class IssuerProviderDiscountingFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ibor.getConvention());
-              if (iborIndexConvention == null) {
-                throw new OpenGammaRuntimeException("Ibor index convention called " + ibor.getConvention() + " was null");
-              }
+              final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ibor.getConvention(), IborIndexConvention.class);
               final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final OvernightIndexConvention overnightConvention = conventionSource.getConvention(OvernightIndexConvention.class, overnight.getConvention());
-              if (overnightConvention == null) {
-                throw new OpenGammaRuntimeException("Overnight convention called " + overnight.getConvention() + " was null");
-              }
+              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnight.getConvention(), OvernightIndexConvention.class);
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else if (type instanceof IssuerCurveTypeConfiguration) {
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;

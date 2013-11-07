@@ -376,6 +376,11 @@
         <artifactId>antlr</artifactId>
         <version>2.7.7</version>
       </dependency>
+      <dependency>
+        <groupId>org.codehaus.woodstox</groupId>
+        <artifactId>woodstox-core-asl</artifactId>
+        <version>4.2.0</version>
+      </dependency>
 
       <!-- Mid-level libraries -->
       <dependency>
@@ -1208,7 +1213,8 @@
     <!-- Properties for buildnumber-maven-plugin -->
     <maven.buildNumber.getRevisionOnlyOnce>true</maven.buildNumber.getRevisionOnlyOnce>
     <!-- Version properties -->
-    <joda-beans.version>0.8.5</joda-beans.version>
+    <joda-beans.version>0.8.6</joda-beans.version>
+    <joda-beans-maven-plugin.version>0.7.3</joda-beans-maven-plugin.version>
     <fudge-java.version>0.3.9.13</fudge-java.version>
     <fudge-proto.version>0.3.9.7</fudge-proto.version>
     <jacoco-maven-plugin.version>0.6.3.201306030806</jacoco-maven-plugin.version>

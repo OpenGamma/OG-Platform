@@ -29,7 +29,7 @@ public class BlackVolatilitySurfaceSABRDefaults extends BlackVolatilitySurfaceDe
 
   public BlackVolatilitySurfaceSABRDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String sabrModel, final String weightingFunction, final String useExternalBeta, final String externalBeta) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator, BlackVolatilitySurfacePropertyNamesAndValues.SABR);
     ArgumentChecker.notNull(sabrModel, "SABR model");
     ArgumentChecker.notNull(weightingFunction, "weighting function");
     ArgumentChecker.notNull(useExternalBeta, "use external beta");

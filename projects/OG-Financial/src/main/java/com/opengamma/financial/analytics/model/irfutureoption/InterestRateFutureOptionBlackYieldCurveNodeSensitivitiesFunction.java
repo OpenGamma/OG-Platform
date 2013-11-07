@@ -79,18 +79,30 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivityBlackCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
-  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
-        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
@@ -132,7 +144,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle fixedCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
+    final InstrumentDefinition<?> irFutureOptionDefinition = getConverter(executionContext).convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, fullCurveNames, timeSeries);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
@@ -234,7 +246,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(currency, curve));
     }
-    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
+    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), getConverter(context).convert(target.getTrade()));
     if (tsRequirements == null) {
       return null;
     }

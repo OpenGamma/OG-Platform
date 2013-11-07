@@ -29,7 +29,7 @@ import com.opengamma.master.exchange.impl.InMemoryExchangeMaster;
 import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory exchange master.
  */
 @BeanDefinition
 public class InMemoryExchangeMasterComponentFactory extends AbstractComponentFactory {

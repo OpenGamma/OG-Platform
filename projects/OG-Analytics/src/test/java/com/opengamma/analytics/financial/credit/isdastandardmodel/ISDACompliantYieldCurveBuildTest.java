@@ -12,8 +12,10 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
+import cern.jet.random.engine.MersenneTwister;
+
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -21,7 +23,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * This tests yield curve construction against numbers from ISDA C code. Note,  the ISDA C code has a tolerance of 1e-10 on the root finder (Brent) 
+ *so it is not possible to get a accuracy greater that around 1e-10 using a different numerical procedure  
  */
 public class ISDACompliantYieldCurveBuildTest {
 
@@ -29,6 +32,8 @@ public class ISDACompliantYieldCurveBuildTest {
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+
+  private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister(MersenneTwister.DEFAULT_SEED));
 
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -87,7 +92,7 @@ public class ISDACompliantYieldCurveBuildTest {
 
     final DayCount moneyMarketDCC = ACT360;
     final DayCount swapDCC = D30360;
-    final DayCount curveDCC = ACT365;
+    //  final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
 
     final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, MOD_FOLLOWING);
@@ -99,7 +104,7 @@ public class ISDACompliantYieldCurveBuildTest {
     for (int i = 0; i < nSamplePoints; i++) {
       final double time = sampleTimes[i];
       final double zr = hc.getZeroRate(time);
-      assertEquals("time:" + time, zeroRates[i], zr, 1e-10);
+      assertEquals("time:" + time, zeroRates[i], zr, 1e-10); //see Javadocs
     }
 
     if (print) {
@@ -108,22 +113,174 @@ public class ISDACompliantYieldCurveBuildTest {
       }
     }
 
+  }
+
+  @Test
+  public void offsetTest() {
+    final boolean print = false;
+    if (print) {
+      System.out.println("ISDACompliantYieldCurveBuildTest: print should be false for commit");
+    }
+
+    // date from ISDA excel
+    final double[] zeroRates = new double[] {0.00344732957670444, 0.00344732957670444, 0.00344732957665564, 0.00573603521085939, 0.0084176643849198, 0.010781796487941, 0.0120279905518332,
+      0.0128615375747012, 0.0134582814660727, 0.0143042601975818, 0.0151295167161045, 0.0157903795058379, 0.0163736824559949, 0.0177879283390989, 0.0189852653444261, 0.0200120415227836,
+      0.0206710846569517, 0.0209227827032035, 0.0211449387252473, 0.0213424654765546, 0.0215192436195312, 0.0216783792332686, 0.0218223878875253, 0.0219533286058241, 0.0220729029423261,
+      0.0221825293306998, 0.0222833996177656, 0.0223765225709555, 0.0224627577317496, 0.0225428420251548, 0.0226174108713557, 0.0228326433450198, 0.0230608528197144, 0.0232748170088476,
+      0.0234758293705513, 0.0236650313702278, 0.0238434341690096, 0.0240119367014882, 0.0241713408250857, 0.0243223640799347, 0.0244656504877115, 0.0246017797322627, 0.0247312749980345,
+      0.0248546096897925, 0.0249722132155767, 0.0250950768771892, 0.0252884986617019, 0.0254735181097892, 0.0256506710847436, 0.0258204488317648, 0.025983302527113, 0.0261396472817999,
+      0.0262898656746259, 0.0264343108778737, 0.0265733094294154, 0.0267071636970361, 0.0268361540741183, 0.0269605409402411, 0.0270805664155462, 0.0271964559337422, 0.0274246634134451,
+      0.0277507838016358, 0.0280662187249447, 0.028371484888637, 0.0286670662121106, 0.0289534163886924, 0.0292309612092909, 0.0295001006749348, 0.0297612109202432, 0.0300146459672769,
+      0.0302607393269689, 0.0304998054633688, 0.0307321411342168, 0.0309580266198665, 0.0311777268512541, 0.0315770230032083, 0.0319815950322907, 0.0323755260295719, 0.0327592303654492,
+      0.0331331011714474, 0.0334975116837716, 0.0338528164861427, 0.0341993526606172, 0.0345374408542415, 0.034867386268636, 0.0351894795789277, 0.0355039977878485, 0.0358112050202719,
+      0.0361113532629797, 0.036314617444893, 0.0363240760018509, 0.0363333244620306, 0.0363423697486562, 0.036351218484073, 0.0363598770059169, 0.0363683513822515, 0.0363766474257508,
+      0.0363847707069948, 0.0363927265669436, 0.0364005201286479, 0.0364081563082498, 0.0364156398253248, 0.0364229752126081, 0.0364301668251504, 0.0368049737599067, 0.0372875925345602,
+      0.037761022071311, 0.0382255223448261, 0.0386813436147256, 0.0391287268751859, 0.0395679042798051, 0.0399990995433007, 0.0404225283215028, 0.0408383985709972, 0.0412469108896797,
+      0.0416482588393919, 0.0420426292517308, 0.0424302025180453, 0.0427984803283626, 0.0430160187075607, 0.0432299022080761, 0.0434402221714286, 0.0436470669205816, 0.0438505218836128,
+      0.0440506697113542, 0.0442475903893416, 0.0444413613443925, 0.0446320575461104, 0.0448197516035947, 0.0450045138576194, 0.0451864124685252, 0.045365513500057, 0.0455418809993614,
+      0.0457483713358813, 0.0459870175650164, 0.0462221029730662, 0.0464537066659494, 0.0466819054236241, 0.0469067737849521, 0.0471283841288746, 0.0473468067520848, 0.0475621099433725,
+      0.0477743600548064, 0.0479836215699092, 0.0481899571689731, 0.0483934277916546, 0.0485940926969798, 0.0487920095208844, 0.0489164313924592, 0.0490295826139708 };
+
+    final LocalDate spotDate = LocalDate.of(2013, 5, 31);
+    final LocalDate tradeDate = LocalDate.of(2013, 5, 29);
+
+    final int nMoneyMarket = 6;
+    final int nSwaps = 14;
+    final int nInstruments = nMoneyMarket + nSwaps;
+
+    final ISDAInstrumentTypes[] types = new ISDAInstrumentTypes[nInstruments];
+    final Period[] tenors = new Period[nInstruments];
+    final int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12 };
+    final int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
+    // check
+    ArgumentChecker.isTrue(mmMonths.length == nMoneyMarket, "mmMonths");
+    ArgumentChecker.isTrue(swapYears.length == nSwaps, "swapYears");
+
+    for (int i = 0; i < nMoneyMarket; i++) {
+      types[i] = ISDAInstrumentTypes.MoneyMarket;
+      tenors[i] = Period.ofMonths(mmMonths[i]);
+    }
+    for (int i = nMoneyMarket; i < nInstruments; i++) {
+      types[i] = ISDAInstrumentTypes.Swap;
+      tenors[i] = Period.ofYears(swapYears[i - nMoneyMarket]);
+    }
+
+    final double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332, 0.0227369218210212,
+      0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
+      0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999 };
+
+    final DayCount moneyMarketDCC = ACT360;
+    final DayCount swapDCC = D30360;
+    final DayCount curveDCC = ACT365;
+    final Period swapInterval = Period.ofMonths(6);
+
+    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(tradeDate, spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantCurve yc = bob.build(rates);
+
+    final int nCurvePoints = yc.getNumberOfKnots();
+    assertEquals(nInstruments, nCurvePoints);
+    final int nSamplePoints = zeroRates.length;
+    final double[] times = new double[nSamplePoints];
+    times[0] = 0.0;
+    LocalDate tDate = tradeDate.plusDays(1);
+    times[1] = curveDCC.getDayCountFraction(tradeDate, tDate);
+    for (int i = 2; i < nSamplePoints; i++) {
+      tDate = tradeDate.plusDays(25 * (i - 1) + 1);
+      times[i] = curveDCC.getDayCountFraction(tradeDate, tDate);
+    }
+
+    if (print) {
+      for (int i = 0; i < nSamplePoints; i++) {
+        final double zr = yc.getZeroRate(times[i]);
+        System.out.println(times[i] + "\t" + zr);
+      }
+    }
+
+    for (int i = 0; i < nSamplePoints; i++) {
+      final double zr = yc.getZeroRate(times[i]);
+      assertEquals("time:" + times[i], zeroRates[i], zr, 1e-10); //see Javadocs
+    }
+
+  }
+
+  @Test
+  public void offsetTest2() {
+    final double[] t = new double[] {1, 2, 3, 4, 5 };
+    final double[] r = new double[] {0.8, 0.9, 1, 0.9, 0.8 };
+    final double delta = -0.5;
+
+    final ISDACompliantCurve curve1 = new ISDACompliantCurve(t, r);
+    final ISDACompliantCurve curve2 = new ISDACompliantCurve(t, r, delta);
+    for (int i = 0; i < 100; i++) {
+      final double time = i * 5.0 / 100 - delta;
+      final double rt1 = curve1.getRT(time + delta) - delta * curve1.getZeroRateAtIndex(0);
+      final double rt2 = curve2.getRT(time);
+      //System.out.println(time + "\t" + rt1 + "\t" + rt2);
+      assertEquals(rt1, rt2, 1e-15);
+    }
+
+  }
+
+  @Test(enabled = false)
+  public void timingTest() {
     //TODO extract timing to another test
-    final int warmup = 1;
-    final int hotSpot = 0;
+    final int warmup = 200;
+    final int hotSpot = 1000;
+    final double vol = 0.05;
+
+    final double[] rates = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332, 0.0227369218210212,
+      0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509, 0.0491196954851753,
+      0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999 };
+
+    final LocalDate spotDate = LocalDate.of(2013, 5, 31);
+
+    final int nMoneyMarket = 6;
+    final int nSwaps = 14;
+    final int nInstruments = nMoneyMarket + nSwaps;
+
+    final ISDAInstrumentTypes[] types = new ISDAInstrumentTypes[nInstruments];
+    final Period[] tenors = new Period[nInstruments];
+    final int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12 };
+    final int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
+
+    final DayCount moneyMarketDCC = ACT360;
+    final DayCount swapDCC = D30360;
+    // final DayCount curveDCC = ACT365;
+    final Period swapInterval = Period.ofMonths(6);
+
+    for (int i = 0; i < nMoneyMarket; i++) {
+      types[i] = ISDAInstrumentTypes.MoneyMarket;
+      tenors[i] = Period.ofMonths(mmMonths[i]);
+    }
+    for (int i = nMoneyMarket; i < nInstruments; i++) {
+      types[i] = ISDAInstrumentTypes.Swap;
+      tenors[i] = Period.ofYears(swapYears[i - nMoneyMarket]);
+    }
+
+    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, MOD_FOLLOWING);
 
     for (int i = 0; i < warmup; i++) {
-      final ISDACompliantCurve hc1 = bob.build(rates);
+      @SuppressWarnings("unused")
+      final ISDACompliantCurve hc1 = bob.build(bumpRates(rates, vol));
     }
 
     if (hotSpot > 0) {
       final long t0 = System.nanoTime();
-      for (int i = 0; i < warmup; i++) {
-        final ISDACompliantCurve hc1 = bob.build(rates);
+      for (int i = 0; i < hotSpot; i++) {
+        @SuppressWarnings("unused")
+        final ISDACompliantCurve hc1 = bob.build(bumpRates(rates, vol));
       }
       System.out.println("time to build yield curve: " + (System.nanoTime() - t0) / 1e6 / hotSpot + "ms");
     }
+  }
 
+  private double[] bumpRates(final double[] rates, final double vol) {
+    final int n = rates.length;
+    final double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      res[i] = rates[i] * Math.exp(vol * NORMAL.nextRandom());
+    }
+    return res;
   }
 
   @Test
@@ -188,7 +345,7 @@ public class ISDACompliantYieldCurveBuildTest {
     for (int i = 0; i < nSamplePoints; i++) {
       final double time = sampleTimes[i];
       final double zr = hc.getZeroRate(time);
-      assertEquals("time:" + time, zeroRates[i], zr, 1e-10);
+      assertEquals("time:" + time, zeroRates[i], zr, 1e-10); //see Javadocs
     }
 
     if (print) {

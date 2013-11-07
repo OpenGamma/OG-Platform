@@ -29,7 +29,7 @@ import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityMaster;
 
 /**
- * Component factory for an in-memory function blacklist provider.
+ * Component factory for an in-memory security master.
  */
 @BeanDefinition
 public class InMemorySecurityMasterComponentFactory extends AbstractComponentFactory {
@@ -44,7 +44,6 @@ public class InMemorySecurityMasterComponentFactory extends AbstractComponentFac
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-
 
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {

@@ -17,6 +17,7 @@ import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
@@ -254,6 +255,50 @@ public final class ScheduleCalculator {
    * @param startDate The start date.
    * @param endDate The end date.
    * @param tenorPeriod The period between each date.
+   * @param stub The stub type.
+   * @return The date schedule (not including the start date).
+   */
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period tenorPeriod, final StubType stub) {
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(endDate, "End date");
+    ArgumentChecker.notNull(tenorPeriod, "Period tenor");
+    ArgumentChecker.isTrue(startDate.isBefore(endDate), "Start date should be strictly before end date");
+    final boolean stubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
+    final boolean fromEnd = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
+    final List<ZonedDateTime> dates = new ArrayList<>();
+    int nbPeriod = 0;
+    if (!fromEnd) { // Add the periods from the start date
+      ZonedDateTime date = startDate.plus(tenorPeriod);
+      while (date.isBefore(endDate)) { // date is strictly before endDate
+        dates.add(date);
+        nbPeriod++;
+        date = startDate.plus(tenorPeriod.multipliedBy(nbPeriod + 1));
+      }
+      if (!stubShort && !date.equals(endDate) && nbPeriod >= 1) { // For long stub the last date before end date, if any, is removed.
+        dates.remove(nbPeriod - 1);
+      }
+      dates.add(endDate);
+      return dates.toArray(EMPTY_ARRAY);
+    }
+    // From end - Subtract the periods from the end date
+    ZonedDateTime date = endDate;
+    while (date.isAfter(startDate)) { // date is strictly after startDate
+      dates.add(date);
+      nbPeriod++;
+      date = endDate.minus(tenorPeriod.multipliedBy(nbPeriod));
+    }
+    if (!stubShort && !date.equals(startDate) && nbPeriod >= 1) { // For long stub the last date before end date, if any, is removed.
+      dates.remove(nbPeriod - 1);
+    }
+    Collections.sort(dates); // To obtain the dates in chronological order.
+    return dates.toArray(EMPTY_ARRAY);
+  }
+
+  /**
+   * Compute a schedule of unadjusted dates from a start date, an end date and the period between dates.
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @param tenorPeriod The period between each date.
    * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
    * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
    * @return The date schedule (not including the start date).
@@ -332,6 +377,24 @@ public final class ScheduleCalculator {
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final boolean stubShort,
       final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
     final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd);
+    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
+  /**
+   * Compute a schedule of adjusted dates from a start date, an end date and the period between dates.
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @param schedulePeriod The period between each date in the schedule.
+   * @param stub The stub type.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param eomRule Flag indicating if the end-of-month rule should be applied.
+   * @return The adjusted dates schedule.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final StubType stub,
+      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
     final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
   }

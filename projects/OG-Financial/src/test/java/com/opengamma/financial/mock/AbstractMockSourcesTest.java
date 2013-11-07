@@ -15,6 +15,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.mock.MockSources;
 import com.opengamma.util.test.TestGroup;
 
 /**

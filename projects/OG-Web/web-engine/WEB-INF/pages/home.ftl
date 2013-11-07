@@ -12,6 +12,7 @@
       <li><a href="${portfolioUris.portfolios()}">View and Manage portfolios</a></li>
       <li><a href="${positionUris.positions()}">View and Manage positions</a></li>
       <li><a href="${securityUris.securities()}">View and Manage securities</a></li>
+      <li><a href="${conventionUris.conventions()}">View and Manage conventions</a></li>
       <li><a href="${exchangeUris.exchanges()}">View and Manage exchanges</a></li>
       <li><a href="${holidayUris.holidays()}">View and Manage holidays</a></li>
       <li><a href="${regionUris.regions()}">View and Manage regions</a></li>

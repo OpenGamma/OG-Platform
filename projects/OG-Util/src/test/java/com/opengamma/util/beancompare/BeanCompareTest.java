@@ -35,6 +35,18 @@ public class BeanCompareTest {
   private static final String NAME = "name";
 
   @Test
+  public void equalIgnoring() {
+    UniqueId uid1 = UniqueId.of("uid", "123");
+    UniqueId uid2 = UniqueId.of("uid", "124");
+    ExternalIdBundle eid1 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    ExternalIdBundle eid2 = ExternalIdBundle.of(ExternalId.of("eid1", "321"));
+    Bean bean1 = createBean(uid1, eid1, "name1");
+    Bean bean2 = createBean(uid2, eid2, "name1");
+    assertFalse(BeanCompare.equalIgnoring(bean1, bean2));
+    assertTrue(BeanCompare.equalIgnoring(bean1, bean2, bean1.metaBean().metaProperty(UNIQUE_ID)));
+  }
+
+  @Test
   public void propertyComparators_same() {
     UniqueId uid1 = UniqueId.of("uid", "123");
     UniqueId uid2 = UniqueId.of("uid", "123");

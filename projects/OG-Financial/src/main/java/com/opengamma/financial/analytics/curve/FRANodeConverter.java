@@ -13,12 +13,12 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -80,7 +80,7 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, fraNode.getConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(fraNode.getConvention(), IborIndexConvention.class);
     final Period startPeriod = fraNode.getFixingStart().getPeriod();
     final Period endPeriod = fraNode.getFixingEnd().getPeriod();
     //TODO probably need a specific FRA convention to hold the reset tenor

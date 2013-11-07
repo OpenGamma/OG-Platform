@@ -31,7 +31,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -41,6 +40,7 @@ import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCal
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -67,7 +67,6 @@ import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;

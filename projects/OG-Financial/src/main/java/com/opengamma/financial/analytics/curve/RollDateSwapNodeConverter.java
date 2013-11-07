@@ -7,14 +7,13 @@ package com.opengamma.financial.analytics.curve;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
@@ -64,18 +63,9 @@ public class RollDateSwapNodeConverter extends CurveNodeVisitorAdapter<Instrumen
 
   @Override
   public InstrumentDefinition<?> visitRollDateSwapNode(final RollDateSwapNode rollDateSwapNode) {
-    final RollDateSwapConvention swapConvention = _conventionSource.getConvention(RollDateSwapConvention.class, rollDateSwapNode.getRollDateSwapConvention());
-    if (swapConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + rollDateSwapNode.getRollDateSwapConvention() + " was null");
-    }
-    final Convention payLegConvention = _conventionSource.getConvention(swapConvention.getPayLegConvention());
-    if (payLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getPayLegConvention() + " was null");
-    }
-    final Convention receiveLegConvention = _conventionSource.getConvention(swapConvention.getReceiveLegConvention());
-    if (receiveLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getReceiveLegConvention() + " was null");
-    }
+    final RollDateSwapConvention swapConvention = _conventionSource.getSingle(rollDateSwapNode.getRollDateSwapConvention(), RollDateSwapConvention.class);
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(swapConvention.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention = _conventionSource.getSingle(swapConvention.getReceiveLegConvention(), FinancialConvention.class);
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(swapConvention.getRollDateConvention().getValue());
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(rollDateSwapNode.getStartTenor().getPeriod());
     return NodeConverterUtils.getSwapRollDateDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, rollDateSwapNode.getRollDateStartNumber(),

@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwapti
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -43,7 +44,6 @@ import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;

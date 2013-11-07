@@ -56,6 +56,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -469,6 +470,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
     @Override
     public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
       return NOT_LONG_SHORT;
     }
   }

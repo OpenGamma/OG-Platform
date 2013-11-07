@@ -30,6 +30,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -66,7 +67,6 @@ import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurv
 import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixResolver;

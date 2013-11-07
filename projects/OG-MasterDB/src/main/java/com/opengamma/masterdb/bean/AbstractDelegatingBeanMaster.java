@@ -252,6 +252,16 @@ public class AbstractDelegatingBeanMaster<D extends AbstractDocument, V extends 
 
   //-------------------------------------------------------------------------
   /**
+   * Retrieves the version of the master schema from the database.
+   *  
+   * @return the schema version, or null if not found
+   */
+  public Integer getSchemaVersion() {
+    return _delegate.getSchemaVersion();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns a string summary of this master.
    * 
    * @return the string summary, not null

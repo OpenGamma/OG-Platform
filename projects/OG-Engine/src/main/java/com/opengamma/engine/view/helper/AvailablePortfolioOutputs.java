@@ -132,7 +132,6 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
   private final class FunctionApplicator extends AbstractPortfolioNodeTraversalCallback {
 
-
     private final FunctionCompilationContext _context;
     private final Collection<CompiledFunctionDefinition> _functions;
     private final FunctionExclusionGroups _functionExclusionGroups;
@@ -148,7 +147,12 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
     public FunctionApplicator(final FunctionCompilationContext context, final Collection<CompiledFunctionDefinition> functions, final FunctionExclusionGroups functionExclusionGroups,
         final MarketDataAvailabilityFilter marketDataAvailabilityFilter, final TargetCachePopulator targetCache) {
       _context = context;
-      _functions = functions;
+      _functions = new ArrayList<CompiledFunctionDefinition>(functions.size());
+      for (CompiledFunctionDefinition function : functions) {
+        if (function.getTargetType() != null) {
+          _functions.add(function);
+        }
+      }
       _functionExclusionGroups = functionExclusionGroups;
       _marketDataAvailabilityFilter = marketDataAvailabilityFilter;
       _totalWork = targetCache.getWork() * functions.size();

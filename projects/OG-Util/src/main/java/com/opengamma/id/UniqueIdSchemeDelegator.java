@@ -5,6 +5,9 @@
  */
 package com.opengamma.id;
 
+import static com.google.common.collect.Iterables.concat;
+import static java.util.Collections.singleton;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -76,6 +79,15 @@ public class UniqueIdSchemeDelegator<T> {
    */
   public Map<String, T> getDelegates() {
     return ImmutableMap.copyOf(_schemeToDelegateMap);
+  }
+  
+  /**
+   * Returns the default delegate followed by the mapped one.
+   * 
+   * @return all delegates
+   */
+  public Iterable<T> getAllDelegates() {
+    return concat(singleton(_defaultDelegate), getDelegates().values());
   }
 
   //-------------------------------------------------------------------------

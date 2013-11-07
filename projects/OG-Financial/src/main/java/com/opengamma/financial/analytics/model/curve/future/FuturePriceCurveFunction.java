@@ -47,10 +47,11 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -63,15 +64,15 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
   protected abstract String getInstrumentType();
 
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
-      final String definitionName) {
+      final String definitionName, final VersionCorrection versionCorrection) {
     final String fullDefinitionName = definitionName + "_" + target.getUniqueId().getValue();
-    return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType());
+    return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType(), versionCorrection);
   }
 
   private FuturePriceCurveSpecification getCurveSpecification(final ConfigDBFuturePriceCurveSpecificationSource source, final ComputationTarget target,
-      final String specificationName) {
+      final String specificationName, final VersionCorrection versionCorrection) {
     final String fullSpecificationName = specificationName + "_" + target.getUniqueId().getValue();
-    return source.getSpecification(fullSpecificationName, getInstrumentType());
+    return source.getSpecification(fullSpecificationName, getInstrumentType(), versionCorrection);
   }
 
   public static Set<ValueRequirement> buildRequirements(final FuturePriceCurveSpecification futurePriceCurveSpecification, final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
@@ -86,7 +87,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
   }
 
   protected abstract Double getTimeToMaturity(int n, LocalDate date, Calendar calendar);
-  
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
@@ -116,26 +117,22 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
-        final String curveName;
-        final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-        if (curveNames == null || curveNames.size() != 1) {
-          s_logger.error("Can only get a single curve; asked for " + curveNames);
+        final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+        if (curveName == null) {
           return null;
         }
-        curveName = curveNames.iterator().next();
         //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
-        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target,
-            curveDefinitionName);
+        final VersionCorrection versionCorrection = myContext.getComputationTargetResolver().getVersionCorrection();
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName, versionCorrection);
         if (priceCurveDefinition == null) {
-          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType()});
+          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType() });
           return null;
         }
-        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target,
-            curveSpecificationName);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName, versionCorrection);
         if (priceCurveSpecification == null) {
-          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType()});
+          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType() });
           return null;
         }
         final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(priceCurveSpecification, priceCurveDefinition, atZDT));
@@ -163,8 +160,9 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
-        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName);
-        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName);
+        final VersionCorrection versionCorrection = executionContext.getComputationTargetResolver().getVersionCorrection();
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName, versionCorrection);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName, versionCorrection);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final DoubleArrayList xList = new DoubleArrayList();
@@ -193,8 +191,8 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
             target.toSpecification(),
             createValueProperties()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get());
+                .with(ValuePropertyNames.CURVE, curveName)
+                .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get());
         final NodalDoublesCurve curve = NodalDoublesCurve.from(xList.toDoubleArray(), prices.toDoubleArray());
         final ComputedValue futurePriceCurveResultValue = new ComputedValue(futurePriceCurveResult, curve);
         return Sets.newHashSet(futurePriceCurveResultValue);

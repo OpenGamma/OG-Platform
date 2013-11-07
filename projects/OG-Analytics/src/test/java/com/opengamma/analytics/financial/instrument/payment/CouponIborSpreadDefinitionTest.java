@@ -49,6 +49,10 @@ public class CouponIborSpreadDefinitionTest {
   // Coupon with standard payment and accrual dates.
   private static final CouponIborDefinition IBOR_COUPON_DEFINITION = CouponIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
   private static final CouponIborSpreadDefinition IBOR_COUPON_SPREAD_DEFINITION = CouponIborSpreadDefinition.from(IBOR_COUPON_DEFINITION, SPREAD);
+  private static final CouponIborSpreadDefinition IBOR_COUPON_SPREAD_CONSTR_DEFINITION = new CouponIborSpreadDefinition(CUR, IBOR_COUPON_DEFINITION.getPaymentDate().plusDays(1),
+      IBOR_COUPON_DEFINITION.getAccrualStartDate().minusDays(1), IBOR_COUPON_DEFINITION.getAccrualEndDate().minusDays(1), IBOR_COUPON_DEFINITION.getPaymentYearFraction(),
+      NOTIONAL, FIXING_DATE, IBOR_COUPON_DEFINITION.getFixingPeriodStartDate().plusDays(2), IBOR_COUPON_DEFINITION.getAccrualEndDate().minusDays(2),
+      IBOR_COUPON_DEFINITION.getFixingPeriodAccrualFactor(), INDEX, SPREAD, CALENDAR);
   private static final double FIXING_RATE = 0.04;
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {FIXING_DATE }, new double[] {FIXING_RATE });
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 4, 5);
@@ -87,6 +91,12 @@ public class CouponIborSpreadDefinitionTest {
     assertEquals(IBOR_COUPON_SPREAD_DEFINITION.getFixingDate(), FIXING_DATE);
     assertEquals(IBOR_COUPON_SPREAD_DEFINITION.getSpread(), SPREAD, 1E-10);
     assertEquals(IBOR_COUPON_SPREAD_DEFINITION.getSpreadAmount(), SPREAD * NOTIONAL * IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), 1E-2);
+    assertEquals("CouponIborSpreadDefinition: getter", IBOR_COUPON_SPREAD_CONSTR_DEFINITION.getPaymentDate(), IBOR_COUPON_DEFINITION.getPaymentDate().plusDays(1));
+    assertEquals("CouponIborSpreadDefinition: getter", IBOR_COUPON_SPREAD_CONSTR_DEFINITION.getAccrualStartDate(), IBOR_COUPON_DEFINITION.getAccrualStartDate().minusDays(1));
+    assertEquals("CouponIborSpreadDefinition: getter", IBOR_COUPON_SPREAD_CONSTR_DEFINITION.getAccrualEndDate(), IBOR_COUPON_DEFINITION.getAccrualEndDate().minusDays(1));
+    assertEquals("CouponIborSpreadDefinition: getter", IBOR_COUPON_SPREAD_CONSTR_DEFINITION.getFixingPeriodStartDate(), IBOR_COUPON_DEFINITION.getFixingPeriodStartDate().plusDays(2));
+    assertEquals("CouponIborSpreadDefinition: getter", IBOR_COUPON_SPREAD_CONSTR_DEFINITION.getFixingPeriodEndDate(), IBOR_COUPON_DEFINITION.getAccrualEndDate().minusDays(2));
+    assertEquals("CouponIborSpreadDefinition: getter", IBOR_COUPON_SPREAD_CONSTR_DEFINITION.getFixingPeriodAccrualFactor(), IBOR_COUPON_DEFINITION.getFixingPeriodAccrualFactor());
   }
 
   @Test
@@ -137,7 +147,8 @@ public class CouponIborSpreadDefinitionTest {
         IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE.plusDays(1), INDEX, SPREAD, CALENDAR);
     assertFalse(IBOR_COUPON_SPREAD_DEFINITION.equals(other));
     other = new CouponIborSpreadDefinition(CUR, IBOR_COUPON_SPREAD_DEFINITION.getPaymentDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualStartDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualEndDate(),
-        IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE, new IborIndex(Currency.EUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM, "Ibor"), SPREAD, CALENDAR);
+        IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE, new IborIndex(Currency.EUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM, "Ibor"), SPREAD,
+        CALENDAR);
     assertFalse(IBOR_COUPON_SPREAD_DEFINITION.equals(other));
     other = new CouponIborSpreadDefinition(CUR, IBOR_COUPON_SPREAD_DEFINITION.getPaymentDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualStartDate(), IBOR_COUPON_SPREAD_DEFINITION.getAccrualEndDate(),
         IBOR_COUPON_SPREAD_DEFINITION.getPaymentYearFraction(), NOTIONAL, FIXING_DATE, INDEX, SPREAD + 0.01, CALENDAR);

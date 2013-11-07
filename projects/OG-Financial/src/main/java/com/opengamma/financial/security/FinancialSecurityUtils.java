@@ -8,6 +8,7 @@ package com.opengamma.financial.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
@@ -63,6 +64,8 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -670,6 +673,16 @@ public class FinancialSecurityUtils {
           return null;
         }
 
+        @Override
+        public Currency visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          final InterestRateNotional payLeg = security.getPayLeg().getNotional();
+          final InterestRateNotional receiveLeg = security.getReceiveLeg().getNotional();
+          if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+            return payLeg.getCurrency();
+          }
+          return null;
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -1061,6 +1074,15 @@ public class FinancialSecurityUtils {
             return collection;
           }
           return null;
+        }
+
+        @Override
+        public Collection<Currency> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          final Collection<Currency> collection = new HashSet<>();
+          for (InterestRateSwapLeg leg : security.getLegs()) {
+            collection.add(leg.getNotional().getCurrency());
+          }
+          return collection;
         }
 
       });

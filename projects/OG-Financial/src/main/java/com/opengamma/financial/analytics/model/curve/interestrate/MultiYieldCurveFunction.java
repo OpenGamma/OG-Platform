@@ -82,7 +82,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
     }
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named {}", curveCalculationConfigName);
       return null;

@@ -7,6 +7,32 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M3
+-----------
+
+API compatibility
+- [PLAT-4969] Move convention expiry calculators
+  The expiry calculators have moved package to com.opengamma.financial.convention.expirycalc.
+  Organize imports should fix broken code.
+
+- [PLAT-4955] Add full convention source and master
+  Major refactor of convention code adding support by database.
+  Add ConventionType class to give types a name.
+  Rename Convention class to FinancialConvention.
+  Rename ConventionVisitor class to FinancialConventionVisitor.
+  Rename ConventionVisitorAdapter class to FinancialConventionVisitorAdapter.
+  Renamed getConvention() methods on source to getSingle() and changed Class parameter to end.
+  Move com.opengamma.financial.convention.percurrency package to .initializer and refactor.
+
+Configuration compatibility
+- [PLAT-4955] Add full convention source and master
+  All convention master entries require work.
+  Use 'com.opengamma.component.factory.master.InMemoryConventionMasterComponentFactory'.
+  or 'com.opengamma.component.factory.master.DbConventionMasterComponentFactory'.
+  Each have a 'populateDefaultConventions' option which can be set to true to initialize from hard coded values.
+  The 'ConventionSourceComponentFactory' takes an extra 'conventionMaster' argument.  
+
+
 To 2.2.0-M2
 -----------
 

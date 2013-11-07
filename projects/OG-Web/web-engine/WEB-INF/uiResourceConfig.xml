@@ -443,6 +443,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cashsecurity.js</fragment>
     <!--CDS Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycdssecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyrecoverylockcdssecurity.js</fragment>

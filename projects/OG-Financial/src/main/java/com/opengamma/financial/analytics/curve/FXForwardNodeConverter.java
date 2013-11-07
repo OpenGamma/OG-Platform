@@ -11,13 +11,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -79,23 +78,11 @@ public class FXForwardNodeConverter extends CurveNodeVisitorAdapter<InstrumentDe
     if (forward == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final Convention convention = _conventionSource.getConvention(conventionId);
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention with id " + conventionId);
-    }
-    if (!(convention instanceof FXForwardAndSwapConvention)) {
-      throw new OpenGammaRuntimeException("Need a convention of type " + FXForwardAndSwapConvention.class + ", have " + convention.getClass());
-    }
-    final FXForwardAndSwapConvention forwardConvention = (FXForwardAndSwapConvention) convention;
+    final FXForwardAndSwapConvention convention = _conventionSource.getSingle(conventionId, FXForwardAndSwapConvention.class);
+    final FXForwardAndSwapConvention forwardConvention = convention;
     final ExternalId underlyingConventionId = forwardConvention.getSpotConvention();
-    final Convention underlyingConvention = _conventionSource.getConvention(underlyingConventionId);
-    if (underlyingConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention with id " + underlyingConventionId);
-    }
-    if (!(underlyingConvention instanceof FXSpotConvention)) {
-      throw new OpenGammaRuntimeException("Need a convention of type " + FXSpotConvention.class + ", have " + convention.getClass());
-    }
-    final FXSpotConvention spotConvention = (FXSpotConvention) underlyingConvention;
+    final FXSpotConvention underlyingConvention = _conventionSource.getSingle(underlyingConventionId, FXSpotConvention.class);
+    final FXSpotConvention spotConvention = underlyingConvention;
     final Currency payCurrency = fxForward.getPayCurrency();
     final Currency receiveCurrency = fxForward.getReceiveCurrency();
     final Tenor forwardTenor = fxForward.getMaturityTenor();

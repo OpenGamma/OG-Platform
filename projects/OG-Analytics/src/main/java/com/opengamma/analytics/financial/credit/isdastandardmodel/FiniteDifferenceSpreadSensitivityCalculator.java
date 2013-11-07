@@ -194,6 +194,36 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     return diff / fracBumpAmount;
   }
 
+  public double parallelCS01FromCreditCurve(final CDSAnalytic cds, final double cdsCoupon, final CDSAnalytic[] pillarCDSs, final ISDACompliantYieldCurve yieldCurve,
+      final ISDACompliantCreditCurve creditCurve, final double fracBumpAmount) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.noNulls(pillarCDSs, "pillarCDSs");
+    ArgumentChecker.notNull(creditCurve, "creditCurve");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    ArgumentChecker.isTrue(Math.abs(fracBumpAmount) > 1e-10, "bump amount too small");
+    final int n = pillarCDSs.length;
+
+    final double[] impSpreads = new double[n];
+    final double[] t = new double[n];
+    for (int i = 0; i < n; i++) {
+      impSpreads[i] = _pricer.parSpread(pillarCDSs[i], yieldCurve, creditCurve);
+      t[i] = pillarCDSs[i].getProtectionEnd();
+      if (i > 0) {
+        ArgumentChecker.isTrue(t[i] > t[i - 1], "pillars must be assending");
+      }
+    }
+
+    //build a new curve from the implied spreads
+    final ISDACompliantCreditCurve baseCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, impSpreads, yieldCurve);
+    final double basePrice = _pricer.pv(cds, yieldCurve, baseCurve, cdsCoupon);
+    final double[] bumpedSpreads = makeBumpedSpreads(impSpreads, fracBumpAmount, BumpType.ADDITIVE);
+    final ISDACompliantCreditCurve bumpedCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, bumpedSpreads, yieldCurve);
+    final double price = _pricer.pv(cds, yieldCurve, bumpedCurve, cdsCoupon);
+    final double res = (price - basePrice) / fracBumpAmount;
+
+    return res;
+  }
+
   //***************************************************************************************************************
   // bucked CS01 - the sensitivity of the CDS's PV to the market spreads used to build the credit curve - these are
   // the pillar dates (e.g. 6M, 1Y, 3Y, 5Y, 10Y)

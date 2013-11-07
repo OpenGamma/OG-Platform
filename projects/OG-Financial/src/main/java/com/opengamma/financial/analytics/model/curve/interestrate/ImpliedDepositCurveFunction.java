@@ -15,9 +15,9 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +62,7 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -83,7 +84,6 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -254,7 +254,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
-      final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
+      final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
       final int spotLag = convention.getSettlementDays();
       final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
       ZonedDateTime spotDate;

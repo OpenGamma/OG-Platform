@@ -39,6 +39,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -48,29 +49,28 @@ import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Computes a flat volatility surface from a single market traded option price, and a forward curve
- * 
  */
 public class BlackVolatilitySurfaceSinglePointFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    
+
     // The Security itself is the ComputationTarget. From it, we get strike and expiry information to compute implied volatility
     // The types we're concerned about: EquityOptionSecurity, EquityIndexOptionSecurity, EquityIndexFutureOptionSecurity
     // For which the strings are: EQUITY_OPTION, EQUITY_INDEX_OPTION, EQUITY_INDEX_FUTURE_OPTION
-    final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity(); 
+    final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
     final double strike = security.getStrike();
     final Expiry expiry = security.getExpiry();
     if (expiry.getAccuracy().equals(ExpiryAccuracy.MONTH_YEAR) || expiry.getAccuracy().equals(ExpiryAccuracy.YEAR)) {
       throw new OpenGammaRuntimeException("There is ambiguity in the expiry date of the target security.");
     }
     final ZonedDateTime expiryDate = expiry.getExpiry();
-    final ZonedDateTime valuationDT = ZonedDateTime.now(executionContext.getValuationClock()); 
+    final ZonedDateTime valuationDT = ZonedDateTime.now(executionContext.getValuationClock());
     double timeToExpiry = TimeCalculator.getTimeBetween(valuationDT, expiryDate);
     if (timeToExpiry == 0) { // TODO: See JIRA [PLAT-3222]
       timeToExpiry = 0.0015;
-    } 
-    
+    }
+
     // The ForwardCurve was a requirement. We get both forward and spot values from it. 
     // The latter is used to form the forwardOptionPrice given a (spot) market value
     final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
@@ -80,18 +80,18 @@ public class BlackVolatilitySurfaceSinglePointFunction extends AbstractFunction.
     final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
     final double forward = forwardCurve.getForward(timeToExpiry);
     final double spot = forwardCurve.getForward(0.0);
-    
+
     // The Volatility Surface is simply a single point, which must be inferred from the market value
     final Object optionPriceObject = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
     if (optionPriceObject == null) {
       throw new OpenGammaRuntimeException("Could not get market value of underlying option");
     }
-    final double spotOptionPrice  = (double) optionPriceObject;
-    final double forwardOptionPrice = spotOptionPrice * forward / spot; 
-    
+    final double spotOptionPrice = (double) optionPriceObject;
+    final double forwardOptionPrice = spotOptionPrice * forward / spot;
+
     double impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, 0.3);
-    
-    final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol); 
+
+    final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = new BlackVolatilitySurfaceMoneyness(surface, forwardCurve);
     final ValueProperties properties = getResultProperties(desiredValues.iterator().next());
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties);
@@ -105,7 +105,8 @@ public class BlackVolatilitySurfaceSinglePointFunction extends AbstractFunction.
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    // TODO: Check this; there is a cast in the execute method, but the comment suggests other securities are also valid
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
   @Override
@@ -118,7 +119,7 @@ public class BlackVolatilitySurfaceSinglePointFunction extends AbstractFunction.
         .get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties));
   }
-  
+
   // TODO: Review: I would prefer not to have to create a version of this for each instrument type...
   // TODO: InstrumentType is hard-coded. Could this be derived from the target Security?
   private String getInstrumentType(ComputationTarget target) {
@@ -140,7 +141,7 @@ public class BlackVolatilitySurfaceSinglePointFunction extends AbstractFunction.
     if (curveNames == null || curveNames.size() != 1) {
       return null;
     }
-    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, desiredValue);    
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, desiredValue);
     final ValueRequirement optionPriceRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
     return Sets.newHashSet(forwardCurveRequirement, optionPriceRequirement);
   }
@@ -152,16 +153,16 @@ public class BlackVolatilitySurfaceSinglePointFunction extends AbstractFunction.
         .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .get();
-    
+
     // FIXME This isn't quite going to fly. We need the Security (i.e. the Option) to get its price, ttm and strike, 
     // but we also need the Underlying, either to specify the Forward to build, or we can do it via the Spot price and a discount curve.. 
     // !!! What I've done below will probably work as a gap-solution. Just need to follow EquityForwardCurveFunction's getResults
-    
+
     ExternalId underlyingExtId = ((EquityOptionSecurity) target.getSecurity()).getUnderlyingId();
     UniqueId underlyingUniqId = UniqueId.of(underlyingExtId);
     ComputationTargetSpecification underlyingSpec = ComputationTargetSpecification.of(underlyingUniqId);
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, underlyingSpec, properties);
   }
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(BlackVolatilitySurfaceSinglePointFunction.class);
 }

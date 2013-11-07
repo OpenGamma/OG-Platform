@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -64,6 +65,11 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
 
   @Override
   public Double visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
+  public Double visitCouponONSpread(final CouponONSpread coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 

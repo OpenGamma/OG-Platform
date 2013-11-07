@@ -28,17 +28,17 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.masterdb.security.AbstractDbSecurityTest;
 import com.opengamma.masterdb.security.DbSecurityBeanMaster;
 import com.opengamma.util.ZipUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.test.TestGroup;
 
 /**
  * Base tests for DbSecurityBeanMaster.
  */
 @Test(groups = TestGroup.UNIT_DB)
-public abstract class AbstractDbSecurityBeanMasterTest extends AbstractDbSecurityTest {
+public abstract class AbstractDbSecurityBeanMasterTest extends AbstractDbTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityBeanMasterTest.class);
 

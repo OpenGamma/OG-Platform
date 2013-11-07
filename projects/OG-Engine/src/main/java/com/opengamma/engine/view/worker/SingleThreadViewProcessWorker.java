@@ -771,11 +771,13 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       s_logger.info("Performing full computation");
       deltaCycle = null;
     } else {
-      s_logger.info("Performing delta computation");
       deltaCycle = _previousCycleReference.get();
       if ((deltaCycle != null) && (deltaCycle.getState() != ViewCycleState.EXECUTED)) {
         // Can only do a delta cycle if the previous was valid
+        s_logger.info("Performing full computation; no previous cycle");
         deltaCycle = null;
+      } else {
+        s_logger.info("Performing delta computation");
       }
     }
     boolean continueExecution = cycleReference.get().preExecute(deltaCycle, marketDataSnapshot, _suppressExecutionOnNoMarketData);
@@ -1382,9 +1384,6 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       }
       if (previousGraphs != null) {
         s_logger.info("Performing incremental graph compilation");
-        if (unchangedNodes != null) {
-          System.err.println(unchangedNodes.size() + " unchanged node(s)");
-        }
         _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(getViewDefinition(), compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions,
             changedPositions, unchangedNodes);
       } else {

@@ -40,16 +40,18 @@ public class SingleNodeExecutionPlanner implements GraphExecutionPlanner {
     private final ExecutionLogModeSource _logModeSource;
     private final Set<ValueSpecification> _sharedValues;
     private final Set<ValueSpecification> _privateValues;
+    private final Map<ValueSpecification, ?> _terminals;
     private final Map<ValueSpecification, FunctionParameters> _parameters;
     private final Set<DependencyNode> _executed;
 
-    public JobBuilder(final String calcConfigName, final int size, final ExecutionLogModeSource logModeSource, final Set<ValueSpecification> sharedValues,
-        final Map<ValueSpecification, FunctionParameters> parameters) {
+    public JobBuilder(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
+      final int size = graph.getSize();
       _items = new ArrayList<CalculationJobItem>(size);
-      _calcConfigName = calcConfigName;
+      _calcConfigName = graph.getCalculationConfigurationName();
       _logModeSource = logModeSource;
       _sharedValues = sharedValues;
       _privateValues = new HashSet<ValueSpecification>();
+      _terminals = graph.getTerminalOutputs();
       _parameters = parameters;
       _executed = Sets.newHashSetWithExpectedSize(size);
     }
@@ -69,7 +71,11 @@ public class SingleNodeExecutionPlanner implements GraphExecutionPlanner {
       final ValueSpecification[] outputs = DependencyNodeImpl.getOutputValueArray(root);
       FunctionParameters functionParameters = root.getFunction().getParameters();
       for (ValueSpecification output : outputs) {
-        _privateValues.add(output);
+        if (_terminals.containsKey(output)) {
+          _sharedValues.add(output);
+        } else {
+          _privateValues.add(output);
+        }
         FunctionParameters newParameters = _parameters.get(output);
         if (newParameters != null) {
           functionParameters = newParameters;
@@ -95,7 +101,7 @@ public class SingleNodeExecutionPlanner implements GraphExecutionPlanner {
 
   protected static PlannedJob createJob(final DependencyGraph graph, final ExecutionLogModeSource logModeSource, final Set<ValueSpecification> sharedValues,
       final Map<ValueSpecification, FunctionParameters> parameters) {
-    final JobBuilder builder = new JobBuilder(graph.getCalculationConfigurationName(), graph.getSize(), logModeSource, sharedValues, parameters);
+    final JobBuilder builder = new JobBuilder(graph, logModeSource, sharedValues, parameters);
     final int roots = graph.getRootCount();
     iLoop: for (int i = 0; i < roots; i++) { //CSIGNORE
       final DependencyNode root = graph.getRootNode(i);

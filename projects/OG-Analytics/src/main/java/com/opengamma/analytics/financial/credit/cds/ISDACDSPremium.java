@@ -14,13 +14,15 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * @see AnnuityCouponFixed
+ * @deprecated Use classes from isdastandardmodel
  */
+@Deprecated
 public class ISDACDSPremium extends AnnuityCouponFixed {
 
-  public ISDACDSPremium(ISDACDSCoupon[] payments) {
+  public ISDACDSPremium(final ISDACDSCoupon[] payments) {
     super(payments);
   }
-  
+
   @Override
   public ISDACDSCoupon[] getPayments() {
     return (ISDACDSCoupon[]) super.getPayments();

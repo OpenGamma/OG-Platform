@@ -24,6 +24,7 @@ import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -34,9 +35,9 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -93,6 +94,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private SecurityMaster _securityMaster;
+  /**
+   * The convention master.
+   */
+  @PropertyDefinition
+  private ConventionMaster _conventionMaster;
   /**
    * The position master.
    */
@@ -415,6 +421,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   public final Property<SecurityMaster> securityMaster() {
     return metaBean().securityMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the convention master.
+   * @return the value of the property
+   */
+  public ConventionMaster getConventionMaster() {
+    return _conventionMaster;
+  }
+
+  /**
+   * Sets the convention master.
+   * @param conventionMaster  the new value of the property
+   */
+  public void setConventionMaster(ConventionMaster conventionMaster) {
+    this._conventionMaster = conventionMaster;
+  }
+
+  /**
+   * Gets the the {@code conventionMaster} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionMaster> conventionMaster() {
+    return metaBean().conventionMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -962,6 +993,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
           JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
@@ -998,6 +1030,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
@@ -1024,7 +1057,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(928);
+    StringBuilder buf = new StringBuilder(960);
     buf.append("ToolContextComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1045,6 +1078,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
     buf.append("regionMaster").append('=').append(JodaBeanUtils.toString(getRegionMaster())).append(',').append(' ');
     buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
@@ -1113,6 +1147,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
         this, "securityMaster", ToolContextComponentFactory.class, SecurityMaster.class);
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     */
+    private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
+        this, "conventionMaster", ToolContextComponentFactory.class, ConventionMaster.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
@@ -1230,6 +1269,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "holidayMaster",
         "regionMaster",
         "securityMaster",
+        "conventionMaster",
         "positionMaster",
         "portfolioMaster",
         "organizationMaster",
@@ -1275,6 +1315,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _regionMaster;
         case -887218750:  // securityMaster
           return _securityMaster;
+        case 41113907:  // conventionMaster
+          return _conventionMaster;
         case -1840419605:  // positionMaster
           return _positionMaster;
         case -772274742:  // portfolioMaster
@@ -1391,6 +1433,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<SecurityMaster> securityMaster() {
       return _securityMaster;
+    }
+
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionMaster> conventionMaster() {
+      return _conventionMaster;
     }
 
     /**
@@ -1579,6 +1629,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return ((ToolContextComponentFactory) bean).getRegionMaster();
         case -887218750:  // securityMaster
           return ((ToolContextComponentFactory) bean).getSecurityMaster();
+        case 41113907:  // conventionMaster
+          return ((ToolContextComponentFactory) bean).getConventionMaster();
         case -1840419605:  // positionMaster
           return ((ToolContextComponentFactory) bean).getPositionMaster();
         case -772274742:  // portfolioMaster
@@ -1648,6 +1700,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return;
         case -887218750:  // securityMaster
           ((ToolContextComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case 41113907:  // conventionMaster
+          ((ToolContextComponentFactory) bean).setConventionMaster((ConventionMaster) newValue);
           return;
         case -1840419605:  // positionMaster
           ((ToolContextComponentFactory) bean).setPositionMaster((PositionMaster) newValue);

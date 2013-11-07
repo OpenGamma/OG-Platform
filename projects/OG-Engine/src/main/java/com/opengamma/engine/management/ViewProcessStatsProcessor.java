@@ -77,7 +77,7 @@ public class ViewProcessStatsProcessor {
               ValueRequirement valueReq = new ValueRequirement(valueRequirement.getFirst(), breadcrumbTargetSpec, valueRequirement.getSecond());
               ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
               if (valueSpec == null) {
-                s_logger.error("Couldn't get reverse value spec mapping from requirement: " + valueReq.toString());
+                s_logger.debug("Couldn't get reverse value spec mapping from requirement: " + valueReq.toString());
                 _failures++;
               } else {
                 Pair<String, ValueProperties> valueKey = Pairs.of(valueSpec.getValueName(), valueSpec.getProperties());

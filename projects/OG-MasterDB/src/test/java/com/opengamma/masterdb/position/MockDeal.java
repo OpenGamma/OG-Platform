@@ -166,8 +166,8 @@ import org.joda.beans.Bean;
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("propertyOne").append('=').append(getPropertyOne()).append(',').append(' ');
-    buf.append("propertyTwo").append('=').append(getPropertyTwo()).append(',').append(' ');
+    buf.append("propertyOne").append('=').append(JodaBeanUtils.toString(getPropertyOne())).append(',').append(' ');
+    buf.append("propertyTwo").append('=').append(JodaBeanUtils.toString(getPropertyTwo())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

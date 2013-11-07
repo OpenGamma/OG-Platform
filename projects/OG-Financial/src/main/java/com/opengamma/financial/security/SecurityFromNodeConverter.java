@@ -18,6 +18,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTra
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -28,18 +30,17 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculatorFactory;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculatorFactory;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
@@ -114,7 +115,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public FRASecurity visitFRANode(final FRANode fraNode) {
-    final Convention convention = _conventionSource.getConvention(fraNode.getConvention());
+    final Convention convention = _conventionSource.getSingle(fraNode.getConvention().toBundle());
     final Period startPeriod = fraNode.getFixingStart().getPeriod();
     final Period endPeriod = fraNode.getFixingEnd().getPeriod();
     //TODO probably need a specific FRA convention to hold the reset tenor
@@ -177,14 +178,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public FinancialSecurity visitSwapNode(final SwapNode swapNode) {
-    final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
-    if (payLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
-    }
-    final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
-    if (receiveLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
-    }
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(swapNode.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention = _conventionSource.getSingle(swapNode.getReceiveLegConvention(), FinancialConvention.class);
 
     final boolean isFloatFloat = NodeConverterUtils.isFloatFloat(payLegConvention, receiveLegConvention);
     final SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
@@ -231,10 +226,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public CashSecurity visitCashNode(final CashNode cashNode) {
-    final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + cashNode.getConvention() + " was null");
-    }
+    final Convention convention = _conventionSource.getSingle(cashNode.getConvention());
     final Period startPeriod = cashNode.getStartTenor().getPeriod();
     final Period maturityPeriod = cashNode.getMaturityTenor().getPeriod();
     if (convention instanceof DepositConvention) {
@@ -317,10 +309,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   @Override
   public FutureSecurity visitRateFutureNode(final RateFutureNode rateFuture) {
     final FutureSecurity security;
-    final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
-    if (futureConvention == null) {
-      throw new OpenGammaRuntimeException("Future convention was null");
-    }
+    final Convention futureConvention = _conventionSource.getSingle(rateFuture.getFutureConvention());
     if (futureConvention instanceof InterestRateFutureConvention) {
       security = getInterestRateFuture(rateFuture, (InterestRateFutureConvention) futureConvention, _rate);
     } else if (futureConvention instanceof FederalFundsFutureConvention) {
@@ -345,11 +334,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                            final InterestRateFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class,
-                                                                                futureConvention.getIndexConvention());
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Underlying convention was null");
-    }
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(),
+                                                                                IborIndexConvention.class);
     final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
     final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
     final Currency currency = indexConvention.getCurrency();
@@ -414,11 +400,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                            final FederalFundsFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class,
-                                                                                     futureConvention.getIndexConvention());
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Underlying convention was null");
-    }
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(),
+                                                                                     OvernightIndexConvention.class);
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final int publicationLag = indexConvention.getPublicationLag();

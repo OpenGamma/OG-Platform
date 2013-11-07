@@ -19,6 +19,8 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.web.config.WebConfigData;
 import com.opengamma.web.config.WebConfigUris;
+import com.opengamma.web.convention.WebConventionData;
+import com.opengamma.web.convention.WebConventionUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
 import com.opengamma.web.function.WebFunctionData;
@@ -82,6 +84,10 @@ public class WebHomeResource extends AbstractWebResource {
     WebSecuritiesData securityData = new WebSecuritiesData();
     securityData.setUriInfo(uriInfo);
     out.put("securityUris", new WebSecuritiesUris(securityData));
+    
+    WebConventionData conventionData = new WebConventionData();
+    conventionData.setUriInfo(uriInfo);
+    out.put("conventionUris", new WebConventionUris(conventionData));
     
     WebExchangeData exchangeData = new WebExchangeData();
     exchangeData.setUriInfo(uriInfo);

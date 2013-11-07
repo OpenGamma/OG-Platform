@@ -17,34 +17,38 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * Parent class for a family of curves that have real <i>x</i> and <i>y</i> values.
  */
 @BeanDefinition
-public abstract class DoublesCurve extends Curve<Double, Double> {
+public abstract class DoublesCurve
+    extends Curve<Double, Double> {
 
   /**
    * Constructor
    */
-  public DoublesCurve() {
-    super();
+  protected DoublesCurve() {
   }
 
   /**
    * Constructor with a name.
-   * @param name The curve name.
+   * 
+   * @param name  the curve name, not null
    */
-  public DoublesCurve(final String name) {
+  protected DoublesCurve(final String name) {
     super(name);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Computes the sensitivity of the Y value with respect to the curve parameters.
-   * @param x The value at which the parameter sensitivity is computed.
-   * @return The sensitivity.
+   * 
+   * @param x  the value at which the parameter sensitivity is computed, not null
+   * @return the sensitivity, not null
    */
   public abstract Double[] getYValueParameterSensitivity(Double x);
 
   /**
-   * Compute the first derivative of the curve, $\frac{dy}{dx}$ 
-   * @param x The value at which the derivative is taken 
-   * @return The first derivative 
+   * Compute the first derivative of the curve, $\frac{dy}{dx}$.
+   * 
+   * @param x  the value at which the derivative is taken
+   * @return the first derivative 
    */
   public abstract double getDyDx(final double x);
 

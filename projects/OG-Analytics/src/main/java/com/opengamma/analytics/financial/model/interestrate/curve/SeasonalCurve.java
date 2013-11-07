@@ -6,30 +6,40 @@
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 
 /**
- * Class describing a monthly seasonal adjustment curve. The curve is piecewise constant on intervals defined by a set of times. 
- * Those times should be calculated using first of month dates and  the act/act day counter (the one used for derivatives file).
+ * Class describing a monthly seasonal adjustment curve.
+ * The curve is piecewise constant on intervals defined by a set of times. 
+ * Those times should be calculated using first of month dates and the
+ * act/act day counter (the one used for derivatives file).
  */
+@BeanDefinition
 public final class SeasonalCurve extends FunctionalDoublesCurve {
 
   /**
+   * Constructor for Joda-Beans.
+   */
+  protected SeasonalCurve() {
+  }
+
+  /**
    * Construct a seasonal curve from a reference time and the monthly factors.
-   * @param steps the
-   * @param monthlyFactors The monthly seasonal factors from one month to the next. The size of the array is 11 (the 12th factor is deduced from the 11 other
-   * @param isAdditive 
-   * as the cumulative yearly adjustment is 1). The factors represent the multiplicative factor from one month to the next. The reference time represent the initial month
-   * for which there is no adjustment.
+   * 
+   * @param steps  the steps, not null
+   * @param monthlyFactors  the monthly seasonal factors from one month to the next.
+   *  The size of the array is 11 (the 12th factor is deduced from the 11 other.
+   * @param isAdditive  as the cumulative yearly adjustment is 1). The factors represent
+   *  the multiplicative factor from one month to the next. The reference time represent
+   *  the initial month for which there is no adjustment.
    */
   public SeasonalCurve(double[] steps, double[] monthlyFactors, boolean isAdditive) {
     super(new SeasonalFunction(steps, monthlyFactors, isAdditive));
@@ -54,30 +64,10 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
     return SeasonalCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   @Override
   public SeasonalCurve clone() {
-    BeanBuilder<? extends SeasonalCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (SeasonalCurve) super.clone();
   }
 
   @Override
@@ -86,23 +76,33 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return true;
+      return super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    return hash;
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(32);
     buf.append("SeasonalCurve{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
     buf.append('}');
     return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------
@@ -119,7 +119,7 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.
@@ -129,7 +129,7 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
 
     @Override
     public BeanBuilder<? extends SeasonalCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<SeasonalCurve>(new SeasonalCurve());
     }
 
     @Override

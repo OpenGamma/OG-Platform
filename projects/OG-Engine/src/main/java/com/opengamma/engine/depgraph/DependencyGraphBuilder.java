@@ -8,6 +8,7 @@ package com.opengamma.engine.depgraph;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -98,6 +99,12 @@ public final class DependencyGraphBuilder implements Cancelable {
    */
   private static final boolean DEBUG_DUMP_FAILURE_INFO =
       System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
+
+  /**
+   * Controls whether to GZIP the outputs created by {@link #DEBUG_DUMP_DEPENDENCY_GRAPH} and {@link #DEBUG_DUMP_FAILURE_INFO}. The default value is off but can be controlled by the
+   * {@code DependencyGraphBuilder.dumpGZIP} property to save disk space and/or I/O overheads when a large volume of debugging data is being generated.
+   */
+  private static final boolean DEBUG_DUMP_GZIP = System.getProperty("DependencyGraphBuilder.dumpGZIP", "FALSE").equalsIgnoreCase("TRUE");
 
   /** Profiler for monitoring the {@link #abortLoops} operation. */
   private static final Profiler s_abortLoops = Profiler.create(DependencyGraphBuilder.class, "abortLoops");
@@ -1028,8 +1035,15 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   protected PrintStream openDebugStream(final String name) {
     try {
-      final String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt.gz";
-      return new PrintStream(new GZIPOutputStream(new FileOutputStream(fileName)));
+      String fileName = System.getProperty("java.io.tmpdir") + File.separatorChar + name + _objectId + ".txt";
+      if (DEBUG_DUMP_GZIP) {
+        fileName = fileName + ".gz";
+      }
+      OutputStream output = new FileOutputStream(fileName);
+      if (DEBUG_DUMP_GZIP) {
+        output = new GZIPOutputStream(output);
+      }
+      return new PrintStream(output);
     } catch (final IOException e) {
       s_logger.error("Can't open debug file", e);
       return System.out;

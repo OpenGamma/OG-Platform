@@ -11,8 +11,8 @@ import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
-import com.opengamma.financial.convention.IRFutureAndFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.IRFutureAndFutureOptionExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 

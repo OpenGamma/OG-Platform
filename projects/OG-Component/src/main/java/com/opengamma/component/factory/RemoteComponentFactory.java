@@ -52,6 +52,8 @@ import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.RemoteConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
@@ -79,12 +81,19 @@ import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 
 /**
- * Constructs components exposed by a remote component server. =
+ * Constructs components exposed by a remote component server.
  */
 public class RemoteComponentFactory {
+
+  /**
+   * The base URI.
+   */
   private final URI _baseUri;
+  /**
+   * The component server.
+   */
   private final ComponentServer _componentServer;
-  
+
   /**
    * Constructs an instance.
    * 
@@ -93,7 +102,7 @@ public class RemoteComponentFactory {
   public RemoteComponentFactory(String componentServerUri) {
     this(URI.create(componentServerUri));
   }
-  
+
   /**
    * Constructs an instance.
    * 
@@ -105,12 +114,17 @@ public class RemoteComponentFactory {
     _baseUri = componentServerUri;
     _componentServer = remoteComponentServer.getComponentServer();
   }
-  
+
   //-------------------------------------------------------------------------
+  /**
+   * Gets the base URI.
+   * 
+   * @return the base URI, not null
+   */
   public URI getBaseUri() {
     return _baseUri;
   }
-  
+
   private ComponentInfo getTopLevelComponent(List<String> preferenceList, Class<?> type) {
     if (preferenceList != null) {
       for (String preference : preferenceList) {
@@ -127,7 +141,7 @@ public class RemoteComponentFactory {
     List<ComponentInfo> componentInfos = getComponentServer().getComponentInfos();
     return componentInfos.size() == 0 ? null : componentInfos.get(0);
   }
-  
+
   //-------------------------------------------------------------------------
   public RemoteViewProcessor getViewProcessor(String vpId) {
     ComponentInfo info = getComponentServer().getComponentInfo(ViewProcessor.class, "main");
@@ -146,7 +160,7 @@ public class RemoteComponentFactory {
     }
     return result;
   }
-  
+
   //-------------------------------------------------------------------------
   // Configs
   /**
@@ -357,6 +371,37 @@ public class RemoteComponentFactory {
     Map<String, SecurityMaster> result = new LinkedHashMap<String, SecurityMaster>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(SecurityMaster.class)) {
       result.put(info.getClassifier(), new RemoteDbSecurityMaster(info.getUri()));
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  // Conventions
+  /**
+   * @param name the classifier name of the object you want to retrieve
+   * @return the interface requested, or null if not present
+   */
+  public ConventionMaster getConventionMaster(final String name) {
+    URI uri = getComponentServer().getComponentInfo(ConventionMaster.class, name).getUri();
+    return new RemoteConventionMaster(uri);
+  }
+
+  /**
+   * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
+   * @return the best matching interface available
+   */
+  public ConventionMaster getConventionMaster(final List<String> preferredClassifiers) {
+    URI uri = getTopLevelComponent(preferredClassifiers, ConventionMaster.class).getUri();
+    return new RemoteConventionMaster(uri);
+  }
+
+  /**
+   * @return a map of classifier names to requested interface type
+   */
+  public Map<String, ConventionMaster> getConventionMasters() {
+    Map<String, ConventionMaster> result = new LinkedHashMap<String, ConventionMaster>();
+    for (ComponentInfo info : getComponentServer().getComponentInfos(ConventionMaster.class)) {
+      result.put(info.getClassifier(), new RemoteConventionMaster(info.getUri()));
     }
     return result;
   }

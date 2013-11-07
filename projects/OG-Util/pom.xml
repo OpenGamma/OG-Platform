@@ -101,6 +101,10 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.woodstox</groupId>
+      <artifactId>woodstox-core-asl</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

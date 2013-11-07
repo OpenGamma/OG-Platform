@@ -111,7 +111,8 @@ import com.opengamma.util.time.Expiry;
       CreditDefaultSwapIndexSecurity.meta(),
       CreditDefaultSwapOptionSecurity.meta(),
       YearOnYearInflationSwapSecurity.meta(),
-      ZeroCouponInflationSwapSecurity.meta());
+      ZeroCouponInflationSwapSecurity.meta(),
+      CashSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);

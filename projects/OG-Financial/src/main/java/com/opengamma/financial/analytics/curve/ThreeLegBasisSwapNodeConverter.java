@@ -8,16 +8,15 @@ package com.opengamma.financial.analytics.curve;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -70,18 +69,9 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
 
   @Override
   public InstrumentDefinition<?> visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode threeLegBasisSwapNode) {
-    final Convention payLegConvention = _conventionSource.getConvention(threeLegBasisSwapNode.getPayLegConvention());
-    if (payLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + threeLegBasisSwapNode.getPayLegConvention() + " was null");
-    }
-    final Convention receiveLegConvention = _conventionSource.getConvention(threeLegBasisSwapNode.getReceiveLegConvention());
-    if (receiveLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + threeLegBasisSwapNode.getReceiveLegConvention() + " was null");
-    }
-    final Convention spreadLegConvention = _conventionSource.getConvention(threeLegBasisSwapNode.getSpreadLegConvention());
-    if (spreadLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + threeLegBasisSwapNode.getSpreadLegConvention() + " was null");
-    }
+    final FinancialConvention payLegConvention = _conventionSource.getSingle(threeLegBasisSwapNode.getPayLegConvention(), FinancialConvention.class);
+    final FinancialConvention receiveLegConvention = _conventionSource.getSingle(threeLegBasisSwapNode.getReceiveLegConvention(), FinancialConvention.class);
+    final FinancialConvention spreadLegConvention = _conventionSource.getSingle(threeLegBasisSwapNode.getSpreadLegConvention(), FinancialConvention.class);
     final Period startTenor = threeLegBasisSwapNode.getStartTenor().getPeriod();
     final Period maturityTenor = threeLegBasisSwapNode.getMaturityTenor().getPeriod();
     final AnnuityDefinition<?>[] legs = new AnnuityDefinition[3];
@@ -93,5 +83,5 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
         _marketData, _dataId, _valuationTime, false, false); // Other leg
     return new SwapMultilegDefinition(legs);
   }
-  
+
 }

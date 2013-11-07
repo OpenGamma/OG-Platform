@@ -34,6 +34,8 @@ import com.opengamma.engine.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
+import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.convention.impl.RemoteConventionMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.RemoteExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -69,6 +71,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
     _remoteWrappers.put(RegionMaster.class, RemoteRegionMaster.class);
     _remoteWrappers.put(MarketDataSnapshotMaster.class, RemoteMarketDataSnapshotMaster.class);
     _remoteWrappers.put(SecurityMaster.class, RemoteSecurityMaster.class);
+    _remoteWrappers.put(ConventionMaster.class, RemoteConventionMaster.class);
     _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
     _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
     _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);

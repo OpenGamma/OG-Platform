@@ -50,6 +50,9 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -450,6 +453,26 @@ public class UnderlyingExposureFunction implements ExposureFunction {
     }
     if (receiveLeg instanceof InflationIndexSwapLeg) {
       result.add(((InflationIndexSwapLeg) receiveLeg).getIndexId());
+    }
+    if (result.isEmpty()) {
+      return null;
+    }
+    return result;
+  }
+
+  @Override
+  public List<ExternalId> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    final List<ExternalId> result = new ArrayList<>();
+    for (final InterestRateSwapLeg leg : security.getLegs()) {
+      if (leg instanceof FloatingInterestRateSwapLeg) {
+        final ExternalIdBundle ids = ((FloatingInterestRateSwapLeg) leg).getConvention().getExternalIdBundle();
+        for (final ExternalId id : ids) {
+          result.add(id);
+          // only add the first id per leg, if multiple ids resolving to the same rate were returned
+          // the caller could over estimate their exposure
+          break;
+        }
+      }
     }
     if (result.isEmpty()) {
       return null;

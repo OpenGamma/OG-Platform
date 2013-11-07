@@ -16,8 +16,12 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -39,6 +43,8 @@ import com.opengamma.util.tuple.Pairs;
 public abstract class AbstractEHCachingSourceWithExternalBundle<V extends UniqueIdentifiable & ExternalBundleIdentifiable, S extends SourceWithExternalBundle<V>>
     extends AbstractEHCachingSource<V, S>
     implements SourceWithExternalBundle<V> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractEHCachingSourceWithExternalBundle.class);
 
   private static final String EID_TO_UID_CACHE = "-eid-to-uid";
 
@@ -191,14 +197,27 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
       if (e.getObjectValue() instanceof List) {
         final List<UniqueId> identifiers = (List<UniqueId>) e.getObjectValue();
         for (final UniqueId uid : identifiers) {
-          final V result = get(uid);
+          V result;
+          try {
+            result = get(uid);
+          } catch (DataNotFoundException dnfe) {
+            s_logger.warn("Cached {} for {} no longer available", uid, key);
+            result = null;
+          }
           if (result != null) {
             return result;
           }
         }
         return null;
       } else if (e.getObjectValue() instanceof UniqueId) {
-        return get((UniqueId) e.getObjectValue());
+        // REVIEW 2013-11-06 Andrew -- Get will probably throw a DNFE instead of returning NULL
+        final UniqueId uid = (UniqueId) e.getObjectValue();
+        try {
+          return get(uid);
+        } catch (DataNotFoundException dnfe) {
+          s_logger.warn("Cached {} for {} no longer available", uid, key);
+          return null;
+        }
       }
     }
     final V result = getUnderlying().getSingle(bundle, versionCorrection);

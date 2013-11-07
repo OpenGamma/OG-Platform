@@ -505,12 +505,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   }
 
   public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final Class<?> type;
-    try {
-      type = ClassUtils.loadClass(msg.getString(Meta.INSTANCE.type().name()));
-    } catch (final Exception e) {
-      throw new IllegalArgumentException("Invalid type", e);
-    }
+    final Class<?> type = ClassUtils.loadClassRuntime(msg.getString(Meta.INSTANCE.type().name()));
     final String name = msg.getString(Meta.INSTANCE.name().name());
     final Object value = deserializer.fieldValueToObject(type, msg.getByName(Meta.INSTANCE.value().name()));
     final ConfigItem<?> item = ConfigItem.of(value, name, type);

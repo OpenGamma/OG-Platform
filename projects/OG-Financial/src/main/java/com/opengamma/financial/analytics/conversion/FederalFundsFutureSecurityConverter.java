@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -14,9 +14,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -57,11 +57,8 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    }
-    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
+    final FederalFundsFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class);
+    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), OvernightIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());
     final double paymentAccrualFactor = 1 / 12.; //TODO should not be hard-coded
@@ -74,11 +71,8 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
-    }
-    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
+    final FederalFundsFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class);
+    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), OvernightIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());
     final double paymentAccrualFactor = 1 / 12.; //TODO should not be hard-coded

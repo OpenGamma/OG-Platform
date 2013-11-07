@@ -79,11 +79,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     if (common != null) {
       return common;
     } else {
-      try {
-        return ComputationTargetType.of((Class) ClassUtils.loadClass(str));
-      } catch (final Exception e) {
-        throw new OpenGammaRuntimeException("Can't decode " + str);
-      }
+      return ComputationTargetType.of((Class) ClassUtils.loadClassRuntime(str));
     }
   }
 

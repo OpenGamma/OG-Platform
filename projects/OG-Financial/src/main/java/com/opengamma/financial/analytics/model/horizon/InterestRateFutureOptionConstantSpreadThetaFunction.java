@@ -76,7 +76,6 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class InterestRateFutureOptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionConstantSpreadThetaFunction.class);
 
-  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   private String _valueRequirement;
 
   public InterestRateFutureOptionConstantSpreadThetaFunction() {
@@ -91,15 +90,13 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     _valueRequirement = valueRequiremnt;
   }
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
-        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
   }
 
   @Override
@@ -138,7 +135,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
-    final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
+    final InstrumentDefinition<?> irFutureOptionDefinition = getConverter(executionContext).convert(trade);
     final HistoricalTimeSeries ts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
@@ -156,7 +153,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
 
   /**
    * This aids child classes to return value in different format, eg Double
-   *
+   * 
    * @param theta ConstantSpreadHorizonThetaCalculator produced MultipleCurrencyAmount
    * @param currency Allows for function to pull out specified currency
    * @return theta in desired format
@@ -185,24 +182,22 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
+    String surfaceName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    if (daysForwardNames == null || daysForwardNames.size() != 1) {
+    final String daysForwardName = constraints.getStrictValue(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    if (daysForwardName == null) {
       return null;
     }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    surfaceName = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;

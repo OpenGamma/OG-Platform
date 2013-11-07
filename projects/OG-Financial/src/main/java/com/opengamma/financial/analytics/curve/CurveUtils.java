@@ -13,16 +13,15 @@ import java.util.TreeSet;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -75,7 +74,7 @@ public class CurveUtils {
    * Gets the definitions for all of the curves in a configuration, including any in exogenous configurations.
    * @param configuration The curve construction configuration, not null
    * @param configSource The config source that contains information about any exogenous curve configurations, not null
-   * @param valuationTime The valuation time, not null
+   * @param versionCorrection The version-correction, not null
    * @param conventionSource The convention source, not null
    * @param curveNodeCurrencyVisitor The curve node currency visitor, not null
    * @return An ordered set of currencies for these curves
