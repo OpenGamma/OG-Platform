@@ -69,9 +69,14 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Currency currency) {
     this(holidaySource, new Currency[] {currency });
   }
-
+  
   @Override
   public String getConventionName() {
+    return getName();
+  }
+  
+  @Override
+  public String getName() {
     switch (_type) {
       case BANK: {
         final StringBuilder regionName = new StringBuilder();
@@ -179,6 +184,5 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     }
     return true;
   }
-
 
 }
