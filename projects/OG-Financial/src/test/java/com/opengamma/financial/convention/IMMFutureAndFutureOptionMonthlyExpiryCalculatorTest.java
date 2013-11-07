@@ -98,5 +98,10 @@ public class IMMFutureAndFutureOptionMonthlyExpiryCalculatorTest {
       return null;
     }
 
+    @Override
+    public String getName() {
+      return null;
+    }
+
   }
 }

@@ -6,10 +6,12 @@
 package com.opengamma.financial.convention.yield;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.joda.convert.FromString;
 
@@ -29,7 +31,7 @@ public final class YieldConventionFactory implements NamedInstanceFactory<YieldC
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, YieldConvention> _conventionMap = new HashMap<>();
+  private final Map<String, YieldConvention> _conventionMap = new ConcurrentHashMap<>();
   
   /**
    * Map of convention name to convention.
@@ -126,12 +128,15 @@ public final class YieldConventionFactory implements NamedInstanceFactory<YieldC
    */
   public YieldConvention getYieldConvention(final String name) {
     ArgumentChecker.notNull(name, "name");
+    if (_conventionMap.get(name.toLowerCase(Locale.ENGLISH)) == null) {
+      store(new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH)), name.toLowerCase(Locale.ENGLISH));
+    }
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
 
   @Override
   public List<YieldConvention> values() {
-    return _conventions;
+    return Collections.unmodifiableList(_conventions);
   }
 
 }

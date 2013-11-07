@@ -106,5 +106,10 @@ public class BondFutureOptionExpiryCalculatorTest {
       return null;
     }
 
+    @Override
+    public String getName() {
+      return null;
+    }
+
   }
 }
