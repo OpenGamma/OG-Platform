@@ -84,6 +84,11 @@ public class FinancialConventionVisitorAdapter<T> implements FinancialConvention
   }
 
   @Override
+  public T visitONCompoundedLegRollDateConvention(final ONCompoundedLegRollDateConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
   public T visitONArithmeticAverageLegConvention(final ONArithmeticAverageLegConvention convention) {
     return getErrorMessage(convention);
   }

@@ -18,6 +18,7 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.MONTHLY;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.MONTHLY_IMM_DATES;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OIS_ON_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.ON_CMP_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OVERNIGHT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.PAY_LAG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.QUARTERLY;
@@ -44,6 +45,7 @@ import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
+import com.opengamma.financial.convention.ONCompoundedLegRollDateConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.RollDateFRAConvention;
 import com.opengamma.financial.convention.RollDateSwapConvention;
@@ -132,11 +134,19 @@ public class EUConventions extends ConventionMasterInitializer {
     final SwapFixedLegConvention irsFixedLegConvention = new SwapFixedLegConvention(
         irsFixedLegConventionName, getIds(Currency.EUR, TENOR_STR_1Y, FIXED_LEG),
         Tenor.ONE_YEAR, THIRTY_U_360, MODIFIED_FOLLOWING, Currency.EUR, EU, 2, true, StubType.SHORT_START, false, 0);
-    // OIS legs
+    
+    // ON compounded legs
     final String oisFloatLegConventionName = getConventionName(Currency.EUR, OIS_ON_LEG);
     final OISLegConvention oisFloatLegConvention = new OISLegConvention(
         oisFloatLegConventionName, getIds(Currency.EUR, OIS_ON_LEG), onIndexId,
         Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, true, StubType.SHORT_START, false, 2);
+    
+    // ON compounded legs IMM dates
+    final String legON3MIMMQConventionName = getConventionName(Currency.EUR, TENOR_STR_3M, ON_CMP_LEG + " " + IMM + " " + QUARTERLY);
+    final ExternalId legON3MIMMQConventionId = ExternalId.of(SCHEME_NAME, legON3MIMMQConventionName);
+    final ONCompoundedLegRollDateConvention legON3MIMMQConvention = new ONCompoundedLegRollDateConvention(legON3MIMMQConventionName, 
+        ExternalIdBundle.of(legON3MIMMQConventionId), onIndexId, Tenor.THREE_MONTHS, StubType.SHORT_START, false, 0);
+    
     // Ibor legs
     final String irsLibor6MLegConventionName = getConventionName(Currency.EUR, TENOR_STR_6M, IBOR_LEG);
     final VanillaIborLegConvention irsLibor6MLegConvention = new VanillaIborLegConvention(
@@ -185,20 +195,32 @@ public class EUConventions extends ConventionMasterInitializer {
         euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.ONE_MONTH, 2, true, StubType.SHORT_START, false, 0);
     
     // Ibor legs - IMM
+    final String legIbor1MIMMQConventionName = getConventionName(Currency.EUR, TENOR_STR_1M, IBOR_LEG + " " + IMM + " " + QUARTERLY);
+    final ExternalId legIbor1MIMMQConventionId = ExternalId.of(SCHEME_NAME, legIbor1MIMMQConventionName);
+    final VanillaIborLegRollDateConvention legIbor1MIMMQConvention = new VanillaIborLegRollDateConvention(legIbor1MIMMQConventionName, 
+        ExternalIdBundle.of(legIbor1MIMMQConventionId), euriborConventionId, true, Tenor.ONE_MONTH, StubType.SHORT_START, false, 0);
     final String legIbor3MIMMQConventionName = getConventionName(Currency.EUR, TENOR_STR_3M, IBOR_LEG + " " + IMM + " " + QUARTERLY);
     final ExternalId legIbor3MIMMQConventionId = ExternalId.of(SCHEME_NAME, legIbor3MIMMQConventionName);
     final VanillaIborLegRollDateConvention legIbor3MIMMQConvention = new VanillaIborLegRollDateConvention(legIbor3MIMMQConventionName, 
-        ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, legIbor3MIMMQConventionName)), euriborConventionId, true, Tenor.THREE_MONTHS, StubType.SHORT_START, false, 0);
+        ExternalIdBundle.of(legIbor3MIMMQConventionId), euriborConventionId, true, Tenor.THREE_MONTHS, StubType.SHORT_START, false, 0);
     final String legIbor6MIMMQConventionName = getConventionName(Currency.EUR, TENOR_STR_6M, IBOR_LEG + " " + IMM + " " + QUARTERLY);
     final ExternalId legIbor6MIMMQConventionId = ExternalId.of(SCHEME_NAME, legIbor6MIMMQConventionName);
     final VanillaIborLegRollDateConvention legIbor6MIMMQConvention = new VanillaIborLegRollDateConvention(legIbor6MIMMQConventionName, 
-        ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, legIbor6MIMMQConventionName)), euriborConventionId, true, Tenor.SIX_MONTHS, StubType.SHORT_START, false, 0);
+        ExternalIdBundle.of(legIbor6MIMMQConventionId), euriborConventionId, true, Tenor.SIX_MONTHS, StubType.SHORT_START, false, 0);
     
     // Swap
-    final String bsIMM36QConventionName = getConventionName(Currency.EUR, SWAP + " " + TENOR_STR_3M + EURIBOR + "x" + TENOR_STR_6M + EURIBOR + " " + IMM + " " + QUARTERLY);
-    final ExternalId bsIMM36QConventionId = ExternalId.of(SCHEME_NAME, bsIMM36QConventionName);
-    final RollDateSwapConvention bsIMM36QConvention = new RollDateSwapConvention(bsIMM36QConventionName, ExternalIdBundle.of(bsIMM36QConventionId), legIbor3MIMMQConventionId, 
-        legIbor6MIMMQConventionId, QUARTERLY_IMM_DATES);    
+    final String bsO3QIMMConventionName = getConventionName(Currency.EUR, SWAP + " " + OVERNIGHT + TENOR_STR_3M + EURIBOR + TENOR_STR_3M + " " + IMM  + " " + QUARTERLY);
+    final ExternalId bsO3QIMMConventionId = ExternalId.of(SCHEME_NAME, bsO3QIMMConventionName);
+    final RollDateSwapConvention bsO3QIMMConvention = new RollDateSwapConvention(bsO3QIMMConventionName, ExternalIdBundle.of(bsO3QIMMConventionId), legON3MIMMQConventionId, 
+        legIbor3MIMMQConventionId, QUARTERLY_IMM_DATES);
+    final String bs13QIMMConventionName = getConventionName(Currency.EUR, SWAP + " " + EURIBOR + TENOR_STR_1M + EURIBOR + TENOR_STR_3M + " " + IMM  + " " + QUARTERLY);
+    final ExternalId bs13QIMMConventionId = ExternalId.of(SCHEME_NAME, bs13QIMMConventionName);
+    final RollDateSwapConvention bs13QIMMConvention = new RollDateSwapConvention(bs13QIMMConventionName, ExternalIdBundle.of(bs13QIMMConventionId), legIbor1MIMMQConventionId, 
+        legIbor3MIMMQConventionId, QUARTERLY_IMM_DATES);
+    final String bs36QIMMConventionName = getConventionName(Currency.EUR, SWAP  + " " + EURIBOR + TENOR_STR_3M + EURIBOR + TENOR_STR_6M + " " + IMM  + " " + QUARTERLY);
+    final ExternalId bs36QIMMConventionId = ExternalId.of(SCHEME_NAME, bs36QIMMConventionName);
+    final RollDateSwapConvention bs36QIMMConvention = new RollDateSwapConvention(bs36QIMMConventionName, ExternalIdBundle.of(bs36QIMMConventionId), legIbor3MIMMQConventionId, 
+        legIbor6MIMMQConventionId, QUARTERLY_IMM_DATES);
     
     // Futures
     final String quarterlySTIRFutureConventionName = getConventionName(Currency.EUR, STIR_FUTURES + QUARTERLY);    
@@ -234,6 +256,7 @@ public class EUConventions extends ConventionMasterInitializer {
     addConvention(master, immFRAMonthlyConvention);
     addConvention(master, oisFixedLegConvention);
     addConvention(master, oisFloatLegConvention);
+    addConvention(master, legON3MIMMQConvention);
     addConvention(master, irsFixedLegConvention);
     addConvention(master, irsLibor6MLegConvention);
     addConvention(master, irsEuribor12MLegConvention);
@@ -244,9 +267,12 @@ public class EUConventions extends ConventionMasterInitializer {
     addConvention(master, irsIbor6MLegConvention);
     addConvention(master, irsIbor3MLegConvention);
     addConvention(master, irsIbor1MLegConvention);
+    addConvention(master, legIbor1MIMMQConvention);
     addConvention(master, legIbor3MIMMQConvention);
     addConvention(master, legIbor6MIMMQConvention);
-    addConvention(master, bsIMM36QConvention);
+    addConvention(master, bsO3QIMMConvention);
+    addConvention(master, bs13QIMMConvention);
+    addConvention(master, bs36QIMMConvention);
     addConvention(master, quarterlySTIRFutureConvention);
     addConvention(master, serialSTIRFutureConvention);
     addConvention(master, fxSpotEURUSD);

@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
@@ -43,6 +42,7 @@ import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.ONArithmeticAverageLegConvention;
+import com.opengamma.financial.convention.ONCompoundedLegRollDateConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.RollDateFRAConvention;
@@ -240,6 +240,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitOISLegConvention(final OISLegConvention convention) {
+    final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getOvernightIndexConvention(), FinancialConvention.class);
+    return underlyingConvention.accept(this);
+  }
+
+  @Override
+  public Set<Currency> visitONCompoundedLegRollDateConvention(final ONCompoundedLegRollDateConvention convention) {
     final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getOvernightIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
   }

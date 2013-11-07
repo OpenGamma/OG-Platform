@@ -111,6 +111,13 @@ public interface FinancialConventionVisitor<T> {
   T visitOISLegConvention(OISLegConvention convention);
 
   /**
+   * Visits {@link ONCompoundedLegRollDateConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitONCompoundedLegRollDateConvention(ONCompoundedLegRollDateConvention convention);
+
+  /**
    * Visits {@link ONArithmeticAverageLegConvention}
    * @param convention The convention, not null
    * @return The return value

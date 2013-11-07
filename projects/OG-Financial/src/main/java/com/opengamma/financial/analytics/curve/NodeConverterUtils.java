@@ -31,6 +31,7 @@ import com.opengamma.financial.convention.FixedLegRollDateConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.ONArithmeticAverageLegConvention;
+import com.opengamma.financial.convention.ONCompoundedLegRollDateConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -325,7 +326,9 @@ public class NodeConverterUtils {
         final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
         final StubType stub = convention.getStubType();
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-        return AnnuityDefinitionBuilder.couponFixedRollDate(currency, adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, paymentPeriod, 1, rate, isPayer, dayCount, calendar, stub);
+        final int paymentLag = convention.getPaymentLag();
+        return AnnuityDefinitionBuilder.couponFixedRollDate(currency, adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, paymentPeriod, 1, rate, 
+            isPayer, dayCount, calendar, stub, paymentLag);
       }
       
       @Override
@@ -341,13 +344,36 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return null;
+          return AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, indexIbor, spread, 1, 
+              isPayer, indexIbor.getDayCount(), calendar, stub);
         }
         return AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, indexIbor, 1, 
             isPayer, indexIbor.getDayCount(), calendar, stub);
       }
       
+      @Override
+      public AnnuityDefinition<? extends PaymentDefinition> visitONCompoundedLegRollDateConvention(final ONCompoundedLegRollDateConvention convention) {
+        final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
+        final IndexON index = indexON(indexConvention);
+        final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
+        final Period paymentTenor = convention.getPaymentTenor().getPeriod();
+        final StubType stub = convention.getStubType();
+        final ZonedDateTime adjustedStartDate = FOLLOWING.adjustDate(calendar, unadjustedStartDate);
+        final int paymentLag = convention.getPaymentLag();
+        if (!isPayer && isMarketDataSpread) { // The spread is on the receiver leg.
+          final Double spread = marketData.getDataPoint(dataId);
+          if (spread == null) {
+            throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
+          }
+          return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplifiedRollDate(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, 
+              adjuster, paymentTenor, 1.0d, spread, index, isPayer, calendar, stub, paymentLag);
+        }
+        return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplifiedRollDate(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, 
+            adjuster, paymentTenor, 1.0d, 0.0, index, isPayer, calendar, stub, paymentLag);
+      }
+      
     };
+    
     return legConvention.accept(visitor);
   }
 
@@ -588,8 +614,10 @@ public class NodeConverterUtils {
    * @return True if both legs are floating
    */
   private static boolean isFloatFloatRoll(final Convention payLegConvention, final Convention receiveLegConvention) {
-    final boolean isFloatFloat = (payLegConvention instanceof VanillaIborLegRollDateConvention)
-        && (receiveLegConvention instanceof VanillaIborLegRollDateConvention);
+    final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegRollDateConvention) ||
+        (payLegConvention instanceof ONCompoundedLegRollDateConvention))
+        && ((receiveLegConvention instanceof VanillaIborLegRollDateConvention) ||
+            (receiveLegConvention instanceof ONCompoundedLegRollDateConvention));
     return isFloatFloat;
   }
 
