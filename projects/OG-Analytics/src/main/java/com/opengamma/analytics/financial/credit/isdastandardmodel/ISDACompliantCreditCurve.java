@@ -8,24 +8,15 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
-import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * An ISDA compliant credit curve.
  */
-@BeanDefinition
-public class ISDACompliantCreditCurve
-    extends ISDACompliantCurve {
 
-  /**
-   * Constructor for Joda-Beans.
-   */
-  protected ISDACompliantCreditCurve() {
-  }
+public class ISDACompliantCreditCurve extends ISDACompliantCurve {
 
   /**
    * Creates a flat credit (hazard) curve at hazard rate h.
@@ -64,12 +55,11 @@ public class ISDACompliantCreditCurve
    * @param t  the set of times that form the knots of the curve. Must be ascending with the first value >= 0.
    * @param r  the set of zero rates
    * @param rt  the set of rates at the knot times
-   * @param df  the set of discount factors at the knot times
    * @deprecated This constructor is deprecated
    */
   @Deprecated
-  public ISDACompliantCreditCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
-    super(t, r, rt, df);
+  public ISDACompliantCreditCurve(final double[] t, final double[] r, final double[] rt, final double[] invDt) {
+    super(t, r, rt, invDt);
   }
 
   //-------------------------------------------------------------------------
@@ -135,7 +125,7 @@ public class ISDACompliantCreditCurve
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -147,15 +137,15 @@ public class ISDACompliantCreditCurve
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    final int hash = 7;
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    final StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantCreditCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -165,7 +155,7 @@ public class ISDACompliantCreditCurve
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
   }
 
@@ -182,8 +172,7 @@ public class ISDACompliantCreditCurve
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.
@@ -193,7 +182,7 @@ public class ISDACompliantCreditCurve
 
     @Override
     public BeanBuilder<? extends ISDACompliantCreditCurve> builder() {
-      return new DirectBeanBuilder<ISDACompliantCreditCurve>(new ISDACompliantCreditCurve());
+      throw new UnsupportedOperationException();
     }
 
     @Override

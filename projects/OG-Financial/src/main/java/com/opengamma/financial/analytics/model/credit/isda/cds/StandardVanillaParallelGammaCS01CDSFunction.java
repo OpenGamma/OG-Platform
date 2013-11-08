@@ -70,7 +70,7 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
 
   public static double parallelGammaCS01(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve hazardCurve,
                                    CDSAnalytic analytic, double spreadCurveBump, SpreadBumpType spreadBumpType) {
-    final double[] rates = hazardCurve.getR();
+    final double[] rates = hazardCurve.getKnotZeroRates();
     final double[] bumpedUpRates = SPREAD_BUMPER.getBumpedCreditSpreads(rates, spreadCurveBump * 1e-4, spreadBumpType);
     final double[] bumpedDownRates = SPREAD_BUMPER.getBumpedCreditSpreads(rates, -spreadCurveBump * 1e-4, spreadBumpType);
     final ISDACompliantCreditCurve bumpedUpCreditCurve = hazardCurve.withRates(bumpedUpRates);
