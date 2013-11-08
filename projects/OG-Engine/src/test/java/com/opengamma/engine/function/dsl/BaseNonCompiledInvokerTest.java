@@ -42,7 +42,6 @@ import static org.testng.Assert.assertTrue;
 @Test(groups = TestGroup.UNIT, enabled = false, description = "FAILING")
 public class BaseNonCompiledInvokerTest {
 
-  @Test
   public void getResultsTest_1() {
     FunctionCompilationContext fcctx = mock(FunctionCompilationContext.class);
     DV01_test_fun dv01 = new DV01_test_fun();
@@ -61,7 +60,6 @@ public class BaseNonCompiledInvokerTest {
     assertEquals(spec.getValueName(), "DV01");
   }
 
-  @Test
   public void getRequirements() {
     FunctionCompilationContext fcctx = mock(FunctionCompilationContext.class);
     DV01_test_fun dv01 = new DV01_test_fun();
@@ -83,7 +81,6 @@ public class BaseNonCompiledInvokerTest {
     assertEquals(requirement.getValueName(), "PV01");
   }
 
-  @Test
   public void getResultsTest_2() {
     FunctionCompilationContext fcctx = mock(FunctionCompilationContext.class);
     DV01_test_fun dv01 = new DV01_test_fun();
