@@ -141,7 +141,7 @@ public class ISDACompliantYieldCurveBuild {
     ArgumentChecker.notNull(curveDCC, "curveDCC");
     ArgumentChecker.notNull(convention, "convention");
     final int n = tenors.length;
-    ArgumentChecker.isTrue(n == instrumentTypes.length, n + " tenors given, but " + instrumentTypes.length + " instrumentTypes");
+    ArgumentChecker.isTrue(n == instrumentTypes.length, "{} tenors given, but {} instrumentTypes", n, instrumentTypes.length);
 
     final LocalDate[] matDates = new LocalDate[n];
     final LocalDate[] adjMatDates = new LocalDate[n];
