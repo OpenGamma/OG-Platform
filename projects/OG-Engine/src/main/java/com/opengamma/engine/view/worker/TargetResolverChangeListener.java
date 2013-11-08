@@ -48,11 +48,16 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
    * Map of target object identifiers to be monitored, to the monitoring state (see {@link TargetState} members).
    */
   private final ConcurrentMap<ObjectId, TargetState> _targets = new ConcurrentHashMap<ObjectId, TargetState>();
-  private boolean _hasRequired;
+  /**
+   * Indicates that there may be at least one target in the {@link #_targets} map that has changed or needs a manual check.
+   */
+  private volatile boolean _hasPending;
 
   public void watch(final ObjectId identifier) {
-    _targets.putIfAbsent(identifier, TargetState.REQUIRED);
-    _hasRequired = true;
+    final TargetState previous = _targets.putIfAbsent(identifier, TargetState.REQUIRED);
+    if (previous != TargetState.WAITING) {
+      _hasPending = true;
+    }
   }
 
   /**
@@ -83,41 +88,28 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
   }
 
   /**
-   * Indicates whether there are any objects that must be checked for updates.
-   * <p>
-   * Note that this is based on the identifiers that are initially added to the watch-list. Change notifications and {@link #isChanged} calls may mean this is no longer true.
+   * Indicates whether there are any objects that must be checked for updates. This is indicative only, and might not always be accurate.
    * 
-   * @return true if there are, false otherwise
+   * @return true if there might be, false otherwise
    */
   public boolean hasChecksPending() {
-    return _hasRequired;
-  }
-
-  /**
-   * Tests if an identifier must be checked for initial updates.
-   * 
-   * @param identifier the identifier to check, not null
-   * @return true if is needs checking, false otherwise
-   */
-  public boolean isPending(final ObjectId identifier) {
-    return _targets.get(identifier) == TargetState.REQUIRED;
-  }
-
-  /**
-   * Clears the initial update check state for an identifier. If a change notification has not been received it will be marked as "changed" or "not-changed" and no longer returned as pending.
-   * 
-   * @param identifier the identifier to clear, not null
-   * @param changed true if {@link #isChanged} should now return true, false otherwise
-   */
-  public void clearCheckPending(final ObjectId identifier, final boolean changed) {
-    _targets.replace(identifier, TargetState.REQUIRED, changed ? TargetState.CHANGED : TargetState.WAITING);
+    return _hasPending;
   }
 
   /**
    * Clears the flag that {@link #hasChecksPending} returns. Call this if there was an indication of pending checks but none were found.
    */
   public void clearChecksPending() {
-    _hasRequired = false;
+    _hasPending = false;
+  }
+
+  /**
+   * Resets the object to its check-pending state.
+   * 
+   * @param identifier the identifier to update, not null
+   */
+  public void setChanged(final ObjectId identifier) {
+    _targets.put(identifier, TargetState.CHANGED);
   }
 
   protected abstract void onChanged();
@@ -136,6 +128,7 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
         // If the state changed to anything else, we either don't need the notification or another change message overtook
         // this one and a cycle has already been triggered.
         s_logger.info("Received change notification for {}", oid);
+        _hasPending = true;
         onChanged();
       }
     }

@@ -736,11 +736,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         // Going to sleep (or doing some useful work)
         final long wakeUpTime = triggerResult.getNextStateChangeNanos();
         if (_cycleRequested) {
-          s_logger.debug("Sleeping until eligible to perform the next computation cycle");
+          s_logger.debug("Waiting to become eligible to perform the next computation cycle");
           // No amount of market data can make us eligible for a computation cycle any sooner.
           _wakeOnCycleRequest = false;
         } else {
-          s_logger.debug("Sleeping until forced to perform the next computation cycle");
+          s_logger.debug("Waiting until forced to perform the next computation cycle");
           _wakeOnCycleRequest = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
         }
         if ((_targetResolverChanges == null) || (_latestCompiledViewDefinition == null) || !_targetResolverChanges.hasChecksPending()) {
@@ -748,7 +748,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           sleepTime = Math.max(0, sleepTime);
           sleepTime /= NANOS_PER_MILLISECOND;
           sleepTime += 1; // Could have been rounded down during division so ensure only woken after state change
-          s_logger.debug("Waiting for {} ms", sleepTime);
+          s_logger.debug("Sleeping for {} ms", sleepTime);
           try {
             // This could wait until end of time. In this case, only marketDataChanged() or triggerCycle() will wake it up
             wait(sleepTime);
@@ -768,7 +768,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       int max = 64; // arbitrary choice - bigger means more efficient if master is remote, but might miss the expected wake up time
       final Map<ComputationTargetReference, UniqueId> checks = Maps.newHashMapWithExpectedSize(max);
       for (Map.Entry<ComputationTargetReference, UniqueId> resolved : viewDefinition.getResolvedIdentifiers().entrySet()) {
-        if (_targetResolverChanges.isPending(resolved.getValue().getObjectId())) {
+        if (_targetResolverChanges.isChanged(resolved.getValue().getObjectId())) {
           checks.put(resolved.getKey(), resolved.getValue());
           max--;
           if (max == 0) {
@@ -787,23 +787,22 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
             .getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.of(now, now)).getSpecificationResolver().getTargetSpecifications(checks.keySet());
         PoolExecutor.setInstance(previousInstance);
         t += System.nanoTime();
-        s_logger.info("{} resolutions checked in {}ms", checks.size(), (double) t / 1e6);
         for (Map.Entry<ComputationTargetReference, UniqueId> check : checks.entrySet()) {
           final ComputationTargetSpecification resolution = resolved.get(check.getKey());
           if (resolution != null) {
             final UniqueId oldId = check.getValue();
             if (oldId.equals(resolution.getUniqueId())) {
-              // Target resolves the same; can rely on change notification and late change detection
-              s_logger.debug("No change to resolution of {}", check.getKey());
-              _targetResolverChanges.clearCheckPending(check.getValue().getObjectId(), false);
+              // Target resolves the same
+              s_logger.debug("No change resolving {}", check.getKey());
               continue;
             }
           }
           // Target has a new resolution, or no longer resolves - mark it and request a new cycle
-          s_logger.debug("New resolution of {} detected", check.getKey());
-          _targetResolverChanges.clearCheckPending(check.getValue().getObjectId(), true);
-          _cycleRequested = true;
+          s_logger.debug("New resolution of {} to {}", check.getKey(), resolution);
+          _targetResolverChanges.setChanged(check.getValue().getObjectId());
+          _forceTriggerCycle = true;
         }
+        s_logger.info("{} resolutions checked in {}ms during cycle wait state", checks.size(), (double) t / 1e6);
       }
     }
   }
@@ -894,7 +893,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       _targetResolverChanges = new TargetResolverChangeListener() {
         @Override
         protected void onChanged() {
-          requestCycle();
+          // Don't request a cycle, but wake up the main thread; it may then run a cycle, or start processing the change list
+          synchronized (SingleThreadViewProcessWorker.this) {
+            // Wake up to check things, and maybe then request a cycle
+            SingleThreadViewProcessWorker.this.notifyAll();
+          }
         }
       };
       getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChanges);
