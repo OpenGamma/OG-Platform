@@ -62,7 +62,8 @@ public class SwaptionBlackForwardThetaCalculator extends InstrumentDerivativeVis
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
-      return PHYSICAL_SWAPTION.forwardThetaTheoretical(swaption, curvesBlack);
+//      return PHYSICAL_SWAPTION.forwardThetaTheoretical(swaption, curvesBlack);
+      return PHYSICAL_SWAPTION.driftlessThetaTheoretical(swaption, curvesBlack);
     }
     throw new UnsupportedOperationException("The SwaptionBlackForwardThetaCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
