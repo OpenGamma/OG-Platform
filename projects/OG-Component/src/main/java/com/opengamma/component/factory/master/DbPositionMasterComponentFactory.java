@@ -24,6 +24,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.QuerySplittingPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.masterdb.position.DataDbPositionMasterResource;
 import com.opengamma.masterdb.position.DbPositionMaster;
@@ -65,12 +66,22 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
    */
   @PropertyDefinition
   private Integer _maxRetries;
+  /**
+   * The maximum number of get requests to pass in one hit - see {@link QuerySplittingPositionMaster#get(Collection)}
+   */
+  @PropertyDefinition
+  private Integer _maxGetRequestSize;
+  /**
+   * The maximum size of search request to pass in one hit - see {@link QuerySplittingPositionMaster#search}
+   */
+  @PropertyDefinition
+  private Integer _maxSearchRequestSize;
 
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(PositionMaster.class, getClassifier());
-    
+
     // create
     DbPositionMaster master = new DbPositionMaster(getDbConnector());
     if (getUniqueIdScheme() != null) {
@@ -89,16 +100,40 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
     checkSchema(master.getSchemaVersion(), "pos");
-    
+
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionMaster.class);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
-    repo.registerComponent(info, master);
-    
+    repo.registerComponent(info, splitQueries(master));
+
     // publish
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataDbPositionMasterResource(master));
+    }
+  }
+
+  /**
+   * If query splitting is enabled, wraps the position master with a query splitter.
+   * 
+   * @param master the underlying master, not null
+   * @return the original master if splitting is disabled, otherwise the splitting form
+   */
+  protected PositionMaster splitQueries(final PositionMaster master) {
+    final QuerySplittingPositionMaster splitting = new QuerySplittingPositionMaster(master);
+    boolean wrapped = false;
+    if (getMaxGetRequestSize() != null) {
+      splitting.setMaxGetRequest(getMaxGetRequestSize());
+      wrapped = true;
+    }
+    if (getMaxSearchRequestSize() != null) {
+      splitting.setMaxSearchRequest(getMaxSearchRequestSize());
+      wrapped = true;
+    }
+    if (wrapped) {
+      return splitting;
+    } else {
+      return master;
     }
   }
 
@@ -272,6 +307,56 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the maximum number of get requests to pass in one hit - see {@link QuerySplittingPositionMaster#get(Collection)}
+   * @return the value of the property
+   */
+  public Integer getMaxGetRequestSize() {
+    return _maxGetRequestSize;
+  }
+
+  /**
+   * Sets the maximum number of get requests to pass in one hit - see {@link QuerySplittingPositionMaster#get(Collection)}
+   * @param maxGetRequestSize  the new value of the property
+   */
+  public void setMaxGetRequestSize(Integer maxGetRequestSize) {
+    this._maxGetRequestSize = maxGetRequestSize;
+  }
+
+  /**
+   * Gets the the {@code maxGetRequestSize} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> maxGetRequestSize() {
+    return metaBean().maxGetRequestSize().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maximum size of search request to pass in one hit - see {@link QuerySplittingPositionMaster#search}
+   * @return the value of the property
+   */
+  public Integer getMaxSearchRequestSize() {
+    return _maxSearchRequestSize;
+  }
+
+  /**
+   * Sets the maximum size of search request to pass in one hit - see {@link QuerySplittingPositionMaster#search}
+   * @param maxSearchRequestSize  the new value of the property
+   */
+  public void setMaxSearchRequestSize(Integer maxSearchRequestSize) {
+    this._maxSearchRequestSize = maxSearchRequestSize;
+  }
+
+  /**
+   * Gets the the {@code maxSearchRequestSize} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> maxSearchRequestSize() {
+    return metaBean().maxSearchRequestSize().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public DbPositionMasterComponentFactory clone() {
     return (DbPositionMasterComponentFactory) super.clone();
@@ -290,6 +375,8 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
           JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
+          JodaBeanUtils.equal(getMaxGetRequestSize(), other.getMaxGetRequestSize()) &&
+          JodaBeanUtils.equal(getMaxSearchRequestSize(), other.getMaxSearchRequestSize()) &&
           super.equals(obj);
     }
     return false;
@@ -304,12 +391,14 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxGetRequestSize());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxSearchRequestSize());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("DbPositionMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -329,6 +418,8 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
     buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
     buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
+    buf.append("maxGetRequestSize").append('=').append(JodaBeanUtils.toString(getMaxGetRequestSize())).append(',').append(' ');
+    buf.append("maxSearchRequestSize").append('=').append(JodaBeanUtils.toString(getMaxSearchRequestSize())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -372,6 +463,16 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     private final MetaProperty<Integer> _maxRetries = DirectMetaProperty.ofReadWrite(
         this, "maxRetries", DbPositionMasterComponentFactory.class, Integer.class);
     /**
+     * The meta-property for the {@code maxGetRequestSize} property.
+     */
+    private final MetaProperty<Integer> _maxGetRequestSize = DirectMetaProperty.ofReadWrite(
+        this, "maxGetRequestSize", DbPositionMasterComponentFactory.class, Integer.class);
+    /**
+     * The meta-property for the {@code maxSearchRequestSize} property.
+     */
+    private final MetaProperty<Integer> _maxSearchRequestSize = DirectMetaProperty.ofReadWrite(
+        this, "maxSearchRequestSize", DbPositionMasterComponentFactory.class, Integer.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -381,7 +482,9 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
         "jmsConnector",
         "jmsChangeManagerTopic",
         "uniqueIdScheme",
-        "maxRetries");
+        "maxRetries",
+        "maxGetRequestSize",
+        "maxSearchRequestSize");
 
     /**
      * Restricted constructor.
@@ -404,6 +507,10 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return _uniqueIdScheme;
         case -2022653118:  // maxRetries
           return _maxRetries;
+        case -769924994:  // maxGetRequestSize
+          return _maxGetRequestSize;
+        case 2100076388:  // maxSearchRequestSize
+          return _maxSearchRequestSize;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -472,6 +579,22 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
       return _maxRetries;
     }
 
+    /**
+     * The meta-property for the {@code maxGetRequestSize} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> maxGetRequestSize() {
+      return _maxGetRequestSize;
+    }
+
+    /**
+     * The meta-property for the {@code maxSearchRequestSize} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> maxSearchRequestSize() {
+      return _maxSearchRequestSize;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -488,6 +611,10 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return ((DbPositionMasterComponentFactory) bean).getUniqueIdScheme();
         case -2022653118:  // maxRetries
           return ((DbPositionMasterComponentFactory) bean).getMaxRetries();
+        case -769924994:  // maxGetRequestSize
+          return ((DbPositionMasterComponentFactory) bean).getMaxGetRequestSize();
+        case 2100076388:  // maxSearchRequestSize
+          return ((DbPositionMasterComponentFactory) bean).getMaxSearchRequestSize();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -512,6 +639,12 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return;
         case -2022653118:  // maxRetries
           ((DbPositionMasterComponentFactory) bean).setMaxRetries((Integer) newValue);
+          return;
+        case -769924994:  // maxGetRequestSize
+          ((DbPositionMasterComponentFactory) bean).setMaxGetRequestSize((Integer) newValue);
+          return;
+        case 2100076388:  // maxSearchRequestSize
+          ((DbPositionMasterComponentFactory) bean).setMaxSearchRequestSize((Integer) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
