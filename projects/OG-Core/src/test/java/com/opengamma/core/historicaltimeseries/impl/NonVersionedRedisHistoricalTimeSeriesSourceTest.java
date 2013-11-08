@@ -23,12 +23,13 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=false)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRedisTestCase {
   
   private static final int ITER_SIZE = 50;

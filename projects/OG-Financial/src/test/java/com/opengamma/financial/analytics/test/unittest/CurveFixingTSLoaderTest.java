@@ -11,8 +11,12 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
-@Test(enabled = true)
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class CurveFixingTSLoaderTest extends AbstractRedisTestCase {
 
   public void testOperation() {

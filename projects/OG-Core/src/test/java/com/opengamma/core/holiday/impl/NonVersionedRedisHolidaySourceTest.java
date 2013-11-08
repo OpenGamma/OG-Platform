@@ -20,11 +20,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=false)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
   
   public void addGetByUniqueIdEmpty() {
