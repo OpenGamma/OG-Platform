@@ -179,20 +179,14 @@ public class Tenor implements Comparable<Tenor>, Serializable {
   public static final Tenor TN = new Tenor(BusinessDayTenor.TOM_NEXT);
   
   public enum BusinessDayTenor {
-    OVERNIGHT("ON", Period.ofDays(1)),
-    SPOT_NEXT("SN", Period.ofDays(2)),
-    TOM_NEXT("TN", Period.ofDays(3));
+    OVERNIGHT(Period.ofDays(1)),
+    TOM_NEXT(Period.ofDays(2)),
+    SPOT_NEXT(Period.ofDays(3));
     
-    private final String _shortName;
     private final Duration _approximateDuration;
     
-    private BusinessDayTenor(final String shortName, final Period approximateDuration) {
-      _shortName = shortName;
+    private BusinessDayTenor(final Period approximateDuration) {
       _approximateDuration = DAYS.getDuration().multipliedBy(approximateDuration.getDays());
-    }
-    
-    public String toString() {
-      return _shortName;
     }
     
     public Duration getApproximateDuration() {
@@ -272,6 +266,7 @@ public class Tenor implements Comparable<Tenor>, Serializable {
   /**
    * Gets the tenor period.
    * @return the period
+   * @throws IllegalStateException If the tenor is not backed by a {@link Period}
    */
   public Period getPeriod() {
     if (_period == null) {
@@ -285,6 +280,10 @@ public class Tenor implements Comparable<Tenor>, Serializable {
       throw new IllegalStateException("Could not get business day tenor for " + toString());
     }
     return _businessDayTenor;
+  }
+  
+  public boolean isBusinessDayTenor() {
+    return _period == null;
   }
   
   public static final Tenor ofDays(final int days) {
@@ -352,11 +351,17 @@ public class Tenor implements Comparable<Tenor>, Serializable {
     if (!(o instanceof Tenor)) {
       return false;
     }
-    Tenor other = (Tenor) o;
+    final Tenor other = (Tenor) o;
     if (_period == null) {
-      return _businessDayTenor == other.getBusinessDayTenor();
+      if (other._period == null) {
+        return _businessDayTenor == other._businessDayTenor;
+      } 
+      return false;
     }
-    return getPeriod().equals(other.getPeriod());
+    if (other._period == null) {
+      return false;
+    }
+    return _period.equals(other._period);
   }
 
   @Override
