@@ -137,12 +137,22 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     final IborIndexConvention iborIndexConvention = getIborLegConvention(currency);
     final Frequency freqIbor = iborLeg.getFrequency();
-    final Period tenorIbor = getTenor(freqIbor);
+    final Period tenorIbor;
+    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+      tenorIbor = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+    } else {
+      tenorIbor = getTenor(freqIbor);
+    }
     final int spotLag = iborIndexConvention.getSettlementDays();
     final IborIndex indexIbor = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final Frequency freqFixed = fixedLeg.getFrequency();
-    final Period tenorFixed = getTenor(freqFixed);
+    final Period tenorFixed;
+    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+      tenorFixed = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+    } else {
+      tenorFixed = getTenor(freqFixed);
+    }
     final double fixedLegNotional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
     if (hasSpread) {
