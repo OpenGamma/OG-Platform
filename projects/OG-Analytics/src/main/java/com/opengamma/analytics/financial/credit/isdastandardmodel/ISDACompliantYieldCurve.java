@@ -16,28 +16,34 @@ import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- *
+ * An ISDA compliant yield curve.
  */
-public class ISDACompliantYieldCurve extends ISDACompliantCurve {
+public class ISDACompliantYieldCurve
+    extends ISDACompliantCurve {
 
+  /**
+   * Constructor for Joda-Beans.
+   */
   protected ISDACompliantYieldCurve() {
     super();
   }
 
   /**
-   * Flat yield curve at level r
-   * @param t (arbitrary) single knot point (t > 0)
-   * @param r the level
+   * Creates a flat yield curve at level r.
+   * 
+   * @param t  the (arbitrary) single knot point (t > 0)
+   * @param r  the level
    */
   public ISDACompliantYieldCurve(final double t, final double r) {
     super(t, r);
   }
 
   /**
-   * yield (discount) curve with knots at times, t, zero rates, r, at the knots and piecewise constant
-   * forward  rates between knots (i.e. linear interpolation of r*t or the -log(discountFactor)
-   * @param t Set of times that form the knots of the curve. Must be ascending with the first value >= 0.
-   * @param r Set of zero rates
+   * Creates a yield (discount) curve with knots at times, t, zero rates, r, at the knots and piecewise constant
+   * forward  rates between knots (i.e. linear interpolation of r*t or the -log(discountFactor).
+   * 
+   * @param t  the set of times that form the knots of the curve. Must be ascending with the first value >= 0, not null
+   * @param r  the set of zero rates, not null
    */
   public ISDACompliantYieldCurve(final double[] t, final double[] r) {
     super(t, r);
@@ -51,27 +57,31 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
    * the yield curve today.  <br>
    * In general, a discount curve observed at time $t_1$ can be written as $P(t_1,T)$. Observed from time $t_2$ this is
    * $P(t_2,T) = \frac{P(t_1,T)}{P(t_1,t_2)}$
-   * @param timesFromBaseDate times measured from the base date of the curve
-   * @param r zero rates
-   * @param newBaseFromOriginalBase if this curve is to be used from a new base-date, what is the offset of the new base from the original 
+   * 
+   * @param timesFromBaseDate  the times measured from the base date of the curve, not null
+   * @param r  the zero rates, not null
+   * @param newBaseFromOriginalBase  if this curve is to be used from a new base-date, what is the offset of the new base from the original 
    */
-  private ISDACompliantYieldCurve(final double[] timesFromBaseDate, final double[] r, final double newBaseFromOriginalBase) {
+  ISDACompliantYieldCurve(final double[] timesFromBaseDate, final double[] r, final double newBaseFromOriginalBase) {
     super(timesFromBaseDate, r, newBaseFromOriginalBase);
   }
 
   /**
-   * Copy constructor - can be used to down cast from ISDACompliantCurve
-   * @param from a ISDACompliantCurve
+   * Creates a shallow copy of the specified curve, used to down cast from ISDACompliantCurve.
+   * 
+   * @param from  the curve to copy from, not null
    */
   public ISDACompliantYieldCurve(final ISDACompliantCurve from) {
     super(from);
   }
 
   /**
-   * @param t Set of times that form the knots of the curve. Must be ascending with the first value >= 0.
-   * @param r Set of zero rates
-   * @param rt Set of rates at the knot times
-   * @param df Set of discount factors at the knot times
+   * Creates an instance, used by deserialization.
+   * 
+   * @param t  the set of times that form the knots of the curve. Must be ascending with the first value >= 0.
+   * @param r  the set of zero rates
+   * @param rt  the set of rates at the knot times
+   * @param df  the set of discount factors at the knot times
    * @deprecated This constructor is deprecated
    */
   @Deprecated
@@ -79,25 +89,17 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
     super(t, r, rt, df);
   }
 
-  /**
-   * {@inheritDoc}
-    */
+  //-------------------------------------------------------------------------
   @Override
   public ISDACompliantYieldCurve withOffset(final double offsetFromNewBaseDate) {
     return new ISDACompliantYieldCurve(super.withOffset(offsetFromNewBaseDate));
   }
 
-  /**
-   * {@inheritDoc}
-    */
   @Override
   public ISDACompliantYieldCurve withRates(final double[] r) {
     return new ISDACompliantYieldCurve(super.withRates(r));
   }
 
-  /**
-   * {@inheritDoc}
-    */
   @Override
   public ISDACompliantYieldCurve withRate(final double rate, final int index) {
     return new ISDACompliantYieldCurve(super.withRate(rate, index));
