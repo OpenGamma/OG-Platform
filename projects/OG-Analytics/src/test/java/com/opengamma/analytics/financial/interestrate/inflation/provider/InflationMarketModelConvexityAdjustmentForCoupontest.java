@@ -47,7 +47,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class InflationMarketModelConvexityAdjustmentForCoupontest {
 
-  // Calibration of the volagtility used in the convextity adjutmnent.
+  // Calibration of the volatility used in the convextity adjutmnent.
   // We use Zero coupon caps/floors to calibrate those volatilities.
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
   private static final IndexPrice[] PRICE_INDEXES = MARKET.getPriceIndexes().toArray(new IndexPrice[MARKET.getPriceIndexes().size()]);
@@ -103,10 +103,10 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
 
   final DoubleTimeSeries<ZonedDateTime> cpiTimeSerie = MulticurveProviderDiscountDataSets.usCpiFrom2009();
 
-  @Test
   /**
    * Tests the  value.
    */
+  @Test
   public void valueForZeroCouponMonthly() {
     final CouponInflationZeroCouponMonthlyDefinition[] zeroCouponDefinitions = new CouponInflationZeroCouponMonthlyDefinition[20];
     final CouponInflationZeroCouponMonthly[] zeroCoupons = new CouponInflationZeroCouponMonthly[20];
@@ -123,10 +123,10 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     }
   }
 
-  @Test
   /**
    * Tests the  value.
    */
+  @Test
   public void valueForZeroCouponMonthlyYearly() {
     final CouponInflationZeroCouponMonthlyDefinition[] zeroCouponDefinitions = new CouponInflationZeroCouponMonthlyDefinition[20];
     final CouponInflationZeroCouponMonthly[] zeroCoupons = new CouponInflationZeroCouponMonthly[20];
@@ -143,10 +143,10 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     }
   }
 
-  @Test
   /**
    * Tests the  value.
    */
+  @Test
   public void valueForZeroCouponInterpolation() {
     final CouponInflationZeroCouponInterpolationDefinition[] zeroCouponDefinitions = new CouponInflationZeroCouponInterpolationDefinition[20];
     final CouponInflationZeroCouponInterpolation[] zeroCoupons = new CouponInflationZeroCouponInterpolation[20];
@@ -163,10 +163,10 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     }
   }
 
-  @Test
   /**
    * Tests the  value.
    */
+  @Test
   public void valueForYearOnYearInterpolation() {
     final CouponInflationYearOnYearInterpolationDefinition[] zeroCouponDefinitions = new CouponInflationYearOnYearInterpolationDefinition[20];
     final CouponInflationYearOnYearInterpolation[] zeroCoupons = new CouponInflationYearOnYearInterpolation[20];
@@ -185,10 +185,10 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     }
   }
 
-  @Test
   /**
    * Tests the  value.
    */
+  @Test
   public void valueForYearOnYearMonthly() {
     final CouponInflationYearOnYearMonthlyDefinition[] zeroCouponDefinitions = new CouponInflationYearOnYearMonthlyDefinition[20];
     final CouponInflationYearOnYearMonthly[] zeroCoupons = new CouponInflationYearOnYearMonthly[20];

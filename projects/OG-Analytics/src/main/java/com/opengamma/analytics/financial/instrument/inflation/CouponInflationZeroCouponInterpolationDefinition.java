@@ -273,7 +273,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
       final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
       return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), 100.0, referenceEndTime,
           naturalPaymentTime, _weight, _payNotional);*/
-    throw new OpenGammaRuntimeException("a time serie is needed");
+    throw new OpenGammaRuntimeException("a time series is needed");
   }
 
   @Override

@@ -28,12 +28,17 @@ import com.opengamma.integration.tool.portfolio.PortfolioLoader;
  */
 public final class XmlExternalIdValidator {
 
+  /**
+   * The existing mappings.
+   */
   private Map<ExternalId, String> _existingMappings = new HashMap<>();
 
   /**
    * Checks that the given id combination is not already in use.
-   * @param externalSystemId to externalSystemId to check
-   * @param tradeId for information purposes
+   * 
+   * @param externalSystemId  the externalSystemId to check
+   * @param tradeId  the identifier for information purposes
+   * @throws OpenGammaRuntimeException if the identifier is invalid
    */
   public synchronized void validateExternalId(ExternalId externalSystemId, String tradeId) {
     if (_existingMappings.containsKey(externalSystemId)) {
@@ -41,15 +46,12 @@ public final class XmlExternalIdValidator {
       if (!previousTradeId.equals(tradeId)) {
         String message = MessageFormatter.arrayFormat(
             "External id '{}' already allocated to a different trade when processing this file. Previous trade id: '{}', this trade id: '{}'",
-            new Object[] {externalSystemId, previousTradeId, tradeId })
-          .getMessage();
-        
+            new Object[] {externalSystemId, previousTradeId, tradeId }).getMessage();
+
         throw new OpenGammaRuntimeException(message);
       }
     }
-
     _existingMappings.put(externalSystemId, tradeId);
-
   }
 
 }

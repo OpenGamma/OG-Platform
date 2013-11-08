@@ -14,10 +14,14 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
-  @Test
   public void roundTrip() {
     Set<String> names = Sets.newHashSet("name1", "name2");
     Set<Currency> currencies = Sets.newHashSet(Currency.AUD, Currency.CAD);
@@ -26,4 +30,5 @@ public class YieldCurveSelectorFudgeBuilderTest extends AbstractFudgeBuilderTest
         new YieldCurveSelector(calcConfigNames, names, currencies, Pattern.compile("\\d.*"), Pattern.compile("\\w.*"));
     assertEncodeDecodeCycle(YieldCurveSelector.class, selector);
   }
+
 }
