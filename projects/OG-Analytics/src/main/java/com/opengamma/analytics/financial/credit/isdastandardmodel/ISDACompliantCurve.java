@@ -32,21 +32,21 @@ public class ISDACompliantCurve
     extends DoublesCurve {
 
   // number of knots in curve
-  @PropertyDefinition(get = "private")
+  @PropertyDefinition(get = "private", set = "private")
   private int _n;
 
   // the knot positions and values
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _t;
 
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _r;
 
   // these are simply cached values (they can be recalculated from _t & _r)
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _rt;
 
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", set = "private")
   private double[] _df;
 
   /**
@@ -698,7 +698,7 @@ public class ISDACompliantCurve
    * Sets the n.
    * @param n  the new value of the property
    */
-  public void setN(int n) {
+  private void setN(int n) {
     this._n = n;
   }
 
@@ -715,7 +715,7 @@ public class ISDACompliantCurve
    * Sets the t.
    * @param t  the new value of the property
    */
-  public void setT(double[] t) {
+  private void setT(double[] t) {
     this._t = t;
   }
 
@@ -732,7 +732,7 @@ public class ISDACompliantCurve
    * Sets the r.
    * @param r  the new value of the property
    */
-  public void setR(double[] r) {
+  private void setR(double[] r) {
     this._r = r;
   }
 
@@ -749,7 +749,7 @@ public class ISDACompliantCurve
    * Sets the rt.
    * @param rt  the new value of the property
    */
-  public void setRt(double[] rt) {
+  private void setRt(double[] rt) {
     this._rt = rt;
   }
 
@@ -766,7 +766,7 @@ public class ISDACompliantCurve
    * Sets the df.
    * @param df  the new value of the property
    */
-  public void setDf(double[] df) {
+  private void setDf(double[] df) {
     this._df = df;
   }
 
