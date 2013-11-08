@@ -831,6 +831,10 @@ public class DbBatchWriter extends AbstractDbMaster {
       for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
         final String doubleValueName = valueEntry.getKey();
         final Double doubleValue = ensureDatabasePrecision(valueEntry.getValue());
+        if (doubleValue == null) {
+          //TODO - this should record a MissingInput failure.
+          continue;
+        }
         marketDataValues.add(new MarketDataValue(value.getSpecification().getTargetSpecification(), doubleValue, doubleValueName));
       }
     }
