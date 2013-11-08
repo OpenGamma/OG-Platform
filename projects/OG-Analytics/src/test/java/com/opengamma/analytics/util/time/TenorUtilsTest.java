@@ -123,7 +123,7 @@ public class TenorUtilsTest {
     assertEquals(LocalDate.of(2014, 1, 3), TenorUtils.adjustDateByTenor(LocalDate.of(2013, 12, 31), Tenor.SN, WEEKEND_CALENDAR, spotDays));
     assertEquals(LocalDate.of(2014, 1, 2), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.ON, NO_HOLIDAYS, spotDays));
     assertEquals(LocalDate.of(2014, 1, 3), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.TN, NO_HOLIDAYS, spotDays));
-    assertEquals(LocalDate.of(2014, 1, 6), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.SN, NO_HOLIDAYS, spotDays));
+    assertEquals(LocalDate.of(2014, 1, 4), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.SN, NO_HOLIDAYS, spotDays));
     assertEquals(LocalDate.of(2014, 1, 2), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.ON, WEEKEND_CALENDAR, spotDays));
     assertEquals(LocalDate.of(2014, 1, 3), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.TN, WEEKEND_CALENDAR, spotDays));
     assertEquals(LocalDate.of(2014, 1, 6), TenorUtils.adjustDateByTenor(LocalDate.of(2014, 1, 1), Tenor.SN, WEEKEND_CALENDAR, spotDays));
