@@ -73,8 +73,6 @@ import com.opengamma.web.analytics.push.UpdateListener;
     try {
       return _delegate.getGridStructure(gridType, viewportId);
     } catch (Exception e) {
-      String id = _errorManager.add(e);
-      _listener.itemUpdated(id);
       throw e;
     }
   }
