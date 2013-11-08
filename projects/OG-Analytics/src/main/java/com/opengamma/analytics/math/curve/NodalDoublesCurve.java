@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.ArgumentChecker;
@@ -25,6 +25,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data).
  * Any attempt to find a <i>y</i> value for which there is no <i>x</i> nodal point will result in failure.
  */
+@BeanDefinition
 public class NodalDoublesCurve extends ArraysDoublesCurve {
 
   /**
@@ -307,6 +308,12 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
 
   //-------------------------------------------------------------------------
   /**
+   * Constructor for Joda-Beans.
+   */
+  protected NodalDoublesCurve() {
+  }
+
+  /**
     * 
     * @param xData An array of <i>x</i> data, not null
     * @param yData An array of <i>y</i> data, not null, contains same number of entries as <i>x</i>
@@ -489,53 +496,27 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
     return NodalDoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   @Override
   public NodalDoublesCurve clone() {
-    BeanBuilder<? extends NodalDoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
+    return (NodalDoublesCurve) super.clone();
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
     if (obj == this) {
       return true;
     }
-    if (!super.equals(obj)) {
-      return false;
+    if (obj != null && obj.getClass() == this.getClass()) {
+      return super.equals(obj);
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    return hash;
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   @Override
@@ -551,7 +532,9 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------
@@ -578,7 +561,7 @@ public class NodalDoublesCurve extends ArraysDoublesCurve {
 
     @Override
     public BeanBuilder<? extends NodalDoublesCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<NodalDoublesCurve>(new NodalDoublesCurve());
     }
 
     @Override
