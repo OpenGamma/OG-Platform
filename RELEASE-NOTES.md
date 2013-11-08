@@ -90,6 +90,15 @@ To 2.1.8
 
     [] Reverted the changes made for the FX Forward currency conversion issues from the 2.1.5 release due to their unintended side-effects.
 
+To 2.1.9
+---------
+    [] Changed SwaptionBlackForwardThetaCalculator so that the theta column for swaption returns unscaled analytical black theta
+    [PLAT-5057] added fix for null market data values not handled by DbBatchWriter
+    [PLAT-5036] Quantity field fails to store in the batch db
+    [PLAT-4947] Mutable delegating PositionMaster and PortfolioMaster and SecurityMaster
+    [PLAT-4993] Backport regression tests to 2.1.x branch
+
+
 
 OpenGamma Platform 2.1
 ---------------------------------
@@ -295,6 +304,23 @@ Analytics compatibility
 - No expected differences
 
 To 2.1.8
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.9
 -----------
 
 As above, and:
