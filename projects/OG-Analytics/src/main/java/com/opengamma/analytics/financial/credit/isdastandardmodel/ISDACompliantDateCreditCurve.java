@@ -11,10 +11,12 @@ import java.util.Map;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
@@ -25,7 +27,10 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * An ISDA compliant date credit curve.
  */
-public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve implements ISDACompliantCurveWithDates {
+@BeanDefinition
+public class ISDACompliantDateCreditCurve
+    extends ISDACompliantCreditCurve
+    implements ISDACompliantCurveWithDates {
 
   /**
    * The standard ACT/365 day count.
@@ -47,6 +52,12 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
    */
   @PropertyDefinition(get = "private", set = "private")
   private DayCount _dayCount;
+
+  /**
+   * Constructor for Joda-Beans.
+   */
+  protected ISDACompliantDateCreditCurve() {
+  }
 
   /**
    * Builds a credit curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates.
@@ -149,7 +160,6 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
    * Gets the base date.
    * @return the value of the property
    */
-  @Override
   public LocalDate getBaseDate() {
     return _baseDate;
   }
@@ -158,7 +168,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
    * Sets the base date.
    * @param baseDate  the new value of the property
    */
-  private void setBaseDate(final LocalDate baseDate) {
+  private void setBaseDate(LocalDate baseDate) {
     this._baseDate = baseDate;
   }
 
@@ -183,7 +193,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
    * Sets the knot dates on the curve.
    * @param dates  the new value of the property
    */
-  private void setDates(final LocalDate[] dates) {
+  private void setDates(LocalDate[] dates) {
     this._dates = dates;
   }
 
@@ -208,7 +218,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
    * Sets the day count.
    * @param dayCount  the new value of the property
    */
-  private void setDayCount(final DayCount dayCount) {
+  private void setDayCount(DayCount dayCount) {
     this._dayCount = dayCount;
   }
 
@@ -227,13 +237,15 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ISDACompliantDateCreditCurve other = (ISDACompliantDateCreditCurve) obj;
-      return JodaBeanUtils.equal(getBaseDate(), other.getBaseDate()) && JodaBeanUtils.equal(getDates(), other.getDates()) && JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+      ISDACompliantDateCreditCurve other = (ISDACompliantDateCreditCurve) obj;
+      return JodaBeanUtils.equal(getBaseDate(), other.getBaseDate()) &&
+          JodaBeanUtils.equal(getDates(), other.getDates()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           super.equals(obj);
     }
     return false;
@@ -250,9 +262,9 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("ISDACompliantDateCreditCurve{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -262,7 +274,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("baseDate").append('=').append(JodaBeanUtils.toString(getBaseDate())).append(',').append(' ');
     buf.append("dates").append('=').append(JodaBeanUtils.toString(getDates())).append(',').append(' ');
@@ -282,19 +294,26 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
     /**
      * The meta-property for the {@code baseDate} property.
      */
-    private final MetaProperty<LocalDate> _baseDate = DirectMetaProperty.ofReadWrite(this, "baseDate", ISDACompliantDateCreditCurve.class, LocalDate.class);
+    private final MetaProperty<LocalDate> _baseDate = DirectMetaProperty.ofReadWrite(
+        this, "baseDate", ISDACompliantDateCreditCurve.class, LocalDate.class);
     /**
      * The meta-property for the {@code dates} property.
      */
-    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofReadWrite(this, "dates", ISDACompliantDateCreditCurve.class, LocalDate[].class);
+    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofReadWrite(
+        this, "dates", ISDACompliantDateCreditCurve.class, LocalDate[].class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
-    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(this, "dayCount", ISDACompliantDateCreditCurve.class, DayCount.class);
+    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", ISDACompliantDateCreditCurve.class, DayCount.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "baseDate", "dates", "dayCount");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "baseDate",
+        "dates",
+        "dayCount");
 
     /**
      * Restricted constructor.
@@ -303,7 +322,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -1721984481:  // baseDate
           return _baseDate;
@@ -317,7 +336,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
 
     @Override
     public BeanBuilder<? extends ISDACompliantDateCreditCurve> builder() {
-      throw new UnsupportedOperationException();
+      return new DirectBeanBuilder<ISDACompliantDateCreditCurve>(new ISDACompliantDateCreditCurve());
     }
 
     @Override
@@ -357,7 +376,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1721984481:  // baseDate
           return ((ISDACompliantDateCreditCurve) bean).getBaseDate();
@@ -370,7 +389,7 @@ public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve imple
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1721984481:  // baseDate
           ((ISDACompliantDateCreditCurve) bean).setBaseDate((LocalDate) newValue);
