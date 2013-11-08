@@ -4,6 +4,14 @@ OpenGamma Platform 2.2 milestones
 These release notes cover changes from v2.1 to v2.2.
 
 
+2.2.0-M2p02
+===========
+
+[PLAT-5041] Fix ISDACompliantYieldCurveFuncion ignoring instrument daycount
+[PLAT-5056] Changed hardcoded weekend holiday source to spring configured holiday source
+[PLAT-5055] Never concatenate strings in ArgumentChecker
+
+
 2.2.0-M2p01
 ===========
 
