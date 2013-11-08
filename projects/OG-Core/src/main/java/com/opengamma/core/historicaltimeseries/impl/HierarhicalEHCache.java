@@ -44,12 +44,14 @@ public abstract class HierarhicalEHCache<A, B> {
   private static final Logger s_logger = LoggerFactory.getLogger(HierarhicalEHCache.class);
 
   public HierarhicalEHCache(CacheManager cacheManager) {
-    _aCache = EHCacheUtils.getCacheFromManager(cacheManager, A_CACHE_NAME);
     EHCacheUtils.addCache(cacheManager, A_CACHE_NAME);
-    _bCache = EHCacheUtils.getCacheFromManager(cacheManager, B_CACHE_NAME);
+    _aCache = EHCacheUtils.getCacheFromManager(cacheManager, A_CACHE_NAME);
+
     EHCacheUtils.addCache(cacheManager, B_CACHE_NAME);
-    _missedCache = EHCacheUtils.getCacheFromManager(cacheManager, MISSED_CACHE_NAME);
+    _bCache = EHCacheUtils.getCacheFromManager(cacheManager, B_CACHE_NAME);
+
     EHCacheUtils.addCache(cacheManager, MISSED_CACHE_NAME);
+    _missedCache = EHCacheUtils.getCacheFromManager(cacheManager, MISSED_CACHE_NAME);
   }
 
   public void setTimeout(long timeout) {
