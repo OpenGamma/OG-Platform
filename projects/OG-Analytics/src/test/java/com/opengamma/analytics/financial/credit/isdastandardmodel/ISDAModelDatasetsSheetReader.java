@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -56,7 +57,7 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
   private static final String ACC_PREMIUM_HEADER = "accrued premium".toLowerCase();
   private static final String ACC_DAYS_HEADER = "accrued days".toLowerCase();
 
-  private static final DateTimeFormatter DATE_TIME_PARSER = new DateTimeFormatterBuilder().appendPattern("dd-MMM-yy").toFormatter();
+  private static final DateTimeFormatter DATE_TIME_PARSER = new DateTimeFormatterBuilder().appendPattern("dd-MMM-yy").toFormatter().withLocale(Locale.ROOT);
 
   // component parts of the resultant ISDA_Results instances
   private LocalDate[] _parSpreadDates; // assume in ascending order
@@ -177,7 +178,8 @@ public class ISDAModelDatasetsSheetReader extends ISDAModelDatasets {
 
       // if a date add to list of spread dates
       try {
-        final LocalDate date = LocalDate.parse(columns[i], DATE_TIME_PARSER);
+        final LocalDate date = LocalDate.parse(columns[i], 
+            DATE_TIME_PARSER);
         parSpreadDates.add(date);
         continue;
       } catch (Exception ex) {

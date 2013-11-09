@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.temporal.TemporalAccessor;
+import java.util.Locale;
 
 /**
  * Abstract date XML adapter.
@@ -33,8 +34,8 @@ public abstract class AbstractDateAdapter<DT extends TemporalAccessor> extends X
     // form MAR15 can be parsed to March 2015
     _formatter = new DateTimeFormatterBuilder()
         .parseCaseInsensitive()
-        .append(DateTimeFormatter.ofPattern(datePattern))
-        .toFormatter();
+        .append(DateTimeFormatter.ofPattern(datePattern).withLocale(Locale.ROOT))
+        .toFormatter().withLocale(Locale.ROOT);
   }
 
   /**
