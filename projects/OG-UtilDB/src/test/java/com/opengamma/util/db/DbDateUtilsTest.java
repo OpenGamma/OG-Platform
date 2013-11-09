@@ -11,6 +11,8 @@ import static org.testng.AssertJUnit.assertNull;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
@@ -25,6 +27,12 @@ import com.opengamma.util.test.TestGroup;
  */
 @SuppressWarnings("deprecation")
 @Test(groups = TestGroup.UNIT)
+
+/**
+ * SQL Date Times require that the time zone be set to GMT.  Otherwise
+ * they will fail in Asia because the date is ahead one day
+ */
+
 public class DbDateUtilsTest {
 
   //-------------------------------------------------------------------------
@@ -85,7 +93,12 @@ public class DbDateUtilsTest {
   }
 
   public void test_fromSqlDateTime() {
-    assertEquals(LocalDateTime.of(2005, 11, 7, 12, 34, 56, 7), DbDateUtils.fromSqlDateTime(new Timestamp(2005 - 1900, 11 - 1, 7, 12, 34, 56, 7)));
+    Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    c.set(2005, 11-1, 7, 12, 34, 56);
+    Timestamp t = new Timestamp(c.getTimeInMillis());
+    t.setNanos(7);
+    assertEquals(LocalDateTime.of(2005, 11, 7, 12, 34, 56, 7), 
+        DbDateUtils.fromSqlDateTime(t));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -98,7 +111,12 @@ public class DbDateUtilsTest {
   }
 
   public void test_fromSqlDateTimeNullFarFuture() {
-    assertEquals(LocalDateTime.of(2005, 11, 7, 12, 34, 56, 7), DbDateUtils.fromSqlDateTimeNullFarFuture(new Timestamp(2005 - 1900, 11 - 1, 7, 12, 34, 56, 7)));
+    Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    c.set(2005, 11-1, 7, 12, 34, 56);
+    Timestamp t = new Timestamp(c.getTimeInMillis());
+    t.setNanos(7);
+    assertEquals(LocalDateTime.of(2005, 11, 7, 12, 34, 56, 7), 
+        DbDateUtils.fromSqlDateTimeNullFarFuture(t));
   }
 
   public void test_fromSqlDateTimeNullFarFuture_max() {
@@ -126,7 +144,10 @@ public class DbDateUtilsTest {
   }
 
   public void test_fromSqlDate() {
-    assertEquals(LocalDate.of(2005, 11, 12), DbDateUtils.fromSqlDate(new Date(2005 - 1900, 11 - 1, 12)));
+    Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    c.set(2005, 11-1, 12);
+    Date d = new Date(c.getTimeInMillis());  
+    assertEquals(LocalDate.of(2005, 11, 12), DbDateUtils.fromSqlDate(d));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
