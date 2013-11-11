@@ -27,9 +27,9 @@ public enum FloatingIndex {
    */
   AUD_BBR_BBSW(Currency.AUD, "BBR", "AUD-BBR-BBSW"),
   /**
-   * The AUD-LIBOR-BBSW ISDA index.
+   * The AUD-LIBOR-BBA ISDA index.
    */
-  AUD_LIBOR_BBSW(Currency.AUD, "LIBOR", "AUD-LIBOR-BBSW"),
+  AUD_LIBOR_BBA(Currency.AUD, "LIBOR", "AUD-LIBOR-BBA"),
   /**
    * The CAD-BA-CDOR ISDA index.
    */
@@ -201,7 +201,7 @@ public enum FloatingIndex {
   public ExternalId toFrequencySpecificExternalId(Frequency frequency) {
     ArgumentChecker.notNull(frequency, "frequency");
     String idValue = getIsdaName() + "-";
-    switch (frequency.getConventionName()) {
+    switch (frequency.getName()) {
       case Frequency.DAILY_NAME:
         idValue += "1D";
         break;
@@ -251,7 +251,7 @@ public enum FloatingIndex {
         idValue += "1Y";
         break;
       default:
-        throw new IllegalArgumentException("Only standard IBOR frequencies supported. Frequency provided is " + frequency.getConventionName());
+        throw new IllegalArgumentException("Only standard IBOR frequencies supported. Frequency provided is " + frequency.getName());
     }
     return ExternalId.of(_externalId.getScheme(), idValue);
   }
