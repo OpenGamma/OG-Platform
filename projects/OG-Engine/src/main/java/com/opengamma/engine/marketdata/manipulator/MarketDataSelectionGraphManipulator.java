@@ -118,12 +118,12 @@ public class MarketDataSelectionGraphManipulator {
       newNode = DependencyNodeImpl.of(node.getFunction(), node.getTarget(), DependencyNodeImpl.getOutputValueArray(node), newInputValues, newInputNodes);
     }
     // Check whether the node requires a proxy
-    final int outputs = newNode.getOutputCount();
+    final int outputs = node.getOutputCount();
     for (int i = 0; i < outputs; i++) {
-      final ValueSpecification output = newNode.getOutputValue(i);
+      final ValueSpecification output = node.getOutputValue(i);
       final Set<ValueSpecification> proxySpecs = extractor.extractStructure(output);
       if (proxySpecs != null) {
-        final ComputationTargetSpecification target = newNode.getTarget();
+        final ComputationTargetSpecification target = node.getTarget();
         final ValueProperties properties = output.getProperties();
         final String originalFunction = properties.getStrictValue(ValuePropertyNames.FUNCTION);
         final ValueSpecification proxyOutput = new ValueSpecification(output.getValueName(), target, properties.copy().withoutAny(ValuePropertyNames.FUNCTION)
