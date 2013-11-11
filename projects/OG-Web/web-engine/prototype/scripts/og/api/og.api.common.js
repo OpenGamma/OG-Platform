@@ -39,7 +39,7 @@ $.register_module({
         var check_required = function (bundle, params) {
             var method = bundle.method;
             /** @ignore */
-            var exists = function (val) {return !!str(bundle.config[val]);}; // makes sure values are not empty
+            var exists = function (val) {return !!str(bundle.config[val]); }; // makes sure values are not empty
             ($.isArray(params) ? params : [params]).forEach(function (obj) {
                 var one_of = obj.one_of, all_of = obj.all_of, either = obj.either, or = obj.or,
                     condition = obj[has]('condition') ? obj.condition : true;

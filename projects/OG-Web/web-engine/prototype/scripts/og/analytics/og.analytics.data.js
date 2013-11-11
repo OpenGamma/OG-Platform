@@ -186,7 +186,7 @@ $.register_module({
                 }
             };
             var structure_setup = function () {
-                if(config.pool) return; // we are not interested in pool structure
+                if(config.pool || !view_id) return; // we are not interested in pool structure or null view_ids
                 var viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 // If there is no viewport ID or no graph ID for a depgraph this will result in a new one
                 if (data.viewport_id === null) {
@@ -279,7 +279,9 @@ $.register_module({
                 });
             };
             var view_handler = function (result) {
-                if (result.error) return fire('fatal', data.prefix + result.message);
+                if (result.error) {
+                    return fire('fatal', data.prefix + result.message);
+                }
                 data.prefix = module.name + ' (' + label + (view_id = result.meta.id) + '):\n';
                 return grid_type ? structure_setup() : type_setup();
             };
