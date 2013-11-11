@@ -107,11 +107,10 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100. + greeks[4] / 100.);
     result.put(Greek.CARRY_RHO, greeks[4] / 100.);
-    result.put(Greek.THETA, -greeks[5] / 252.);
+    result.put(Greek.THETA, -greeks[5] / 365.);
     result.put(Greek.VEGA, greeks[6] / 100.);
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, impliedVol, isCall);
     result.put(Greek.GAMMA, pdg[2]);
-
     return result;
   }
 
