@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.lambdava.functions.Function0;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.tuple.Pair;
 
-import freemarker.ext.beans.HashAdapter;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -36,7 +34,7 @@ public abstract class HierarhicalEHCache<A, B> {
 
   abstract String getCachePrefix();
 
-  abstract Object extractKeyFromValue(B value);
+  abstract Object extractKey(A key, B value);
 
   private long _timeout = 1000;
 
@@ -58,22 +56,22 @@ public abstract class HierarhicalEHCache<A, B> {
     _timeout = timeout;
   }
 
-  public void markMissed(Object key){
+  public void markMissed(Object key) {
     _missedCache.put(new Element(key, null));
   }
 
-  public B deepInsert(A aKey, Object bKey, B value){
+  public B deepInsert(A aKey, Object bKey, B value) {
     try {
       _bCache.tryWriteLockOnKey(bKey, _timeout);
       // reread the cached element
       Element bElement = _bCache.get(bKey);
       Map<Object, B> map;
-      if(bElement != null){
+      if (bElement != null) {
         map = (Map<Object, B>) bElement.getObjectValue();
-      }else{
+      } else {
         map = new HashMap<>();
       }
-      s_logger.debug(getCachePrefix()+ ": Caching value {}", value);
+      s_logger.debug(getCachePrefix() + ": Caching value {}", value);
       map.put(aKey, value);
       // reinsert the map into cache
       _bCache.put(new Element(bKey, map));
@@ -85,34 +83,34 @@ public abstract class HierarhicalEHCache<A, B> {
     return value;
   }
 
-  private B deepInsertAndMarkMissed(A aKey, Function0<B> closure){
-    if(closure == null){
+  private B deepInsertAndMarkMissed(A aKey, Function0<B> closure) {
+    if (closure == null) {
       return null;
     }
     B b = closure.execute();
-    if(b == null){
+    if (b == null) {
       _missedCache.put(new Element(aKey, null));
       return null;
     } else {
-      Object bKey = extractKeyFromValue(b);
+      Object bKey = extractKey(aKey, b);
       deepInsert(aKey, bKey, b);
       _aCache.put(new Element(aKey, bKey));
       return b;
     }
   }
 
-  public B shallowInsert(Object bKey, B value){
+  public B shallowInsert(Object bKey, B value) {
     try {
       _bCache.tryWriteLockOnKey(bKey, _timeout);
       // reread the cached element
       Element bElement = _bCache.get(bKey);
       Map<Object, B> map;
-      if(bElement != null){
+      if (bElement != null) {
         map = (Map<Object, B>) bElement.getObjectValue();
-      }else{
+      } else {
         map = new HashMap<>();
       }
-      s_logger.debug(getCachePrefix()+ ": Caching value {}", value);
+      s_logger.debug(getCachePrefix() + ": Caching value {}", value);
       map.put(bKey, value);
       // reinsert the map into cache
       _bCache.put(new Element(bKey, map));
@@ -124,12 +122,12 @@ public abstract class HierarhicalEHCache<A, B> {
     return value;
   }
 
-  private B shallowInsertAndMarkMissed(Object bKey, Function0<B> closure){
-    if(closure == null){
+  private B shallowInsertAndMarkMissed(Object bKey, Function0<B> closure) {
+    if (closure == null) {
       return null;
     }
     B b = closure.execute();
-    if(b == null){
+    if (b == null) {
       _missedCache.put(new Element(bKey, null));
       return null;
     } else {
@@ -138,21 +136,21 @@ public abstract class HierarhicalEHCache<A, B> {
     }
   }
 
-  public B get(A aKey, Function0<B> closure){
-    if(_missedCache.isKeyInCache(aKey)){
-      s_logger.debug(getCachePrefix()+ ": Caching miss on {}", aKey);
+  public B get(A aKey, Function0<B> closure) {
+    if (_missedCache.isKeyInCache(aKey)) {
+      s_logger.debug(getCachePrefix() + ": Caching miss on {}", aKey);
       return null;
     }
     Element aElement = _aCache.get(aKey);
-    if(aElement != null){
+    if (aElement != null) {
       Object bKey = aElement.getObjectValue();
       Element bElement = _bCache.get(bKey);
-      if(bElement != null){
+      if (bElement != null) {
         Map<Object, B> map = (Map<Object, B>) bElement.getObjectValue();
         B value = map.get(aKey);
-        if(value == null){
+        if (value == null) {
           return deepInsertAndMarkMissed(aKey, closure);
-        }else{
+        } else {
           return value;
         }
       }
@@ -162,7 +160,7 @@ public abstract class HierarhicalEHCache<A, B> {
 
   public B getBySecondKey(Object bKey, Function0<B> closure) {
     if (_missedCache.isKeyInCache(bKey)) {
-      s_logger.debug(getCachePrefix()+ ": Caching miss on {}", bKey);
+      s_logger.debug(getCachePrefix() + ": Caching miss on {}", bKey);
       return null;
     }
     Element bElement = _bCache.get(bKey);
@@ -178,7 +176,7 @@ public abstract class HierarhicalEHCache<A, B> {
     return shallowInsertAndMarkMissed(bKey, closure);
   }
 
-  public void clear(Object bKey){
+  public void clear(Object bKey) {
     _bCache.remove(bKey);
     _missedCache.removeAll();
   }
