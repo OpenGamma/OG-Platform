@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -148,10 +149,12 @@ public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInv
     }
     String pnlContributionName = pnlContributionNames != null ? pnlContributionNames.iterator().next() : DEFAULT_PNL_CONTRIBUTIONS;
     final ValueProperties.Builder properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
         .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, pnlContributionName); //TODO
+    if (desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY) == null) {
+      properties.with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next());
+    }
     copyOptional(desiredValue.getConstraints(), properties);
     final Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
     if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
