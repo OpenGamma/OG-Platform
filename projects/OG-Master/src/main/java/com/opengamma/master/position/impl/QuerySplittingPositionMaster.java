@@ -113,13 +113,18 @@ public class QuerySplittingPositionMaster extends AbstractQuerySplittingMaster<P
    */
   @Override
   public PositionSearchResult search(final PositionSearchRequest request) {
-    final Collection<PositionSearchRequest> requests = splitSearchRequest(request);
-    if (requests == null) {
-      // Small query pass-through
-      return getUnderlying().search(request);
+    if (canSplit()) {
+      final Collection<PositionSearchRequest> requests = splitSearchRequest(request);
+      if (requests == null) {
+        // Small query pass-through
+        return getUnderlying().search(request);
+      } else {
+        // Multiple queries
+        return callSplitSearchRequest(requests);
+      }
     } else {
-      // Multiple queries
-      return callSplitSearchRequest(requests);
+      // Splitting disabled
+      return getUnderlying().search(request);
     }
   }
 

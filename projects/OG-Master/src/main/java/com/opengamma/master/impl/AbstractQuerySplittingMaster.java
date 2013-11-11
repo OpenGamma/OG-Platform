@@ -11,7 +11,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -19,6 +24,9 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PoolExecutor;
+import com.opengamma.util.PoolExecutor.CompletionListener;
+import com.opengamma.util.async.BlockingOperation;
 
 /**
  * A partial master implementation that divides search operations into a number of smaller operations to pass to the underlying. This is intended for use with some database backed position masters
@@ -28,6 +36,15 @@ import com.opengamma.util.ArgumentChecker;
  * @param <M> the underlying master type
  */
 public abstract class AbstractQuerySplittingMaster<D extends AbstractDocument, M extends AbstractChangeProvidingMaster<D>> implements AbstractChangeProvidingMaster<D> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractQuerySplittingMaster.class);
+
+  private static final PoolExecutor s_executor = new PoolExecutor(8, "QuerySplittingMaster");
+
+  /**
+   * The pool executor, if a sub-class does parallel operations.
+   */
+  private PoolExecutor _executor;
 
   /**
    * The underlying master to pass requests onto.
@@ -46,6 +63,23 @@ public abstract class AbstractQuerySplittingMaster<D extends AbstractDocument, M
    */
   public AbstractQuerySplittingMaster(final M underlying) {
     _underlying = ArgumentChecker.notNull(underlying, "underlying");
+    _executor = s_executor;
+  }
+
+  public void setPoolExecutor(final PoolExecutor executor) {
+    if (executor == null) {
+      _executor = s_executor;
+    } else {
+      _executor = executor;
+    }
+  }
+
+  public PoolExecutor getPoolExecutor() {
+    return _executor;
+  }
+
+  protected <T> PoolExecutor.Service<T> parallelService(final PoolExecutor.CompletionListener<T> listener) {
+    return getPoolExecutor().createService(listener);
   }
 
   /**
@@ -55,6 +89,18 @@ public abstract class AbstractQuerySplittingMaster<D extends AbstractDocument, M
    */
   protected M getUnderlying() {
     return _underlying;
+  }
+
+  /**
+   * Tests whether it is sensible to attempt to split a request.
+   * <p>
+   * When the database connection pool is running in a polling mode (throwing an exception when there is no immediately available connection so alternative work can be done instead of blocking) then
+   * splitting queries may mean that the composite never completes on a busy system.
+   * 
+   * @return true to attempt to split the operation, false otherwise
+   */
+  protected boolean canSplit() {
+    return BlockingOperation.isOn();
   }
 
   /**
@@ -128,6 +174,52 @@ public abstract class AbstractQuerySplittingMaster<D extends AbstractDocument, M
     return result;
   }
 
+  /**
+   * Alternative implementation of {@link #callSplitGetRequest} that sub-classes can use instead.
+   * 
+   * @param requests the requests, created by calling {@link #splitGetRequest}.
+   * @return the combined result, created by calling {@link #mergeSplitGetRequest} with each underlying call result.
+   */
+  protected Map<UniqueId, D> parallelSplitGetRequest(final Collection<Collection<UniqueId>> requests) {
+    final Map<UniqueId, D> mergedResult = new HashMap<UniqueId, D>();
+    final PoolExecutor.Service<Map<UniqueId, D>> service = parallelService(new CompletionListener<Map<UniqueId, D>>() {
+
+      @Override
+      public void success(final Map<UniqueId, D> result) {
+        synchronized (mergedResult) {
+          mergeSplitGetResult(mergedResult, result);
+        }
+      }
+
+      @Override
+      public void failure(final Throwable error) {
+        s_logger.error("Caught exception", error);
+      }
+
+    });
+    s_logger.debug("Issuing {} parallel queries", requests.size());
+    long t = System.nanoTime();
+    for (final Collection<UniqueId> request : requests) {
+      service.execute(new Callable<Map<UniqueId, D>>() {
+        @Override
+        public Map<UniqueId, D> call() throws Exception {
+          s_logger.debug("Requesting {} records", request.size());
+          long t = System.nanoTime();
+          final Map<UniqueId, D> result = getUnderlying().get(request);
+          s_logger.info("{} records queried in {}ms", request.size(), (double) (System.nanoTime() - t) / 1e6);
+          return result;
+        }
+      });
+    }
+    try {
+      service.join();
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted", e);
+    }
+    s_logger.info("Finished queries for {} records in {}ms", mergedResult.size(), (double) (System.nanoTime() - t) / 1e6);
+    return mergedResult;
+  }
+
   // AbstractChangeProvidingMaster
 
   @Override
@@ -145,13 +237,18 @@ public abstract class AbstractQuerySplittingMaster<D extends AbstractDocument, M
    */
   @Override
   public Map<UniqueId, D> get(final Collection<UniqueId> uniqueIds) {
-    final Collection<Collection<UniqueId>> requests = splitGetRequest(uniqueIds);
-    if (requests == null) {
-      // Small query pass-through
-      return getUnderlying().get(uniqueIds);
+    if (canSplit()) {
+      final Collection<Collection<UniqueId>> requests = splitGetRequest(uniqueIds);
+      if (requests == null) {
+        // Small query pass-through
+        return getUnderlying().get(uniqueIds);
+      } else {
+        // Multiple queries
+        return callSplitGetRequest(requests);
+      }
     } else {
-      // Multiple queries
-      return callSplitGetRequest(requests);
+      // Splitting disabled
+      return getUnderlying().get(uniqueIds);
     }
   }
 

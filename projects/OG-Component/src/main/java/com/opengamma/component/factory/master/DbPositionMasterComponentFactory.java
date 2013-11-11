@@ -5,6 +5,7 @@
  */
 package com.opengamma.component.factory.master;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.ParallelQuerySplittingPositionMaster;
 import com.opengamma.master.position.impl.QuerySplittingPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.masterdb.position.DataDbPositionMasterResource;
@@ -76,6 +78,11 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
    */
   @PropertyDefinition
   private Integer _maxSearchRequestSize;
+  /**
+   * Whether to use parallel search queries - see {@link ParallelQuerySplittingPositionMaster}
+   */
+  @PropertyDefinition
+  private boolean _parallelSearchQueries;
 
   //-------------------------------------------------------------------------
   @Override
@@ -120,7 +127,7 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
    * @return the original master if splitting is disabled, otherwise the splitting form
    */
   protected PositionMaster splitQueries(final PositionMaster master) {
-    final QuerySplittingPositionMaster splitting = new QuerySplittingPositionMaster(master);
+    final QuerySplittingPositionMaster splitting = isParallelSearchQueries() ? new ParallelQuerySplittingPositionMaster(master) : new QuerySplittingPositionMaster(master);
     boolean wrapped = false;
     if (getMaxGetRequestSize() != null) {
       splitting.setMaxGetRequest(getMaxGetRequestSize());
@@ -357,6 +364,31 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets whether to use parallel search queries - see {@link ParallelQuerySplittingPositionMaster}
+   * @return the value of the property
+   */
+  public boolean isParallelSearchQueries() {
+    return _parallelSearchQueries;
+  }
+
+  /**
+   * Sets whether to use parallel search queries - see {@link ParallelQuerySplittingPositionMaster}
+   * @param parallelSearchQueries  the new value of the property
+   */
+  public void setParallelSearchQueries(boolean parallelSearchQueries) {
+    this._parallelSearchQueries = parallelSearchQueries;
+  }
+
+  /**
+   * Gets the the {@code parallelSearchQueries} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> parallelSearchQueries() {
+    return metaBean().parallelSearchQueries().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public DbPositionMasterComponentFactory clone() {
     return (DbPositionMasterComponentFactory) super.clone();
@@ -377,6 +409,7 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
           JodaBeanUtils.equal(getMaxGetRequestSize(), other.getMaxGetRequestSize()) &&
           JodaBeanUtils.equal(getMaxSearchRequestSize(), other.getMaxSearchRequestSize()) &&
+          (isParallelSearchQueries() == other.isParallelSearchQueries()) &&
           super.equals(obj);
     }
     return false;
@@ -393,12 +426,13 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxGetRequestSize());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxSearchRequestSize());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isParallelSearchQueries());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("DbPositionMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -420,6 +454,7 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
     buf.append("maxGetRequestSize").append('=').append(JodaBeanUtils.toString(getMaxGetRequestSize())).append(',').append(' ');
     buf.append("maxSearchRequestSize").append('=').append(JodaBeanUtils.toString(getMaxSearchRequestSize())).append(',').append(' ');
+    buf.append("parallelSearchQueries").append('=').append(JodaBeanUtils.toString(isParallelSearchQueries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -473,6 +508,11 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
     private final MetaProperty<Integer> _maxSearchRequestSize = DirectMetaProperty.ofReadWrite(
         this, "maxSearchRequestSize", DbPositionMasterComponentFactory.class, Integer.class);
     /**
+     * The meta-property for the {@code parallelSearchQueries} property.
+     */
+    private final MetaProperty<Boolean> _parallelSearchQueries = DirectMetaProperty.ofReadWrite(
+        this, "parallelSearchQueries", DbPositionMasterComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -484,7 +524,8 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
         "uniqueIdScheme",
         "maxRetries",
         "maxGetRequestSize",
-        "maxSearchRequestSize");
+        "maxSearchRequestSize",
+        "parallelSearchQueries");
 
     /**
      * Restricted constructor.
@@ -511,6 +552,8 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return _maxGetRequestSize;
         case 2100076388:  // maxSearchRequestSize
           return _maxSearchRequestSize;
+        case -337894953:  // parallelSearchQueries
+          return _parallelSearchQueries;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -595,6 +638,14 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
       return _maxSearchRequestSize;
     }
 
+    /**
+     * The meta-property for the {@code parallelSearchQueries} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> parallelSearchQueries() {
+      return _parallelSearchQueries;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -615,6 +666,8 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return ((DbPositionMasterComponentFactory) bean).getMaxGetRequestSize();
         case 2100076388:  // maxSearchRequestSize
           return ((DbPositionMasterComponentFactory) bean).getMaxSearchRequestSize();
+        case -337894953:  // parallelSearchQueries
+          return ((DbPositionMasterComponentFactory) bean).isParallelSearchQueries();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -645,6 +698,9 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
           return;
         case 2100076388:  // maxSearchRequestSize
           ((DbPositionMasterComponentFactory) bean).setMaxSearchRequestSize((Integer) newValue);
+          return;
+        case -337894953:  // parallelSearchQueries
+          ((DbPositionMasterComponentFactory) bean).setParallelSearchQueries((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
