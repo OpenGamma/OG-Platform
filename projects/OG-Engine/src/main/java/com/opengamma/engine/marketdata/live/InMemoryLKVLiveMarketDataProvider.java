@@ -320,6 +320,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
               s_logger.warn("Unsubscribed from " + valueSpecification + " at:\n" + StringUtils.join(Thread.currentThread().getStackTrace(), "\n"));
               
               if (subscription.isUnsubscribed()) {
+                s_logger.warn("Now fully unsubscribed from " + valueSpecification);
                 final LiveDataSpecification requestedLiveData = subscription.getRequestedLiveData();
                 if (requestedLiveData != null) {
                   _liveDataSpecToSubscriptions.remove(requestedLiveData);
