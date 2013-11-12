@@ -222,6 +222,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     try {
       process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode(), viewProcessContextMap, false);
       result = attachClientToViewProcessCore(client, listener, process);
+      process = null;
     } catch (final RuntimeException e) {
       s_logger.error("Error attaching client to shared view process", e);
       throw e;
@@ -260,6 +261,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     try {
       process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode(), viewProcessContextMap, false);
       result = attachClientToViewProcessCore(client, listener, process);
+      process = null;
     } catch (final RuntimeException e) {
       s_logger.error("Error attaching client to private view process", e);
       throw e;
