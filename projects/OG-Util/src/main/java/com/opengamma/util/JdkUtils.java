@@ -14,9 +14,6 @@ import java.math.BigDecimal;
  */
 public final class JdkUtils {
 
-  /** Singleton zero. */
-  private static final BigDecimal ZERO = BigDecimal.valueOf(0, 0);
-
   /**
    * Restricted constructor.
    */
@@ -34,11 +31,7 @@ public final class JdkUtils {
    * @return the stripped decimal, not null
    */
   public static BigDecimal stripTrailingZeros(final BigDecimal decimal) {
-    if (decimal.compareTo(ZERO) == 0) {
-      return ZERO;
-    } else {
-      return decimal.stripTrailingZeros();
-    }
+    return decimal.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : decimal.stripTrailingZeros();
   }
 
 }
