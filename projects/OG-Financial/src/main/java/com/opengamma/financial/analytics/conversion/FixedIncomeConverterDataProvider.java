@@ -683,14 +683,19 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final String[] curveNames, final HistoricalTimeSeriesBundle timeSeries) {
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+      Double lastMarginPrice;
+      if (now.toLocalDate().equals(definition.getTradeDate().toLocalDate())) {
+        lastMarginPrice = definition.getTradePrice();
+      } else {
+        if (ts == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+        }
+        final int length = ts.getTimeSeries().size();
+        if (length == 0) {
+          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
+        }
+        lastMarginPrice = ts.getTimeSeries().getLatestValue();
       }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       return definition.toDerivative(now, lastMarginPrice, curveNames);
     }
 
@@ -698,14 +703,19 @@ public class FixedIncomeConverterDataProvider {
     public InstrumentDerivative convert(final IRFutureOptionSecurity security, final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime now,
         final HistoricalTimeSeriesBundle timeSeries) {
       final HistoricalTimeSeries ts = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-      if (ts == null) {
-        throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+      Double lastMarginPrice;
+      if (now.toLocalDate().equals(definition.getTradeDate().toLocalDate())) {
+        lastMarginPrice = definition.getTradePrice();
+      } else {
+        if (ts == null) {
+          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
+        }
+        final int length = ts.getTimeSeries().size();
+        if (length == 0) {
+          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
+        }
+        lastMarginPrice = ts.getTimeSeries().getLatestValue();
       }
-      final int length = ts.getTimeSeries().size();
-      if (length == 0) {
-        throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-      }
-      final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
       return definition.toDerivative(now, lastMarginPrice);
     }
   };

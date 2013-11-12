@@ -115,7 +115,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final int numCurveNames = curveNames.length;
     final String[] fullCurveNames = new String[numCurveNames];
     for (int i = 0; i < numCurveNames; i++) {
-      fullCurveNames[i] = curveNames[i] + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InstrumentDefinition<?> definition = security.accept(_visitor);

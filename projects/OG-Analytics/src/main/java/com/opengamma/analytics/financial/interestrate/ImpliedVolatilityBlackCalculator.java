@@ -6,7 +6,9 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -47,7 +49,9 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
   /** Physical fixed compounded / overnight compounded methods */
   private static final SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod PHYSICAL_COMPOUNDED_SWAPTION = SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.getInstance();
   /** Margined interest rate future option methods */
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_MARGINED_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  /** Margined interest rate future option methods */
+  private static final InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod METHOD_PREMIUM_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
@@ -66,6 +70,11 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
 
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
+    return METHOD_MARGINED_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
+    return METHOD_PREMIUM_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
   }
 }

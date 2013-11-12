@@ -7,30 +7,28 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.io.StringReader;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.core.config.Config;
-import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
-import com.opengamma.engine.marketdata.manipulator.ScenarioDefinitionFactory;
-import com.opengamma.util.ArgumentChecker;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.BasicImmutableBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.core.config.Config;
+import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
+import com.opengamma.engine.marketdata.manipulator.ScenarioDefinitionFactory;
 
 /**
  * Configuration object containing a script to define a scenario.

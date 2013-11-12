@@ -586,6 +586,10 @@ public final class ValueRequirementNames {
    */
   public static final String PV01 = "PV01";
   /**
+   * The Gamma PV01 of a cash-flow based fixed-income instrument.
+   */
+  public static final String GAMMA_PV01 = "Gamma PV01";
+  /**
    * The implied volatility of a security.
    */
   public static final String SECURITY_IMPLIED_VOLATILITY = "Security Implied Volatility";

@@ -25,6 +25,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -50,6 +53,7 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpec
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
@@ -170,23 +174,40 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         final DoubleArrayList xList = new DoubleArrayList();
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
-        final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
         }
         for (final Object x : priceCurveDefinition.getXs()) {
           final Number xNum = (Number) x;
-          final ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
+          ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
           final ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           Double futurePrice = null;
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, calendar);
-              final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
-              xList.add(ttm);
-              prices.add(futurePrice);
+              if (priceCurveSpecification.isUseUnderlyingSecurityForExpiry()) {
+                // directly getting the expiry of the underliers
+                if (identifier.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
+                  identifier = ExternalSchemes.bloombergTickerSecurityId(identifier.getValue());
+                }
+                final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+                final Security security = securitySource.getSingle(identifier.toBundle());
+                if (security != null) {
+                  // check if the security is IRFutures here
+                  final InterestRateFutureSecurity irFuture = (InterestRateFutureSecurity) security;
+                  final LocalDate expiry = irFuture.getExpiry().getExpiry().toLocalDate();
+                  final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
+                  xList.add(ttm);
+                  prices.add(futurePrice);
+                }
+              } else {
+                final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
+                final LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, calendar);
+                final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
+                xList.add(ttm);
+                prices.add(futurePrice);
+              }
             }
           }
         }

@@ -208,7 +208,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
     private final String _rightExtrapolatorName;
 
     public MyCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final MultiCurveCalculationConfig impliedConfiguration,
-        final YieldCurveDefinition impliedDefinition, final MultiCurveCalculationConfig originalConfiguration, final String originalCurveName) {
+                  final YieldCurveDefinition impliedDefinition, final MultiCurveCalculationConfig originalConfiguration, final String originalCurveName) {
       super(earliestInvokation, latestInvokation);
       _impliedConfiguration = impliedConfiguration;
       _impliedDefinition = impliedDefinition;
@@ -223,7 +223,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
 
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+                      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
       final Object originalCurveObject = inputs.getValue(YIELD_CURVE);
       if (originalCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get original curve");
@@ -261,7 +261,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       if (spotLag == 0 && conventionSettlementRegion == null) {
         spotDate = now;
       } else {
-        spotDate = ScheduleCalculator.getAdjustedDate(now, spotLag, calendar);
+        spotDate = now;
       }
       final YieldCurveBundle curves = new YieldCurveBundle();
       final String fullYieldCurveName = _originalCurveName + "_" + _currency;
@@ -391,7 +391,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       return createValueProperties()
           .with(CURVE_CALCULATION_METHOD, IMPLIED_DEPOSIT)
           .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE) 
           .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
           .withAny(PROPERTY_DECOMPOSITION)

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
@@ -53,7 +53,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
 
   /**
    * Obtains a definition.
-   * 
+   *
    * @param name  the name, not null
    * @param target  the target currencies, not null
    * @param tenors  the tenors, not null
@@ -66,7 +66,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   //-------------------------------------------------------------------------
   /**
    * Gets the tenors as an array.
-   * 
+   *
    * @return the array of tenors, not null
    */
   public Tenor[] getTenorsArray() {

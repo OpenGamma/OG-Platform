@@ -7,6 +7,10 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M4
+-----------
+
+
 To 2.2.0-M3
 -----------
 

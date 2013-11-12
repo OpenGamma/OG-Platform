@@ -84,9 +84,10 @@ public class SwaptionBasicBlackDefaultPropertiesFunction extends DefaultProperty
     }
     return null;
   }
-
+/**
   @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.SWAPTION_BASIC_BLACK_DEFAULTS;
   }
+  */
 }

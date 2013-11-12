@@ -69,7 +69,6 @@
       <artifactId>sqljdbc</artifactId>
       <optional>true</optional>
     </dependency-->
-
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>

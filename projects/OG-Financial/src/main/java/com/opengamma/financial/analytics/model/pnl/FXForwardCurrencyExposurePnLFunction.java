@@ -170,6 +170,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
           requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(UnorderedCurrencyPair.of(nonBaseCurrency, baseCurrency)));
           resultCurrency = nonBaseCurrency.getCode();
         } else {
+          requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(UnorderedCurrencyPair.of(baseCurrency, nonBaseCurrency)));
           resultCurrency = baseCurrency.getCode();
         }
       } else {

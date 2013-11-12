@@ -26,6 +26,7 @@ public class ExecutionLogModeSource {
   private final ReentrantLock _lock = new ReentrantLock();
   private final Map<Pair<String, ValueSpecification>, Integer> _elevatedLogTargets = new HashMap<Pair<String, ValueSpecification>, Integer>();
   private final Map<String, Map<ValueSpecification, Integer>> _elevatedLogNodes = new ConcurrentHashMap<String, Map<ValueSpecification, Integer>>();
+  private final Map<ValueSpecification, Integer> _elevatedLogSpecs = new ConcurrentHashMap<ValueSpecification, Integer>();
   private CompiledViewDefinitionWithGraphs _compiledViewDefinition;
 
   /**

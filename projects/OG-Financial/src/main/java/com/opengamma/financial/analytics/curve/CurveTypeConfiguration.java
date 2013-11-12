@@ -55,8 +55,8 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
   //-----------------------------------------------------------------------
   @Override
   public CurveTypeConfiguration clone() {
-    BeanBuilder<? extends CurveTypeConfiguration> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    final BeanBuilder<? extends CurveTypeConfiguration> builder = metaBean().builder();
+    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -69,7 +69,7 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -81,15 +81,15 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    final int hash = getClass().hashCode();
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    final StringBuilder buf = new StringBuilder(32);
     buf.append("CurveTypeConfiguration{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -98,7 +98,7 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
     return buf.toString();
   }
 
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
   }
 
   //-----------------------------------------------------------------------

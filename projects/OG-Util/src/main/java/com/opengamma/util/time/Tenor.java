@@ -234,7 +234,7 @@ public class Tenor implements Comparable<Tenor>, Serializable {
   public static Tenor parse(final String tenorStr) {
     ArgumentChecker.notNull(tenorStr, "tenorStr");
     try {
-      return new Tenor(Period.parse(tenorStr));
+      return new Tenor(DateUtils.toPeriod(tenorStr));
     } catch (DateTimeParseException e) {
       return new Tenor(BusinessDayTenor.valueOf(tenorStr));
     }

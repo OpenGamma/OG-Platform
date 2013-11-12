@@ -10,7 +10,10 @@ import com.opengamma.financial.tool.ToolContext;
 
 /**
  * A connection to a remote server that provides an easy way to access remote component implementations.
+<<<<<<< HEAD:projects/OG-Integration/src/main/java/com/opengamma/integration/server/RemoteServer.java
  * TODO PLAT-2746 mean this isn't guaranteed to work 100% of the time, although it normally does
+=======
+>>>>>>> origin/dev/v2.1.x:projects/OG-Integration/src/main/java/com/opengamma/integration/server/RemoteServer.java
  */
 public class RemoteServer extends ToolContext {
 

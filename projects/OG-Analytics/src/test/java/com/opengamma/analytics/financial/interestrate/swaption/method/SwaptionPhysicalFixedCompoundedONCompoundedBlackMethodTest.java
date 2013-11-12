@@ -108,7 +108,7 @@ public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
 
   @Test
   public void presentValueCurveSensitivity() {
-    InterestRateCurveSensitivity pvcsSwaption = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
+    final InterestRateCurveSensitivity pvcsSwaption = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
     // 1. Discounting curve sensitivity
     final DoubleAVLTreeSet discTime = new DoubleAVLTreeSet();
     final CouponONCompounded cpnON = SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNthPayment(0);
@@ -121,7 +121,7 @@ public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
     final double[] nodeTimesDisc = discTime.toDoubleArray();
     final List<DoublesPair> sensiPvDisc = pvcsSwaption.getSensitivities().get(CURVES_NAME[0]);
     final List<DoublesPair> fdSense = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(SWAPTION_LONG_REC, METHOD_BLACK, CURVES_BLACK, CURVES_NAME[0], nodeTimesDisc, 0.0);
-    assertSensitivityEquals(sensiPvDisc, fdSense, TOLERANCE_DELTA);
+    assertSensitivityEquals(sensiPvDisc, fdSense, TOLERANCE_DELTA * NOTIONAL);
   }
 
   @Test

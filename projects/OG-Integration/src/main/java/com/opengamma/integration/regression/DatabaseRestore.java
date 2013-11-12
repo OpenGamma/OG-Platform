@@ -127,15 +127,15 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     String serverUrl = args[1];
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore databaseRestore = new DatabaseRestore(dataDir,
-          server.getSecurityMaster(),
-          server.getPositionMaster(),
-          server.getPortfolioMaster(),
-          server.getConfigMaster(),
-          server.getHistoricalTimeSeriesMaster(),
-          server.getHolidayMaster(),
-          server.getExchangeMaster(),
-          server.getMarketDataSnapshotMaster(),
-          server.getOrganizationMaster());
+                                                            server.getSecurityMaster(),
+                                                            server.getPositionMaster(),
+                                                            server.getPortfolioMaster(),
+                                                            server.getConfigMaster(),
+                                                            server.getHistoricalTimeSeriesMaster(),
+                                                            server.getHolidayMaster(),
+                                                            server.getExchangeMaster(),
+                                                            server.getMarketDataSnapshotMaster(),
+                                                            server.getOrganizationMaster());
       databaseRestore.restoreDatabase();
     }
   }

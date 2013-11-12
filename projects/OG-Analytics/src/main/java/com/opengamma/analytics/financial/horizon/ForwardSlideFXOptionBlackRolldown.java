@@ -18,13 +18,22 @@ import com.opengamma.util.tuple.Pair;
  */
 @Deprecated
 public final class ForwardSlideFXOptionBlackRolldown implements RolldownFunction<SmileDeltaTermStructureDataBundle> {
+  /** Rolls down the yield curves */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
+  /** The singleton instance */
   private static final ForwardSlideFXOptionBlackRolldown INSTANCE = new ForwardSlideFXOptionBlackRolldown();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static ForwardSlideFXOptionBlackRolldown getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private ForwardSlideFXOptionBlackRolldown() {
   }
 

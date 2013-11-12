@@ -74,7 +74,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
     final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
-    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * Math.abs(cpnFixed.getNotional());
     final double delta = swap.getFirstLeg().getNthPayment(0).getPaymentYearFraction();
     final double forwardModified = METHOD_SWAP.forwardModified(swap, curveBlack);
     final double strikeModified = Math.pow(1.0d + swaption.getStrike(), delta) - 1.0;
@@ -87,6 +87,20 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double pv = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     return CurrencyAmount.of(swaption.getCurrency(), pv);
+  }
+
+  /**
+   * Computes the present value of a physical delivery European swaption in the Black model.
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The present value.
+   */
+  public double forward(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
+//    return METHOD_SWAP.forwardModified(swap, curveBlack);
+    return METHOD_SWAP.forward(swap, curveBlack);
   }
 
   @Override
@@ -123,7 +137,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
     final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
-    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double numeraire = Math.abs(curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional());
     final double delta = swap.getFirstLeg().getNthPayment(0).getPaymentYearFraction();
     final double forwardModified = METHOD_SWAP.forwardModified(swap, curveBlack);
     final double strikeModified = Math.pow(1.0d + swaption.getStrike(), delta) - 1.0;
@@ -163,7 +177,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
     final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
-    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double numeraire = Math.abs(curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional());
     final double delta = swap.getFirstLeg().getNthPayment(0).getPaymentYearFraction();
     final double forwardModified = METHOD_SWAP.forwardModified(swap, curveBlack);
     final double strikeModified = Math.pow(1.0d + swaption.getStrike(), delta) - 1.0;
@@ -193,7 +207,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     ArgumentChecker.notNull(curves, "Curves with Black volatility");
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
     final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
-    final double numeraire = curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double numeraire = Math.abs(curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional());
     final double forwardModified = METHOD_SWAP.forwardModified(swap, curves);
     final double sign = (swaption.isLong() ? 1.0 : -1.0);
     return CurrencyAmount.of(swaption.getCurrency(), forwardDeltaTheoretical(swaption, curves) * forwardModified * numeraire * sign);
@@ -210,7 +224,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     final double gamma = forwardGammaTheoretical(swaption, curves);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
     final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
-    final double numeraire = curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double numeraire = Math.abs(curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional());
     final double forwardModified = METHOD_SWAP.forwardModified(swap, curves);
     final double sign = (swaption.isLong() ? 1.0 : -1.0);
     return CurrencyAmount.of(swaption.getCurrency(), gamma * forwardModified * forwardModified * numeraire * sign);

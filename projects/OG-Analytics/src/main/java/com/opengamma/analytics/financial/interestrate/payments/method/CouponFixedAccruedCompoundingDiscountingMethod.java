@@ -56,6 +56,7 @@ public final class CouponFixedAccruedCompoundingDiscountingMethod {
     Validate.notNull(curves);
     Validate.notNull(cpn);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(cpn.getFundingCurveName());
+    double tmp = fundingCurve.getDiscountFactor(cpn.getPaymentTime());
     final double pv = cpn.getAmount() * fundingCurve.getDiscountFactor(cpn.getPaymentTime());
     return CurrencyAmount.of(cpn.getCurrency(), pv);
   }

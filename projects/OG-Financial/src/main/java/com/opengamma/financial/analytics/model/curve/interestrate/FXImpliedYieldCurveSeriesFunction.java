@@ -39,6 +39,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -141,7 +142,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, 
       final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -163,9 +164,11 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
       throw new OpenGammaRuntimeException("Could not get foreign yield curve");
     }
     final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
-    final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
+    double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
+    absoluteTolerance = 1.0e-12;
     final String relativeToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
-    final double relativeTolerance = Double.parseDouble(relativeToleranceName);
+    double relativeTolerance = Double.parseDouble(relativeToleranceName);
+    relativeTolerance = 1.0e-12;
     final String iterationsName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
     final int iterations = Integer.parseInt(iterationsName);
     final String decompositionName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
@@ -242,11 +245,13 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
         }
         final LocalDateDoubleTimeSeries forwardTS = forwardFXTS.getTimeSeries();
         final ZonedDateTime paymentDate;
+
         if (spotLag == 0 && conventionSettlementRegion == null) {
-          paymentDate = valuationDateTime.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
+          paymentDate = now.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
         } else {
-          paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+          paymentDate = ScheduleCalculator.getAdjustedDate(now, tenor.getPeriod(), MOD_FOL, calendar, true);
         }
+
         final Double forwardValue = forwardTS.getValue(valuationDate);
         if (forwardValue == null) {
           break;
@@ -264,7 +269,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
         }
         forwardFX = invertFXQuotes ? 1 / forwardFX : forwardFX;
         final double quotedSpotFX = invertFXQuotes ? 1 / spotFX : spotFX;
-        final double paymentTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
+        final double paymentTime = TimeCalculator.getTimeBetween(now, paymentDate);
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, quotedSpotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
         marketValues.add(forwardFX);
         nodeTimes.add(paymentTime);
@@ -296,8 +301,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
       final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
       final YieldCurve curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes.toDoubleArray(), fittedYields, interpolator));
-      final MultipleYieldCurveFinderDataBundle dataAllCurves = MultipleYieldCurveFinderDataBundle.withAllCurves(derivatives, marketValues.toDoubleArray(), knownCurve, curveNodes, interpolators,
-          useFiniteDifference, fxMatrix);
+
       domesticCurves.put(valuationDate, curve);
     }
     final Set<ComputedValue> result = new HashSet<>();

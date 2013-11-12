@@ -1383,7 +1383,11 @@ public class FinancialSecurityUtils {
         public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
           final Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
           Preconditions.checkState(underlying instanceof SwapSecurity, "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.", underlying);
-          return visitSwapSecurity((SwapSecurity) underlying);
+          final CurrencyAmount notional = visitSwapSecurity((SwapSecurity) underlying);
+          if (security.isLong()) {
+            return notional;
+          }
+          return notional.multipliedBy(-1);
         }
 
         @Override
@@ -1398,6 +1402,15 @@ public class FinancialSecurityUtils {
           final Currency currency = security.getCurrency();
           final double notional = security.getUnitAmount();
           return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final Security underlying = securitySource.getSingle(security.getUnderlyingId().toBundle());
+          Preconditions.checkState(underlying instanceof InterestRateFutureSecurity, "Failed to resolve underlying InterestRateFutureSecurity. " +
+              "DB record potentially corrupted. '%s' returned.", underlying);
+          return visitInterestRateFutureSecurity((InterestRateFutureSecurity) underlying);
         }
 
         @Override

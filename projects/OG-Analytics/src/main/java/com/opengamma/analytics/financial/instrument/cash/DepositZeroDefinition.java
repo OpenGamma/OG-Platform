@@ -53,6 +53,14 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * The interest amount to be paid at end date.
    */
   private final double _interestAmount;
+  /**
+   * The holiday calendar.
+   */
+  private final Calendar _calendar;
+  /**
+   * The day count.
+   */
+  private final DayCount _dayCount;
 
   /**
    * Constructor from all details.
@@ -62,12 +70,17 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param notional The notional.
    * @param paymentAccrualFactor The accrual factor (or year fraction).
    * @param rate The interest rate and its composition type.
+   * @param calendar The holiday calendar.
+   * @param dayCount The day count.
    */
-  public DepositZeroDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double paymentAccrualFactor, final InterestRate rate) {
+  public DepositZeroDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final double notional, final double paymentAccrualFactor,
+      final InterestRate rate, final Calendar calendar, final DayCount dayCount) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(endDate, "End date");
     ArgumentChecker.notNull(rate, "Rate");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(dayCount, "day count");
     _currency = currency;
     _startDate = startDate;
     _endDate = endDate;
@@ -75,6 +88,8 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
     _paymentAccrualFactor = paymentAccrualFactor;
     _rate = rate;
     _interestAmount = (1.0 / rate.getDiscountFactor(paymentAccrualFactor) - 1.0) * notional;
+    _calendar = calendar;
+    _dayCount = dayCount;
   }
 
   /**
@@ -85,12 +100,13 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param daycount The day count.
    * @param rate The interest rate and its composition type.
    * @param calendar The holiday calendar.
+   * @param dayCount The day count
    * @return The deposit.
    */
   public static DepositZeroDefinition from(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final DayCount daycount, final InterestRate rate,
-      final Calendar calendar) {
+      final Calendar calendar, final DayCount dayCount) {
     ArgumentChecker.notNull(daycount, "day count");
-    return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate, calendar), rate);
+    return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate, calendar), rate, calendar, dayCount);
   }
 
   /**
@@ -113,7 +129,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
       adjustedRate = rate.getRate();
     }
     final InterestRate adjustedInterestRate = new PeriodicInterestRate(adjustedRate, 1);
-    return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate, calendar), adjustedInterestRate);
+    return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate, calendar), adjustedInterestRate, calendar, daycount);
   }
 
   /**
@@ -185,21 +201,37 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   @Override
   public DepositZero toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_endDate), "date is after end date");
-    final double startTime = TimeCalculator.getTimeBetween(date.toLocalDate(), _startDate.toLocalDate());
-    if (startTime < 0) {
-      return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
+    double startTime;
+    if (date.toLocalDate().isBefore(_startDate.toLocalDate())) {
+      startTime = _dayCount.getDayCountFraction(date.toLocalDate(), _startDate.toLocalDate(), _calendar);
+    } else if (date.toLocalDate().equals(_startDate.toLocalDate())) {
+      startTime = 0;
+    } else {
+      startTime = _dayCount.getDayCountFraction(_startDate.toLocalDate(), date.toLocalDate(), _calendar);
     }
-    return new DepositZero(_currency, startTime, TimeCalculator.getTimeBetween(date, _endDate), _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
+    final double endTime = _dayCount.getDayCountFraction(date.toLocalDate(), _endDate.toLocalDate(), _calendar);
+    if (startTime < 0) {
+      return new DepositZero(_currency, 0, endTime, 0, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
+    }
+    return new DepositZero(_currency, startTime, endTime, _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount, yieldCurveNames[0]);
   }
 
   @Override
   public DepositZero toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!date.isAfter(_endDate), "date is after end date");
-    final double startTime = TimeCalculator.getTimeBetween(date.toLocalDate(), _startDate.toLocalDate());
-    if (startTime < 0) {
-      return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate, _interestAmount);
+    double startTime;
+    if (date.toLocalDate().isBefore(_startDate.toLocalDate())) {
+      startTime = _dayCount.getDayCountFraction(date.toLocalDate(), _startDate.toLocalDate(), _calendar);
+    } else if (date.toLocalDate().equals(_startDate.toLocalDate())) {
+      startTime = 0;
+    } else {
+      startTime = _dayCount.getDayCountFraction(_startDate.toLocalDate(), date.toLocalDate(), _calendar);
     }
-    return new DepositZero(_currency, startTime, TimeCalculator.getTimeBetween(date, _endDate), _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount);
+    final double endTime = _dayCount.getDayCountFraction(date.toLocalDate(), _endDate.toLocalDate(), _calendar);
+    if (startTime < 0) {
+      return new DepositZero(_currency, 0, endTime, 0, _notional, _paymentAccrualFactor, _rate, _interestAmount);
+    }
+    return new DepositZero(_currency, startTime, endTime, _notional, _notional, _paymentAccrualFactor, _rate, _interestAmount);
   }
 
   @Override

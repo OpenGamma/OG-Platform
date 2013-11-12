@@ -67,8 +67,6 @@ public final class ConfigTypesProvider {
         if (configType == Object.class) {
           configType = configClass;
         }
-        // ensure this class is fully loaded, to force static initialization
-        ClassUtils.initClass(configType);
         // extract description
         String description = configValueAnnotation.description();
         if (description.length() == 0) {

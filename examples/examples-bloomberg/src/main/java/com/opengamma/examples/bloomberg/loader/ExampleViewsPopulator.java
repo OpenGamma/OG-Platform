@@ -388,9 +388,13 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     final ValueProperties currencyProperty = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, "USD")
         .get();
+    final ValueProperties currencyPropertyWithScale = ValueProperties.builder()
+        .with(ValuePropertyNames.CURRENCY, "USD")
+        .with(ValuePropertyNames.SCALE, "1")
+        .get();
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, PRESENT_VALUE, currencyProperty);
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_DELTA, currencyProperty);
-    defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_VEGA, currencyProperty);
+    defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_VEGA, currencyPropertyWithScale);
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_GAMMA, currencyProperty);
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_GAMMA_P, currencyProperty);
     defaultCalculationConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, VALUE_RHO, currencyProperty);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -29,7 +29,7 @@ import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Holds the range of X for a future price curve (to be used with volatility surfaces).
- * @param <X> Type of the x-data 
+ * @param <X> Type of the x-data
  */
 @Config(description = "Future price curve definition")
 @BeanDefinition

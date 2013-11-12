@@ -91,6 +91,18 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     return CurrencyAmount.of(swaption.getCurrency(), price);
   }
 
+  /**
+   * Computes the forward of a cash-settled European swaption in the Black model.
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward.
+   */
+  public double forward(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    return swaption.getUnderlyingSwap().accept(PRC, curveBlack);
+  }
+
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(instrument instanceof SwaptionCashFixedIbor, "Physical delivery swaption");
