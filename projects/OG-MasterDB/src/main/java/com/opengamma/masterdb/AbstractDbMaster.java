@@ -360,6 +360,11 @@ public abstract class AbstractDbMaster {
     if (value == null) {
       return null;
     }
+    if (value.compareTo(BigDecimal.ZERO) == 0) {
+      // stripTrailingZeros only works with non-zero values
+      // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6480539 - fixed in JDK 8
+      return BigDecimal.ZERO;
+    }
     BigDecimal stripped = value.stripTrailingZeros();  // Derby, and maybe others, add trailing zeroes
     if (stripped.scale() < 0) {
       return stripped.setScale(0);
