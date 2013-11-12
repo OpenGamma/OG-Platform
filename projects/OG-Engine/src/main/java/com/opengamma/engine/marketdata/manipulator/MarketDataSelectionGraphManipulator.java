@@ -76,7 +76,7 @@ public class MarketDataSelectionGraphManipulator {
     if ((inputs == 1) && StructureManipulationFunction.UNIQUE_ID.equals(node.getFunction().getFunctionId())) {
       // Found an existing proxy node
       final ValueSpecification inputValue = node.getInputValue(0);
-      if (extractor.extractStructure(inputValue)) {
+      if (extractor.extractStructure(inputValue) == null) {
         // This proxy is no longer required
         newNode = modifyDependencyNode(node.getInputNode(0), inputValue, extractor);
         extractor.storeProduction(node.getOutputValue(0), newNode);
@@ -118,15 +118,17 @@ public class MarketDataSelectionGraphManipulator {
       newNode = DependencyNodeImpl.of(node.getFunction(), node.getTarget(), DependencyNodeImpl.getOutputValueArray(node), newInputValues, newInputNodes);
     }
     // Check whether the node requires a proxy
-    final int outputs = newNode.getOutputCount();
+    final int outputs = node.getOutputCount();
     for (int i = 0; i < outputs; i++) {
-      final ValueSpecification output = newNode.getOutputValue(i);
-      if (extractor.extractStructure(output)) {
-        final ComputationTargetSpecification target = newNode.getTarget();
+      final ValueSpecification output = node.getOutputValue(i);
+      final Set<ValueSpecification> proxySpecs = extractor.extractStructure(output);
+      if (proxySpecs != null) {
+        final ComputationTargetSpecification target = node.getTarget();
         final ValueProperties properties = output.getProperties();
         final String originalFunction = properties.getStrictValue(ValuePropertyNames.FUNCTION);
         final ValueSpecification proxyOutput = new ValueSpecification(output.getValueName(), target, properties.copy().withoutAny(ValuePropertyNames.FUNCTION)
             .with(ValuePropertyNames.FUNCTION, originalFunction + StructureManipulationFunction.UNIQUE_ID).get());
+        proxySpecs.add(proxyOutput);
         final DependencyNode proxyNode = new DependencyNodeImpl(MANIPULATION_FUNCTION, target, Collections.singleton(proxyOutput), Collections.singletonMap(output, newNode));
         extractor.storeProduction(proxyOutput, proxyNode);
         extractor.storeProduction(output, proxyNode);
@@ -192,9 +194,7 @@ public class MarketDataSelectionGraphManipulator {
   }
 
   private Set<MarketDataSelector> extractSpecificSelectors(String configurationName) {
-    return _specificSelectors.containsKey(configurationName) ?
-        _specificSelectors.get(configurationName) :
-        new HashSet<MarketDataSelector>();
+    return _specificSelectors.containsKey(configurationName) ? _specificSelectors.get(configurationName) : new HashSet<MarketDataSelector>();
   }
 
   public boolean hasManipulationsDefined() {

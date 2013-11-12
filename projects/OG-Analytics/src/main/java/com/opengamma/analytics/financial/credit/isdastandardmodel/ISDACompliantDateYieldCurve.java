@@ -28,7 +28,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
  * An ISDA compliant date yield curve.
  */
 @BeanDefinition
-public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve implements ISDACompliantCurveWithDates {
+public class ISDACompliantDateYieldCurve
+    extends ISDACompliantYieldCurve
+    implements ISDACompliantCurveWithDates {
 
   /**
    * The standard ACT/365 day count.

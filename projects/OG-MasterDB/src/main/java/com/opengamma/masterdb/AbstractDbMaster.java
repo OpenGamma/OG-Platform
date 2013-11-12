@@ -22,6 +22,7 @@ import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.JdkUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -360,11 +361,8 @@ public abstract class AbstractDbMaster {
     if (value == null) {
       return null;
     }
-    BigDecimal stripped = value.stripTrailingZeros();  // Derby, and maybe others, add trailing zeroes
-    if (stripped.scale() < 0) {
-      return stripped.setScale(0);
-    }
-    return stripped;
+    BigDecimal stripped = JdkUtils.stripTrailingZeros(value);  // Derby, and maybe others, add trailing zeroes
+    return stripped.scale() < 0 ? stripped.setScale(0) : stripped;
   }
   
   //-------------------------------------------------------------------------

@@ -52,6 +52,13 @@ public interface SubscriptionStateQuery {
   int getActiveSubscriptionCount();
 
   /**
+   * Retries all failed subscriptions.
+   * 
+   * @return the number of subscriptions being retried
+   */
+  int retryFailedSubscriptions();
+  
+  /**
    * Return the mapping (ticker -> SubscriptionStatus) of all failed subscriptions.
    * These are the subscriptions which were unable to be fulfilled by the market
    * data provider.
@@ -128,4 +135,5 @@ public interface SubscriptionStateQuery {
      */
     REMOVED
   }
+  
 }

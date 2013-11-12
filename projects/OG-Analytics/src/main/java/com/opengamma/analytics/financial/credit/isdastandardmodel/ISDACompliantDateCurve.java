@@ -75,7 +75,7 @@ public class ISDACompliantDateCurve
    * 
    * @param baseDate  the base date for the curve (i.e. this is time zero), not null
    * @param dates  the knot dates on the curve. These must be ascending with the first date after the baseDate, not null
-   * @param rates  the ontinually compounded zero rates at given knot dates, not null
+   * @param rates  the continually compounded zero rates at given knot dates, not null
    */
   public ISDACompliantDateCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates) {
     this(baseDate, dates, rates, ACT_365);
@@ -87,7 +87,7 @@ public class ISDACompliantDateCurve
    * 
    * @param baseDate  the base date for the curve (i.e. this is time zero), not null
    * @param dates  the knot dates on the curve. These must be ascending with the first date after the baseDate, not null
-   * @param rates  the ontinually compounded zero rates at given knot dates, not null
+   * @param rates  the continually compounded zero rates at given knot dates, not null
    * @param dayCount  the day-count-convention, not null
    */
   public ISDACompliantDateCurve(final LocalDate baseDate, final LocalDate[] dates, final double[] rates, final DayCount dayCount) {

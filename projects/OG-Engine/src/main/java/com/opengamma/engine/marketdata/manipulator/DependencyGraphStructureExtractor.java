@@ -81,26 +81,31 @@ public class DependencyGraphStructureExtractor {
     return Collections.unmodifiableMap(extractors);
   }
 
-  public boolean extractStructure(final ValueSpecification valueSpecification) {
+  /**
+   * Tests if structure extraction is required for the given value specification.
+   * 
+   * @param valueSpecification the original value specification, not null
+   * @return the set of value specifications associated with the manipulator; this should be updated with the rewritten value from the proxy node
+   */
+  public Set<ValueSpecification> extractStructure(final ValueSpecification valueSpecification) {
     final NodeExtractor<?> extractor = _nodeExtractors.get(valueSpecification.getValueName());
     if (extractor == null) {
-      return false;
+      return null;
     }
     final StructureIdentifier<?> structureId = extractor.getStructuredIdentifier(valueSpecification);
     if (structureId == null) {
-      return false;
+      return null;
     }
     final DistinctMarketDataSelector matchingSelector = _selectors.findMatchingSelector(structureId, _calcConfigName, _selectorResolver);
     if (matchingSelector == null) {
-      return false;
+      return null;
     }
     Set<ValueSpecification> values = _manipulators.get(matchingSelector);
     if (values == null) {
       values = new HashSet<ValueSpecification>();
       _manipulators.put(matchingSelector, values);
     }
-    values.add(valueSpecification);
-    return true;
+    return values;
   }
 
   public void storeProduction(final ValueSpecification valueSpec, final DependencyNode node) {
