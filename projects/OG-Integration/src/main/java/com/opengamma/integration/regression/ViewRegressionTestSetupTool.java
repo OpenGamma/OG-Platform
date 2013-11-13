@@ -44,10 +44,12 @@ public class ViewRegressionTestSetupTool {
       printUsage();
       return;
     }
+    String logbackConfig = "-Dlogback.configurationFile=" + cl.getOptionValue(LOGBACK_CONFIG);
+
     new ViewRegressionTestSetup(cl.getOptionValue(DB_DUMP_DIR),
                                 cl.getOptionValue(SERVER_CONFIG),
                                 cl.getOptionValue(DB_PROPS),
-                                cl.getOptionValue(LOGBACK_CONFIG),
+                                logbackConfig,
                                 cl.getOptionValue(PROJECT_NAME),
                                 cl.getOptionValue(VERSION),
                                 cl.getOptionValue(WORKING_DIR)).run();

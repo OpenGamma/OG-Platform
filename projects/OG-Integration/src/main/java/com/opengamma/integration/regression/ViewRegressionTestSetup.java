@@ -26,6 +26,7 @@ import com.opengamma.util.ArgumentChecker;
   private final String _classpath;
   private final String _workingDirName;
   private final Properties _dbProps = new Properties();
+  private final String _dbPropertiesFile;
 
   /* package */ ViewRegressionTestSetup(String dbDumpDir,
                                         String serverConfigFile,
@@ -34,13 +35,12 @@ import com.opengamma.util.ArgumentChecker;
                                         String projectName,
                                         String version,
                                         String workingDirName) {
-    ArgumentChecker.notEmpty(dbDumpDir, "databaseDumpDir");
-    ArgumentChecker.notEmpty(serverConfigFile, "serverConfigFile");
-    ArgumentChecker.notEmpty(logbackConfig, "logbackConfig");
-    _dbDumpDir = dbDumpDir;
-    _workingDirName = workingDirName;
-    _serverConfigFile = serverConfigFile;
-    _logbackConfig = logbackConfig;
+    _dbPropertiesFile = ArgumentChecker.notEmpty(dbPropertiesFile, "dbPropertiesFile");
+    _dbDumpDir = ArgumentChecker.notEmpty(dbDumpDir, "dbDumpDir");
+    _workingDirName = ArgumentChecker.notEmpty(workingDirName, "workingDirName");
+    _serverConfigFile = ArgumentChecker.notEmpty(serverConfigFile, "serverConfigFile");
+    _logbackConfig = ArgumentChecker.notEmpty(logbackConfig, "logbackConfig");
+    // TODO will this work on windows?
     _classpath = "config:lib/" + projectName + "-" + version + ".jar";
     try {
       _dbProps.load(new BufferedInputStream(new FileInputStream(dbPropertiesFile)));
@@ -50,11 +50,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ void run() {
-    RegressionUtils.createEmptyDatabase(_serverConfigFile, _workingDirName, _classpath, _logbackConfig);
-    try (ServerProcess ignored = ServerProcess.start(_workingDirName, _classpath, _serverConfigFile, _dbProps, _logbackConfig)) {
-      RegressionUtils.restoreDatabase(_workingDirName, _classpath, _dbProps, _serverConfigFile, _logbackConfig, _dbDumpDir);
-    }
-    // the server needs to be stopped and restarted after the restore so the function configs are loaded
+    RegressionUtils.createEmptyDatabase(_dbPropertiesFile, _workingDirName, _classpath, _logbackConfig);
+    RegressionUtils.restoreDatabase(_workingDirName, _classpath, _dbProps, _serverConfigFile, _logbackConfig, _dbDumpDir);
     ServerProcess.start(_workingDirName, _classpath, _serverConfigFile, _dbProps, _logbackConfig);
   }
 }

@@ -37,10 +37,10 @@ import com.opengamma.master.config.ConfigSearchResult;
    * This means it has to run with the classpath of the server version being tested so it can find the correct
    * schema files.
    */
-  /* package */ static int createEmptyDatabase(String configFile,
-                                               String workingDirName,
-                                               String classpath,
-                                               String logbackConfig) {
+  /* package */ static void createEmptyDatabase(String configFile,
+                                                String workingDirName,
+                                                String classpath,
+                                                String logbackConfig) {
     // TODO load the config and check the DB URL is overridden. ensure we NEVER use the URL from the real server config
     // TODO configurable java command
     Process process = null;
@@ -53,7 +53,10 @@ import com.opengamma.master.config.ConfigSearchResult;
           .redirectError(ProcessBuilder.Redirect.INHERIT)
           .start();
       process.waitFor();
-      return process.exitValue();
+      int exitCode = process.exitValue();
+      if (exitCode != 0) {
+        throw new OpenGammaRuntimeException("Failed to create database, exit code: " + exitCode);
+      }
     } catch (IOException | InterruptedException e) {
       throw new OpenGammaRuntimeException("Failed to create database", e);
     } finally {

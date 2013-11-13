@@ -22,7 +22,7 @@ import com.opengamma.util.db.tool.DbTool;
 /**
  *
  */
-/* package */ class EmptyDatabaseCreator {
+public class EmptyDatabaseCreator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EmptyDatabaseCreator.class);
 
