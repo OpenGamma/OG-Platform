@@ -177,11 +177,16 @@ public class RemoteConventionSource
     return doGetSingle(bundle, versionCorrection, type);
   }
 
+  @SuppressWarnings("unchecked")
   protected <T extends Convention> T doGetSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection, Class<T> type) {
     try {
       URI uri = DataConventionSourceResource.uriSearchSingle(getBaseUri(), bundle, versionCorrection, type);
       Convention convention = accessRemote(uri).get(Convention.class);
-      return type.cast(convention);
+      if (type != null) {
+        return type.cast(convention);
+      } else {
+        return (T) accessRemote(uri).get(Convention.class);
+      }
     } catch (DataNotFoundException ex) {
       return null;
     } catch (UniformInterfaceException404NotFound ex) {
