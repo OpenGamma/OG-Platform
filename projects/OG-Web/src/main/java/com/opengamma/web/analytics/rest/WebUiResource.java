@@ -36,6 +36,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueId;
@@ -179,6 +180,19 @@ public class WebUiResource {
   public GridStructure getGridStructure(@PathParam("viewId") String viewId,
                                         @PathParam("gridType") String gridType) {
     return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType));
+  }
+
+  @Path("{viewId}/{gridType}/viewports/{viewportId}/valuespec/{row}/{col}")
+  @GET
+  public ValueSpecification getValueRequirement(@PathParam("viewId") String viewId,
+                                                              @PathParam("gridType") String gridType,
+                                                              @PathParam("row") int row,
+                                                              @PathParam("col") int col,
+                                                              @PathParam("viewportId") int viewportId) {
+
+    GridStructure gridStructure =  _viewManager.getView(viewId).getGridStructure(gridType(gridType), viewportId);
+    return gridStructure.getTargetForCell(row, col).getSecond();
+
   }
 
   @Path("{viewId}/{gridType}/viewports")
