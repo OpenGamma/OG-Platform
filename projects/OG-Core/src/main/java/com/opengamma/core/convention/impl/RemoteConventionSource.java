@@ -185,7 +185,7 @@ public class RemoteConventionSource
       if (type != null) {
         return type.cast(convention);
       } else {
-        return (T) accessRemote(uri).get(Convention.class);
+        return (T) convention;
       }
     } catch (DataNotFoundException ex) {
       return null;
