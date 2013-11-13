@@ -41,7 +41,7 @@ public class CDSAnalytic {
   private final double _valuationTime;
   private final boolean _payAccOnDefault;
   private final boolean _protectionFromStartOfDay;
-  private final double _start;
+  private final double _accStart;
   private final double _accrued;
   private final int _accruedDays;
 
@@ -149,7 +149,7 @@ public class CDSAnalytic {
     final LocalDate startDate = stepinDate.isAfter(accStartDate) ? stepinDate : accStartDate;
     final LocalDate effectiveStartDate = isProtectStart ? startDate.minusDays(1) : startDate;
 
-    _start = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
+    _accStart = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
     _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
     //   _protectionStart = curveDayCount.getDayCountFraction(tradeDate, startDate);
     _effectiveProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
@@ -207,8 +207,8 @@ public class CDSAnalytic {
     return _valuationTime;
   }
 
-  public double getStart() {
-    return _start;
+  public double getAccStart() {
+    return _accStart;
   }
 
   //  /**
@@ -314,7 +314,7 @@ public class CDSAnalytic {
     ArgumentChecker.noNulls(coupons, "coupons");
     _lgd = lgd;
     _coupons = coupons;
-    _start = start;
+    _accStart = start;
     _effectiveProtectionStart = effectiveProtectionStart;
     //   _protectionStart = protectionStart;
     _protectionEnd = protectionEnd;
@@ -327,7 +327,7 @@ public class CDSAnalytic {
 
   public CDSAnalytic withRecoveryRate(final double recoveryRate) {
     ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
-    return new CDSAnalytic(1 - recoveryRate, _coupons, _start, _effectiveProtectionStart, /*_protectionStart,*/_protectionEnd, _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued,
+    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, /*_protectionStart,*/_protectionEnd, _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued,
         _accruedDays);
   }
 }

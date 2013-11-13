@@ -33,7 +33,7 @@ public class MatlabTest extends ISDABaseTest {
   public void dumpCDSData() {
     final CDSAnalytic cds = FACTORY.makeIMMCDS(LocalDate.of(2013, OCTOBER, 23), Period.ofYears(1));
 
-    System.out.println("start " + cds.getStart());
+    System.out.println("start " + cds.getAccStart());
     System.out.println("effProtStart " + cds.getEffectiveProtectionStart());
     System.out.println("valuationTime " + cds.getValuationTime());
     System.out.println("protEnd " + cds.getProtectionEnd());

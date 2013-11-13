@@ -126,27 +126,6 @@ public class ISDAPremiumLegSchedule {
     return schedule.truncateSchedule(stepin);
   }
 
-  //  /**
-  //   * Remove all payment intervals before the given date 
-  //   * @param stepin a date 
-  //   * @return truncate schedule
-  //   */
-  //  public ISDAPremiumLegSchedule truncateSchedule(final LocalDate stepin) {
-  //    if (!_accEndDates[0].isBefore(stepin)) {
-  //      return this; // nothing to truncate
-  //    }
-  //    if (stepin.isAfter(_accEndDates[_nPayments - 1])) {
-  //      throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
-  //    }
-  //
-  //    int index = getAccStartDateIndex(stepin);
-  //    if (index < 0) {
-  //      index = -(index + 1) - 1; // keep the one before the insertion point
-  //    }
-  //
-  //    return truncateSchedule(index);
-  //  }
-
   /**
    * Remove all payment intervals before the given date 
    * @param stepin a date 
@@ -156,9 +135,6 @@ public class ISDAPremiumLegSchedule {
     if (!_accStartDates[0].isBefore(stepin)) {
       return this; // nothing to truncate
     }
-    //    if (stepin.isAfter(_paymentDates[_nPayments - 1])) {
-    //      throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
-    //    }
 
     int index = getAccStartDateIndex(stepin);
     if (index < 0) {

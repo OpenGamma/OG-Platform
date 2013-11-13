@@ -165,7 +165,7 @@ public class MultiAnalyticCDSPricer {
     double[] integrationSchedule = null;
     final int nMat = cds.getNumMaturities();
     if (cds.isPayAccOnDefault()) {
-      integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(nMat - 1), yieldCurve, creditCurve);
+      integrationSchedule = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(nMat - 1), yieldCurve, creditCurve);
     }
     final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
 
@@ -189,7 +189,7 @@ public class MultiAnalyticCDSPricer {
         double accPV = 0;
         for (int i = start; i < end; i++) {
           final CDSCoupon coupon = cds.getStandardCoupon(i);
-          accPV += calculateSinglePeriodAccrualOnDefault(coupon, cds.getProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
+          accPV += calculateSinglePeriodAccrualOnDefault(coupon, cds.getEffectiveProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
         }
         runningPV += accPV;
       }
@@ -200,7 +200,7 @@ public class MultiAnalyticCDSPricer {
       final double p = yieldCurve.getDiscountFactor(terminalCoupon.getPaymentTime());
       pvMat += terminalCoupon.getYearFrac() * p * q;
       if (cds.isPayAccOnDefault()) {
-        pvMat += calculateSinglePeriodAccrualOnDefault(terminalCoupon, cds.getProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
+        pvMat += calculateSinglePeriodAccrualOnDefault(terminalCoupon, cds.getEffectiveProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
       }
 
       pv[matIndex] = pvMat / df;
@@ -420,7 +420,7 @@ public class MultiAnalyticCDSPricer {
     final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
     final double factor = cds.getLGD() / df;
     final int nMat = cds.getNumMaturities();
-    double start = cds.getProtectionStart();
+    double start = cds.getEffectiveProtectionStart();
     final double[] fullIntegrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(nMat - 1), yieldCurve, creditCurve);
     final double[] pv = new double[nMat];
     double runningPV = 0;

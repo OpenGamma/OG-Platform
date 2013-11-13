@@ -23,7 +23,8 @@ public class MultiCDSAnalytic {
 
   private final double _lgd;
 
-  private final double _protectionStart;
+  private final double _accStart;
+  private final double _effProtectionStart;
   private final double _valuationTime;
   private final boolean _payAccOnDefault;
   private final boolean _protectionFromStartOfDay;
@@ -98,11 +99,12 @@ public class MultiCDSAnalytic {
     _payAccOnDefault = payAccOnDefault;
     _protectionFromStartOfDay = protectStart;
 
+    _accStart = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
     final LocalDate temp = stepinDate.isAfter(accStartDate) ? stepinDate : accStartDate;
     final LocalDate effectiveStartDate = protectStart ? temp.minusDays(1) : temp;
 
     _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
-    _protectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
+    _effProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
     _lgd = 1 - recoveryRate;
 
     final LocalDate[] maturities = new LocalDate[_nMaturities];
@@ -140,8 +142,9 @@ public class MultiCDSAnalytic {
       final LocalDate accEnd = protectStart ? maturities[i].plusDays(1) : maturities[i];
       _terminalCoupons[i] = new CDSCoupon(tradeDate, fullPaymentSchedule.getAccStartDate(index), accEnd, fullPaymentSchedule.getPaymentDate(index), protectStart, accrualDayCount, curveDayCount);
       _matIndexToPayments[i] = index - couponOffset;
-      //This will only matter for the edge case when the trade date is 1 day before maturity 
-      final LocalDate tDate2 = _matIndexToPayments[i] <= 0 ? accStartDate : paymentSchedule.getAccStartDate(0);
+      //This will only matter for the edge case when the trade date is 1 day before maturity      
+      final LocalDate tDate2 = _matIndexToPayments[i] < 0 ? fullPaymentSchedule.getAccStartDate(couponOffset - 1) : paymentSchedule.getAccStartDate(0);
+      //final LocalDate tDate2 = i == 0 && (stepinDate.isEqual(paymentSchedule.getAccStartDate(0))) ? fullPaymentSchedule.getAccStartDate(couponOffset - 1) : paymentSchedule.getAccStartDate(0);
       final long firstJulianDate = tDate2.getLong(JulianFields.MODIFIED_JULIAN_DAY);
       _accruedDays[i] = secondJulianDate > firstJulianDate ? (int) (secondJulianDate - firstJulianDate) : 0;
       _accrued[i] = tDate2.isBefore(stepinDate) ? accrualDayCount.getDayCountFraction(tDate2, stepinDate) : 0.0;
@@ -213,8 +216,12 @@ public class MultiCDSAnalytic {
    * Gets the protectionStart.
    * @return the protectionStart
    */
-  public double getProtectionStart() {
-    return _protectionStart;
+  public double getEffectiveProtectionStart() {
+    return _effProtectionStart;
+  }
+
+  public double getAccStart() {
+    return _accStart;
   }
 
   /**

@@ -199,7 +199,7 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
       }
 
       if (cds.isPayAccOnDefault()) {
-        final double tmp = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+        final double tmp = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getAccStart();
         final double[] integrationSchedule = getIntegrationsPoints(tmp, cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
 
         _accRate = new double[_nPayments];

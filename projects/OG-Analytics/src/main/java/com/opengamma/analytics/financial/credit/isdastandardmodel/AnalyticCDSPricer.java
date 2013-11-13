@@ -191,7 +191,7 @@ public class AnalyticCDSPricer {
       //and more than one coupon, the C code generates an extra integration point (a node at protection start and one the day before) - normally
       //the second point could be ignored (since is doesn't correspond to a node of the curves, nor is it the start point), but the Markit fix is 
       //mathematically incorrect, so this point affects the result.  
-      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getAccStart();
       final double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       double accPV = 0.0;
       for (final CDSCoupon coupon : cds.getCoupons()) {
@@ -360,7 +360,7 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getAccStart();
       final double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       //      final double offsetStepin = cds.getStepin() + obsOffset;
 
@@ -407,7 +407,7 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getAccStart();
       final double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       //  final double offsetStepin = cds.getStepin() + obsOffset;
 
