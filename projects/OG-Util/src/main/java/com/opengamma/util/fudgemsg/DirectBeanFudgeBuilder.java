@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.fudgemsg;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -185,7 +186,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
         throw new IllegalArgumentException("Sub-message doesn't contain a list (bad field " + field + ")");
       }
-      Object obj = (contentType == null ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field));
+      boolean abstractOrInterface = (contentType == null || contentType.isInterface() || Modifier.isAbstract(contentType.getModifiers()));
+      Object obj = abstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field);
       list.add((obj instanceof IndicatorType) ? null : obj);
     }
     return list;
@@ -198,7 +200,8 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
       if (field.getOrdinal() != null && field.getOrdinal() != 1) {
         throw new IllegalArgumentException("Sub-message doesn't contain a set (bad field " + field + ")");
       }
-      Object obj = (contentType == null ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field));
+      boolean abstractOrInterface = (contentType == null || contentType.isInterface() || Modifier.isAbstract(contentType.getModifiers()));
+      Object obj = abstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(contentType, field);
       set.add((obj instanceof IndicatorType) ? null : obj);
     }
     return set;
@@ -206,13 +209,15 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
 
   private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<?> prop, Class<?> type, FudgeMsg msg) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
+    boolean keyAbstractOrInterface = (keyType == null || keyType.isInterface() || Modifier.isAbstract(keyType.getModifiers()));
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
+    boolean valueAbstractOrInterface = (valueType == null || valueType.isInterface() || Modifier.isAbstract(valueType.getModifiers()));
     Map<Object, Object> map = Maps.newHashMap();  // should be Map<keyType,contentType>
     Queue<Object> keys = new LinkedList<Object>();
     Queue<Object> values = new LinkedList<Object>();
     for (FudgeField field : msg) {
       if (field.getOrdinal() == 1) {
-        Object fieldValue = (keyType == null ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(keyType, field));
+        Object fieldValue = (keyAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(keyType, field));
         if (fieldValue instanceof IndicatorType) {
           fieldValue = null;
         }
@@ -224,7 +229,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
           map.put(fieldValue, values.remove());
         }
       } else if (field.getOrdinal() == 2) {
-        Object fieldValue = (valueType == null ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(valueType, field));
+        Object fieldValue = (valueAbstractOrInterface ? deserializer.fieldValueToObject(field) : deserializer.fieldValueToObject(valueType, field));
         if (fieldValue instanceof IndicatorType) {
           fieldValue = null;
         }
