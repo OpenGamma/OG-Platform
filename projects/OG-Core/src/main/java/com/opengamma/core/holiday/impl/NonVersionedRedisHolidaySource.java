@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
 import redis.clients.jedis.Jedis;
@@ -64,6 +65,8 @@ import com.opengamma.util.money.Currency;
  * A lightweight {@link HolidaySource} that cannot handle any versioning, and
  * which stores all Holiday documents as individual Redis elements using direct
  * Redis types rather than Fudge encoding.
+ *
+ * Treats Saturday & Sunday as non working days.
  */
 public class NonVersionedRedisHolidaySource implements HolidaySource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHolidaySource.class);
@@ -318,7 +321,11 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
   public boolean isHoliday(LocalDate dateToCheck, Currency currency) {
     ArgumentChecker.notNull(dateToCheck, "dateToCheck");
     ArgumentChecker.notNull(currency, "currency");
-    
+
+    if (isWeekend(dateToCheck)) {  // this ignores the foundHoliday flag - not sure if that is correct or not
+      return true;
+    }
+
     boolean result = false;
     
     try (Timer.Context context = _isHolidayTimer.time()) {
@@ -351,6 +358,10 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
     ArgumentChecker.notNull(dateToCheck, "dateToCheck");
     ArgumentChecker.notNull(holidayType, "holidayType");
     ArgumentChecker.notNull(regionOrExchangeIds, "regionOrExchangeIds");
+
+    if (isWeekend(dateToCheck)) {  // this ignores the foundHoliday flag - not sure if that is correct or not
+      return true;
+    }
     
     boolean foundHoliday = false;
     boolean result = false;
@@ -398,6 +409,16 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
   @Override
   public boolean isHoliday(LocalDate dateToCheck, HolidayType holidayType, ExternalId regionOrExchangeId) {
     return isHoliday(dateToCheck, holidayType, ExternalIdBundle.of(regionOrExchangeId));
+  }
+
+  /**
+   * Checks if the date is at the weekend, defined as a Saturday or Sunday.
+   *
+   * @param date  the date to check, not null
+   * @return true if it is a weekend
+   */
+  protected boolean isWeekend(LocalDate date) {
+    return (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
   }
   
 }
