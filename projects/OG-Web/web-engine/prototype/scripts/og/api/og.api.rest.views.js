@@ -237,10 +237,29 @@ $.register_module({
                             meta = check({
                                  bundle: {method: root + '#get', config: config},
                                  required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
-                             });
+                            });
                             method[1] = config.view_id;
                             method[2] = config.grid_type;
                             method[4] = config.viewport_id;
+                            return api.request(method, {data: data, meta: meta});
+                        },
+                        put: common.not_available_put,
+                        del: common.not_available_del
+                    },
+                    valuespec: {
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports/{{viewport_id}}/valuespec/{{row}}/{{col}}',
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                bundle: {method: root + '#get', config: config},
+                                required: [{all_of: ['view_id', 'grid_type', 'viewport_id', 'row', 'col']}]
+                            });
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method[4] = config.viewport_id;
+                            method[6] = config.row;
+                            method[7] = config.col;
                             return api.request(method, {data: data, meta: meta});
                         },
                         put: common.not_available_put,
