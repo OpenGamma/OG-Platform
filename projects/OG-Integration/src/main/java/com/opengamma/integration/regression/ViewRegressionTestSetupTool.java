@@ -25,7 +25,7 @@ public class ViewRegressionTestSetupTool {
   private static final String PROJECT_NAME = "pn";
   private static final String SERVER_CONFIG = "sc";
   private static final String DB_DUMP_DIR = "dd";
-  private static final String LOGBACK_CONFIG = "lc";
+  private static final String LOGBACK_CONFIG = "l";
   private static final String HELP = "h";
   private static final String WORKING_DIR = "wd";
   private static final String VERSION = "v";
