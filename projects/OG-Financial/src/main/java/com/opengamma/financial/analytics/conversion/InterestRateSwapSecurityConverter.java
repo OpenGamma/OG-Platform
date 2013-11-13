@@ -86,7 +86,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final FixedInterestRateSwapLeg fixedLeg = (FixedInterestRateSwapLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateSwapLeg iborLeg = (FloatingInterestRateSwapLeg) (payFixed ? receiveLeg : payLeg);
     final Currency currency = payLeg.getNotional().getCurrency();
-    //TODO: This needs to use the proper calendar lookups e.g. USNY,GBLO
     final ExternalId[] calendarIds = iborLeg.getConvention().getFixingCalendars().toArray(new ExternalId[iborLeg.getConvention().getFixingCalendars().size()]);
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, calendarIds);
     final IborIndexConvention iborIndexConvention = getIborLegConvention(iborLeg);

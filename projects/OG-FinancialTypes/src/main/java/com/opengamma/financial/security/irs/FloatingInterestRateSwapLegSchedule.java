@@ -38,6 +38,8 @@ import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 @BeanDefinition
 public final class FloatingInterestRateSwapLegSchedule implements ImmutableBean {
 
+  public static FloatingInterestRateSwapLegSchedule NONE = builder().build();
+
   @PropertyDefinition
   private final InterestRateSwapLegConvention _convention;
 

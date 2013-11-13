@@ -1279,6 +1279,19 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public CurrencyAmount visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
+          //TODO: Handle more than 2 legs
+          final InterestRateSwapLeg payNotional = security.getPayLeg();
+          final InterestRateSwapLeg receiveNotional = security.getReceiveLeg();
+          final InterestRateNotional pay = payNotional.getNotional();
+          final InterestRateNotional receive = receiveNotional.getNotional();
+          if (Double.compare(pay.getAmount(), receive.getAmount()) == 0) {
+            return CurrencyAmount.of(pay.getCurrency(), pay.getAmount());
+          }
+          throw new OpenGammaRuntimeException("Can only handle interest rate notionals with the same amounts");
+        }
+
+        @Override
         public CurrencyAmount visitFXOptionSecurity(final FXOptionSecurity security) {
           final Currency currency1 = security.getPutCurrency();
           final double amount1 = security.getPutAmount();

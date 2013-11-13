@@ -19,8 +19,11 @@ import com.opengamma.id.ExternalId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -39,19 +42,19 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * The payment calendar.
    */
   @PropertyDefinition(validate = "notNull")
-  private Collection<ExternalId> _paymentCalendars;
+  private Set<ExternalId> _paymentCalendars;
 
   /**
    * The calculation calendar.
    */
   @PropertyDefinition()
-  private Collection<ExternalId> _calculationCalendars;
+  private Set<ExternalId> _calculationCalendars;
 
   /**
    * The maturity calendar.
    */
   @PropertyDefinition(validate = "notNull")
-  private Collection<ExternalId> _maturityCalendars = Collections.emptySet();
+  private Set<ExternalId> _maturityCalendars;
 
   /**
    * The payment business day calendar.
@@ -94,7 +97,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * The payment is relative to the beginning or end of the period.
    */
   @PropertyDefinition(validate = "notNull")
-  private PeriodRelationship _paymentRelativeTo;
+  private PeriodRelationship _paymentRelativeTo = PeriodRelationship.BEGINNING;
 
   /**
    * Should the accrual be adjusted.
@@ -154,7 +157,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the payment calendar.
    * @return the value of the property, not null
    */
-  public Collection<ExternalId> getPaymentCalendars() {
+  public Set<ExternalId> getPaymentCalendars() {
     return _paymentCalendars;
   }
 
@@ -162,7 +165,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Sets the payment calendar.
    * @param paymentCalendars  the new value of the property, not null
    */
-  public void setPaymentCalendars(Collection<ExternalId> paymentCalendars) {
+  public void setPaymentCalendars(Set<ExternalId> paymentCalendars) {
     JodaBeanUtils.notNull(paymentCalendars, "paymentCalendars");
     this._paymentCalendars = paymentCalendars;
   }
@@ -171,7 +174,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the the {@code paymentCalendars} property.
    * @return the property, not null
    */
-  public final Property<Collection<ExternalId>> paymentCalendars() {
+  public final Property<Set<ExternalId>> paymentCalendars() {
     return metaBean().paymentCalendars().createProperty(this);
   }
 
@@ -180,7 +183,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the calculation calendar.
    * @return the value of the property
    */
-  public Collection<ExternalId> getCalculationCalendars() {
+  public Set<ExternalId> getCalculationCalendars() {
     return _calculationCalendars;
   }
 
@@ -188,7 +191,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Sets the calculation calendar.
    * @param calculationCalendars  the new value of the property
    */
-  public void setCalculationCalendars(Collection<ExternalId> calculationCalendars) {
+  public void setCalculationCalendars(Set<ExternalId> calculationCalendars) {
     this._calculationCalendars = calculationCalendars;
   }
 
@@ -196,7 +199,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the the {@code calculationCalendars} property.
    * @return the property, not null
    */
-  public final Property<Collection<ExternalId>> calculationCalendars() {
+  public final Property<Set<ExternalId>> calculationCalendars() {
     return metaBean().calculationCalendars().createProperty(this);
   }
 
@@ -205,7 +208,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the maturity calendar.
    * @return the value of the property, not null
    */
-  public Collection<ExternalId> getMaturityCalendars() {
+  public Set<ExternalId> getMaturityCalendars() {
     return _maturityCalendars;
   }
 
@@ -213,7 +216,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Sets the maturity calendar.
    * @param maturityCalendars  the new value of the property, not null
    */
-  public void setMaturityCalendars(Collection<ExternalId> maturityCalendars) {
+  public void setMaturityCalendars(Set<ExternalId> maturityCalendars) {
     JodaBeanUtils.notNull(maturityCalendars, "maturityCalendars");
     this._maturityCalendars = maturityCalendars;
   }
@@ -222,7 +225,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the the {@code maturityCalendars} property.
    * @return the property, not null
    */
-  public final Property<Collection<ExternalId>> maturityCalendars() {
+  public final Property<Set<ExternalId>> maturityCalendars() {
     return metaBean().maturityCalendars().createProperty(this);
   }
 
@@ -633,20 +636,20 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
      * The meta-property for the {@code paymentCalendars} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<ExternalId>> _paymentCalendars = DirectMetaProperty.ofReadWrite(
-        this, "paymentCalendars", InterestRateSwapLegConvention.class, (Class) Collection.class);
+    private final MetaProperty<Set<ExternalId>> _paymentCalendars = DirectMetaProperty.ofReadWrite(
+        this, "paymentCalendars", InterestRateSwapLegConvention.class, (Class) Set.class);
     /**
      * The meta-property for the {@code calculationCalendars} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<ExternalId>> _calculationCalendars = DirectMetaProperty.ofReadWrite(
-        this, "calculationCalendars", InterestRateSwapLegConvention.class, (Class) Collection.class);
+    private final MetaProperty<Set<ExternalId>> _calculationCalendars = DirectMetaProperty.ofReadWrite(
+        this, "calculationCalendars", InterestRateSwapLegConvention.class, (Class) Set.class);
     /**
      * The meta-property for the {@code maturityCalendars} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<ExternalId>> _maturityCalendars = DirectMetaProperty.ofReadWrite(
-        this, "maturityCalendars", InterestRateSwapLegConvention.class, (Class) Collection.class);
+    private final MetaProperty<Set<ExternalId>> _maturityCalendars = DirectMetaProperty.ofReadWrite(
+        this, "maturityCalendars", InterestRateSwapLegConvention.class, (Class) Set.class);
     /**
      * The meta-property for the {@code paymentDayConvention} property.
      */
@@ -791,7 +794,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
      * The meta-property for the {@code paymentCalendars} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<ExternalId>> paymentCalendars() {
+    public final MetaProperty<Set<ExternalId>> paymentCalendars() {
       return _paymentCalendars;
     }
 
@@ -799,7 +802,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
      * The meta-property for the {@code calculationCalendars} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<ExternalId>> calculationCalendars() {
+    public final MetaProperty<Set<ExternalId>> calculationCalendars() {
       return _calculationCalendars;
     }
 
@@ -807,7 +810,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
      * The meta-property for the {@code maturityCalendars} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<ExternalId>> maturityCalendars() {
+    public final MetaProperty<Set<ExternalId>> maturityCalendars() {
       return _maturityCalendars;
     }
 
@@ -950,13 +953,13 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -299417201:  // paymentCalendars
-          ((InterestRateSwapLegConvention) bean).setPaymentCalendars((Collection<ExternalId>) newValue);
+          ((InterestRateSwapLegConvention) bean).setPaymentCalendars((Set<ExternalId>) newValue);
           return;
         case 629948460:  // calculationCalendars
-          ((InterestRateSwapLegConvention) bean).setCalculationCalendars((Collection<ExternalId>) newValue);
+          ((InterestRateSwapLegConvention) bean).setCalculationCalendars((Set<ExternalId>) newValue);
           return;
         case 1021419620:  // maturityCalendars
-          ((InterestRateSwapLegConvention) bean).setMaturityCalendars((Collection<ExternalId>) newValue);
+          ((InterestRateSwapLegConvention) bean).setMaturityCalendars((Set<ExternalId>) newValue);
           return;
         case 244375495:  // paymentDayConvention
           ((InterestRateSwapLegConvention) bean).setPaymentDayConvention((BusinessDayConvention) newValue);

@@ -6,9 +6,12 @@
 
 package com.opengamma.financial.security.irs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -43,7 +46,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * The fixing calendar.
    */
   @PropertyDefinition(validate = "notNull")
-  private Collection<ExternalId> _fixingCalendars;
+  private Set<ExternalId> _fixingCalendars;
 
   /**
    * The business day convention used for fixing.
@@ -67,7 +70,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * The reset calendar.
    */
   @PropertyDefinition(validate = "notNull")
-  private Collection<ExternalId> _resetCalendars;
+  private Set<ExternalId> _resetCalendars;
 
   /**
    * The reset business day convention
@@ -79,7 +82,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * The reset relative to either the start or end of the period.
    */
   @PropertyDefinition(validate = "notNull")
-  private PeriodRelationship _resetRelativeTo;
+  private PeriodRelationship _resetRelativeTo = PeriodRelationship.BEGINNING;
 
   public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive) {
     FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
@@ -144,7 +147,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the fixing calendar.
    * @return the value of the property, not null
    */
-  public Collection<ExternalId> getFixingCalendars() {
+  public Set<ExternalId> getFixingCalendars() {
     return _fixingCalendars;
   }
 
@@ -152,7 +155,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Sets the fixing calendar.
    * @param fixingCalendars  the new value of the property, not null
    */
-  public void setFixingCalendars(Collection<ExternalId> fixingCalendars) {
+  public void setFixingCalendars(Set<ExternalId> fixingCalendars) {
     JodaBeanUtils.notNull(fixingCalendars, "fixingCalendars");
     this._fixingCalendars = fixingCalendars;
   }
@@ -161,7 +164,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the the {@code fixingCalendars} property.
    * @return the property, not null
    */
-  public final Property<Collection<ExternalId>> fixingCalendars() {
+  public final Property<Set<ExternalId>> fixingCalendars() {
     return metaBean().fixingCalendars().createProperty(this);
   }
 
@@ -248,7 +251,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the reset calendar.
    * @return the value of the property, not null
    */
-  public Collection<ExternalId> getResetCalendars() {
+  public Set<ExternalId> getResetCalendars() {
     return _resetCalendars;
   }
 
@@ -256,7 +259,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Sets the reset calendar.
    * @param resetCalendars  the new value of the property, not null
    */
-  public void setResetCalendars(Collection<ExternalId> resetCalendars) {
+  public void setResetCalendars(Set<ExternalId> resetCalendars) {
     JodaBeanUtils.notNull(resetCalendars, "resetCalendars");
     this._resetCalendars = resetCalendars;
   }
@@ -265,7 +268,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the the {@code resetCalendars} property.
    * @return the property, not null
    */
-  public final Property<Collection<ExternalId>> resetCalendars() {
+  public final Property<Set<ExternalId>> resetCalendars() {
     return metaBean().resetCalendars().createProperty(this);
   }
 
@@ -406,8 +409,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
      * The meta-property for the {@code fixingCalendars} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<ExternalId>> _fixingCalendars = DirectMetaProperty.ofReadWrite(
-        this, "fixingCalendars", FloatingInterestRateSwapLegConvention.class, (Class) Collection.class);
+    private final MetaProperty<Set<ExternalId>> _fixingCalendars = DirectMetaProperty.ofReadWrite(
+        this, "fixingCalendars", FloatingInterestRateSwapLegConvention.class, (Class) Set.class);
     /**
      * The meta-property for the {@code fixingBusinessDayConvention} property.
      */
@@ -427,8 +430,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
      * The meta-property for the {@code resetCalendars} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<ExternalId>> _resetCalendars = DirectMetaProperty.ofReadWrite(
-        this, "resetCalendars", FloatingInterestRateSwapLegConvention.class, (Class) Collection.class);
+    private final MetaProperty<Set<ExternalId>> _resetCalendars = DirectMetaProperty.ofReadWrite(
+        this, "resetCalendars", FloatingInterestRateSwapLegConvention.class, (Class) Set.class);
     /**
      * The meta-property for the {@code resetBusinessDayConvention} property.
      */
@@ -510,7 +513,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
      * The meta-property for the {@code fixingCalendars} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<ExternalId>> fixingCalendars() {
+    public final MetaProperty<Set<ExternalId>> fixingCalendars() {
       return _fixingCalendars;
     }
 
@@ -542,7 +545,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
      * The meta-property for the {@code resetCalendars} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<ExternalId>> resetCalendars() {
+    public final MetaProperty<Set<ExternalId>> resetCalendars() {
       return _resetCalendars;
     }
 
@@ -594,7 +597,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           ((FloatingInterestRateSwapLegConvention) bean).setRateType((FloatingRateType) newValue);
           return;
         case -663763000:  // fixingCalendars
-          ((FloatingInterestRateSwapLegConvention) bean).setFixingCalendars((Collection<ExternalId>) newValue);
+          ((FloatingInterestRateSwapLegConvention) bean).setFixingCalendars((Set<ExternalId>) newValue);
           return;
         case 502310560:  // fixingBusinessDayConvention
           ((FloatingInterestRateSwapLegConvention) bean).setFixingBusinessDayConvention((BusinessDayConvention) newValue);
@@ -606,7 +609,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           ((FloatingInterestRateSwapLegConvention) bean).setResetFrequency((Frequency) newValue);
           return;
         case -1061750682:  // resetCalendars
-          ((FloatingInterestRateSwapLegConvention) bean).setResetCalendars((Collection<ExternalId>) newValue);
+          ((FloatingInterestRateSwapLegConvention) bean).setResetCalendars((Set<ExternalId>) newValue);
           return;
         case -1714562498:  // resetBusinessDayConvention
           ((FloatingInterestRateSwapLegConvention) bean).setResetBusinessDayConvention((BusinessDayConvention) newValue);

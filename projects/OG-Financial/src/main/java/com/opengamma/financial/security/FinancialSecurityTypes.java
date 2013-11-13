@@ -37,6 +37,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -307,6 +308,11 @@ public class FinancialSecurityTypes {
    * The Swap security type.
    */
   public static final ObjectComputationTargetType<SwapSecurity> SWAP_SECURITY = ObjectComputationTargetType.of(SwapSecurity.class);
+
+  /**
+   * The Interest Rate Swap security type.
+   */
+  public static final ObjectComputationTargetType<InterestRateSwapSecurity> INTEREST_RATE_SWAP_SECURITY = ObjectComputationTargetType.of(InterestRateSwapSecurity.class);
 
   /**
    * The Swaption security type.

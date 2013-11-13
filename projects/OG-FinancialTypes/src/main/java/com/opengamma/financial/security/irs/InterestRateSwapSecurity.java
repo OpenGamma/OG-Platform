@@ -14,6 +14,7 @@ import org.joda.beans.PropertyDefinition;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
@@ -63,30 +64,32 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
    * The swap legs.
    */
   @PropertyDefinition(validate = "notNull")
-  private Collection<InterestRateSwapLeg> _legs;
+  private List<InterestRateSwapLeg> _legs;
 
-  public InterestRateSwapSecurity(LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, List<InterestRateSwapLeg> legs) {
+  @Deprecated
+  public InterestRateSwapSecurity(LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
-    setLegs(legs);
+    setLegs(Lists.newArrayList(legs));
   }
 
-  public InterestRateSwapSecurity(ExternalIdBundle id, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, List<InterestRateSwapLeg> legs) {
+  @Deprecated
+  public InterestRateSwapSecurity(ExternalIdBundle id, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
-    setLegs(legs);
+    setLegs(Lists.newArrayList(legs));
   }
 
-  public InterestRateSwapSecurity(ExternalIdBundle id, String name, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, List<InterestRateSwapLeg> legs) {
+  public InterestRateSwapSecurity(ExternalIdBundle id, String name, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);
     setName(name);
     setEffectiveDate(effectiveDate);
     setUnadjustedMaturityDate(unAdjustedMaturityDate);
-    setLegs(legs);
+    setLegs(Lists.newArrayList(legs));
   }
 
   public InterestRateSwapLeg getPayLeg() {
@@ -226,7 +229,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
    * Gets the swap legs.
    * @return the value of the property, not null
    */
-  public Collection<InterestRateSwapLeg> getLegs() {
+  public List<InterestRateSwapLeg> getLegs() {
     return _legs;
   }
 
@@ -234,7 +237,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
    * Sets the swap legs.
    * @param legs  the new value of the property, not null
    */
-  public void setLegs(Collection<InterestRateSwapLeg> legs) {
+  public void setLegs(List<InterestRateSwapLeg> legs) {
     JodaBeanUtils.notNull(legs, "legs");
     this._legs = legs;
   }
@@ -243,7 +246,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
    * Gets the the {@code legs} property.
    * @return the property, not null
    */
-  public Property<Collection<InterestRateSwapLeg>> legs() {
+  public Property<List<InterestRateSwapLeg>> legs() {
     return metaBean().legs().createProperty(this);
   }
 
@@ -330,8 +333,8 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
      * The meta-property for the {@code legs} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<InterestRateSwapLeg>> _legs = DirectMetaProperty.ofReadWrite(
-        this, "legs", InterestRateSwapSecurity.class, (Class) Collection.class);
+    private final MetaProperty<List<InterestRateSwapLeg>> _legs = DirectMetaProperty.ofReadWrite(
+        this, "legs", InterestRateSwapSecurity.class, (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -407,7 +410,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
      * The meta-property for the {@code legs} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Collection<InterestRateSwapLeg>> legs() {
+    public MetaProperty<List<InterestRateSwapLeg>> legs() {
       return _legs;
     }
 
@@ -441,7 +444,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
           ((InterestRateSwapSecurity) bean).setUnadjustedMaturityDate((LocalDate) newValue);
           return;
         case 3317797:  // legs
-          ((InterestRateSwapSecurity) bean).setLegs((Collection<InterestRateSwapLeg>) newValue);
+          ((InterestRateSwapSecurity) bean).setLegs((List<InterestRateSwapLeg>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
