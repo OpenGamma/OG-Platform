@@ -361,7 +361,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     // "Volatility Surface"
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(target);
     if (volReq == null) {
       return null;
     }
@@ -474,11 +474,12 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
   /**
    * Instead of a volatility surface, we're just asking for the market_value of the option
    * 
-   * @param security the resolved option
+   * @param target {@link FinancialSecurityTypes#EQUITY_OPTION_SECURITY} or {@link FinancialSecurityTypes#EQUITY_INDEX_FUTURE_OPTION_SECURITY}
+       or {@link FinancialSecurityTypes#EQUITY_INDEX_OPTION_SECURITY}
    * @return market_value requirement for the option
    */
-  protected ValueRequirement getVolatilitySurfaceRequirement(final Security security) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
+  protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target) {
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
   }
 
   /**
