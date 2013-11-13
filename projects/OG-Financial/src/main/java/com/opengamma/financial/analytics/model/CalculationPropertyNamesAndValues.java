@@ -22,8 +22,10 @@ public final class CalculationPropertyNamesAndValues {
   public static final String BLACK_LISTED_METHOD = "BlackListedMethod";
   /** The Barone-Adesi Whaley approximation for American options */
   public static final String BAW_METHOD = "BaroneAdesiWhaleyMethod";
-  /** The Bjerksund-Stensland approximation for American options */
+  /** The Bjerksund-Stensland approximation for American options, from a vol surface */
   public static final String BJERKSUND_STENSLAND_METHOD = "BjerksundStenslandMethod";
+  /** The Bjerksund-Stensland approximation for American options, when option's market price is available */  
+  public static final String BJERKSUND_STENSLAND_LISTED_METHOD = "BjerksundStenslandListedMethod";
   /** The so-called PDE method computes prices for American and European options under the BlackScholesMerton model*/
   public static final String PDE_METHOD = "PDE";
   /** Pricing from marked / listed price */

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity.option;
@@ -23,22 +23,23 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.model.equity.ScenarioPnLPropertyNamesAndValues;
 
 /**
  * Computes PNL under a simple slide scenario to underlying forward and volatility requirements.
+ * See {@link ListedEquityOptionBjerksundStenslandFunction}
  */
-public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOptionBjerksundStenslandFunction {
+public class ListedEquityOptionBjerksundStenslandScenarioPnLFunction extends ListedEquityOptionBjerksundStenslandFunction {
 
   /** The Bjerksund-Stensland present value calculator */
   private static final EqyOptBjerksundStenslandPresentValueCalculator s_pvCalculator = EqyOptBjerksundStenslandPresentValueCalculator.getInstance();
   
   /** Default constructor */
-  public EquityOptionBjerksundStenslandScenarioPnLFunction() {
+  public ListedEquityOptionBjerksundStenslandScenarioPnLFunction() {
     super(ValueRequirementNames.PNL);
   }
   
@@ -181,3 +182,4 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));    
   }
 }
+
