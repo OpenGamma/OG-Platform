@@ -24,6 +24,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -42,6 +43,8 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
    * The property this function will put on an output indicating the currency of the original value.
    */
   public static final String ORIGINAL_CURRENCY = "Original" + ValuePropertyNames.CURRENCY;
+  
+  private static final String CONVERSION_METHOD_VALUE = "Single";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
@@ -73,8 +76,11 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
-        .withAny(ValuePropertyNames.CURRENCY).withoutAny(ORIGINAL_CURRENCY).get());
+    Builder properties = desiredValue.getConstraints().copy()
+        .withoutAny(DEFAULT_CURRENCY_INJECTION)
+        .withoutAny(ValuePropertyNames.CONVERSION_METHOD)
+        .withAny(ValuePropertyNames.CURRENCY).withoutAny(ORIGINAL_CURRENCY);
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, properties.get());
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
@@ -212,9 +218,11 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
         // This will fail at the getAdditionalRequirements
         return null;
       }
-      final ValueProperties.Builder properties = value.getProperties().copy();
-      properties.withAny(ValuePropertyNames.CURRENCY);
-      properties.withoutAny(ORIGINAL_CURRENCY).with(ORIGINAL_CURRENCY, currencies);
+      final ValueProperties.Builder properties = value.getProperties().copy()
+          .withAny(ValuePropertyNames.CURRENCY)
+          .withoutAny(ORIGINAL_CURRENCY)
+          .with(ORIGINAL_CURRENCY, currencies)
+          .with(ValuePropertyNames.CONVERSION_METHOD, CONVERSION_METHOD_VALUE);
       return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), properties.get()));
     }
     // The input was requested with the converted currency, so return the same specification to remove this node from the graph

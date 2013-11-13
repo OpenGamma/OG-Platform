@@ -314,4 +314,10 @@ public final class ValuePropertyNames {
   
   /** The name of a property representing the exposure configuration used for pricing */
   public static final String CURVE_EXPOSURES = "CurveExposures";
+  
+  /**
+   * The name of the conversion method.
+   */
+  public static final String CONVERSION_METHOD = "ConversionMethod";
+  
 }
