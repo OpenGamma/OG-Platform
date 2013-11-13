@@ -124,11 +124,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private PortfolioMaster _portfolioMaster;
   /**
-   * The batch master.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private BatchMaster _batchMaster;
-  /**
    * The time-series master.
    */
   @PropertyDefinition(validate = "notNull")
@@ -168,6 +163,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private FunctionConfigurationSource _functionConfigurationSource;
+  /**
+   * The batch master.
+   */
+  @PropertyDefinition
+  private BatchMaster _batchMaster;
   /**
    * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
    */
@@ -542,32 +542,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the batch master.
-   * @return the value of the property, not null
-   */
-  public BatchMaster getBatchMaster() {
-    return _batchMaster;
-  }
-
-  /**
-   * Sets the batch master.
-   * @param batchMaster  the new value of the property, not null
-   */
-  public void setBatchMaster(BatchMaster batchMaster) {
-    JodaBeanUtils.notNull(batchMaster, "batchMaster");
-    this._batchMaster = batchMaster;
-  }
-
-  /**
-   * Gets the the {@code batchMaster} property.
-   * @return the property, not null
-   */
-  public final Property<BatchMaster> batchMaster() {
-    return metaBean().batchMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the time-series master.
    * @return the value of the property, not null
    */
@@ -776,6 +750,31 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the batch master.
+   * @return the value of the property
+   */
+  public BatchMaster getBatchMaster() {
+    return _batchMaster;
+  }
+
+  /**
+   * Sets the batch master.
+   * @param batchMaster  the new value of the property
+   */
+  public void setBatchMaster(BatchMaster batchMaster) {
+    this._batchMaster = batchMaster;
+  }
+
+  /**
+   * Gets the the {@code batchMaster} property.
+   * @return the property, not null
+   */
+  public final Property<BatchMaster> batchMaster() {
+    return metaBean().batchMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
    * @return the value of the property
    */
@@ -934,7 +933,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
@@ -943,6 +941,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getFunctionConfigurationSource(), other.getFunctionConfigurationSource()) &&
+          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
@@ -966,7 +965,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
@@ -975,6 +973,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigurationSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
@@ -1009,7 +1008,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
-    buf.append("batchMaster").append('=').append(JodaBeanUtils.toString(getBatchMaster())).append(',').append(' ');
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
     buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
     buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
@@ -1018,6 +1016,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
     buf.append("functionConfigurationSource").append('=').append(JodaBeanUtils.toString(getFunctionConfigurationSource())).append(',').append(' ');
+    buf.append("batchMaster").append('=').append(JodaBeanUtils.toString(getBatchMaster())).append(',').append(' ');
     buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(JodaBeanUtils.toString(getMarketDataSpecificationRepository())).append(',').append(' ');
     buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
@@ -1086,11 +1085,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "portfolioMaster", WebsiteBasicsComponentFactory.class, PortfolioMaster.class);
     /**
-     * The meta-property for the {@code batchMaster} property.
-     */
-    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
-        this, "batchMaster", WebsiteBasicsComponentFactory.class, BatchMaster.class);
-    /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
@@ -1131,6 +1125,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FunctionConfigurationSource> _functionConfigurationSource = DirectMetaProperty.ofReadWrite(
         this, "functionConfigurationSource", WebsiteBasicsComponentFactory.class, FunctionConfigurationSource.class);
     /**
+     * The meta-property for the {@code batchMaster} property.
+     */
+    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
+        this, "batchMaster", WebsiteBasicsComponentFactory.class, BatchMaster.class);
+    /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      */
     private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
@@ -1170,7 +1169,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "conventionMaster",
         "positionMaster",
         "portfolioMaster",
-        "batchMaster",
         "historicalTimeSeriesMaster",
         "historicalTimeSeriesSource",
         "historicalTimeSeriesLoader",
@@ -1179,6 +1177,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "organizationMaster",
         "marketDataSnapshotMaster",
         "functionConfigurationSource",
+        "batchMaster",
         "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "viewProcessor",
@@ -1214,8 +1213,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _positionMaster;
         case -772274742:  // portfolioMaster
           return _portfolioMaster;
-        case -252634564:  // batchMaster
-          return _batchMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case 358729161:  // historicalTimeSeriesSource
@@ -1232,6 +1229,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _marketDataSnapshotMaster;
         case -1059254855:  // functionConfigurationSource
           return _functionConfigurationSource;
+        case -252634564:  // batchMaster
+          return _batchMaster;
         case -301472921:  // liveMarketDataProviderFactory
           return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
@@ -1343,14 +1342,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code batchMaster} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<BatchMaster> batchMaster() {
-      return _batchMaster;
-    }
-
-    /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      * @return the meta-property, not null
      */
@@ -1412,6 +1403,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<FunctionConfigurationSource> functionConfigurationSource() {
       return _functionConfigurationSource;
+    }
+
+    /**
+     * The meta-property for the {@code batchMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BatchMaster> batchMaster() {
+      return _batchMaster;
     }
 
     /**
@@ -1480,8 +1479,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getPositionMaster();
         case -772274742:  // portfolioMaster
           return ((WebsiteBasicsComponentFactory) bean).getPortfolioMaster();
-        case -252634564:  // batchMaster
-          return ((WebsiteBasicsComponentFactory) bean).getBatchMaster();
         case 173967376:  // historicalTimeSeriesMaster
           return ((WebsiteBasicsComponentFactory) bean).getHistoricalTimeSeriesMaster();
         case 358729161:  // historicalTimeSeriesSource
@@ -1498,6 +1495,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSnapshotMaster();
         case -1059254855:  // functionConfigurationSource
           return ((WebsiteBasicsComponentFactory) bean).getFunctionConfigurationSource();
+        case -252634564:  // batchMaster
+          return ((WebsiteBasicsComponentFactory) bean).getBatchMaster();
         case -301472921:  // liveMarketDataProviderFactory
           return ((WebsiteBasicsComponentFactory) bean).getLiveMarketDataProviderFactory();
         case 1743800263:  // marketDataSpecificationRepository
@@ -1545,9 +1544,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         case -772274742:  // portfolioMaster
           ((WebsiteBasicsComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
           return;
-        case -252634564:  // batchMaster
-          ((WebsiteBasicsComponentFactory) bean).setBatchMaster((BatchMaster) newValue);
-          return;
         case 173967376:  // historicalTimeSeriesMaster
           ((WebsiteBasicsComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
           return;
@@ -1571,6 +1567,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return;
         case -1059254855:  // functionConfigurationSource
           ((WebsiteBasicsComponentFactory) bean).setFunctionConfigurationSource((FunctionConfigurationSource) newValue);
+          return;
+        case -252634564:  // batchMaster
+          ((WebsiteBasicsComponentFactory) bean).setBatchMaster((BatchMaster) newValue);
           return;
         case -301472921:  // liveMarketDataProviderFactory
           ((WebsiteBasicsComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
@@ -1603,7 +1602,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._conventionMaster, "conventionMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._positionMaster, "positionMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._portfolioMaster, "portfolioMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._batchMaster, "batchMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesSource, "historicalTimeSeriesSource");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
