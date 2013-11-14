@@ -45,7 +45,7 @@ public class RedisSimulationSeriesResolver implements HistoricalTimeSeriesResolv
       s_logger.warn("Attempted to call RedisSimulationSeriesSource with bundle {}. Calls with more than 1 entry in ID bundle are probably misuse of this class.", identifierBundle);
     }
     ExternalId externalId = identifierBundle.getExternalIds().iterator().next();
-    if (MarketDataRequirementNames.MARKET_VALUE != dataField) {
+    if (!MarketDataRequirementNames.MARKET_VALUE.equals(dataField)) {
       //s_logger.warn("Redis simulation asked for {} for {}, can only handle market value.", dataField, externalId);
       return null;
     }
