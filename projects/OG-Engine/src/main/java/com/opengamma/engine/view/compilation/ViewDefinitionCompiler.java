@@ -508,8 +508,8 @@ public final class ViewDefinitionCompiler {
           final Set<ValueRequirement> missing = new HashSet<ValueRequirement>();
           final Collection<DependencyGraph> graphs = new ArrayList<DependencyGraph>(getContext().getGraphs());
           getContext().getGraphs().clear();
-          for (final DependencyGraph graph : graphs) {
-            final DependencyGraph filtered = filter.subGraph(graph, missing);
+          for (DependencyGraph graph : graphs) {
+            DependencyGraph filtered = filter.subGraph(graph, missing);
             if (filtered == null) {
               // Entire graph has been rejected
               for (Set<ValueRequirement> requirements : graph.getTerminalOutputs().values()) {
@@ -523,15 +523,19 @@ public final class ViewDefinitionCompiler {
             }
             s_logger.info("Late changes detected affecting {} requirements", missing.size());
             final DependencyGraphBuilder builder = getContext().createBuilder(getContext().getViewDefinition().getCalculationConfiguration(graph.getCalculationConfigurationName()));
+            graph = null;
             if (getPortfolio() != null) {
               builder.getCompilationContext().setPortfolio(getPortfolio());
             }
             if (filtered != null) {
               builder.setDependencyGraph(filtered);
             }
+            filtered = null;
             builder.addTarget(missing);
             missing.clear();
-            getContext().getGraphs().add(builder.getDependencyGraph());
+            graph = builder.getDependencyGraph();
+            graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
+            getContext().getGraphs().add(graph);
           }
         }
       }
