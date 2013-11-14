@@ -74,7 +74,6 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_FIXED_3M_EOM_CONVENTION.setCalculationFrequency(SimpleFrequency.QUARTERLY);
     USD_FIXED_3M_EOM_CONVENTION.setMaturityBusinessDayConvention(MF);
     USD_FIXED_3M_EOM_CONVENTION.setRollConvention(RollConvention.EOM);
-    USD_FIXED_3M_EOM_CONVENTION.setIsZeroCoupon(Boolean.FALSE);
     USD_FIXED_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);
 
     USD_LIBOR_3M_EOM_CONVENTION = new FloatingInterestRateSwapLegConvention();
@@ -98,7 +97,6 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_LIBOR_3M_EOM_CONVENTION.setResetRelativeTo(PeriodRelationship.BEGINNING);
     USD_LIBOR_3M_EOM_CONVENTION.setRollConvention(RollConvention.EOM);
     USD_LIBOR_3M_EOM_CONVENTION.setRateType(FloatingRateType.IBOR);
-    USD_LIBOR_3M_EOM_CONVENTION.setIsZeroCoupon(false);
     USD_LIBOR_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);
 
     USD_FIX_LEG = USD_FIXED_3M_EOM_CONVENTION.toLeg(new InterestRateSwapNotional(Currency.USD, 1e6), PayReceiveType.PAY, new Rate(0.01234));

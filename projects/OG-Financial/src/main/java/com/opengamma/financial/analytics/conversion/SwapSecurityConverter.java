@@ -138,7 +138,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final IborIndexConvention iborIndexConvention = getIborLegConvention(currency);
     final Frequency freqIbor = iborLeg.getFrequency();
     final Period tenorIbor;
-    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+    if (Frequency.NEVER_NAME.equals(freqIbor.getName())) {
       tenorIbor = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
     } else {
       tenorIbor = getTenor(freqIbor);
@@ -148,7 +148,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
     final Frequency freqFixed = fixedLeg.getFrequency();
     final Period tenorFixed;
-    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+    if (Frequency.NEVER_NAME.equals(freqIbor.getName())) {
       tenorFixed = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
     } else {
       tenorFixed = getTenor(freqFixed);

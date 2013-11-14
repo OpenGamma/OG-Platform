@@ -66,7 +66,7 @@ public final class SimpleFrequencyFactory implements NamedInstanceFactory<Simple
    * Creates the factory.
    */
   private SimpleFrequencyFactory() {
-    store(SimpleFrequency.NEVER);
+    store(SimpleFrequency.NEVER, "1t");
     store(SimpleFrequency.ANNUAL, "12m", "1y", "Yearly");
     store(SimpleFrequency.SEMI_ANNUAL, "6m", "Half Yearly");
     store(SimpleFrequency.QUARTERLY, "3m");

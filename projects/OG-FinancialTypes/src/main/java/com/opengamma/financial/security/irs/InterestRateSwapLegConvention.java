@@ -119,12 +119,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   private RollConvention _rollConvention = RollConvention.NONE;
 
   /**
-   * Is this a zero coupon swap leg?
-   */
-  @PropertyDefinition(validate = "notNull")
-  private boolean _isZeroCoupon;
-
-  /**
    * The compounding.
    */
   @PropertyDefinition(validate = "notNull")
@@ -499,32 +493,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   //-----------------------------------------------------------------------
   /**
-   * Gets is this a zero coupon swap leg?
-   * @return the value of the property, not null
-   */
-  public boolean isIsZeroCoupon() {
-    return _isZeroCoupon;
-  }
-
-  /**
-   * Sets is this a zero coupon swap leg?
-   * @param isZeroCoupon  the new value of the property, not null
-   */
-  public void setIsZeroCoupon(boolean isZeroCoupon) {
-    JodaBeanUtils.notNull(isZeroCoupon, "isZeroCoupon");
-    this._isZeroCoupon = isZeroCoupon;
-  }
-
-  /**
-   * Gets the the {@code isZeroCoupon} property.
-   * @return the property, not null
-   */
-  public final Property<Boolean> isZeroCoupon() {
-    return metaBean().isZeroCoupon().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the compounding.
    * @return the value of the property, not null
    */
@@ -570,7 +538,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
           (isAdjustedAccrual() == other.isAdjustedAccrual()) &&
           (getSettlementDays() == other.getSettlementDays()) &&
           JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
-          (isIsZeroCoupon() == other.isIsZeroCoupon()) &&
           JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod()) &&
           super.equals(obj);
     }
@@ -593,14 +560,13 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
     hash += hash * 31 + JodaBeanUtils.hashCode(isAdjustedAccrual());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsZeroCoupon());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(512);
+    StringBuilder buf = new StringBuilder(480);
     buf.append("InterestRateSwapLegConvention{");
     int len = buf.length();
     toString(buf);
@@ -627,7 +593,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
     buf.append("adjustedAccrual").append('=').append(JodaBeanUtils.toString(isAdjustedAccrual())).append(',').append(' ');
     buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
     buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention())).append(',').append(' ');
-    buf.append("isZeroCoupon").append('=').append(JodaBeanUtils.toString(isIsZeroCoupon())).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(getCompoundingMethod())).append(',').append(' ');
   }
 
@@ -710,11 +675,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
     private final MetaProperty<RollConvention> _rollConvention = DirectMetaProperty.ofReadWrite(
         this, "rollConvention", InterestRateSwapLegConvention.class, RollConvention.class);
     /**
-     * The meta-property for the {@code isZeroCoupon} property.
-     */
-    private final MetaProperty<Boolean> _isZeroCoupon = DirectMetaProperty.ofReadWrite(
-        this, "isZeroCoupon", InterestRateSwapLegConvention.class, Boolean.TYPE);
-    /**
      * The meta-property for the {@code compoundingMethod} property.
      */
     private final MetaProperty<CompoundingMethod> _compoundingMethod = DirectMetaProperty.ofReadWrite(
@@ -737,7 +697,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
         "adjustedAccrual",
         "settlementDays",
         "rollConvention",
-        "isZeroCoupon",
         "compoundingMethod");
 
     /**
@@ -775,8 +734,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
           return _settlementDays;
         case -10223666:  // rollConvention
           return _rollConvention;
-        case 371990968:  // isZeroCoupon
-          return _isZeroCoupon;
         case -1376171496:  // compoundingMethod
           return _compoundingMethod;
       }
@@ -904,14 +861,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
     }
 
     /**
-     * The meta-property for the {@code isZeroCoupon} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Boolean> isZeroCoupon() {
-      return _isZeroCoupon;
-    }
-
-    /**
      * The meta-property for the {@code compoundingMethod} property.
      * @return the meta-property, not null
      */
@@ -949,8 +898,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
           return ((InterestRateSwapLegConvention) bean).getSettlementDays();
         case -10223666:  // rollConvention
           return ((InterestRateSwapLegConvention) bean).getRollConvention();
-        case 371990968:  // isZeroCoupon
-          return ((InterestRateSwapLegConvention) bean).isIsZeroCoupon();
         case -1376171496:  // compoundingMethod
           return ((InterestRateSwapLegConvention) bean).getCompoundingMethod();
       }
@@ -1000,9 +947,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
         case -10223666:  // rollConvention
           ((InterestRateSwapLegConvention) bean).setRollConvention((RollConvention) newValue);
           return;
-        case 371990968:  // isZeroCoupon
-          ((InterestRateSwapLegConvention) bean).setIsZeroCoupon((Boolean) newValue);
-          return;
         case -1376171496:  // compoundingMethod
           ((InterestRateSwapLegConvention) bean).setCompoundingMethod((CompoundingMethod) newValue);
           return;
@@ -1023,7 +967,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentRelativeTo, "paymentRelativeTo");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._adjustedAccrual, "adjustedAccrual");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._settlementDays, "settlementDays");
-      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._isZeroCoupon, "isZeroCoupon");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._compoundingMethod, "compoundingMethod");
       super.validate(bean);
     }

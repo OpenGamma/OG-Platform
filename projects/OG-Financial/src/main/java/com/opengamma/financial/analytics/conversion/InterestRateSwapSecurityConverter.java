@@ -58,7 +58,8 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   private final ConventionBundleSource _conventionBundleSource;
 
   /**
-   * @param holidaySource The holiday source, not null
+   * @param holidaySource The holiday source, not <code>null</code>
+   * @param conventionBundleSource The convention bundle source used to retrieve floating rate index conventions, not <code>null</code>
    */
   public InterestRateSwapSecurityConverter(final HolidaySource holidaySource,
                                            final ConventionBundleSource conventionBundleSource) {
@@ -106,7 +107,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     // Fixed leg 
     final FixedInterestRateSwapLeg fixedLeg = (FixedInterestRateSwapLeg) (payFixed ? payLeg : receiveLeg);
     final Frequency periodFreqFixed = fixedLeg.getConvention().getCalculationFrequency();
-    final Period periodTenorFixed = getTenor(periodFreqFixed);
+    final Period periodTenorFixed;
+    if (Frequency.NEVER_NAME.equals(periodFreqFixed.getName())) {
+      periodTenorFixed = Period.between(effectiveDate, maturityDate);
+    } else {
+      periodTenorFixed = getTenor(periodFreqFixed);
+    }
     final double fixedLegNotional = fixedLeg.getNotional().accept(notionalVisitor, 0); //fixedLeg.getNotional().getAmount();
     final boolean fixedIsEOM = RollConvention.EOM == fixedLeg.getConvention().getRollConvention();
     DayCount fixedLegDayCount = fixedLeg.getConvention().getDayCountConvention();
@@ -133,7 +139,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
                                                      iborLeg.getConvention().getSettlementDays(), floatIsEOM);
     }
     final Frequency paymentFreqIbor = iborLeg.getConvention().getPaymentFrequency();
-    final Period paymentTenorIbor = getTenor(paymentFreqIbor);
+    final Period paymentTenorIbor;
+    if (Frequency.NEVER_NAME.equals(paymentFreqIbor.getName())) {
+      paymentTenorIbor = Period.between(effectiveDate, maturityDate);
+    } else {
+      paymentTenorIbor = getTenor(paymentFreqIbor);
+    }
     final int spotLag = iborIndexConvention.getSettlementDays();
     Frequency resetFreqIbor = iborLeg.getConvention().getResetFrequency();
     Period resetTenorIbor = getTenor(resetFreqIbor);
