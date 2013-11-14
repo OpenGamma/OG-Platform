@@ -45,12 +45,14 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.rest.RestUtils;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.ErrorInfo;
 import com.opengamma.web.analytics.GridCell;
 import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.MarketDataSpecificationJsonReader;
+import com.opengamma.web.analytics.ValueSpecificationTargetForCell;
 import com.opengamma.web.analytics.ViewRequest;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
@@ -184,14 +186,16 @@ public class WebUiResource {
 
   @Path("{viewId}/{gridType}/viewports/{viewportId}/valuespec/{row}/{col}")
   @GET
-  public ValueSpecification getValueRequirement(@PathParam("viewId") String viewId,
+  public ValueSpecificationTargetForCell getValueSpecificationTargetForCell(@PathParam("viewId") String viewId,
                                                               @PathParam("gridType") String gridType,
                                                               @PathParam("row") int row,
                                                               @PathParam("col") int col,
                                                               @PathParam("viewportId") int viewportId) {
 
     GridStructure gridStructure =  _viewManager.getView(viewId).getGridStructure(gridType(gridType), viewportId);
-    return gridStructure.getTargetForCell(row, col).getSecond();
+    ;
+    Pair<String, ValueSpecification> pair = gridStructure.getTargetForCell(row, col);
+    return new ValueSpecificationTargetForCell(pair.getFirst(), pair.getSecond());
 
   }
 
