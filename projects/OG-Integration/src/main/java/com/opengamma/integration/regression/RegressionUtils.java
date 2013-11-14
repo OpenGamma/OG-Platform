@@ -11,6 +11,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.integration.server.RemoteServer;
@@ -22,6 +25,8 @@ import com.opengamma.master.config.ConfigSearchResult;
  *
  */
 /* package */ final class RegressionUtils {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(RegressionUtils.class);
 
   /** Name of the ID mappings in the config database. */
   public static final String ID_MAPPINGS = "Regression test ID mappings";
@@ -47,6 +52,8 @@ import com.opengamma.master.config.ConfigSearchResult;
     try {
       String className = EmptyDatabaseCreator.class.getName();
       File workingDir = new File(workingDirName);
+      s_logger.info("Launching EmptyDatabaseCreator process. workingDir={}, logbackConfig={}, className={}, " +
+                        "configFile={}, classpath={}", workingDir, logbackConfig, className, configFile, classpath);
       process = new ProcessBuilder("java", logbackConfig, "-cp", classpath, className, configFile)
           .directory(workingDir)
           .redirectOutput(ProcessBuilder.Redirect.INHERIT)
