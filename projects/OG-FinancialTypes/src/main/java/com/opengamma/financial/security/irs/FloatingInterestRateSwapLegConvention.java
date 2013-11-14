@@ -90,6 +90,12 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     return leg;
   }
 
+  public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive, Rate spread) {
+    FloatingInterestRateSwapLeg leg = toLeg(notional, payOrReceive);
+    leg.setSpreadSchedule(spread);
+    return leg;
+  }
+
   @Override
   public ConventionType getConventionType() {
     return ConventionType.of(this.getClass().getSimpleName());
