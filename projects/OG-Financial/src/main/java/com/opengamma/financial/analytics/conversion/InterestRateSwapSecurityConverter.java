@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
+import com.opengamma.financial.convention.ConventionBundleImpl;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -53,7 +54,7 @@ import com.opengamma.util.money.Currency;
 public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** A holiday source */
   private final HolidaySource _holidaySource;
-  
+
   private final ConventionBundleSource _conventionBundleSource;
 
   /**
@@ -123,7 +124,14 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final ExternalId[] floatFixingCalendarIds = iborLeg.getConvention().getFixingCalendars().toArray(new ExternalId[iborLeg.getConvention().getFixingCalendars().size()]);
     final Calendar floatFixingCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatFixingCalendarIds);
 //    final IborIndexConvention iborIndexConvention = getIborLegConvention(iborLeg);
-    final ConventionBundle iborIndexConvention = _conventionBundleSource.getConventionBundle(iborLeg.getFloatingReferenceRateId());
+    final boolean floatIsEOM = RollConvention.EOM == iborLeg.getConvention().getRollConvention();
+    ConventionBundle iborIndexConvention = _conventionBundleSource.getConventionBundle(iborLeg.getFloatingReferenceRateId());
+    if (iborIndexConvention == null) {
+      // if no convention loaded pull from swap, TODO: Settle on one method
+      iborIndexConvention = new ConventionBundleImpl(iborLeg.getFloatingReferenceRateId().toBundle(), iborLeg.getFloatingReferenceRateId().getValue(),
+                                                     iborLeg.getConvention().getDayCountConvention(), iborLeg.getConvention().getFixingBusinessDayConvention(),
+                                                     iborLeg.getConvention().getSettlementDays(), floatIsEOM);
+    }
     final Frequency paymentFreqIbor = iborLeg.getConvention().getPaymentFrequency();
     final Period paymentTenorIbor = getTenor(paymentFreqIbor);
     final int spotLag = iborIndexConvention.getSettlementDays();
@@ -131,7 +139,6 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     Period resetTenorIbor = getTenor(resetFreqIbor);
     final IborIndex indexIbor = new IborIndex(currency, resetTenorIbor, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention(), iborIndexConvention.getName());
-    final boolean floatIsEOM = RollConvention.EOM == iborLeg.getConvention().getRollConvention();
     DayCount floatDayCount = iborLeg.getConvention().getDayCountConvention();
     BusinessDayConvention floatLegFixingBusinessDayConvention = iborLeg.getConvention().getCalculationBusinessDayConvention();
     
@@ -192,7 +199,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             paymentTenorIbor, // period and payment dates are generated from these
             iborLegNotional,
             indexIbor,
-            floatIsEOM,
+            !payFixed,
             floatDayCount,
             floatLegFixingBusinessDayConvention,
             floatIsEOM,
