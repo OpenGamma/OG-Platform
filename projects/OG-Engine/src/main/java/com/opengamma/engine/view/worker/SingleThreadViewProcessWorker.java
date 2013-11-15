@@ -313,9 +313,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     _viewDefinition = viewDefinition;
     _specificMarketDataSelectors = extractSpecificSelectors(viewDefinition);
     _marketDataManager = createMarketDataManager(context);
-    _marketDataSelectionGraphManipulator = createMarketDataManipulator(
-        _executionOptions.getDefaultExecutionOptions(),
-        _specificMarketDataSelectors);
+    _marketDataSelectionGraphManipulator = createMarketDataManipulator(_executionOptions.getDefaultExecutionOptions(), _specificMarketDataSelectors);
     _job = new Job();
     _thread = new BorrowedThread(context.toString(), _job);
     _deltaCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.delta");
@@ -331,8 +329,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     }
     int newCount = currentEntry.incrementAndGet();
     // TODO - the hardcoded main should really be derived from a view process name if one were available
-    return new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver(), "main",
-        processId + "-" + newCount);
+    return new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver(), "main", processId + "-" + newCount);
   }
 
   /**
@@ -343,12 +340,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
    * @param specificSelectors the graph-specific selectors
    * @return a market data manipulator combined those found in the execution context and the view defintion
    */
-  private MarketDataSelectionGraphManipulator createMarketDataManipulator(ViewCycleExecutionOptions executionOptions,
-      Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors) {
+  private MarketDataSelectionGraphManipulator createMarketDataManipulator(ViewCycleExecutionOptions executionOptions, Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors) {
 
-    MarketDataSelector executionOptionsMarketDataSelector = executionOptions != null ?
-        executionOptions.getMarketDataSelector() :
-        NoOpMarketDataSelector.getInstance();
+    MarketDataSelector executionOptionsMarketDataSelector = executionOptions != null ? executionOptions.getMarketDataSelector() : NoOpMarketDataSelector.getInstance();
 
     return new MarketDataSelectionGraphManipulator(executionOptionsMarketDataSelector, specificSelectors);
   }
@@ -525,6 +519,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 }
               }
               viewDefinitionCompiled(compiledViewDefinition);
+              // [PLAT-3244] If the definition has been compiled and the graph changed then don't attempt a delta cycle. The delta
+              // calculator is flawed. If that gets fixed instead (see Jira comments) then don't reset the cycleType here.
+              cycleType = ViewCycleType.FULL;
             }
           }
         } catch (final Exception e) {
@@ -576,15 +573,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
               if (isTerminated()) {
                 return;
               }
-              cycleStarted(new DefaultViewCycleMetadata(
-                  cycleReference.get().getUniqueId(),
-                  marketDataSnapshot.getUniqueId(),
-                  compiledViewDefinition.getViewDefinition().getUniqueId(),
-                  versionCorrection,
-                  executionOptions.getValuationTime(),
-                  singleComputationCycle.getAllCalculationConfigurationNames(),
-                  configToComputationTargets,
-                  configToTerminalOutputs));
+              cycleStarted(new DefaultViewCycleMetadata(cycleReference.get().getUniqueId(), marketDataSnapshot.getUniqueId(), compiledViewDefinition.getViewDefinition().getUniqueId(),
+                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs));
               if (isTerminated()) {
                 return;
               }
@@ -807,9 +797,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     }
   }
 
-  private void executeViewCycle(final ViewCycleType cycleType,
-      final EngineResourceReference<SingleComputationCycle> cycleReference,
-      final MarketDataSnapshot marketDataSnapshot) throws Exception {
+  private void executeViewCycle(final ViewCycleType cycleType, final EngineResourceReference<SingleComputationCycle> cycleReference, final MarketDataSnapshot marketDataSnapshot) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -850,9 +838,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     }
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
-    s_logger.info("Last latency was {} ms, Average latency is {} ms",
-        durationNanos / NANOS_PER_MILLISECOND,
-        (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", durationNanos / NANOS_PER_MILLISECOND, (_totalTimeNanos / _cycleCount) / NANOS_PER_MILLISECOND);
   }
 
   private void jobCompleted() {
@@ -865,8 +851,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     getJob().terminate();
   }
 
-  private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions,
-      final CompiledViewDefinitionWithGraphs compiledViewDefinition, final VersionCorrection versionCorrection) {
+  private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions, final CompiledViewDefinitionWithGraphs compiledViewDefinition,
+      final VersionCorrection versionCorrection) {
 
     // [PLAT-3581] Is the check below still necessary? The logic to create the valuation time for compilation is the same as that for
     // populating the valuation time on the execution options that this detects.
@@ -1482,9 +1468,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         _compilationTask = null;
       }
     } catch (final Exception e) {
-      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}",
-          getViewDefinition().getUniqueId(),
-          valuationTime);
+      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
       throw new OpenGammaRuntimeException(message, e);
     } finally {
@@ -1500,8 +1484,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
     if ((compiledViewDefinition.getValidTo() != null) && getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
-      final Duration durationToExpiry = _marketDataManager.getMarketDataProvider().getRealTimeDuration(valuationTime,
-          compiledViewDefinition.getValidTo());
+      final Duration durationToExpiry = _marketDataManager.getMarketDataProvider().getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
       final long expiryNanos = System.nanoTime() + durationToExpiry.toNanos();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
       // REVIEW Andrew 2012-11-02 -- If we are ticking live, then this is almost right (System.nanoTime will be close to valuationTime, depending on how
@@ -1512,8 +1495,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     return compiledViewDefinition;
   }
 
-  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition,
-      final ComputationTargetResolver.AtVersionCorrection resolver) {
+  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ComputationTargetResolver.AtVersionCorrection resolver) {
     if (_marketDataSelectionGraphManipulator.hasManipulationsDefined()) {
       s_logger.info("Initialising market data manipulation");
       final Map<String, DependencyGraph> newGraphsByConfig = new HashMap<>();
@@ -1530,14 +1512,12 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           // _specificMarketDataSelectors has an entry for each graph, so no null check required
           if (!params.isEmpty()) {
             // Filter the function params so that we only have entries for active selectors
-            final Map<DistinctMarketDataSelector, FunctionParameters> filteredParams = Maps.filterKeys(
-                params,
-                new Predicate<DistinctMarketDataSelector>() {
-                  @Override
-                  public boolean apply(DistinctMarketDataSelector selector) {
-                    return selectorMapping.containsKey(selector);
-                  }
-                });
+            final Map<DistinctMarketDataSelector, FunctionParameters> filteredParams = Maps.filterKeys(params, new Predicate<DistinctMarketDataSelector>() {
+              @Override
+              public boolean apply(DistinctMarketDataSelector selector) {
+                return selectorMapping.containsKey(selector);
+              }
+            });
             functionParamsByConfig.put(graph.getCalculationConfigurationName(), filteredParams);
           }
         }
