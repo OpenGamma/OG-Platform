@@ -1,9 +1,9 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.description.inflation;
+package com.opengamma.analytics.financial.provider.description.commodity;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,11 +11,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.opengamma.analytics.financial.commodity.newcommodity.curve.CommodityForwardCurve;
+import com.opengamma.analytics.financial.commodity.newcommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
 import com.opengamma.analytics.math.curve.DoublesCurve;
@@ -27,39 +28,39 @@ import com.opengamma.util.tuple.DoublesPair;
  * Class describing a "market" with discounting, forward, price index and credit curves.
  * The forward rate is computed directly.
  */
-public class InflationProviderForward implements InflationProviderInterface {
+public class CommodityProviderForward implements CommodityProviderInterface {
 
   /**
    * The multicurve provider.
    */
   private final MulticurveProviderForward _multicurveProvider;
   /**
-   * A map with one price curve by price index.
+   * A map with one commodity forward curve by commodity underlying.
    */
-  private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
+  private final Map<CommodityUnderlying, CommodityForwardCurve> _commodityForwardCurves;
 
   /**
    * Map of all curves used in the provider. The order is ???
    */
-  private Map<String, PriceIndexCurve> _allCurves;
+  private Map<String, CommodityForwardCurve> _allCurves;
 
   /**
-   * Constructor with empty maps for discounting, forward and price index.
+   * Constructor with empty maps for discounting, forward and commodity forward curves.
    */
-  public InflationProviderForward() {
+  public CommodityProviderForward() {
     _multicurveProvider = new MulticurveProviderForward();
-    _priceIndexCurves = new LinkedHashMap<>();
-    setInflationCurves();
+    _commodityForwardCurves = new LinkedHashMap<>();
+    setCommdodityForwardCurves();
   }
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
    * @param fxMatrix The FXMatrix.
    */
-  public InflationProviderForward(final FXMatrix fxMatrix) {
+  public CommodityProviderForward(final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderForward(fxMatrix);
-    _priceIndexCurves = new LinkedHashMap<>();
-    setInflationCurves();
+    _commodityForwardCurves = new LinkedHashMap<>();
+    setCommdodityForwardCurves();
   }
 
   /**
@@ -67,59 +68,59 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param discountingCurves A map with one (discounting) curve by currency.
    * @param forwardIborCurves A map with one (forward) curve by Ibor index.
    * @param forwardONCurves A map with one (forward) curve by ON index.
-   * @param priceIndexCurves A map with one price curve by price index.
+   * @param commodityForwardCurves A map with one price curve by price index.
    * @param fxMatrix The FXMatrix.
    */
-  public InflationProviderForward(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, DoublesCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final FXMatrix fxMatrix) {
+  public CommodityProviderForward(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, DoublesCurve> forwardIborCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<CommodityUnderlying, CommodityForwardCurve> commodityForwardCurves, final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderForward(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
-    _priceIndexCurves = priceIndexCurves;
-    setInflationCurves();
+    _commodityForwardCurves = commodityForwardCurves;
+    setCommdodityForwardCurves();
   }
 
   /**
    * Constructor from exiting multicurveProvider and inflation map. The given provider and map are used for the new provider (the same maps are used, not copied).
    * @param multicurve The multi-curves provider.
-   * @param priceIndexCurves The map with price index curves.
+   * @param commodityForwardCurves The map with commodity forward curves.
    */
-  public InflationProviderForward(final MulticurveProviderForward multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
+  public CommodityProviderForward(final MulticurveProviderForward multicurve, final Map<CommodityUnderlying, CommodityForwardCurve> commodityForwardCurves) {
     _multicurveProvider = multicurve;
-    _priceIndexCurves = priceIndexCurves;
-    setInflationCurves();
+    _commodityForwardCurves = commodityForwardCurves;
+    setCommdodityForwardCurves();
   }
 
-  private void setInflationCurves() {
+  private void setCommdodityForwardCurves() {
     _allCurves = new LinkedHashMap<>();
 
-    final Set<IndexPrice> indexSet = _priceIndexCurves.keySet();
-    for (final IndexPrice index : indexSet) {
-      final String name = _priceIndexCurves.get(index).getName();
-      _allCurves.put(name, _priceIndexCurves.get(index));
+    final Set<CommodityUnderlying> indexSet = _commodityForwardCurves.keySet();
+    for (final CommodityUnderlying index : indexSet) {
+      final String name = _commodityForwardCurves.get(index).getName();
+      _allCurves.put(name, _commodityForwardCurves.get(index));
     }
 
   }
 
   @Override
-  public InflationProviderForward copy() {
+  public CommodityProviderForward copy() {
     final MulticurveProviderForward multicurveProvider = _multicurveProvider.copy();
-    final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
-    return new InflationProviderForward(multicurveProvider, priceIndexCurves);
+    final LinkedHashMap<CommodityUnderlying, CommodityForwardCurve> commodityForwardCurves = new LinkedHashMap<>(_commodityForwardCurves);
+    return new CommodityProviderForward(multicurveProvider, commodityForwardCurves);
   }
 
   @Override
-  public double getPriceIndex(final IndexPrice index, final Double time) {
-    if (_priceIndexCurves.containsKey(index)) {
-      return _priceIndexCurves.get(index).getPriceIndex(time);
+  public double getForwardValue(final CommodityUnderlying commodityUnderlying, final Double time) {
+    if (_commodityForwardCurves.containsKey(commodityUnderlying)) {
+      return _commodityForwardCurves.get(commodityUnderlying).getForwardValue(time);
     }
-    throw new IllegalArgumentException("Price index curve not found: " + index);
+    throw new IllegalArgumentException("Price index curve not found: " + commodityUnderlying);
   }
 
   @Override
-  public String getName(final IndexPrice index) {
-    if (_priceIndexCurves.containsKey(index)) {
-      return _priceIndexCurves.get(index).getCurve().getName();
+  public String getName(final CommodityUnderlying commodityUnderlying) {
+    if (_commodityForwardCurves.containsKey(commodityUnderlying)) {
+      return _commodityForwardCurves.get(commodityUnderlying).getFwdCurve().getName();
     }
-    throw new IllegalArgumentException("Price index curve not found: " + index);
+    throw new IllegalArgumentException("Price index curve not found: " + commodityUnderlying);
   }
 
   /**
@@ -127,35 +128,35 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param index The Price index.
    * @return The curve.
    */
-  public PriceIndexCurve getCurve(final IndexPrice index) {
-    if (_priceIndexCurves.containsKey(index)) {
-      return _priceIndexCurves.get(index);
+  public CommodityForwardCurve getCurve(final IndexPrice index) {
+    if (_commodityForwardCurves.containsKey(index)) {
+      return _commodityForwardCurves.get(index);
     }
     throw new IllegalArgumentException("Price index curve not found: " + index);
   }
 
   @Override
-  public Set<IndexPrice> getPriceIndexes() {
-    return _priceIndexCurves.keySet();
+  public Set<CommodityUnderlying> getCommodityUnderlyings() {
+    return _commodityForwardCurves.keySet();
   }
 
   /**
    * Sets the price index curve for a price index.
-   * @param index The price index.
+   * @param commodityUnderlying The price index.
    * @param curve The curve.
    */
-  public void setCurve(final IndexPrice index, final PriceIndexCurve curve) {
-    ArgumentChecker.notNull(index, "index");
+  public void setCurve(final CommodityUnderlying commodityUnderlying, final CommodityForwardCurve curve) {
+    ArgumentChecker.notNull(commodityUnderlying, "commodity underlying");
     ArgumentChecker.notNull(curve, "curve");
-    if (_priceIndexCurves.containsKey(index)) {
-      throw new IllegalArgumentException("Price index curve already set: " + index.toString());
+    if (_commodityForwardCurves.containsKey(commodityUnderlying)) {
+      throw new IllegalArgumentException("Price index curve already set: " + commodityUnderlying.toString());
     }
-    _priceIndexCurves.put(index, curve);
+    _commodityForwardCurves.put(commodityUnderlying, curve);
   }
 
   @Override
   public Integer getNumberOfParameters(final String name) {
-    final PriceIndexCurve curve = _allCurves.get(name);
+    final CommodityForwardCurve curve = _allCurves.get(name);
     return curve.getNumberOfParameters();
   }
 
@@ -250,9 +251,9 @@ public class InflationProviderForward implements InflationProviderInterface {
   public Set<String> getAllNames() {
     final Set<String> names = new TreeSet<>();
     names.addAll(_multicurveProvider.getAllNames());
-    final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
-    for (final IndexPrice price : priceSet) {
-      names.add(_priceIndexCurves.get(price).getName());
+    final Set<CommodityUnderlying> priceSet = _commodityForwardCurves.keySet();
+    for (final CommodityUnderlying price : priceSet) {
+      names.add(_commodityForwardCurves.get(price).getName());
     }
     return names;
   }
@@ -289,10 +290,10 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param other The other bundle.
    * TODO: REVIEW: Should we check that the curve are already present?
    */
-  public void setAll(final InflationProviderForward other) {
+  public void setAll(final CommodityProviderForward other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     _multicurveProvider.setAll(other.getMulticurveProvider());
-    _priceIndexCurves.putAll(other._priceIndexCurves);
+    _commodityForwardCurves.putAll(other._commodityForwardCurves);
   }
 
   /**
@@ -317,17 +318,17 @@ public class InflationProviderForward implements InflationProviderInterface {
 
   /**
    * Replaces the discounting curve for a price index.
-   * @param index The price index.
+   * @param commodityUnderlying The price index.
    * @param curve The price curve for the index.
    *  @throws IllegalArgumentException if curve name NOT already present
    */
-  public void replaceCurve(final IndexPrice index, final PriceIndexCurve curve) {
-    ArgumentChecker.notNull(index, "Price index");
+  public void replaceCurve(final CommodityUnderlying commodityUnderlying, final CommodityForwardCurve curve) {
+    ArgumentChecker.notNull(commodityUnderlying, "commodity underlying");
     ArgumentChecker.notNull(curve, "curve");
-    if (!_priceIndexCurves.containsKey(index)) {
-      throw new IllegalArgumentException("Price index curve not in set: " + index);
+    if (!_commodityForwardCurves.containsKey(commodityUnderlying)) {
+      throw new IllegalArgumentException("Price index curve not in set: " + commodityUnderlying);
     }
-    _priceIndexCurves.put(index, curve);
+    _commodityForwardCurves.put(commodityUnderlying, curve);
   }
 
   @Override
@@ -345,29 +346,29 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   @Override
-  public InflationProviderForward withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
+  public CommodityProviderForward withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
     final MulticurveProviderForward decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
-    return new InflationProviderForward(decoratedMulticurve, _priceIndexCurves);
+    return new CommodityProviderForward(decoratedMulticurve, _commodityForwardCurves);
   }
 
   @Override
-  public InflationProviderInterface withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
+  public CommodityProviderInterface withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
     return null;
   }
 
   @Override
-  public InflationProviderInterface withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
+  public CommodityProviderInterface withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
     return null;
   }
 
   @Override
-  public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
-    final PriceIndexCurve curve = _allCurves.get(name);
+  public double[] parameterCommoditySensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    final CommodityForwardCurve curve = _allCurves.get(name);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
       for (final DoublesPair timeAndS : pointSensitivity) {
-        final double[] sensi1Point = curve.getPriceIndexParameterSensitivity(timeAndS.getFirst());
+        final double[] sensi1Point = curve.getCommodityForwardParameterSensitivity(timeAndS.getFirst());
         for (int loopparam = 0; loopparam < nbParameters; loopparam++) {
           result[loopparam] += timeAndS.getSecond() * sensi1Point[loopparam];
         }
@@ -377,7 +378,7 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   @Override
-  public InflationProviderInterface getInflationProvider() {
+  public CommodityProviderInterface getCommodityProvider() {
     return this;
   }
 

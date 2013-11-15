@@ -80,6 +80,15 @@ public class CommodityForwardCurve {
   }
 
   /**
+   * Returns the estimated commodity forward value for a given time.
+   * @param time The time
+   * @return The commodity forward value.
+   */
+  public double getSpotValue() {
+    return _fwdCurve.getYValue(0.0);
+  }
+
+  /**
    * Gets the number of parameters in a curve.
    * @return The number of parameters
    */

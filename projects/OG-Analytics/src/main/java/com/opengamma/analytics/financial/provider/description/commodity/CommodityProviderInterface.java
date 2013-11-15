@@ -1,57 +1,55 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.description.inflation;
+package com.opengamma.analytics.financial.provider.description.commodity;
 
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.commodity.newcommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Interface specific to inflation curves.
+ *  Interface specific to commodity curves.
  * Compose the MulticurveProviderInterface.
  */
-public interface InflationProviderInterface extends ParameterInflationProviderInterface {
+public interface CommodityProviderInterface extends ParameterCommodityProviderInterface {
 
   /**
    * Create a new copy of the provider.
    * @return The provider.
    */
   @Override
-  InflationProviderInterface copy();
+  CommodityProviderInterface copy();
 
   /**
-   * Gets the estimated price index for a given reference time.
-   * @param index The price index.
+   * Gets the estimated commodity forward value for a given reference time.
+   * @param underlying The commodity underlying.
    * @param time The reference time.
-   * @return The price index.
+   * @return The forward value.
    */
-  double getPriceIndex(IndexPrice index, Double time);
-
-  // TODO: Do we need a method which returns the inflation rate over a period?
+  double getForwardValue(CommodityUnderlying underlying, Double time);
 
   /**
    * Return the name associated to a price index.
-   * @param index The price index.
+   * @param underlying The underlying commodity.
    * @return The name.
    */
-  String getName(IndexPrice index);
+  String getName(CommodityUnderlying underlying);
 
   /**
    * Gets the set of price indexes defined in the provider.
    * @return The set of index.
    */
-  Set<IndexPrice> getPriceIndexes();
+  Set<CommodityUnderlying> getCommodityUnderlyings();
 
   /**
    * Gets the names of all curves (discounting, forward, price index and issuers).
@@ -60,12 +58,12 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
   Set<String> getAllNames();
 
   /**
-   * Gets the sensitivity to the inflation parameters.
+   * Gets the sensitivity to the commodity parameters.
    * @param name The name of the curve
    * @param pointSensitivity The nodal point sensitivities
    * @return The sensitivity to the inflation parameters
    */
-  double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity);
+  double[] parameterCommoditySensitivity(String name, List<DoublesPair> pointSensitivity);
 
   /**
    * Gets the number of parameters for a curve described by its name.
@@ -183,7 +181,7 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
    * @param replacement The replacement discounting curve, not null
    * @return A new provider with the discounting curve for the currency replaced by the input curve.
    */
-  InflationProviderInterface withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement);
+  CommodityProviderInterface withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement);
 
   /**
    * Returns a new provider with the curve for a particular ibor index replaced.
@@ -191,7 +189,7 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
    * @param replacement The replacement ibor index curve, not null
    * @return A new provider with the ibor index curve replaced by the input curve.
    */
-  InflationProviderInterface withForward(IborIndex index, YieldAndDiscountCurve replacement);
+  CommodityProviderInterface withForward(IborIndex index, YieldAndDiscountCurve replacement);
 
   /**
    * Returns a new provider with the curve for a particular overnight index replaced.
@@ -199,6 +197,6 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
    * @param replacement The replacement overnight index curve, not null
    * @return A new provider with the overnight index curve replaced by the input curve.
    */
-  InflationProviderInterface withForward(IndexON index, YieldAndDiscountCurve replacement);
+  CommodityProviderInterface withForward(IndexON index, YieldAndDiscountCurve replacement);
 
 }
