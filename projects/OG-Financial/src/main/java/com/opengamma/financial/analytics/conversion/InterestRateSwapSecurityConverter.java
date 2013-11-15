@@ -194,7 +194,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             maturityDateTime,
             paymentTenorIbor,
             iborLegNotional,
-            iborLeg.getSpreadSchedule().getInitialRate(),
+            parseFlatSpread(iborLeg),
             indexIbor,
             !payFixed,
             floatDayCount,
@@ -224,7 +224,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           maturityDateTime,
           paymentTenorIbor, // period and payment dates are generated from these
           iborLegNotional,
-          iborLeg.getSpreadSchedule().getInitialRate(),
+          parseFlatSpread(iborLeg),
           indexIbor,
           StubType.SHORT_START, // TODO stub compounding period
           !payFixed,
@@ -238,7 +238,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           maturityDateTime,
           paymentTenorIbor,
           iborLegNotional,
-          iborLeg.getSpreadSchedule().getInitialRate(),
+          parseFlatSpread(iborLeg),
           indexIbor,
           StubType.SHORT_START, // TODO stub compounding period
           !payFixed,
@@ -275,6 +275,16 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
                                                              LocalTime.of(11, 0), "", schedule.getFixingCalendars().iterator().next(), schedule.getPaymentCalendars().iterator().next(),
                                                              "");
     return convention;
+  }
+  
+  private double parseFlatSpread(FloatingInterestRateSwapLeg iborLeg) {
+    if (iborLeg.getSpreadSchedule() != null) {
+      double spread = iborLeg.getSpreadSchedule().getInitialRate();
+      if (!Double.isNaN(spread)) {
+        return spread;
+      }
+    }
+    return 0.0;
   }
 
   //private IborIndexConvention getIborLegConvention(final Currency currency) {
