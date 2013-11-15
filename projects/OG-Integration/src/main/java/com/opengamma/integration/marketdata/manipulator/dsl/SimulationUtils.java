@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -139,7 +141,9 @@ public final class SimulationUtils {
     CompilerConfiguration config = new CompilerConfiguration();
     config.addCompilationCustomizers(customizer);
     config.setScriptBaseClass(SimulationScript.class.getName());
-    Binding binding = new Binding(parameters);
+    Map<String, Object> bindingMap = parameters == null ? Collections.<String, Object>emptyMap() : parameters;
+    //copy map to ensure that binding is mutable (for use in registerAliases)
+    Binding binding = new Binding(Maps.newHashMap(bindingMap));
     registerAliases(binding);
     GroovyShell shell = new GroovyShell(binding, config);
     Script script = shell.parse(scriptReader);
