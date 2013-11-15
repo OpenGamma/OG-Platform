@@ -25,6 +25,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -52,6 +53,8 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   private static final String VALUATION_TIME_OPTION = "t";
   /** Take data from historical timeseries */
   private static final String HISTORICAL_OPTION = "historical";
+  /** Take an unstructured only snapshot */
+  private static final String UNSTRUCTURED_OPTION = "u";
   /** Time format: yyyyMMdd */
   private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
@@ -84,7 +87,12 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
       s_logger.warn("No market data snapshot masters found at {}", s_context);
       return;
     }
-    final MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
+    final MarketDataSnapshotter marketDataSnapshotter;
+    if (getCommandLine().hasOption(UNSTRUCTURED_OPTION)) {
+      marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter(Mode.UNSTRUCTURED);
+    } else {
+      marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter(Mode.STRUCTURED);
+    }
     final MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster);
 
     if (getCommandLine().hasOption(VIEW_PROCESS_ID_OPTION)) {
@@ -110,7 +118,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
       s_logger.info("Creating snapshot for view definition " + viewDefinitionName);
       final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
       try {
-        String snapshotName = viewDefinitionName + "/" + valuationInstant;
+        String snapshotName = viewDefinitionName;
         snapshotSaver.createSnapshot(snapshotName, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
       } catch (Exception e) {
         endWithError(e.getMessage());
@@ -132,6 +140,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
     options.addOptionGroup(createViewOptionGroup());
     options.addOption(createValuationTimeOption());
     options.addOption(createHistoricalOption());
+    options.addOption(createUnstructuredSnapshot());
     return options;
   }
   
@@ -163,6 +172,10 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
 
   private static Option createHistoricalOption() {
     return new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
+  }
+  
+  private static Option createUnstructuredSnapshot() {
+    return new Option(UNSTRUCTURED_OPTION, "unstructured", false, "if set, do not capture structures and include data for those in unstructured section");
   }
 
 }

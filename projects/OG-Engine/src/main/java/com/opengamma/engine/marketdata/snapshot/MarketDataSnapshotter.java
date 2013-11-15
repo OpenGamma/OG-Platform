@@ -22,6 +22,20 @@ public interface MarketDataSnapshotter {
   //TODO: create snapshot from latest cycle
   
   /**
+   * Mode in which to take the snapshot
+   */
+  public enum Mode {
+    /**
+     * Include structures such as yield curves, vol surfaces and vol cubes in the snapshot and exclude those points from the unstructured section
+     */
+    STRUCTURED,
+    /**
+     * Do not store any structure in the snapshot - data for yield curves etc should all be included in the unstructured part of the snapshot
+     */
+    UNSTRUCTURED
+  }
+
+  /**
    * Produces a snapshot from a view cycle
    * @param client The client to use
    * @param cycle The cycle on which to base the snapshot

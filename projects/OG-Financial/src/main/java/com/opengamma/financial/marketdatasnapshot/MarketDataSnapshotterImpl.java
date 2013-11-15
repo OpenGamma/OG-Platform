@@ -6,6 +6,7 @@
 package com.opengamma.financial.marketdatasnapshot;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -69,18 +70,22 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   @SuppressWarnings("rawtypes")
   private final StructuredSnapper[] _structuredSnappers;
 
+  private Mode _mode;
+  
   /**
    * @param resolver the target resolver, not null
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    * @param htsSource Must be specified if market data is inputted via HTS, may be null
+   * @param mode whether to create a structured or flattened snapshot
    */
-  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource, final HistoricalTimeSeriesSource htsSource) {
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource, final HistoricalTimeSeriesSource htsSource, final Mode mode) {
     ArgumentChecker.notNull(resolver, "resolver");
     _resolver = resolver;
     _htsSource = htsSource;
     _cubeDefinitionSource = cubeDefinitionSource;
     _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
     _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _curveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
+    _mode = mode;
   }
 
   @Override
@@ -103,19 +108,24 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   public StructuredMarketDataSnapshot createSnapshot(final ExternalIdBundleResolver resolver, final ViewComputationResultModel results,
       final Map<String, DependencyGraph> graphs, final ViewCycle viewCycle, final String basisViewName) {
     final ManageableUnstructuredMarketDataSnapshot globalValues = getGlobalAndUnresolvedValues(resolver, results, graphs);
-
-    final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
-    final Map<CurveKey, CurveSnapshot> curves = _curveSnapper.getValues(results, graphs, viewCycle);
-    final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
-    final Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
-
     final ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
-    ret.setYieldCurves(yieldCurves);
-    ret.setCurves(curves);
-    ret.setVolatilitySurfaces(surfaces);
-    ret.setVolatilityCubes(cubes);
+    if (_mode == Mode.STRUCTURED) {
+      final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
+      final Map<CurveKey, CurveSnapshot> curves = _curveSnapper.getValues(results, graphs, viewCycle);
+      final Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> surfaces = _volatilitySurfaceSnapper.getValues(results, graphs, viewCycle);
+      final Map<VolatilityCubeKey, VolatilityCubeSnapshot> cubes = _volatilityCubeSnapper.getValues(results, graphs, viewCycle);
+      ret.setYieldCurves(yieldCurves);
+      ret.setCurves(curves);
+      ret.setVolatilitySurfaces(surfaces);
+      ret.setVolatilityCubes(cubes);
+    } else {
+      ret.setYieldCurves(Collections.<YieldCurveKey, YieldCurveSnapshot>emptyMap());
+      ret.setCurves(Collections.<CurveKey, CurveSnapshot>emptyMap());
+      ret.setVolatilitySurfaces(Collections.<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>emptyMap());
+      ret.setVolatilityCubes(Collections.<VolatilityCubeKey, VolatilityCubeSnapshot>emptyMap());
+    }
     return ret;
   }
 
@@ -166,7 +176,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
       }
       return;
     }
-    if (pathToRoot && isStructuredNode(node)) {
+    if (pathToRoot && isStructuredNode(node) && _mode == Mode.STRUCTURED) {
       pathToRoot = false;
     }
     for (int i = 0; i < inputs; i++) {

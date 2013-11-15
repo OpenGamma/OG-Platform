@@ -48,6 +48,7 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
@@ -351,8 +352,7 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
   private MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
     MarketDataSnapshotSaver saver = MarketDataSnapshotSaver.of(data().getComputationTargetResolver(), data().getHistoricalTimeSeriesSource(), 
-        data().getViewProcessor(), data().getConfigMaster(), data().getMarketDataSnapshotMaster(), data().getVolatilityCubeDefinitionSource());
-    
+        data().getViewProcessor(), data().getConfigMaster(), data().getMarketDataSnapshotMaster(), data().getVolatilityCubeDefinitionSource(), Mode.STRUCTURED);
     return saver.createSnapshot(name, viewDefinitionName, valuationInstant, marketDataSpecs);
   }
 

@@ -103,16 +103,17 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    * @param configMaster  the master, not null
    * @param marketDataSnapshotMaster  the master, not null
    * @param volatilityCubeDefinitionSource  the source, not null
+   * @param mode  the mode in which to capture the snapshot (STRUCTURED or FLATTENED), not null
    * @return the saver, not null
    */
   public static MarketDataSnapshotSaver of(ComputationTargetResolver computationTargetResolver, HistoricalTimeSeriesSource historicalTimeSeriesSource, 
       ViewProcessor viewProcessor, ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster,
-      VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+      VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, MarketDataSnapshotter.Mode mode) {
     ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     ArgumentChecker.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     
-    final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(computationTargetResolver, volatilityCubeDefinitionSource, historicalTimeSeriesSource);
+    final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(computationTargetResolver, volatilityCubeDefinitionSource, historicalTimeSeriesSource, mode);
     return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter);
   }
 
