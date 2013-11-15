@@ -54,7 +54,9 @@ $.register_module({
                     var config = result ? result.data.data : {}, blotter = og.analytics.blotter;
                     if (config.main && !Object.equals(config.main, last.main)) {
                         new og.analytics.Form({callback: og.analytics.url.main, data: config.main});
-                        if (og.analytics.grid) og.analytics.grid.kill();
+                        if (og.analytics.grid) {
+                            og.analytics.grid.kill();
+                        }
                         og.analytics.grid = new og.common.gadgets.Grid({
                             selector: main_selector, cellmenu: true, show_save: blotter,
                             source: !!blotter ? $.extend({blotter: blotter}, config.main) : config.main

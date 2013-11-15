@@ -14,7 +14,6 @@ import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
@@ -44,7 +43,6 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @param cycle The most recent view cycle
    */
   /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-      ValueRequirement requirement,
       ValueSpecification rootSpec,
       String calcConfigName,
       ComputationTargetResolver targetResolver,
@@ -69,7 +67,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
     DependencyNode rootNode = depGraphExplorer.getNodeProducing(rootSpec);
     _functions = functions;
     AnalyticsNode node = (rootNode != null) ? createNode(rootSpec, rootNode, true) : null;
-    _structure = new DependencyGraphGridStructure(node, calcConfigName, requirement, _valueSpecs, _fnNames, targetResolver);
+    _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver);
   }
 
   private String getFunctionName(final String functionId) {

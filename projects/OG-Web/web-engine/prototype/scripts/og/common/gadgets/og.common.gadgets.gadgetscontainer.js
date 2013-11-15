@@ -56,19 +56,19 @@ $.register_module({
                 $header.html(inplace_template(template_obj))
                     .off('mousedown').on('mousedown', '.og-js-icon', function () {
                         var gadget_type = $(this).attr('data-gadget_type'),
-                            gadget_name = $(this).attr('data-gadget_name'), swap_config;
+                            gadget_name = $(this).attr('data-gadget_name'),
+                            swap_config;
                         if (gadget_type === 'dock') {
                             og.analytics.url.add('south', gadgets[0].config);
                             og.common.gadgets.manager.clean();
                             return;
-                        };
-                        if (gadget_type === config.gadget_type) return false;
-                        swap_config = {
-                            gadget: 'og.common.gadgets.' + gadget_type, options: config.options,
-                            gadget_name: gadget_name, col_name: config.col_name,
-                            gadget_type: gadget_type, row_name: config.row_name,
-                            data_type: config.data_type
-                        };
+                        }
+                        if (gadget_type === config.gadget_type) {
+                            return false;
+                        }
+                        swap_config = { gadget: 'og.common.gadgets.' + gadget_type, options: config.options,
+                            gadget_name: gadget_name, col_name: config.col_name, gadget_type: gadget_type,
+                            row_name: config.row_name, data_type: config.data_type };
                         container.swap(swap_config, 0, true);
                         return false;
                     });
@@ -89,7 +89,9 @@ $.register_module({
              *        if id is null set tabs to a single empty tab
              */
             var update_tabs = function (id) {
-                if (!!container.inplace) return inplace_header(id);
+                if (!!container.inplace) {
+                    return inplace_header(id);
+                }
                 var $header = $(header), tabs;
                 /**
                  * @param id Id of gadget to show, hide all others
@@ -180,9 +182,12 @@ $.register_module({
                     draggable($tabs);
                     container.focus();
                 };
-                if (id === null) $header.html(tabs_template({'tabs': [{'name': 'empty'}]})); // empty tabs
-                else {
-                    if (id === void 0) id = live_id;
+                if (id === null) { // empty tabs
+                    $header.html(tabs_template({'tabs': [{'name': 'empty'}]}));
+                } else {
+                    if (id === void 0) {
+                        id = live_id;
+                    }
                     tabs = gadgets.reduce(function (acc, val, idx) {
                         return acc.push({
                             'gadget_type': val.config.gadget_type, 'row_name': val.config.row_name, 'delete': true,
@@ -240,16 +245,28 @@ $.register_module({
              *     obj.margin   Boolean
              */
             container.add = function (data, index, inplace) {
-                if (!!inplace) container.inplace = inplace;
+                if (!!inplace) {
+                    container.inplace = inplace;
+                }
                 var panel_container = selector + ' .OG-gadget-container', new_gadgets;
-                if (!loading && !initialized)
-                    return container.init(), setTimeout(container.add.partial(data, index, inplace), 10), container;
-                if (!initialized) return setTimeout(container.add.partial(data, index, inplace), 10), container;
-                if (!data) return container; // no gadgets for this container
-                if (!selector) throw new TypeError('GadgetsContainer has not been initialized');
+                if (!loading && !initialized) {
+                    container.init();
+                    setTimeout(container.add.partial(data, index, inplace), 10);
+                    return container;
+                }
+                if (!initialized) {
+                    setTimeout(container.add.partial(data, index, inplace), 10);
+                    return container;
+                }
+                if (!data) {
+                    return container;
+                } // no gadgets for this container
+                if (!selector) {
+                    throw new TypeError('GadgetsContainer has not been initialized');
+                }
                 new_gadgets = data.map(function (obj, idx) {
                     var id, gadget_class = 'OG-gadget-' + (id = counter++), gadget, options = Object.clone(obj.options),
-                        constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
+                        constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val]; }, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
                     $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
                         position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
@@ -260,10 +277,14 @@ $.register_module({
                     if (typeof index === 'number') {
                         if (gadgets[index]) {
                             $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
-                            if (gadgets[index]) gadgets[index].gadget.alive();
+                            if (gadgets[index]) {
+                                gadgets[index].gadget.alive();
+                            }
                         }
                         gadgets.splice(index, 1, gadget);
-                    } else gadgets.push(gadget);
+                    } else {
+                        gadgets.push(gadget);
+                    }
                     return gadget;
                 });
                 update_tabs(new_gadgets[new_gadgets.length - 1].id);
@@ -341,7 +362,11 @@ $.register_module({
                             }
                             if (!$(this).hasClass('og-focus')) container.focus();
                         });
-                    if (!data) update_tabs(null); else container.add(data);
+                    if (!data) {
+                        update_tabs(null);
+                    } else {
+                        container.add(data);
+                    }
                     // implement drop
                     $selector.droppable({
                         hoverClass: 'og-drop',
@@ -359,8 +384,9 @@ $.register_module({
                                 ui.draggable.draggable('option', 'revert', true);
                             } else {
                                 ui.draggable.draggable('option', 'revert', false);
-                                if (false !== container.fire('drop', data.gadget().config, data.source))
+                                if (false !== container.fire('drop', data.gadget().config, data.source)) {
                                     container.add([data.gadget().config]);
+                                }
                                 setTimeout(data.handler); // setTimeout to ensure handler is called after drag evt ends
                             }
                         }

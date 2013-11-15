@@ -18,7 +18,6 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.id.UniqueId;
@@ -50,8 +49,6 @@ public class DependencyGraphGridStructure implements GridStructure {
   /** Map of target types to displayable names. */
   private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
 
-  /** The {@link ValueRequirement} that requested the root node. */
-  private final ValueRequirement _rootRequirement;
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
   /** Function names for all rows in the grid in row index order. */
@@ -71,17 +68,14 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
-                                             ValueRequirement rootRequirement,
                                              List<ValueSpecification> valueSpecs,
                                              List<String> fnNames,
                                              ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
-    ArgumentChecker.notNull(rootRequirement, "rootRequirement");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _root = root;
     _calcConfigName = calcConfigName;
-    _rootRequirement = rootRequirement;
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
@@ -216,13 +210,6 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   /**
-   * @return The {@link ValueRequirement} that requested the root node.
-   */
-  public ValueRequirement getRootRequirement() {
-    return _rootRequirement;
-  }
-
-  /**
    * @return The name of the calculation config containing the dependency graph's root value.
    */
   public String getCalculationConfigurationName() {
@@ -332,7 +319,6 @@ public class DependencyGraphGridStructure implements GridStructure {
   @Override
   public String toString() {
     return "DependencyGraphGridStructure [" +
-        "_rootRequirement=" + _rootRequirement +
         ", _valueSpecs=" + _valueSpecs +
         ", _fnNames=" + _fnNames +
         ", _computationTargetResolver=" + _computationTargetResolver +

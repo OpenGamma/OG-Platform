@@ -120,7 +120,7 @@ $.register_module({
                     put: function (config) {
                         config = config || {};
                         var promise = new common.Promise, root = this.root, method = root.split('/'),
-                            data = {}, meta, fields = ['view_id', 'grid_type', 'row', 'col'],
+                            data = {}, meta, fields = ['view_id', 'grid_type', 'colset', 'spec'],
                         meta = check({
                             bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                         });

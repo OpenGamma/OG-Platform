@@ -8,7 +8,7 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -181,9 +181,9 @@ import com.opengamma.web.analytics.push.UpdateListener;
                                   int graphId,
                                   String callbackId,
                                   String calcConfigName,
-                                  ValueRequirement valueRequirement) {
+                                  ValueSpecification valueSpecification) {
     try {
-      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
+      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueSpecification);
     } catch (Exception e) {
       String id = _errorManager.add(e);
       _listener.itemUpdated(id);

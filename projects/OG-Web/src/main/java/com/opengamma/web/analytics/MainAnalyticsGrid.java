@@ -120,26 +120,25 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     ValueRequirement valueReq = getGridStructure().getRequirementForCell(row, col).getSecond();
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle, gridId, _targetResolver, getFunctionRepository(), viewportListener);
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef,
+                                                          valueSpec, calcConfigName, _cycle, gridId, _targetResolver, getFunctionRepository(), viewportListener);
     _depGraphs.put(graphId, grid);
   }
 
   /**
    * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for clients to use when reconnecting after a server restart.
-   * 
+   *
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
    * @param calcConfigName Name of the calculation configuration containing the value
-   * @param valueReq Requirement that resulted in the value
    * @param compiledViewDef Compiled view definition containing the full dependency graph
    * @param viewportListener Receives notification when there are changes to a viewport
    */
-  /* package */void openDependencyGraph(int graphId, String gridId, String calcConfigName, ValueRequirement valueReq, CompiledViewDefinition compiledViewDef, ViewportListener viewportListener) {
+  /* package */void openDependencyGraph(int graphId, String gridId, String calcConfigName, ValueSpecification valueSpec, CompiledViewDefinition compiledViewDef, ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    ValueSpecification valueSpec = getGridStructure().getValueMappings().getValueSpecification(calcConfigName, valueReq);
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle,
         gridId, _targetResolver, getFunctionRepository(), viewportListener);
     _depGraphs.put(graphId, grid);
   }
@@ -155,9 +154,14 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     s_logger.debug("Creating new version of dependency graph grid {}", previousGrid.getCallbackId());
     DependencyGraphGridStructure structure = previousGrid.getGridStructure();
     String calcConfigName = structure.getCalculationConfigurationName();
-    ValueRequirement valueReq = structure.getRootRequirement();
-    ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle, previousGrid.getCallbackId(), _targetResolver, getFunctionRepository(),
+
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef,
+                                                          previousGrid.getTargetValueSpecification(),
+                                                          calcConfigName,
+                                                          _cycle,
+                                                          previousGrid.getCallbackId(),
+                                                          _targetResolver,
+                                                          getFunctionRepository(),
         previousGrid.getViewportListener());
     // empty invalid viewport which can never be used to create data
     // the client will update it before it produces data
