@@ -30,7 +30,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.equity.ScenarioPnLPropertyNamesAndValues;
 
 /**
- * Computes PNL under a simple slide scenario to underlying forward and volatility requirements.
+ * 
+ * @author casey
+ *
  */
 public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOptionBjerksundStenslandFunction {
 
@@ -47,7 +49,7 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
   private static final String s_priceShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT_TYPE;
   private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE;
   
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBjerksundStenslandScenarioPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBAWScenarioPnLFunction.class);
   
   private String getValueRequirementName() {
     return ValueRequirementNames.PNL;
