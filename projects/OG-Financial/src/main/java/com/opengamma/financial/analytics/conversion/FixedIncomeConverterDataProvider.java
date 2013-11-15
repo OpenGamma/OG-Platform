@@ -1340,7 +1340,7 @@ public class FixedIncomeConverterDataProvider {
           return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS });
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {payLegTS, payLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) payLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id + "; error was " + e.getMessage());
@@ -1357,7 +1357,7 @@ public class FixedIncomeConverterDataProvider {
           }
         }
         try {
-          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS });
+          return definition.toDerivative(now, new ZonedDateTimeDoubleTimeSeries[] {receiveLegTS, receiveLegTS });
         } catch (final OpenGammaRuntimeException e) {
           final ExternalId id = ((FloatingInterestRateSwapLeg) receiveLeg).getFloatingReferenceRateId();
           throw new OpenGammaRuntimeException("Could not get fixing value for series with identifier " + id, e);
