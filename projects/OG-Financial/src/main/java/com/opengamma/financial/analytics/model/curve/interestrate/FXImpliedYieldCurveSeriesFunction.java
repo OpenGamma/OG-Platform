@@ -219,90 +219,94 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : foreignCurves.entrySet()) {
       final LocalDate valuationDate = entry.getKey();
-      final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
-      final Double spotValue = spotTS.getValue(valuationDate);
-      if (spotValue == null) {
-        continue;
-      }
-      final double spotFX = invertFXQuotes ? 1 / spotValue : spotValue;
-      final YieldAndDiscountCurve foreignCurve = entry.getValue();
-      final DoubleArrayList marketValues = new DoubleArrayList();
-      final DoubleArrayList nodeTimes = new DoubleArrayList();
-      final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-      final List<InstrumentDerivative> derivatives = new ArrayList<>();
-      int nInstruments = 0;
-      ZonedDateTime spotDate;
-      if (spotLag == 0 && conventionSettlementRegion == null) {
-        spotDate = valuationDateTime;
-      } else {
-        spotDate = ScheduleCalculator.getAdjustedDate(valuationDateTime, spotLag, calendar);
-      }
-      for (final Tenor tenor : definition.getTenors()) {
-        final ExternalId identifier = provider.getInstrument(valuationDate, tenor);
-        final HistoricalTimeSeries forwardFXTS = timeSeriesBundle.get(provider.getMarketDataField(), identifier);
-        if (forwardFXTS == null) {
-          throw new OpenGammaRuntimeException("Could not get time series for " + identifier);
+      try {
+        final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
+        final Double spotValue = spotTS.getValue(valuationDate);
+        if (spotValue == null) {
+          continue;
         }
-        final LocalDateDoubleTimeSeries forwardTS = forwardFXTS.getTimeSeries();
-        final ZonedDateTime paymentDate;
-
+        final double spotFX = invertFXQuotes ? 1 / spotValue : spotValue;
+        final YieldAndDiscountCurve foreignCurve = entry.getValue();
+        final DoubleArrayList marketValues = new DoubleArrayList();
+        final DoubleArrayList nodeTimes = new DoubleArrayList();
+        final DoubleArrayList initialRatesGuess = new DoubleArrayList();
+        final List<InstrumentDerivative> derivatives = new ArrayList<>();
+        int nInstruments = 0;
+        ZonedDateTime spotDate;
         if (spotLag == 0 && conventionSettlementRegion == null) {
-          paymentDate = now.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
+          spotDate = valuationDateTime;
         } else {
-          paymentDate = ScheduleCalculator.getAdjustedDate(now, tenor.getPeriod(), MOD_FOL, calendar, true);
+          spotDate = ScheduleCalculator.getAdjustedDate(valuationDateTime, spotLag, calendar);
         }
-
-        final Double forwardValue = forwardTS.getValue(valuationDate);
-        if (forwardValue == null) {
-          break;
-        }
-        double forwardFX;
-        switch (specification.getQuoteType()) {
-          case Points:
-            forwardFX = isRegular ? spotFX + forwardValue : 1 / (spotFX + forwardValue);
+        for (final Tenor tenor : definition.getTenors()) {
+          final ExternalId identifier = provider.getInstrument(valuationDate, tenor);
+          final HistoricalTimeSeries forwardFXTS = timeSeriesBundle.get(provider.getMarketDataField(), identifier);
+          if (forwardFXTS == null) {
+            throw new OpenGammaRuntimeException("Could not get time series for " + identifier);
+          }
+          final LocalDateDoubleTimeSeries forwardTS = forwardFXTS.getTimeSeries();
+          final ZonedDateTime paymentDate;
+  
+          if (spotLag == 0 && conventionSettlementRegion == null) {
+            paymentDate = now.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
+          } else {
+            paymentDate = ScheduleCalculator.getAdjustedDate(now, tenor.getPeriod(), MOD_FOL, calendar, true);
+          }
+  
+          final Double forwardValue = forwardTS.getValue(valuationDate);
+          if (forwardValue == null) {
             break;
-          case Outright:
-            forwardFX = isRegular ? forwardValue : 1 / forwardValue;
-            break;
-          default:
-            throw new OpenGammaRuntimeException("Cannot handle quote type " + specification.getQuoteType());
+          }
+          double forwardFX;
+          switch (specification.getQuoteType()) {
+            case Points:
+              forwardFX = isRegular ? spotFX + forwardValue : 1 / (spotFX + forwardValue);
+              break;
+            case Outright:
+              forwardFX = isRegular ? forwardValue : 1 / forwardValue;
+              break;
+            default:
+              throw new OpenGammaRuntimeException("Cannot handle quote type " + specification.getQuoteType());
+          }
+          forwardFX = invertFXQuotes ? 1 / forwardFX : forwardFX;
+          final double quotedSpotFX = invertFXQuotes ? 1 / spotFX : spotFX;
+          final double paymentTime = TimeCalculator.getTimeBetween(now, paymentDate);
+          derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, quotedSpotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
+          marketValues.add(forwardFX);
+          nodeTimes.add(paymentTime);
+          if (nInstruments > 1 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), paymentTime, 1e-12)) {
+            throw new OpenGammaRuntimeException("FX forward with tenor " + tenor + " has already been added - will lead to equal nodes in the curve. Remove one of these tenors.");
+          }
+          nInstruments++;
+          initialRatesGuess.add(0.02);
         }
-        forwardFX = invertFXQuotes ? 1 / forwardFX : forwardFX;
-        final double quotedSpotFX = invertFXQuotes ? 1 / spotFX : spotFX;
-        final double paymentTime = TimeCalculator.getTimeBetween(now, paymentDate);
-        derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, quotedSpotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
-        marketValues.add(forwardFX);
-        nodeTimes.add(paymentTime);
-        if (nInstruments > 1 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), paymentTime, 1e-12)) {
-          throw new OpenGammaRuntimeException("FX forward with tenor " + tenor + " has already been added - will lead to equal nodes in the curve. Remove one of these tenors.");
+        if (marketValues.size() == 0) {
+          s_logger.error("Could not get market values for {}", valuationDate);
+          continue;
         }
-        nInstruments++;
-        initialRatesGuess.add(0.02);
+        final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName }, new YieldAndDiscountCurve[] {foreignCurve });
+        final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<>();
+        curveKnots.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
+        final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+        final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
+        final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName,
+            rightExtrapolatorName);
+        curveNodes.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
+        interpolators.put(fullDomesticCurveName, interpolator);
+        final FXMatrix fxMatrix = new FXMatrix();
+        fxMatrix.addCurrency(foreignCurrency, domesticCurrency, invertFXQuotes ? spotFX : 1 / spotFX);
+        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurve, curveNodes,
+            interpolators, useFiniteDifference, fxMatrix);
+        final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
+        final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
+        final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
+        final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
+        final YieldCurve curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes.toDoubleArray(), fittedYields, interpolator));
+  
+        domesticCurves.put(valuationDate, curve);
+      } catch (Exception e) {
+        s_logger.error("Exception building domestic curve for valuation date " + valuationDate, e);
       }
-      if (marketValues.size() == 0) {
-        s_logger.error("Could not get market values for {}", valuationDate);
-        continue;
-      }
-      final YieldCurveBundle knownCurve = new YieldCurveBundle(new String[] {fullForeignCurveName }, new YieldAndDiscountCurve[] {foreignCurve });
-      final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<>();
-      curveKnots.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
-      final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
-      final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
-      final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName,
-          rightExtrapolatorName);
-      curveNodes.put(fullDomesticCurveName, nodeTimes.toDoubleArray());
-      interpolators.put(fullDomesticCurveName, interpolator);
-      final FXMatrix fxMatrix = new FXMatrix();
-      fxMatrix.addCurrency(foreignCurrency, domesticCurrency, invertFXQuotes ? spotFX : 1 / spotFX);
-      final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurve, curveNodes,
-          interpolators, useFiniteDifference, fxMatrix);
-      final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
-      final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
-      final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
-      final YieldCurve curve = YieldCurve.from(InterpolatedDoublesCurve.from(nodeTimes.toDoubleArray(), fittedYields, interpolator));
-
-      domesticCurves.put(valuationDate, curve);
     }
     final Set<ComputedValue> result = new HashSet<>();
     result.add(new ComputedValue(new ValueSpecification(YIELD_CURVE_SERIES, targetSpec, desiredValue.getConstraints().copy().get()), domesticCurves));
