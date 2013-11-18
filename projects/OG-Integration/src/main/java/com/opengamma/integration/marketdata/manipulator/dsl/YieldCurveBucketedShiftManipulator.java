@@ -196,8 +196,8 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
     /**
      * The meta-property for the {@code bucketedShiftType} property.
      */
-    private final MetaProperty<BucketedShiftType> _bucketedShiftType = DirectMetaProperty.ofImmutable(
-        this, "bucketedShiftType", YieldCurveBucketedShiftManipulator.class, BucketedShiftType.class);
+    private final MetaProperty<GroovyAliasable> _bucketedShiftType = DirectMetaProperty.ofImmutable(
+        this, "bucketedShiftType", YieldCurveBucketedShiftManipulator.class, GroovyAliasable.class);
     /**
      * The meta-property for the {@code shifts} property.
      */
@@ -249,7 +249,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
      * The meta-property for the {@code bucketedShiftType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<BucketedShiftType> bucketedShiftType() {
+    public MetaProperty<GroovyAliasable> bucketedShiftType() {
       return _bucketedShiftType;
     }
 

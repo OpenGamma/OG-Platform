@@ -108,7 +108,7 @@ public final class YieldCurvePointShift implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the year.
+   * Gets the year of the shift (can be fractional)
    * @return the value of the property
    */
   public double getYear() {
@@ -117,7 +117,7 @@ public final class YieldCurvePointShift implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the shift.
+   * Gets the shift magnitude
    * @return the value of the property
    */
   public double getShift() {
@@ -126,7 +126,7 @@ public final class YieldCurvePointShift implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the shiftType.
+   * Gets the shift type
    * @return the value of the property
    */
   public CurveShiftType getShiftType() {
