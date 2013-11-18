@@ -50,7 +50,7 @@ public class CDSAnalytic {
    * This using a weekend only calendar with a following convention. ACT/360 is used for accrual and  ACT/365 to convert
    * payment dates to year-fractions (doubles)
    * @param tradeDate The trade date 
-     * @param stepinDate (aka Protection Effective sate or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
+     * @param stepinDate (aka Protection Effective date or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
    * (and risk) starts in terms of the model. Note, this is sometimes just called the Effective Date, however this can cause
    * confusion with the legal effective date which is T-60 or T-90.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
@@ -327,7 +327,7 @@ public class CDSAnalytic {
 
   public CDSAnalytic withRecoveryRate(final double recoveryRate) {
     ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
-    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, /*_protectionStart,*/_protectionEnd, _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued,
-        _accruedDays);
+    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, /*_protectionStart,*/_protectionEnd, _valuationTime, _payAccOnDefault, _protectionFromStartOfDay,
+        _accrued, _accruedDays);
   }
 }
