@@ -57,7 +57,7 @@ public class ThirtyEThreeSixtyISDATest {
   @Test
   public void testNoAccruedInterest1() {
     assertEquals(DC.getAccruedInterest(D1, D1, COUPON, true), 0, 0);
-    assertEquals(DC.getConventionName(), "30E/360 ISDA");
+    assertEquals(DC.getName(), "30E/360 ISDA");
   }
 
   @Test(expectedExceptions = NotImplementedException.class)
@@ -88,6 +88,6 @@ public class ThirtyEThreeSixtyISDATest {
   @Test
   public void testNoAccruedInterest2() {
     assertEquals(DC.getAccruedInterest(D4, D4, COUPON, true), 0, 0);
-    assertEquals(DC.getConventionName(), "30E/360 ISDA");
+    assertEquals(DC.getName(), "30E/360 ISDA");
   }
 }

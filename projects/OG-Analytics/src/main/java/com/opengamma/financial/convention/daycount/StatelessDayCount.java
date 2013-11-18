@@ -91,7 +91,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public String toString() {
-    return "DayCount [" + getConventionName() + "]";
+    return "DayCount [" + getName() + "]";
   }
 
 }

@@ -19,16 +19,19 @@ public interface YieldConvention extends NamedInstance {
 
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    * @deprecated use getName()
    */
   @Deprecated
   String getConventionName();
-  
+
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
-   */  
+   */
   @ToString
   String getName();
+
 }

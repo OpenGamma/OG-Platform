@@ -23,7 +23,7 @@ public class TwentyEightThreeSixtyTest extends DayCountTestCase {
   @Test
   public void test() {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
-    assertEquals(DC.getConventionName(), "28/360");
+    assertEquals(DC.getName(), "28/360");
     final LocalDate d1 = LocalDate.of(2012, 7, 2);
     final LocalDate d2 = LocalDate.of(2012, 7, 28);
     final LocalDate d3 = LocalDate.of(2012, 8, 2);

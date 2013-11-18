@@ -23,7 +23,7 @@ public class CalendarTest {
   public void testUKBankHolidays() {
     final Calendar cal = CalendarFactory.INSTANCE.getCalendar("UK Bank Holidays");
     assertNotNull(cal);
-    assertEquals("UK Bank Holidays", cal.getConventionName());
+    assertEquals("UK Bank Holidays", cal.getName());
     assertFalse(cal.isWorkingDay(LocalDate.of(2010, 1, 1))); // Friday (BH)
     assertFalse(cal.isWorkingDay(LocalDate.of(2010, 1, 2))); // Sat
     assertFalse(cal.isWorkingDay(LocalDate.of(2010, 1, 3))); // Sun

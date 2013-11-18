@@ -69,7 +69,7 @@ public class ActualActualICMATest {
 
   @Test
   public void test1() {
-    assertEquals(DC1.getConventionName(), "Actual/Actual ICMA");
+    assertEquals(DC1.getName(), "Actual/Actual ICMA");
     assertEquals(DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, StubType.NONE), 0);
   }
 
@@ -115,7 +115,7 @@ public class ActualActualICMATest {
 
   @Test
   public void test2() {
-    assertEquals(DC2.getConventionName(), "Actual/Actual ICMA Normal");
+    assertEquals(DC2.getName(), "Actual/Actual ICMA Normal");
     assertEquals(DC2.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, StubType.NONE), 0);
   }
 }

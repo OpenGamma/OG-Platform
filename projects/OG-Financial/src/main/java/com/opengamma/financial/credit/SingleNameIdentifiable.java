@@ -25,8 +25,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentifiable {
 
-  public static String SCHEME = "SingleName";
-  private static String SEPERATOR = "-";
+  /**
+   * Scheme used for a single name.
+   */
+  public static final String SCHEME = "SingleName";
+  /**
+   * The separator.
+   */
+  private static final String SEPERATOR = "-";
 
   private String name;
   private UniqueId id;
@@ -48,8 +54,8 @@ public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentif
     this.daycount = daycount;
     this.couponFrequency = couponFrequency;
     this.stubType = stubType;
-    this.id = UniqueId.of(SCHEME, name + SEPERATOR + referenceEntity.getScheme() + SEPERATOR + badDayConvention.getConventionName()
-        + SEPERATOR + daycount.getConventionName() + SEPERATOR + couponFrequency + SEPERATOR + stubType);
+    this.id = UniqueId.of(SCHEME, name + SEPERATOR + referenceEntity.getScheme() + SEPERATOR + badDayConvention.getName()
+        + SEPERATOR + daycount.getName() + SEPERATOR + couponFrequency + SEPERATOR + stubType);
   }
 
   public static SingleNameIdentifiable of(final UniqueId id) {

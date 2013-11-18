@@ -142,7 +142,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
   private String getCapFloorName(final CapFloorSecurity capFloorSec) {
     return String.format("%s %s @ %.2f [%s-%s] %s, %s %s %s", capFloorSec.isIbor() ? "IBOR" : "CMS", capFloorSec.isCap() ? "cap " : "floor ",
         capFloorSec.getStrike(), capFloorSec.getStartDate().toLocalDate(), capFloorSec.getMaturityDate().toLocalDate(),
-        capFloorSec.getFrequency().getConventionName(), capFloorSec.getCurrency().getCode(),
+        capFloorSec.getFrequency().getName(), capFloorSec.getCurrency().getCode(),
         PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(capFloorSec.getNotional()), capFloorSec.isPayer() ? " Short" : " Long");
   }
 

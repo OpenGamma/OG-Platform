@@ -32,7 +32,7 @@ public final class FrequencyFudgeSecondaryType extends SecondaryFieldType<Freque
 
   @Override
   public String secondaryToPrimary(final Frequency object) {
-    return object.getConventionName();
+    return object.getName();
   }
 
   @Override

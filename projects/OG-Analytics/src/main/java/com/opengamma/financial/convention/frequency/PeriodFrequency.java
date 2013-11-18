@@ -145,7 +145,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
   public static PeriodFrequency of(final String name) {
     String nameLower = name.toLowerCase(Locale.ENGLISH);
     for (PeriodFrequency freq : s_cache.keySet()) {
-      if (freq.getConventionName().toLowerCase(Locale.ENGLISH).equals(nameLower)) {
+      if (freq.getName().toLowerCase(Locale.ENGLISH).equals(nameLower)) {
         return freq;
       }
     }

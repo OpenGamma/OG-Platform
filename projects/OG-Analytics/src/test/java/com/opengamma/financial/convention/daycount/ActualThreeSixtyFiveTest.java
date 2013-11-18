@@ -25,7 +25,7 @@ public class ActualThreeSixtyFiveTest extends DayCountTestCase {
   @Test
   public void test() {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
-    assertEquals(DC.getConventionName(), "Actual/365");
+    assertEquals(DC.getName(), "Actual/365");
   }
 
 }

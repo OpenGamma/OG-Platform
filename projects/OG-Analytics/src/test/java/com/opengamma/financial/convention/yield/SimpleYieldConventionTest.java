@@ -23,6 +23,6 @@ public class SimpleYieldConventionTest {
   public void test() {
     final String name = "CONV";
     final SimpleYieldConvention convention = new SimpleYieldConvention(name);
-    assertEquals(convention.getConventionName(), name);
+    assertEquals(convention.getName(), name);
   }
 }

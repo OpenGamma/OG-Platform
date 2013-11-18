@@ -32,7 +32,7 @@ public class FrequencyFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testFromString() {
     assertEquals(s_ref, getFudgeContext().getFieldValue(Frequency.class,
-        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getConventionName())));
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getName())));
   }
 
 }

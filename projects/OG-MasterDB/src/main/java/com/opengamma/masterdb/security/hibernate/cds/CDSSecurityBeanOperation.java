@@ -41,9 +41,9 @@ public final class CDSSecurityBeanOperation extends AbstractSecurityBeanOperatio
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setMaturity(dateTimeWithZoneToZonedDateTimeBean(security.getMaturity()));
     bean.setStartDate(dateTimeWithZoneToZonedDateTimeBean(security.getStartDate()));
-    bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getConventionName()));
-    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
-    bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
+    bean.setPremiumFrequency(secMasterSession.getOrCreateFrequencyBean(security.getPremiumFrequency().getName()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName()));
+    bean.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getName()));
     bean.setStubType(secMasterSession.getOrCreateStubTypeBean(security.getStubType().name()));
     bean.setSettlementDays(security.getSettlementDays());
     bean.setUnderlyingIssuer(security.getUnderlyingIssuer());

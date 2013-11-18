@@ -6,7 +6,7 @@
 package com.opengamma.financial.convention.daycount;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -91,6 +91,7 @@ public final class DayCountFactory implements NamedInstanceFactory<DayCount> {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -101,6 +102,7 @@ public final class DayCountFactory implements NamedInstanceFactory<DayCount> {
   /**
    * Iterates over the available conventions. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
+   * 
    * @return the available conventions, not null
    * @deprecated use values()
    */
@@ -112,10 +114,11 @@ public final class DayCountFactory implements NamedInstanceFactory<DayCount> {
   /**
    * Returns list of available conventions. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
-   * @return the available conventions, not null
+   * 
+   * @return the unmodifiable list of conventions, not null
    */
   public List<DayCount> values() {
-    return _conventions;
+    return Collections.unmodifiableList(_conventions);
   }
 
 }

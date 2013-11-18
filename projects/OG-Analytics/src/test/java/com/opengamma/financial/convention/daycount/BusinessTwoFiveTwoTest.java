@@ -91,7 +91,7 @@ public class BusinessTwoFiveTwoTest {
 
   @Test
   public void test() {
-    assertEquals(DC.getConventionName(), "Business/252");
+    assertEquals(DC.getName(), "Business/252");
     final LocalDate d1 = LocalDate.of(2012, 7, 16);
     final LocalDate d2 = LocalDate.of(2012, 7, 17);
     final LocalDate d3 = LocalDate.of(2012, 7, 23);

@@ -5,15 +5,16 @@
  */
 package com.opengamma.financial.convention;
 
-import java.util.List;
-
 /**
  * Interface for factories that can create instances from names.
- * @param <T> type of objects returned
  */
 public interface NamedInstance {
+
   /**
-   * @return the name of this instance
+   * Gets the name of the instance.
+   * 
+   * @return the name of this instance, not null
    */
   String getName();
+
 }

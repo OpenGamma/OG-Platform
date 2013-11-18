@@ -35,7 +35,7 @@ public class CapFloorCMSSpreadSecurityGenerator extends SecurityGenerator<CapFlo
     sb.append(cap ? "cap" : "floor");
     sb.append(" spread on ").append(tenor1.getPeriod().toString().substring(1)).append(" and ").append(tenor2.getPeriod().toString().substring(1));
     sb.append(" @ ").append(strike).append(" [").append(startDate.toString(DATE_FORMATTER)).append(" - ").append(maturityDate.toString(DATE_FORMATTER)).append("], ");
-    sb.append(frequency.getConventionName()).append(", ").append(currency.getCode()).append(' ').append(NOTIONAL_FORMATTER.format(notional));
+    sb.append(frequency.getName()).append(", ").append(currency.getCode()).append(' ').append(NOTIONAL_FORMATTER.format(notional));
     return sb.toString();
   }
 

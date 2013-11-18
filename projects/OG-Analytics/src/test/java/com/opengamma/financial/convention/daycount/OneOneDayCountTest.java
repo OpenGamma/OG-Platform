@@ -27,7 +27,7 @@ public class OneOneDayCountTest {
     final double coupon = 0.04;
     final int paymentsPerYear = 4;
     assertEquals(DC.getAccruedInterest(D1, D2, D2, coupon, paymentsPerYear), coupon / paymentsPerYear, 0);
-    assertEquals(DC.getConventionName(), "1/1");
+    assertEquals(DC.getName(), "1/1");
   }
 
 }

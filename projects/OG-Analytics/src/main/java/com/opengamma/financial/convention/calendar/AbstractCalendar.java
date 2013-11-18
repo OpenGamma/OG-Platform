@@ -53,12 +53,18 @@ public abstract class AbstractCalendar implements Calendar, Serializable {
     return isNonWorkingDayException(date);
   }
 
+  /**
+   * Gets the name of the convention.
+   * 
+   * @return the name, not null
+   * @deprecated use getName()
+   */
   @Override
   @Deprecated
   public String getConventionName() {
     return getName();
   }
-  
+
   @Override
   public String getName() {
     return _name;

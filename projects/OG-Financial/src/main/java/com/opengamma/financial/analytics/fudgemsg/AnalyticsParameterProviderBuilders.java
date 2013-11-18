@@ -85,8 +85,8 @@ public final class AnalyticsParameterProviderBuilders {
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IborIndex object) {
       message.add(SPOT_LAG_FIELD, object.getSpotLag());
-      message.add(DAY_COUNT_FIELD, object.getDayCount().getConventionName());
-      message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getConventionName());
+      message.add(DAY_COUNT_FIELD, object.getDayCount().getName());
+      message.add(BUSINESS_DAY_CONVENTION_FIELD, object.getBusinessDayConvention().getName());
       message.add(EOM_FIELD, object.isEndOfMonth());
       message.add(TENOR_FIELD, object.getTenor().toString());
       message.add(NAME_FIELD, object.getName());
@@ -121,7 +121,7 @@ public final class AnalyticsParameterProviderBuilders {
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IndexON object) {
       message.add(CURRENCY_FIELD, object.getCurrency().getCode());
       message.add(NAME_FIELD, object.getName());
-      message.add(DAY_COUNT_FIELD, object.getDayCount().getConventionName());
+      message.add(DAY_COUNT_FIELD, object.getDayCount().getName());
       message.add(PUBLICATION_LAG_FIELD, object.getPublicationLag());
     }
 

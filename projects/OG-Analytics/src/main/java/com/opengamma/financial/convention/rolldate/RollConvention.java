@@ -1,9 +1,8 @@
-/*
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.convention.rolldate;
 
 import org.threeten.bp.DayOfWeek;
@@ -494,9 +493,12 @@ public enum RollConvention {
     }
   };
 
-
   /**
    * Get convention for this day of month.
+   * 
+   * @param dayOfMonth  the day of the month
+   * @return the convention, not null
+   * @throws IllegalArgumentException if the day of month is invalid
    */
   public static RollConvention dayOfMonth(final int dayOfMonth) {
     switch(dayOfMonth) {
@@ -565,6 +567,12 @@ public enum RollConvention {
     }
   }
 
+  /**
+   * Gets the roll date adjuster.
+   * 
+   * @param numMonthsToAdjust  the number of months to adjust, not null
+   * @return the adjuster, not null
+   */
   public abstract RollDateAdjuster getRollDateAdjuster(final int numMonthsToAdjust);
 
 }

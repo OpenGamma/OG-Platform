@@ -116,9 +116,9 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
 
   @Override
   public BondSecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final BondSecurity security) {
-    Converters.validateYieldConvention(security.getYieldConvention().getConventionName());
-    Converters.validateDayCount(security.getDayCount().getConventionName());
-    Converters.validateFrequency(security.getCouponFrequency().getConventionName());
+    Converters.validateYieldConvention(security.getYieldConvention().getName());
+    Converters.validateDayCount(security.getDayCount().getName());
+    Converters.validateFrequency(security.getCouponFrequency().getName());
 
     final BondSecurityBean bond = new BondSecurityBean();
     bond.setBondType(BondType.identify(security));
@@ -127,16 +127,16 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
     bond.setIssuerDomicile(security.getIssuerDomicile());
     bond.setMarket(secMasterSession.getOrCreateMarketBean(security.getMarket()));
     bond.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
-    bond.setYieldConvention(secMasterSession.getOrCreateYieldConventionBean(security.getYieldConvention().getConventionName()));
+    bond.setYieldConvention(secMasterSession.getOrCreateYieldConventionBean(security.getYieldConvention().getName()));
     bond.setGuaranteeType(security.getGuaranteeType() != null ? secMasterSession.getOrCreateGuaranteeTypeBean(security.getGuaranteeType()) : null);
     bond.setLastTradeDate(expiryToExpiryBean(security.getLastTradeDate()));
     bond.setCouponType(secMasterSession.getOrCreateCouponTypeBean(security.getCouponType()));
     bond.setCouponRate(security.getCouponRate());
-    bond.setCouponFrequency(secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));
-    bond.setDayCountConvention(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
+    bond.setCouponFrequency(secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getName()));
+    bond.setDayCountConvention(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName()));
     if (security.getBusinessDayConvention() != null) {
-      Converters.validateBusinessDayConvention(security.getBusinessDayConvention().getConventionName());
-      bond.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
+      Converters.validateBusinessDayConvention(security.getBusinessDayConvention().getName());
+      bond.setBusinessDayConvention(secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getName()));
     }
     bond.setAnnouncementDate(dateTimeWithZoneToZonedDateTimeBean(security.getAnnouncementDate()));
     bond.setInterestAccrualDate(dateTimeWithZoneToZonedDateTimeBean(security.getInterestAccrualDate()));

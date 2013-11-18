@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import org.joda.convert.FromStringFactory;
-import org.joda.convert.ToString;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -115,15 +113,16 @@ public abstract class AbstractDayCount implements DayCount {
 
   /**
    * Gets the name of the convention.
-   *
+   * 
    * @return the name, not null
+   * @deprecated use getName()
    */
   @Override
   @Deprecated
   public String getConventionName() {
     return getName();
   }
-  
+
   /**
    * Gets the name of the convention.
    *

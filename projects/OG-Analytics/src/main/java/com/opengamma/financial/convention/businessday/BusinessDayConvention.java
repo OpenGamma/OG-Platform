@@ -57,11 +57,13 @@ public interface BusinessDayConvention extends NamedInstance {
    */
   @Deprecated
   String getConventionName();
-  
+
   /**
    * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
   @ToString
   String getName();
+
 }

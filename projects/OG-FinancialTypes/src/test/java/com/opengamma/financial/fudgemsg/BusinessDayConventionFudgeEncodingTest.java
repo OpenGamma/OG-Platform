@@ -31,7 +31,7 @@ public class BusinessDayConventionFudgeEncodingTest extends AbstractFudgeBuilder
 
   @Test
   public void testFromString() {
-    assertEquals(s_ref, getFudgeContext().getFieldValue(BusinessDayConvention.class, UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getConventionName())));
+    assertEquals(s_ref, getFudgeContext().getFieldValue(BusinessDayConvention.class, UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getName())));
   }
 
 }

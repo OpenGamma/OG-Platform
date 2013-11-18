@@ -62,7 +62,7 @@ public class ActualThreeSixtyFiveLongTest {
 
   @Test
   public void test() {
-    assertEquals(DC.getConventionName(), "Actual/365L");
+    assertEquals(DC.getName(), "Actual/365L");
   }
 
 }

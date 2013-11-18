@@ -40,7 +40,7 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     sb.append(ibor ? "Ibor " : "CMS ");
     sb.append(cap ? "cap " : "floor");
     sb.append(" @ ").append(strike).append(" [").append(startDate.toString(DATE_FORMATTER)).append(" - ").append(maturityDate.toString(DATE_FORMATTER)).append("], ");
-    sb.append(frequency.getConventionName()).append(", ").append(currency.getCode()).append(' ').append(NOTIONAL_FORMATTER.format(notional));
+    sb.append(frequency.getName()).append(", ").append(currency.getCode()).append(' ').append(NOTIONAL_FORMATTER.format(notional));
     return sb.toString();
   }
 

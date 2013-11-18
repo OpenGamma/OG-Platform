@@ -6,7 +6,6 @@
 package com.opengamma.financial.convention.businessday;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,13 +17,14 @@ import org.joda.convert.FromString;
 
 import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.NamedInstanceFactory;
 
 /**
  * Factory to obtain instances of {@code BusinessDayConvention}.
  * <p>
  * Convention names are read from a properties file.
  */
-public final class BusinessDayConventionFactory {
+public final class BusinessDayConventionFactory implements NamedInstanceFactory<BusinessDayConvention> {
 
   /**
    * Singleton instance of {@code BusinessDayConventionFactory}.
@@ -89,8 +89,8 @@ public final class BusinessDayConventionFactory {
   /**
    * Retrieves a named BusinessDayConvention. Note that the lookup is not case sensitive.
    *
-   * @param name name of the convention to load.
-   * @return convention with the specified name.
+   * @param name  the name of the convention to load, not null
+   * @return convention with the specified name, null if not found
    */
   public BusinessDayConvention getBusinessDayConvention(final String name) {
     return _conventionMap.get(name.toLowerCase());
@@ -107,11 +107,13 @@ public final class BusinessDayConventionFactory {
   public Iterator<BusinessDayConvention> enumerateAvailableBusinessDayConventions() {
     return Iterators.unmodifiableIterator(_conventions.iterator());
   }
-  
+
   /**
-   * Lists the available conventions.
-   * @return 
+   * Returns a list of available conventions.
+   * 
+   * @return the unmodifiable list of conventions, not null
    */
+  @Override
   public List<BusinessDayConvention> values() {
     return Collections.unmodifiableList(_conventions);
   }

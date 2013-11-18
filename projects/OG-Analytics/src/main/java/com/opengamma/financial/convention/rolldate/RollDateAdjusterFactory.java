@@ -79,8 +79,14 @@ public final class RollDateAdjusterFactory implements NamedInstanceFactory<RollD
     throw new IllegalArgumentException("Could not get adjuster called " + name);
   }
 
+  /**
+   * Returns a list of available adjusters.
+   * 
+   * @return the unmodifiable list of adjusters, not null
+   */
   @Override
   public List<RollDateAdjuster> values() {
     return Collections.unmodifiableList(s_adjusters);
   }
+
 }

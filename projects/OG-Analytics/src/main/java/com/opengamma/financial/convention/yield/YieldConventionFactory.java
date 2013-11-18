@@ -7,7 +7,6 @@ package com.opengamma.financial.convention.yield;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -102,7 +101,7 @@ public final class YieldConventionFactory implements NamedInstanceFactory<YieldC
    */
   private void store(final YieldConvention convention) {
     ArgumentChecker.notNull(convention, "YieldConvention");
-    _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
+    _conventionMap.put(convention.getName().toLowerCase(Locale.ENGLISH), convention);
     _conventions.add(convention);
   }
 
@@ -134,6 +133,11 @@ public final class YieldConventionFactory implements NamedInstanceFactory<YieldC
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
 
+  /**
+   * Returns a list of available conventions.
+   * 
+   * @return the unmodifiable list of conventions, not null
+   */
   @Override
   public List<YieldConvention> values() {
     return Collections.unmodifiableList(_conventions);

@@ -100,7 +100,7 @@ public final class SimpleFrequencyFactory implements NamedInstanceFactory<Simple
    * @param convention  the convention to store, not null
    */
   private void store(final SimpleFrequency convention, final String... alternativeNames) {
-    _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
+    _conventionMap.put(convention.getName().toLowerCase(Locale.ENGLISH), convention);
     for (final String alternativeName : alternativeNames) {
       _conventionMap.put(alternativeName.toLowerCase(Locale.ENGLISH), convention);
     }
@@ -126,8 +126,8 @@ public final class SimpleFrequencyFactory implements NamedInstanceFactory<Simple
       // non-integer period count rounded to the same integer
       if (_periodsMap.containsKey(periodsPerYear)) {
         final SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
-        throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getConventionName() +
-                                                " with " + frequency.getConventionName());
+        throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getName() +
+                                                " with " + frequency.getName());
       }
       _periodsMap.put(periodsPerYear, frequency);
     }
@@ -137,6 +137,7 @@ public final class SimpleFrequencyFactory implements NamedInstanceFactory<Simple
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -148,6 +149,7 @@ public final class SimpleFrequencyFactory implements NamedInstanceFactory<Simple
    * Gets a convention by the number of periods per year.
    * <p>
    * Some underlying data systems use this representation for frequency.
+   * 
    * @param periods  the number of periods per year, zero means once at end
    * @return the convention, null if not found
    */
@@ -158,20 +160,22 @@ public final class SimpleFrequencyFactory implements NamedInstanceFactory<Simple
   /**
    * Iterates over the available frequencies. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
+   * 
    * @return the available conventions, not null
    */
   public Iterator<SimpleFrequency> enumerateAvailableFrequencies() {
     return Iterators.unmodifiableIterator(_frequencies.iterator());
   }
-  
+
   /**
    * Returns a list of available frequencies. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
-   * @return the available conventions, not null
+   * 
+   * @return the unmodifiable list of conventions, not null
    */
   @Override
   public List<SimpleFrequency> values() {
-    return _frequencies;
+    return Collections.unmodifiableList(_frequencies);
   }
 
 }
