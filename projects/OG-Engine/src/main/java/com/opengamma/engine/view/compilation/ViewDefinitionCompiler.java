@@ -308,7 +308,18 @@ public final class ViewDefinitionCompiler {
           if (!functionContext.getViewCalculationConfiguration().getAllPortfolioRequirements().isEmpty()) {
             if (_portfolio == null) {
               _portfolio = resolvePortfolio();
-              resolutions.putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getContext().getViewDefinition().getPortfolioId()), _portfolio.getUniqueId());
+              final UniqueId newPortfolioId = _portfolio.getUniqueId();
+              final UniqueId oldPortfolioId = resolutions.put(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getContext().getViewDefinition().getPortfolioId()), newPortfolioId);
+              if (oldPortfolioId != null) {
+                if (newPortfolioId.equals(oldPortfolioId)) {
+                  s_logger.debug("No change to the portfolio {}", oldPortfolioId);
+                } else {
+                  s_logger.info("Late change to portfolio resolution detected from {} to {}; abandoning compilation", oldPortfolioId, newPortfolioId);
+                  throw new IllegalCompilationStateException(newPortfolioId.getObjectId());
+                }
+              } else {
+                s_logger.debug("No previous portfolio to check new resolution against");
+              }
             }
             functionContext.setPortfolio(_portfolio);
           }
