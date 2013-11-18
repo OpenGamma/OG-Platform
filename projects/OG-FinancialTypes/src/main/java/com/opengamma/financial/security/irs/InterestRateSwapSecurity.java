@@ -8,9 +8,18 @@ package com.opengamma.financial.security.irs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
@@ -18,15 +27,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
-import java.util.Map;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A security for a swap.
@@ -66,7 +66,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private List<InterestRateSwapLeg> _legs;
 
-  @Deprecated
+  @Deprecated  // CSIGNORE
   public InterestRateSwapSecurity(LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setEffectiveDate(effectiveDate);
@@ -74,7 +74,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     setLegs(Lists.newArrayList(legs));
   }
 
-  @Deprecated
+  @Deprecated  // CSIGNORE
   public InterestRateSwapSecurity(ExternalIdBundle id, LocalDate effectiveDate, LocalDate unAdjustedMaturityDate, Collection<InterestRateSwapLeg> legs) {
     super(SECURITY_TYPE);
     setExternalIdBundle(id);

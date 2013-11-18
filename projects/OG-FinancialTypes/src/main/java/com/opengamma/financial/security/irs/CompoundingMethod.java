@@ -1,9 +1,8 @@
-/*
+/**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.security.irs;
 
 /**
@@ -30,4 +29,5 @@ public enum CompoundingMethod {
    * Spread exclusive compounding.
    */
   SPREAD_EXCLUSIVE
+
 }

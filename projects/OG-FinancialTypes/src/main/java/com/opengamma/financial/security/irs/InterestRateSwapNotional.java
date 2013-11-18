@@ -1,28 +1,27 @@
-/*
+/**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.security.irs;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-
-import java.util.Arrays;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Bean;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  * Notional that can handle a schedule. Currency must be constant throughout.
@@ -31,6 +30,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
  */
 @BeanDefinition
 public final class InterestRateSwapNotional extends InterestRateNotional {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The periods for which custom notionals are required.

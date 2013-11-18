@@ -1,13 +1,22 @@
-/*
+/**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.security.irs;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -17,27 +26,14 @@ import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-
 /**
- * abstract class describing conventions for an interest swap leg
+ * Abstract class describing conventions for an interest swap leg.
  */
 @BeanDefinition
 public abstract class InterestRateSwapLegConvention extends FinancialConvention {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The payment calendar.

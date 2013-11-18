@@ -1,9 +1,8 @@
-/*
+/**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.security.irs;
 
 import java.util.Map;
@@ -32,6 +31,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegConvention {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
 
   /**
    * The rate type.

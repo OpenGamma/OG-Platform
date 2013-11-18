@@ -1,28 +1,27 @@
-/*
+/**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.security.irs;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
-
 import java.util.Arrays;
-import org.threeten.bp.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.BasicImmutableBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -38,7 +37,10 @@ import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 @BeanDefinition
 public final class FloatingInterestRateSwapLegSchedule implements ImmutableBean {
 
-  public static FloatingInterestRateSwapLegSchedule NONE = builder().build();
+  /**
+   * Empty schedule.
+   */
+  public static final FloatingInterestRateSwapLegSchedule NONE = builder().build();
 
   @PropertyDefinition
   private final InterestRateSwapLegConvention _convention;
