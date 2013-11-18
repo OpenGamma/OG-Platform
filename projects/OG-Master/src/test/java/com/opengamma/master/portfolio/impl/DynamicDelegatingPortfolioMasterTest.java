@@ -1,11 +1,15 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.master.portfolio.impl;
 
+import static org.testng.Assert.assertEquals;
 
-import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.ManageablePortfolio;
