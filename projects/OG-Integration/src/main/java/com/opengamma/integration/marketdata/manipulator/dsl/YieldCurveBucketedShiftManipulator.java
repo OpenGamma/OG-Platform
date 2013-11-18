@@ -24,14 +24,16 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * A {@link StructureManipulator} which performs a list of bucketed shifts on a {@link YieldAndDiscountCurve}.
+ * A {@link StructureManipulator} which performs a list of bucketed shifts on a {@link YieldCurve}.
  */
 @BeanDefinition
-public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldAndDiscountCurve> {
+public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurve> {
 
   /**
    * 
@@ -63,14 +65,19 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   
   
   @Override
-  public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure) {
-    //TODO shift call
-    return null;
+  public YieldCurve execute(YieldCurve structure) {
+    final List<DoublesPair> buckets = new ArrayList<>();
+    final List<Double> shifts = new ArrayList<>();
+    for (YieldCurveBucketedShift bucketedShift : _shifts) {
+      buckets.add(DoublesPair.of(bucketedShift.getStartYears(), bucketedShift.getEndYears()));
+      shifts.add(bucketedShift.getShift());
+    }
+    return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, CurveShiftType.valueOf(_bucketedShiftType.getGroovyAlias()).toAnalyticsType());
   }
 
   @Override
-  public Class<YieldAndDiscountCurve> getExpectedType() {
-    return YieldAndDiscountCurve.class;
+  public Class<YieldCurve> getExpectedType() {
+    return YieldCurve.class;
   }
 
   

@@ -24,14 +24,16 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.ShiftType;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
  * A manipulator which applies a list of point shifts.
  */
 @BeanDefinition
-public final class YieldCurvePointShiftManipulator implements ImmutableBean, StructureManipulator<YieldAndDiscountCurve>  {
+public final class YieldCurvePointShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurve>  {
 
   /**
    * 
@@ -45,14 +47,19 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   private final ImmutableList<YieldCurvePointShift> _pointShifts;
 
   @Override
-  public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure) {
-    //TODO
-    return null;
+  public YieldCurve execute(YieldCurve structure) {
+    final List<Double> points = new ArrayList<>();
+    final List<Double> shifts = new ArrayList<>();
+    for (YieldCurvePointShift pointShift : _pointShifts) {
+      points.add(pointShift.getYear());
+      shifts.add(pointShift.getShift());
+    }
+    return YieldCurveUtils.withPointShifts(structure, points, shifts, ShiftType.ABSOLUTE);
   }
 
   @Override
-  public Class<YieldAndDiscountCurve> getExpectedType() {
-    return YieldAndDiscountCurve.class;
+  public Class<YieldCurve> getExpectedType() {
+    return YieldCurve.class;
   }
   
   /**

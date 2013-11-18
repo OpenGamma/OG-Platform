@@ -34,59 +34,69 @@ import com.opengamma.util.time.DateUtils;
  * For more information, see <a href="http://jira.opengamma.com/browse/PLAT-4688">PLAT-4688</a>.
  */
 public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
+  /** Array containing the pre-calculated discount factors */
   private double[] _preCalculatedDiscountFactors;
 
   /**
    * @param name The discount curve name.
    * @param discountFactorCurve The underlying curve.
    */
-  public DayPeriodPreCalculatedDiscountCurve(String name, DoublesCurve discountFactorCurve) {
+  public DayPeriodPreCalculatedDiscountCurve(final String name, final DoublesCurve discountFactorCurve) {
     super(name, discountFactorCurve);
   }
-  
+
   /**
-   * Pre calculate all discount factors for every single discrete day
+   * Pre-calculate all discount factors for every single discrete day
    * over the given number of years.
    * @param numYears the number of years to pre-calculate.
    */
-  public void preCalculateDiscountFactors(int numYears) {
+  public void preCalculateDiscountFactors(final int numYears) {
     ArgumentChecker.isTrue(numYears >= 1, "numYears must be more than 1");
     // Because of leap year and other calendar issues, we can't actually
     // accurately pre-calculate the number of forward days over that number
     // of years. Therefore, we overallocate the array and go beyond the end
     // of the year range slightly.
-    
+
     _preCalculatedDiscountFactors = new double[numYears * 366];
     int numDays = 0;
     while (numDays < _preCalculatedDiscountFactors.length) {
-      double xValue = ((double) numDays) / DateUtils.DAYS_PER_YEAR;
-      double yValue = super.getDiscountFactor(xValue);
+      final double xValue = (numDays) / DateUtils.DAYS_PER_YEAR;
+      final double yValue = super.getDiscountFactor(xValue);
       _preCalculatedDiscountFactors[numDays] = yValue;
       numDays++;
     }
   }
 
   @Override
-  public double getDiscountFactor(double t) {
+  public double getDiscountFactor(final double t) {
     if (_preCalculatedDiscountFactors == null) {
       return super.getDiscountFactor(t);
     }
-    long nDaysLong = Math.round(t * 365.5);
+    final long nDaysLong = Math.round(t * 365.5);
     if (nDaysLong > Integer.MAX_VALUE) {
       return super.getDiscountFactor(t);
     }
-    int nDays = (int) nDaysLong;
+    final int nDays = (int) nDaysLong;
     if (nDays > _preCalculatedDiscountFactors.length) {
       return super.getDiscountFactor(t);
     }
     return _preCalculatedDiscountFactors[nDays];
   }
-  
+
+  /**
+   * Returns true if the discount factors are pre-calculated.
+   * @return True if the discount factors are pre-calculated
+   */
   public boolean isPreCalculated() {
     return _preCalculatedDiscountFactors != null;
   }
-  
-  public boolean isPreCalculated(int nDaysForward) {
+
+  /**
+   * Returns true if the discount factors are pre-calculated for the number of days.
+   * @param nDaysForward The number of days
+   * @return True if the discount factors are pre-calculated for the number of days
+   */
+  public boolean isPreCalculated(final int nDaysForward) {
     return
         (_preCalculatedDiscountFactors != null)
         && (_preCalculatedDiscountFactors.length >= nDaysForward);

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.ShiftType;
 
 /**
  * How the shift should be applied.
@@ -20,12 +21,22 @@ public enum CurveShiftType implements GroovyAliasable {
   /**
    * Relative shift.
    */
-  RELATIVE("Relative"), 
+  RELATIVE("Relative") {
+    
+    public ShiftType toAnalyticsType() {
+      return ShiftType.RELATIVE;
+    }
+  }, 
   
   /**
    * Absolute shift.
    */
-  ABSOLUTE("Absolute");
+  ABSOLUTE("Absolute") {
+    
+    public ShiftType toAnalyticsType() {
+      return ShiftType.ABSOLUTE;
+    }
+  };
   
   private static final ImmutableList<String> s_aliases;
   static {
@@ -61,5 +72,9 @@ public enum CurveShiftType implements GroovyAliasable {
     return s_aliases;
   }
 
-  
+  /**
+   * Converts this enum to the appropriate {@link ShiftType}
+   * @return The analytics equivalent shift type
+   */
+  public abstract ShiftType toAnalyticsType();
 }

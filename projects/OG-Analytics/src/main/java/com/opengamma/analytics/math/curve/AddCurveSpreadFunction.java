@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * $$
  */
 public class AddCurveSpreadFunction implements CurveSpreadFunction {
+  /** The operation name */
   private static final String NAME = "+";
 
   /**

@@ -15,8 +15,9 @@ import com.opengamma.analytics.math.function.special.TopHatFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A curve that provides interest rate (continuously compounded) discount factor. 
- * <p>The relation between the rate <i>r(t)</i> at the maturity <i>t</i> and the discount factor <i>df(t)</i> is <i>df(t)=e<sup>-r(t)t</sup></i>.
+ * A curve that provides interest rate (continuously compounded) discount factor.
+ * <p>The relation between the rate <i>r(t)</i> at the maturity <i>t</i> and the discount factor
+ * <i>df(t)</i> is <i>df(t)=e<sup>-r(t)t</sup></i>.
  */
 public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
 
@@ -44,7 +45,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
 
   /**
    * Returns the discount factor at a given time.
-   * @param t The time 
+   * @param t The time
    * @return The discount factor for time to maturity <i>t</i>.
    */
   public double getDiscountFactor(final double t) {
@@ -54,6 +55,11 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
     return Math.exp(-t * getInterestRate(t));
   }
 
+  /**
+   * Gets the forward rate at a given time.
+   * @param t The time
+   * @return The forward rate
+   */
   public abstract double getForwardRate(final double t);
 
   /**
@@ -88,16 +94,18 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
   public abstract List<String> getUnderlyingCurvesNames();
 
   /**
-   * Create another YieldAndDiscountCurve with the zero-coupon rates shifted by a given amount.
+   * Create another {@link YieldAndDiscountCurve} with the zero-coupon rates shifted by a given amount.
    * @param shift The shift amount.
    * @return The new curve.
+   * @deprecated Use {@link YieldCurveUtils#withParallelShift}
    */
+  @Deprecated
   public YieldAndDiscountCurve withParallelShift(final double shift) {
-    return new YieldAndDiscountAddZeroSpreadCurve(this._name + "WithParallelShift", false, this, YieldCurve.from(ConstantDoublesCurve.from(shift)));
+    return new YieldAndDiscountAddZeroSpreadCurve(_name + "WithParallelShift", false, this, YieldCurve.from(ConstantDoublesCurve.from(shift)));
   }
 
   /**
-   * Create another YieldAndDiscountCurve with the zero-coupon rates shifted by a given amount at a given time.
+   * Create another {@link YieldAndDiscountCurve} with the zero-coupon rates shifted by a given amount at a given time.
    * The shift is done around the given time within the default range 1.0E-3.
    * @param t The time.
    * @param shift The shift amount.
@@ -105,7 +113,7 @@ public abstract class YieldAndDiscountCurve implements InterestRateModel<Double>
    */
   public YieldAndDiscountCurve withSingleShift(final double t, final double shift) {
     final double defaultRange = 1.0E-3; // 1 day ~ 3E-3
-    return new YieldAndDiscountAddZeroSpreadCurve(this._name + "WithSingleShift", false, this,
+    return new YieldAndDiscountAddZeroSpreadCurve(_name + "WithSingleShift", false, this,
         YieldCurve.from(new FunctionalDoublesCurve(new TopHatFunction(t - defaultRange, t + defaultRange, shift))));
   }
 
