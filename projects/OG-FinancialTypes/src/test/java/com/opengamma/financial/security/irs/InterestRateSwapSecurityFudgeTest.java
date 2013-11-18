@@ -9,53 +9,33 @@ import java.util.HashSet;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
-import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
-import com.opengamma.financial.security.swap.FixedInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
-import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
-import com.opengamma.financial.security.swap.InterestRateNotional;
-import com.opengamma.financial.security.swap.InterpolationMethod;
-import com.opengamma.financial.security.swap.Notional;
-import com.opengamma.financial.security.swap.SwapLeg;
-import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
-import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Test for IRS fudge encoding & decoding.
  */
 @Test(groups = TestGroup.UNIT)
 public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestCase {
-  private static HashSet<ExternalId> USNY = Sets.newHashSet(ExternalSchemes.isdaHoliday("USNY"));
+
   private static HashSet<ExternalId> GBLO = Sets.newHashSet(ExternalSchemes.isdaHoliday("GBLO"));
   private static HashSet<ExternalId> USNYGBLO = Sets.newHashSet(ExternalSchemes.isdaHoliday("USNY,GBLO"));
 
   private static FixedInterestRateSwapLegConvention USD_FIXED_3M_EOM_CONVENTION;
   private static FixedInterestRateSwapLeg USD_FIX_LEG;
-  private static FloatingInterestRateSwapLegConvention USD_LIBOR_1M_EOM_CONVENTION;
   private static FloatingInterestRateSwapLegConvention USD_LIBOR_3M_EOM_CONVENTION;
-  private static FloatingInterestRateSwapLegConvention USD_LIBOR_6M_EOM_CONVENTION;
   private static FloatingInterestRateSwapLeg USD_FLOAT_LEG;
 
   private static final BusinessDayConvention MF = BusinessDayConventionFactory.of("MF");
