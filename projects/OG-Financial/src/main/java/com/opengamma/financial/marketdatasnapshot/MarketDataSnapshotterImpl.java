@@ -73,6 +73,17 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private Mode _mode;
   
   /**
+   * Constructs a instance which produces structured market data snapshots.
+   * 
+   * @param resolver the target resolver, not null
+   * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
+   * @param htsSource Must be specified if market data is inputted via HTS, may be null
+   */
+  public MarketDataSnapshotterImpl(final ComputationTargetResolver resolver, final VolatilityCubeDefinitionSource cubeDefinitionSource, final HistoricalTimeSeriesSource htsSource) {
+    this(resolver, cubeDefinitionSource, htsSource, Mode.STRUCTURED);
+  }
+  
+  /**
    * @param resolver the target resolver, not null
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    * @param htsSource Must be specified if market data is inputted via HTS, may be null
