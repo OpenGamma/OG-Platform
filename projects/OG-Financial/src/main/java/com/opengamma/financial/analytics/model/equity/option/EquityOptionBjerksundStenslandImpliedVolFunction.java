@@ -17,10 +17,14 @@ import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.math.MathException;
+import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -99,17 +103,68 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
     } else {
       throw new OpenGammaRuntimeException("Unexpected InstrumentDerivative type");
     }
-    final double spot = market.getForwardCurve().getSpot();
-    final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
-    final double forward = market.getForwardCurve().getForward(timeToExpiry);
-    final double costOfCarry =  Math.log(forward / spot) / timeToExpiry;
-    final double volatility = market.getVolatilitySurface().getVolatility(timeToExpiry, strike);
-    final BjerksundStenslandModel model = new BjerksundStenslandModel();
-    final double impliedVol = model.impliedVolatility(optionPrice, spot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.2));
 
+    final double volatility = market.getVolatilitySurface().getVolatility(timeToExpiry, strike);
+    Double impliedVol = null;
+    
+    if (derivative instanceof EquityOption) {
+      final double spot = market.getForwardCurve().getSpot();
+      final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
+      final double costOfCarry =  discountRate;
+      final BjerksundStenslandModel model = new BjerksundStenslandModel();
+    
+      final AffineDividends div = ((ForwardCurveAffineDividends) market.getForwardCurve()).getDividends();
+      final int number = div.getNumberOfDividends();
+      double modSpot = spot;
+      int i = 0;
+      while (i < number && div.getTau(i) < timeToExpiry) {
+        modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * market.getDiscountCurve().getDiscountFactor(div.getTau(i));
+        ++i;
+      }
+    
+      if (timeToExpiry < 7. / 365.) {
+        impliedVol = volatility;
+      } else {
+        try {
+          impliedVol = model.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.2));
+        } catch (final IllegalArgumentException e) {
+          if (inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE) == null) {
+            impliedVol =  null;
+          } else {
+            s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " not defined, reference value returned" + targetSpec);
+            impliedVol = impliedVolatilityFailed(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall);
+          }
+        }
+      }
+    } else {
+      impliedVol = volatility;      
+    }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
+  
+  /*
+   * ref value is returned if market price is not consistent, e.g., (market price) < S - K for call. 
+   */
+  private double impliedVolatilityFailed(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
+    final BjerksundStenslandModel model = new BjerksundStenslandModel();
+    double sigma1 = 0.;
+    double vega = model.getPriceAndVega(s0, k, r, b, t, sigma1, isCall)[0];
+    if (Math.abs(vega) > 1.e-9) {
+      return 0.01;
+    }
+    double sigma2 = 1.5;
+    while (Math.abs(sigma1 - sigma2) > 1.e-7) {
+      vega = model.getPriceAndVega(s0, k, r, b, t, 0.5 * (sigma1 + sigma2), isCall)[0];
+      if (Math.abs(vega) > 1.e-9) {
+        sigma2 = 0.5 * (sigma1 + sigma2);
+      } else {
+        sigma1 = 0.5 * (sigma1 + sigma2);
+      }
+    }
+    return 0.5 * (sigma1 + sigma2);
+  }
+  
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
