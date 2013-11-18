@@ -177,23 +177,37 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    * A tomorrow / next (a.k.a. tom next, T/N) tenor.
    */
   public static final Tenor TN = new Tenor(BusinessDayTenor.TOM_NEXT);
-  
+
+  //-------------------------------------------------------------------------
+  /**
+   * Business day tenor.
+   */
   public enum BusinessDayTenor {
+    /**
+     * One day.
+     */
     OVERNIGHT(Period.ofDays(1)),
+    /**
+     * Two days.
+     */
     TOM_NEXT(Period.ofDays(2)),
+    /**
+     * Three days.
+     */
     SPOT_NEXT(Period.ofDays(3));
-    
+
     private final Duration _approximateDuration;
-    
+
     private BusinessDayTenor(final Period approximateDuration) {
       _approximateDuration = DAYS.getDuration().multipliedBy(approximateDuration.getDays());
     }
-    
+
     public Duration getApproximateDuration() {
       return _approximateDuration;
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * The period of the tenor.
    */
@@ -205,23 +219,27 @@ public class Tenor implements Comparable<Tenor>, Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a formatted string representing the tenor.
-   * <p>
-   * The format is based on ISO-8601, such as 'P3M'.
+   * Obtains a {@code Tenor} from a {@code Period}.
    * 
    * @param period  the period to convert to a tenor, not null
-   * @return the formatted tenor, not null
+   * @return the tenor, not null
    */
   public static Tenor of(final Period period) {
     ArgumentChecker.notNull(period, "period");
     return new Tenor(period);
   }
 
+  /**
+   * Obtains a {@code Tenor} from a {@code BusinessDayTenor}.
+   * 
+   * @param businessDayTenor  the tenor to convert, not null
+   * @return the tenor, not null
+   */
   public static Tenor of(final BusinessDayTenor businessDayTenor) {
-    ArgumentChecker.notNull(businessDayTenor, "business day tenor");
+    ArgumentChecker.notNull(businessDayTenor, "businessDayTenor");
     return new Tenor(businessDayTenor);
   }
-  
+
   /**
    * Parses a formatted string representing the tenor.
    * <p>
@@ -231,6 +249,7 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    * @return the tenor, not null
    */
   @FromString
+  @SuppressWarnings("deprecation")
   public static Tenor parse(final String tenorStr) {
     ArgumentChecker.notNull(tenorStr, "tenorStr");
     try {

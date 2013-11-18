@@ -91,10 +91,11 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter is non-null.
    * 
+   * @param <T>  the type of the input parameter reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <T> T notNull(T parameter, String name) {
     if (parameter == null) {
@@ -108,10 +109,11 @@ public final class ArgumentChecker {
    * As a convention, the name of the parameter should be the exact name that you would
    * provide in a Spring configuration file.
    * 
+   * @param <T>  the type of the input parameter reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <T> T notNullInjected(T parameter, String name) {
     if (parameter == null) {
@@ -127,7 +129,7 @@ public final class ArgumentChecker {
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static String notEmpty(String parameter, String name) {
     notNull(parameter, name);
@@ -140,10 +142,11 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter array is non-null and not empty.
    * 
+   * @param <T>  the type of the input array reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <T> T[] notEmpty(T[] parameter, String name) {
     notNull(parameter, name);
@@ -159,7 +162,7 @@ public final class ArgumentChecker {
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static int[] notEmpty(int[] parameter, String name) {
     notNull(parameter, name);
@@ -175,7 +178,7 @@ public final class ArgumentChecker {
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static long[] notEmpty(long[] parameter, String name) {
     notNull(parameter, name);
@@ -191,7 +194,7 @@ public final class ArgumentChecker {
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static double[] notEmpty(double[] parameter, String name) {
     notNull(parameter, name);
@@ -204,10 +207,11 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter collection is non-null and not empty.
    * 
+   * @param <T>  the type of the input iterable reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <T> Iterable<T> notEmpty(Iterable<T> parameter, String name) {
     notNull(parameter, name);
@@ -220,10 +224,12 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter map is non-null and not empty.
    * 
+   * @param <K>  the type of the input map key reflected in the result
+   * @param <V>  the type of the input map value reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or empty
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <K, V> Map<K, V> notEmpty(Map<K, V> parameter, String name) {
     notNull(parameter, name);
@@ -237,10 +243,11 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter array is non-null and contains no nulls.
    * 
+   * @param <T>  the type of the input array reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <T> T[] noNulls(T[] parameter, String name) {
     notNull(parameter, name);
@@ -255,10 +262,11 @@ public final class ArgumentChecker {
   /**
    * Checks that the specified parameter collection is non-null and contains no nulls.
    * 
+   * @param <T>  the type of the input iterable reflected in the result
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws IllegalArgumentException if the input is null or contains nulls
-   * @return parameter
+   * @return the input {@code parameter}, not null
    */
   public static <T> Iterable<T> noNulls(Iterable<T> parameter, String name) {
     notNull(parameter, name);
