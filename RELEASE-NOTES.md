@@ -9,6 +9,40 @@ Upgrading from 2.1.0
 
 To 2.2.0-M4
 -----------
+* Bug
+    * [PLAT-3028] - Logback 0.9.17 doesn't support Java 7 suppressed exceptions
+    * [PLAT-4900] - Forward starting swaps are asking for future fixings when constructing cashflows
+    * [PLAT-5041] - ISDACompliantYieldCurveFuncion ignored instrument daycount
+    * [PLAT-5056] - Fix ISDACompliantCDSFunction to use real holiday source
+    * [PLAT-5089] - FloatingIndex doesn't have correct AUD-LIBOR-BBA name
+    * [PLAT-5093] - CompiledViewDefinition.getMarketDataSelections holds incorrect data
+    * [PLAT-5094] - ArrayIndexOutOfBoundsException when applying market data manipulators
+    * [PLAT-5095] - Single parameter versions of RemoteConventionSource.getSingle() throw a NullPointerException
+    * [PLAT-5097] - Late detection of position changes cause terminal outputs to be dropped
+    * [PLAT-5098] - Position quantities of 0 are represented as 0E-8 and displayed as 0.0000000
+    * [PLAT-5108] - DirectBeanFudgeBuilder tries to instantiate abstract classes
+    * [PLAT-5110] - NonVersionedRedisHolidaySource should count weekends as holidays
+    * [PLAT-5118] - Currency conversion can be ambiguous
+    * [PLAT-5121] - Graph fragments built after expired resolutions detected aren't pruned
+    * [PLAT-5124] - RedisSimulationSeriesResolver uses equality operator for string comparison
+    * [PLAT-5128] - View process hangs waiting for jobs to complete
+    * [PLAT-5129] - SingleComputationCycleExecutor can't handle empty execution plans
+    * [PLAT-5139] - Upgrade to Corporate-Parent 1.1.5
+
+* Improvement
+    * [PLAT-5085] - Allow NormalHistoricalVaRFunction to pass optional parameters down to dependent functions
+    * [PLAT-5088] - Ability to retry failed subscriptions
+    * [PLAT-5090] - ViewClient.attachToViewProcess should throw more useful exceptions
+    * [PLAT-5137] - Split FinancialSecurityUtils visitors into concrete classes
+    * [PLAT-5138] - Catch failures for individual valuation dates in FXImpliedYieldCurveSeriesFunction
+
+* New Feature
+    * [PLAT-5120] - Create ListedEquityOptionBjerksundStenslandFunction family, BjS with option price as vol requirement
+    * [PLAT-5135] - Formatter for SpreadDoublesCurve in the web client
+
+* Task
+    * [PLAT-5100] - Merge changes from 2.1 to 2.2
+    * [PLAT-5109] - WebsiteBasicsComponentFactory requires the batch master but does not use it
 
 
 To 2.2.0-M3
@@ -35,6 +69,95 @@ Configuration compatibility
   or 'com.opengamma.component.factory.master.DbConventionMasterComponentFactory'.
   Each have a 'populateDefaultConventions' option which can be set to true to initialize from hard coded values.
   The 'ConventionSourceComponentFactory' takes an extra 'conventionMaster' argument.  
+
+
+* Bug
+    * [PLAT-4721] - Clipboard not working for cells with more than 1D after first attempt
+    * [PLAT-4828] - Tool for running view regression tests
+    * [PLAT-4840] - Ambiguity between UnitPositionOrTradeScalingFunction and UnitPositionTradeScalingFunction
+    * [PLAT-4907] - Structure updates can cause errors in depgraph views causing the error logging to kill the connection  
+    * [PLAT-4961] - Creating compounding definitions with AnnuityDefinitionBuilder does not take into account the compounding stub type
+    * [PLAT-4966] - LiveCattleFutureOptionExpiryCalculator has incorrect name
+    * [PLAT-4968] - Remapped nodes aren't written back into partial graphs
+    * [PLAT-4972] - Diagnostic code in FunctionApplicationStep reports on invalid internal state
+    * [PLAT-4977] - Last results not available from a view process if deltas aren't being calculated
+    * [PLAT-4981] - Removing a function from the repository breaks existing view processes
+    * [PLAT-4983] - Non-IMM for PUF input only - return analytic results for Principal and Upfront, but 0 for Accrued Premium/Days
+    * [PLAT-4984] - MergingViewProcessListener can't handle out of order notifications
+    * [PLAT-4985] - ListedEquityOptionFunction uses inefficient call to security source
+    * [PLAT-4986] - UserFinancialSecuritySourceComponentFactory caches only one underlying master
+    * [PLAT-4988] - Refactor com.opengamma.financial.convention.* to support GUI and be consistent
+    * [PLAT-4990] - Database restore tool fails if a view definition doesn't contain a portfolio
+    * [PLAT-4991] - UserMarketDataSpecification Fudge messages incompatible between 2.1 and 2.2
+    * [PLAT-4997] - EquityOptionFunction can fail sporadically
+    * [PLAT-5004] - SingleNodeExecutionPlanner doesn't put terminal outputs into the shared cache
+    * [PLAT-5016] - Exceptions thrown from AvailablePortfolioOutputs
+    * [PLAT-5032] - ConfigDBFuturePriceCurveSpecificationSource getSpecification with version/correction fails
+    * [PLAT-5036] - Quantity field fails to store in the batch db
+    * [PLAT-5038] - ResolutionRule isn't adjusting type when leaf matches exactly.
+    * [PLAT-5043] - Unsynchronized map access in AbstractSourceWithExternalBundle
+    * [PLAT-5048] - MasterHolidaySource caching can incorrectly cache a full failure
+    * [PLAT-5052] - Terminal value requirements not rewritten if resolved value specification is not mapped
+    * [PLAT-5058] - Add support for ZC fixed vs Ibor swaps
+    * [PLAT-5061] - Late change notifications trigger unexpected cycle
+    * [PLAT-5081] - Ensure tests have TestGroup set
+
+
+* Improvement
+    * [PLAT-3962] - OG-Analytics: Add step interpolator with upper node value
+    * [PLAT-4118] - cost to carry for commodity insturments
+    * [PLAT-4669] - SwapNodeConverter: add the stub treatment
+    * [PLAT-4769] - OG-Financial: SwapNodeConverter: distinguish between the compounding types
+    * [PLAT-4920] - Stable file names for objects in the database dump
+    * [PLAT-4948] - Efficiency tweaks for functions extending DefaultPropertyFunction
+    * [PLAT-4955] - Schema-less convention master
+    * [PLAT-4962] - EOM RollDateAdjuster
+    * [PLAT-4963] - DayOfMonth RollDateAdjuster
+    * [PLAT-4978] - Add ClassUtils methods with runtime exceptions
+    * [PLAT-4989] - Add ExternalIdOrBundle
+    * [PLAT-4994] - Add web editing of conventions
+    * [PLAT-4996] - ArgumentChecker methods should return their argument
+    * [PLAT-4998] - DB create tool should support filtering on schema group
+    * [PLAT-4999] - Better use of Joda-Beans in curves
+    * [PLAT-5008] - Caching implementation of ConventionSource
+    * [PLAT-5018] - ViewClientImpl should not create a set of dependency graphs
+    * [PLAT-5020] - ConventionMaster slows results, cache probably required
+    * [PLAT-5035] - Add Woodstox Stax parser
+    * [PLAT-5037] - Upgrade to Joda-Beans 0.8.6
+    * [PLAT-5039] - View process stats processor too noisy on expected dep graph build failures
+    * [PLAT-5040] - Improve names of maps of active/all subscriptions in InMemoryLKVLiveMarketDataProvider
+    * [PLAT-5042] - Improve handling of obsolete snapshots where reasonable to do so
+    * [PLAT-5049] - MarketDataManager logging too noisy in info mode
+    * [PLAT-5050] - Use any delay between cycles to reconcile the gap between initial target resolution and change subscription
+    * [PLAT-5070] - PositionMaster decorator that splits large searches
+
+* New Feature
+    * [PLAT-4145] - Fed Funds end to end including curve building
+    * [PLAT-4149] - basis swaps 1x3* and 3x6* end to end including curve building
+    * [PLAT-4706] - Save and restore complete database state for regression testing
+    * [PLAT-4707] - Compare results generated by the same view and snapshot running on different servers
+    * [PLAT-4708] - Run a server and remotely execute views
+    * [PLAT-4713] - OG-Financial: add Ibor compounding to SwapNodeConverter
+    * [PLAT-4791] - Cash security deal entry
+    * [PLAT-4801] - Generate report of differences in regression test results
+    * [PLAT-4897] - Add functions that expose internal swap leg variables
+    * [PLAT-4928] - Set up regression tests for the simulated examples project
+    * [PLAT-4947] - Mutable delegating PositionMaster and PortfolioMaster and SecurityMaster
+    * [PLAT-4971] - OG-Analytics: Create a multi leg swap
+    * [PLAT-5021] - Bond YieldConventions should be created if they don't exist for now
+    * [PLAT-5025] - Bond loader support for callable, perpetual and bullet bonds
+    * [PLAT-5033] - Bond loader support for non-EOM bonds
+
+* Task
+    * [PLAT-4894] - Extend JPY calendar support for credit curve construction
+    * [PLAT-4967] - Move conventions to financial-types
+    * [PLAT-4969] - Move convention expiry calculators
+    * [PLAT-4993] - Backport regression tests to 2.1.x branch
+    * [PLAT-5002] - Make default InterestRateNotional constructor protected
+    * [PLAT-5003] - Add support for CUSTOM holidays to HolidaySourceCalendarAdapter
+    * [PLAT-5029] - Upgrade to Joda-Beans maven plugin 0.7.3
+    * [PLAT-5034] - Ensure main code runs without SQL server dependency
+
 
 
 To 2.2.0-M2
