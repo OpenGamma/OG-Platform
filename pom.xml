@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -1214,7 +1214,6 @@
     <maven.buildNumber.getRevisionOnlyOnce>true</maven.buildNumber.getRevisionOnlyOnce>
     <!-- Version properties -->
     <joda-beans.version>0.8.6</joda-beans.version>
-    <joda-beans-maven-plugin.version>0.7.3</joda-beans-maven-plugin.version>
     <fudge-java.version>0.3.9.13</fudge-java.version>
     <fudge-proto.version>0.3.9.7</fudge-proto.version>
     <jacoco-maven-plugin.version>0.6.3.201306030806</jacoco-maven-plugin.version>
