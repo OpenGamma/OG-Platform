@@ -100,7 +100,7 @@ public class GenericImpliedVolatiltySolver {
 
     double lowerSigma;
     double upperSigma;
-    final double volGuess = guess;
+    final double volGuess = guess < 1.e-14 ? 0.15 : guess;
 
     try {
       final double[] temp = bracketRoot(optionPrice, pavFunc, volGuess, Math.min(volGuess, 0.1));
@@ -115,7 +115,7 @@ public class GenericImpliedVolatiltySolver {
     double[] pnv = pavFunc.evaluate(sigma);
 
     //This can happen for American options, where low volatilities puts you in the early excise region which obviously has zero vega 
-    if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
+    if (Math.abs(pnv[1]) < 1.e-14 || Double.isNaN(pnv[1])) {
       return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
     }
     double diff = pnv[0] / optionPrice - 1.0;
@@ -139,7 +139,7 @@ public class GenericImpliedVolatiltySolver {
       sigma += actChange;
       pnv = pavFunc.evaluate(sigma);
 
-      if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
+      if (Math.abs(pnv[1]) < 1.e-14 || Double.isNaN(pnv[1])) {
         return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
       }
 

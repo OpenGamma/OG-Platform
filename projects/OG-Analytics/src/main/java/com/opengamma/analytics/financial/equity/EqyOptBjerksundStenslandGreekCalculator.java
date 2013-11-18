@@ -8,9 +8,11 @@ package com.opengamma.analytics.financial.equity;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.util.ArgumentChecker;
@@ -99,9 +101,18 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = Math.log(data.getForwardCurve().getForward(t) / s) / t;
+    final double b = r;
+
+    final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
+    final int number = div.getNumberOfDividends();
+    double modSpot = s;
+    int i = 0;
+    while (i < number && div.getTau(i) < t) {
+      modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * data.getDiscountCurve().getDiscountFactor(div.getTau(i));
+      ++i;
+    }
     final boolean isCall = option.isCall();
-    final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, impliedVol, isCall);
+    final double[] greeks = MODEL.getPriceAdjoint(modSpot, k, r, b, t, impliedVol, isCall);
     final GreekResultCollection result = new GreekResultCollection();
     result.put(Greek.DELTA, greeks[1]);
     result.put(Greek.DUAL_DELTA, greeks[2]);
@@ -109,7 +120,7 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
     result.put(Greek.CARRY_RHO, greeks[4] / 100.);
     result.put(Greek.THETA, -greeks[5] / 365.);
     result.put(Greek.VEGA, greeks[6] / 100.);
-    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, impliedVol, isCall);
+    final double[] pdg = MODEL.getPriceDeltaGamma(modSpot, k, r, b, t, impliedVol, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;
   }
