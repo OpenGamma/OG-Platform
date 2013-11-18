@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
@@ -68,11 +69,15 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   public YieldCurve execute(YieldCurve structure) {
     final List<DoublesPair> buckets = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
+    ShiftType shiftType = null;
     for (YieldCurveBucketedShift bucketedShift : _shifts) {
       buckets.add(DoublesPair.of(bucketedShift.getStartYears(), bucketedShift.getEndYears()));
-      shifts.add(bucketedShift.getShift());
+      shifts.add(bucketedShift.getShift());      
+      if (shiftType == null) {
+        shiftType = bucketedShift.getCurveShiftType().toAnalyticsType();
+      }
     }
-    return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, CurveShiftType.valueOf(_bucketedShiftType.getGroovyAlias()).toAnalyticsType());
+    return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, shiftType);
   }
 
   @Override

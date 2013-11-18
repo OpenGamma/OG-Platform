@@ -21,6 +21,8 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.MultiplyCurveSpreadFunction;
 import com.opengamma.analytics.math.curve.SpreadDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
@@ -90,39 +92,50 @@ public class YieldCurveUtils {
     final String newName = curve.getName() + "WithBucketedShifts"; //TODO
     final DoublesCurve underlyingCurve = curve.getCurve();
     final List<DoublesPair> stepCurvePoints = new ArrayList<>();
-    final Iterator<DoublesPair> iter = buckets.iterator();
-    DoublesPair oldPair = iter.next();
+    final Iterator<DoublesPair> iterBuckets = buckets.iterator();
+    final Iterator<Double> iterShifts = shifts.iterator();
+    DoublesPair oldPair = iterBuckets.next();
+    double shift = iterShifts.next();
+    final Interpolator1D stepInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     switch (shiftType) {
       case ABSOLUTE: {
         if (Double.compare(0, oldPair.getFirstDouble()) != 0) {
           stepCurvePoints.add(DoublesPair.of(0., 0.));
         }
-        stepCurvePoints.add(oldPair);
-        while (iter.hasNext()) {
-          final DoublesPair pair = iter.next();
-          if (Double.compare(oldPair.getSecondDouble(), pair.getFirstDouble()) != 0) {
-            stepCurvePoints.add(DoublesPair.of(pair.getFirstDouble(), 0.));
+        stepCurvePoints.add(DoublesPair.of(oldPair.getFirstDouble(), shift));
+        while (iterBuckets.hasNext()) {
+          final DoublesPair pair = iterBuckets.next();
+          shift = iterShifts.next();
+          if (Double.compare(pair.getFirstDouble(), oldPair.getSecondDouble()) != 0) {
+            stepCurvePoints.add(DoublesPair.of(oldPair.getSecondDouble(), 0));
+            stepCurvePoints.add(DoublesPair.of(pair.getFirstDouble(), shift));
+          } else {
+            stepCurvePoints.add(DoublesPair.of(oldPair.getSecondDouble(), shift));
           }
-          stepCurvePoints.add(pair);
           oldPair = pair;
         }
-        final DoublesCurve spreadCurve = InterpolatedDoublesCurve.from(stepCurvePoints, Interpolator1DFactory.STEP_INSTANCE);
+        stepCurvePoints.add(DoublesPair.of(oldPair.getSecondDouble(), 0));
+        final DoublesCurve spreadCurve = InterpolatedDoublesCurve.from(stepCurvePoints, stepInterpolator);
         return new YieldCurve(newName, SpreadDoublesCurve.from(ADD_SPREAD, newName, underlyingCurve, spreadCurve));
       } case RELATIVE: {
         if (Double.compare(0, oldPair.getFirstDouble()) != 0) {
           stepCurvePoints.add(DoublesPair.of(0., 1.));
         }
-        stepCurvePoints.add(oldPair);
-        while (iter.hasNext()) {
-          final DoublesPair pair = iter.next();
-          if (Double.compare(oldPair.getSecondDouble(), pair.getFirstDouble()) != 0) {
-            stepCurvePoints.add(DoublesPair.of(pair.getFirstDouble(), 1.));
+        stepCurvePoints.add(DoublesPair.of(oldPair.getFirstDouble(), shift));
+        while (iterBuckets.hasNext()) {
+          final DoublesPair pair = iterBuckets.next();
+          shift = iterShifts.next();
+          if (Double.compare(pair.getFirstDouble(), oldPair.getSecondDouble()) != 0) {
+            stepCurvePoints.add(DoublesPair.of(oldPair.getSecondDouble(), 1));
+            stepCurvePoints.add(DoublesPair.of(pair.getFirstDouble(), 1 + shift));
+          } else {
+            stepCurvePoints.add(DoublesPair.of(oldPair.getSecondDouble(), 1 + shift));
           }
-          stepCurvePoints.add(DoublesPair.of(pair.getFirstDouble(), pair.getSecondDouble() + 1.));
           oldPair = pair;
         }
-        final DoublesCurve spreadCurve = InterpolatedDoublesCurve.from(stepCurvePoints, Interpolator1DFactory.STEP_INSTANCE);
-        return new YieldCurve(newName, SpreadDoublesCurve.from(MULTIPLY_SPREAD, newName, underlyingCurve, spreadCurve));
+        stepCurvePoints.add(DoublesPair.of(oldPair.getSecondDouble(), 1));
+        final DoublesCurve spreadCurve = InterpolatedDoublesCurve.from(stepCurvePoints, stepInterpolator);
+        return new YieldCurve(newName, SpreadDoublesCurve.from(ADD_SPREAD, newName, underlyingCurve, spreadCurve));
       } default:
         throw new IllegalArgumentException("Cannot handle curve shift type " + shiftType + " for bucketed shifts");
     }
