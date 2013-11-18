@@ -12,6 +12,7 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.holiday.Holiday;
@@ -20,20 +21,23 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=false)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
-  
+
+  @Test
   public void addGetByUniqueIdEmpty() {
     NonVersionedRedisHolidaySource source = new NonVersionedRedisHolidaySource(getJedisPool(), getRedisPrefix());
     
     Holiday result = source.get(UniqueId.of("TEST", "No Such Thing"));
     assertNull(result);
   }
-  
+
+  @Test
   public void addGetByUniqueIdCurrency() {
     NonVersionedRedisHolidaySource source = new NonVersionedRedisHolidaySource(getJedisPool(), getRedisPrefix());
     
@@ -51,7 +55,8 @@ public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
     assertNull(usd.getExchangeExternalId());
     assertNull(usd.getRegionExternalId());
   }
-  
+
+  @Test
   public void isHolidayCurrency() {
     NonVersionedRedisHolidaySource source = new NonVersionedRedisHolidaySource(getJedisPool(), getRedisPrefix());
     
@@ -64,8 +69,11 @@ public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
     assertTrue(source.isHoliday(LocalDate.now(), Currency.USD));
     assertFalse(source.isHoliday(LocalDate.now(), Currency.CAD));
     assertFalse(source.isHoliday(LocalDate.now().plusDays(1), Currency.USD));
+    LocalDate saturday = LocalDate.of(2012, 2, 11);
+    assertTrue(source.isHoliday(saturday, Currency.USD));
   }
-  
+
+  @Test
   public void addGetByUniqueIdRegion() {
     NonVersionedRedisHolidaySource source = new NonVersionedRedisHolidaySource(getJedisPool(), getRedisPrefix());
     
@@ -83,7 +91,8 @@ public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
     assertEquals(usBank.getRegionExternalId(), result.getRegionExternalId());
     assertNull(result.getExchangeExternalId());
   }
-  
+
+  @Test
   public void isHolidayByTypeExternalId() {
     NonVersionedRedisHolidaySource source = new NonVersionedRedisHolidaySource(getJedisPool(), getRedisPrefix());
     
@@ -102,15 +111,23 @@ public class NonVersionedRedisHolidaySourceTest extends AbstractRedisTestCase {
     source.addHoliday(holiday2);
     
     assertTrue(source.isHoliday(LocalDate.now(), HolidayType.TRADING, exchangeId));
-    assertFalse(source.isHoliday(LocalDate.now().minusDays(10), HolidayType.TRADING, exchangeId));
-    assertFalse(source.isHoliday(LocalDate.now().plusYears(1), HolidayType.TRADING, exchangeId));
-    
+    compareVsWeekends(LocalDate.now().minusDays(10), source, HolidayType.TRADING, exchangeId);
+    compareVsWeekends(LocalDate.now().plusYears(1), source, HolidayType.TRADING, exchangeId);
+
     assertTrue(source.isHoliday(LocalDate.now(), HolidayType.SETTLEMENT, exchangeId));
-    assertFalse(source.isHoliday(LocalDate.now().minusDays(10), HolidayType.SETTLEMENT, exchangeId));
-    assertFalse(source.isHoliday(LocalDate.now().plusYears(1), HolidayType.SETTLEMENT, exchangeId));
-    
+    compareVsWeekends(LocalDate.now().minusDays(10), source, HolidayType.SETTLEMENT, exchangeId);
+    compareVsWeekends(LocalDate.now().plusYears(1), source, HolidayType.SETTLEMENT, exchangeId);
+
+    LocalDate saturday = LocalDate.of(2012, 2, 11);
+    assertTrue(source.isHoliday(saturday, HolidayType.SETTLEMENT, exchangeId));
+    assertTrue(source.isHoliday(saturday, HolidayType.TRADING, exchangeId));
   }
-  
+
+  protected void compareVsWeekends(final LocalDate date, final NonVersionedRedisHolidaySource source, HolidayType holidayType, ExternalId id) {
+    boolean isWeekend = date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+    assertEquals(isWeekend, source.isHoliday(date, holidayType, id));
+  }
+
   protected SimpleHoliday generateHoliday(int nHolidays) {
     SimpleHoliday holiday = new SimpleHoliday();
     

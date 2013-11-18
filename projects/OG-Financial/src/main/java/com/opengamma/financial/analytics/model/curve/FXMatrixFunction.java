@@ -17,11 +17,11 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -42,9 +42,9 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSou
 import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -74,20 +74,25 @@ public class FXMatrixFunction extends AbstractFunction {
   }
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
+  }
+
+  @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
-    final Instant versionTime = atZDT.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS).toInstant();
+    //final Instant versionTime = atZDT.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS).toInstant();
     //TODO work out a way to use dependency graph to get curve information for this config
     final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
-        VersionCorrection.of(versionTime, versionTime));
+        VersionCorrection.LATEST);
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
-    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, versionTime, conventionSource, visitor);
+    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, VersionCorrection.LATEST, conventionSource, visitor);
     final ValueProperties properties = createValueProperties()
         .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
         .get();

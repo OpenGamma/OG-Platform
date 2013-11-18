@@ -305,8 +305,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_noKeys_Exact_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -315,8 +315,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_noKeys_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -325,8 +325,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_noKeys_Any_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ANY);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.ANY);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -335,8 +335,8 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   @Test
   public void test_search_noKeys_None_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(_totalSecurities, test.getDocuments().size());
@@ -435,7 +435,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_All_AB() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("A", "B"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -447,7 +447,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_All_CD() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -460,7 +460,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_All_EF() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -472,7 +472,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_All_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("GH", "HI"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -483,7 +483,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("A", "HI"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -494,7 +494,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_twoKeys_All_AB_CD() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -506,7 +506,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_twoKeys_All_CD_EF() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -518,7 +518,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_twoKeys_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "HI")));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -529,7 +529,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_threeKeys_All_AB_CD_EF() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -540,7 +540,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_threeKeys_All_AB_CD_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("GH", "HI"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -551,7 +551,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_threeKeys_All_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F"), ExternalId.of("A", "HI")));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -562,7 +562,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_None_AB() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("A", "B"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -573,7 +573,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_oneKey_None_CD_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -584,7 +584,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_threeKeys_Exact_AB_CD_EF() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -595,7 +595,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_threeKeys_Exact_AB_CD_GHI() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("GH", "HI"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -606,7 +606,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
   public void test_search_threeKeys_Exact_noMatch() {
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     SecuritySearchResult test = _secMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

@@ -5,14 +5,14 @@
  */
 package com.opengamma.master.orgs.impl;
 
+import java.util.Iterator;
+
 import com.opengamma.master.impl.AbstractSearchIterator;
 import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.orgs.OrganizationSearchRequest;
 import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.ArgumentChecker;
-
-import java.util.Iterator;
 
 /**
  * An iterator that searches a organization master as an iterator.

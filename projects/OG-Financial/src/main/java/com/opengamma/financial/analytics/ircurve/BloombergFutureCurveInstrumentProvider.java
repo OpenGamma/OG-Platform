@@ -118,6 +118,11 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
+    throw new UnsupportedOperationException("Only futures supported");
+  }
+
+  @Override
   public String getMarketDataField() {
     return _dataField;
   }

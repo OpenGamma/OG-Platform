@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.st
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class StandardLoanCreditDefaultSwapDefinition {
 
 }

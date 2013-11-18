@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.future;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.ZonedDateTime;
@@ -146,7 +147,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   public static FederalFundsFutureSecurityDefinition fromFedFund(final ZonedDateTime monthDate, final IndexON index, final Calendar calendar) {
     final double notionalFedFund = 5000000;
     final double accrualFedFund = 1.0 / 12.0;
-    return from(monthDate, index, notionalFedFund, accrualFedFund, "FF" + monthDate.toString(DateTimeFormatter.ofPattern("MMMyy")), calendar);
+    return from(monthDate, index, notionalFedFund, accrualFedFund, "FF" + monthDate.toString(DateTimeFormatter.ofPattern("MMMyy").withLocale(Locale.ROOT)), calendar);
   }
 
   /**
@@ -223,7 +224,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
 
   @Override
   public String toString() {
-    return _name + " - index: " + _index.toString() + " - start date: " + _fixingPeriodDate[0].toString(DateTimeFormatter.ofPattern("ddMMMyy"));
+    return _name + " - index: " + _index.toString() + " - start date: " + _fixingPeriodDate[0].toString(DateTimeFormatter.ofPattern("ddMMMyy").withLocale(Locale.ROOT));
   }
 
   /**

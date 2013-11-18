@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.credit.isdanew;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 
 //TODO: This should be a visitor but the credit definition is not in the instrument definition hierarchy
 

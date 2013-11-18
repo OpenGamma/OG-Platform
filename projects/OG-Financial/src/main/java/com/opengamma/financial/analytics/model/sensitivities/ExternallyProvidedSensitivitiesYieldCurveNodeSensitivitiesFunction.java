@@ -40,6 +40,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.FactorType;
@@ -52,7 +53,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  *
@@ -75,14 +75,11 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.RAW_SECURITY;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof RawSecurity)) {
-      return false;
-    }
     final RawSecurity security = (RawSecurity) target.getSecurity();
     return security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE);
   }
@@ -201,7 +198,8 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     return results;
   }
 
-  private DoubleMatrix1D getSensitivities(final SecuritySource secSource, final FunctionInputs inputs, final RawSecurity rawSecurity, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
+  private DoubleMatrix1D getSensitivities(final SecuritySource secSource, final FunctionInputs inputs, final RawSecurity rawSecurity,
+      final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final YieldAndDiscountCurve curve) {
     final Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
     final double[] entries = new double[curveSpec.getStrips().size()];
@@ -211,7 +209,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (swapExternalSensitivitiesData != null) {
         final ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(swapExternalSensitivitiesData.getExposureExternalId()));
         if (computedValue != null) {
-          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
+          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue();
           final Double value = mhts.getTimeSeries().getLatestValue();
           entries[i] = -value; //* (qty.doubleValue() ); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
         } else {
@@ -230,7 +228,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (bondExternalSensitivitiesData != null) {
         final ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(bondExternalSensitivitiesData.getExposureExternalId()));
         if (computedValue != null) {
-          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
+          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue();
           final Double value = mhts.getTimeSeries().getLatestValue();
           entries[i] -= value; //* (qty.doubleValue() ); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
         } else {
@@ -255,7 +253,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     }
     return null;
   }
-  
+
   private FactorExposureData searchForBondTenorMatch(final Collection<FactorExposureData> exposures, final FixedIncomeStripWithSecurity strip) {
     for (final FactorExposureData exposure : exposures) {
       if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(BOND_TEXT)) {

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.equity.option;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
@@ -60,11 +58,13 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Expiry;
@@ -278,13 +278,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     return result;
   }
 
-  private static String oneOrNull(final Collection<String> values) {
-    if ((values == null) || values.isEmpty() || (values.size() != 1)) {
-      return null;
-    }
-    return Iterables.getOnlyElement(values);
-  }
-
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
@@ -301,28 +294,35 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     for (final String property : constraints.getProperties()) {
-      if (ValuePropertyNames.CALCULATION_METHOD.equals(property)) {
-        if (!constraints.getValues(property).contains(getCalculationMethod())) {
-          return null;
-        }
-      } else if (PROPERTY_DISCOUNTING_CURVE_NAME.equals(property)) {
-        discountingCurveName = oneOrNull(constraints.getValues(property));
-      } else if (PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(property)) {
-        discountingCurveConfig = oneOrNull(constraints.getValues(property));
-      } else if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(property)) {
-        forwardCurveName = oneOrNull(constraints.getValues(property));
-      } else if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(property)) {
-        forwardCurveCalculationMethod = oneOrNull(constraints.getValues(property));
-      } else {
-        if (additionalConstraintsBuilder == null) {
-          additionalConstraintsBuilder = ValueProperties.builder();
-        }
-        final Set<String> values = constraints.getValues(property);
-        if (values.isEmpty()) {
-          additionalConstraintsBuilder.withAny(property);
-        } else {
-          additionalConstraintsBuilder.with(property, values);
-        }
+      switch (property) {
+        case ValuePropertyNames.CALCULATION_METHOD:
+          if (!constraints.getValues(property).contains(getCalculationMethod())) {
+            return null;
+          }
+          break;
+        case PROPERTY_DISCOUNTING_CURVE_NAME:
+          discountingCurveName = constraints.getStrictValue(property);
+          break;
+        case PROPERTY_DISCOUNTING_CURVE_CONFIG:
+          discountingCurveConfig = constraints.getStrictValue(property);
+          break;
+        case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+          forwardCurveName = constraints.getStrictValue(property);
+          break;
+        case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+          forwardCurveCalculationMethod = constraints.getStrictValue(property);
+          break;
+        default:
+          if (additionalConstraintsBuilder == null) {
+            additionalConstraintsBuilder = ValueProperties.builder();
+          }
+          final Set<String> values = constraints.getValues(property);
+          if (values.isEmpty()) {
+            additionalConstraintsBuilder.withAny(property);
+          } else {
+            additionalConstraintsBuilder.with(property, values);
+          }
+          break;
       }
     }
     if ((discountingCurveName == null) || (discountingCurveConfig == null) ||
@@ -330,7 +330,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     final ValueProperties additionalConstraints = (additionalConstraintsBuilder != null) ? additionalConstraintsBuilder.get() : ValueProperties.none();
-
     // Get security and its underlying's ExternalId.
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
@@ -343,7 +342,21 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     // Forward curve
-    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
+    final ValueRequirement forwardCurveReq;
+    if (security instanceof EquityIndexFutureOptionSecurity) {
+      final SecuritySource securitySource = context.getSecuritySource();
+      IndexFutureSecurity future = (IndexFutureSecurity) securitySource.getSingle(ExternalIdBundle.of(underlyingId), context.getComputationTargetResolver().getVersionCorrection());
+      if (future == null) {
+        return null;
+      }
+      final ExternalId indexId = future.getUnderlyingId();
+      if (indexId == null) {
+        return null;
+      }
+      forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, indexId, additionalConstraints);
+    } else {
+      forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
+    }
     if (forwardCurveReq == null) {
       return null;
     }

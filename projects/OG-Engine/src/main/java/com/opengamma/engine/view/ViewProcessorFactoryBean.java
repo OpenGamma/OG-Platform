@@ -55,11 +55,12 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory = new SingleNodeExecutorFactory();
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
-  private ViewPortfolioPermissionProvider viewClientPortfolioPermissionProvider =
+  private ViewPortfolioPermissionProvider _viewClientPortfolioPermissionProvider =
       new DefaultViewPortfolioPermissionProvider();
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
   private ViewResultListenerFactory _batchViewClientFactory;
   private ViewExecutionCache _viewExecutionCache = new InMemoryViewExecutionCache();
+  private boolean _useAutoStartViews;
 
   //-------------------------------------------------------------------------
   public String getName() {
@@ -182,6 +183,10 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _viewExecutionCache = viewExecutionCache;
   }
 
+  public void setUseAutoStartViews(boolean useAutoStartViews) {
+    _useAutoStartViews = useAutoStartViews;
+  }
+
   //-------------------------------------------------------------------------
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
@@ -218,7 +223,8 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getOverrideOperationCompiler(),
         getViewResultListenerFactory(),
         getViewProcessWorkerFactory(),
-        getViewExecutionCache());
+        getViewExecutionCache(),
+        _useAutoStartViews);
   }
 
   public void setViewResultListenerFactory(final ViewResultListenerFactory viewResultListenerFactory) {
@@ -230,10 +236,10 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   }
 
   public ViewPortfolioPermissionProvider getViewPortfolioPermissionProvider() {
-    return viewClientPortfolioPermissionProvider;
+    return _viewClientPortfolioPermissionProvider;
   }
 
   public void setViewPortfolioPermissionProvider(ViewPortfolioPermissionProvider permissionProvider) {
-    viewClientPortfolioPermissionProvider = permissionProvider;
+    _viewClientPortfolioPermissionProvider = permissionProvider;
   }
 }

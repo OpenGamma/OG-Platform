@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 
 /**

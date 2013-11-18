@@ -20,17 +20,25 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class TenorFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final Tenor s_ref = Tenor.EIGHT_MONTHS;
+  private static final Tenor PERIOD_TENOR = Tenor.EIGHT_MONTHS;
+  private static final Tenor BUSINESS_DAY_TENOR = Tenor.SN;
 
   @Test
   public void testCycle() {
-    assertEncodeDecodeCycle(Tenor.class, s_ref);
+    assertEncodeDecodeCycle(Tenor.class, PERIOD_TENOR);
+    assertEncodeDecodeCycle(Tenor.class, BUSINESS_DAY_TENOR);
   }
 
   @Test
   public void testFromString() {
-    assertEquals(s_ref, getFudgeContext().getFieldValue(Tenor.class,
-        UnmodifiableFudgeField.of(FudgeWireType.STRING, s_ref.getPeriod().toString())));
+    assertEquals(PERIOD_TENOR, getFudgeContext().getFieldValue(Tenor.class,
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, PERIOD_TENOR.getPeriod().toString())));
+    assertEquals(BUSINESS_DAY_TENOR, getFudgeContext().getFieldValue(Tenor.class,
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, BUSINESS_DAY_TENOR.getBusinessDayTenor().toString())));
+    assertEquals(PERIOD_TENOR, getFudgeContext().getFieldValue(Tenor.class,
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, PERIOD_TENOR.toFormattedString())));
+    assertEquals(BUSINESS_DAY_TENOR, getFudgeContext().getFieldValue(Tenor.class,
+        UnmodifiableFudgeField.of(FudgeWireType.STRING, BUSINESS_DAY_TENOR.toFormattedString())));
   }
 
 }

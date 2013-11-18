@@ -20,23 +20,23 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FiniteDifferenceSpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -52,6 +52,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
@@ -85,14 +86,14 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
   public static double ONE_BPS = 1e-4; // fractional 1 BPS
   private HolidaySource _holidaySource; //OpenGammaCompilationContext.getHolidaySource(context);
   private RegionSource _regionSource;
-  private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
+  private static final MarketQuoteConverter POINTS_UP_FRONT_CONVERTER = new MarketQuoteConverter();
   protected static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  public static final SpreadSensitivityCalculator CALCULATOR = new SpreadSensitivityCalculator();
+  public static final FiniteDifferenceSpreadSensitivityCalculator CALCULATOR = new FiniteDifferenceSpreadSensitivityCalculator();
 
   @Override
   public void init(final FunctionCompilationContext context) {
     // using hardcoded region and calendar for now
-    _holidaySource = new WeekendHolidaySource(); //OpenGammaCompilationContext.getHolidaySource(context);
+    _holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     _regionSource = new TestRegionSource(getTestRegion()); //OpenGammaCompilationContext.getRegionSource(context);
     //_converter = new CreditDefaultSwapSecurityConverterDeprecated(holidaySource, regionSource);
   }
@@ -173,20 +174,28 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, recoveryRate);
     final CDSAnalytic analytic = security.accept(visitor);
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
+//    final String term = new Tenor(Period.between(security.getStartDate().toLocalDate(), security.getMaturityDate().toLocalDate())).getPeriod().toString();
+//    final Double cdsQuoteDouble = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+//        ComputationTargetType.PRIMITIVE, ExternalId.of("Tenor", term)));
     final Double cdsQuoteDouble = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (cdsQuoteDouble == null) {
       throw new OpenGammaRuntimeException("Couldn't get spread for " + security);
     }
     final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention, true)[0];
 
+    boolean isNonIMMFAndFromPUF = !IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate()) && quote instanceof PointsUpFront;
+    boolean isNonIMMAndFromSpread = !IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate()) && (quote instanceof QuotedSpread || quote instanceof ParSpread);
+    int buySellPremiumFactor = security.isBuy() ? -1 : 1;
+    
     final double notional = security.getNotional().getAmount();
     final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
-    final double accruedPremium = analytic.getAccruedPremium(coupon) * notional;
-    final int accruedDays = analytic.getAccuredDays();
+    final double accruedPremium = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor;
+    final int accruedDays = isNonIMMAndFromSpread || isNonIMMFAndFromPUF ? 0 : analytic.getAccuredDays();
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
-    final double upfrontAmount = getUpfrontAmount(analytic, puf, notional, buySellProtection);
+    final double upfrontAmount = isNonIMMAndFromSpread ? 0 : getUpfrontAmount(analytic, puf, notional, buySellProtection);
     final double cleanPV = puf.getPointsUpFront() * notional;
+    final double principal = isNonIMMAndFromSpread ? 0 : cleanPV;
     final double cleanPrice = getCleanPrice(puf);
     final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
     final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
@@ -198,7 +207,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.UPFRONT_AMOUNT, target.toSpecification(), properties), upfrontAmount));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.DIRTY_PRESENT_VALUE, target.toSpecification(), properties), upfrontAmount));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRESENT_VALUE, target.toSpecification(), properties), cleanPV));
-    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRINCIPAL, target.toSpecification(), properties), cleanPV));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRINCIPAL, target.toSpecification(), properties), principal));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRICE, target.toSpecification(), properties), cleanPrice));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties), bucketedCS01));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PARALLEL_CS01, target.toSpecification(), properties), parallelCS01));
@@ -369,6 +378,8 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     double[] cs01Values;
     if (quote instanceof ParSpread) {
       cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon(), buckets, yieldCurve, creditCurve, ONE_BPS);
+    } else if (quote instanceof PointsUpFront) {
+      cs01Values = CALCULATOR.bucketedCS01FromPUF(analytic, (PointsUpFront) quote, yieldCurve, buckets, ONE_BPS);
     } else {
       cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon()/*coupon * ONE_BPS*/, buckets, yieldCurve, creditCurve, ONE_BPS);
     }

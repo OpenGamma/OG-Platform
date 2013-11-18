@@ -17,7 +17,9 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
  * the (negative) log of the survival rate.
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ * @deprecated Use classes from isdastandardmodel
  */
+@Deprecated
 public class ISDAInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 

@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.future;
 
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -20,5 +21,11 @@ public class MarkToMarketValueRhoFuturesFunction extends MarkToMarketFuturesFunc
    */
   public MarkToMarketValueRhoFuturesFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
     super(ValueRequirementNames.VALUE_RHO, MarkToMarketFuturesCalculator.RatesDeltaCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
+  }
+  
+  @Override
+  protected Double applyTradeScaling(final Trade trade, Double value) {
+    final double quantity = trade.getQuantity().doubleValue();
+    return value * quantity;
   }
 }

@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -83,11 +84,11 @@ public class SABRVegaCalculationUtils {
       final double maturity = entry.getKey().second;
       if (!result.containsKey(maturity)) {
         final List<Pair<Double, T>> expiryValue = new ArrayList<>();
-        expiryValue.add(Pair.of(entry.getKey().first, entry.getValue()));
+        expiryValue.add(Pairs.of(entry.getKey().first, entry.getValue()));
         result.put(maturity, expiryValue);
       } else {
         final List<Pair<Double, T>> expiryValue = result.get(maturity);
-        expiryValue.add(Pair.of(entry.getKey().first, entry.getValue()));
+        expiryValue.add(Pairs.of(entry.getKey().first, entry.getValue()));
       }
     }
     return result;

@@ -90,9 +90,6 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
@@ -105,6 +102,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -112,6 +112,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -1116,12 +1117,12 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final T data) {
+    public String visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
+    public String visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
       return null;
     }
 
@@ -1176,22 +1177,22 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final T data) {
+    public String visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+    public String visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final T data) {
+    public String visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
+    public String visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
       return null;
     }
 
@@ -1312,6 +1313,16 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapMultileg(SwapMultileg swap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapMultileg(SwapMultileg swap) {
       return null;
     }
   }

@@ -25,7 +25,7 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Create a new copy of the provider.
-   * @return The bundle.
+   * @return The provider.
    */
   @Override
   InflationProviderInterface copy();

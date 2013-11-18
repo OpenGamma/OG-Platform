@@ -139,8 +139,9 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
     // Call OG-Analytics
     final T value = derivative.accept(_calculator, dataBundle);
+    final T scaledValue = applyTradeScaling(trade, value);
     final ValueSpecification specification = new ValueSpecification(_valueRequirementName, target.toSpecification(), createValueProperties(target, desiredValue).get());
-    return Collections.singleton(new ComputedValue(specification, value));
+    return Collections.singleton(new ComputedValue(specification, scaledValue));
   }
 
   @Override
@@ -253,6 +254,17 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
         DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+  }
+  /**
+   * FuturesFunction acts upon ComputationTargetType.TRADE, but many of the calculators used in the execute() method really operate
+   * as if they acted upon ComputationTargetType.SECUIRITY. 
+   * For this reason, it is the responsibility of the Function here to scale by trade.getQuantity() if appropriate.
+   * @param trade Computation Target
+   * @param value Computed Result to be scaled
+   * @return Scaled result
+   */
+  protected T applyTradeScaling(final Trade trade, T value) {
+    return value;
   }
 
   protected String getClosingPriceField() {

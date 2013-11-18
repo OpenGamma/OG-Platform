@@ -12,7 +12,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  The standard data required to price two-asset options.
@@ -107,7 +107,7 @@ public class StandardTwoAssetOptionDataBundle {
    * @return The volatility
    */
   public double getFirstVolatility(final double timeToExpiry, final double strike) {
-    return getFirstVolatilitySurface().getVolatility(Pair.of(timeToExpiry, strike));
+    return getFirstVolatilitySurface().getVolatility(DoublesPair.of(timeToExpiry, strike));
   }
 
   /**
@@ -117,7 +117,7 @@ public class StandardTwoAssetOptionDataBundle {
    * @return The volatility
    */
   public double getSecondVolatility(final double timeToExpiry, final double strike) {
-    return getSecondVolatilitySurface().getVolatility(Pair.of(timeToExpiry, strike));
+    return getSecondVolatilitySurface().getVolatility(DoublesPair.of(timeToExpiry, strike));
   }
 
   /**

@@ -273,7 +273,7 @@ public class BloombergHistoricalTimeSeriesLoader extends AbstractHistoricalTimeS
         request.setDataSource(info.getDataSource());
         request.setDataProvider(info.getDataProvider());
         request.setObservationTime(info.getObservationTime());
-        request.setExternalIdSearch(new ExternalIdSearch(info.getExternalIdBundle().toBundle(), ExternalIdSearchType.EXACT));
+        request.setExternalIdSearch(ExternalIdSearch.of(ExternalIdSearchType.EXACT, info.getExternalIdBundle().toBundle()));
         HistoricalTimeSeriesInfoSearchResult searchResult = _htsMaster.search(request);
         if (searchResult.getDocuments().size() == 0) {
           // add new

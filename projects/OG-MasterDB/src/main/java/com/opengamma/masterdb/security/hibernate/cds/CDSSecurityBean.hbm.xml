@@ -3,6 +3,7 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cds">
   <union-subclass name="CDSSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_cds">
     <property name="notional" column="notional" type="double" not-null="true" />
+    <property name="recoveryRate" column="recovery_rate" type="double" not-null="true" />
     <property name="spread" column="spread" type="double" not-null="true" />
     <many-to-one name="currency" column="currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
     <component name="maturity" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">

@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureOptionPremiumTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
@@ -58,7 +59,9 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
   /** Cash fixed / ibor swaption calculator */
   private static final SwaptionCashFixedIborBlackMethod CASH_SWAPTION = SwaptionCashFixedIborBlackMethod.getInstance();
   /** Margined interest rate future option calculator */
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINNED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  /** Margined interest rate future option calculator */
+  private static final InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_IR_FUTURE_OPTION = InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
   /** Bond future option with premium calculator */
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
   /** Physical fixed accrued / overnight swaption calculator */
@@ -115,24 +118,21 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(option, "option");
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      return MARGINNED_IR_FUTURE_OPTION.presentValue(option, curves).getAmount();
+      return MARGINED_IR_FUTURE_OPTION.presentValue(option, curves).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 
-  @Override
-  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final YieldCurveBundle curves) {
-    ArgumentChecker.notNull(curves, "curves");
-    ArgumentChecker.notNull(option, "option");
-    if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingOption();
-      final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
-          underlyingOption.getStrike(), underlyingOption.isCall());
-      final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
-      return MARGINNED_IR_FUTURE_OPTION.presentValue(margined, curves).getAmount();
-    }
-    throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
-  }
+   @Override
+   public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option, final YieldCurveBundle curves) {
+     ArgumentChecker.notNull(curves, "curves");
+     ArgumentChecker.notNull(option, "option");
+     if (curves instanceof YieldCurveWithBlackCubeBundle) {
+       return PREMIUM_IR_FUTURE_OPTION.presentValue(option, curves).getAmount();
+     }
+     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
+   }
+ 
 
   @Override
   public Double visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option, final YieldCurveBundle curves) {

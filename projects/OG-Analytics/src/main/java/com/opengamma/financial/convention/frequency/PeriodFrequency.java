@@ -215,11 +215,20 @@ public final class PeriodFrequency implements Frequency, Serializable {
   }
 
   // -------------------------------------------------------------------------
+  /**
+   * @deprecated use getName()
+   * @return the name of the convention
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
-    return _name;
+    return getName();
   }
 
+  @Override
+  public String getName() {
+    return _name;
+  }
   /**
    * Gets the length of the period defining the convention.
    * 

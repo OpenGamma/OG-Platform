@@ -23,11 +23,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=false)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
   
   @Test(expectedExceptions={DataNotFoundException.class})

@@ -25,7 +25,7 @@ public class NoAdjustBusinessDayConvention extends AbstractBusinessDayConvention
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "None";
   }
 

@@ -36,6 +36,8 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
+import com.opengamma.engine.function.MarketDataAliasingFunction;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityFilter;
@@ -269,6 +271,8 @@ public class AvailablePortfolioOutputsTest {
 
   private CompiledFunctionRepository createFunctionRepository() {
     final InMemoryCompiledFunctionRepository repository = new InMemoryCompiledFunctionRepository(new FunctionCompilationContext());
+    repository.addFunction(MarketDataSourcingFunction.INSTANCE);
+    repository.addFunction(MarketDataAliasingFunction.INSTANCE);
     repository.addFunction(new MockSecurityFunction(FUNCTION_1_TYPE_1_SECURITY) {
 
       @Override

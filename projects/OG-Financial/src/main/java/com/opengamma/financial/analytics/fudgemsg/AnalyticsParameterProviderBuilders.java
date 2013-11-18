@@ -40,6 +40,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains builders for the objects that analytics needs to perform pricing.
@@ -414,7 +415,7 @@ public final class AnalyticsParameterProviderBuilders {
         final String issuerName = (String) issuerNameFields.get(i).getValue();
         final Currency issuerCurrency = Currency.of((String) issuerCurrencyFields.get(i).getValue());
         final YieldAndDiscountCurve curve = deserializer.fieldValueToObject(YieldAndDiscountCurve.class, issuerCurveFields.get(i));
-        issuerCurves.put(Pair.of(issuerName, issuerCurrency), curve);
+        issuerCurves.put(Pairs.of(issuerName, issuerCurrency), curve);
       }
       return new IssuerProviderDiscount(multicurves, issuerCurves);
     }

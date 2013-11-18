@@ -8,7 +8,7 @@ package com.opengamma.financial.credit;
 
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;

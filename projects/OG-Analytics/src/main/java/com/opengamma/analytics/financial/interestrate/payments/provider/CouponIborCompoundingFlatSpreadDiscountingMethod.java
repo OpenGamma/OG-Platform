@@ -90,7 +90,6 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
       cpaAccumulated[loopsub + 1] = cpaAccumulated[loopsub] + cpa[loopsub + 1];
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    //    final double pv = cpaAccumulated[nbSubPeriod + 1] * df;
     // Backward sweep
     final double pvBar = 1.0;
     final double dfBar = cpaAccumulated[nbSubPeriod] * pvBar;
@@ -107,7 +106,7 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
     }
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();

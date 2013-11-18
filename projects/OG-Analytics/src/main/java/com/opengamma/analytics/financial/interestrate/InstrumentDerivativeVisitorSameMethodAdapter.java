@@ -81,9 +81,6 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
@@ -96,6 +93,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -103,6 +103,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -554,32 +555,32 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
     return visit(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
     return visit(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
     return visit(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
     return visit(payment);
   }
 
@@ -590,6 +591,16 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitSwap(final Swap<?, ?> swap) {
+    return visit(swap);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapMultileg(final SwapMultileg swap, final DATA_TYPE data) {
+    return visit(swap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapMultileg(final SwapMultileg swap) {
     return visit(swap);
   }
 

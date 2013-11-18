@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -80,12 +79,11 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
   }
 
   private CurveNodeIdMapper getCurveNodeIdMapper(final Instant valuationTime, final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
-    final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     CurveNodeIdMapper builderSpecDoc = cache.get(curveSpecificationName);
     if (builderSpecDoc != null) {
       return builderSpecDoc;
     }
-    builderSpecDoc = _configSource.getSingle(CurveNodeIdMapper.class, curveSpecificationName, VersionCorrection.of(versionTime, versionTime));
+    builderSpecDoc = _configSource.getSingle(CurveNodeIdMapper.class, curveSpecificationName, VersionCorrection.LATEST);
     if (builderSpecDoc != null) {
       cache.put(curveSpecificationName, builderSpecDoc);
     }

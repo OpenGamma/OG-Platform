@@ -148,7 +148,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod extends Inte
     // Backward sweep
     final double priceBar = 1.0;
     final double volatilityBar = priceAdjoint[2] * priceBar;
-    final DoublesPair expiryDelay = new DoublesPair(security.getExpirationTime(), delay);
+    final DoublesPair expiryDelay = DoublesPair.of(security.getExpirationTime(), delay);
     sensi.addAlpha(expiryDelay, volatilityAdjoint[3] * volatilityBar);
     sensi.addBeta(expiryDelay, volatilityAdjoint[4] * volatilityBar);
     sensi.addRho(expiryDelay, volatilityAdjoint[5] * volatilityBar);

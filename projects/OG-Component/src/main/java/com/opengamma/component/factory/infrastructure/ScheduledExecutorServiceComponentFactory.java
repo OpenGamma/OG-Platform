@@ -5,9 +5,11 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,9 +21,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
  * Component Factory for a shared ScheduledExecutorService.
@@ -78,59 +80,6 @@ public class ScheduledExecutorServiceComponentFactory extends AbstractComponentF
     return ScheduledExecutorServiceComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -1101780313:  // threadNamePrefix
-        return getThreadNamePrefix();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -1101780313:  // threadNamePrefix
-        setThreadNamePrefix((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_threadNamePrefix, "threadNamePrefix");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ScheduledExecutorServiceComponentFactory other = (ScheduledExecutorServiceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getThreadNamePrefix(), other.getThreadNamePrefix()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getThreadNamePrefix());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier.
@@ -181,6 +130,54 @@ public class ScheduledExecutorServiceComponentFactory extends AbstractComponentF
    */
   public final Property<String> threadNamePrefix() {
     return metaBean().threadNamePrefix().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ScheduledExecutorServiceComponentFactory clone() {
+    return (ScheduledExecutorServiceComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ScheduledExecutorServiceComponentFactory other = (ScheduledExecutorServiceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getThreadNamePrefix(), other.getThreadNamePrefix()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getThreadNamePrefix());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ScheduledExecutorServiceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("threadNamePrefix").append('=').append(JodaBeanUtils.toString(getThreadNamePrefix())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -258,6 +255,38 @@ public class ScheduledExecutorServiceComponentFactory extends AbstractComponentF
      */
     public final MetaProperty<String> threadNamePrefix() {
       return _threadNamePrefix;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((ScheduledExecutorServiceComponentFactory) bean).getClassifier();
+        case -1101780313:  // threadNamePrefix
+          return ((ScheduledExecutorServiceComponentFactory) bean).getThreadNamePrefix();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((ScheduledExecutorServiceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1101780313:  // threadNamePrefix
+          ((ScheduledExecutorServiceComponentFactory) bean).setThreadNamePrefix((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ScheduledExecutorServiceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((ScheduledExecutorServiceComponentFactory) bean)._threadNamePrefix, "threadNamePrefix");
+      super.validate(bean);
     }
 
   }

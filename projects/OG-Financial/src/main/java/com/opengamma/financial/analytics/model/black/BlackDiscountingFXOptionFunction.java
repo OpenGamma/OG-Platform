@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -47,7 +48,6 @@ import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
@@ -60,6 +60,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Base function for all FX option pricing and risk functions that use a Black surface
@@ -204,7 +205,7 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       final FXOptionSecurity security = (FXOptionSecurity) target.getTrade().getSecurity();
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final SmileDeltaTermStructureParametersStrikeInterpolation volatilitySurface = (SmileDeltaTermStructureParametersStrikeInterpolation) inputs.getValue(STANDARD_VOLATILITY_SURFACE_DATA);
-      final Pair<Currency, Currency> currencyPair = Pair.of(security.getPutCurrency(), security.getCallCurrency());
+      final Pair<Currency, Currency> currencyPair = Pairs.of(security.getPutCurrency(), security.getCallCurrency());
       final BlackForexSmileProvider blackData = new BlackForexSmileProvider(data, volatilitySurface, currencyPair);
       return blackData;
     }

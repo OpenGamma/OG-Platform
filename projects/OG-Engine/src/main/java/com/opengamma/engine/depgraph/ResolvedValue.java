@@ -7,7 +7,6 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Set;
 
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -16,11 +15,12 @@ import com.opengamma.engine.value.ValueSpecification;
 /* package */final class ResolvedValue {
 
   private final ValueSpecification _valueSpecification;
-  private final ParameterizedFunction _function;
+  private final DependencyNodeFunction _function;
   private final Set<ValueSpecification> _functionInputs;
   private final Set<ValueSpecification> _functionOutputs;
 
-  public ResolvedValue(final ValueSpecification valueSpecification, final ParameterizedFunction function, final Set<ValueSpecification> functionInputs, final Set<ValueSpecification> functionOutputs) {
+  public ResolvedValue(final ValueSpecification valueSpecification, final DependencyNodeFunction function,
+      final Set<ValueSpecification> functionInputs, final Set<ValueSpecification> functionOutputs) {
     assert valueSpecification != null;
     assert function != null;
     assert functionInputs != null;
@@ -37,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
     return _valueSpecification;
   }
 
-  public ParameterizedFunction getFunction() {
+  public DependencyNodeFunction getFunction() {
     return _function;
   }
 

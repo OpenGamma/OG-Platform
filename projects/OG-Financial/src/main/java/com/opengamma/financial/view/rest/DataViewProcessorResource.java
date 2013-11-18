@@ -28,6 +28,7 @@ import com.opengamma.core.config.impl.DataConfigSourceResource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -174,9 +175,9 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return new DataNamedMarketDataSpecificationRepositoryResource(getViewProcessor().getNamedMarketDataSpecificationRepository());
   }
 
-  @Path(PATH_SNAPSHOTTER)
-  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource);
+  @Path(PATH_SNAPSHOTTER + "/{mode}")
+  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl(@PathParam("mode") final String mode) {
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource,  Mode.valueOf(Mode.class, mode));
     return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);
   }
 
@@ -230,6 +231,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   public static URI uriClient(final URI clientsBaseUri, final UniqueId viewClientId) {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
+  }
+  
+  public static URI uriSnapshotter(final URI clientsBaseUri, final Mode mode) {
+    return UriBuilder.fromUri(clientsBaseUri).path(PATH_SNAPSHOTTER).segment(mode.name()).build();
   }
 
   private URI getViewProcessorUri(final UriInfo uriInfo) {

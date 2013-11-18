@@ -11,21 +11,21 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
+import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder.NodeBuilder;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -49,63 +49,55 @@ public class MultipleNodeExecutionPlannerTest {
    *      N0  N1  N4
    *        \ | /  |
    *          N2  N3
+   *          |    |
+   *           MDS
    * </pre>
    * 
    * If not partitioned:
    * <ul>
    * <li>v20, v21, v24, v34 to go into private cache
-   * <li>v0x, v1x, v4x to go into shared cache
-   * <li>vx2, vx3 to go into shared cache
+   * <li>v0x, v1x, v4x to go into shared cache (terminal outputs)
+   * <li>vx2, vx3 to come from the shared cache (market data)
    * </ul>
    */
-  private DependencyNode[] _testNode;
-  private DependencyGraph _testGraph;
   private final ValueProperties _properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
-  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "20"), _properties);
-  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "21"), _properties);
-  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "24"), _properties);
-  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), _properties);
-  private final ValueRequirement _testRequirement0x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0x"), ValueProperties.none());
-  private final ValueSpecification _testValue0x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "0x"), _properties);
-  private final ValueRequirement _testRequirement1x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1x"), ValueProperties.none());
-  private final ValueSpecification _testValue1x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "1x"), _properties);
-  private final ValueRequirement _testRequirement4x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4x"), ValueProperties.none());
-  private final ValueSpecification _testValue4x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "4x"), _properties);
-  private final ValueSpecification _testValuex2 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "x2"), _properties);
-  private final ValueSpecification _testValuex3 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "x3"), _properties);
+  private final ValueSpecification _testValue20 = ValueSpecification.of("20", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2"), _properties);
+  private final ValueSpecification _testValue21 = ValueSpecification.of("21", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2"), _properties);
+  private final ValueSpecification _testValue24 = ValueSpecification.of("24", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2"), _properties);
+  private final ValueSpecification _testValue34 = ValueSpecification.of("34", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "3"), _properties);
+  private final ValueRequirement _testRequirement0x = new ValueRequirement("0x", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0"), ValueProperties.none());
+  private final ValueSpecification _testValue0x = ValueSpecification.of("0x", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "0"), _properties);
+  private final ValueRequirement _testRequirement1x = new ValueRequirement("1x", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1"), ValueProperties.none());
+  private final ValueSpecification _testValue1x = ValueSpecification.of("1x", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "1"), _properties);
+  private final ValueRequirement _testRequirement4x = new ValueRequirement("4x", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4"), ValueProperties.none());
+  private final ValueSpecification _testValue4x = ValueSpecification.of("4x", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "4"), _properties);
+  private final ValueSpecification _testValuex2 = ValueSpecification.of("x2", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "X"), _properties);
+  private final ValueSpecification _testValuex3 = ValueSpecification.of("x3", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "X"), _properties);
 
-  @BeforeMethod
-  public void createGraph() {
-    _testGraph = new DependencyGraph("Default");
-    _testNode = new DependencyNode[5];
-    for (int i = 0; i < _testNode.length; i++) {
-      final ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", Integer.toString(i)));
-      _testNode[i] = new DependencyNode(target);
-      _testNode[i].setFunction(MockFunction.getMockFunction(target, "foo"));
-    }
-    _testNode[0].addOutputValue(_testValue0x);
-    _testNode[1].addOutputValue(_testValue1x);
-    _testNode[2].addOutputValue(_testValue20);
-    _testNode[2].addOutputValue(_testValue21);
-    _testNode[2].addOutputValue(_testValue24);
-    _testNode[3].addOutputValue(_testValue34);
-    _testNode[4].addOutputValue(_testValue4x);
-    _testNode[0].addInputNode(_testNode[2]);
-    _testNode[0].addInputValue(_testValue20);
-    _testNode[1].addInputNode(_testNode[2]);
-    _testNode[1].addInputValue(_testValue21);
-    _testNode[2].addInputValue(_testValuex2);
-    _testNode[3].addInputValue(_testValuex3);
-    _testNode[4].addInputNode(_testNode[2]);
-    _testNode[4].addInputValue(_testValue24);
-    _testNode[4].addInputNode(_testNode[3]);
-    _testNode[4].addInputValue(_testValue34);
-    for (final DependencyNode a_testNode : _testNode) {
-      _testGraph.addDependencyNode(a_testNode);
-    }
-    _testGraph.addTerminalOutput(_testRequirement0x, _testValue0x);
-    _testGraph.addTerminalOutput(_testRequirement1x, _testValue1x);
-    _testGraph.addTerminalOutput(_testRequirement4x, _testValue4x);
+  private TestDependencyGraphBuilder graphBuilder() {
+    final TestDependencyGraphBuilder graph = new TestDependencyGraphBuilder("Default");
+    NodeBuilder node = graph.addNode("Mock", _testValue0x.getTargetSpecification());
+    node.addInput(_testValue20);
+    node.addTerminalOutput(_testValue0x, _testRequirement0x);
+    node = graph.addNode("Mock", _testValue1x.getTargetSpecification());
+    node.addInput(_testValue21);
+    node.addTerminalOutput(_testValue1x, _testRequirement1x);
+    node = graph.addNode("Mock", _testValue20.getTargetSpecification());
+    node.addInput(_testValuex2);
+    node.addOutput(_testValue20);
+    node.addOutput(_testValue21);
+    node.addOutput(_testValue24);
+    node = graph.addNode("Mock", _testValue34.getTargetSpecification());
+    node.addInput(_testValuex3);
+    node.addOutput(_testValue34);
+    node = graph.addNode("Mock", _testValue4x.getTargetSpecification());
+    node.addInput(_testValue24);
+    node.addInput(_testValue34);
+    node.addTerminalOutput(_testValue4x, _testRequirement4x);
+    node = graph.addNode("MDS", _testValuex2.getTargetSpecification());
+    node.addOutput(_testValuex2);
+    node.addOutput(_testValuex3);
+    return graph;
   }
 
   private MultipleNodeExecutionPlanner createPlanner(final int minimum, final int maximum, final int concurrency) {
@@ -116,8 +108,8 @@ public class MultipleNodeExecutionPlannerTest {
     return planner;
   }
 
-  private GraphExecutionPlan plan(final GraphExecutionPlanner planner, final DependencyGraph graph) {
-    return planner.createPlan(graph, new ExecutionLogModeSource(), 0);
+  private GraphExecutionPlan plan(final GraphExecutionPlanner planner, final DependencyGraph graph, final Set<ValueSpecification> sharedData) {
+    return planner.createPlan(graph, new ExecutionLogModeSource(), 0, sharedData, Collections.<ValueSpecification, FunctionParameters>emptyMap());
   }
 
   /**
@@ -125,7 +117,7 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testMin5() {
     final MultipleNodeExecutionPlanner planner = createPlanner(5, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final GraphExecutionPlan plan = plan(planner, graphBuilder().buildGraph(), ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testMin5");
       plan.print();
@@ -151,17 +143,18 @@ public class MultipleNodeExecutionPlannerTest {
     assertEquals(job.getInputJobCount(), 0);
   }
 
-  private boolean matchJob(final PlannedJob job, final DependencyNode... nodes) {
-    if (job.getItems().size() != nodes.length) {
+  private boolean matchJob(final PlannedJob job, final ValueSpecification... outputs) {
+    if (job.getItems().size() != outputs.length) {
       return false;
     }
     for (CalculationJobItem item : job.getItems()) {
-      final ComputationTargetSpecification target = item.getComputationTargetSpecification();
       boolean match = false;
-      for (DependencyNode node : nodes) {
-        if (target.equals(node.getComputationTarget())) {
-          match = true;
-          break;
+      for (ValueSpecification output : outputs) {
+        for (ValueSpecification jobOutput : item.getOutputs()) {
+          if (output.equals(jobOutput)) {
+            match = true;
+            break;
+          }
         }
       }
       if (!match) {
@@ -176,7 +169,8 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testMax1() {
     final MultipleNodeExecutionPlanner planner = createPlanner(1, 1, 0);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final DependencyGraph graph = graphBuilder().buildGraph();
+    final GraphExecutionPlan plan = plan(planner, graph, ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testMax1");
       plan.print();
@@ -186,7 +180,7 @@ public class MultipleNodeExecutionPlannerTest {
     for (PlannedJob job : plan.getLeafJobs()) {
       assertEquals(job.getInputJobCount(), 0);
       CacheSelectHint hint = job.getCacheSelectHint();
-      if (matchJob(job, _testNode[2])) {
+      if (matchJob(job, _testValue20)) {
         mask |= 1;
         assertEquals(job.getDependents().length, 3);
         assertNull(job.getTails());
@@ -198,17 +192,17 @@ public class MultipleNodeExecutionPlannerTest {
           hint = job2.getCacheSelectHint();
           assertNull(job2.getDependents());
           assertNull(job2.getTails());
-          if (matchJob(job2, _testNode[0])) {
+          if (matchJob(job2, _testValue0x)) {
             mask |= 2;
             assertEquals(job2.getInputJobCount(), 1);
             assertFalse(hint.isPrivateValue(_testValue0x));
             assertFalse(hint.isPrivateValue(_testValue20));
-          } else if (matchJob(job2, _testNode[1])) {
+          } else if (matchJob(job2, _testValue1x)) {
             mask |= 4;
             assertEquals(job2.getInputJobCount(), 1);
             assertFalse(hint.isPrivateValue(_testValue1x));
             assertFalse(hint.isPrivateValue(_testValue21));
-          } else if (matchJob(job2, _testNode[4])) {
+          } else if (matchJob(job2, _testValue4x)) {
             mask |= 8;
             assertEquals(job2.getInputJobCount(), 2);
             assertFalse(hint.isPrivateValue(_testValue4x));
@@ -218,7 +212,7 @@ public class MultipleNodeExecutionPlannerTest {
             fail();
           }
         }
-      } else if (matchJob(job, _testNode[3])) {
+      } else if (matchJob(job, _testValue34)) {
         mask |= 16;
         assertEquals(job.getDependents().length, 1);
         assertNull(job.getTails());
@@ -229,7 +223,7 @@ public class MultipleNodeExecutionPlannerTest {
         assertEquals(job2.getInputJobCount(), 2);
         assertNull(job2.getDependents());
         assertNull(job2.getTails());
-        assertTrue(matchJob(job2, _testNode[4]));
+        assertTrue(matchJob(job2, _testValue4x));
         assertFalse(hint.isPrivateValue(_testValue4x));
         assertFalse(hint.isPrivateValue(_testValue24));
         assertFalse(hint.isPrivateValue(_testValue34));
@@ -245,7 +239,7 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testMinMax2() {
     final MultipleNodeExecutionPlanner planner = createPlanner(2, 2, 0);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final GraphExecutionPlan plan = plan(planner, graphBuilder().buildGraph(), ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testMinMax2");
       plan.print();
@@ -254,7 +248,7 @@ public class MultipleNodeExecutionPlannerTest {
     final PlannedJob job = plan.getLeafJobs().iterator().next();
     assertEquals(job.getInputJobCount(), 0);
     CacheSelectHint hint = job.getCacheSelectHint();
-    assertTrue(matchJob(job, _testNode[2]));
+    assertTrue(matchJob(job, _testValue20));
     assertFalse(hint.isPrivateValue(_testValue20));
     assertFalse(hint.isPrivateValue(_testValue21));
     assertEquals(job.getDependents().length, 2);
@@ -265,13 +259,13 @@ public class MultipleNodeExecutionPlannerTest {
       assertNull(job2.getDependents());
       assertNull(job2.getTails());
       hint = job2.getCacheSelectHint();
-      if (matchJob(job2, _testNode[0], _testNode[1])) {
+      if (matchJob(job2, _testValue0x, _testValue1x)) {
         mask |= 1;
         assertFalse(hint.isPrivateValue(_testValue20));
         assertFalse(hint.isPrivateValue(_testValue21));
         assertFalse(hint.isPrivateValue(_testValue0x));
         assertFalse(hint.isPrivateValue(_testValue1x));
-      } else if (matchJob(job2, _testNode[3], _testNode[4])) {
+      } else if (matchJob(job2, _testValue34, _testValue4x)) {
         mask |= 2;
         assertFalse(hint.isPrivateValue(_testValue24));
         assertFalse(hint.isPrivateValue(_testValue4x));
@@ -289,7 +283,7 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testMinMax4() {
     final MultipleNodeExecutionPlanner planner = createPlanner(3, 4, 0);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final GraphExecutionPlan plan = plan(planner, graphBuilder().buildGraph(), ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testMinMax4");
       plan.print();
@@ -297,7 +291,7 @@ public class MultipleNodeExecutionPlannerTest {
     assertEquals(plan.getLeafJobs().size(), 1);
     PlannedJob job = plan.getLeafJobs().iterator().next();
     assertEquals(job.getInputJobCount(), 0);
-    assertTrue(matchJob(job, _testNode[2]));
+    assertTrue(matchJob(job, _testValue20));
     assertEquals(job.getDependents().length, 1);
     assertNull(job.getTails());
     CacheSelectHint hint = job.getCacheSelectHint();
@@ -308,7 +302,7 @@ public class MultipleNodeExecutionPlannerTest {
     PlannedJob job2 = job.getDependents()[0];
     assertNull(job2.getTails());
     assertEquals(job2.getInputJobCount(), 1);
-    assertTrue(matchJob(job2, _testNode[0], _testNode[1], _testNode[3], _testNode[4]));
+    assertTrue(matchJob(job2, _testValue0x, _testValue1x, _testValue34, _testValue4x));
     assertNull(job2.getDependents());
     assertNull(job2.getTails());
     hint = job2.getCacheSelectHint();
@@ -327,34 +321,34 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testThread1() {
     final MultipleNodeExecutionPlanner planner = createPlanner(1, 4, 1);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final GraphExecutionPlan plan = plan(planner, graphBuilder().buildGraph(), ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testThread1");
       plan.print();
     }
     assertEquals(plan.getLeafJobs().size(), 1);
     final PlannedJob job = plan.getLeafJobs().iterator().next();
-    assertTrue(matchJob(job, _testNode[2]));
+    assertTrue(matchJob(job, _testValue20));
     assertEquals(job.getInputJobCount(), 0);
     assertEquals(job.getTails().length, 1);
     final PlannedJob tailJob = job.getTails()[0];
     final CacheSelectHint jobHint = job.getCacheSelectHint();
     final CacheSelectHint tailHint = tailJob.getCacheSelectHint();
-    if (matchJob(tailJob, _testNode[0])) {
+    if (matchJob(tailJob, _testValue0x)) {
       assertTrue(jobHint.isPrivateValue(_testValue20));
       assertFalse(jobHint.isPrivateValue(_testValue21));
       assertFalse(jobHint.isPrivateValue(_testValue24));
       assertFalse(jobHint.isPrivateValue(_testValuex2));
       assertFalse(tailHint.isPrivateValue(_testValue0x));
       assertTrue(tailHint.isPrivateValue(_testValue20));
-    } else if (matchJob(tailJob, _testNode[1])) {
+    } else if (matchJob(tailJob, _testValue1x)) {
       assertFalse(jobHint.isPrivateValue(_testValue20));
       assertTrue(jobHint.isPrivateValue(_testValue21));
       assertFalse(jobHint.isPrivateValue(_testValue24));
       assertFalse(jobHint.isPrivateValue(_testValuex2));
       assertFalse(tailHint.isPrivateValue(_testValue1x));
       assertTrue(tailHint.isPrivateValue(_testValue21));
-    } else if (matchJob(tailJob, _testNode[3], _testNode[4])) {
+    } else if (matchJob(tailJob, _testValue34, _testValue4x)) {
       assertFalse(jobHint.isPrivateValue(_testValue20));
       assertFalse(jobHint.isPrivateValue(_testValue21));
       assertTrue(jobHint.isPrivateValue(_testValue24));
@@ -373,14 +367,14 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testThread2() {
     final MultipleNodeExecutionPlanner planner = createPlanner(1, Integer.MAX_VALUE, 2);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final GraphExecutionPlan plan = plan(planner, graphBuilder().buildGraph(), ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testThread2");
       plan.print();
     }
     assertEquals(plan.getLeafJobs().size(), 1);
     final PlannedJob job = plan.getLeafJobs().iterator().next();
-    assertTrue(matchJob(job, _testNode[2]));
+    assertTrue(matchJob(job, _testValue20));
     assertEquals(job.getInputJobCount(), 0);
     assertEquals(job.getTails().length, 2);
     int mask = 0;
@@ -390,17 +384,17 @@ public class MultipleNodeExecutionPlannerTest {
       assertNull(tail.getDependents());
       assertNull(tail.getTails());
       final CacheSelectHint tailHint = tail.getCacheSelectHint();
-      if (matchJob(tail, _testNode[0])) {
+      if (matchJob(tail, _testValue0x)) {
         mask |= 1;
         assertTrue(jobHint.isPrivateValue(_testValue20));
         assertTrue(tailHint.isPrivateValue(_testValue20));
         assertFalse(tailHint.isPrivateValue(_testValue0x));
-      } else if (matchJob(tail, _testNode[1])) {
+      } else if (matchJob(tail, _testValue1x)) {
         mask |= 2;
         assertTrue(jobHint.isPrivateValue(_testValue21));
         assertTrue(tailHint.isPrivateValue(_testValue21));
         assertFalse(tailHint.isPrivateValue(_testValue1x));
-      } else if (matchJob(tail, _testNode[3], _testNode[4])) {
+      } else if (matchJob(tail, _testValue34, _testValue4x)) {
         mask |= 4;
         assertTrue(jobHint.isPrivateValue(_testValue24));
         assertTrue(tailHint.isPrivateValue(_testValue24));
@@ -419,14 +413,14 @@ public class MultipleNodeExecutionPlannerTest {
    */
   public void testThread3() {
     final MultipleNodeExecutionPlanner planner = createPlanner(1, Integer.MAX_VALUE, 3);
-    final GraphExecutionPlan plan = plan(planner, _testGraph);
+    final GraphExecutionPlan plan = plan(planner, graphBuilder().buildGraph(), ImmutableSet.of(_testValuex2, _testValuex3));
     if (PRINT_GRAPHS) {
       System.out.println("testThread3");
       plan.print();
     }
     assertEquals(plan.getLeafJobs().size(), 1);
     final PlannedJob job = plan.getLeafJobs().iterator().next();
-    assertTrue(matchJob(job, _testNode[2]));
+    assertTrue(matchJob(job, _testValue20));
     assertEquals(job.getInputJobCount(), 0);
     assertEquals(job.getTails().length, 3);
     int mask = 0;
@@ -436,17 +430,17 @@ public class MultipleNodeExecutionPlannerTest {
       assertNull(tail.getDependents());
       assertNull(tail.getTails());
       final CacheSelectHint tailHint = tail.getCacheSelectHint();
-      if (matchJob(tail, _testNode[0])) {
+      if (matchJob(tail, _testValue0x)) {
         mask |= 1;
         assertTrue(jobHint.isPrivateValue(_testValue20));
         assertTrue(tailHint.isPrivateValue(_testValue20));
         assertFalse(tailHint.isPrivateValue(_testValue0x));
-      } else if (matchJob(tail, _testNode[1])) {
+      } else if (matchJob(tail, _testValue1x)) {
         mask |= 2;
         assertTrue(jobHint.isPrivateValue(_testValue21));
         assertTrue(tailHint.isPrivateValue(_testValue21));
         assertFalse(tailHint.isPrivateValue(_testValue1x));
-      } else if (matchJob(tail, _testNode[3], _testNode[4])) {
+      } else if (matchJob(tail, _testValue34, _testValue4x)) {
         mask |= 4;
         assertTrue(jobHint.isPrivateValue(_testValue24));
         assertTrue(tailHint.isPrivateValue(_testValue24));
@@ -489,11 +483,13 @@ public class MultipleNodeExecutionPlannerTest {
 
   /**
    * <pre>
-   * N0 N1N7N4
-   * | \ |X|
-   * |  N2 N3
-   * |    \/
-   * N6   N5
+   *  N0    N1  N7  N4
+   *   |\   ||  ||  ||
+   *   | \  ++==++==++
+   *   |  \ |       |
+   *   |   N2      N3
+   *   |     \    /
+   *  N6       N5
    * </pre>
    * <ul>
    * <li>Should be broken into N{5, 2, 3, 1, 4, 7}, N6 and N0 at 3x concurrency
@@ -502,40 +498,33 @@ public class MultipleNodeExecutionPlannerTest {
    * </ul>
    */
   public void testTailGraphColouring() {
-    final ComputationTarget t5 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "5"));
-    final DependencyNode n5 = new DependencyNode(t5);
-    n5.setFunction(MockFunction.getMockFunction(t5, "foo"));
-    final ComputationTarget t6 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "6"));
-    final DependencyNode n6 = new DependencyNode(t6);
-    n6.setFunction(MockFunction.getMockFunction(t6, "foo"));
-    final ComputationTarget t7 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "7"));
-    final DependencyNode n7 = new DependencyNode(t7);
-    n7.setFunction(MockFunction.getMockFunction(t7, "foo"));
-    _testNode[0].addInputNode(n6);
-    _testNode[1].addInputNode(_testNode[3]);
-    _testNode[2].addInputNode(n5);
-    _testNode[3].addInputNode(n5);
-    n7.addInputNode(_testNode[2]);
-    n7.addInputNode(_testNode[3]);
-    _testGraph.addDependencyNode(n5);
-    _testGraph.addDependencyNode(n6);
-    _testGraph.addDependencyNode(n7);
+    final TestDependencyGraphBuilder graph = graphBuilder();
+    final ValueSpecification testValue60 = ValueSpecification.of("60", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "6"), _properties);
+    NodeBuilder node = graph.addNode("MDS", testValue60.getTargetSpecification());
+    node.addOutput(testValue60);
+    graph.getNode(0).addInput(testValue60);
+    final ValueSpecification testValue7x = ValueSpecification.of("7x", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "7"), _properties);
+    node = graph.addNode("Mock", testValue7x.getTargetSpecification());
+    node.addInput(_testValue21);
+    node.addInput(_testValue34);
+    node.addTerminalOutput(testValue7x, testValue7x.toRequirementSpecification());
+    graph.getNode(1).addInput(_testValue34);
     MultipleNodeExecutionPlanner planner = createPlanner(1, 1, 1);
-    GraphExecutionPlan plan = plan(planner, _testGraph);
+    GraphExecutionPlan plan = plan(planner, graph.buildGraph(), Collections.<ValueSpecification>emptySet());
     if (PRINT_GRAPHS) {
       System.out.println("Concurrency 1");
       plan.print();
     }
     assertEquals(gatherColours(plan), 7);
     planner = createPlanner(1, 1, 2);
-    plan = plan(planner, _testGraph);
+    plan = plan(planner, graph.buildGraph(), Collections.<ValueSpecification>emptySet());
     if (PRINT_GRAPHS) {
       System.out.println("Concurrency 2");
       plan.print();
     }
     assertEquals(gatherColours(plan), 4);
     planner = createPlanner(1, 1, 3);
-    plan = plan(planner, _testGraph);
+    plan = plan(planner, graph.buildGraph(), Collections.<ValueSpecification>emptySet());
     if (PRINT_GRAPHS) {
       System.out.println("Concurrency 3");
       plan.print();

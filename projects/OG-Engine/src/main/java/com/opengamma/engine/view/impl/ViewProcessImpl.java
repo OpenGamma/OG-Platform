@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.Instant;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -39,7 +40,6 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionContext;
-import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewExecutionDataProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.engine.view.worker.ViewProcessWorkerContext;
@@ -48,6 +48,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link ViewProcess}.
@@ -68,12 +69,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final Semaphore _processLock = new Semaphore(1);
 
   /**
-   * Key is the listener to which events will be dispatched.
-   * Value is true iff that listener requires delta calculations to be performed.
-   * When there are no listeners remaining that require delta calculations,
-   * they will stop being computed to save CPU and heap.
+   * Key is the listener to which events will be dispatched. Value is true iff that listener requires delta calculations to be performed. When there are no listeners remaining that require delta
+   * calculations, they will stop being computed to save CPU and heap.
    */
-  private final Map<ViewResultListener, Boolean> _listeners = new HashMap<ViewResultListener, Boolean>();
+  private final Map<ViewResultListener, Boolean> _listeners = new HashMap<>();
   private volatile int _internalListenerCount; // only safe if used within lock
 
   private volatile ViewDefinition _currentViewDefinition;
@@ -82,11 +81,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   private volatile ViewProcessWorker _worker;
 
-  private final AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
-      new AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>>();
+  private final AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>> _latestCompiledViewDefinition = new AtomicReference<>();
 
-  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
-  
+  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<>();
+
   private final AtomicBoolean _mustCalculateDeltas = new AtomicBoolean(false);
 
   private final ChangeListener _viewDefinitionChangeListener;
@@ -94,6 +92,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // BEGIN TEMPORARY -- See ViewProcessorImpl
 
   private volatile Object _description;
+
+  /**
+   * Indicates if this view process should be run persistently. If true, then even if all clients detach, the process will be kept running.
+   */
+  private final boolean _isPersistentViewProcess;
 
   public Object getDescriptionKey() {
     return _description;
@@ -106,15 +109,19 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // END TEMPORARY CODE
 
   /**
-   * Constructs an instance.
+   * Constructs an instance. Note that if runPersistently is true, the view process will start calculating immediately rather than waiting for a listener to attach. It will continue running regardless
+   * of the number of attached listeners.
    * 
-   * @param viewDefinitionId the name of the view definition, not null
+   * @param viewDefinitionId the identifier of the view definition, not null. If this is versioned the process will be locked to the specific instance. If this is an object identifier at "latest" then
+   *          changes to the view definition will be watched for and the process updated when the view definition changes.
    * @param executionOptions the view execution options, not null
    * @param viewProcessContext the process context, not null
    * @param viewProcessor the parent view processor, not null
+   * @param runPersistently if true, then the process will start running and continue running, regardless of the number of attached listeners
+   * @throws DataNotFoundException if the view definition identifier is invalid
    */
-  public ViewProcessImpl(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-      final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor) {
+  public ViewProcessImpl(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions, final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
+      boolean runPersistently) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
@@ -123,6 +130,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
     _viewProcessor = viewProcessor;
+    _isPersistentViewProcess = runPersistently;
     if (_viewDefinitionId.isVersioned()) {
       _viewDefinitionChangeListener = null;
     } else {
@@ -145,6 +153,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         }
       };
     }
+    _currentViewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
+    // Start up immediately if persistent, otherwise we'll wait for
+    // the first listener to be attached
+    if (runPersistently) {
+      startComputationJobIfRequired();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -160,17 +174,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   @Override
   public ViewDefinition getLatestViewDefinition() {
-    if (_currentViewDefinition == null) {
-      _currentViewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
-    }
     return _currentViewDefinition;
   }
 
   /**
-   * Forces the dependency graph to be rebuilt. Invoked when a market data provider becomes available and failed
-   * subscriptions need to be retried.
-   * @deprecated There should be a better way to do this in the market data layer but PLAT-3908 is a problem.
-   * This method will be removed once it's fixed
+   * Forces the dependency graph to be rebuilt. Invoked when a market data provider becomes available and failed subscriptions need to be retried.
+   * 
+   * @deprecated There should be a better way to do this in the market data layer but PLAT-3908 is a problem. This method will be removed once it's fixed
    */
   @Deprecated
   public void forceGraphRebuild() {
@@ -181,7 +191,15 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   }
 
   private void viewDefinitionChanged() {
-    final ViewDefinition viewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
+    final ViewDefinition viewDefinition;
+    final UniqueId viewDefinitionId = getDefinitionId();
+    try {
+      viewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, viewDefinitionId);
+    } catch (DataNotFoundException e) {
+      s_logger.error("Shutting down view process after failure to retrieve view definition {}", viewDefinitionId);
+      shutdown();
+      return;
+    }
     _currentViewDefinition = viewDefinition;
     ViewProcessWorker worker = getWorker();
     if (worker != null) {
@@ -198,7 +216,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   public ViewProcessState getState() {
     return _state;
   }
-  
+
   public ViewResultListener[] getListenerArray() {
     return _listeners.keySet().toArray(new ViewResultListener[_listeners.size()]);
   }
@@ -321,7 +339,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     final MarketDataPermissionProvider permissionProvider = dataProvider.getPermissionProvider();
     lock();
     try {
-      _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
+      _latestCompiledViewDefinition.set(Pairs.of(compiledViewDefinition, permissionProvider));
       listeners = getListenerArray();
     } finally {
       unlock();
@@ -375,9 +393,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     lock();
     try {
       result = cycle.getResultModel();
+      // We swap these first so that in the callback the process is consistent.
+      final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
       if (_mustCalculateDeltas.get()) {
-        // We swap these first so that in the callback the process is consistent.
-        final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
         // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
         deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
       }
@@ -550,15 +568,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
-   *
    * @param listener the listener, not null
    * @param resultMode the result mode for the listener, not null
    * @param fragmentResultMode the fragment result mode for the listener, not null
    * @return the permission context for the process, not null
    */
-  public ViewPermissionContext attachListener(final ViewResultListener listener,
-                                              final ViewResultMode resultMode,
-                                              final ViewResultMode fragmentResultMode) {
+  public ViewPermissionContext attachListener(final ViewResultListener listener, final ViewResultMode resultMode, final ViewResultMode fragmentResultMode) {
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(resultMode, "resultMode");
     ArgumentChecker.notNull(fragmentResultMode, "fragmentResultMode");
@@ -572,9 +587,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         if (listenerRequiresDeltas) {
           _mustCalculateDeltas.set(true);
         }
-        
+
         // keep track of number of internal listeners
-        if (listener instanceof InternalViewResultListener) { 
+        if (listener instanceof InternalViewResultListener) {
           _internalListenerCount++;
         }
         // exclude internal listeners from test
@@ -607,8 +622,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         final CompiledViewDefinitionWithGraphs compiledViewDefinition = latestCompilation.getFirst();
         final MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
         final Set<ValueSpecification> marketData = compiledViewDefinition.getMarketDataRequirements();
-        final Set<ValueSpecification> deniedRequirements =
-            permissionProvider.checkMarketDataPermissions(listener.getUser(), marketData);
+        final Set<ValueSpecification> deniedRequirements = permissionProvider.checkMarketDataPermissions(listener.getUser(), marketData);
         final boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
         if (latestResult != null) {
@@ -619,20 +633,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         logListenerError(listener, e);
       }
     }
-    return new ViewPermissionContext(
-        getProcessContext().getViewPermissionProvider(),
-        getProcessContext().getViewPortfolioPermissionProvider());
+    return new ViewPermissionContext(getProcessContext().getViewPermissionProvider(), getProcessContext().getViewPortfolioPermissionProvider());
   }
 
   private static boolean doesListenerRequireDeltas(ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
     boolean requiresDeltas = false;
-    switch(resultMode) {
+    switch (resultMode) {
       case BOTH:
       case DELTA_ONLY:
       case FULL_THEN_DELTA:
         requiresDeltas = true;
     }
-    switch(fragmentResultMode) {
+    switch (fragmentResultMode) {
       case BOTH:
       case DELTA_ONLY:
       case FULL_THEN_DELTA:
@@ -642,9 +654,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   }
 
   /**
-   * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop.
-   * We allow instances extending InternalViewResultListener to be ignored for the purposes of reference counting.  This allows e.g. JMX MBeans
-   * to track view events without affecting execution.
+   * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop. We allow instances extending InternalViewResultListener to be
+   * ignored for the purposes of reference counting. This allows e.g. JMX MBeans to track view events without affecting execution.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
@@ -664,14 +675,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         if ((_listeners.size() - _internalListenerCount) == 0) {
           stopComputationJobIfRequired();
         }
-        
+
         checkIfDeltasRequired();
       }
     } finally {
       unlock();
     }
   }
-  
+
   protected void checkIfDeltasRequired() {
     boolean deltasRequired = false;
     for (Boolean requiresDeltas : _listeners.values()) {
@@ -679,9 +690,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         deltasRequired = true;
         break;
       }
-    }
-    if (!deltasRequired) {
-      _latestResult.set(null);
     }
     _mustCalculateDeltas.set(deltasRequired);
   }
@@ -749,7 +757,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    */
   private void stopComputationJobIfRequired() {
     // Caller MUST hold the semaphore
-    if (getLatestViewDefinition().isPersistent()) {
+    if (getLatestViewDefinition().isPersistent() || _isPersistentViewProcess) {
       return;
     }
     s_logger.info("Stopping computation on view process {}...", this);

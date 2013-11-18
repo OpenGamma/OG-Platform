@@ -39,8 +39,9 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.metric.MetricProducer;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data
@@ -61,23 +62,30 @@ import com.opengamma.util.tuple.Pair;
  * will be thrown. Where use indicates that this class may be being used incorrectly,
  * a log message will be written at {@code WARN} level.
  */
-public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource, MetricProducer {
+public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHistoricalTimeSeriesSource.class);
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
   
   private Timer _getSeriesTimer = new Timer();
   private Timer _updateSeriesTimer = new Timer();
+  private Timer _existsSeriesTimer = new Timer();
   
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
   }
     
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool, String redisPrefix) {
+    this(jedisPool, redisPrefix, "NonVersionedRedisHistoricalTimeSeriesSource");
+  }
+
+  protected NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool, String redisPrefix, String metricsName) {
     ArgumentChecker.notNull(jedisPool, "jedisPool");
     ArgumentChecker.notNull(redisPrefix, "redisPrefix");
+    ArgumentChecker.notNull(metricsName, "metricsName");
     _jedisPool = jedisPool;
     _redisPrefix = redisPrefix;
+    registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), metricsName);
   }
 
   /**
@@ -96,10 +104,10 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return _redisPrefix;
   }
   
-  @Override
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
     _updateSeriesTimer = summaryRegistry.timer(namePrefix + ".update");
+    _existsSeriesTimer = summaryRegistry.timer(namePrefix + ".exists");
   }
   
   /**
@@ -234,6 +242,32 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     UniqueId uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
     return uniqueId;
   }
+  
+  public boolean exists(UniqueId uniqueId, LocalDate simulationExecutionDate) {
+    try (Timer.Context context = _existsSeriesTimer.time()) {
+      String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
+      String redisHtsDaysKey = toRedisHtsDaysKey(redisKey);
+      boolean exists = false;
+      Jedis jedis = getJedisPool().getResource();
+      try {
+        exists = jedis.exists(redisHtsDaysKey);
+        getJedisPool().returnResource(jedis);
+      } catch (Exception e) {
+        s_logger.error("Unable to check for existance", e);
+        getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to check for existance", e);
+      }
+      return exists;
+    }
+  }
+  
+  public boolean exists(UniqueId uniqueId) {
+    return exists(uniqueId, null);
+  }
+  
+  public boolean exists(ExternalIdBundle identifierBundle) {
+    return exists(toUniqueId(identifierBundle));
+  }
     
   // ------------------------------------------------------------------------
   // SUPPORTED HISTORICAL TIME SERIES SOURCE OPERATIONS:
@@ -354,7 +388,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     Pair<LocalDate, Double> latestPoint = null;
     LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
     if (ts != null) {
-      latestPoint = Pair.of(ts.getLatestTime(), ts.getLatestValue());
+      latestPoint = Pairs.of(ts.getLatestTime(), ts.getLatestValue());
     }
     return latestPoint;
   }
@@ -366,7 +400,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
     Pair<LocalDate, Double> latestPoint = null;
     if (hts != null && hts.getTimeSeries() != null) {
-      latestPoint = Pair.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      latestPoint = Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
     return latestPoint;
   }

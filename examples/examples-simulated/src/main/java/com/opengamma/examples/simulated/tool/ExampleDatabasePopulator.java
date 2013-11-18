@@ -43,12 +43,14 @@ import com.opengamma.examples.simulated.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.simulated.loader.ExampleViewsPopulator;
 import com.opengamma.examples.simulated.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
+import com.opengamma.financial.convention.initializer.DefaultConventionMasterInitializer;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.tool.portfolio.PortfolioLoader;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
+import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -145,6 +147,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   protected void doRun() {
     loadExchanges();
     loadHolidays();
+    loadConventions();
     loadCurrencyConfiguration();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
@@ -203,6 +206,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       throw e;
     }
 
+  }
+
+  private void loadConventions() {
+    final Log log = new Log("Creating convention data");
+    try {
+      ConventionMaster master = getToolContext().getConventionMaster();
+      DefaultConventionMasterInitializer.INSTANCE.init(master);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   private void loadCurrencyConfiguration() {
@@ -516,8 +530,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       innerFileName = StringUtils.replace(innerFileName, "%20", " ");
       s_logger.info("Unpacking zip file found jar file: {}", jarFileName);
       s_logger.info("Unpacking zip file found zip file: {}", innerFileName);
-      try {
-        JarFile jar = new JarFile(jarFileName);
+      try (JarFile jar = new JarFile(jarFileName)) {
         JarEntry jarEntry = jar.getJarEntry(innerFileName);
         try (InputStream in = jar.getInputStream(jarEntry)) {
           File tempFile = File.createTempFile("simulated-examples-database-populator-", ".zip");

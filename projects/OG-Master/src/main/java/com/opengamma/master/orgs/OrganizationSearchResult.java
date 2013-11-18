@@ -5,10 +5,11 @@
  */
 package com.opengamma.master.orgs;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.AbstractSearchResult;
-import com.opengamma.util.PublicSPI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -16,10 +17,10 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractSearchResult;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Result from searching for organizations.
@@ -123,14 +124,10 @@ public class OrganizationSearchResult extends AbstractSearchResult<OrganizationD
     return OrganizationSearchResult.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public OrganizationSearchResult clone() {
+    return (OrganizationSearchResult) super.clone();
   }
 
   @Override
@@ -148,6 +145,24 @@ public class OrganizationSearchResult extends AbstractSearchResult<OrganizationD
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("OrganizationSearchResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

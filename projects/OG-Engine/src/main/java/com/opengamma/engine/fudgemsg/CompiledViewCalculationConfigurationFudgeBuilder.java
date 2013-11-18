@@ -47,8 +47,8 @@ public class CompiledViewCalculationConfigurationFudgeBuilder implements FudgeBu
   private static final String TERMINAL_OUTPUT_SPECIFICATIONS_FIELD = "terminalOutputSpecifications";
   private static final String MARKET_DATA_REQUIREMENTS_FIELD = "marketDataRequirements";
   private static final String MARKET_DATA_ALIASES_FIELD = "marketDataAliases";
-  private static final String MARKET_DATA_SELECTIONS_FIELD = "marketDataSelections";
-  private static final String MARKET_DATA_SELECTION_FUNCTION_FIELD = "marketDataSelectionFunctionParameters";
+//  private static final String MARKET_DATA_SELECTIONS_FIELD = "marketDataSelections";
+//  private static final String MARKET_DATA_SELECTION_FUNCTION_FIELD = "marketDataSelectionFunctionParameters";
 
   private static final Integer MAP_KEY = 1;
   private static final Integer MAP_VALUE = 2;

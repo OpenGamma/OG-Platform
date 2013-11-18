@@ -81,5 +81,15 @@ public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
     }
     return _preCalculatedDiscountFactors[nDays];
   }
+  
+  public boolean isPreCalculated() {
+    return _preCalculatedDiscountFactors != null;
+  }
+  
+  public boolean isPreCalculated(int nDaysForward) {
+    return
+        (_preCalculatedDiscountFactors != null)
+        && (_preCalculatedDiscountFactors.length >= nDaysForward);
+  }
 
 }

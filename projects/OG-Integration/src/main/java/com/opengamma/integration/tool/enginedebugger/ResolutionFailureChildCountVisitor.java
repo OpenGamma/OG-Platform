@@ -84,4 +84,5 @@ final class ResolutionFailureChildCountVisitor extends ResolutionFailureVisitor<
       final Map<ValueSpecification, ValueRequirement> requirements) {
     return 4;
   }
+
 }

@@ -248,7 +248,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final double pvLongPayer = METHOD.presentValue(CMS_COUPON_RECEIVER, SABR_BUNDLE).getAmount();
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_COUPON_RECEIVER.getFixingTime(), ANNUITY_TENOR_YEAR + 1.0 / 365.0);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_COUPON_RECEIVER.getFixingTime(), ANNUITY_TENOR_YEAR + 1.0 / 365.0);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES);

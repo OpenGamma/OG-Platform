@@ -11,6 +11,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjuster;
 
+import com.opengamma.financial.convention.NamedInstance;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
@@ -20,7 +21,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
  * a date to be adjusted when it falls on a non-working day.
  */
 @FromStringFactory(factory = BusinessDayConventionFactory.class)
-public interface BusinessDayConvention {
+public interface BusinessDayConvention extends NamedInstance {
 
   /**
    * Adjusts the specified date using the working day calendar.
@@ -52,8 +53,15 @@ public interface BusinessDayConvention {
    * Gets the name of the convention.
    * 
    * @return the name, not null
+   * @deprecated use getName()
+   */
+  @Deprecated
+  String getConventionName();
+  
+  /**
+   * Gets the name of the convention.
+   * @return the name, not null
    */
   @ToString
-  String getConventionName();
-
+  String getName();
 }

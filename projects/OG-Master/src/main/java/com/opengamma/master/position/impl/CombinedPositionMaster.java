@@ -8,9 +8,9 @@ package com.opengamma.master.position.impl;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocumentsResult;
+import com.opengamma.master.ChangeProvidingCombinedMaster;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -21,18 +21,14 @@ import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 
 /**
- * A {@link PositionMaster} that combines the behavior of the masters
- * in the session, user and global contexts. 
+ * A {@link PositionMaster} which delegates its calls to a list of underlying {@link PositionMaster}s.
+ * 
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link PositionMaster}.
  */
-public class CombinedPositionMaster extends CombinedMaster<PositionDocument, PositionMaster> implements PositionMaster {
+public class CombinedPositionMaster extends ChangeProvidingCombinedMaster<PositionDocument, PositionMaster> implements PositionMaster {
 
   public CombinedPositionMaster(List<PositionMaster> masters) {
     super(masters);
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -48,6 +48,7 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -78,7 +79,6 @@ import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -91,11 +91,10 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Constructs a single yield curve and its Jacobian from exogenously-supplied yield curves and
- * a {@link FXForwardCurveDefinition} and {@link FXForwardCurveSpecification}.
- * @deprecated This function uses configuration objects that have been superseded. Use functions
- * that descend from {@link MultiCurveFunction}. Curves that use FX forwards directly in
- * {@link CurveDefinition} (see {@link FXForwardNode}) are constructed in these classes.
+ * Constructs a single yield curve and its Jacobian from exogenously-supplied yield curves and a {@link FXForwardCurveDefinition} and {@link FXForwardCurveSpecification}.
+ * 
+ * @deprecated This function uses configuration objects that have been superseded. Use functions that descend from {@link MultiCurveFunction}. Curves that use FX forwards directly in
+ *             {@link CurveDefinition} (see {@link FXForwardNode}) are constructed in these classes.
  */
 @Deprecated
 public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
@@ -209,7 +208,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Calendar calendar = CalendarUtils.getCalendar(holidaySource, domesticCurrency, foreignCurrency);
     final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-    final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
+    final FXSpotConvention fxSpotConvention = conventionSource.getSingle(ExternalId.of("CONVENTION", "FX Spot"), FXSpotConvention.class);
     final int spotLag = fxSpotConvention.getSettlementDays();
     final ExternalId conventionSettlementRegion = fxSpotConvention.getSettlementRegion();
     ZonedDateTime spotDate;
@@ -317,11 +316,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String domesticCurveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (domesticCurveCalculationConfigName == null) {
       return null;
     }
-    final String domesticCurveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
     final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
@@ -334,36 +332,36 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
       return null;
     }
-    final Set<String> rootFinderAbsoluteTolerance = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
-    if (rootFinderAbsoluteTolerance == null || rootFinderAbsoluteTolerance.size() != 1) {
+    final String rootFinderAbsoluteTolerance = constraints.getStrictValue(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+    if (rootFinderAbsoluteTolerance == null) {
       return null;
     }
-    final Set<String> rootFinderRelativeTolerance = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
-    if (rootFinderRelativeTolerance == null || rootFinderRelativeTolerance.size() != 1) {
+    final String rootFinderRelativeTolerance = constraints.getStrictValue(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+    if (rootFinderRelativeTolerance == null) {
       return null;
     }
-    final Set<String> maxIterations = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
-    if (maxIterations == null || maxIterations.size() != 1) {
+    final String maxIterations = constraints.getStrictValue(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+    if (maxIterations == null) {
       return null;
     }
-    final Set<String> decomposition = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
-    if (decomposition == null || decomposition.size() != 1) {
+    final String decomposition = constraints.getStrictValue(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
+    if (decomposition == null) {
       return null;
     }
-    final Set<String> useFiniteDifference = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
-    if (useFiniteDifference == null || useFiniteDifference.size() != 1) {
+    final String useFiniteDifference = constraints.getStrictValue(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
+    if (useFiniteDifference == null) {
       return null;
     }
-    final Set<String> interpolatorName = constraints.getValues(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
-    if (interpolatorName == null || interpolatorName.size() != 1) {
+    final String interpolatorName = constraints.getStrictValue(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
+    if (interpolatorName == null) {
       return null;
     }
-    final Set<String> leftExtrapolatorName = constraints.getValues(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
-    if (leftExtrapolatorName == null || leftExtrapolatorName.size() != 1) {
+    final String leftExtrapolatorName = constraints.getStrictValue(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
+    if (leftExtrapolatorName == null) {
       return null;
     }
-    final Set<String> rightExtrapolatorName = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    if (rightExtrapolatorName == null || rightExtrapolatorName.size() != 1) {
+    final String rightExtrapolatorName = constraints.getStrictValue(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
+    if (rightExtrapolatorName == null) {
       return null;
     }
     if (domesticCurveCalculationConfig.getExogenousConfigData() == null) {
@@ -424,6 +422,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   /**
    * Gets the properties for the foreign curve i.e. the fixed yield curve that is being used to imply the yield curve.
+   * 
    * @param foreignConfig The foreign curve configuration name
    * @param foreignCurveName The foreign curve name
    * @return The foreign curve properties
@@ -438,6 +437,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   /**
    * Gets the properties for the foreign curve configuration Jacobian i.e. the Jacobian that is being used to imply the yield curve.
+   * 
    * @param foreignConfig The foreign curve configuration name
    * @return The foreign Jacobian properties
    */
@@ -450,6 +450,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   /**
    * Gets the properties of the implied yield curve with no values set.
+   * 
    * @return The properties
    */
   private ValueProperties getCurveProperties() {
@@ -469,6 +470,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   /**
    * Gets the properties of the Jacobian with no values set.
+   * 
    * @return The properties.
    */
   private ValueProperties getProperties() {
@@ -487,6 +489,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   /**
    * Gets the properties of the implied yield curve.
+   * 
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param curveName The curve name
    * @param absoluteTolerance The absolute tolerance
@@ -518,6 +521,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   /**
    * Gets the properties of the Jacobian for the implied yield curve.
+   * 
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param absoluteTolerance The absolute tolerance
    * @param relativeTolerance The relative tolerance

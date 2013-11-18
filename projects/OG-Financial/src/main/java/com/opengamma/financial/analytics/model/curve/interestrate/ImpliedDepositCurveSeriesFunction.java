@@ -22,9 +22,9 @@ import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesF
 import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY;
 import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY;
 import static com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils.YES_VALUE;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.DEPOSIT;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +69,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
@@ -97,7 +98,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -201,14 +201,12 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     }
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000),
-        impliedConfiguration, impliedDefinition, originalConfiguration, originalCurveNames[0]);
+        impliedDefinition, originalConfiguration, originalCurveNames[0]);
   };
 
   private class MyCompiledFunction extends AbstractInvokingCompiledFunction {
     /** The definition of the implied curve */
     private final YieldCurveDefinition _impliedDefinition;
-    /** The implied curve calculation configuration */
-    private final MultiCurveCalculationConfig _impliedConfiguration;
     /** The original curve calculation configuration */
     private final MultiCurveCalculationConfig _originalConfiguration;
     /** The implied curve name */
@@ -224,10 +222,16 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     /** The right extrapolator */
     private final String _rightExtrapolatorName;
 
-    public MyCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final MultiCurveCalculationConfig impliedConfiguration,
-        final YieldCurveDefinition impliedDefinition, final MultiCurveCalculationConfig originalConfiguration, final String originalCurveName) {
+    /**
+    * @param earliestInvokation The earliest time for which this function is valid
+    * @param latestInvokation The latest time for which this function is valid
+    * @param impliedDefinition The implied curve definition
+    * @param originalConfiguration The original curve configuration
+    * @param originalCurveName The original curve name
+    */
+    public MyCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final YieldCurveDefinition impliedDefinition,
+      final MultiCurveCalculationConfig originalConfiguration, final String originalCurveName) {
       super(earliestInvokation, latestInvokation);
-      _impliedConfiguration = impliedConfiguration;
       _impliedDefinition = impliedDefinition;
       _originalConfiguration = originalConfiguration;
       _impliedCurveName = impliedDefinition.getName();
@@ -270,15 +274,24 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final YieldCurveBundle knownCurve = new YieldCurveBundle();
         final Map<LocalDate, YieldAndDiscountCurve> originalCurveSeries = (Map<LocalDate, YieldAndDiscountCurve>) originalCurveObject;
         final Map<FixedIncomeStrip, List<Double>> results = new HashMap<>();
-        List<LocalDate> impliedRateDates = new ArrayList<>();
+        final List<LocalDate> impliedRateDates = new ArrayList<>();
+        final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+        final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+        final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
+        final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
+        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
+        final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
+        final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
+            _rightExtrapolatorName);
+        final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
+        final double relativeTolerance = Double.parseDouble(relativeToleranceName);
+        final int iterations = Integer.parseInt(iterationsName);
+        final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
+        final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
 
         for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : originalCurveSeries.entrySet()) {
           final LocalDate valuationDate = entry.getKey();
           final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
-          final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-          final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-          final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
-          final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
           final int spotLag = 0;
           final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
           ZonedDateTime spotDate;
@@ -294,8 +307,6 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
           final double[] t = new double[n];
           final double[] r = new double[n];
           int i = 0;
-          final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO
-          final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
           final List<InstrumentDerivative> derivatives = new ArrayList<>();
           for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
             final Tenor tenor = strip.getCurveNodePointTime();
@@ -310,13 +321,6 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
             t[i] = endTime;
             r[i++] = parRate;
           }
-          final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
-              _rightExtrapolatorName);
-          final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
-          final double relativeTolerance = Double.parseDouble(relativeToleranceName);
-          final int iterations = Integer.parseInt(iterationsName);
-          final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-          final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
           final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
           final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
           curveNodes.put(impliedDepositCurveName, t);
@@ -330,7 +334,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
           final double[] fittedYields;
           try {
             fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(r)).getData();
-            YieldCurve impliedCurve = new YieldCurve("Name", InterpolatedDoublesCurve.from(t, fittedYields, interpolator));
+            final YieldCurve impliedCurve = new YieldCurve("Name", InterpolatedDoublesCurve.from(t, fittedYields, interpolator));
 
             final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
 
@@ -346,7 +350,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
                 results.put(strip, value);
               }
             }
-          } catch (Throwable t2) {
+          } catch (final Throwable t2) {
             t2.printStackTrace();
             continue;
           }
@@ -364,7 +368,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
                 ImmutableLocalDateDoubleTimeSeries.of(impliedRateDates, results.get(strip.getStrip())));
 
             bundle.add(MarketDataRequirementNames.MARKET_VALUE, id, ts);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             e.printStackTrace();
             break;
           }
@@ -373,7 +377,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
         return Collections.singleton(new ComputedValue(curveSpec, bundle));
 
-      } catch (Throwable t3) {
+      } catch (final Throwable t3) {
         t3.printStackTrace();
         throw t3;
       }
@@ -393,7 +397,6 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
-      final String valueName = desiredValue.getValueName();
       final ValueProperties constraints = desiredValue.getConstraints();
       ValueProperties.Builder seriesConstraints = null;
       Set<String> values = desiredValue.getConstraints().getValues(DATA_FIELD_PROPERTY);

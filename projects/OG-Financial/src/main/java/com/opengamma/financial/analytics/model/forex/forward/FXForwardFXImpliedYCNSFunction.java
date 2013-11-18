@@ -115,7 +115,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       if (definition == null) {
         throw new OpenGammaRuntimeException("Could not get FX forward curve definition called " + curveName + " for currency pair " + currencyPair);
       }
-      final Tenor[] tenors = definition.getTenors();
+      final Tenor[] tenors = definition.getTenorsArray();
       final YieldCurveBundle interpolatedCurveForCurrency = new YieldCurveBundle();
       interpolatedCurveForCurrency.setCurve(fullCurveName, data.getCurve(fullCurveName));
       final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(curveCurrency)).getSensitivities();

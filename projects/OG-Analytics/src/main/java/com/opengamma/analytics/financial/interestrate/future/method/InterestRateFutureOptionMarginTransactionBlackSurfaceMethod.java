@@ -22,6 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 @Deprecated
 public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod extends InterestRateFutureOptionMarginTransactionMethod {
 
+  /** Calculates values for the security */
   private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod SECURITY_METHOD = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
 
   /**
@@ -59,6 +60,20 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
     return txnSensitivity;
   }
 
+  /**
+   * Computes the theta of a transaction.
+   * @param transaction The future option transaction.
+   * @param blackData The curve and Black volatility data.
+   * @return The theta.
+   */
+  public double theta(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveWithBlackCubeBundle blackData) {
+    final double securitySensitivity = SECURITY_METHOD.optionPriceTheta(transaction.getUnderlyingOption(), blackData);
+    final double txnSensitivity = securitySensitivity
+        * transaction.getQuantity()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+    return txnSensitivity;
+  }
 
   /**
    * Computes the present value volatility sensitivity of a transaction.
@@ -105,7 +120,7 @@ public final class InterestRateFutureOptionMarginTransactionBlackSurfaceMethod e
 
   /**
    * Computes the present value gamma of a transaction.
-   * This is with respect to eithe futures price, or rate=1-price
+   * This is with respect to either futures price, or rate=1-price
    * @param transaction The future option transaction.
    * @param blackData The curve and Black volatility data.
    * @return The present value curve sensitivity.

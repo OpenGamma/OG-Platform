@@ -182,7 +182,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public double getVolatility(final double expiryTime, final double maturity, final double strike, final double forward) {
-    final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     final Function1D<SABRFormulaData, Double> funcSabrLongPayer = _sabrFunction.getVolatilityFunction(option, forward);
@@ -213,7 +213,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
   public double[] getVolatilityAdjoint(final double expiryTime, final double maturity, final double strike, final double forward) {
     ArgumentChecker.isTrue(_sabrFunction instanceof SABRHaganVolatilityFunction, "Adjoint volatility available only for Hagan formula");
     final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
-    final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     final double[] result = sabrHaganFunction.getVolatilityAdjoint(option, forward, data);

@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -65,51 +66,6 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
     return DbFunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1999640458:  // functionDefinitionName
-        return getFunctionDefinitionName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1999640458:  // functionDefinitionName
-        setFunctionDefinitionName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_functionDefinitionName, "functionDefinitionName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbFunctionConfigurationSourceComponentFactory other = (DbFunctionConfigurationSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getFunctionDefinitionName(), other.getFunctionDefinitionName()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionDefinitionName());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the function configuration definition name.
@@ -134,6 +90,51 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
    */
   public final Property<String> functionDefinitionName() {
     return metaBean().functionDefinitionName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DbFunctionConfigurationSourceComponentFactory clone() {
+    return (DbFunctionConfigurationSourceComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbFunctionConfigurationSourceComponentFactory other = (DbFunctionConfigurationSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getFunctionDefinitionName(), other.getFunctionDefinitionName()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionDefinitionName());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("DbFunctionConfigurationSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("functionDefinitionName").append('=').append(JodaBeanUtils.toString(getFunctionDefinitionName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -195,6 +196,32 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
      */
     public final MetaProperty<String> functionDefinitionName() {
       return _functionDefinitionName;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1999640458:  // functionDefinitionName
+          return ((DbFunctionConfigurationSourceComponentFactory) bean).getFunctionDefinitionName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1999640458:  // functionDefinitionName
+          ((DbFunctionConfigurationSourceComponentFactory) bean).setFunctionDefinitionName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DbFunctionConfigurationSourceComponentFactory) bean)._functionDefinitionName, "functionDefinitionName");
+      super.validate(bean);
     }
 
   }

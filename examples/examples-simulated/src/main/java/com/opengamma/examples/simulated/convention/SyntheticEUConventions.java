@@ -22,6 +22,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+
 /**
  * Standard conventions for EUR.
  */
@@ -100,6 +101,7 @@ public class SyntheticEUConventions {
         2, true, null);
 
     final int publicationLagON = 0;
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUROVERNIGHT")), "EUROVERNIGHT", act360, following, Period.ofDays(1), 2, false, eu, publicationLagON);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("EONIA"), simpleNameSecurityId("EUR EONIA")), "EUR EONIA", act360, modified, Period.ofDays(1), 0, false, eu, publicationLagON);
     // OIS - EONIA
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("EUR_OIS_SWAP")), "EUR_OIS_SWAP", act360, modified, annual, 2, eu, act360, modified,

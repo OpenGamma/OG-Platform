@@ -6,7 +6,6 @@
 package com.opengamma.engine.management;
 
 import javax.management.MXBean;
-import javax.management.openmbean.TabularData;
 
 /**
  * A management bean for a View
@@ -101,54 +100,26 @@ public interface ViewProcessMXBean {
   String getViewName();
   
   /**
-   * @return a table of successful restults by Security Type then Value Requirement, Properties
+   * method to process last cycles results and distill into tablular results. On demand because it's not that lightweight.
+   * @return the statistics
    */
-  TabularData getResultsBySecurityType();
+  ViewProcessStatsProcessor generateResultsModelStatistics();
 
   /**
-   * @return a table of successful restults by Value Requirement, Properties
+   * @return when the last successful cycle was calculated, null if
+   * there has not been a successful cycle
    */
-  TabularData getResultsByColumnRequirement();
+  String getLastSuccessfulCycleTimeStamp();
 
   /**
-   * @return overall number of successful calculations
+   * @return how long the last successful cycle took to calculate, null if
+   * there has not been a successful cycle
    */
-  int getSuccesses();
+  Long getLastSuccessfulCycleDuration();
 
   /**
-   * @return overall number of failed calculations
+   * @return how long since the last successful cycle ran, null if
+   * there has not been a successful cycle
    */
-  int getFailures();
-
-  /**
-   * @return total number of calculations expected
-   */
-  int getTotal();
-  
-  /**
-   * method to process last cycles results and distill into tablular and stats results above.  On demand because it's not that lightweight.
-   * @return true if successfully updated results
-   */
-  boolean processResults();
-
-  /**
-   * @return percentage of results that calculated successfully
-   */
-  double getPercentage();
-
-  /**
-   * @return true if 100% of results calculated successfully
-   */
-  boolean isCleanView100();
-
-  /**
-   * @return true if 99% of results calculated successfully
-   */
-  boolean isCleanView99();
-
-  /**
-   * @return true if 95% of results calculated successfully
-   */
-  boolean isCleanView95();
- 
+  Long getTimeSinceLastSuccessfulCycle();
 }

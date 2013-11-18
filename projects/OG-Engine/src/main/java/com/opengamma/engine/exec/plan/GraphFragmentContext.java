@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 
@@ -17,13 +18,25 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
  */
 /*package*/class GraphFragmentContext {
 
+  private final String _calculationConfig;
   private final ExecutionLogModeSource _logModeSource;
   private final long _functionInitializationId;
   private final Map<ValueSpecification, Boolean> _sharedCacheValues = new HashMap<ValueSpecification, Boolean>();
+  private final Map<ValueSpecification, FunctionParameters> _parameters;
 
-  public GraphFragmentContext(final ExecutionLogModeSource logModeSource, final long functionInitializationId) {
+  public GraphFragmentContext(final String calculationConfig, final ExecutionLogModeSource logModeSource, final long functionInitializationId,
+      final Collection<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
+    _calculationConfig = calculationConfig;
     _logModeSource = logModeSource;
     _functionInitializationId = functionInitializationId;
+    for (ValueSpecification sharedValue : sharedValues) {
+      _sharedCacheValues.put(sharedValue, Boolean.TRUE);
+    }
+    _parameters = parameters;
+  }
+
+  public String getCalculationConfig() {
+    return _calculationConfig;
   }
 
   public ExecutionLogModeSource getLogModeSource() {
@@ -42,6 +55,10 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
     for (ValueSpecification output : outputs) {
       _sharedCacheValues.put(output, Boolean.TRUE);
     }
+  }
+
+  public Map<ValueSpecification, FunctionParameters> getParameters() {
+    return _parameters;
   }
 
 }

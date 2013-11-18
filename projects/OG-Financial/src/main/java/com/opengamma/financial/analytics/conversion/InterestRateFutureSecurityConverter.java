@@ -5,21 +5,20 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.QUARTERLY;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.STIR_FUTURES;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.QUARTERLY;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.STIR_FUTURES;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -60,11 +59,8 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
     final String conventionName = getConventionName(currency, STIR_FUTURES + QUARTERLY);
-    final InterestRateFutureConvention convention = _conventionSource.getConvention(InterestRateFutureConvention.class, ExternalId.of(SCHEME_NAME, conventionName)); // PLAT-4532
-    if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, conventionName));
-    }
-    final IborIndexConvention iborIndexConvention = _conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
+    final InterestRateFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, conventionName), InterestRateFutureConvention.class); // PLAT-4532
+    final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), IborIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
     final Period period = Period.ofMonths(3); //TODO
     final double paymentAccrualFactor = getAccrualFactor(period);

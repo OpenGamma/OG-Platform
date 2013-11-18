@@ -17,6 +17,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -31,6 +32,29 @@ public class FudgeConduitTest {
     ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver);
     DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
     ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context);
+    
+    MutableFudgeMsg msg = context.newMessage();
+    msg.add("Foo", "Bar");
+    msg.add("Number Problems", 99);
+    
+    fudgeSender.send(msg);
+    
+    List<FudgeMsgEnvelope> receivedMessages = collectingReceiver.getMessages();
+    assertEquals(1, receivedMessages.size());
+    FudgeMsgEnvelope receivedEnvelope = receivedMessages.get(0);
+    assertNotNull(receivedEnvelope.getMessage());
+    FudgeMsg receivedMsg = receivedEnvelope.getMessage();
+    assertEquals(2, receivedMsg.getNumFields());
+    assertEquals("Bar", receivedMsg.getString("Foo"));
+    assertEquals(new Integer(99), receivedMsg.getInt("Number Problems"));
+  }
+  
+  public void oneWayTestWithEncryption() {
+    FudgeContext context = new FudgeContext();
+    CollectingFudgeMessageReceiver collectingReceiver = new CollectingFudgeMessageReceiver();
+    ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(collectingReceiver, OpenGammaFudgeContext.getInstance(), true);
+    DirectInvocationByteArrayMessageSender byteArraySender = new DirectInvocationByteArrayMessageSender(fudgeReceiver);
+    ByteArrayFudgeMessageSender fudgeSender = new ByteArrayFudgeMessageSender(byteArraySender, context, true);
     
     MutableFudgeMsg msg = context.newMessage();
     msg.add("Foo", "Bar");

@@ -47,7 +47,7 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
    * @return The Black (implied) volatility
    */
   public double getVolatility(final double t, final double k) {
-    final DoublesPair temp = new DoublesPair(t, k);
+    final DoublesPair temp = DoublesPair.of(t, k);
     return getVolatility(temp);
   }
 

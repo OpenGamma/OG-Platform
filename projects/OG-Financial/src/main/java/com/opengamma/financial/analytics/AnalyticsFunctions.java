@@ -16,6 +16,7 @@ import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
 import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
+import com.opengamma.financial.analytics.model.MarketQuotePositionFunction;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
@@ -100,6 +101,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(NotionalFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
+    functions.add(functionConfiguration(BucketedPV01Function.class));
+    functions.add(functionConfiguration(ISINFunction.class));
 
     //security attribute functions
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.DIRECTION.name(), ValueRequirementNames.PAY_REC));
@@ -186,7 +189,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
     addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
-    addUnitScalingFunction(functions, ValueRequirementNames.MARKET_QUOTE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
@@ -197,6 +199,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.PAY_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
@@ -217,8 +220,12 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addSummingFunction(functions, ValueRequirementNames.PRICE_SERIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PV01);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.RECEIVE_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.RHO);
+    addUnitScalingFunction(functions, ValueRequirementNames.SWAP_PAY_LEG_DETAILS);
+    addUnitScalingFunction(functions, ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
+    addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_MODEL_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED_P);
     addUnitScalingFunction(functions, ValueRequirementNames.SPOT);
@@ -293,6 +300,12 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
     addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
+
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.BUCKETED_PV01);
+
+    functions.add(functionConfiguration(ISINFunction.class));
+
+    functions.add(functionConfiguration(MarketQuotePositionFunction.class));
   }
 
   protected FunctionConfigurationSource cashFlowFunctionConfiguration() {

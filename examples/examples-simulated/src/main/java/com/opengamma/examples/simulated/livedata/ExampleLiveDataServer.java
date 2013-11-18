@@ -17,11 +17,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
-import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.io.IOUtils;
 import org.fudgemsg.FudgeContext;
@@ -31,8 +28,6 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,6 +39,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+
+import au.com.bytecode.opencsv.CSVReader;
+import net.sf.ehcache.CacheManager;
 
 /**
  * An ultra-simple market data simulator, we load the initial values from a CSV file (with a header row)
@@ -65,7 +63,7 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   private volatile double _scalingFactor;
   private volatile int _maxMillisBetweenTicks;
   private final TerminatableJob _marketDataSimulatorJob = new SimulatedMarketDataJob();
-  private final ExecutorService _executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("ExampleLiveDataServer"));
+  private final ExecutorService _executorService = NamedThreadPoolFactory.newCachedThreadPool("ExampleLiveDataServer");
 
   public ExampleLiveDataServer(final CacheManager cacheManager, final Resource initialValuesFile) {
     this(cacheManager, initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);

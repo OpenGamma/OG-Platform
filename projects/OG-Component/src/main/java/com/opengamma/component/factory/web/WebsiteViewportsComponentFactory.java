@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -38,6 +39,10 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
@@ -83,7 +88,6 @@ import com.opengamma.web.analytics.rest.MasterType;
 import com.opengamma.web.analytics.rest.TimeSeriesResolverKeysResource;
 import com.opengamma.web.analytics.rest.UserResource;
 import com.opengamma.web.analytics.rest.ViewDefinitionEntriesResource;
-import com.opengamma.web.analytics.rest.ViewsResource;
 import com.opengamma.web.analytics.rest.WebUiResource;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
@@ -91,6 +95,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
  * Component factory for the main website viewports (for analytics).
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
@@ -128,6 +133,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private ComputationTargetResolver _computationTargetResolver;
+  /**
+   * The function repository, null to not have additional function metadata available to the UI components.
+   */
+  @PropertyDefinition
+  private FunctionConfigurationSource _functions;
   /**
    * The time-series master.
    */
@@ -196,17 +206,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    */
   @PropertyDefinition
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
-   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   *
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Indicates if currency amounts should be displayed in the UI without the currency code.
+   * Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
   private boolean _suppressCurrencyDisplay;
@@ -221,30 +229,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
     MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-
-    AggregatedViewDefinitionManager aggregatedViewDefManager =
-        new AggregatedViewDefinitionManager(getPositionSource(),
-                                            getSecuritySource(),
-                                            getCombinedConfigSource(),
-                                            getUserConfigMaster(),
-                                            getUserPortfolioMaster(),
-                                            getUserPositionMaster(),
-                                            getPortfolioAggregationFunctions().getMappedFunctions());
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(), getUserConfigMaster(),
+        getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     SecurityAttributeMapper blotterColumnMapper = DefaultSecurityAttributeMappings.create(currencyPairs);
-    AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
-                                                                         getParallelViewRecompilation(),
-                                                                         aggregatedViewDefManager,
-                                                                         getComputationTargetResolver(),
-                                                                         getMarketDataSpecificationRepository(),
-                                                                         blotterColumnMapper,
-                                                                         getPositionSource(),
-                                                                         getCombinedConfigSource(),
-                                                                         getSecuritySource(),
-                                                                         getSecurityMaster(),
-                                                                         getPositionMaster());
+    AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(), getParallelViewRecompilation(), aggregatedViewDefManager, getComputationTargetResolver(),
+        getFunctionRepository(), getMarketDataSpecificationRepository(), blotterColumnMapper, getPositionSource(), getCombinedConfigSource(), getSecuritySource(), getSecurityMaster(),
+        getPositionMaster());
     ResultsFormatter resultsFormatter = new ResultsFormatter(_suppressCurrencyDisplay ? SUPPRESS_CURRENCY : DISPLAY_CURRENCY);
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonCsvWriter viewportResultsWriter = new ViewportResultsJsonCsvWriter(resultsFormatter);
@@ -282,6 +275,17 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     });
   }
 
+  protected FunctionRepository getFunctionRepository() {
+    // TODO: This is slightly wasteful if the view processor is in the same process and has created its own repository. Ideally we
+    // should be able to inject either the constructed repository or a configuration source depending on what's available
+    final FunctionConfigurationSource functions = getFunctions();
+    if (functions == null) {
+      // Supply an empty repo if the configuration is omitted
+      return new InMemoryFunctionRepository();
+    }
+    return FunctionRepositoryFactory.constructRepository(functions.getFunctionConfiguration());
+  }
+
   protected LongPollingConnectionManager buildLongPolling() {
     return new LongPollingConnectionManager();
   }
@@ -305,6 +309,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     providers.put(MasterType.TIME_SERIES, getHistoricalTimeSeriesMaster());
     providers.put(MasterType.CONFIG, getConfigMaster());
     providers.put(MasterType.ORGANIZATION, getOrganizationMaster());
+    providers.put(MasterType.MARKET_DATA_SNAPSHOT, getMarketDataSnapshotMaster());
     return new MasterChangeManager(providers);
   }
 
@@ -325,215 +330,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Override
   public WebsiteViewportsComponentFactory.Meta metaBean() {
     return WebsiteViewportsComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 10395716:  // configMaster
-        return getConfigMaster();
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-      case 1562222174:  // computationTargetResolver
-        return getComputationTargetResolver();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-      case 1808868758:  // userPositionMaster
-        return getUserPositionMaster();
-      case 686514815:  // userPortfolioMaster
-        return getUserPortfolioMaster();
-      case -763459665:  // userConfigMaster
-        return getUserConfigMaster();
-      case -774734430:  // combinedConfigSource
-        return getCombinedConfigSource();
-      case -1697555603:  // viewProcessor
-        return getViewProcessor();
-      case 1910524868:  // parallelViewRecompilation
-        return getParallelViewRecompilation();
-      case 940303425:  // portfolioAggregationFunctions
-        return getPortfolioAggregationFunctions();
-      case 2090650860:  // marketDataSnapshotMaster
-        return getMarketDataSnapshotMaster();
-      case 3599307:  // user
-        return getUser();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-      case -301472921:  // liveMarketDataProviderFactory
-        return getLiveMarketDataProviderFactory();
-      case 1743800263:  // marketDataSpecificationRepository
-        return getMarketDataSpecificationRepository();
-      case -1406342148:  // suppressCurrencyDisplay
-        return isSuppressCurrencyDisplay();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-      case 1562222174:  // computationTargetResolver
-        setComputationTargetResolver((ComputationTargetResolver) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-      case 1808868758:  // userPositionMaster
-        setUserPositionMaster((PositionMaster) newValue);
-        return;
-      case 686514815:  // userPortfolioMaster
-        setUserPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -763459665:  // userConfigMaster
-        setUserConfigMaster((ConfigMaster) newValue);
-        return;
-      case -774734430:  // combinedConfigSource
-        setCombinedConfigSource((ConfigSource) newValue);
-        return;
-      case -1697555603:  // viewProcessor
-        setViewProcessor((ViewProcessor) newValue);
-        return;
-      case 1910524868:  // parallelViewRecompilation
-        setParallelViewRecompilation((ExecutionFlags.ParallelRecompilationMode) newValue);
-        return;
-      case 940303425:  // portfolioAggregationFunctions
-        setPortfolioAggregationFunctions((PortfolioAggregationFunctions) newValue);
-        return;
-      case 2090650860:  // marketDataSnapshotMaster
-        setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
-        return;
-      case 3599307:  // user
-        setUser((UserPrincipal) newValue);
-        return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-      case -301472921:  // liveMarketDataProviderFactory
-        setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
-        return;
-      case 1743800263:  // marketDataSpecificationRepository
-        setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
-        return;
-      case -1406342148:  // suppressCurrencyDisplay
-        setSuppressCurrencyDisplay((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_configMaster, "configMaster");
-    JodaBeanUtils.notNull(_securityMaster, "securityMaster");
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_positionMaster, "positionMaster");
-    JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
-    JodaBeanUtils.notNull(_positionSource, "positionSource");
-    JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
-    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-    JodaBeanUtils.notNull(_organizationMaster, "organizationMaster");
-    JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
-    JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
-    JodaBeanUtils.notNull(_userConfigMaster, "userConfigMaster");
-    JodaBeanUtils.notNull(_combinedConfigSource, "combinedConfigSource");
-    JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
-    JodaBeanUtils.notNull(_portfolioAggregationFunctions, "portfolioAggregationFunctions");
-    JodaBeanUtils.notNull(_marketDataSnapshotMaster, "marketDataSnapshotMaster");
-    JodaBeanUtils.notNull(_user, "user");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebsiteViewportsComponentFactory other = (WebsiteViewportsComponentFactory) obj;
-      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
-          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
-          JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
-          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
-          JodaBeanUtils.equal(getCombinedConfigSource(), other.getCombinedConfigSource()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getParallelViewRecompilation(), other.getParallelViewRecompilation()) &&
-          JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
-          JodaBeanUtils.equal(getUser(), other.getUser()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
-          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
-          JodaBeanUtils.equal(isSuppressCurrencyDisplay(), other.isSuppressCurrencyDisplay()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCombinedConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParallelViewRecompilation());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isSuppressCurrencyDisplay());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -716,6 +512,31 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<ComputationTargetResolver> computationTargetResolver() {
     return metaBean().computationTargetResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the function repository, null to not have additional function metadata available to the UI components.
+   * @return the value of the property
+   */
+  public FunctionConfigurationSource getFunctions() {
+    return _functions;
+  }
+
+  /**
+   * Sets the function repository, null to not have additional function metadata available to the UI components.
+   * @param functions  the new value of the property
+   */
+  public void setFunctions(FunctionConfigurationSource functions) {
+    this._functions = functions;
+  }
+
+  /**
+   * Gets the the {@code functions} property.
+   * @return the property, not null
+   */
+  public final Property<FunctionConfigurationSource> functions() {
+    return metaBean().functions().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1058,7 +879,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    * @return the value of the property
    */
   @Deprecated
@@ -1069,7 +890,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    * @param marketDataSpecificationRepository  the new value of the property
    */
   @Deprecated
@@ -1080,7 +901,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * Gets the the {@code marketDataSpecificationRepository} property.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    * @return the property, not null
    */
   @Deprecated
@@ -1090,11 +911,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   * 
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code.
+   * Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the value of the property
    */
   public boolean isSuppressCurrencyDisplay() {
@@ -1102,11 +921,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   * 
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code.
+   * Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @param suppressCurrencyDisplay  the new value of the property
    */
   public void setSuppressCurrencyDisplay(boolean suppressCurrencyDisplay) {
@@ -1115,14 +932,123 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code suppressCurrencyDisplay} property.
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   * 
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the property, not null
    */
   public final Property<Boolean> suppressCurrencyDisplay() {
     return metaBean().suppressCurrencyDisplay().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public WebsiteViewportsComponentFactory clone() {
+    return (WebsiteViewportsComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebsiteViewportsComponentFactory other = (WebsiteViewportsComponentFactory) obj;
+      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          JodaBeanUtils.equal(getFunctions(), other.getFunctions()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
+          JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
+          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
+          JodaBeanUtils.equal(getCombinedConfigSource(), other.getCombinedConfigSource()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getParallelViewRecompilation(), other.getParallelViewRecompilation()) &&
+          JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
+          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+          (isSuppressCurrencyDisplay() == other.isSuppressCurrencyDisplay()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCombinedConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getParallelViewRecompilation());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSuppressCurrencyDisplay());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(768);
+    buf.append("WebsiteViewportsComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
+    buf.append("functions").append('=').append(JodaBeanUtils.toString(getFunctions())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("userPositionMaster").append('=').append(JodaBeanUtils.toString(getUserPositionMaster())).append(',').append(' ');
+    buf.append("userPortfolioMaster").append('=').append(JodaBeanUtils.toString(getUserPortfolioMaster())).append(',').append(' ');
+    buf.append("userConfigMaster").append('=').append(JodaBeanUtils.toString(getUserConfigMaster())).append(',').append(' ');
+    buf.append("combinedConfigSource").append('=').append(JodaBeanUtils.toString(getCombinedConfigSource())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("parallelViewRecompilation").append('=').append(JodaBeanUtils.toString(getParallelViewRecompilation())).append(',').append(' ');
+    buf.append("portfolioAggregationFunctions").append('=').append(JodaBeanUtils.toString(getPortfolioAggregationFunctions())).append(',').append(' ');
+    buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
+    buf.append("user").append('=').append(JodaBeanUtils.toString(getUser())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
+    buf.append("marketDataSpecificationRepository").append('=').append(JodaBeanUtils.toString(getMarketDataSpecificationRepository())).append(',').append(' ');
+    buf.append("suppressCurrencyDisplay").append('=').append(JodaBeanUtils.toString(isSuppressCurrencyDisplay())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -1170,6 +1096,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
         this, "computationTargetResolver", WebsiteViewportsComponentFactory.class, ComputationTargetResolver.class);
+    /**
+     * The meta-property for the {@code functions} property.
+     */
+    private final MetaProperty<FunctionConfigurationSource> _functions = DirectMetaProperty.ofReadWrite(
+        this, "functions", WebsiteViewportsComponentFactory.class, FunctionConfigurationSource.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
@@ -1257,6 +1188,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "portfolioMaster",
         "positionSource",
         "computationTargetResolver",
+        "functions",
         "historicalTimeSeriesMaster",
         "organizationMaster",
         "userPositionMaster",
@@ -1296,6 +1228,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _positionSource;
         case 1562222174:  // computationTargetResolver
           return _computationTargetResolver;
+        case -140572773:  // functions
+          return _functions;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case -1158737547:  // organizationMaster
@@ -1400,6 +1334,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
       return _computationTargetResolver;
+    }
+
+    /**
+     * The meta-property for the {@code functions} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FunctionConfigurationSource> functions() {
+      return _functions;
     }
 
     /**
@@ -1508,6 +1450,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
+     * @deprecated use liveMarketDataProviderFactory
      * @return the meta-property, not null
      */
     @Deprecated
@@ -1521,6 +1464,159 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Boolean> suppressCurrencyDisplay() {
       return _suppressCurrencyDisplay;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          return ((WebsiteViewportsComponentFactory) bean).getConfigMaster();
+        case -887218750:  // securityMaster
+          return ((WebsiteViewportsComponentFactory) bean).getSecurityMaster();
+        case -702456965:  // securitySource
+          return ((WebsiteViewportsComponentFactory) bean).getSecuritySource();
+        case -1840419605:  // positionMaster
+          return ((WebsiteViewportsComponentFactory) bean).getPositionMaster();
+        case -772274742:  // portfolioMaster
+          return ((WebsiteViewportsComponentFactory) bean).getPortfolioMaster();
+        case -1655657820:  // positionSource
+          return ((WebsiteViewportsComponentFactory) bean).getPositionSource();
+        case 1562222174:  // computationTargetResolver
+          return ((WebsiteViewportsComponentFactory) bean).getComputationTargetResolver();
+        case -140572773:  // functions
+          return ((WebsiteViewportsComponentFactory) bean).getFunctions();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((WebsiteViewportsComponentFactory) bean).getHistoricalTimeSeriesMaster();
+        case -1158737547:  // organizationMaster
+          return ((WebsiteViewportsComponentFactory) bean).getOrganizationMaster();
+        case 1808868758:  // userPositionMaster
+          return ((WebsiteViewportsComponentFactory) bean).getUserPositionMaster();
+        case 686514815:  // userPortfolioMaster
+          return ((WebsiteViewportsComponentFactory) bean).getUserPortfolioMaster();
+        case -763459665:  // userConfigMaster
+          return ((WebsiteViewportsComponentFactory) bean).getUserConfigMaster();
+        case -774734430:  // combinedConfigSource
+          return ((WebsiteViewportsComponentFactory) bean).getCombinedConfigSource();
+        case -1697555603:  // viewProcessor
+          return ((WebsiteViewportsComponentFactory) bean).getViewProcessor();
+        case 1910524868:  // parallelViewRecompilation
+          return ((WebsiteViewportsComponentFactory) bean).getParallelViewRecompilation();
+        case 940303425:  // portfolioAggregationFunctions
+          return ((WebsiteViewportsComponentFactory) bean).getPortfolioAggregationFunctions();
+        case 2090650860:  // marketDataSnapshotMaster
+          return ((WebsiteViewportsComponentFactory) bean).getMarketDataSnapshotMaster();
+        case 3599307:  // user
+          return ((WebsiteViewportsComponentFactory) bean).getUser();
+        case -917704420:  // fudgeContext
+          return ((WebsiteViewportsComponentFactory) bean).getFudgeContext();
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((WebsiteViewportsComponentFactory) bean).getLiveMarketDataProviderFactory();
+        case 1743800263:  // marketDataSpecificationRepository
+          return ((WebsiteViewportsComponentFactory) bean).getMarketDataSpecificationRepository();
+        case -1406342148:  // suppressCurrencyDisplay
+          return ((WebsiteViewportsComponentFactory) bean).isSuppressCurrencyDisplay();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          ((WebsiteViewportsComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case -887218750:  // securityMaster
+          ((WebsiteViewportsComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((WebsiteViewportsComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((WebsiteViewportsComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -772274742:  // portfolioMaster
+          ((WebsiteViewportsComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((WebsiteViewportsComponentFactory) bean).setPositionSource((PositionSource) newValue);
+          return;
+        case 1562222174:  // computationTargetResolver
+          ((WebsiteViewportsComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case -140572773:  // functions
+          ((WebsiteViewportsComponentFactory) bean).setFunctions((FunctionConfigurationSource) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((WebsiteViewportsComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case -1158737547:  // organizationMaster
+          ((WebsiteViewportsComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
+          return;
+        case 1808868758:  // userPositionMaster
+          ((WebsiteViewportsComponentFactory) bean).setUserPositionMaster((PositionMaster) newValue);
+          return;
+        case 686514815:  // userPortfolioMaster
+          ((WebsiteViewportsComponentFactory) bean).setUserPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -763459665:  // userConfigMaster
+          ((WebsiteViewportsComponentFactory) bean).setUserConfigMaster((ConfigMaster) newValue);
+          return;
+        case -774734430:  // combinedConfigSource
+          ((WebsiteViewportsComponentFactory) bean).setCombinedConfigSource((ConfigSource) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((WebsiteViewportsComponentFactory) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+        case 1910524868:  // parallelViewRecompilation
+          ((WebsiteViewportsComponentFactory) bean).setParallelViewRecompilation((ExecutionFlags.ParallelRecompilationMode) newValue);
+          return;
+        case 940303425:  // portfolioAggregationFunctions
+          ((WebsiteViewportsComponentFactory) bean).setPortfolioAggregationFunctions((PortfolioAggregationFunctions) newValue);
+          return;
+        case 2090650860:  // marketDataSnapshotMaster
+          ((WebsiteViewportsComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+        case 3599307:  // user
+          ((WebsiteViewportsComponentFactory) bean).setUser((UserPrincipal) newValue);
+          return;
+        case -917704420:  // fudgeContext
+          ((WebsiteViewportsComponentFactory) bean).setFudgeContext((FudgeContext) newValue);
+          return;
+        case -301472921:  // liveMarketDataProviderFactory
+          ((WebsiteViewportsComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+          return;
+        case 1743800263:  // marketDataSpecificationRepository
+          ((WebsiteViewportsComponentFactory) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
+          return;
+        case -1406342148:  // suppressCurrencyDisplay
+          ((WebsiteViewportsComponentFactory) bean).setSuppressCurrencyDisplay((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._configMaster, "configMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._securityMaster, "securityMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._securitySource, "securitySource");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._positionMaster, "positionMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._portfolioMaster, "portfolioMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._positionSource, "positionSource");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._organizationMaster, "organizationMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._userPositionMaster, "userPositionMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._userPortfolioMaster, "userPortfolioMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._userConfigMaster, "userConfigMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._combinedConfigSource, "combinedConfigSource");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._viewProcessor, "viewProcessor");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._portfolioAggregationFunctions, "portfolioAggregationFunctions");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._marketDataSnapshotMaster, "marketDataSnapshotMaster");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._user, "user");
+      JodaBeanUtils.notNull(((WebsiteViewportsComponentFactory) bean)._fudgeContext, "fudgeContext");
+      super.validate(bean);
     }
 
   }

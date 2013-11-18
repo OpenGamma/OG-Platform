@@ -24,14 +24,22 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 @Deprecated
 public final class ForwardSlideHorizonThetaCalculator {
+  /** Rolls down the volatility surface */
   private static final ForwardSlideFXOptionBlackRolldown FX_OPTION_ROLLDOWN = ForwardSlideFXOptionBlackRolldown.getInstance();
-
+  /** The singleton instance */
   private static final ForwardSlideHorizonThetaCalculator INSTANCE = new ForwardSlideHorizonThetaCalculator();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static ForwardSlideHorizonThetaCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private ForwardSlideHorizonThetaCalculator() {
   }
 

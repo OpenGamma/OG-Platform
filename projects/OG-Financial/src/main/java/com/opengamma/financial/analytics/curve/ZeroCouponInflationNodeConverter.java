@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -26,7 +27,6 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -88,25 +88,15 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     _timeSeries = timeSeries;
   }
 
-  @SuppressWarnings({"synthetic-access" })
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
     final Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, inflationNode.getFixedLegConvention());
-    if (fixedLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getFixedLegConvention() + " was null");
-    }
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
-    if (inflationLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
-    }
-    final PriceIndexConvention priceIndexConvention = _conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
-    if (priceIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
-    }
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(inflationNode.getFixedLegConvention(), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(inflationNode.getInflationLegConvention(), InflationLegConvention.class);
+    final PriceIndexConvention priceIndexConvention = _conventionSource.getSingle(inflationLegConvention.getPriceIndexConvention(), PriceIndexConvention.class);
     final int settlementDays = fixedLegConvention.getSettlementDays();
     final Period tenor = inflationNode.getTenor().getPeriod();
     final double notional = 1;

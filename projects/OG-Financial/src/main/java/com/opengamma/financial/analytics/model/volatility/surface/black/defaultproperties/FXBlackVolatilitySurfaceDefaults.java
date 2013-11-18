@@ -55,9 +55,9 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
       ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
       ValueRequirementNames.GRID_PRESENT_VALUE
   };
-  private final Map<String, String> _currencyPairToCurveName; //TODO duplicated in FXForwardCurveDefaults
-  private final Map<String, String> _currencyPairToCurveCalculationMethodName; //TODO duplicated in FXForwardCurveDefaults
-  private final Map<String, String> _currencyPairToSurfaceName;
+  private final Map<String, Set<String>> _currencyPairToCurveName; //TODO duplicated in FXForwardCurveDefaults
+  private final Map<String, Set<String>> _currencyPairToCurveCalculationMethodName; //TODO duplicated in FXForwardCurveDefaults
+  private final Map<String, Set<String>> _currencyPairToSurfaceName;
 
   public FXBlackVolatilitySurfaceDefaults(final ComputationTargetType target, final String... defaultsPerCurrencyPair) {
     super(target, true);
@@ -69,9 +69,9 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
     _currencyPairToSurfaceName = Maps.newLinkedHashMap();
     for (int i = 0; i < n; i += 4) {
       final String currencyPair = defaultsPerCurrencyPair[i];
-      _currencyPairToCurveName.put(currencyPair, defaultsPerCurrencyPair[i + 1]);
-      _currencyPairToCurveCalculationMethodName.put(currencyPair, defaultsPerCurrencyPair[i + 2]);
-      _currencyPairToSurfaceName.put(currencyPair, defaultsPerCurrencyPair[i + 3]);
+      _currencyPairToCurveName.put(currencyPair, Collections.singleton(defaultsPerCurrencyPair[i + 1]));
+      _currencyPairToCurveCalculationMethodName.put(currencyPair, Collections.singleton(defaultsPerCurrencyPair[i + 2]));
+      _currencyPairToSurfaceName.put(currencyPair, Collections.singleton(defaultsPerCurrencyPair[i + 3]));
     }
   }
 
@@ -90,22 +90,17 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String currencyPair = getCurrencyPair(target);
-    final String curveName = _currencyPairToCurveName.get(currencyPair);
-    if (curveName == null) {
-      s_logger.error("Could not get curve name for {}; should never happen", target.getValue());
-      return null;
+    switch (propertyName) {
+      case ValuePropertyNames.CURVE:
+        return _currencyPairToCurveName.get(currencyPair);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _currencyPairToCurveCalculationMethodName.get(currencyPair);
+      case ValuePropertyNames.SURFACE:
+        return _currencyPairToSurfaceName.get(currencyPair);
+      default:
+        s_logger.error("Could not find default value for {} in this function", propertyName);
+        return null;
     }
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(curveName);
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_currencyPairToCurveCalculationMethodName.get(currencyPair));
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_currencyPairToSurfaceName.get(currencyPair));
-    }
-    s_logger.error("Could not find default value for {} in this function", propertyName);
-    return null;
   }
 
   protected Collection<String> getAllCurrencyPairs() {

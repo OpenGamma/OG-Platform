@@ -29,7 +29,6 @@ import com.opengamma.id.VersionCorrection;
 public class PrimitiveResolver extends AbstractIdentifierResolver implements Resolver<Primitive> {
 
   private static final String SCHEME_PREFIX = "ExternalId-";
-  private static final String VERSION = "0";
 
   private static void escape(final String str, final StringBuilder into) {
     if ((str.indexOf('-') < 0) && (str.indexOf('\\') < 0)) {

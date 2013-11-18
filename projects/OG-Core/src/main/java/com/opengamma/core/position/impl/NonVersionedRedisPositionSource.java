@@ -40,7 +40,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.metric.MetricProducer;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 
 /*
  * REDIS DATA STRUCTURES:
@@ -70,7 +70,7 @@ import com.opengamma.util.metric.MetricProducer;
  * which stores all positions and portfolios as Redis-native data structures
  * (rather than Fudge encoding).
  */
-public class NonVersionedRedisPositionSource implements PositionSource, MetricProducer {
+public class NonVersionedRedisPositionSource implements PositionSource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisSecuritySource.class);
   
   /**
@@ -101,6 +101,7 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     _jedisPool = jedisPool;
     _redisPrefix = redisPrefix.intern();
     _portfoliosHashKeyName = constructallPortfoliosRedisKey();
+    registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "NonVersionedRedisPositionSource");
   }
   
   /**
@@ -119,7 +120,6 @@ public class NonVersionedRedisPositionSource implements PositionSource, MetricPr
     return _redisPrefix;
   }
 
-  @Override
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getPortfolioTimer = summaryRegistry.timer(namePrefix + ".getPortfolio");
     _getPositionTimer = summaryRegistry.timer(namePrefix + ".getPosition");

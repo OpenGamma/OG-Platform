@@ -146,7 +146,6 @@
     <property name="viewExecutionCache">
       <bean class="com.opengamma.engine.view.worker.cache.EHCacheViewExecutionCache">
         <constructor-arg ref="standardCacheManager" />
-        <constructor-arg ref="combinedConfigSource" />
         <constructor-arg ref="mainCompiledFunctionService" />
       </bean>
     </property>

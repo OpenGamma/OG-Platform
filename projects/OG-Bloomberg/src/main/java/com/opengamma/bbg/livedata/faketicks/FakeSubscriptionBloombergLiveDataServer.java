@@ -143,8 +143,8 @@ public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataSer
     Set<String> uidsToQuery = new HashSet<String>();
     for (String uid : uniqueIds) {
       Element cached = _snapshotValues.get(uid);
-      if (cached != null && cached.getValue() != null) {
-        CachedPerSecuritySnapshotResult cachedResult = (CachedPerSecuritySnapshotResult) cached.getValue();
+      if (cached != null && cached.getObjectValue() != null) {
+        CachedPerSecuritySnapshotResult cachedResult = (CachedPerSecuritySnapshotResult) cached.getObjectValue();
         result.put(uid, cachedResult._fieldData);
       } else {
         uidsToQuery.add(uid);

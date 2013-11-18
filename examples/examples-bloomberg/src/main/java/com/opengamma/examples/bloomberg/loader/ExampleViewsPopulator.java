@@ -107,7 +107,6 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -123,6 +122,7 @@ import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Example code to create a set of example views.
@@ -141,11 +141,11 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   public static final Map<Currency, String> CONFIGS_FOR_CURRENCY = new HashMap<>();
 
   static {
-    CURVES_FOR_CURRENCY.put(Currency.USD, Pair.of("Discounting", "Forward3M"));
-    CURVES_FOR_CURRENCY.put(Currency.EUR, Pair.of("Discounting", "Forward6M"));
-    CURVES_FOR_CURRENCY.put(Currency.JPY, Pair.of("Discounting", "Forward6M"));
-    CURVES_FOR_CURRENCY.put(Currency.CHF, Pair.of("Discounting", "Forward6M"));
-    CURVES_FOR_CURRENCY.put(Currency.GBP, Pair.of("Discounting", "Forward6M"));
+    CURVES_FOR_CURRENCY.put(Currency.USD, Pairs.of("Discounting", "Forward3M"));
+    CURVES_FOR_CURRENCY.put(Currency.EUR, Pairs.of("Discounting", "Forward6M"));
+    CURVES_FOR_CURRENCY.put(Currency.JPY, Pairs.of("Discounting", "Forward6M"));
+    CURVES_FOR_CURRENCY.put(Currency.CHF, Pairs.of("Discounting", "Forward6M"));
+    CURVES_FOR_CURRENCY.put(Currency.GBP, Pairs.of("Discounting", "Forward6M"));
     CONFIGS_FOR_CURRENCY.put(Currency.USD, "DefaultTwoCurveUSDConfig");
     CONFIGS_FOR_CURRENCY.put(Currency.EUR, "DefaultTwoCurveEURConfig");
     CONFIGS_FOR_CURRENCY.put(Currency.JPY, "DefaultTwoCurveJPYConfig");

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -124,118 +125,6 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   @Override
   public DataSourceComponentFactory.Meta metaBean() {
     return DataSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case 1227291184:  // driverClass
-        return getDriverClass();
-      case -1752402828:  // jdbcUrl
-        return getJdbcUrl();
-      case -265713450:  // username
-        return getUsername();
-      case 1216985755:  // password
-        return getPassword();
-      case 634919111:  // poolName
-        return getPoolName();
-      case -1051422651:  // partitionCount
-        return getPartitionCount();
-      case -349316295:  // acquireIncrement
-        return getAcquireIncrement();
-      case 1469514128:  // minConnectionsPerPartition
-        return getMinConnectionsPerPartition();
-      case 237252158:  // maxConnectionsPerPartition
-        return getMaxConnectionsPerPartition();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case 1227291184:  // driverClass
-        setDriverClass((String) newValue);
-        return;
-      case -1752402828:  // jdbcUrl
-        setJdbcUrl((String) newValue);
-        return;
-      case -265713450:  // username
-        setUsername((String) newValue);
-        return;
-      case 1216985755:  // password
-        setPassword((String) newValue);
-        return;
-      case 634919111:  // poolName
-        setPoolName((String) newValue);
-        return;
-      case -1051422651:  // partitionCount
-        setPartitionCount((Integer) newValue);
-        return;
-      case -349316295:  // acquireIncrement
-        setAcquireIncrement((Integer) newValue);
-        return;
-      case 1469514128:  // minConnectionsPerPartition
-        setMinConnectionsPerPartition((Integer) newValue);
-        return;
-      case 237252158:  // maxConnectionsPerPartition
-        setMaxConnectionsPerPartition((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_driverClass, "driverClass");
-    JodaBeanUtils.notNull(_jdbcUrl, "jdbcUrl");
-    JodaBeanUtils.notNull(_username, "username");
-    JodaBeanUtils.notNull(_password, "password");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DataSourceComponentFactory other = (DataSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getDriverClass(), other.getDriverClass()) &&
-          JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
-          JodaBeanUtils.equal(getUsername(), other.getUsername()) &&
-          JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
-          JodaBeanUtils.equal(getPoolName(), other.getPoolName()) &&
-          JodaBeanUtils.equal(getPartitionCount(), other.getPartitionCount()) &&
-          JodaBeanUtils.equal(getAcquireIncrement(), other.getAcquireIncrement()) &&
-          JodaBeanUtils.equal(getMinConnectionsPerPartition(), other.getMinConnectionsPerPartition()) &&
-          JodaBeanUtils.equal(getMaxConnectionsPerPartition(), other.getMaxConnectionsPerPartition()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDriverClass());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUsername());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPoolName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPartitionCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAcquireIncrement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMinConnectionsPerPartition());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxConnectionsPerPartition());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -494,6 +383,78 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DataSourceComponentFactory clone() {
+    return (DataSourceComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DataSourceComponentFactory other = (DataSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getDriverClass(), other.getDriverClass()) &&
+          JodaBeanUtils.equal(getJdbcUrl(), other.getJdbcUrl()) &&
+          JodaBeanUtils.equal(getUsername(), other.getUsername()) &&
+          JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
+          JodaBeanUtils.equal(getPoolName(), other.getPoolName()) &&
+          (getPartitionCount() == other.getPartitionCount()) &&
+          (getAcquireIncrement() == other.getAcquireIncrement()) &&
+          (getMinConnectionsPerPartition() == other.getMinConnectionsPerPartition()) &&
+          (getMaxConnectionsPerPartition() == other.getMaxConnectionsPerPartition()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDriverClass());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJdbcUrl());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUsername());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPoolName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPartitionCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAcquireIncrement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMinConnectionsPerPartition());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxConnectionsPerPartition());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("DataSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("driverClass").append('=').append(JodaBeanUtils.toString(getDriverClass())).append(',').append(' ');
+    buf.append("jdbcUrl").append('=').append(JodaBeanUtils.toString(getJdbcUrl())).append(',').append(' ');
+    buf.append("username").append('=').append(JodaBeanUtils.toString(getUsername())).append(',').append(' ');
+    buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
+    buf.append("poolName").append('=').append(JodaBeanUtils.toString(getPoolName())).append(',').append(' ');
+    buf.append("partitionCount").append('=').append(JodaBeanUtils.toString(getPartitionCount())).append(',').append(' ');
+    buf.append("acquireIncrement").append('=').append(JodaBeanUtils.toString(getAcquireIncrement())).append(',').append(' ');
+    buf.append("minConnectionsPerPartition").append('=').append(JodaBeanUtils.toString(getMinConnectionsPerPartition())).append(',').append(' ');
+    buf.append("maxConnectionsPerPartition").append('=').append(JodaBeanUtils.toString(getMaxConnectionsPerPartition())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DataSourceComponentFactory}.
    */
@@ -696,6 +657,81 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<Integer> maxConnectionsPerPartition() {
       return _maxConnectionsPerPartition;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DataSourceComponentFactory) bean).getClassifier();
+        case 1227291184:  // driverClass
+          return ((DataSourceComponentFactory) bean).getDriverClass();
+        case -1752402828:  // jdbcUrl
+          return ((DataSourceComponentFactory) bean).getJdbcUrl();
+        case -265713450:  // username
+          return ((DataSourceComponentFactory) bean).getUsername();
+        case 1216985755:  // password
+          return ((DataSourceComponentFactory) bean).getPassword();
+        case 634919111:  // poolName
+          return ((DataSourceComponentFactory) bean).getPoolName();
+        case -1051422651:  // partitionCount
+          return ((DataSourceComponentFactory) bean).getPartitionCount();
+        case -349316295:  // acquireIncrement
+          return ((DataSourceComponentFactory) bean).getAcquireIncrement();
+        case 1469514128:  // minConnectionsPerPartition
+          return ((DataSourceComponentFactory) bean).getMinConnectionsPerPartition();
+        case 237252158:  // maxConnectionsPerPartition
+          return ((DataSourceComponentFactory) bean).getMaxConnectionsPerPartition();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DataSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 1227291184:  // driverClass
+          ((DataSourceComponentFactory) bean).setDriverClass((String) newValue);
+          return;
+        case -1752402828:  // jdbcUrl
+          ((DataSourceComponentFactory) bean).setJdbcUrl((String) newValue);
+          return;
+        case -265713450:  // username
+          ((DataSourceComponentFactory) bean).setUsername((String) newValue);
+          return;
+        case 1216985755:  // password
+          ((DataSourceComponentFactory) bean).setPassword((String) newValue);
+          return;
+        case 634919111:  // poolName
+          ((DataSourceComponentFactory) bean).setPoolName((String) newValue);
+          return;
+        case -1051422651:  // partitionCount
+          ((DataSourceComponentFactory) bean).setPartitionCount((Integer) newValue);
+          return;
+        case -349316295:  // acquireIncrement
+          ((DataSourceComponentFactory) bean).setAcquireIncrement((Integer) newValue);
+          return;
+        case 1469514128:  // minConnectionsPerPartition
+          ((DataSourceComponentFactory) bean).setMinConnectionsPerPartition((Integer) newValue);
+          return;
+        case 237252158:  // maxConnectionsPerPartition
+          ((DataSourceComponentFactory) bean).setMaxConnectionsPerPartition((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._driverClass, "driverClass");
+      JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._jdbcUrl, "jdbcUrl");
+      JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._username, "username");
+      JodaBeanUtils.notNull(((DataSourceComponentFactory) bean)._password, "password");
+      super.validate(bean);
     }
 
   }

@@ -18,15 +18,13 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculatorFactory;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -34,6 +32,8 @@ import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculatorFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -86,13 +86,10 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
 
   @Override
   public InstrumentDefinition<?> visitRateFutureNode(final RateFutureNode rateFuture) {
-    final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+    final Convention futureConvention = _conventionSource.getSingle(rateFuture.getFutureConvention());
     final Double price = _marketData.getDataPoint(_dataId);
     if (price == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
-    }
-    if (futureConvention == null) {
-      throw new OpenGammaRuntimeException("Future convention was null");
     }
     if (futureConvention instanceof InterestRateFutureConvention) {
       return getInterestRateFuture(rateFuture, (InterestRateFutureConvention) futureConvention, price);
@@ -112,10 +109,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, rateFuture.getUnderlyingConvention());
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Underlying convention was null");
-    }
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), IborIndexConvention.class);
     final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
     final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
     final Currency currency = indexConvention.getCurrency();
@@ -146,10 +140,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, rateFuture.getUnderlyingConvention());
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Underlying convention was null");
-    }
+    final OvernightIndexConvention indexConvention = _conventionSource.getSingle(futureConvention.getIndexConvention(), OvernightIndexConvention.class);
     final Currency currency = indexConvention.getCurrency();
     final DayCount dayCount = indexConvention.getDayCount();
     final int publicationLag = indexConvention.getPublicationLag();

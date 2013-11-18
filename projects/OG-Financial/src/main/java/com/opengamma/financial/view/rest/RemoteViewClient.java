@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
@@ -243,6 +244,12 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add(DataViewClientResource.UPDATE_PERIOD_FIELD, periodMillis);
     getClient().accessFudge(uri).put(msg);
+  }
+
+  @Override
+  public void setViewProcessContextMap(Map<String, String> context) {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_PROCESS_CONTEXT_MAP);
+    getClient().accessFudge(uri).put(context);
   }
 
   @Override

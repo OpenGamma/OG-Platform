@@ -10,6 +10,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
+
 /**
  * 
  */
@@ -79,9 +81,11 @@ public class DependencyNodeFormatter {
     pw.print(node.toString());
     pw.print(" ");
     pw.print("producing ");
-    pw.print(node.getOutputValues());
+    pw.print(DependencyNodeImpl.getOutputValues(node));
     pw.println();
-    for (DependencyNode subNode : node.getInputNodes()) {
+    final int count = node.getInputCount();
+    for (int i = 0; i < count; i++) {
+      final DependencyNode subNode = node.getInputNode(i);
       format(pw, subNode, indentLevel + 1);
     }
   }
@@ -93,4 +97,5 @@ public class DependencyNodeFormatter {
     formatter.format(pw, node);
     return sw.toString();
   }
+
 }

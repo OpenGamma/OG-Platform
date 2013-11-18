@@ -69,7 +69,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builds the model object used in the security freemarker templates
  */
-/*package*/ class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
+public class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTemplateModelObjectBuilder.class);
   

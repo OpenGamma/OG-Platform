@@ -198,7 +198,7 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
     final double dfEndBar = bill.getNotional() * pvBar;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
+    listDiscounting.add(DoublesPair.of(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
     resultMapCredit.put(bill.getCreditCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapCredit);
   }

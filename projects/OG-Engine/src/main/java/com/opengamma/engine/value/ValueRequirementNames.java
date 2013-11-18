@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
-import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -243,6 +243,14 @@ public final class ValueRequirementNames {
    * The sensitivities of a cash-flow based fixed-income instrument to each of the nodal points in a yield curve.
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
+  /**
+   * The bucketed PV01.
+   */
+  public static final String BUCKETED_PV01 = "Bucketed PV01";
+  /**
+   * The bucketed PV01.
+   */
+  public static final String ISIN = "ISIN";
   /**
    * Curve property metadata.
    */
@@ -542,6 +550,22 @@ public final class ValueRequirementNames {
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
+   * The present value of the pay leg of a swap.
+   */
+  public static final String PAY_LEG_PRESENT_VALUE = "Swap Pay Leg Present Value";
+  /**
+   * The present value of the receive leg of a swap.
+   */
+  public static final String RECEIVE_LEG_PRESENT_VALUE = "Swap Receive Leg Present Value";
+  /**
+   * The details of a swap pay leg.
+   */
+  public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
+  /**
+   * The details of a swap receive leg.
+   */
+  public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
+  /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";
@@ -561,6 +585,10 @@ public final class ValueRequirementNames {
    * The PV01 of a cash-flow based fixed-income instrument.
    */
   public static final String PV01 = "PV01";
+  /**
+   * The Gamma PV01 of a cash-flow based fixed-income instrument.
+   */
+  public static final String GAMMA_PV01 = "Gamma PV01";
   /**
    * The implied volatility of a security.
    */

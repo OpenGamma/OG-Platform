@@ -6,6 +6,9 @@
 package com.opengamma.master.holiday.impl;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
@@ -20,6 +23,7 @@ import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -33,6 +37,9 @@ import com.opengamma.util.money.Currency;
 public class MasterHolidaySource
     extends AbstractMasterSource<Holiday, HolidayDocument, HolidayMaster>
     implements HolidaySource {
+  private final boolean _cacheHolidayCalendars;
+  private final ConcurrentMap<HolidaySearchRequest, List<LocalDate>> _cachedHolidays =
+      new ConcurrentHashMap<HolidaySearchRequest, List<LocalDate>>();
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -40,7 +47,18 @@ public class MasterHolidaySource
    * @param master  the master, not null
    */
   public MasterHolidaySource(final HolidayMaster master) {
+    this(master, false);
+  }
+
+  /**
+   * Creates an instance with an underlying master which does not override versions.
+   * 
+   * @param master  the master, not null
+   * @param cacheCalendars whether all calendars should be cached
+   */
+  public MasterHolidaySource(final HolidayMaster master, final boolean cacheCalendars) {
     super(master);
+    _cacheHolidayCalendars = cacheCalendars;
   }
 
   /**
@@ -50,7 +68,19 @@ public class MasterHolidaySource
    * @param versionCorrection  the version-correction locator to search at, null to not override versions
    */
   public MasterHolidaySource(final HolidayMaster master, VersionCorrection versionCorrection) {
+    this(master, versionCorrection, false);
+  }
+
+  /**
+   * Creates an instance with an underlying master optionally overriding the requested version.
+   * 
+   * @param master  the master, not null
+   * @param versionCorrection  the version-correction locator to search at, null to not override versions
+   * @param cacheCalendars whether all calendars should be cached
+   */
+  public MasterHolidaySource(final HolidayMaster master, VersionCorrection versionCorrection, boolean cacheCalendars) {
     super(master, versionCorrection);
+    _cacheHolidayCalendars = cacheCalendars;
   }
 
   //-------------------------------------------------------------------------
@@ -89,11 +119,38 @@ public class MasterHolidaySource
    * @return true if the date is a holiday
    */
   protected boolean isHoliday(final HolidaySearchRequest request, final LocalDate dateToCheck) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(dateToCheck, "dateToCheck");
     if (isWeekend(dateToCheck)) {
       return true;
     }
-    request.setDateToCheck(dateToCheck);
-    HolidayDocument doc = getMaster().search(request).getFirstDocument();
+    HolidaySearchRequest cacheKey = request.clone();
+    
+    if (_cacheHolidayCalendars) {
+      List<LocalDate> cachedDates = _cachedHolidays.get(cacheKey);
+      if (cachedDates != null) {
+        if (cachedDates.isEmpty()) {
+          // Sign that we couldn't find anything.
+          return false;
+        }
+        return isHoliday(cachedDates, dateToCheck);
+      }
+    }
+
+    HolidayDocument doc;
+    if (_cacheHolidayCalendars) {
+      // get all holidays and cache
+      doc = getMaster().search(cacheKey).getFirstDocument();
+      if (doc == null) {
+        _cachedHolidays.put(cacheKey, Collections.<LocalDate>emptyList());
+      } else {
+        _cachedHolidays.put(cacheKey, doc.getHoliday().getHolidayDates());
+      }
+    } else {
+      // Not caching, search for this date only.
+      request.setDateToCheck(dateToCheck);
+      doc = getMaster().search(request).getFirstDocument();
+    }
     return isHoliday(doc, dateToCheck);
   }
 
@@ -110,6 +167,10 @@ public class MasterHolidaySource
       return false;
     }
     return Collections.binarySearch(doc.getHoliday().getHolidayDates(), dateToCheck) >= 0;
+  }
+
+  protected boolean isHoliday(final List<LocalDate> dates, final LocalDate dateToCheck) {
+    return Collections.binarySearch(dates, dateToCheck) >= 0;
   }
 
   /**

@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.Heartbeat;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -17,13 +18,14 @@ import org.joda.convert.FromString;
 
 import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.NamedInstanceFactory;
 
 /**
  * Factory to obtain instances of {@code DayCount}.
  * <p>
  * The conventions are read from a properties file.
  */
-public final class DayCountFactory {
+public final class DayCountFactory implements NamedInstanceFactory<DayCount> {
 
   /**
    * Singleton instance.
@@ -38,7 +40,7 @@ public final class DayCountFactory {
   /**
    * All convention instances.
    */
-  private final Collection<DayCount> _conventions;
+  private final List<DayCount> _conventions;
 
   //-------------------------------------------------------------------------
   /**
@@ -89,7 +91,6 @@ public final class DayCountFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
-   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -100,11 +101,21 @@ public final class DayCountFactory {
   /**
    * Iterates over the available conventions. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
-   * 
    * @return the available conventions, not null
+   * @deprecated use values()
    */
+  @Deprecated
   public Iterator<DayCount> enumerateAvailableDayCounts() {
     return Iterators.unmodifiableIterator(_conventions.iterator());
+  }
+  
+  /**
+   * Returns list of available conventions. No particular ordering is specified and conventions may
+   * exist in the system not provided by this factory that aren't included as part of this enumeration.
+   * @return the available conventions, not null
+   */
+  public List<DayCount> values() {
+    return _conventions;
   }
 
 }

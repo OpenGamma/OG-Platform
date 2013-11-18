@@ -91,6 +91,18 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     return CurrencyAmount.of(swaption.getCurrency(), price);
   }
 
+  /**
+   * Computes the forward of a cash-settled European swaption in the Black model.
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward.
+   */
+  public double forward(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    return swaption.getUnderlyingSwap().accept(PRC, curveBlack);
+  }
+
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(instrument instanceof SwaptionCashFixedIbor, "Physical delivery swaption");
@@ -123,7 +135,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
     final double sensiDF = -swaption.getSettlementTime() * discountFactorSettle * pvbp * bsAdjoint[0];
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
+    list.add(DoublesPair.of(swaption.getSettlementTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
@@ -147,7 +159,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double discountFactorSettle = curveBlack.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), swaption.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
@@ -174,6 +186,51 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
   }
 
   /**
+   * Computes the delta of the swaption. The delta is the first order derivative of the option present value to the spot fx rate.
+   * @param swaption The swaption
+   * @param curveBlack The curves and volatility surface
+   * @return The delta
+   */
+  public CurrencyAmount delta(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
+    final double sign = swaption.isLong() ? 1.0 : -1.0;
+    return CurrencyAmount.of(swaption.getCurrency(), forwardDeltaTheoretical(swaption, curveBlack) * forward * sign * annuityFixed.getNthPayment(0).getAmount());
+  }
+
+  /**
+   * Computes the gamma of the swaption. The gamma is the second order derivative of the option present value to the spot fx rate.
+   * @param swaption The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The gamma.
+   */
+  public CurrencyAmount gamma(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    final double gamma = forwardGammaTheoretical(swaption, curves);
+    final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, curves);
+    final double sign = swaption.isLong() ? 1.0 : -1.0;
+    return CurrencyAmount.of(swaption.getCurrency(), gamma * forward * forward * sign * annuityFixed.getNthPayment(0).getAmount());
+  }
+
+  /**
+   * Computes the theta of the swaption. The delta is the first order derivative of the option present value to the spot fx rate.
+   * @param swaption The swaption
+   * @param curveBlack The curves and volatility surface
+   * @return The delta
+   */
+  public CurrencyAmount theta(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    final double sign = swaption.isLong() ? 1.0 : -1.0;
+    return CurrencyAmount.of(swaption.getCurrency(), forwardThetaTheoretical(swaption, curveBlack) * sign * annuityFixed.getNthPayment(0).getAmount());
+  }
+
+
+  /**
    * Compute first derivative of present value with respect to forward rate
    * @param swaption The swaption.
    * @param curveBlack The curves with Black volatility data.
@@ -195,12 +252,6 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final boolean isCall = swaption.isCall();
     final double df = discountFactorSettle * pvbp;
     return df * BlackFormulaRepository.delta(forward, strike, expiry, volatility, isCall) * (swaption.isLong() ? 1.0 : -1.0);
-  }
-
-  public CurrencyAmount delta(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
-    ArgumentChecker.notNull(swaption, "Swaption");
-    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    return CurrencyAmount.of(swaption.getCurrency(), forwardDeltaTheoretical(swaption, curveBlack));
   }
 
   /**

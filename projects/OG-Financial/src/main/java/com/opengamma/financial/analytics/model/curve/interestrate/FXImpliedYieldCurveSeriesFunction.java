@@ -71,6 +71,7 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -103,7 +104,6 @@ import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -163,7 +163,6 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     if (foreignCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get foreign yield curve");
     }
-    final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     absoluteTolerance = 1.0e-12;
@@ -212,10 +211,12 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     final Map<LocalDate, YieldAndDiscountCurve> domesticCurves = new LinkedHashMap<>();
     final Calendar calendar = CalendarUtils.getCalendar(holidaySource, domesticCurrency, foreignCurrency);
     final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-    final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
+    final FXSpotConvention fxSpotConvention = conventionSource.getSingle(ExternalId.of("CONVENTION", "FX Spot"), FXSpotConvention.class);
     final int spotLag = fxSpotConvention.getSettlementDays();
     final boolean isRegular = specification.isMarketQuoteConvention();
     final ExternalId conventionSettlementRegion = fxSpotConvention.getSettlementRegion();
+    final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
+    final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : foreignCurves.entrySet()) {
       final LocalDate valuationDate = entry.getKey();
       final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
@@ -228,8 +229,6 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
       final DoubleArrayList marketValues = new DoubleArrayList();
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-      final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
-      final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
       final List<InstrumentDerivative> derivatives = new ArrayList<>();
       int nInstruments = 0;
       ZonedDateTime spotDate;

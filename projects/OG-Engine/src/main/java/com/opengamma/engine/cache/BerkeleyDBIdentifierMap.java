@@ -12,13 +12,14 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
@@ -70,6 +71,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
   private final Meter _newIdentifierMeter;
   private final Timer _getIdentifierTimer;
+  private Thread _worker;
   private BlockingQueue<AbstractBerkeleyDBWorker.Request> _requests;
 
   private final class Worker extends AbstractBerkeleyDBWorker {
@@ -340,10 +342,10 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       _valueSpecificationToIdentifier.start();
       _identifierToValueSpecification.start();
       // TODO: We can have multiple worker threads -- will that be good or bad?
-      final Thread worker = new Thread(new Worker(_requests));
-      worker.setName("BerkeleyDBIdentifierMap-Worker");
-      worker.setDaemon(true);
-      worker.start();
+      _worker = new Thread(new Worker(_requests));
+      _worker.setName("BerkeleyDBIdentifierMap-Worker");
+      _worker.setDaemon(true);
+      _worker.start();
     }
   }
 
@@ -354,6 +356,12 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       _identifierToValueSpecification.stop();
       _requests.add(new PoisonRequest());
       _requests = null;
+      try {
+        _worker.join(5000L);
+      } catch (InterruptedException ie) {
+        s_logger.warn("Interrupted while waiting for worker to finish.");
+      }
+      _worker = null;
     }
   }
 
@@ -458,20 +466,22 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   }
 
   private static void encodeAsString(final StringBuilder builder, final ValueProperties properties) {
-    if (properties instanceof ValueProperties.InfinitePropertiesImpl) {
+    if (properties == ValueProperties.all()) {
       builder.append("INF");
+      return;
     }
-    if (properties instanceof ValueProperties.NearlyInfinitePropertiesImpl) {
-      builder.append("INF-{");
-      builder.append(new TreeSet<>(((ValueProperties.NearlyInfinitePropertiesImpl) properties).getWithout()));
-      builder.append('}');
-    } else {
-      Map<String, Set<String>> props = Maps.newTreeMap();
-      for (String propName : properties.getProperties()) {
-        props.put(propName, Sets.newTreeSet(properties.getValues(propName)));
-      }
-      builder.append(props);
+    if (ValueProperties.isNearInfiniteProperties(properties)) {
+      builder.append("INF-");
+      final List<String> values = new ArrayList<String>(ValueProperties.all().getUnsatisfied(properties));
+      Collections.sort(values);
+      builder.append(values);
+      return;
     }
+    Map<String, Set<String>> props = Maps.newTreeMap();
+    for (String propName : properties.getProperties()) {
+      props.put(propName, Sets.newTreeSet(properties.getValues(propName)));
+    }
+    builder.append(props);
   }
 
   private static void encodeAsString(final StringBuilder builder, final ComputationTargetSpecification targetSpec) {

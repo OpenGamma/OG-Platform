@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.bumpers;
 
 /**
  * Enumerate the types of spread bumps that can be applied to a term structure of credit spreads
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public enum SpreadBumpType {
   /**
    * Same as ADDITIVE_BUCKETED

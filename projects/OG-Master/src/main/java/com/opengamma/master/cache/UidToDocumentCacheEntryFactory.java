@@ -5,12 +5,12 @@
  */
 package com.opengamma.master.cache;
 
+import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
+
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
-
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
 
 /**
  * Cache factory.

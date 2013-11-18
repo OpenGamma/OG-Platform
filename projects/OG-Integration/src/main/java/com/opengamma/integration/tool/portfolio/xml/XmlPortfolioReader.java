@@ -53,7 +53,7 @@ public class XmlPortfolioReader implements PortfolioReader {
   private ObjectsPair<ManageablePosition, ManageableSecurity[]> processPosition(PortfolioPosition position) {
     // Handle a portfolio level change
     _currentPath = position.getPortfolioPath();
-    return new ObjectsPair<>(position.getPosition(), position.getSecurities());
+    return ObjectsPair.of(position.getPosition(), position.getSecurities());
   }
 
   @Override

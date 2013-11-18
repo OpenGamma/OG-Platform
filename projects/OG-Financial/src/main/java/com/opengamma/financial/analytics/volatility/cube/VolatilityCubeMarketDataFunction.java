@@ -36,8 +36,8 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -115,7 +115,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
 
       final ExternalId strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getCurrency(), point);
       if (strikeInstruments != null) {
-        final ObjectsPair<Tenor, Tenor> strikePoint = Pair.of(point.getSwapTenor(), point.getOptionExpiry());
+        final Pair<Tenor, Tenor> strikePoint = Pairs.of(point.getSwapTenor(), point.getOptionExpiry());
         final Pair<Tenor, Tenor> previous = strikesById.put(strikeInstruments, strikePoint);
         if (previous != null && !previous.equals(strikePoint)) {
           throw new OpenGammaRuntimeException("Mismatched volatility strike rate instrument");

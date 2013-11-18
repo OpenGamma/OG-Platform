@@ -16,11 +16,14 @@ import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSPremiumDefinition;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
+
 /**
  * A pricing algorithm that approximates the ISDA standard model.
  *
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
+ * @deprecated Use classes from isdastandardmodel
  */
+@Deprecated
 public class ISDAApproxCDSPricingMethod {
 
   private static final double PRICING_TIME = 0.0;
@@ -74,8 +77,8 @@ public class ISDAApproxCDSPricingMethod {
    * @param calendar The calendar
    * @return The clean or dirty price of the CDS contract, depending on the cleanPrice flag
    */
-  public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, final double flatSpread, final boolean cleanPrice,
-    final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate, final Calendar calendar) {
+  public double calculateUpfrontCharge(final ISDACDSDerivative cds, final ISDACurve discountCurve, final double flatSpread, final boolean cleanPrice, final ZonedDateTime pricingDate,
+      final ZonedDateTime stepinDate, final ZonedDateTime settlementDate, final Calendar calendar) {
 
     final double offset = cds.isProtectStart() ? ONE_DAY_ACT_365F : 0.0;
     final double offsetPricingTime = -offset;
@@ -90,25 +93,22 @@ public class ISDAApproxCDSPricingMethod {
     final double settlementDiscountFactor = discountCurve.getDiscountFactor(cds.getSettlementTime());
     final double stepinDiscountFactor = offsetStepinTime > 0.0 ? discountCurve.getDiscountFactor(offsetStepinTime) : discountCurve.getDiscountFactor(0.0);
 
-    final double[] timePoints = {cds.getMaturity()};
-    final double[] dataPoints = {flatSpread};
+    final double[] timePoints = {cds.getMaturity() };
+    final double[] dataPoints = {flatSpread };
 
     final ISDACDSDefinition bootstrapCDSDefinition = makeBootstrapCDSDefinition(cds, flatSpread, calendar);
     final ISDACDSDerivative bootstrapCDS = bootstrapCDSDefinition.toDerivative(pricingDate, stepinDate, settlementDate, cds.getDiscountCurveName(), cds.getSpreadCurveName());
 
     final double guess = dataPoints[0] / (1.0 - cds.getRecoveryRate());
 
-    dataPoints[0] = HAZARD_SOLVER.findRoot(
-      new Function1D<Double, Double>() {
-        @Override
-        public Double evaluate(final Double x) {
-          dataPoints[0] = x;
-          final ISDACurve tempCurve = new ISDACurve(cds.getSpreadCurveName(), timePoints, dataPoints, 0.0);
-          return valueCDS(bootstrapCDS, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
-        }
-      },
-      guess, HAZARD_SOLVER_LOWER_BOUND, HAZARD_SOLVER_UPPER_BOUND, HAZARD_SOLVER_INITIAL_STEP, HAZARD_SOLVER_INITIAL_DERIVATIVE
-    );
+    dataPoints[0] = HAZARD_SOLVER.findRoot(new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double x) {
+        dataPoints[0] = x;
+        final ISDACurve tempCurve = new ISDACurve(cds.getSpreadCurveName(), timePoints, dataPoints, 0.0);
+        return valueCDS(bootstrapCDS, tempCurve, paymentTimeline, accrualTimeline, contingentTimeline, offsetStepinTime, stepinDiscountFactor, settlementDiscountFactor, true);
+      }
+    }, guess, HAZARD_SOLVER_LOWER_BOUND, HAZARD_SOLVER_UPPER_BOUND, HAZARD_SOLVER_INITIAL_STEP, HAZARD_SOLVER_INITIAL_DERIVATIVE);
 
     // In some cases the solver can diverge and report a root found at the upper bound
     // This needs to be reported as an error
@@ -174,16 +174,12 @@ public class ISDAApproxCDSPricingMethod {
     final ZonedDateTime startDate = premiums[0].getAccrualStartDate();
     final ZonedDateTime maturity = premiums[premiums.length - 1].getAccrualEndDate();
 
-    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(
-      startDate, maturity, cds.getCouponFrequency(),
-      cds.getConvention(), cds.getStubType(), cds.isProtectStart(),
-      notional, parSpread, cds.getPremium().getCurrency(), calendar);
+    final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, cds.getCouponFrequency(), cds.getConvention(), cds.getStubType(), cds.isProtectStart(),
+        notional, parSpread, cds.getPremium().getCurrency(), calendar);
 
-    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, parSpread, cds.getRecoveryRate(),
-      cds.isAccrualOnDefault(), payOnDefault, protectStart,
-      cds.getCouponFrequency(), cds.getConvention(), cds.getStubType());
+    return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, parSpread, cds.getRecoveryRate(), cds.isAccrualOnDefault(), payOnDefault, protectStart, cds.getCouponFrequency(),
+        cds.getConvention(), cds.getStubType());
   }
-
 
   /**
    * Value a CDS contract according to the ISDA model, given pre-computed time-lines, discount factors and hazard-rate function.
@@ -203,7 +199,7 @@ public class ISDAApproxCDSPricingMethod {
    * @return The value of the CDS contract, according to the ISDA model.
    */
   private double valueCDS(final ISDACDSDerivative cds, final ISDACurve hazardRateCurve, final Timeline paymentTimeline, final Timeline accrualTimeline, final Timeline contingentTimeline,
-    final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor, final boolean cleanPrice) {
+      final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor, final boolean cleanPrice) {
 
     if (stepinTime < PRICING_TIME) {
       throw new OpenGammaRuntimeException("Cannot value a CDS with step-in date before pricing date");
@@ -223,8 +219,8 @@ public class ISDAApproxCDSPricingMethod {
    * @param stepinDate The step-in date
    * @return PV of the CDS premium leg
    */
-  private double valueFeeLeg(final ISDACDSDerivative cds, final Timeline paymentTimeline, final Timeline accrualTimeline, final ISDACurve hazardRateCurve,
-    final double stepinTime, final double stepinDiscountFactor, final double settlementDiscountFactor) {
+  private double valueFeeLeg(final ISDACDSDerivative cds, final Timeline paymentTimeline, final Timeline accrualTimeline, final ISDACurve hazardRateCurve, final double stepinTime,
+      final double stepinDiscountFactor, final double settlementDiscountFactor) {
 
     // If the "protect start" flag is set, then the start date of the CDS is protected and observations are made at the start
     // of the day rather than the end. This is modelled by shifting all period start/end dates one day forward,
@@ -254,7 +250,9 @@ public class ISDAApproxCDSPricingMethod {
       if (cds.isAccrualOnDefault()) {
 
         startIndex = endIndex;
-        while (accrualTimeline.getTimePoints()[endIndex] < periodEndTime) { ++endIndex; }
+        while (accrualTimeline.getTimePoints()[endIndex] < periodEndTime) {
+          ++endIndex;
+        }
 
         result += valueFeeLegAccrualOnDefault(amount, accrualTimeline, hazardRateCurve, startIndex, endIndex, stepinTime, stepinDiscountFactor);
       }
@@ -275,8 +273,8 @@ public class ISDAApproxCDSPricingMethod {
    * @param stepinDiscountFactor Associated discount factor for the step-in time
    * @return Accrual-on-default portion of PV for the accrual period
    */
-  private double valueFeeLegAccrualOnDefault(final double amount, final Timeline timeline, final ISDACurve hazardRateCurve, final int startIndex,
-    final int endIndex, final double stepinTime, final double stepinDiscountFactor) {
+  private double valueFeeLegAccrualOnDefault(final double amount, final Timeline timeline, final ISDACurve hazardRateCurve, final int startIndex, final int endIndex, final double stepinTime,
+      final double stepinDiscountFactor) {
 
     final double[] timePoints = timeline.getTimePoints();
     final double[] discountFactors = timeline.getDiscountFactors();
@@ -310,8 +308,8 @@ public class ISDAApproxCDSPricingMethod {
       lambda = Math.log(survival0 / survival1) / dt;
       fwdRate = Math.log(discount0 / discount1) / dt;
       lambdaFwdRate = lambda + fwdRate + 1.0e-50;
-      valueForTimeStep = lambda * accrualRate * survival0 * discount0
-        * (((t0 + 1.0 / lambdaFwdRate) / lambdaFwdRate) - ((t1 + 1.0 / lambdaFwdRate) / lambdaFwdRate) * survival1 / survival0 * discount1 / discount0);
+      valueForTimeStep = lambda * accrualRate * survival0 * discount0 *
+          (((t0 + 1.0 / lambdaFwdRate) / lambdaFwdRate) - ((t1 + 1.0 / lambdaFwdRate) / lambdaFwdRate) * survival1 / survival0 * discount1 / discount0);
 
       value += valueForTimeStep;
 
@@ -334,9 +332,8 @@ public class ISDAApproxCDSPricingMethod {
 
     // The ISDA C code always forces pay on default; code is available for pay on maturity but never used
     final double recoveryRate = cds.getRecoveryRate();
-    final double value = cds.isPayOnDefault()
-      ? valueContingentLegPayOnDefault(recoveryRate, contingentTimeline, hazardRateCurve)
-      : valueContingentLegPayOnMaturity(recoveryRate, contingentTimeline, hazardRateCurve);
+    final double value = cds.isPayOnDefault() ? valueContingentLegPayOnDefault(recoveryRate, contingentTimeline, hazardRateCurve) : valueContingentLegPayOnMaturity(recoveryRate, contingentTimeline,
+        hazardRateCurve);
 
     return value / settlementDiscountFactor;
   }
@@ -427,7 +424,8 @@ public class ISDAApproxCDSPricingMethod {
    * @param includeSchedule Whether to include the CDS accrual period start/end times
    * @return The populated timeline object
    */
-  private Timeline buildTimeline(final ISDACDSDerivative cds, final ISDACurve discountCurve, final ISDACurve hazardRateCurve, final double startTime, final double endTime, final boolean includeSchedule) {
+  private Timeline buildTimeline(final ISDACDSDerivative cds, final ISDACurve discountCurve, final ISDACurve hazardRateCurve, final double startTime, final double endTime,
+      final boolean includeSchedule) {
 
     final NavigableSet<Double> allTimePoints = new TreeSet<Double>();
 

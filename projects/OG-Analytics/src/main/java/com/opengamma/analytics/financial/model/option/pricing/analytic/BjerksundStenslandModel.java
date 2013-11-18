@@ -262,8 +262,8 @@ public class BjerksundStenslandModel {
     final double rho = Math.sqrt(t1 / t2);
     return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
-        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho}) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho}) - Math.pow(x1 / s, kappa)
-            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho}) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho}));
+        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho }) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho }) - Math.pow(x1 / s, kappa)
+            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho }) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho }));
   }
 
   private double getLambda(final double gamma, final double r, final double b, final double sigmaSq) {
@@ -347,7 +347,7 @@ public class BjerksundStenslandModel {
    */
   public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     final double[] temp = getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    return new double[] {temp[0], temp[6]}; //fairly wasteful to compute all the other Greeks
+    return new double[] {temp[0], temp[6] }; //fairly wasteful to compute all the other Greeks
   }
 
   /**
@@ -387,6 +387,11 @@ public class BjerksundStenslandModel {
   public double impliedVolatility(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
     final Function1D<Double, double[]> func = getPriceAndVegaFunction(s0, k, r, b, t, isCall);
     return GenericImpliedVolatiltySolver.impliedVolatility(price, func);
+  }
+
+  public double impliedVolatility(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall, final double guess) {
+    final Function1D<Double, double[]> func = getPriceAndVegaFunction(s0, k, r, b, t, isCall);
+    return GenericImpliedVolatiltySolver.impliedVolatility(price, func, guess);
   }
 
   protected double[] getCallPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
@@ -888,10 +893,10 @@ public class BjerksundStenslandModel {
     final double f3 = (w5 + w9) / sigmarootT;
     final double f4 = (w7 + w9) / sigmarootT;
 
-    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {-e1, -f1, RHO});
-    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {-e2, -f2, RHO});
-    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {-e3, -f3, -RHO});
-    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {-e4, -f4, -RHO});
+    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {-e1, -f1, RHO });
+    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {-e2, -f2, RHO });
+    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {-e3, -f3, -RHO });
+    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {-e4, -f4, -RHO });
     final double w19 = w15 - w12 * w16 - w13 * w17 + w14 * w18;
     final double w20 = w10 * w11 * w19;
 
@@ -1024,19 +1029,19 @@ public class BjerksundStenslandModel {
     final double f4Dot = -blah3;
     final double f4DDot = blah4;
 
-    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {e1, f1, RHO});
+    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {e1, f1, RHO });
     double[] temp = bivariateNormDiv(e1, f1, true);
     final double w15Dot = temp[0] * e1Dot + temp[1] * f1Dot;
     final double w15DDot = temp[0] * e1DDot + temp[1] * f1DDot + temp[2] * e1Dot * e1Dot + temp[3] * f1Dot * f1Dot + 2 * temp[4] * e1Dot * f1Dot;
-    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {e2, f2, RHO});
+    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {e2, f2, RHO });
     temp = bivariateNormDiv(e2, f2, true);
     final double w16Dot = temp[0] * e2Dot + temp[1] * f2Dot;
     final double w16DDot = temp[0] * e2DDot + temp[1] * f2DDot + temp[2] * e2Dot * e2Dot + temp[3] * f2Dot * f2Dot + 2 * temp[4] * e2Dot * f2Dot;
-    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {e3, f3, -RHO});
+    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {e3, f3, -RHO });
     temp = bivariateNormDiv(e3, f3, false);
     final double w17Dot = temp[0] * e3Dot + temp[1] * f3Dot;
     final double w17DDot = temp[0] * e3DDot + temp[1] * f3DDot + temp[2] * e3Dot * e3Dot + temp[3] * f3Dot * f3Dot + 2 * temp[4] * e3Dot * f3Dot;
-    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {e4, f4, -RHO});
+    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {e4, f4, -RHO });
     temp = bivariateNormDiv(e4, f4, false);
     final double w18Dot = temp[0] * e4Dot + temp[1] * f4Dot;
     final double w18DDot = temp[0] * e4DDot + temp[1] * f4DDot + temp[2] * e4Dot * e4Dot + temp[3] * f4Dot * f4Dot + 2 * temp[4] * e4Dot * f4Dot;
@@ -1049,7 +1054,7 @@ public class BjerksundStenslandModel {
     final double w20Dot = w10 * (w19 * w11Dot + w11 * w19Dot);
     final double w20DDot = w10 * (w19 * w11DDot + w11 * w19DDot + 2 * w11Dot * w19Dot);
 
-    return new double[] {w20, w20Dot, w20DDot};
+    return new double[] {w20, w20Dot, w20DDot };
   }
 
   /**

@@ -31,14 +31,19 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
  * Calculates the value delta of an {@link IRFutureOptionSecurity} using the Black Delta as input.
  * <p>
  * See {@link InterestRateFutureOptionBlackPositionDeltaFunction}
- * 
+ *
  * @deprecated Use {@link BlackDiscountingValueDeltaIRFutureOptionFunction}
  */
 @Deprecated
 public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRateFutureOptionBlackFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueDeltaFunction.class);
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_DELTA}
+   */
   public InterestRateFutureOptionBlackValueDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+    super(ValueRequirementNames.VALUE_DELTA, true);
   }
 
   @Override
@@ -46,9 +51,12 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
     // First, confirm Scale is set, by user or by default
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> scale = constraints.getValues(ValuePropertyNames.SCALE);
-    if (scale == null || scale.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SCALE);
-      return null;
+    if (scale != null) {
+      // changed because want to use a default directly in the function
+      if (scale.size() != 1) {
+        s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SCALE);
+        return null;
+      }
     }
     final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
     if (requirements == null) {
@@ -89,13 +97,11 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
       final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     throw new OpenGammaRuntimeException("Should never get called");
   }
-  
+
   @Override
   protected ValueProperties.Builder getResultProperties(final String currency) {
     return super.getResultProperties(currency)
         .withAny(ValuePropertyNames.SCALE);
   }
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueDeltaFunction.class);
 
 }

@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.INFLATION_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_FIXED_LEG;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.PRICE_INDEX;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.INFLATION_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_FIXED_LEG;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.PRICE_INDEX;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getIds;
 
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -20,9 +20,9 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationYearOnYearDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -73,18 +73,9 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
   @Override
   public InstrumentDefinition<?> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final PriceIndexConvention indexConvention = _conventionSource.getConvention(PriceIndexConvention.class, getIds(currency, PRICE_INDEX));
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Price index convention with id " + getIds(currency, PRICE_INDEX) + " was null");
-    }
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, getIds(currency, IRS_FIXED_LEG));
-    if (fixedLegConvention == null) {
-      throw new OpenGammaRuntimeException("Swap fixed leg convention with id " + getIds(currency, IRS_FIXED_LEG) + " was null");
-    }
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, getIds(currency, INFLATION_LEG));
-    if (inflationLegConvention == null) {
-      throw new OpenGammaRuntimeException("Inflation leg convention with id " + getIds(currency, INFLATION_LEG) + " was null");
-    }
+    final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(getIds(currency, IRS_FIXED_LEG), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class);
     final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
@@ -138,18 +129,9 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final PriceIndexConvention indexConvention = _conventionSource.getConvention(PriceIndexConvention.class, getIds(currency, PRICE_INDEX));
-    if (indexConvention == null) {
-      throw new OpenGammaRuntimeException("Price index convention with id " + getIds(currency, PRICE_INDEX) + " was null");
-    }
-    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, getIds(currency, IRS_FIXED_LEG));
-    if (fixedLegConvention == null) {
-      throw new OpenGammaRuntimeException("Swap fixed leg convention with id " + getIds(currency, IRS_FIXED_LEG) + " was null");
-    }
-    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, getIds(currency, INFLATION_LEG));
-    if (inflationLegConvention == null) {
-      throw new OpenGammaRuntimeException("Inflation leg convention with id " + getIds(currency, INFLATION_LEG) + " was null");
-    }
+    final PriceIndexConvention indexConvention = _conventionSource.getSingle(getIds(currency, PRICE_INDEX), PriceIndexConvention.class);
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(getIds(currency, IRS_FIXED_LEG), SwapFixedLegConvention.class);
+    final InflationLegConvention inflationLegConvention = _conventionSource.getSingle(getIds(currency, INFLATION_LEG), InflationLegConvention.class);
     final IndexPrice priceIndex = new IndexPrice(indexConvention.getName(), currency);
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();

@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
- * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
+ * The forward rate is computed directly.
  */
 public class InflationProviderForward implements InflationProviderInterface {
 

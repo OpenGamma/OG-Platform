@@ -116,7 +116,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
@@ -205,7 +205,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the exchange table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(exchange);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = createParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -220,7 +220,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
     final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (ExternalId id : exchange.getExternalIdBundle()) {
-      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource assocArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
         .addValue("key_value", id.getValue());
@@ -228,7 +228,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long idKeyId = nextId("exg_idkey_seq");
-        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource idkeyArgs = createParameterSource()
           .addValue("idkey_id", idKeyId)
           .addValue("key_scheme", id.getScheme().getName())
           .addValue("key_value", id.getValue());

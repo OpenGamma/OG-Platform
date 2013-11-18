@@ -31,6 +31,7 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Provides remote access to a {@link FunctionBlacklist}.
@@ -48,7 +49,7 @@ public class RemoteFunctionBlacklist extends AbstractFunctionBlacklist {
         return null;
       }
       final FudgeDeserializer fdc = new FudgeDeserializer(getProvider().getFudgeContext());
-      return Pair.of(msg.getInt(DataFunctionBlacklistResource.MODIFICATION_COUNT_FIELD), getRules(fdc, msg.getMessage(DataFunctionBlacklistResource.RULES_FIELD)));
+      return Pairs.of(msg.getInt(DataFunctionBlacklistResource.MODIFICATION_COUNT_FIELD), getRules(fdc, msg.getMessage(DataFunctionBlacklistResource.RULES_FIELD)));
     }
 
     @Override

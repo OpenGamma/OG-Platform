@@ -22,8 +22,8 @@
   <@table items=searchResult.documents paging=paging empty="No time series" headers=["Reference","Identifiers","Data source","Data provider","Data field","Observation time","Actions"]; item>
       <td><a href="${uris.oneTimeSeries(item)}">${item.info.uniqueId.value}</a></td>
       <td>
-      <#list item.info.externalIdBundle.externalIds as item>
-    	   ${item}<br>
+      <#list sortedIds[item.uniqueId] as item>
+    	   ${item.externalId}<br>
    	  </#list>
       </td>
       <td>${item.info.dataSource}</td>

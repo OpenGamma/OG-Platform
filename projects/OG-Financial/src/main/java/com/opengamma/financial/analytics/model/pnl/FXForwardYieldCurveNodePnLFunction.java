@@ -280,8 +280,6 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
       final Currency receiveCurrency = security.getReceiveCurrency();
       final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
       final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
-
-      final Currency baseCurrency = currencyPair.getBase();
       final ValueProperties resultProperties = desiredValues.iterator().next().getConstraints();
       TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeries;
       if (ycReturnSeries != null) {
@@ -300,12 +298,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
         pnlSeriesVector = getPnLVector(returnSeries, sensitivities);
       } else {
         final String resultCurrency = Iterables.getOnlyElement(resultCurrencies);
-        boolean resultEqualsCurveCurrency = resultCurrency.equals(curveCurrency);
-        final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
-        if (conversionTS == null) {
-          throw new OpenGammaRuntimeException("Asked for result in " + resultCurrency + " but could not get " + curveCurrency + "/" + resultCurrency + " conversion series");
-        }
-        pnlSeriesVector = getPnLVector(returnSeries, conversionTS, sensitivities, resultEqualsCurveCurrency);
+        final boolean resultEqualsCurveCurrency = resultCurrency.equals(curveCurrency);
+        pnlSeriesVector = getPnLVector(returnSeries, sensitivities, resultEqualsCurveCurrency, resultCurrency, curveCurrency, inputs);
       }
       return ImmutableSet.of(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, target.toSpecification(), resultProperties), pnlSeriesVector));
     }
@@ -410,20 +404,27 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
     /**
      * Calculates the P&L vector with currency conversion.
      * @param returnSeries The return series for the nodes in a curve
-     * @param conversionSeries The FX conversion series
      * @param sensitivities The sensitivities to the curve
+     * @param resultCurveCurrency True if the result is in the curve currency
+     * @param resultCurrency The result currency
+     * @param curveCurrency The curve currency
+     * @param inputs The function inputs
      * @return The P&L vector for each curve node tenor converted into the desired currency
      */
-    private TenorLabelledLocalDateDoubleTimeSeriesMatrix1D getPnLVector(final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeries, final LocalDateDoubleTimeSeries conversionSeries,
-        final DoubleLabelledMatrix1D sensitivities, final boolean resultCurveCurrency) {
+    private TenorLabelledLocalDateDoubleTimeSeriesMatrix1D getPnLVector(final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeries,
+        final DoubleLabelledMatrix1D sensitivities, final boolean resultCurveCurrency, final String resultCurrency, final String curveCurrency, final FunctionInputs inputs) {
       final int size = returnSeries.size();
       final LocalDateDoubleTimeSeries[] nodesPnlSeries = new LocalDateDoubleTimeSeries[size];
       for (int i = 0; i < size; i++) {
         if (resultCurveCurrency) {
           final LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(sensitivities.getValues()[i]);
           nodesPnlSeries[i] = nodePnlSeries;
-        }  else {
-          final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.reciprocal().multiply(sensitivities.getValues()[i]);
+        } else {
+          final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
+          if (conversionTS == null) {
+            throw new OpenGammaRuntimeException("Asked for result in " + resultCurrency + " but could not get " + curveCurrency + "/" + resultCurrency + " conversion series");
+          }
+          final LocalDateDoubleTimeSeries convertedSeries = conversionTS.reciprocal().multiply(sensitivities.getValues()[i]);
           final LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(convertedSeries);
           nodesPnlSeries[i] = nodePnlSeries;
         }

@@ -26,28 +26,29 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Produces a value in terms of a {@link ValuePropertyNames#SAMPLING_PERIOD} from a value in terms of
- * {@link HistoricalTimeSeriesFunctionUtils#START_DATE_PROPERTY} and
+ * Produces a value in terms of a {@link ValuePropertyNames#SAMPLING_PERIOD} from a value in terms of {@link HistoricalTimeSeriesFunctionUtils#START_DATE_PROPERTY} and
  * {@link HistoricalTimeSeriesFunctionUtils#END_DATE_PROPERTY}.
  */
 public class PnLPeriodTranslationFunction extends AbstractFunction.NonCompiledInvoker {
 
+  private static final ComputationTargetType TYPE = ComputationTargetType.POSITION.or(ComputationTargetType.PORTFOLIO_NODE);
+
   private final String _valueRequirementName;
-  
+
   public PnLPeriodTranslationFunction(String valueRequirementName) {
     _valueRequirementName = valueRequirementName;
   }
-  
+
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION.or(ComputationTargetType.PORTFOLIO_NODE);
+    return TYPE;
   }
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return ImmutableSet.of(new ValueSpecification(_valueRequirementName, target.toSpecification(), ValueProperties.all()));
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     Set<String> samplingPeriods = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
@@ -55,7 +56,7 @@ public class PnLPeriodTranslationFunction extends AbstractFunction.NonCompiledIn
       return null;
     }
     String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
-    DateConstraint start = DateConstraint.parse("-" + samplingPeriod);
+    DateConstraint start = DateConstraint.VALUATION_TIME.minus(samplingPeriod);
     ValueProperties inputConstraints = desiredValue.getConstraints().copy()
         .withOptional(ValuePropertyNames.SAMPLING_PERIOD)
         .with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, start.toString())
@@ -63,7 +64,7 @@ public class PnLPeriodTranslationFunction extends AbstractFunction.NonCompiledIn
         .get();
     return ImmutableSet.of(new ValueRequirement(_valueRequirementName, target.toSpecification(), inputConstraints));
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
     Map.Entry<ValueSpecification, ValueRequirement> input = Iterables.getOnlyElement(inputs.entrySet());

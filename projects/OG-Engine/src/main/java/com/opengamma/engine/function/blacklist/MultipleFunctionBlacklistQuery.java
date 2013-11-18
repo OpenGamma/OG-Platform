@@ -11,8 +11,8 @@ import java.util.Collection;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFunction;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -53,7 +53,7 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   }
 
   @Override
-  public boolean isBlacklisted(final ParameterizedFunction function) {
+  public boolean isBlacklisted(final DependencyNodeFunction function) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(function)) {
         return true;
@@ -83,7 +83,7 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   }
 
   @Override
-  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target) {
+  public boolean isBlacklisted(final DependencyNodeFunction function, final ComputationTargetSpecification target) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(function, target)) {
         return true;
@@ -115,7 +115,7 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   }
 
   @Override
-  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final ValueSpecification[] inputs, final ValueSpecification[] outputs) {
+  public boolean isBlacklisted(final DependencyNodeFunction function, final ComputationTargetSpecification target, final ValueSpecification[] inputs, final ValueSpecification[] outputs) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(function, target, inputs, outputs)) {
         return true;
@@ -125,7 +125,7 @@ public class MultipleFunctionBlacklistQuery implements FunctionBlacklistQuery {
   }
 
   @Override
-  public boolean isBlacklisted(final ParameterizedFunction function, final ComputationTargetSpecification target, final Collection<ValueSpecification> inputs,
+  public boolean isBlacklisted(final DependencyNodeFunction function, final ComputationTargetSpecification target, final Collection<ValueSpecification> inputs,
       final Collection<ValueSpecification> outputs) {
     for (FunctionBlacklistQuery underlying : getUnderlying()) {
       if (underlying.isBlacklisted(function, target, inputs, outputs)) {

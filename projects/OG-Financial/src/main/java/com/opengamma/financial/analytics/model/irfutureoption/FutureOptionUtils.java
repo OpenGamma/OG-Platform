@@ -12,10 +12,10 @@ import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 
 /**
  * Utility Class for computing Expiries of IR Future Options from ordinals (i.e. nth future after valuationDate)

@@ -8,6 +8,7 @@ package com.opengamma.financial.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
@@ -63,6 +64,8 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -670,6 +673,16 @@ public class FinancialSecurityUtils {
           return null;
         }
 
+        @Override
+        public Currency visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          final InterestRateNotional payLeg = security.getPayLeg().getNotional();
+          final InterestRateNotional receiveLeg = security.getReceiveLeg().getNotional();
+          if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
+            return payLeg.getCurrency();
+          }
+          return null;
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -1063,6 +1076,15 @@ public class FinancialSecurityUtils {
           return null;
         }
 
+        @Override
+        public Collection<Currency> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          final Collection<Currency> collection = new HashSet<>();
+          for (InterestRateSwapLeg leg : security.getLegs()) {
+            collection.add(leg.getNotional().getCurrency());
+          }
+          return collection;
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
@@ -1257,6 +1279,19 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public CurrencyAmount visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
+          //TODO: Handle more than 2 legs
+          final InterestRateSwapLeg payNotional = security.getPayLeg();
+          final InterestRateSwapLeg receiveNotional = security.getReceiveLeg();
+          final InterestRateNotional pay = payNotional.getNotional();
+          final InterestRateNotional receive = receiveNotional.getNotional();
+          if (Double.compare(pay.getAmount(), receive.getAmount()) == 0) {
+            return CurrencyAmount.of(pay.getCurrency(), pay.getAmount());
+          }
+          throw new OpenGammaRuntimeException("Can only handle interest rate notionals with the same amounts");
+        }
+
+        @Override
         public CurrencyAmount visitFXOptionSecurity(final FXOptionSecurity security) {
           final Currency currency1 = security.getPutCurrency();
           final double amount1 = security.getPutAmount();
@@ -1361,7 +1396,11 @@ public class FinancialSecurityUtils {
         public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
           final Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
           Preconditions.checkState(underlying instanceof SwapSecurity, "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.", underlying);
-          return visitSwapSecurity((SwapSecurity) underlying);
+          final CurrencyAmount notional = visitSwapSecurity((SwapSecurity) underlying);
+          if (security.isLong()) {
+            return notional;
+          }
+          return notional.multipliedBy(-1);
         }
 
         @Override
@@ -1376,6 +1415,15 @@ public class FinancialSecurityUtils {
           final Currency currency = security.getCurrency();
           final double notional = security.getUnitAmount();
           return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final Security underlying = securitySource.getSingle(security.getUnderlyingId().toBundle());
+          Preconditions.checkState(underlying instanceof InterestRateFutureSecurity, "Failed to resolve underlying InterestRateFutureSecurity. " +
+              "DB record potentially corrupted. '%s' returned.", underlying);
+          return visitInterestRateFutureSecurity((InterestRateFutureSecurity) underlying);
         }
 
         @Override

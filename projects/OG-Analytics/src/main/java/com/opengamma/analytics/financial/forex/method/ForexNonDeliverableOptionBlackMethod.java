@@ -179,12 +179,12 @@ public final class ForexNonDeliverableOptionBlackMethod implements ForexPricingM
     final double rDeliveryBar = -paymentTime * dfDelivery * dfDeliveryBar;
     // Sensitivity object
     final List<DoublesPair> listNonDelivery = new ArrayList<>();
-    listNonDelivery.add(new DoublesPair(paymentTime, rNonDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
+    listNonDelivery.add(DoublesPair.of(paymentTime, rNonDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
     final Map<String, List<DoublesPair>> resultNonDeliveryMap = new HashMap<>();
     resultNonDeliveryMap.put(nonDeliveryCurveName, listNonDelivery);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultNonDeliveryMap);
     final List<DoublesPair> listDelivery = new ArrayList<>();
-    listDelivery.add(new DoublesPair(paymentTime, rDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
+    listDelivery.add(DoublesPair.of(paymentTime, rDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
     final Map<String, List<DoublesPair>> resultDeliveryMap = new HashMap<>();
     resultDeliveryMap.put(deliveryCurveName, listDelivery);
     result = result.plus(new InterestRateCurveSensitivity(resultDeliveryMap));

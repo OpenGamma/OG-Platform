@@ -5,15 +5,11 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import java.io.Serializable;
 
 /**
- * Base class for different kinds of market data keys.
+ * Base interface for different kinds of market data keys.
  */
-public abstract class StructuredMarketDataKey implements Serializable {
-
-  private static final long serialVersionUID = 1L;
-
+public interface StructuredMarketDataKey {
   /**
    * Visitor interface for working with the different key implementations
    */
@@ -35,6 +31,6 @@ public abstract class StructuredMarketDataKey implements Serializable {
    * @param visitor the visitor to apply, not null
    * @return the return value of the visitor
    */
-  public abstract <T> T accept(Visitor<T> visitor);
+  <T> T accept(Visitor<T> visitor);
 
 }

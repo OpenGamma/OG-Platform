@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -99,86 +100,6 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   @Override
   public WebHistoricalTimeSeriesData.Meta metaBean() {
     return WebHistoricalTimeSeriesData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case 157715905:  // historicalTimeSeriesLoader
-        return getHistoricalTimeSeriesLoader();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case 1609878101:  // uriHistoricalTimeSeriesId
-        return getUriHistoricalTimeSeriesId();
-      case 3237038:  // info
-        return getInfo();
-      case 779431844:  // timeSeries
-        return getTimeSeries();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case 157715905:  // historicalTimeSeriesLoader
-        setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case 1609878101:  // uriHistoricalTimeSeriesId
-        setUriHistoricalTimeSeriesId((String) newValue);
-        return;
-      case 3237038:  // info
-        setInfo((HistoricalTimeSeriesInfoDocument) newValue);
-        return;
-      case 779431844:  // timeSeries
-        setTimeSeries((ManageableHistoricalTimeSeries) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebHistoricalTimeSeriesData other = (WebHistoricalTimeSeriesData) obj;
-      return JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriHistoricalTimeSeriesId(), other.getUriHistoricalTimeSeriesId()) &&
-          JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
-          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriHistoricalTimeSeriesId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -357,6 +278,76 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebHistoricalTimeSeriesData clone() {
+    BeanBuilder<? extends WebHistoricalTimeSeriesData> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebHistoricalTimeSeriesData other = (WebHistoricalTimeSeriesData) obj;
+      return JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriHistoricalTimeSeriesId(), other.getUriHistoricalTimeSeriesId()) &&
+          JodaBeanUtils.equal(getInfo(), other.getInfo()) &&
+          JodaBeanUtils.equal(getTimeSeries(), other.getTimeSeries());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriHistoricalTimeSeriesId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeSeries());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("WebHistoricalTimeSeriesData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriHistoricalTimeSeriesId").append('=').append(JodaBeanUtils.toString(getUriHistoricalTimeSeriesId())).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebHistoricalTimeSeriesData}.
    */
@@ -511,6 +502,56 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
      */
     public final MetaProperty<ManageableHistoricalTimeSeries> timeSeries() {
       return _timeSeries;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((WebHistoricalTimeSeriesData) bean).getHistoricalTimeSeriesMaster();
+        case 157715905:  // historicalTimeSeriesLoader
+          return ((WebHistoricalTimeSeriesData) bean).getHistoricalTimeSeriesLoader();
+        case 195157501:  // configSource
+          return ((WebHistoricalTimeSeriesData) bean).getConfigSource();
+        case -173275078:  // uriInfo
+          return ((WebHistoricalTimeSeriesData) bean).getUriInfo();
+        case 1609878101:  // uriHistoricalTimeSeriesId
+          return ((WebHistoricalTimeSeriesData) bean).getUriHistoricalTimeSeriesId();
+        case 3237038:  // info
+          return ((WebHistoricalTimeSeriesData) bean).getInfo();
+        case 779431844:  // timeSeries
+          return ((WebHistoricalTimeSeriesData) bean).getTimeSeries();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 173967376:  // historicalTimeSeriesMaster
+          ((WebHistoricalTimeSeriesData) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 157715905:  // historicalTimeSeriesLoader
+          ((WebHistoricalTimeSeriesData) bean).setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
+          return;
+        case 195157501:  // configSource
+          ((WebHistoricalTimeSeriesData) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case -173275078:  // uriInfo
+          ((WebHistoricalTimeSeriesData) bean).setUriInfo((UriInfo) newValue);
+          return;
+        case 1609878101:  // uriHistoricalTimeSeriesId
+          ((WebHistoricalTimeSeriesData) bean).setUriHistoricalTimeSeriesId((String) newValue);
+          return;
+        case 3237038:  // info
+          ((WebHistoricalTimeSeriesData) bean).setInfo((HistoricalTimeSeriesInfoDocument) newValue);
+          return;
+        case 779431844:  // timeSeries
+          ((WebHistoricalTimeSeriesData) bean).setTimeSeries((ManageableHistoricalTimeSeries) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

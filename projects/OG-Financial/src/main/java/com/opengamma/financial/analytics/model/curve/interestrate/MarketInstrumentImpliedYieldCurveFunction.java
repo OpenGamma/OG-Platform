@@ -63,6 +63,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
@@ -103,7 +104,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
   private final String _calculationType;
   private final boolean _calcTypeParRate;
 
-  private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   private FixedIncomeConverterDataProvider _definitionConverter;
 
   public MarketInstrumentImpliedYieldCurveFunction(final String calculationType) {
@@ -139,8 +139,12 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     return _couponSensitivityCalculator;
   }
 
-  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter() {
-    return _securityConverter;
+  protected InterestRateInstrumentTradeOrSecurityConverter getSecurityConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver().getVersionCorrection());
   }
 
   protected FixedIncomeConverterDataProvider getDefinitionConverter() {
@@ -169,7 +173,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     if (timeSeriesResolver == null) {
       throw new UnsupportedOperationException("A historical time series resolver is required");
     }
-    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
   }
 
@@ -400,6 +403,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final double[] nodeTimes = new double[n];
     final double[] marketValues = new double[n];
     int i = 0;
+    final InterestRateInstrumentTradeOrSecurityConverter securityConverter = getSecurityConverter(executionContext);
     for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
       Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
       if (marketValue == null) {
@@ -410,7 +414,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), curveName, curveName);
 
-      final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
+      final InstrumentDefinition<?> definition = securityConverter.visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
@@ -505,6 +509,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final double[] forwardNodeTimes = new double[nForward];
     final double[] marketValues = new double[nFunding + nForward];
     int i = 0, fundingIndex = 0, forwardIndex = 0;
+    final InterestRateInstrumentTradeOrSecurityConverter securityConverter = getSecurityConverter(executionContext);
     for (final FixedIncomeStripWithSecurity strip : fundingCurveSpecificationWithSecurities.getStrips()) {
       final Double fundingMarketValue = fundingMarketData.getDataPoint(strip.getSecurityIdentifier());
       if (fundingMarketValue == null) {
@@ -514,7 +519,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final FinancialSecurity financialSecurity = (FinancialSecurity) strip.getSecurity();
       InstrumentDerivative derivative;
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForFundingCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
-      final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
+      final InstrumentDefinition<?> definition = securityConverter.visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
         throw new OpenGammaRuntimeException("We do not currently support FundingCurves containing FUTURES. Contact QR if you desire this.");
       }
@@ -542,7 +547,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       InstrumentDerivative derivative = null;
       final String[] curveNames = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForForwardCurveInstrument(strip.getInstrumentType(), fundingCurveName, forwardCurveName);
       try {
-        InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
+        InstrumentDefinition<?> definition = securityConverter.visit(financialSecurity);
         if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
           if (!_calcTypeParRate) {
             // Scale notional to 1 - this is to better condition the jacobian matrix

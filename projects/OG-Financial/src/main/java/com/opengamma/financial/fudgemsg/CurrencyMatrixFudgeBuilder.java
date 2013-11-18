@@ -30,6 +30,7 @@ import com.opengamma.financial.currency.CurrencyMatrixValueVisitor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Fudge builder for a {@link CurrencyMatrix}. This handles the general case - matrices may typically be sparse so
@@ -167,10 +168,10 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
           final Currency target = Currency.of(field2.getName());
           if (field2.getValue() instanceof Double) {
             final CurrencyMatrixValue value = CurrencyMatrixValue.of((Double) field2.getValue());
-            values.put(Pair.of(source, target), value);
-            values.put(Pair.of(target, source), value.getReciprocal());
+            values.put(Pairs.of(source, target), value);
+            values.put(Pairs.of(target, source), value.getReciprocal());
           } else {
-            values.remove(Pair.of(target, source));
+            values.remove(Pairs.of(target, source));
           }
         }
         for (final Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
@@ -188,10 +189,10 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
           final Currency target = Currency.of(field2.getName());
           if (field2.getValue() instanceof FudgeMsg) {
             final CurrencyMatrixValue value = deserializer.fieldValueToObject(CurrencyMatrixValueRequirement.class, field2);
-            values.put(Pair.of(source, target), value);
-            values.put(Pair.of(target, source), value.getReciprocal());
+            values.put(Pairs.of(source, target), value);
+            values.put(Pairs.of(target, source), value.getReciprocal());
           } else {
-            values.remove(Pair.of(target, source));
+            values.remove(Pairs.of(target, source));
           }
         }
         for (final Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {
@@ -209,11 +210,11 @@ public class CurrencyMatrixFudgeBuilder implements FudgeBuilder<CurrencyMatrix> 
           final Currency source = Currency.of(field2.getName());
           if (field2.getValue() instanceof FudgeMsg) {
             final Currency target = Currency.of(((FudgeMsg) field2.getValue()).iterator().next().getName());
-            values.put(Pair.of(source, target), cross);
+            values.put(Pairs.of(source, target), cross);
           } else {
             final Currency target = Currency.of((String) field2.getValue());
-            values.put(Pair.of(source, target), cross);
-            values.put(Pair.of(target, source), cross);
+            values.put(Pairs.of(source, target), cross);
+            values.put(Pairs.of(target, source), cross);
           }
         }
         for (final Map.Entry<Pair<Currency, Currency>, CurrencyMatrixValue> valueEntry : values.entrySet()) {

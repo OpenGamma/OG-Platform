@@ -16,9 +16,9 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.SHIFTED_LOGNORMAL;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IBOR;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.getConventionName;
 
 import java.util.Set;
 
@@ -34,6 +34,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Black
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileShiftCapProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -54,7 +55,6 @@ import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -182,10 +182,7 @@ public abstract class ShiftedLognormalDiscountingCapFloorFunction extends Discou
       final CapFloorSecurity security = (CapFloorSecurity) target.getTrade().getSecurity();
       final Currency currency = FinancialSecurityUtils.getCurrency(security);
       final String iborConventionName = getConventionName(currency, IBOR);
-      final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
-      if (iborIndexConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get ibor index convention with the identifier " + ExternalId.of(SCHEME_NAME, iborConventionName));
-      }
+      final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
       final Frequency freqIbor = security.getFrequency();
       final Period tenorIbor = getTenor(freqIbor);
       final int spotLag = iborIndexConvention.getSettlementDays();

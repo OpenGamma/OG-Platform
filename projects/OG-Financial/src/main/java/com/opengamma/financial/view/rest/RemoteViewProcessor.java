@@ -104,8 +104,8 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
   
   //-------------------------------------------------------------------------
-  public MarketDataSnapshotter getMarketDataSnapshotter() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_SNAPSHOTTER).build();
+  public MarketDataSnapshotter getMarketDataSnapshotter(MarketDataSnapshotter.Mode mode) {
+    URI uri = DataViewProcessorResource.uriSnapshotter(_baseUri, mode);
     return new RemoteMarketDataSnapshotter(uri);
   }
 

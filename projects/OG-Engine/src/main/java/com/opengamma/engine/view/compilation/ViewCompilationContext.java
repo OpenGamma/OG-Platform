@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
@@ -39,6 +40,7 @@ import com.opengamma.id.VersionCorrection;
   private final VersionCorrection _resolverVersionCorrection;
   private final Collection<DependencyGraph> _graphs;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _activeResolutions;
+  private final CompiledFunctionResolver _functions;
   private final Collection<ResolutionRule> _rules;
   private final ComputationTargetResolver.AtVersionCorrection _targetResolver;
   private Set<UniqueId> _expiredResolutions;
@@ -49,7 +51,8 @@ import com.opengamma.id.VersionCorrection;
     _services = compilationServices;
     _builders = new LinkedList<DependencyGraphBuilder>();
     _expiredResolutions = Sets.newSetFromMap(new ConcurrentHashMap<UniqueId, Boolean>());
-    _rules = compilationServices.getFunctionResolver().compile(valuationTime).getAllResolutionRules();
+    _functions = compilationServices.getFunctionResolver().compile(valuationTime);
+    _rules = _functions.getAllResolutionRules();
     _targetResolver = TargetResolutionLogger.of(compilationServices.getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(resolverVersionCorrection), resolutions,
         _expiredResolutions);
     for (final ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
@@ -83,6 +86,10 @@ import com.opengamma.id.VersionCorrection;
 
   public ViewCompilationServices getServices() {
     return _services;
+  }
+
+  public CompiledFunctionResolver getCompiledFunctionResolver() {
+    return _functions;
   }
 
   public Collection<DependencyGraphBuilder> getBuilders() {

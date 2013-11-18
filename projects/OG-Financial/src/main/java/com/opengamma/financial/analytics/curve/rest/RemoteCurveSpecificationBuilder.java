@@ -13,10 +13,6 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
-import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveSpecificationBuilderResource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
 

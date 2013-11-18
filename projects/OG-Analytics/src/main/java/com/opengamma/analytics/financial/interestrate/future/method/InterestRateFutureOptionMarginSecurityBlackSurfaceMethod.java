@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
@@ -149,11 +150,25 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     final double rateStrike = 1.0 - strike;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
-    //    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     return priceAdjoint[2];
+  }
+
+  /**
+   * Computes the option security theta. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param blackData The curve and Black volatility data.
+   * @return Black lognormal theta.
+   */
+  public double optionPriceTheta(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double strike = security.getStrike();
+    final double rateStrike = 1.0 - strike;
+    final double forward = 1 - priceFuture;
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
+    return BlackFormulaRepository.driftlessTheta(forward, rateStrike, security.getExpirationTime(), volatility);
   }
 
   /**
@@ -164,7 +179,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
    */
   public SurfaceValue priceBlackSensitivity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
     final double volatilityBar = optionPriceVega(security, blackData);
-    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), security.getStrike());
+    final DoublesPair expiryStrikeDelay = DoublesPair.of(security.getExpirationTime(), security.getStrike());
     final SurfaceValue sensi = SurfaceValue.from(expiryStrikeDelay, volatilityBar);
     return sensi;
   }

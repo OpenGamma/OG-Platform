@@ -10,6 +10,7 @@ import java.util.Collection;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFunction;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ComputedValue;
@@ -46,7 +47,7 @@ public interface FunctionBlacklistQuery {
    * @param function the parameterized function instance to test
    * @return true if the function is blacklisted, false otherwise
    */
-  boolean isBlacklisted(ParameterizedFunction function);
+  boolean isBlacklisted(DependencyNodeFunction function);
 
   /**
    * Tests if a computation target is blacklisted in its entirety. The underlying blacklist may relate to a target type and/or the actual target identifier.
@@ -73,7 +74,7 @@ public interface FunctionBlacklistQuery {
    * @param target the target specification to test
    * @return true if the combination is blacklisted, false otherwise
    */
-  boolean isBlacklisted(ParameterizedFunction function, ComputationTargetSpecification target);
+  boolean isBlacklisted(DependencyNodeFunction function, ComputationTargetSpecification target);
 
   /**
    * Tests if a function should not be used against a target with the given inputs to produce the requested outputs. The underlying blacklist may relate to the individual function, target, inputs,
@@ -112,7 +113,7 @@ public interface FunctionBlacklistQuery {
    * @param outputs the output value specifications to test
    * @return true if the combination is blacklisted, false otherwise
    */
-  boolean isBlacklisted(ParameterizedFunction function, ComputationTargetSpecification target, ValueSpecification[] inputs, ValueSpecification[] outputs);
+  boolean isBlacklisted(DependencyNodeFunction function, ComputationTargetSpecification target, ValueSpecification[] inputs, ValueSpecification[] outputs);
 
   /**
    * Tests if a function should not be used against a target with the given inputs to produce the requested outputs. The underlying blacklist may relate to the individual function, target, inputs,
@@ -124,7 +125,7 @@ public interface FunctionBlacklistQuery {
    * @param outputs the output value specifications to test
    * @return true if the combination is blacklisted, false otherwise
    */
-  boolean isBlacklisted(ParameterizedFunction function, ComputationTargetSpecification target, Collection<ValueSpecification> inputs, Collection<ValueSpecification> outputs);
+  boolean isBlacklisted(DependencyNodeFunction function, ComputationTargetSpecification target, Collection<ValueSpecification> inputs, Collection<ValueSpecification> outputs);
 
   /**
    * Tests if a dependency graph node should not be used. The underlying blacklist may relate to the individual function, target, inputs, outputs or combinations of all. If used at a calculation node,

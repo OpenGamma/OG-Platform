@@ -45,6 +45,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -73,20 +74,21 @@ import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces yield curves using the Hull-White one-factor discounting method.
@@ -111,6 +113,21 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
+    return PSMQHWC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSHWC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return HULL_WHITE_DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -133,7 +150,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -201,27 +217,13 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final Convention convention = conventionSource.getConvention(ibor.getConvention());
-              if (convention == null) {
-                throw new OpenGammaRuntimeException("Convention " + ibor.getConvention() + " was null");
-              }
-              if (!(convention instanceof IborIndexConvention)) {
-                throw new OpenGammaRuntimeException("Expecting convention of type IborIndexConvention; have " + convention.getClass());
-              }
-              final IborIndexConvention iborIndexConvention = (IborIndexConvention) convention;
+              final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ibor.getConvention(), IborIndexConvention.class);
               final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final Convention convention = conventionSource.getConvention(overnight.getConvention());
-              if (convention == null) {
-                throw new OpenGammaRuntimeException("Convention " + overnight.getConvention() + " was null");
-              }
-              if (!(convention instanceof OvernightIndexConvention)) {
-                throw new OpenGammaRuntimeException("Expecting convention of type OvernightIndexConvention; have " + convention.getClass());
-              }
-              final OvernightIndexConvention overnightConvention = (OvernightIndexConvention) convention;
+              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnight.getConvention(), OvernightIndexConvention.class);
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
@@ -242,7 +244,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (HullWhiteOneFactorProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> result = Pair.of((HullWhiteOneFactorProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((HullWhiteOneFactorProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
@@ -268,21 +270,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           .get();
       requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(hwCurrency), hwProperties));
       return requirements;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
-      return PSMQHWC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSHWC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return HULL_WHITE_DISCOUNTING;
     }
 
     @Override
@@ -357,6 +344,8 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new RollDateFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new RollDateSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();
@@ -377,16 +366,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         result.add(new ComputedValue(curveSpec, provider.getMulticurveProvider().getCurve(curveName)));
       }
       return result;
-    }
-
-    @Override
-    public boolean canHandleMissingRequirements() {
-      return true;
-    }
-
-    @Override
-    public boolean canHandleMissingInputs() {
-      return true;
     }
   }
 

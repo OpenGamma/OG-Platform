@@ -19,6 +19,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.StandardCurrencyPairs;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Static functions for the EL compiler.
@@ -92,16 +93,16 @@ public final class MarketDataELFunctions {
         {
           final Currency ccy = Currency.of(ccyPart);
           if (StandardCurrencyPairs.isSingleCurrencyNumerator(ccy)) {
-            return Pair.of(ccy, Currency.USD);
+            return Pairs.of(ccy, Currency.USD);
           } else {
-            return Pair.of(Currency.USD, ccy);
+            return Pairs.of(Currency.USD, ccy);
           }
         }
         case 6:
         {
           final Currency numerator = Currency.of(ccyPart.substring(0, 3));
           final Currency denominator = Currency.of(ccyPart.substring(3));
-          return Pair.of(numerator, denominator);
+          return Pairs.of(numerator, denominator);
         }
         default:
           throw new OpenGammaRuntimeException("currency part of ticker did not have 3 or 6 characters" + ticker);

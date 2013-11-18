@@ -202,7 +202,7 @@ public class OtcTradeBuilderTest {
     assertEquals(positionId.getObjectId(), loadedNode.getPositionIds().get(0));
 
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
-    searchRequest.setExternalIdSearch(new ExternalIdSearch(underlyingId));
+    searchRequest.setExternalIdSearch(ExternalIdSearch.of(underlyingId));
     SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
     ManageableSecurity underlying = searchResult.getSingleSecurity();
     ExternalIdBundle underlyingBundle = underlying.getExternalIdBundle();
@@ -248,7 +248,7 @@ public class OtcTradeBuilderTest {
 
     ExternalId underlyingId = updatedSecurity.getUnderlyingId();
     SecuritySearchRequest searchRequest = new SecuritySearchRequest();
-    searchRequest.setExternalIdSearch(new ExternalIdSearch(underlyingId));
+    searchRequest.setExternalIdSearch(ExternalIdSearch.of(underlyingId));
     SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
     SwapSecurity updatedUnderlying = (SwapSecurity) searchResult.getSingleSecurity();
     ZonedDateTime tradeDate = ZonedDateTime.of(LocalDateTime.of(2013, 1, 1, 11, 0), ZoneOffset.UTC);
@@ -259,6 +259,7 @@ public class OtcTradeBuilderTest {
    * directly update a position that has no trades
    */
   @Test
+  @SuppressWarnings("deprecation")
   public void updatePositionWithNoTrade() {
     ManageableSecurity security = _securityMaster.add(new SecurityDocument(BlotterTestUtils.FX_FORWARD)).getSecurity();
     ManageablePosition position = new ManageablePosition();

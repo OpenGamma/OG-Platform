@@ -7,13 +7,13 @@ package com.opengamma.web.analytics;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -21,10 +21,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
- * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
- * target at the root of the graph.
+ * Builds the row and column structure of a dependency graph grid given the compiled view definition and the target at the root of the graph.
  */
-/* package */ class  DependencyGraphStructureBuilder {
+/* package */class DependencyGraphStructureBuilder {
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs = Lists.newArrayList();
@@ -32,6 +31,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   private final List<String> _fnNames = Lists.newArrayList();
   /** The grid structure. */
   private final DependencyGraphGridStructure _structure;
+  private final FunctionRepository _functions;
 
   /** Mutable variable for keeping track of the index of the last row */
   private int _lastRow;
@@ -43,12 +43,13 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @param targetResolver For looking up calculation targets given their specification
    * @param cycle The most recent view cycle
    */
-  /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-                                                ValueRequirement requirement,
-                                                ValueSpecification rootSpec,
-                                                String calcConfigName,
-                                                ComputationTargetResolver targetResolver,
-                                                ViewCycle cycle) {
+  /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
+      ValueRequirement requirement,
+      ValueSpecification rootSpec,
+      String calcConfigName,
+      ComputationTargetResolver targetResolver,
+      FunctionRepository functions,
+      ViewCycle cycle) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -65,31 +66,37 @@ import com.opengamma.engine.view.cycle.ViewCycle;
       viewDef = cycle.getCompiledViewDefinition();
     }
     DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
-    DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(rootSpec);
-    AnalyticsNode node = createNode(rootSpec, depGraph, true);
+    DependencyNode rootNode = depGraphExplorer.getNodeProducing(rootSpec);
+    _functions = functions;
+    AnalyticsNode node = (rootNode != null) ? createNode(rootSpec, rootNode, true) : null;
     _structure = new DependencyGraphGridStructure(node, calcConfigName, requirement, _valueSpecs, _fnNames, targetResolver);
   }
 
+  private String getFunctionName(final String functionId) {
+    final FunctionDefinition function = _functions.getFunction(functionId);
+    if (function != null) {
+      return function.getShortName();
+    } else {
+      return functionId;
+    }
+  }
+
   /**
-   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the
-   * nodes it depends on. Recursively builds up the node structure representing whole the dependency graph.
+   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the nodes it depends on. Recursively builds up the node structure representing whole the
+   * dependency graph.
+   * 
    * @param valueSpec The value specification of the target that is the current root
-   * @param depGraph Dependency graph for the entire view definition, possibly null
+   * @param targetNode The node producing {@code valueSpec}, not null
    * @param rootNode Whether the value specification is for the root node of the dependency graph
    * @return Root node of the grid structure representing the dependency graph for the value
    */
-  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph, boolean rootNode) {
-    if (depGraph == null) {
-      return null;
-    }
-    DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
-    String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
+  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyNode targetNode, boolean rootNode) {
     _valueSpecs.add(valueSpec);
-    _fnNames.add(fnName);
+    _fnNames.add(getFunctionName(targetNode.getFunction().getFunctionId()));
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = Lists.newArrayList();
-    Set<ValueSpecification> inputValues = targetNode.getInputValues();
-    if (inputValues.isEmpty()) {
+    final int inputCount = targetNode.getInputCount();
+    if (inputCount == 0) {
       if (rootNode) {
         // the root node should never be null even if it has no children
         return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList(), false);
@@ -98,9 +105,9 @@ import com.opengamma.engine.view.cycle.ViewCycle;
         return null;
       }
     } else {
-      for (ValueSpecification input : inputValues) {
+      for (int i = 0; i < inputCount; i++) {
         ++_lastRow;
-        AnalyticsNode newNode = createNode(input, depGraph, false);
+        AnalyticsNode newNode = createNode(targetNode.getInputValue(i), targetNode.getInputNode(i), false);
         if (newNode != null) {
           nodes.add(newNode);
         }
@@ -112,7 +119,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   /**
    * @return The grid structure
    */
-  /* package */ DependencyGraphGridStructure getStructure() {
+  /* package */DependencyGraphGridStructure getStructure() {
     return _structure;
   }
 }

@@ -30,6 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * The configuration for one set of calculations on a particular view.
@@ -318,9 +319,7 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutput, "requiredOutput");
     ArgumentChecker.notNull(constraints, "constraints");
-    addPortfolioRequirements(securityType,
-                             Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput,
-                                                                                           constraints)));
+    addPortfolioRequirements(securityType, Collections.singleton(Pairs.of(requiredOutput, constraints)));
   }
 
   /**

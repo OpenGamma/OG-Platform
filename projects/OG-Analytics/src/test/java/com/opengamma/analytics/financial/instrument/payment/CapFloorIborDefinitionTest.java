@@ -61,7 +61,7 @@ public class CapFloorIborDefinitionTest {
   // Coupon with standard payment and accrual dates.
   private static final CouponIborDefinition IBOR_COUPON_2 = CouponIborDefinition.from(NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
   private static final CapFloorIborDefinition IBOR_CAP = CapFloorIborDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, STRIKE, true, CALENDAR);
-  private static final CapFloorIborDefinition IBOR_CAP_2 = CapFloorIborDefinition.from(IBOR_COUPON_2, STRIKE, true, CALENDAR);
+  private static final CapFloorIborDefinition IBOR_CAP_2 = CapFloorIborDefinition.from(IBOR_COUPON_2, STRIKE, true);
   private static final CapFloorIborDefinition IBOR_FLOOR = CapFloorIborDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, STRIKE, false, CALENDAR);
 
   @Test
@@ -117,7 +117,7 @@ public class CapFloorIborDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testFromNullCoupon() {
-    CapFloorIborDefinition.from(null, STRIKE, IS_CAP, CALENDAR);
+    CapFloorIborDefinition.from(null, STRIKE, IS_CAP);
   }
 
   @SuppressWarnings("deprecation")

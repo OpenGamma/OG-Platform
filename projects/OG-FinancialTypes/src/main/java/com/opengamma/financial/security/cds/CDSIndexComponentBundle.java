@@ -234,6 +234,8 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
   }
   
   private static class CDSIndexComponentObligorComparator implements Comparator<CreditDefaultSwapIndexComponent>, Serializable {
+    /** Serialization version. */
+    private static final long serialVersionUID = -520411860559280920L;
 
     @Override
     public int compare(final CreditDefaultSwapIndexComponent left, final CreditDefaultSwapIndexComponent right) {

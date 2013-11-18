@@ -6,6 +6,7 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.Consumes;
@@ -68,6 +69,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   
   public static final String UPDATE_PERIOD_FIELD = "updatePeriod";
   public static final String VIEW_CYCLE_ACCESS_SUPPORTED_FIELD = "isViewCycleAccessSupported";
+  public static final String PATH_VIEW_PROCESS_CONTEXT_MAP = "viewProcessContextMap";
   //CSON: just constants
   
   private final ViewClient _viewClient;
@@ -199,6 +201,15 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public Response setResultMode(ViewResultMode viewResultMode) {
     updateLastAccessed();
     getViewClient().setResultMode(viewResultMode);
+    return responseOk();
+  }
+
+  //-------------------------------------------------------------------------
+  @PUT
+  @Path(PATH_VIEW_PROCESS_CONTEXT_MAP)
+  public Response setViewProcessContextMap(Map<String, String> viewProcessContextMap) {
+    updateLastAccessed();
+    getViewClient().setViewProcessContextMap(viewProcessContextMap);
     return responseOk();
   }
 

@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
@@ -17,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.resource.EngineResourceRetainer;
@@ -28,6 +33,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -83,6 +89,11 @@ public class ViewClientImpl implements ViewClient {
   private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<>();
 
   /**
+   * Holds the context information to be passed to the view process where it will be added to each log statement (using the MDC mechanism).
+   */
+  private Map<String, String> _viewProcessContextMap;
+
+  /**
    * Constructs an instance.
    * 
    * @param id the unique identifier assigned to this view client
@@ -101,7 +112,6 @@ public class ViewClientImpl implements ViewClient {
     _user = user;
     _latestCycleRetainer = new EngineResourceRetainer(viewProcessor.getViewCycleManager());
 
-
     ViewResultListener mergedViewProcessListener = new ViewResultListener() {
 
       @Override
@@ -111,36 +121,58 @@ public class ViewClientImpl implements ViewClient {
 
       @Override
       public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition,
-                                         boolean hasMarketDataPermissions) {
+          boolean hasMarketDataPermissions) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
 
         _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(),
-                                                                                               compiledViewDefinition);
+            compiledViewDefinition);
         _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(),
-                                                                                       compiledViewDefinition,
-                                                                                       hasMarketDataPermissions);
+            compiledViewDefinition,
+            hasMarketDataPermissions);
 
         PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
         // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
         // pass to downstream listeners? Some special perm denied message in place of results on each computation
         // cycle?
-
-
-        // Would be better if there was a builder for this!
-        CompiledViewDefinition replacementViewDef = new CompiledViewDefinitionImpl(
-            compiledViewDefinition.getResolverVersionCorrection(),
-            compiledViewDefinition.getCompilationIdentifier(),
-            compiledViewDefinition.getViewDefinition(),
-            filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
-            compiledViewDefinition.getCompiledCalculationConfigurations(),
-            compiledViewDefinition.getValidFrom(),
-            compiledViewDefinition.getValidTo());
-
+        CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
 
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
           listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+        }
+      }
+
+      private CompiledViewDefinition createFilteredViewDefinition(CompiledViewDefinition compiledViewDefinition,
+          PortfolioFilter filter) {
+
+        // TODO see [PLAT-2478] and DependencyGraphStructureBuilder
+        if (compiledViewDefinition instanceof CompiledViewDefinitionWithGraphsImpl) {
+          CompiledViewDefinitionWithGraphsImpl cvdwg = (CompiledViewDefinitionWithGraphsImpl) compiledViewDefinition;
+          Collection<DependencyGraphExplorer> dependencyGraphExplorers = cvdwg.getDependencyGraphExplorers();
+          Collection<DependencyGraph> graphs = new ArrayList<DependencyGraph>(dependencyGraphExplorers.size());
+          for (DependencyGraphExplorer explorer : dependencyGraphExplorers) {
+            graphs.add(explorer.getWholeGraph());
+          }
+          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(),
+              cvdwg.getCompilationIdentifier(),
+              cvdwg.getViewDefinition(),
+              graphs, cvdwg.getResolvedIdentifiers(),
+              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+              cvdwg.getFunctionInitId(),
+              cvdwg.getCompiledCalculationConfigurations(),
+              cvdwg.getValidFrom(),
+              cvdwg.getValidTo());
+        } else {
+          // Would be better if there was a builder for this!
+          return new CompiledViewDefinitionImpl(
+              compiledViewDefinition.getResolverVersionCorrection(),
+              compiledViewDefinition.getCompilationIdentifier(),
+              compiledViewDefinition.getViewDefinition(),
+              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+              compiledViewDefinition.getCompiledCalculationConfigurations(),
+              compiledViewDefinition.getValidFrom(),
+              compiledViewDefinition.getValidTo());
         }
       }
 
@@ -162,10 +194,8 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
-                                                                             isFirstResult) ? fullResult : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
-                                                                         isFirstResult) ? deltaResult : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, isFirstResult) ? fullResult : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, isFirstResult) ? deltaResult : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleCompleted(userFullResult, userDeltaResult);
             } else if (!isFirstResult || resultMode != ViewResultMode.DELTA_ONLY) {
@@ -183,15 +213,15 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getFragmentResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
-                                                                             prevResult == null) ? fullFragment : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
-                                                                         prevResult == null) ? deltaFragment : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullFragment : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaFragment : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleFragmentCompleted(userFullResult, userDeltaResult);
-            } else if (prevResult == null || resultMode != ViewResultMode.DELTA_ONLY) {
-              // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
-              s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
+            } else {
+              if ((prevResult != null) || (resultMode != ViewResultMode.DELTA_ONLY)) {
+                // Would expect this if it's the first result and we're in delta only mode, otherwise log a warning
+                s_logger.warn("Ignored CycleFragmentCompleted call with no useful results to propagate");
+              }
             }
           }
         }
@@ -285,8 +315,10 @@ public class ViewClientImpl implements ViewClient {
       // resumed, at which point the new permission provider will be in place. 
       ViewProcessorImpl viewProcessor = getViewProcessor();
       ViewPermissionContext context = privateProcess ?
-          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions) :
-          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
+          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
+              executionOptions, _viewProcessContextMap) :
+          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
+              executionOptions, _viewProcessContextMap);
       attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
@@ -467,6 +499,15 @@ public class ViewClientImpl implements ViewClient {
     } finally {
       _clientLock.unlock();
     }
+  }
+
+  @Override
+  public void setViewProcessContextMap(Map<String, String> context) {
+
+    if (isAttached()) {
+      throw new IllegalStateException("Unable to set process context whilst attached to a view process");
+    }
+    _viewProcessContextMap = context;
   }
 
   @Override

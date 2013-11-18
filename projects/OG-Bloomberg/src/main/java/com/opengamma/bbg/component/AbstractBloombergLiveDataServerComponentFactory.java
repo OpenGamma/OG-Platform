@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -187,83 +188,6 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     return AbstractBloombergLiveDataServerComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2061648978:  // bloombergConnector
-        return getBloombergConnector();
-      case -1788671322:  // referenceDataProvider
-        return getReferenceDataProvider();
-      case -1452875317:  // cacheManager
-        return getCacheManager();
-      case 268743028:  // subscriptionTickerLimit
-        return getSubscriptionTickerLimit();
-      case 108776830:  // jmsMarketDataAvailabilityTopic
-        return getJmsMarketDataAvailabilityTopic();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2061648978:  // bloombergConnector
-        setBloombergConnector((BloombergConnector) newValue);
-        return;
-      case -1788671322:  // referenceDataProvider
-        setReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-      case -1452875317:  // cacheManager
-        setCacheManager((CacheManager) newValue);
-        return;
-      case 268743028:  // subscriptionTickerLimit
-        setSubscriptionTickerLimit((Integer) newValue);
-        return;
-      case 108776830:  // jmsMarketDataAvailabilityTopic
-        setJmsMarketDataAvailabilityTopic((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_bloombergConnector, "bloombergConnector");
-    JodaBeanUtils.notNull(_referenceDataProvider, "referenceDataProvider");
-    JodaBeanUtils.notNull(_cacheManager, "cacheManager");
-    JodaBeanUtils.notNull(_subscriptionTickerLimit, "subscriptionTickerLimit");
-    JodaBeanUtils.notNull(_jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractBloombergLiveDataServerComponentFactory other = (AbstractBloombergLiveDataServerComponentFactory) obj;
-      return JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
-          JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
-          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getSubscriptionTickerLimit(), other.getSubscriptionTickerLimit()) &&
-          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTickerLimit());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the Bloomberg connector.
@@ -395,6 +319,58 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractBloombergLiveDataServerComponentFactory other = (AbstractBloombergLiveDataServerComponentFactory) obj;
+      return JodaBeanUtils.equal(getBloombergConnector(), other.getBloombergConnector()) &&
+          JodaBeanUtils.equal(getReferenceDataProvider(), other.getReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          JodaBeanUtils.equal(getSubscriptionTickerLimit(), other.getSubscriptionTickerLimit()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReferenceDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSubscriptionTickerLimit());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("AbstractBloombergLiveDataServerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("bloombergConnector").append('=').append(JodaBeanUtils.toString(getBloombergConnector())).append(',').append(' ');
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("subscriptionTickerLimit").append('=').append(JodaBeanUtils.toString(getSubscriptionTickerLimit())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractBloombergLiveDataServerComponentFactory}.
    */
@@ -517,6 +493,56 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
      */
     public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
       return _jmsMarketDataAvailabilityTopic;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2061648978:  // bloombergConnector
+          return ((AbstractBloombergLiveDataServerComponentFactory) bean).getBloombergConnector();
+        case -1788671322:  // referenceDataProvider
+          return ((AbstractBloombergLiveDataServerComponentFactory) bean).getReferenceDataProvider();
+        case -1452875317:  // cacheManager
+          return ((AbstractBloombergLiveDataServerComponentFactory) bean).getCacheManager();
+        case 268743028:  // subscriptionTickerLimit
+          return ((AbstractBloombergLiveDataServerComponentFactory) bean).getSubscriptionTickerLimit();
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return ((AbstractBloombergLiveDataServerComponentFactory) bean).getJmsMarketDataAvailabilityTopic();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2061648978:  // bloombergConnector
+          ((AbstractBloombergLiveDataServerComponentFactory) bean).setBloombergConnector((BloombergConnector) newValue);
+          return;
+        case -1788671322:  // referenceDataProvider
+          ((AbstractBloombergLiveDataServerComponentFactory) bean).setReferenceDataProvider((ReferenceDataProvider) newValue);
+          return;
+        case -1452875317:  // cacheManager
+          ((AbstractBloombergLiveDataServerComponentFactory) bean).setCacheManager((CacheManager) newValue);
+          return;
+        case 268743028:  // subscriptionTickerLimit
+          ((AbstractBloombergLiveDataServerComponentFactory) bean).setSubscriptionTickerLimit((Integer) newValue);
+          return;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          ((AbstractBloombergLiveDataServerComponentFactory) bean).setJmsMarketDataAvailabilityTopic((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractBloombergLiveDataServerComponentFactory) bean)._bloombergConnector, "bloombergConnector");
+      JodaBeanUtils.notNull(((AbstractBloombergLiveDataServerComponentFactory) bean)._referenceDataProvider, "referenceDataProvider");
+      JodaBeanUtils.notNull(((AbstractBloombergLiveDataServerComponentFactory) bean)._cacheManager, "cacheManager");
+      JodaBeanUtils.notNull(((AbstractBloombergLiveDataServerComponentFactory) bean)._subscriptionTickerLimit, "subscriptionTickerLimit");
+      JodaBeanUtils.notNull(((AbstractBloombergLiveDataServerComponentFactory) bean)._jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
+      super.validate(bean);
     }
 
   }

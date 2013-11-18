@@ -19,6 +19,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A {@code MarketDataSnapshotSource} implemented using an underlying {@code MarketDataSnapshotMaster}.
@@ -57,13 +58,13 @@ public class MasterSnapshotSource extends AbstractMasterSource<StructuredMarketD
         }
       }
     };
-    _registeredListeners.put(Pair.of(uniqueId, listener), changeListener);
+    _registeredListeners.put(Pairs.of(uniqueId, listener), changeListener);
     getMaster().changeManager().addChangeListener(changeListener);
   }
 
   @Override
   public void removeChangeListener(UniqueId uid, MarketDataSnapshotChangeListener listener) {
-    ChangeListener changeListener = _registeredListeners.remove(Pair.of(uid, listener));
+    ChangeListener changeListener = _registeredListeners.remove(Pairs.of(uid, listener));
     getMaster().changeManager().removeChangeListener(changeListener);
   }
 

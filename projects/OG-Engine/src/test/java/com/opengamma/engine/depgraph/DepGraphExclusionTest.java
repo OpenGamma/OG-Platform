@@ -81,7 +81,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
       }
 
     });
-    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+    assertEquals(4, graph.getSize()); // 6 -> 2 -> 1 -> 0
   }
 
   public void singleGroups() {
@@ -91,7 +91,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         return Integer.toString(function);
       }
     });
-    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+    assertEquals(4, graph.getSize()); // 6 -> 2 -> 1 -> 0
   }
 
   public void group01group2() {
@@ -109,7 +109,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(2, graph.getDependencyNodes().size()); // 4 -> 0
+    assertEquals(2, graph.getSize()); // 4 -> 0
   }
 
   public void group0group26() {
@@ -127,7 +127,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(3, graph.getDependencyNodes().size()); // 5 -> 1 -> 0
+    assertEquals(3, graph.getSize()); // 5 -> 1 -> 0
   }
 
   public void group02() {
@@ -143,7 +143,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(4, graph.getDependencyNodes().size()); // 6 -> 2 -> 1 -> 0
+    assertEquals(4, graph.getSize()); // 6 -> 2 -> 1 -> 0
   }
 
   public void group014() {
@@ -160,7 +160,7 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
         }
       }
     });
-    assertEquals(1, graph.getDependencyNodes().size()); // 3
+    assertEquals(1, graph.getSize()); // 3
   }
 
 }

@@ -11,13 +11,14 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilitySurfaceSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
-  @Test
   public void roundTrip() {
     VolatilitySurfaceSelector selector = new VolatilitySurfaceSelector(
         Sets.newHashSet("Default", "ccn1"),
@@ -29,4 +30,5 @@ public class VolatilitySurfaceSelectorFudgeBuilderTest extends AbstractFudgeBuil
         Sets.newHashSet("quoteUnits1", "quoteUnits2"));
     assertEncodeDecodeCycle(VolatilitySurfaceSelector.class, selector);
   }
+
 }

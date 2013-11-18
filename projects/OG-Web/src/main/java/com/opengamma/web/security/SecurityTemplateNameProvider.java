@@ -61,7 +61,7 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 /**
  * Returns Freemarker template filename for a given security type.
  */
-/*package*/ class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameValueAdapter<String> {
+public class SecurityTemplateNameProvider extends FinancialSecurityVisitorSameValueAdapter<String> {
   
   SecurityTemplateNameProvider() {
     super("default-security.ftl");

@@ -17,7 +17,6 @@ import com.opengamma.batch.BatchRunWriter;
 import com.opengamma.batch.RunCreationMode;
 import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.RiskRun;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;

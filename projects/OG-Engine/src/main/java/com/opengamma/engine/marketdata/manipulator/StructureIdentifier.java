@@ -19,10 +19,9 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Wraps a structured object's identifier allowing comparison between them. (For instance,
- * a yield curve wil be identified by a YieldCurveKey whereas a VolatilityCube by a
- * VolatilityCubeKey but there is no common interface between the two.)
- *
+ * Wraps a structured object's identifier allowing comparison between them. (For instance, a yield curve will be identified by a YieldCurveKey whereas a VolatilityCube by a VolatilityCubeKey but there
+ * is no common interface between the two.)
+ * 
  * @param <T> the underlying type of the key used
  */
 public final class StructureIdentifier<T extends Serializable> {
@@ -40,7 +39,6 @@ public final class StructureIdentifier<T extends Serializable> {
   private final T _value;
 
   private StructureIdentifier(StructureType structureType, T value) {
-
     ArgumentChecker.notNull(structureType, STRUCTURE_TYPE);
     ArgumentChecker.notNull(value, VALUE);
     _structureType = structureType;
@@ -49,7 +47,7 @@ public final class StructureIdentifier<T extends Serializable> {
 
   /**
    * Creates a structured identifier for a yield curve key.
-   *
+   * 
    * @param key the yield curve key, not null
    * @return a structured identifier for the yield curve key
    */
@@ -59,7 +57,7 @@ public final class StructureIdentifier<T extends Serializable> {
 
   /**
    * Creates a structured identifier for a volatility surface key.
-   *
+   * 
    * @param key the volatility surface key, not null
    * @return a structured identifier for the volatility surface key
    */
@@ -69,7 +67,7 @@ public final class StructureIdentifier<T extends Serializable> {
 
   /**
    * Creates a structured identifier for a volatility cube key.
-   *
+   * 
    * @param key the volatility cube key, not null
    * @return a structured identifier for the volatility cube key
    */
@@ -79,7 +77,7 @@ public final class StructureIdentifier<T extends Serializable> {
 
   /**
    * Creates a structured identifier for a market data point identified by an external id.
-   *
+   * 
    * @param key the market data point external id, not null
    * @return a structured identifier for the market data point external id
    */
@@ -102,8 +100,7 @@ public final class StructureIdentifier<T extends Serializable> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    StructureIdentifier that = (StructureIdentifier) o;
+    StructureIdentifier<?> that = (StructureIdentifier<?>) o;
     return _structureType == that._structureType && _value.equals(that._value);
   }
 

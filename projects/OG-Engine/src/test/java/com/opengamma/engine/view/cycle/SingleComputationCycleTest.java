@@ -8,6 +8,8 @@ package com.opengamma.engine.view.cycle;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -21,8 +23,10 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.exec.DependencyGraphExecutionFuture;
 import com.opengamma.engine.exec.DependencyGraphExecutor;
 import com.opengamma.engine.exec.DependencyGraphExecutorFactory;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
@@ -107,7 +111,7 @@ public class SingleComputationCycleTest {
     }
 
     @Override
-    public DependencyGraphExecutionFuture execute(DependencyGraph graph) {
+    public DependencyGraphExecutionFuture execute(DependencyGraph graph, Set<ValueSpecification> sharedValues, Map<ValueSpecification, FunctionParameters> parameters) {
       final FutureTask<String> future = new FutureTask<String>(new Runnable() {
         @Override
         public void run() {

@@ -74,12 +74,16 @@
 </#list>
     </ul>
   </p>
+</@section>
+<#-- SECTION Links -->
+<@section title="Links">
   <p>
-    Please choose one of the following options:
-    <ul>
-      <li><a href="${uris.home()}">Return home</a></li>
-      <li><a href="components">View the components</a></li>
-    </ul>
+<#if uris.about()??>
+    <a href="${uris.home()}">Return home</a><br />
+</#if>
+<#if uris.components()??>
+    <a href="${uris.components()}">View the components</a><br />
+</#if>
   </p>
 </@section>
 <p>

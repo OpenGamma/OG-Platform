@@ -208,10 +208,10 @@ public final class ForexOptionDigitalBlackSmileMethod {
     // Sensitivity object
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForeign = new ArrayList<>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar));
+    listForeign.add(DoublesPair.of(payTime, rForeignBar));
     resultMap.put(multicurves.getName(foreignCcy), listForeign);
     final List<DoublesPair> listDomestic = new ArrayList<>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar));
+    listDomestic.add(DoublesPair.of(payTime, rDomesticBar));
     resultMap.put(multicurves.getName(domesticCcy), listDomestic);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(domesticCcy, result);

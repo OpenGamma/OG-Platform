@@ -13,6 +13,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionPriority;
@@ -44,9 +45,9 @@ public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest 
     });
     builder.addTarget(helper.getRequirement2());
     builder.addTarget(helper.getRequirement2Beta());
-    final DependencyGraph graph = builder.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     assertGraphContains(graph, fn, fnBeta);
   }
 
@@ -65,9 +66,9 @@ public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest 
     });
     builder.addTarget(helper.getRequirement2Beta());
     builder.addTarget(helper.getRequirement2Beta());
-    final DependencyGraph graph = builder.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     assertGraphContains(graph, fnBeta);
   }
 
@@ -86,9 +87,9 @@ public class DepGraphConstraintsTest extends AbstractDependencyGraphBuilderTest 
     final MockFunction fn2b = helper.addFunctionRequiringProducing(helper.getRequirement1Foo(), helper.getValue2Foo());
     final DependencyGraphBuilder builder = helper.createBuilder(null);
     builder.addTarget(helper.getRequirement2Foo());
-    final DependencyGraph graph = builder.getDependencyGraph();
+    DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     assertGraphContains(graph, fn1, fn2b);
   }
 

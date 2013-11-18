@@ -13,6 +13,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.AbstractCalendar;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -79,6 +80,11 @@ public class ConventionTest {
       @Override
       public boolean isWorkingDay(final LocalDate date) {
         return false;
+      }
+
+      @Override
+      public String getName() {
+        return null;
       }
 
       @Override

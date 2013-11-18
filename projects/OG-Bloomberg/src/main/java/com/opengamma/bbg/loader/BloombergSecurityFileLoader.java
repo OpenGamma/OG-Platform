@@ -305,7 +305,6 @@ public class BloombergSecurityFileLoader {
     formatter.printHelp("java " + BloombergSecurityFileLoader.class.getName() + " [options]... [files]...", options);
   }
 
-  @SuppressWarnings("unchecked")
   private Set<ExternalIdBundle> readInputFiles() {
     Set<String> securities = new HashSet<String>();
     if (_files != null) {

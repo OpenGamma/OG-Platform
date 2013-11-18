@@ -22,16 +22,19 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_GROUP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INT_ACC_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MATURITY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_MTY_TYPE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_IS_PERPETUAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BULLET;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_INCREMENT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_REDEMP_VAL;
-import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
@@ -112,6 +115,9 @@ public class BondLoader extends SecurityLoader {
       FIELD_REDEMP_VAL,
       FIELD_FLOATER,
       FIELD_INFLATION_LINKED_INDICATOR,
+      FIELD_MTY_TYPE,
+      FIELD_IS_PERPETUAL,
+      FIELD_BULLET,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
@@ -212,6 +218,12 @@ public class BondLoader extends SecurityLoader {
       String issuerName = validateAndGetStringField(fieldData, FIELD_ISSUER);
       String issuerType = validateAndGetStringField(fieldData, FIELD_INDUSTRY_GROUP);
       String inflationIndicator = validateAndGetNullableStringField(fieldData, FIELD_INFLATION_LINKED_INDICATOR);
+      String isPerpetualStr = validateAndGetNullableStringField(fieldData, FIELD_IS_PERPETUAL);
+      boolean isPerpetual = (isPerpetualStr != null && isPerpetualStr.trim().toUpperCase().contains("Y"));
+      String isBulletStr = validateAndGetNullableStringField(fieldData, FIELD_BULLET);
+      boolean isBullet = (isBulletStr != null && isBulletStr.trim().toUpperCase().contains("Y"));
+      String maturityType = validateAndGetNullableStringField(fieldData, FIELD_MTY_TYPE);
+      boolean isCallable = (maturityType != null && maturityType.trim().toUpperCase().contains("CALL"));
       String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
       String market = validateAndGetStringField(fieldData, FIELD_SECURITY_TYP);
       String currencyStr = validateAndGetStringField(fieldData, FIELD_CRNCY);
@@ -222,7 +234,10 @@ public class BondLoader extends SecurityLoader {
         throw new OpenGammaRuntimeException("Cannot get yield Convention called " + yieldConventionStr);
       }
       String guaranteeType = fieldData.getString(FIELD_GUARANTOR); // bit unsure about this one.
-      String maturityStr = validateAndGetStringField(fieldData, FIELD_MATURITY);
+      String maturityStr = validateAndGetNullableStringField(fieldData, FIELD_MATURITY);
+      if (maturityStr == null && isPerpetual) {
+        maturityStr = "2049-06-29"; // fake date, need to remove.
+      }
       // These will need to be sorted out.
       LocalTime expiryTime = LocalTime.of(17, 00);
       ZoneId zone = ZoneOffset.UTC;
@@ -244,7 +259,11 @@ public class BondLoader extends SecurityLoader {
       }
       String dayCountString = validateAndGetStringField(fieldData, FIELD_DAY_CNT_DES);
       // REVIEW: jim 27-Jan-2011 -- remove this and fix it properly.
-      if (dayCountString.equals("ACT/ACT")) {
+      boolean isEOM = true;
+      if (dayCountString.endsWith("NON-EOM")) {
+        isEOM = false;
+      }
+      if (dayCountString.equals("ACT/ACT") || dayCountString.equals("ACT/ACT NON-EOM")) {
         dayCountString = "Actual/Actual ICMA";
       }
       ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
@@ -310,6 +329,10 @@ public class BondLoader extends SecurityLoader {
       }
       
       bondSecurity.setName(des.trim());
+      bondSecurity.addAttribute("Bullet", isBullet ? "Y" : "N");
+      bondSecurity.addAttribute("Callable", isCallable ? "Y" : "N");
+      bondSecurity.addAttribute("Perpetual", isPerpetual ? "Y" : "N");
+      bondSecurity.addAttribute("EOM", isEOM ? "Y" : "N");
       // set identifiers
       parseIdentifiers(fieldData, bondSecurity);
       return bondSecurity;

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +39,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -93,7 +94,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
     final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(surfacePrefix, "Comdty", "", 0., "")
         .getExpiryRuleCalculator();
     for (final Number nthExpiry : rawSurface.getXs()) {
-      final Double t = TimeCalculator.getTimeBetween(valDate, expiryCalculator.getExpiryDate(nthExpiry.intValue(), valDate, calendar));
+      final double t = TimeCalculator.getTimeBetween(valDate, expiryCalculator.getExpiryDate(nthExpiry.intValue(), valDate, calendar));
 
       if (!isValidStrike(forwardCurve, rawSurface, t, nthExpiry)) {
         continue;
@@ -105,7 +106,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
           if (vol != null) {
             tList.add(t);
             kList.add(strike);
-            volValues.put(Pair.of(t, strike), vol / 100.);
+            volValues.put(Pairs.of(t, strike), vol / 100.);
           }
         }
       }
@@ -126,7 +127,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
    * Some strikes blow up the black function - strip them out
    * @return true if strike works with black function
    */
-  private boolean isValidStrike(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Number, Double> rawSurface, final Double t, final Number nExpiry) {
+  private boolean isValidStrike(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Number, Double> rawSurface, final double t, final Number nExpiry) {
     final double forward = forwardCurve.getForward(t);
     // FIXME: Skip points that the Black surface will choke on. Remove this later
     Double low = null;

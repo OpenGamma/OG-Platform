@@ -89,9 +89,6 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
@@ -104,6 +101,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
@@ -114,6 +114,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
@@ -1193,32 +1194,32 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment, final T data) {
+    public String visitCouponArithmeticAverageONDefinition(final CouponONArithmeticAverageDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment) {
+    public String visitCouponArithmeticAverageONDefinition(final CouponONArithmeticAverageDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment, final T data) {
+    public String visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment) {
+    public String visitCouponArithmeticAverageONSpreadDefinition(final CouponONArithmeticAverageSpreadDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment, final T data) {
+    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponONArithmeticAverageSpreadSimplifiedDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
+    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponONArithmeticAverageSpreadSimplifiedDefinition payment) {
       return null;
     }
 
@@ -1329,6 +1330,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapMultilegDefinition(SwapMultilegDefinition swap, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitSwapMultilegDefinition(SwapMultilegDefinition swap) {
       return null;
     }
 

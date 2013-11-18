@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -238,66 +239,6 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case 10395716:  // configMaster
-        return getConfigMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_configMaster, "configMaster");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
@@ -373,6 +314,57 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    */
   public final Property<ConfigMaster> configMaster() {
     return metaBean().configMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FunctionConfigurationSourceComponentFactory clone() {
+    return (FunctionConfigurationSourceComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("FunctionConfigurationSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -466,6 +458,43 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
      */
     public final MetaProperty<ConfigMaster> configMaster() {
       return _configMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((FunctionConfigurationSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((FunctionConfigurationSourceComponentFactory) bean).isPublishRest();
+        case 10395716:  // configMaster
+          return ((FunctionConfigurationSourceComponentFactory) bean).getConfigMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((FunctionConfigurationSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((FunctionConfigurationSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 10395716:  // configMaster
+          ((FunctionConfigurationSourceComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((FunctionConfigurationSourceComponentFactory) bean)._configMaster, "configMaster");
+      super.validate(bean);
     }
 
   }

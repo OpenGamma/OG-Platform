@@ -575,13 +575,6 @@ import com.opengamma.util.tuple.Triple;
     }
 
     public void finished(final GraphBuildingContext context, final int refCounts) {
-      if (s_logger.isInfoEnabled()) {
-        if (getWorker().getResults().length == 0) {
-          s_logger.info("Application of {} to produce {} failed; rescheduling for next resolution", getFunction(), getValueSpecification());
-        } else {
-          s_logger.info("Application of {} to produce {} complete; rescheduling for next resolution", getFunction(), getValueSpecification());
-        }
-      }
       context.discardTaskProducing(getValueSpecification(), getTask());
       // Release any ref-counts held by the worker on the task
       for (int i = 0; i < refCounts; i++) {

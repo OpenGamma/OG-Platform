@@ -20,6 +20,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Adds {@link ValuePropertyNames#CURVE} to the {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
@@ -48,7 +49,7 @@ public class InterestRateFutureOptionBlackCurveSpecificDefaults extends Interest
       final String config = currencyCurveConfigAndSurfaceNames[i + 2];
       final String surface = currencyCurveConfigAndSurfaceNames[i + 3];
       _currencyCurveNames.put(currency, curve);
-      currencyConfigAndSurfaceMap.put(currency, Pair.of(config, surface));
+      currencyConfigAndSurfaceMap.put(currency, Pairs.of(config, surface));
     }
     setCurrencyCurveConfigAndSurfaceNames(currencyConfigAndSurfaceMap);
   }

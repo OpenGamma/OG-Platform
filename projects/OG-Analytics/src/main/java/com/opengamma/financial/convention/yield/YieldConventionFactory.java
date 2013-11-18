@@ -5,18 +5,23 @@
  */
 package com.opengamma.financial.convention.yield;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.joda.convert.FromString;
 
+import com.opengamma.financial.convention.NamedInstanceFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Factory to obtain instances of {@code YieldConvention}.
  */
-public final class YieldConventionFactory {
+public final class YieldConventionFactory implements NamedInstanceFactory<YieldConvention> {
 
   /**
    * Singleton instance.
@@ -26,7 +31,12 @@ public final class YieldConventionFactory {
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, YieldConvention> _conventionMap = new HashMap<>();
+  private final Map<String, YieldConvention> _conventionMap = new ConcurrentHashMap<>();
+  
+  /**
+   * Map of convention name to convention.
+   */
+  private final List<YieldConvention> _conventions = new ArrayList<>();
 
   //-------------------------------------------------------------------------
   /**
@@ -93,6 +103,7 @@ public final class YieldConventionFactory {
   private void store(final YieldConvention convention) {
     ArgumentChecker.notNull(convention, "YieldConvention");
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
+    _conventions.add(convention);
   }
 
   /**
@@ -104,6 +115,7 @@ public final class YieldConventionFactory {
   private void store(final YieldConvention convention, final String name) {
     ArgumentChecker.notNull(convention, "YieldConvention");
     _conventionMap.put(name.toLowerCase(Locale.ENGLISH), convention);
+    _conventions.add(convention);
   }
 
   //-------------------------------------------------------------------------
@@ -116,7 +128,15 @@ public final class YieldConventionFactory {
    */
   public YieldConvention getYieldConvention(final String name) {
     ArgumentChecker.notNull(name, "name");
+    if (_conventionMap.get(name.toLowerCase(Locale.ENGLISH)) == null) {
+      store(new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH)), name.toLowerCase(Locale.ENGLISH));
+    }
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
+  }
+
+  @Override
+  public List<YieldConvention> values() {
+    return Collections.unmodifiableList(_conventions);
   }
 
 }

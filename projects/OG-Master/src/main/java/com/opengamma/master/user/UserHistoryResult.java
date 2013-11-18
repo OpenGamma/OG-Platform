@@ -108,14 +108,10 @@ public class UserHistoryResult extends AbstractHistoryResult<UserDocument> {
     return UserHistoryResult.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public UserHistoryResult clone() {
+    return (UserHistoryResult) super.clone();
   }
 
   @Override
@@ -133,6 +129,24 @@ public class UserHistoryResult extends AbstractHistoryResult<UserDocument> {
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("UserHistoryResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

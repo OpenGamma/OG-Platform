@@ -85,7 +85,7 @@ public final class CouponCMSDiscountingMethod {
     final double paymentDiscountFactorBar = swapRate * coupon.getPaymentYearFraction() * coupon.getNotional();
     final MulticurveSensitivity swapRateDp = coupon.getUnderlyingSwap().accept(PRCSDC, multicurves);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(paymentTime, -paymentTime * paymentDiscountFactor * paymentDiscountFactorBar));
+    list.add(DoublesPair.of(paymentTime, -paymentTime * paymentDiscountFactor * paymentDiscountFactorBar));
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     resultMapDsc.put(multicurves.getName(coupon.getCurrency()), list);
     final MulticurveSensitivity dfDp = MulticurveSensitivity.ofYieldDiscounting(resultMapDsc);

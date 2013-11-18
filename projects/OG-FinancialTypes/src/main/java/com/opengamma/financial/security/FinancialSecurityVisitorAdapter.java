@@ -45,6 +45,7 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -332,6 +333,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -1442,6 +1448,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> interestRateSwapSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
     public Builder<T> futureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1781,6 +1797,10 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
           return value;
         }
 
+        @Override
+        public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return value;
+        }
       };
       return this;
     }

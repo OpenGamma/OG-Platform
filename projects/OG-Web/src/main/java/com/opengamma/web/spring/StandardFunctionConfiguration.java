@@ -39,6 +39,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 
 /**
@@ -529,7 +530,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected CurrencyPairInfo defaultCurrencyPairInfo(final String c1, final String c2) {
-    return new CurrencyPairInfo(Pair.of(c1, c2));
+    return new CurrencyPairInfo(Pairs.of(c1, c2));
   }
 
   protected CurrencyPairInfo audKrwCurrencyPairInfo() {
@@ -637,32 +638,32 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
   }
 
   protected void setDefaultCurrencyPairInfo() {
-    setCurrencyPairInfo(Pair.of("AUD", "KRW"), audKrwCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("CHF", "JPY"), chfJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "GBP"), eurGbpCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("EUR", "TRY"), eurTryCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "AUD"), usdAudCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "BRL"), usdBrlCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "CAD"), usdCadCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "CHF"), usdChfCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "CNY"), usdCnyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "EUR"), usdEurCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "GBP"), usdGbpCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "HKD"), usdHkdCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "HUF"), usdHufCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "INR"), usdInrCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "JPY"), usdJpyCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "KRW"), usdKrwCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "MXN"), usdMxnCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "NOK"), usdNokCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "NZD"), usdNzdCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "SGD"), usdSgdCurrencyPairInfo());
-    setCurrencyPairInfo(Pair.of("USD", "ZAR"), usdZarCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("AUD", "KRW"), audKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("CHF", "JPY"), chfJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "CHF"), eurChfCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "GBP"), eurGbpCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("EUR", "TRY"), eurTryCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("JPY", "KRW"), jpyKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "AUD"), usdAudCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "BRL"), usdBrlCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "CAD"), usdCadCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "CHF"), usdChfCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "CNY"), usdCnyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "EUR"), usdEurCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "GBP"), usdGbpCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "HKD"), usdHkdCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "HUF"), usdHufCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "INR"), usdInrCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "JPY"), usdJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "KRW"), usdKrwCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "MXN"), usdMxnCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "NOK"), usdNokCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "NZD"), usdNzdCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "SGD"), usdSgdCurrencyPairInfo());
+    setCurrencyPairInfo(Pairs.of("USD", "ZAR"), usdZarCurrencyPairInfo());
   }
 
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {

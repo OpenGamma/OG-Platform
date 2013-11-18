@@ -78,9 +78,10 @@ public abstract class AbstractFudgeBuilderTestCase {
   protected <T> void assertEncodeDecodeCycle(final Class<T> clazz, final T object) {
     assertEquals(object, cycleObjectProxy(clazz, object));
     assertEquals(object, cycleObjectBytes(clazz, object));
-    
     // Added for PLAT-4380 - can be uncommented once fixed
     // assertEquals(object, cycleObjectXml(clazz, object));
+    // piggyback Joda-Bean test here
+    // assertEquals(object, cycleObjectJodaXml(clazz, object));
   }
 
   protected <T> T cycleObject(final Class<T> clazz, final T object) {
@@ -118,7 +119,7 @@ public abstract class AbstractFudgeBuilderTestCase {
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
     return cycled;
   }
-  
+
   protected FudgeMsg cycleMessage(final FudgeMsg message) {
     final byte[] data = getFudgeContext().toByteArray(message);
     getLogger().info("{} bytes", data.length);
@@ -141,7 +142,7 @@ public abstract class AbstractFudgeBuilderTestCase {
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
     return cycled;
   }
-  
+
   private FudgeMsg cycleMessageXml(final FudgeMsg message) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     OutputStreamWriter outputWriter = new OutputStreamWriter(baos, Charsets.UTF_8);
@@ -151,13 +152,27 @@ public abstract class AbstractFudgeBuilderTestCase {
     }
     byte[] data = baos.toByteArray();
     getLogger().info("{} bytes", data.length);
-    
     ByteArrayInputStream bais = new ByteArrayInputStream(data);
     InputStreamReader inputReader = new InputStreamReader(new BufferedInputStream(bais), Charsets.UTF_8);
     try (FudgeMsgReader fudgeReader = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), inputReader))) {
       return fudgeReader.nextMessage();
     }
   }
+
+//  private <T> T cycleObjectJodaXml(final Class<T> clazz, final T object) {
+//    getLogger().debug("cycle object {} of class by xml {}", object, clazz);
+//
+//    if (object instanceof Bean) {
+//      String xml = JodaBeanSer.PRETTY.xmlWriter().write((Bean) object);
+//      @SuppressWarnings("unchecked")
+//      T cycled = (T) JodaBeanSer.PRETTY.xmlReader().read(xml);
+//      assertTrue(clazz.isAssignableFrom(cycled.getClass()));
+//      return cycled;
+//    } else {
+//      getLogger().info("Not a Bean {}", object.getClass());
+//      return object;
+//    }
+//  }
 
   @SuppressWarnings("unchecked")
   protected <T> T cycleObjectOverBytes(final T object) {

@@ -26,6 +26,7 @@ public class DataViewCycleResource extends AbstractDataResource {
   public static final String PATH_VIEW_PROCESS_ID = "viewProcessId";
   public static final String PATH_STATE = "state";
   public static final String PATH_DURATION = "duration";
+  public static final String PATH_EXECUTION_OPTIONS = "executionOptions";
   public static final String PATH_COMPILED_VIEW_DEFINITION = "compiledViewDefinition";
   public static final String PATH_RESULT = "result";
   public static final String PATH_QUERY_CACHES = "queryCaches";
@@ -60,6 +61,12 @@ public class DataViewCycleResource extends AbstractDataResource {
   @Path(PATH_DURATION)
   public Response getDuration() {
     return responseOkFudge(_cycle.getDuration());
+  }
+  
+  @GET
+  @Path(PATH_EXECUTION_OPTIONS)
+  public Response getExecutionOptions() {
+    return responseOkFudge(_cycle.getExecutionOptions());
   }
 
   @Path(PATH_COMPILED_VIEW_DEFINITION)

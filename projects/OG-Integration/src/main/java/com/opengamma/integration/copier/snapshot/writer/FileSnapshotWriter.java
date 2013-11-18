@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,11 +77,15 @@ public class FileSnapshotWriter implements SnapshotWriter {
 
       tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
       tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
-      if (valueSnapshot.getMarketValue() != null) {
-        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
-      }
-      if (valueSnapshot.getOverrideValue() != null) {
-        tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+      if (valueSnapshot == null) {
+        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), "null");
+      } else {
+        if (valueSnapshot.getMarketValue() != null) {
+          tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
+        }
+        if (valueSnapshot.getOverrideValue() != null) {
+          tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+        }
       }
       _sheetWriter.writeNextRow(tempRow);
     }
@@ -89,16 +95,41 @@ public class FileSnapshotWriter implements SnapshotWriter {
   private void writeValueSnapshot(Map<String, String> prefixes, Map<String, ValueSnapshot> valueSnapshots) {
 
     for (Map.Entry<String, ValueSnapshot> entry : valueSnapshots.entrySet()) {
-      Map<String, String> tempRow = new HashMap<>();
       ValueSnapshot valueSnapshot = entry.getValue();
+
+      prefixes.put(SnapshotColumns.VALUE_NAME.get(), entry.getKey());
+
+      //// special case for Market_All fudge message
+      if (valueSnapshot != null && valueSnapshot.getMarketValue() instanceof FudgeMsg) {
+        // Multiple rows written by writeFudgeMsg
+        writeFudgeMsg(prefixes, (FudgeMsg) valueSnapshot.getMarketValue());
+      } else {
+        Map<String, String> tempRow = new HashMap<>();
+        tempRow.putAll(prefixes);
+        // if valueSnapshot is null preserve this in the output
+        if (valueSnapshot == null) {
+          tempRow.put(SnapshotColumns.VALUE_OBJECT.get(), "null");
+        } else {
+          // standard valueSnapshot market and override are added
+          if (valueSnapshot.getMarketValue() != null) {
+            tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
+          }
+          if (valueSnapshot.getOverrideValue() != null) {
+            tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+          }
+        }
+        _sheetWriter.writeNextRow(tempRow);
+      }
+    }
+  }
+
+  private void writeFudgeMsg(Map<String, String> prefixes, FudgeMsg message) {
+    for (FudgeField field : message.getAllFields()) {
+      Map<String, String> tempRow = new HashMap<>();
       tempRow.putAll(prefixes);
-      tempRow.put(SnapshotColumns.VALUE_NAME.get(), entry.getKey());
-      if (valueSnapshot.getMarketValue() != null) {
-        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
-      }
-      if (valueSnapshot.getOverrideValue() != null) {
-        tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
-      }
+      tempRow.put(SnapshotColumns.VALUE_OBJECT.get(), field.getName());
+      // assuming that the the value of the field is not another data structure
+      tempRow.put(SnapshotColumns.MARKET_VALUE.get(), field.getValue().toString());
       _sheetWriter.writeNextRow(tempRow);
     }
   }
@@ -148,7 +179,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
     }
 
     Map<String, String> tempRow = new HashMap<>();
-    tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.GOBAL_VALUES.get());
+    tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.GLOBAL_VALUES.get());
     //Row written via writeUnstructuredMarketDataSnapshot
     writeUnstructuredMarketDataSnapshot(tempRow, globalValues);
   }

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -20,6 +21,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -105,13 +107,12 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     // Determine common user and subscription type
     UserPrincipal user = null;
     SubscriptionType type = null;
-    
-    ArrayList<LiveDataSpecification> specs = new ArrayList<>();
+
+    List<LiveDataSpecification> specs = Lists.newArrayListWithCapacity(subHandles.size());
     for (SubscriptionHandle subHandle : subHandles) {
 
-      // TODO - as a LiveDataSpec is immutable, why do we copy rather than just use it?
-      specs.add(new LiveDataSpecification(subHandle.getRequestedSpecification()));
-      
+      specs.add(subHandle.getRequestedSpecification());
+
       if (user == null) {
         user = subHandle.getUser();
       } else if (!user.equals(subHandle.getUser())) {

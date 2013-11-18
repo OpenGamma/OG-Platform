@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -68,18 +69,20 @@ import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
+import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces price index curves using the discounting method.
@@ -102,6 +105,21 @@ public class IssuerProviderDiscountingFunction extends
   public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
       final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
+    return PSMQIC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSIC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
   }
 
   /**
@@ -184,25 +202,19 @@ public class IssuerProviderDiscountingFunction extends
               }
             } else if (type instanceof IborCurveTypeConfiguration) {
               final IborCurveTypeConfiguration ibor = (IborCurveTypeConfiguration) type;
-              final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ibor.getConvention());
-              if (iborIndexConvention == null) {
-                throw new OpenGammaRuntimeException("Ibor index convention called " + ibor.getConvention() + " was null");
-              }
+              final IborIndexConvention iborIndexConvention = conventionSource.getSingle(ibor.getConvention(), IborIndexConvention.class);
               final int spotLag = iborIndexConvention.getSettlementDays();
               iborIndex.add(new IborIndex(iborIndexConvention.getCurrency(), ibor.getTenor().getPeriod(), spotLag, iborIndexConvention.getDayCount(),
                   iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName()));
             } else if (type instanceof OvernightCurveTypeConfiguration) {
               final OvernightCurveTypeConfiguration overnight = (OvernightCurveTypeConfiguration) type;
-              final OvernightIndexConvention overnightConvention = conventionSource.getConvention(OvernightIndexConvention.class, overnight.getConvention());
-              if (overnightConvention == null) {
-                throw new OpenGammaRuntimeException("Overnight convention called " + overnight.getConvention() + " was null");
-              }
+              final OvernightIndexConvention overnightConvention = conventionSource.getSingle(overnight.getConvention(), OvernightIndexConvention.class);
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else if (type instanceof IssuerCurveTypeConfiguration) {
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
               final String issuerName = issuer.getIssuerName();
               final Currency currency = Currency.of(issuer.getUnderlyingReference());
-              issuerMap.put(curveName, Pair.of(issuerName, currency));
+              issuerMap.put(curveName, Pairs.of(issuerName, currency));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -222,23 +234,8 @@ public class IssuerProviderDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
-      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pair.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
-      return PSMQIC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSIC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override
@@ -280,6 +277,8 @@ public class IssuerProviderDiscountingFunction extends
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new RollDateFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new RollDateSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))

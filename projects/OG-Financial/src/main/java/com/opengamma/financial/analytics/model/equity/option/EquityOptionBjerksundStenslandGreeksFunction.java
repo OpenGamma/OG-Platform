@@ -5,23 +5,31 @@
  */
 package com.opengamma.financial.analytics.model.equity.option;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
+import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -30,6 +38,10 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  */
 public class EquityOptionBjerksundStenslandGreeksFunction extends EquityOptionBjerksundStenslandFunction {
+  
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBjerksundStenslandGreeksFunction.class);
+  
   /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
     ValueRequirementNames.DELTA,
@@ -57,11 +69,22 @@ public class EquityOptionBjerksundStenslandGreeksFunction extends EquityOptionBj
   public EquityOptionBjerksundStenslandGreeksFunction() {
     super(GREEK_NAMES);
   }
-
+  
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
-    final GreekResultCollection greeks = derivative.accept(EqyOptBjerksundStenslandGreekCalculator.getInstance(), market);
+    GreekResultCollection greeks;
+    if (derivative instanceof EquityOption) {
+      final EquityOption option = (EquityOption) derivative;
+      
+      final  Set<ComputedValue> obj = (new EquityOptionBjerksundStenslandImpliedVolFunction()).computeValues(derivative, market, inputs, desiredValues, targetSpec, resultProperties);
+      ArrayList<ComputedValue> nameList =  new ArrayList<>(obj);
+      ComputedValue value =   nameList.get(0);
+      Double impliedVol = (Double) value.getValue();
+      greeks = EqyOptBjerksundStenslandGreekCalculator.getInstance().getGreeksDirectEquityOption(option, market, impliedVol);
+    } else {
+      greeks = derivative.accept(EqyOptBjerksundStenslandGreekCalculator.getInstance(), market);
+    }
     final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);

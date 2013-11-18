@@ -5,6 +5,12 @@
  */
 package com.opengamma.master.orgs.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.beans.JodaBeanUtils;
+import org.threeten.bp.Instant;
+
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
@@ -25,11 +31,6 @@ import com.opengamma.master.orgs.OrganizationSearchRequest;
 import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
-import org.joda.beans.JodaBeanUtils;
-import org.threeten.bp.Instant;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An in-memory implementation of a organization master.
@@ -102,14 +103,22 @@ public class InMemoryOrganizationMaster extends SimpleAbstractInMemoryMaster<Org
   }
 
   private OrganizationDocument cloneOrganizationDocument(OrganizationDocument document) {
-    OrganizationDocument clone = JodaBeanUtils.clone(document);
-    ManageableOrganization organizationClone = JodaBeanUtils.clone(document.getOrganization());
-    clone.setOrganization(organizationClone);
-    return clone;
+    if (isCloneResults()) {
+      OrganizationDocument clone = JodaBeanUtils.clone(document);
+      ManageableOrganization organizationClone = JodaBeanUtils.clone(document.getOrganization());
+      clone.setOrganization(organizationClone);
+      return clone;
+    } else {
+      return document;
+    }
   }
 
   private ManageableOrganization cloneOrganization(ManageableOrganization organization) {
-    return JodaBeanUtils.clone(organization);
+    if (isCloneResults()) {
+      return JodaBeanUtils.clone(organization);
+    } else {
+      return organization;
+    }
   }
 
   @Override

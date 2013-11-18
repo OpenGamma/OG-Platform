@@ -11,10 +11,10 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
-import com.opengamma.financial.convention.GoldFutureOptionExpiryCalculator;
-import com.opengamma.financial.convention.LiveCattleFutureOptionExpiryCalculator;
-import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.GoldFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.LiveCattleFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 

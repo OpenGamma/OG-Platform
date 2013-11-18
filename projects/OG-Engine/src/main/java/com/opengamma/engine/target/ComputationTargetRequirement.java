@@ -135,12 +135,17 @@ public final class ComputationTargetRequirement extends ComputationTargetReferen
   }
 
   @Override
+  protected String getIdStringImpl() {
+    return getIdentifiers().toString();
+  }
+
+  @Override
   public String toString() {
     return new StrBuilder()
         .append("CTReq[")
         .append(getType())
         .append(", ")
-        .append(getIdentifiers())
+        .append(getIdString())
         .append(']')
         .toString();
   }

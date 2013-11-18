@@ -17,6 +17,7 @@ public class ResultConverterCache {
   
   public ResultConverterCache() {
     // Add standard converters here
+    registerConverter(new BigDecimalConverter());
     registerConverter(new DoubleConverter());
     registerConverter(new DoubleMatrix1DConverter());
     registerConverter(new DoubleMatrix2DConverter());

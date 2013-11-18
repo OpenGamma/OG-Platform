@@ -9,6 +9,7 @@ import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -175,7 +176,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     _marketDataProviderResolver = marketDataProviderResolver;
 
     _objectName = viewProcessorName != null && viewProcessId != null ?
-        createObjectName(viewProcessorName, viewProcessId) :
+        createObjectName(viewProcessId) :
         null;
 
     _jmxServer = setupJmxServer();
@@ -194,9 +195,9 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewProcessId>"
    */
-  private ObjectName createObjectName(String viewProcessorName, String viewProcessId) {
+  private ObjectName createObjectName(String viewProcessId) {
     try {
-      return new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcessMarketData " + viewProcessId);
+      return new ObjectName("com.opengamma:type=ViewProcessor,ViewProcesses=ViewProcesses,name=ViewProcessMarketData " + viewProcessId);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }
@@ -339,7 +340,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
 
   @Override
   public void valuesChanged(Collection<ValueSpecification> specifications) {
-    s_logger.info("Received change notification for {} specifications", specifications.size());
+    s_logger.debug("Received change notification for {} specifications", specifications.size());
     _marketDataChangeListener.onMarketDataValuesChanged(specifications);
   }
 
@@ -518,8 +519,9 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
       final Set<ValueSpecification> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions).immutableCopy();
       if (!newMarketData.isEmpty()) {
         s_logger.info("{} new market data requirements", newMarketData.size());
+        ZonedDateTime now = ZonedDateTime.now();
         for (ValueSpecification specification : newMarketData) {
-          _pendingSubscriptions.put(specification, ZonedDateTime.now());
+          _pendingSubscriptions.put(specification, now);
           _failedSubscriptions.remove(specification);
           _removedSubscriptions.remove(specification);
         }
@@ -528,6 +530,30 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     } finally {
       _subscriptionsLock.unlock();
     }
+  }
+  
+  @Override
+  public int retryFailedSubscriptions() {
+    Set<ValueSpecification> subscriptions = new HashSet<>(_failedSubscriptions.size());
+    _subscriptionsLock.lock();
+    try {
+      ZonedDateTime now = ZonedDateTime.now();
+      for (Iterator<ValueSpecification> it = _failedSubscriptions.keySet().iterator(); it.hasNext(); ) {
+        ValueSpecification specification = it.next();
+        it.remove();
+        subscriptions.add(specification);
+        _pendingSubscriptions.put(specification, now);
+      }
+    } finally {
+      _subscriptionsLock.unlock();
+    }
+    if (!subscriptions.isEmpty()) {      
+      OperationTimer timer = new OperationTimer(s_logger, "Retrying {} market data subscriptions which have previously failed", subscriptions.size());
+      _marketDataProvider.unsubscribe(subscriptions);
+      makeSubscriptionRequest(subscriptions);
+      timer.finished();
+    }
+    return subscriptions.size();
   }
 
   /**

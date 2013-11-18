@@ -12,6 +12,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CO
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
+import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_CS01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
 import static com.opengamma.engine.value.ValueRequirementNames.FORWARD;
@@ -20,10 +21,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_DELTA;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_GAMMA;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_RHO;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY;
@@ -51,6 +48,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.VOLATILITY_SURFAC
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOBIAN;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.AUD_SWAP_PORFOLIO_NAME;
 import static com.opengamma.examples.simulated.tool.ExampleDatabasePopulator.EQUITY_OPTION_PORTFOLIO_NAME;
@@ -109,6 +107,7 @@ import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Example code to create a set of example views.
@@ -156,11 +155,11 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     SWAPTION_SURFACES.put(Currency.EUR, "PROVIDER2");
     SWAPTION_SURFACES.put(Currency.JPY, "PROVIDER3");
     SWAPTION_SURFACES.put(Currency.CHF, "PROVIDER2");
-    SWAPTION_CURVES.put(Currency.USD, Pair.of("Discounting", "Forward3M"));
-    SWAPTION_CURVES.put(Currency.GBP, Pair.of("Discounting", "Forward6M"));
-    SWAPTION_CURVES.put(Currency.EUR, Pair.of("Discounting", "Forward6M"));
-    SWAPTION_CURVES.put(Currency.JPY, Pair.of("Discounting", "Forward6M"));
-    SWAPTION_CURVES.put(Currency.CHF, Pair.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.USD, Pairs.of("Discounting", "Forward3M"));
+    SWAPTION_CURVES.put(Currency.GBP, Pairs.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.EUR, Pairs.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.JPY, Pairs.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.CHF, Pairs.of("Discounting", "Forward6M"));
   }
 
   //-------------------------------------------------------------------------
@@ -439,6 +438,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
           .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
           .get();
       defaultCalculationConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES, properties);
+      defaultCalculationConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, BUCKETED_PV01, properties);
       defaultCalculationConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, PV01, properties);
       properties = ValueProperties.builder()
           .with(ValuePropertyNames.CURVE, entry.getValue().getSecond())
@@ -532,6 +532,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
         ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_CONFIG, curveConfig).with(CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION).withOptional(CALCULATION_METHOD).get());
     defaultCalConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
+        ValueProperties.with(CURVE, "Forward3M").with(CURVE_CALCULATION_CONFIG, curveConfig).with(CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION).withOptional(CALCULATION_METHOD).get());
+
+    defaultCalConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, BUCKETED_PV01,
         ValueProperties.with(CURVE, "Forward3M").with(CURVE_CALCULATION_CONFIG, curveConfig).with(CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION).withOptional(CALCULATION_METHOD).get());
 
     defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.USD),

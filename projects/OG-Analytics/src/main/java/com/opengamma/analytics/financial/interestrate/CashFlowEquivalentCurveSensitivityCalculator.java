@@ -82,16 +82,16 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final Map<Double, InterestRateCurveSensitivity> result = new HashMap<>();
     final Map<String, List<DoublesPair>> resultPVS = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    final DoublesPair forwardStart = new DoublesPair(fixingStartTime, -fixingStartTime * beta * betaBar);
+    final DoublesPair forwardStart = DoublesPair.of(fixingStartTime, -fixingStartTime * beta * betaBar);
     listForward.add(forwardStart);
-    final DoublesPair forwardEnd = new DoublesPair(fixingEndTime, beta * fixingEndTime * betaBar);
+    final DoublesPair forwardEnd = DoublesPair.of(fixingEndTime, beta * fixingEndTime * betaBar);
     listForward.add(forwardEnd);
     resultPVS.put(payment.getForwardCurveName(), listForward);
 
     final List<DoublesPair> listDisc = new ArrayList<>();
-    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = DoublesPair.of(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = DoublesPair.of(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultPVS.put(payment.getFundingCurveName(), listDisc);
 
@@ -114,16 +114,16 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final Map<Double, InterestRateCurveSensitivity> result = new HashMap<>();
     final Map<String, List<DoublesPair>> resultPVS = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    final DoublesPair forwardStart = new DoublesPair(fixingStartTime, -fixingStartTime * beta * betaBar);
+    final DoublesPair forwardStart = DoublesPair.of(fixingStartTime, -fixingStartTime * beta * betaBar);
     listForward.add(forwardStart);
-    final DoublesPair forwardEnd = new DoublesPair(fixingEndTime, beta * fixingEndTime * betaBar);
+    final DoublesPair forwardEnd = DoublesPair.of(fixingEndTime, beta * fixingEndTime * betaBar);
     listForward.add(forwardEnd);
     resultPVS.put(payment.getForwardCurveName(), listForward);
 
     final List<DoublesPair> listDisc = new ArrayList<>();
-    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = DoublesPair.of(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = DoublesPair.of(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultPVS.put(payment.getFundingCurveName(), listDisc);
 

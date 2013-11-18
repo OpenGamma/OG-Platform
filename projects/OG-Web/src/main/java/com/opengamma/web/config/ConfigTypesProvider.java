@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.config;
 
-import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +17,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.Config;
+import com.opengamma.util.ClassUtils;
 
 /**
  * Provides all supported configuration types
@@ -60,9 +60,8 @@ public final class ConfigTypesProvider {
     AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
     Set<Class<?>> configClasses = reflector.getReflector().getTypesAnnotatedWith(Config.class);
     for (Class<?> configClass : configClasses) {
-      Annotation annotation = configClass.getAnnotation(Config.class);
-      if (annotation instanceof Config) {
-        Config configValueAnnotation = (Config) annotation;
+      Config configValueAnnotation = configClass.getAnnotation(Config.class);
+      if (configValueAnnotation != null) {
         // extract config type
         Class<?> configType = configValueAnnotation.searchType();
         if (configType == Object.class) {

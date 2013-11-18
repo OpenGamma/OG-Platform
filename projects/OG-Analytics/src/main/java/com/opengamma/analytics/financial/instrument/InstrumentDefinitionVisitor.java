@@ -77,9 +77,6 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZer
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
@@ -92,6 +89,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
@@ -102,6 +102,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapMultilegDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
@@ -823,14 +824,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponONArithmeticAverageDefinition payment, DATA_TYPE data);
 
   /**
    * Arithmetic-averaged overnight coupon method.
    * @param payment An arithmetic-averaged overnight coupon
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment);
+  RESULT_TYPE visitCouponArithmeticAverageONDefinition(CouponONArithmeticAverageDefinition payment);
 
   /**
    * Arithmetic-averaged overnight coupon with spread method that takes data.
@@ -838,14 +839,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment, DATA_TYPE data);
 
   /**
    * Arithmetic-averaged overnight coupon with spread method.
    * @param payment An arithmetic-averaged overnight coupon with spread
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadDefinition(CouponONArithmeticAverageSpreadDefinition payment);
 
   /**
    * Simplified arithmetic-averaged overnight coupon method that takes data.
@@ -853,14 +854,14 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @param data The data
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment, DATA_TYPE data);
 
   /**
    * Simplified arithmetic-averaged overnight coupon method.
    * @param payment A simplified arithmetic-averaged overnight coupon
    * @return The result
    */
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment);
+  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponONArithmeticAverageSpreadSimplifiedDefinition payment);
 
   // -----     Annuity     -----
 
@@ -895,6 +896,21 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitSwapDefinition(SwapDefinition swap);
+
+  /**
+   * Swap with arbitrary multiple legs method that takes data.
+   * @param swap A swap
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitSwapMultilegDefinition(SwapMultilegDefinition swap, DATA_TYPE data);
+
+  /**
+   * Swap with arbitrary multiple legs method.
+   * @param swap A swap
+   * @return The result
+   */
+  RESULT_TYPE visitSwapMultilegDefinition(SwapMultilegDefinition swap);
 
   /**
    * Fixed / ibor swap method that takes data.

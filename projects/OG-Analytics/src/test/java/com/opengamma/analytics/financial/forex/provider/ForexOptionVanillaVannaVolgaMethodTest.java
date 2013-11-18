@@ -44,7 +44,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 public class ForexOptionVanillaVannaVolgaMethodTest {
 
@@ -95,9 +95,9 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
 
   private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
-  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
-  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pairs.of(EUR, USD));
+  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 

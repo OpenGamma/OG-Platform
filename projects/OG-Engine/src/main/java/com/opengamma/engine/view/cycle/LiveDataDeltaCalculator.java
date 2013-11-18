@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.cycle;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +15,7 @@ import com.opengamma.engine.cache.CacheSelectHint;
 import com.opengamma.engine.cache.ViewComputationCache;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
@@ -55,7 +55,6 @@ public class LiveDataDeltaCalculator {
     if (!_done) {
       throw new IllegalStateException("Call computeDelta() first");
     }
-
     return Collections.unmodifiableSet(_changedNodes);
   }
 
@@ -63,7 +62,6 @@ public class LiveDataDeltaCalculator {
     if (!_done) {
       throw new IllegalStateException("Call computeDelta() first");
     }
-
     return Collections.unmodifiableSet(_unchangedNodes);
   }
 
@@ -71,11 +69,10 @@ public class LiveDataDeltaCalculator {
     if (_done) {
       throw new IllegalStateException("Cannot determine delta twice");
     }
-
-    for (final DependencyNode rootNode : _graph.getRootNodes()) {
-      computeDelta(rootNode);
+    final int count = _graph.getRootCount();
+    for (int i = 0; i < count; i++) {
+      computeDelta(_graph.getRootNode(i));
     }
-
     _done = true;
   }
 
@@ -87,11 +84,13 @@ public class LiveDataDeltaCalculator {
       return false;
     }
     boolean hasChanged = false;
-    Collection<DependencyNode> inputNodes = node.getInputNodes();
-    if (inputNodes.isEmpty()) {
-      if (node.isMarketDataSourcingFunction()) {
+    int count = node.getInputCount();
+    if (count == 0) {
+      if (MarketDataSourcingFunction.UNIQUE_ID.equals(node.getFunction().getFunctionId())) {
         // This is a graph leaf, but market data changes may affect the function of the node.
-        for (ValueSpecification liveData : node.getOutputValues()) {
+        count = node.getOutputCount();
+        for (int i = 0; i < count; i++) {
+          final ValueSpecification liveData = node.getOutputValue(i);
           // Market data is always in the shared cache
           final Object oldValue = _previousCache.getValue(liveData, CacheSelectHint.allShared());
           final Object newValue = _cache.getValue(liveData, CacheSelectHint.allShared());
@@ -103,9 +102,9 @@ public class LiveDataDeltaCalculator {
       }
       // Note: an "else" branch here is where we'd support "volatile" functions
     } else {
-      for (final DependencyNode inputNode : inputNodes) {
+      for (int i = 0; i < count; i++) {
         // if any children changed, this node requires recalculation
-        hasChanged |= computeDelta(inputNode);
+        hasChanged |= computeDelta(node.getInputNode(i));
       }
     }
     if (hasChanged) {

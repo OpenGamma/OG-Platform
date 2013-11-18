@@ -53,7 +53,7 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -138,7 +138,7 @@ public class FXOptionBlackConstantSpreadThetaFunction extends FXOptionBlackMulti
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pair.of(ccy1, ccy2));
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, Pairs.of(ccy1, ccy2));
     if (security instanceof FXOptionSecurity) {
       final ForexOptionVanillaDefinition definition = (ForexOptionVanillaDefinition) security.accept(converter);
       final MultipleCurrencyAmount theta = CALCULATOR.getTheta(definition, now, allCurveNames, smileBundle, daysFwdOrBackward);

@@ -15,7 +15,8 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
@@ -24,39 +25,32 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Defaults the pricing of Futures to ValuePropertyNames.CALCULATION_METHOD = "MarkToMarket" (CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD)
  */
-public class FuturesPricingDefaults extends DefaultPropertyFunction {
+public class FuturesPricingDefaults extends StaticDefaultPropertyFunction {
 
   /** The priority */
   private final PriorityClass _priority;
-  
+
   /** The default values */
-  private final String _calculationMethod;
-  
+  private final Set<String> _calculationMethod;
+
   /** The value requirements for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
+      ValueRequirementNames.PRESENT_VALUE,
   };
-  
+
   public FuturesPricingDefaults(final String priority, final String calculationMethod) {
-    super(ComputationTargetType.TRADE, true);
+    super(ComputationTargetType.TRADE, ValuePropertyNames.CALCULATION_METHOD, true, s_valueNames);
     ArgumentChecker.notNull(priority, "No priority was provided.");
     ArgumentChecker.notNull(calculationMethod, "No calculationMethod was provided. Try MarkToMarket");
     _priority = PriorityClass.valueOf(priority);
-    _calculationMethod = calculationMethod;  
+    _calculationMethod = Collections.singleton(calculationMethod);
   }
 
   @Override
-  protected void getDefaults(PropertyDefaults defaults) {
-    for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.CALCULATION_METHOD);
-    }
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    return _calculationMethod;
   }
 
-  @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
-    return Collections.singleton(_calculationMethod);
-  }
-  
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security sec = target.getTrade().getSecurity();
@@ -69,6 +63,11 @@ public class FuturesPricingDefaults extends DefaultPropertyFunction {
   @Override
   public PriorityClass getPriority() {
     return _priority;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.CALCULATION_METHOD_DEFAULTS;
   }
 
 }

@@ -22,6 +22,7 @@ import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.JdkUtils;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbMapSqlParameterSource;
@@ -152,17 +153,6 @@ public abstract class AbstractDbMaster {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets the next database id.
-   * 
-   * @param sequenceName  the name of the sequence to query, not null
-   * @return the next database id
-   */
-  protected long nextId(String sequenceName) {
-    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the clock that determines the current time.
    * 
    * @return the clock, not null
@@ -196,6 +186,25 @@ public abstract class AbstractDbMaster {
    */
   protected Instant now() {
     return Instant.now(getClock());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the parameter source.
+   * @return the source, not null
+   */
+  protected DbMapSqlParameterSource createParameterSource() {
+    return new DbMapSqlParameterSource();
+  }
+
+  /**
+   * Gets the next database id.
+   * 
+   * @param sequenceName  the name of the sequence to query, not null
+   * @return the next database id
+   */
+  protected long nextId(String sequenceName) {
+    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
   }
 
   //-------------------------------------------------------------------------
@@ -352,11 +361,8 @@ public abstract class AbstractDbMaster {
     if (value == null) {
       return null;
     }
-    BigDecimal stripped = value.stripTrailingZeros();  // Derby, and maybe others, add trailing zeroes
-    if (stripped.scale() < 0) {
-      return stripped.setScale(0);
-    }
-    return stripped;
+    BigDecimal stripped = JdkUtils.stripTrailingZeros(value);  // Derby, and maybe others, add trailing zeroes
+    return stripped.scale() < 0 ? stripped.setScale(0) : stripped;
   }
   
   //-------------------------------------------------------------------------
@@ -367,7 +373,7 @@ public abstract class AbstractDbMaster {
    */
   public Integer getSchemaVersion() {
     try {
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
+      final DbMapSqlParameterSource args = createParameterSource().addValue("version_key", "schema_patch");
       final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
       String version = getJdbcTemplate().queryForObject(sql, args, String.class);
       return Integer.parseInt(version);

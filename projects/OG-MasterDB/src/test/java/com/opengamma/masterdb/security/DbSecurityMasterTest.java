@@ -75,7 +75,7 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Test
   public void test_equity() throws Exception {
     EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
     sec.setName("OpenGamma");
@@ -89,26 +89,49 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
     assertEquals(added, loaded);
   }
 
-  //-------------------------------------------------------------------------
-  @Test(enabled = false)
-  public void test_bond() throws Exception {
-    ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
-    GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
-        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
-        "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
-        zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
-    sec.addExternalId(ExternalId.of("abc", "def"));
+  @Test
+  public void test_equity_withAttribute() throws Exception {
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
+    sec.setName("OpenGamma");
+    sec.setGicsCode(GICSCode.of("20102010"));
+    sec.setShortName("OG");
+    sec.setExternalIdBundle(ExternalIdBundle.of("Test", "OG"));
+    sec.addAttribute("ATTR_KEY", "ATTR_VALUE");
     SecurityDocument addDoc = new SecurityDocument(sec);
     SecurityDocument added = _secMaster.add(addDoc);
     
     SecurityDocument loaded = _secMaster.get(added.getUniqueId());
     assertEquals(added, loaded);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_bond_withSearchByIssuer() throws Exception {
+    ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
+    GovernmentBondSecurity sec1 = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
+        zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
+    sec1.addExternalId(ExternalId.of("abc", "def"));
+    SecurityDocument added1 = _secMaster.add(new SecurityDocument(sec1));
+    GovernmentBondSecurity sec2 = new GovernmentBondSecurity("UK GOVT", "issuerType", "issuerDomicile", "market",
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
+        zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
+    sec2.addExternalId(ExternalId.of("abc", "def"));
+    SecurityDocument added2 = _secMaster.add(new SecurityDocument(sec2));
+    
+    SecurityDocument loaded1 = _secMaster.get(added1.getUniqueId());
+    assertEquals(added1, loaded1);
+    
+    SecurityDocument loaded2 = _secMaster.get(added2.getUniqueId());
+    assertEquals(added2, loaded2);
     
     BondSecuritySearchRequest request = new BondSecuritySearchRequest();
     request.setIssuerName("*TREASURY*");
     SecuritySearchResult result = _secMaster.search(request);
     assertEquals(1, result.getDocuments().size());
-    assertEquals(loaded, result.getFirstDocument());
+    assertEquals(loaded1, result.getFirstDocument());
   }
 
   //-------------------------------------------------------------------------

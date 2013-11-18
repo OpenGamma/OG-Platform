@@ -99,6 +99,7 @@ public class PortfolioLoaderResource {
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.TEXT_PLAIN)
+  @SuppressWarnings("resource")
   public Response uploadPortfolio(FormDataMultiPart formData
                                   // TODO not sure why these don't work
                                   //@FormDataParam("file") FormDataBodyPart fileBodyPart,
@@ -198,7 +199,7 @@ public class PortfolioLoaderResource {
       return SheetFormat.CSV;
     } else if (fileName.toLowerCase().endsWith("xls")) {
       return SheetFormat.XLS;
-  }
+    }
 
     Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV/XLS" +
                                                                                 "files and Excel worksheets").build();

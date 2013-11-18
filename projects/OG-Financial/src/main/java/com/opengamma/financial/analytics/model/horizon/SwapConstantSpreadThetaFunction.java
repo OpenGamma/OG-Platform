@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -46,6 +47,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FixingTimeSeriesVisitor;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
@@ -57,6 +59,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -112,21 +115,28 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final int numCurveNames = curveNames.length;
     final String[] fullCurveNames = new String[numCurveNames];
     for (int i = 0; i < numCurveNames; i++) {
-      fullCurveNames[i] = curveNames[i] + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, ExternalSchemes.currencyRegionId(currency));
     final ZonedDateTimeDoubleTimeSeries[] fixingSeries = new ZonedDateTimeDoubleTimeSeries[] {FixingTimeSeriesVisitor.convertTimeSeries(
         (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES)) };
     final String[] yieldCurveNames = numCurveNames == 1 ? new String[] {fullCurveNames[0], fullCurveNames[0] } : fullCurveNames;
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (definition instanceof SwapDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency.getCode(), daysForward), theta));
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward),
+          calendar);
+      if (theta.size() != 1) {
+        throw new OpenGammaRuntimeException("Got multi-currency amount for theta " + theta + "; should only use this function for single currency swaps");
+      }
+      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency.getCode(), daysForward), theta.getAmount(currency)));
     }
     throw new OpenGammaRuntimeException("Can only handle fixed / float ibor and ois swaps; have " + definition.getClass());
   }
@@ -181,8 +191,6 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
       return null;
     }
     final Set<ValueRequirement> requirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
-    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final ConventionBundleSource conventions = OpenGammaCompilationContext.getConventionBundleSource(context);
     try {
       final Set<ValueRequirement> fixingRequirements = getDerivativeTimeSeriesRequirements(security, security.accept(_visitor), _definitionConverter);
       if (fixingRequirements == null) {
@@ -211,7 +219,6 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     String curveCalculationConfig = null;
     String daysForward = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-      final ValueSpecification specification = input.getKey();
       final ValueRequirement requirement = input.getValue();
       if (requirement.getValueName().equals(HISTORICAL_TIME_SERIES)) {
         curveCalculationConfig = requirement.getConstraint(CURVE_CALCULATION_CONFIG);

@@ -28,6 +28,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
@@ -41,6 +42,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -291,6 +293,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private final ConcurrentMap<ComputationTargetSpecification, Pair<ResolutionRule[], Collection<ValueSpecification>[]>> _targetCache = new MapMaker().weakValues().makeMap();
 
   /**
+   * Function definition lookup.
+   */
+  private final Map<String, CompiledFunctionDefinition> _functions = new HashMap<String, CompiledFunctionDefinition>();
+
+  /**
    * Creates a resolver.
    * 
    * @param functionCompilationContext the context, not null
@@ -387,6 +394,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       throw new IllegalStateException("Rules have already been compiled");
     }
     bundle.addRule(resolutionRule);
+    _functions.put(resolutionRule.getParameterizedFunction().getFunctionId(), resolutionRule.getParameterizedFunction().getFunction());
   }
 
   /**
@@ -501,48 +509,54 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       final LinkedList<Collection<ValueSpecification>> resolutionResults = new LinkedList<Collection<ValueSpecification>>();
       final Iterable<Collection<ResolutionRule>> typeRules = _type2Rules.get(target.getType());
       if (typeRules != null) {
-        final Map<ComputationTargetType, ComputationTarget> adjusted = new HashMap<ComputationTargetType, ComputationTarget>();
-        for (Collection<ResolutionRule> rules : typeRules) {
-          int rulesFound = 0;
-          for (ResolutionRule rule : rules) {
-            final ComputationTarget adjustedTarget = rule.adjustTarget(adjusted, target);
-            if (adjustedTarget != null) {
-              final Set<ValueSpecification> results = rule.getResults(adjustedTarget, getFunctionCompilationContext());
-              if ((results != null) && !results.isEmpty()) {
-                resolutionRules.add(rule);
-                resolutionResults.add(reduceMemory(results, resolver));
-                rulesFound++;
+        try {
+          final Map<ComputationTargetType, ComputationTarget> adjusted = new HashMap<ComputationTargetType, ComputationTarget>();
+          for (Collection<ResolutionRule> rules : typeRules) {
+            int rulesFound = 0;
+            for (ResolutionRule rule : rules) {
+              final ComputationTarget adjustedTarget = rule.adjustTarget(adjusted, target);
+              if (adjustedTarget != null) {
+                final Set<ValueSpecification> results = rule.getResults(adjustedTarget, getFunctionCompilationContext());
+                if ((results != null) && !results.isEmpty()) {
+                  resolutionRules.add(rule);
+                  resolutionResults.add(reduceMemory(results, resolver));
+                  rulesFound++;
+                }
+              }
+            }
+            if (rulesFound > 1) {
+              // sort only the sub-list of rules associated with the priority
+              final Iterator<ResolutionRule> rulesIterator = resolutionRules.descendingIterator();
+              final Iterator<Collection<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
+              final Pair<ResolutionRule, Collection<ValueSpecification>>[] found = new Pair[rulesFound];
+              for (int i = 0; i < rulesFound; i++) {
+                found[i] = Pairs.of(rulesIterator.next(), resultsIterator.next());
+                rulesIterator.remove();
+                resultsIterator.remove();
+              }
+              // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
+              // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
+              // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
+              // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
+              // We should wrap it at construction in something that will detect the equality case and trigger an exception.
+              Arrays.sort(found, RULE_COMPARATOR);
+              for (int i = 0; i < rulesFound; i++) {
+                resolutionRules.add(found[i].getFirst());
+                resolutionResults.add(found[i].getSecond());
               }
             }
           }
-          if (rulesFound > 1) {
-            // sort only the sub-list of rules associated with the priority
-            final Iterator<ResolutionRule> rulesIterator = resolutionRules.descendingIterator();
-            final Iterator<Collection<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
-            final Pair<ResolutionRule, Collection<ValueSpecification>>[] found = new Pair[rulesFound];
-            for (int i = 0; i < rulesFound; i++) {
-              found[i] = Pair.of(rulesIterator.next(), resultsIterator.next());
-              rulesIterator.remove();
-              resultsIterator.remove();
-            }
-            // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
-            // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
-            // REVIEW 2010-10-27 Andrew -- Could the above be done with a Comparator<Pair<ParameterizedFunction, ValueSpecification>>
-            // provided in the compilation context? This could do away with the need for our "priority" levels as that can do ALL ordering.
-            // We should wrap it at construction in something that will detect the equality case and trigger an exception.
-            Arrays.sort(found, RULE_COMPARATOR);
-            for (int i = 0; i < rulesFound; i++) {
-              resolutionRules.add(found[i].getFirst());
-              resolutionResults.add(found[i].getSecond());
-            }
-          }
+        } catch (RuntimeException e) {
+          s_logger.error("Couldn't process rules for {}: {}", target, e.getMessage());
+          s_logger.info("Caught exception", e);
+          // Now have an incomplete rule set for the target, possibly even an empty one
         }
       } else {
         s_logger.warn("No rules for target type {}", target);
       }
       // TODO: the array of rules is probably getting duplicated for each similar target (e.g. all swaps probably use the same rules)
-      cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pair.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
-            resolutionResults.toArray(new Collection[resolutionResults.size()]));
+      cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pairs.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
+          resolutionResults.toArray(new Collection[resolutionResults.size()]));
       final Pair<ResolutionRule[], Collection<ValueSpecification>[]> existing = _targetCache.putIfAbsent(targetSpecification, cached);
       if (existing != null) {
         cached = existing;
@@ -619,6 +633,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     public void remove() {
       throw new UnsupportedOperationException();
     }
+  }
+
+  @Override
+  public CompiledFunctionDefinition getFunction(final String uniqueId) {
+    return _functions.get(uniqueId);
   }
 
 }

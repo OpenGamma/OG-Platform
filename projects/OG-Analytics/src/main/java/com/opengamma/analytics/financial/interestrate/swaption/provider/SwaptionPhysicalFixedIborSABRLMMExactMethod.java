@@ -174,7 +174,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod {
     // Storage in PresentValueSABRSensitivityDataBundle
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
-      final DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
       sensi.addAlpha(expiryMaturity, dPvAmdAlpha[loopcal]);
       sensi.addRho(expiryMaturity, dPvAmdRho[loopcal]);
       sensi.addNu(expiryMaturity, dPvAmdNu[loopcal]);
@@ -383,7 +383,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod {
     // Storage in PresentValueSABRSensitivityDataBundle
     final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
-      final DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(swaptionCalibration[loopcal].getTimeToExpiry(), swaptionCalibration[loopcal].getMaturityTime());
       pvss.addAlpha(expiryMaturity, dPvAmdAlpha[loopcal]);
       pvss.addRho(expiryMaturity, dPvAmdRho[loopcal]);
       pvss.addNu(expiryMaturity, dPvAmdNu[loopcal]);

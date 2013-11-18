@@ -81,9 +81,6 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
@@ -96,6 +93,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -103,6 +103,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
@@ -334,23 +335,27 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponONSpread(CouponONSpread payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponONArithmeticAverage(CouponONArithmeticAverage payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment);
+  RESULT_TYPE visitCouponONArithmeticAverage(CouponONArithmeticAverage payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpread(CouponArithmeticAverageONSpread payment);
+  RESULT_TYPE visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread payment);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(CouponArithmeticAverageONSpreadSimplified payment);
+  RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(CouponONArithmeticAverageSpreadSimplified payment);
 
   // -----     Swap     -----
 
   RESULT_TYPE visitSwap(Swap<?, ?> swap, DATA_TYPE data);
 
   RESULT_TYPE visitSwap(Swap<?, ?> swap);
+
+  RESULT_TYPE visitSwapMultileg(SwapMultileg swap, DATA_TYPE data);
+
+  RESULT_TYPE visitSwapMultileg(SwapMultileg swap);
 
   // -----     Inflation     -----
 

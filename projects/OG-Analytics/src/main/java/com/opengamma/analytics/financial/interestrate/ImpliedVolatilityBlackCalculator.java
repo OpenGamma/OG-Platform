@@ -6,10 +6,14 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 
 /**
@@ -38,12 +42,16 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
   ImpliedVolatilityBlackCalculator() {
   }
 
-  /**
-   * The methods used in the calculator.
-   */
+  /** Physical swaption methods */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
+  /** Cash-settled swaption methods */
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  /** Physical fixed compounded / overnight compounded methods */
+  private static final SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod PHYSICAL_COMPOUNDED_SWAPTION = SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.getInstance();
+  /** Margined interest rate future option methods */
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_MARGINED_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  /** Margined interest rate future option methods */
+  private static final InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod METHOD_PREMIUM_IR_FUTURE_OPTION_TXN = InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
@@ -56,7 +64,17 @@ public final class ImpliedVolatilityBlackCalculator extends InstrumentDerivative
   }
 
   @Override
+  public Double visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveBundle curves) {
+    return PHYSICAL_COMPOUNDED_SWAPTION.impliedVolatility(swaption, curves);
+  }
+
+  @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
+    return METHOD_MARGINED_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction transaction, final YieldCurveBundle curves) {
+    return METHOD_PREMIUM_IR_FUTURE_OPTION_TXN.impliedVolatility(transaction, curves);
   }
 }

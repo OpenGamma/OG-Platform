@@ -154,8 +154,8 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     }
   }
 
-  /*public static final double[] seasonalFactors = {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };*/
-  public static final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+  public static final double[] seasonalFactors = {1.005, 1.001, 1.01, .999, .998, .9997, 1.004, 1.006, .994, .993, .9991 };
+  /*public static final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };*/
   final static SeasonalCurve SEASONAL_CURVE = new SeasonalCurve(seasonalStep, seasonalFactors, false);
   /** Standard USD discounting curve instrument definitions */
   private static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
@@ -306,7 +306,7 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     final double notional = 100000;
     final GeneratorAttributeIR swapAttribute = new GeneratorAttributeIR(Period.ofYears(4));
     final SwapFixedInflationZeroCouponDefinition swapDefinition = GENERATOR_INFLATION_SWAP.generateInstrument(NOW, spreadJPYEUR, notional, swapAttribute);
-    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW, new ZonedDateTimeDoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITH_TODAY, TS_PRICE_INDEX_USD_WITH_TODAY});
+    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW, new ZonedDateTimeDoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITH_TODAY, TS_PRICE_INDEX_USD_WITH_TODAY });
     final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDIC);
     final MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface> MQSC = new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
     @SuppressWarnings("unused")

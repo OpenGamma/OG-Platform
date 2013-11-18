@@ -26,7 +26,6 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
@@ -290,12 +289,8 @@ public class PortfolioGridStructure extends MainGridStructure {
    * @return true if the security is fungible, false if OTC
    */
   private static boolean isFungible(Security security) {
-    if (security instanceof FinancialSecurity) {      
-      Boolean isOTC = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
-      if (isOTC == null) {
-        return false;
-      }
-      return !isOTC;
+    if (security instanceof FinancialSecurity) {
+      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }

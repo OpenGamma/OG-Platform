@@ -235,7 +235,7 @@ public class WebPortfolioNodeResource extends AbstractWebPortfolioResource {
 
     ManageablePortfolioNode currentNode = node;
     while (currentNode != null) {
-      result.addFirst(new ObjectsPair<UniqueId, String>(currentNode.getUniqueId(), currentNode.getName()));
+      result.addFirst(ObjectsPair.of(currentNode.getUniqueId(), currentNode.getName()));
       currentNode = (currentNode.getParentNodeId() == null) 
           ? null 
           : data().getPortfolioMaster().getNode(currentNode.getParentNodeId());       

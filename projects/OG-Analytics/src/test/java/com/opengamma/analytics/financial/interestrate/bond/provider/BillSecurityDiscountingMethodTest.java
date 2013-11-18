@@ -34,8 +34,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the pricing of bills security by discounting.
@@ -63,7 +63,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   // ISIN: BE0312677462
   private final static BillSecurityDefinition BILL_BEL_IAM_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_IAM, ACT360, ISSUER_NAMES[1]);
-  private static final Pair<String, Currency> BEL_EUR = new ObjectsPair<>(ISSUER_NAMES[1], EUR);
+  private static final Pair<String, Currency> BEL_EUR = Pairs.of(ISSUER_NAMES[1], EUR);
   private final static BillSecurityDefinition BILL_US_DSC_SEC_DEFINITION = new BillSecurityDefinition(USD, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_DSC, ACT360, ISSUER_NAMES[0]);
   private final static BillSecurity BILL_BEL_IAM_SEC = BILL_BEL_IAM_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
   private final static BillSecurity BILL_US_DSC_SEC = BILL_US_DSC_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);

@@ -39,6 +39,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -198,8 +199,8 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     overnight.put(new IndexON("NAME2", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Act/360"), 0), new YieldCurve("F", ConstantDoublesCurve.from(0.006, "f")));
     final MulticurveProviderDiscount provider = new MulticurveProviderDiscount(discounting, ibor, overnight, matrix);
     final Map<Pair<String, Currency>, YieldAndDiscountCurve> curves = new HashMap<>();
-    curves.put(Pair.of("E", Currency.USD), new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
-    curves.put(Pair.of("F", Currency.EUR), new YieldCurve("P", ConstantDoublesCurve.from(0.1234, "p")));
+    curves.put(Pairs.of("E", Currency.USD), new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
+    curves.put(Pairs.of("F", Currency.EUR), new YieldCurve("P", ConstantDoublesCurve.from(0.1234, "p")));
     final IssuerProviderDiscount issuer = new IssuerProviderDiscount(provider, curves);
     assertEquals(issuer, cycleObject(IssuerProviderDiscount.class, issuer));
   }
@@ -207,9 +208,9 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
   @Test
   public void testCurveBuildingBlock() {
     final LinkedHashMap<String, Pair<Integer, Integer>> data = new LinkedHashMap<>();
-    data.put("A", Pair.of(Integer.valueOf(3), Integer.valueOf(4)));
-    data.put("B", Pair.of(Integer.valueOf(6), Integer.valueOf(8)));
-    data.put("C", Pair.of(Integer.valueOf(34), Integer.valueOf(536)));
+    data.put("A", Pairs.of(Integer.valueOf(3), Integer.valueOf(4)));
+    data.put("B", Pairs.of(Integer.valueOf(6), Integer.valueOf(8)));
+    data.put("C", Pairs.of(Integer.valueOf(34), Integer.valueOf(536)));
     final CurveBuildingBlock block = new CurveBuildingBlock(data);
     assertEquals(block, cycleObject(CurveBuildingBlock.class, block));
   }
@@ -217,24 +218,24 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
   @Test
   public void testCurveBuildingBlockBundle() {
     final LinkedHashMap<String, Pair<Integer, Integer>> data1 = new LinkedHashMap<>();
-    data1.put("A", Pair.of(Integer.valueOf(3), Integer.valueOf(4)));
-    data1.put("B", Pair.of(Integer.valueOf(6), Integer.valueOf(8)));
-    data1.put("C", Pair.of(Integer.valueOf(34), Integer.valueOf(536)));
+    data1.put("A", Pairs.of(Integer.valueOf(3), Integer.valueOf(4)));
+    data1.put("B", Pairs.of(Integer.valueOf(6), Integer.valueOf(8)));
+    data1.put("C", Pairs.of(Integer.valueOf(34), Integer.valueOf(536)));
     final CurveBuildingBlock block1 = new CurveBuildingBlock(data1);
     final LinkedHashMap<String, Pair<Integer, Integer>> data2 = new LinkedHashMap<>();
-    data2.put("A", Pair.of(Integer.valueOf(13), Integer.valueOf(14)));
-    data2.put("B", Pair.of(Integer.valueOf(16), Integer.valueOf(18)));
-    data2.put("C", Pair.of(Integer.valueOf(134), Integer.valueOf(1536)));
+    data2.put("A", Pairs.of(Integer.valueOf(13), Integer.valueOf(14)));
+    data2.put("B", Pairs.of(Integer.valueOf(16), Integer.valueOf(18)));
+    data2.put("C", Pairs.of(Integer.valueOf(134), Integer.valueOf(1536)));
     final CurveBuildingBlock block2 = new CurveBuildingBlock(data2);
     final LinkedHashMap<String, Pair<Integer, Integer>> data3 = new LinkedHashMap<>();
-    data3.put("A", Pair.of(Integer.valueOf(23), Integer.valueOf(24)));
-    data3.put("B", Pair.of(Integer.valueOf(26), Integer.valueOf(28)));
-    data3.put("C", Pair.of(Integer.valueOf(234), Integer.valueOf(2536)));
+    data3.put("A", Pairs.of(Integer.valueOf(23), Integer.valueOf(24)));
+    data3.put("B", Pairs.of(Integer.valueOf(26), Integer.valueOf(28)));
+    data3.put("C", Pairs.of(Integer.valueOf(234), Integer.valueOf(2536)));
     final CurveBuildingBlock block3 = new CurveBuildingBlock(data3);
     final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> data = new LinkedHashMap<>();
-    data.put("Q", Pair.of(block1, new DoubleMatrix2D(new double[][] {new double[] {2, 4}, new double[] {5, 6}})));
-    data.put("W", Pair.of(block2, new DoubleMatrix2D(new double[][] {new double[] {12, 14}, new double[] {15, 16}})));
-    data.put("E", Pair.of(block3, new DoubleMatrix2D(new double[][] {new double[] {22, 24}, new double[] {25, 26}})));
+    data.put("Q", Pairs.of(block1, new DoubleMatrix2D(new double[][] {new double[] {2, 4}, new double[] {5, 6}})));
+    data.put("W", Pairs.of(block2, new DoubleMatrix2D(new double[][] {new double[] {12, 14}, new double[] {15, 16}})));
+    data.put("E", Pairs.of(block3, new DoubleMatrix2D(new double[][] {new double[] {22, 24}, new double[] {25, 26}})));
     final CurveBuildingBlockBundle bundle = new CurveBuildingBlockBundle(data);
     assertEquals(bundle, cycleObject(CurveBuildingBlockBundle.class, bundle));
   }

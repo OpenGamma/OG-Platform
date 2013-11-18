@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -64,46 +65,6 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
     return HolidayMetaDataResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 15120129:  // holidayTypes
-        return getHolidayTypes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 15120129:  // holidayTypes
-        setHolidayTypes((List<HolidayType>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HolidayMetaDataResult other = (HolidayMetaDataResult) obj;
-      return JodaBeanUtils.equal(getHolidayTypes(), other.getHolidayTypes()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayTypes());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the list if valid holiday types.
@@ -131,6 +92,51 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
    */
   public final Property<List<HolidayType>> holidayTypes() {
     return metaBean().holidayTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HolidayMetaDataResult clone() {
+    return (HolidayMetaDataResult) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidayMetaDataResult other = (HolidayMetaDataResult) obj;
+      return JodaBeanUtils.equal(getHolidayTypes(), other.getHolidayTypes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayTypes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("HolidayMetaDataResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("holidayTypes").append('=').append(JodaBeanUtils.toString(getHolidayTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -193,6 +199,27 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
      */
     public final MetaProperty<List<HolidayType>> holidayTypes() {
       return _holidayTypes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 15120129:  // holidayTypes
+          return ((HolidayMetaDataResult) bean).getHolidayTypes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 15120129:  // holidayTypes
+          ((HolidayMetaDataResult) bean).setHolidayTypes((List<HolidayType>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

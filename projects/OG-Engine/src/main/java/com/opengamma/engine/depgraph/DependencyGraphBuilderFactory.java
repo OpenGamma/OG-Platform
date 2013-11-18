@@ -8,7 +8,6 @@ package com.opengamma.engine.depgraph;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -17,15 +16,16 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.target.digest.TargetDigests;
+import com.opengamma.util.MdcAwareThreadPoolExecutor;
 
 /**
- * Constructs {@link DependencyGraphBuider} instances with common parameters. All dependency graph builders created by a single factory will share the same additional thread allowance.
+ * Constructs {@link DependencyGraphBuilder} instances with common parameters. All dependency graph builders created by a single factory will share the same additional thread allowance.
  */
 public class DependencyGraphBuilderFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderFactory.class);
 
-  private static final Executor s_executor = Executors.newCachedThreadPool(new ThreadFactory() {
+  private static final Executor s_executor = new MdcAwareThreadPoolExecutor(new ThreadFactory() {
 
     private final AtomicInteger _nextJobThreadId = new AtomicInteger();
 
@@ -43,7 +43,6 @@ public class DependencyGraphBuilderFactory {
       t.setName(DependencyGraphBuilder.class.getSimpleName() + "-" + _nextJobThreadId.incrementAndGet());
       return t;
     }
-
   });
 
   private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();

@@ -21,6 +21,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.id.VersionCorrection;
 
 /**
  * @deprecated This class uses deprecated trade and security converters.
@@ -34,7 +35,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
   private final InterestRateFutureOptionTradeConverterDeprecated _interestRateFutureOptionTradeConverter;
 
   public InterestRateInstrumentTradeOrSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
-      final SecuritySource securitySource, final boolean forCurves) {
+      final SecuritySource securitySource, final boolean forCurves, final VersionCorrection versionCorrection) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     Validate.notNull(regionSource, "region source");
@@ -44,7 +45,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, forCurves);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureOptionSecurityConverterDeprecated irFutureOptionConverter =
-        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource);
+        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, versionCorrection);
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
 

@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -50,10 +51,10 @@ public class JacobiPolynomialFunction extends OrthogonalPolynomialFunctionGenera
     DoubleFunction1D p, dp, p1, p2;
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
-        polynomials[i] = Pair.of(getOne(), getZero());
+        polynomials[i] = Pairs.of(getOne(), getZero());
       } else if (i == 1) {
         final double a1 = (alpha + beta + 2) / 2;
-        polynomials[i] = Pair.of((DoubleFunction1D) new RealPolynomialFunction1D(new double[] {(alpha - beta) / 2, a1}), (DoubleFunction1D) new RealPolynomialFunction1D(new double[] {a1}));
+        polynomials[i] = Pairs.of((DoubleFunction1D) new RealPolynomialFunction1D(new double[] {(alpha - beta) / 2, a1}), (DoubleFunction1D) new RealPolynomialFunction1D(new double[] {a1}));
       } else {
         final int j = i - 1;
         p1 = polynomials[j].getFirst();
@@ -63,7 +64,7 @@ public class JacobiPolynomialFunction extends OrthogonalPolynomialFunctionGenera
         final DoubleFunction1D temp3 = p2.multiply(getD(alpha, beta, j));
         p = (temp1.add(temp2).add(temp3)).divide(getA(alpha, beta, j));
         dp = p.derivative();
-        polynomials[i] = Pair.of(p, dp);
+        polynomials[i] = Pairs.of(p, dp);
       }
     }
     return polynomials;

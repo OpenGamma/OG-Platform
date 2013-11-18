@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.analytics.conversion.InterestRateSwapSecurityUtils;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -20,6 +21,7 @@ import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
@@ -125,6 +127,10 @@ public enum InterestRateInstrumentType {
       return SwapSecurityUtils.getSwapType(security);
     }
 
+    @Override
+    public InterestRateInstrumentType visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
+      return InterestRateSwapSecurityUtils.getSwapType(security);
+    }
   }
 
   /**
@@ -133,6 +139,7 @@ public enum InterestRateInstrumentType {
   public static final ComputationTargetType FIXED_INCOME_INSTRUMENT_TARGET_TYPE = FinancialSecurityTypes.CASH_SECURITY
       .or(FinancialSecurityTypes.FRA_SECURITY)
       .or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY)
-      .or(FinancialSecurityTypes.SWAP_SECURITY);
+      .or(FinancialSecurityTypes.SWAP_SECURITY)
+      .or(FinancialSecurityTypes.INTEREST_RATE_SWAP_SECURITY);
 
 }

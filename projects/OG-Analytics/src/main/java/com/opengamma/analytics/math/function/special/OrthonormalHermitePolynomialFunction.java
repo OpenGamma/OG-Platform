@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -47,15 +48,15 @@ public class OrthonormalHermitePolynomialFunction extends OrthogonalPolynomialFu
     final DoubleFunction1D x = getX();
     for (int i = 0; i <= n; i++) {
       if (i == 0) {
-        polynomials[i] = Pair.of((DoubleFunction1D) F0, getZero());
+        polynomials[i] = Pairs.of((DoubleFunction1D) F0, getZero());
       } else if (i == 1) {
-        polynomials[i] = Pair.of(polynomials[0].getFirst().multiply(sqrt2).multiply(x), (DoubleFunction1D) DF1);
+        polynomials[i] = Pairs.of(polynomials[0].getFirst().multiply(sqrt2).multiply(x), (DoubleFunction1D) DF1);
       } else {
         p1 = polynomials[i - 1].getFirst();
         p2 = polynomials[i - 2].getFirst();
         p = p1.multiply(x).multiply(Math.sqrt(2. / i)).subtract(p2.multiply(Math.sqrt((i - 1.) / i)));
         dp = p1.multiply(divisor);
-        polynomials[i] = Pair.of(p, dp);
+        polynomials[i] = Pairs.of(p, dp);
       }
     }
     return polynomials;

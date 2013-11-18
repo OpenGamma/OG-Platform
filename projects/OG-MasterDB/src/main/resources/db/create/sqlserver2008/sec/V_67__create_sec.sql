@@ -663,8 +663,8 @@ CREATE TABLE sec_swap (
     forwardstart_date DATETIME2(6),
     forwardstart_zone VARCHAR(50),
     counterparty VARCHAR(255) NOT NULL,
-    exchange_initial_notional boolean,
-    exchange_final_notional boolean,
+    exchange_initial_notional BIT NOT NULL,
+    exchange_final_notional BIT NOT NULL,
     maturity_tenor_id bigint,
     pay_legtype VARCHAR(32) NOT NULL,
     pay_daycount_id BIGINT NOT NULL,
@@ -731,7 +731,7 @@ CREATE TABLE sec_swap (
     CONSTRAINT sec_fk_payoffset2frequency FOREIGN KEY (pay_offset_fixing_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_recvoffset2frequency FOREIGN KEY (receive_offset_fixing_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_paymonitorfreq2frequency FOREIGN KEY (pay_monitoring_frequency_id) REFERENCES sec_frequency (id),
-    CONSTRAINT sec_fk_recvmonitorfreq2frequency FOREIGN KEY (receive_monitoring_frequency_id) REFERENCES sec_frequency (id)
+    CONSTRAINT sec_fk_recvmonitorfreq2frequency FOREIGN KEY (receive_monitoring_frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_sec_swapmaturitytenor2tenor FOREIGN KEY (maturity_tenor_id) REFERENCES sec_tenor (id)
 );
 CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);

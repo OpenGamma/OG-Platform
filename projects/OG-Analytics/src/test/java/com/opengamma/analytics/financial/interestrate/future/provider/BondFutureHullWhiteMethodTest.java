@@ -35,8 +35,8 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
@@ -52,7 +52,7 @@ public class BondFutureHullWhiteMethodTest {
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String US_GOVT = ISSUER_NAMES[0];
-  private static final Pair<String, Currency> ISSUER_CCY = new ObjectsPair<>(US_GOVT, USD);
+  private static final Pair<String, Currency> ISSUER_CCY = Pairs.of(US_GOVT, USD);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;

@@ -153,7 +153,7 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
     final double priceMinus = METHOD_SECURITY_OPTION_BLACK.price(OPTION_ERU2, blackMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
     final SurfaceValue priceSensiComputed = METHOD_SECURITY_OPTION_BLACK.priceBlackSensitivity(OPTION_ERU2, BLACK_MULTICURVES);
-    final DoublesPair point = new DoublesPair(OPTION_ERU2.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", priceSensiExpected, priceSensiComputed.getMap().get(point), TOLERANCE_PRICE_DELTA);
     assertEquals("Future option with Black volatilities: option security vol sensi", 1, priceSensiComputed.getMap().size());
   }

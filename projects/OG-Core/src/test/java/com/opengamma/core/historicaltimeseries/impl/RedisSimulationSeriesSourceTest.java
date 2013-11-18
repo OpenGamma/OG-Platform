@@ -23,11 +23,12 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=true)
+@Test(groups = TestGroup.INTEGRATION, enabled = true)
 public class RedisSimulationSeriesSourceTest extends AbstractRedisTestCase {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSourceTest.class);
   
