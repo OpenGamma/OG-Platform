@@ -139,8 +139,12 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ListedEquityOptionBlackVommaFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackValueGammaFunction.class));
-    
-    
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandPresentValueFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandGreeksFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandImpliedVolFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandValueDeltaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionForwardValueFunction.class));
     functions.add(functionConfiguration(EquityOptionSpotIndexFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionForwardValueFunction.class));
