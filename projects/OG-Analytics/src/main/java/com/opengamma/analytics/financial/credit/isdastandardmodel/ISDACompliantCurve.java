@@ -697,7 +697,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the n.
    * @param n  the new value of the property
    */
-  private void setN(final int n) {
+  private void setN(int n) {
     this._n = n;
   }
 
@@ -714,7 +714,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the t.
    * @param t  the new value of the property
    */
-  private void setT(final double[] t) {
+  private void setT(double[] t) {
     this._t = t;
   }
 
@@ -731,7 +731,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the r.
    * @param r  the new value of the property
    */
-  private void setR(final double[] r) {
+  private void setR(double[] r) {
     this._r = r;
   }
 
@@ -748,7 +748,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the rt.
    * @param rt  the new value of the property
    */
-  private void setRt(final double[] rt) {
+  private void setRt(double[] rt) {
     this._rt = rt;
   }
 
@@ -765,7 +765,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the df.
    * @param df  the new value of the property
    */
-  private void setDf(final double[] df) {
+  private void setDf(double[] df) {
     this._df = df;
   }
 
@@ -785,9 +785,9 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("ISDACompliantCurve{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -797,7 +797,7 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("n").append('=').append(JodaBeanUtils.toString(getN())).append(',').append(' ');
     buf.append("t").append('=').append(JodaBeanUtils.toString(getT())).append(',').append(' ');
@@ -819,27 +819,38 @@ public class ISDACompliantCurve extends DoublesCurve {
     /**
      * The meta-property for the {@code n} property.
      */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(this, "n", ISDACompliantCurve.class, Integer.TYPE);
+    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(
+        this, "n", ISDACompliantCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code t} property.
      */
-    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(this, "t", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(
+        this, "t", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code r} property.
      */
-    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadWrite(this, "r", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadWrite(
+        this, "r", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code rt} property.
      */
-    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(this, "rt", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(
+        this, "rt", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code df} property.
      */
-    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadWrite(this, "df", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadWrite(
+        this, "df", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "n", "t", "r", "rt", "df");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "n",
+        "t",
+        "r",
+        "rt",
+        "df");
 
     /**
      * Restricted constructor.
@@ -848,7 +859,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           return _n;
@@ -922,7 +933,7 @@ public class ISDACompliantCurve extends DoublesCurve {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           return ((ISDACompliantCurve) bean).getN();
@@ -939,7 +950,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           ((ISDACompliantCurve) bean).setN((Integer) newValue);
