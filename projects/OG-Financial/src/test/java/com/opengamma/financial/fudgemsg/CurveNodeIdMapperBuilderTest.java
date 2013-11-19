@@ -27,9 +27,15 @@ import com.opengamma.util.time.Tenor;
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
 
+  /**
+   * Tests the round trip through fudge.
+   */
   @Test
   public void test() {
     final String name = "Mapper";
+    final Map<Tenor, CurveInstrumentProvider> bondIds = new HashMap<>();
+    bondIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.cusipSecurityId("ABCD")));
+    bondIds.put(Tenor.FIVE_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.cusipSecurityId("ABCD")));
     final Map<Tenor, CurveInstrumentProvider> cashIds = new HashMap<>();
     cashIds.put(Tenor.ONE_DAY, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("123")));
     cashIds.put(Tenor.ONE_WEEK, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("1234")));
@@ -93,6 +99,7 @@ public class CurveNodeIdMapperBuilderTest extends AnalyticsTestBase {
     threeLegBasisSwapIds.put(Tenor.ONE_YEAR, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("EUR1")));
     threeLegBasisSwapIds.put(Tenor.TWO_YEARS, new StaticCurveInstrumentProvider(ExternalSchemes.bloombergTickerSecurityId("EUR2")));
     final CurveNodeIdMapper mapper = CurveNodeIdMapper.builder().name(name)
+        .bondNodeIds(bondIds)
         .cashNodeIds(cashIds)
         .continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateIds)
         .creditSpreadNodeIds(creditSpreadIds)

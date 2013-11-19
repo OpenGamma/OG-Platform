@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -78,6 +79,16 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
    */
   protected ConventionSource getConventionSource() {
     return _conventionSource;
+  }
+
+  /**
+   * {@inheritDoc}
+   * Bond nodes point to a real security in the database, so the currency information is not available
+   * in the node itself.
+   */
+  @Override
+  public Set<Currency> visitBondNode(final BondNode node) {
+    return null;
   }
 
   @Override

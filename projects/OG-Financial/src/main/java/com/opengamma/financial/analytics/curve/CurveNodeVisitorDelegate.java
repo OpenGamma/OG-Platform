@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -13,9 +14,9 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -36,6 +37,11 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   public CurveNodeVisitorDelegate(final CurveNodeVisitor<T> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
+  }
+
+  @Override
+  public T visitBondNode(final BondNode node) {
+    return _delegate.visitBondNode(node);
   }
 
   @Override

@@ -11,6 +11,7 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.StaticCurvePointsInstrumentProvider;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -67,6 +68,15 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
    */
   public CurveNodeIdMapper getCurveNodeIdMapper() {
     return _nodeIdMapper;
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitBondNode(final BondNode node) {
+    final Tenor tenor = node.getMaturityTenor();
+    final ExternalId identifier = _nodeIdMapper.getBondNodeId(_curveDate, tenor);
+    final String dataField = _nodeIdMapper.getBondNodeDataField(tenor);
+    final DataFieldType fieldType = _nodeIdMapper.getBondNodeDataFieldType(tenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 
   @Override

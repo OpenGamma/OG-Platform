@@ -12,6 +12,20 @@ package com.opengamma.financial.analytics.ircurve.strips;
 public interface CurveNodeVisitor<T> {
 
   /**
+   * Visits a {@link BondNode}.
+   * @param node A bond node
+   * @return The return value
+   */
+  T visitBondNode(BondNode node);
+
+//  /**
+//   * Visits a {@link CalendarSwapNode}.
+//   * @param node A calendar swap node
+//   * @return The return value
+//   */
+//  T visitCalendarSwapNode(CalendarSwapNode node);
+
+  /**
    * Visits a {@link CashNode}.
    * @param node A cash node
    * @return The return value

@@ -49,6 +49,9 @@ public class CashNode extends CurveNode {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _convention;
 
+  /**
+   * For the builder.
+   */
   /* package */ CashNode() {
     super();
   }
