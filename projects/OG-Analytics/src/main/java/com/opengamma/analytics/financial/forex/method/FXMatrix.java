@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
@@ -228,7 +229,7 @@ public class FXMatrix {
 
   @Override
   public String toString() {
-    return _currencies.keySet().toString() + " - " + Arrays.toString(_fxRates);
+    return _currencies.keySet().toString() + " - " + ArrayUtils.toString(_fxRates);
   }
 
   @Override

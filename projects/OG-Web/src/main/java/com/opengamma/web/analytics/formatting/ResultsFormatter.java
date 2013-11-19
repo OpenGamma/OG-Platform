@@ -128,7 +128,8 @@ public class ResultsFormatter {
                   new FloatingPaymentMatrixFormatter(currencyAmountFormatter),
                   new FixedSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter),
                   new FloatingSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter,
-                      basisPointFormatter));
+                      basisPointFormatter),
+                  new FXMatrixFormatter());
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

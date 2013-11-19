@@ -184,24 +184,33 @@ public class Tenor implements Comparable<Tenor>, Serializable {
    */
   public enum BusinessDayTenor {
     /**
-     * One day.
+     * Overnight.
      */
     OVERNIGHT(Period.ofDays(1)),
     /**
-     * Two days.
+     * Tomorrow / next.
      */
     TOM_NEXT(Period.ofDays(2)),
     /**
-     * Three days.
+     * Spot / next.
      */
     SPOT_NEXT(Period.ofDays(3));
 
+    /** The approximate duration of a business day tenor */
     private final Duration _approximateDuration;
 
+    /**
+     * @param approximateDuration The approximate duration of a business day tenor. It is not
+     * exact because there could be holidays in the period.
+     */
     private BusinessDayTenor(final Period approximateDuration) {
       _approximateDuration = DAYS.getDuration().multipliedBy(approximateDuration.getDays());
     }
 
+    /**
+     * Gets the approximate duration.
+     * @return The approximate duration
+     */
     public Duration getApproximateDuration() {
       return _approximateDuration;
     }
@@ -294,6 +303,11 @@ public class Tenor implements Comparable<Tenor>, Serializable {
     return _period;
   }
 
+  /**
+   * Gets the business day tenor if the tenor is of appropriate type.
+   * @return The business day tenor
+   * @throws IllegalStateException If the tenor is backed by a period
+   */
   public BusinessDayTenor getBusinessDayTenor() {
     if (_businessDayTenor == null) {
       throw new IllegalStateException("Could not get business day tenor for " + toString());
@@ -301,30 +315,64 @@ public class Tenor implements Comparable<Tenor>, Serializable {
     return _businessDayTenor;
   }
   
+  /**
+   * Returns true if the tenor is a business day tenor.
+   * @return True if the tenor is a business day tenor
+   */
   public boolean isBusinessDayTenor() {
     return _period == null;
   }
   
+  /**
+   * Returns a tenor backed by a period of days.
+   * @param days The number of days
+   * @return The tenor
+   */
   public static final Tenor ofDays(final int days) {
     return new Tenor(Period.ofDays(days));
   }
 
+  /**
+   * Returns a tenor backed by a period of weeks.
+   * @param weeks The number of weeks
+   * @return The tenor
+   */
   public static final Tenor ofWeeks(final int weeks) {
     return new Tenor(Period.ofDays(weeks * 7));
   }
 
+  /**
+   * Returns a tenor backed by a period of months.
+   * @param months The number of months
+   * @return The tenor
+   */
   public static final Tenor ofMonths(final int months) {
     return new Tenor(Period.ofMonths(months)); // TODO: what do we do here
   }
 
+  /**
+   * Returns a tenor backed by a period of years.
+   * @param years The number of years
+   * @return The tenor
+   */
   public static final Tenor ofYears(final int years) {
     return new Tenor(Period.ofYears(years)); // TODO: what do we do here
   }
 
+  /**
+   * Returns a tenor of business days.
+   * @param businessDayTenor The business day
+   * @return The tenor
+   */
   public static final Tenor ofBusinessDay(final BusinessDayTenor businessDayTenor) {
     return new Tenor(businessDayTenor);
   }
   
+  /**
+   * Returns a tenor of business days.
+   * @param businessDayTenor The business days name
+   * @return The tenor
+   */
   public static final Tenor ofBusinessDay(final String businessDayTenor) {
     return new Tenor(BusinessDayTenor.valueOf(businessDayTenor));
   }
