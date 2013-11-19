@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.newcommodity.derivative;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative;
 
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
-import com.opengamma.analytics.financial.commodity.newcommodity.underlying.CommodityUnderlying;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Abstract commodity future security.
@@ -132,6 +133,13 @@ public abstract class CommodityFutureSecurity implements InstrumentDerivative {
    */
   public CommodityUnderlying getUnderlying() {
     return _underlying;
+  }
+
+  /**
+   * @return the _underlying
+   */
+  public Currency getCurrency() {
+    return _underlying.getCurrency();
   }
 
   /**

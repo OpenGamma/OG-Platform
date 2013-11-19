@@ -14,6 +14,12 @@ import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -556,6 +562,30 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEnergyFutureOption(EnergyFutureOption future, DATA_TYPE data);
 
   RESULT_TYPE visitEnergyFutureOption(EnergyFutureOption future);
+
+  RESULT_TYPE visitMetalFutureSecurity(MetalFutureSecurity future, DATA_TYPE data);
+
+  RESULT_TYPE visitMetalFutureSecurity(MetalFutureSecurity future);
+
+  RESULT_TYPE visitEnergyFutureSecurity(EnergyFutureSecurity future, DATA_TYPE data);
+
+  RESULT_TYPE visitEnergyFutureSecurity(EnergyFutureSecurity future);
+
+  RESULT_TYPE visitAgricultureFutureSecurity(AgricultureFutureSecurity future, DATA_TYPE data);
+
+  RESULT_TYPE visitAgricultureFutureSecurity(AgricultureFutureSecurity future);
+
+  RESULT_TYPE visitMetalFutureTransaction(MetalFutureTransaction future, DATA_TYPE data);
+
+  RESULT_TYPE visitMetalFutureTransaction(MetalFutureTransaction future);
+
+  RESULT_TYPE visitEnergyFutureTransaction(EnergyFutureTransaction future, DATA_TYPE data);
+
+  RESULT_TYPE visitEnergyFutureTransaction(EnergyFutureTransaction future);
+
+  RESULT_TYPE visitAgricultureFutureTransaction(AgricultureFutureTransaction future, DATA_TYPE data);
+
+  RESULT_TYPE visitAgricultureFutureTransaction(AgricultureFutureTransaction future);
 
   //  -----     Equity     -----
 

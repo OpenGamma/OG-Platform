@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.newcommodity.definition;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.definition;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
 
 /**
- * Abstract commodity future security definition.
+ * Abstract commodity future transaction definition.
  *
  * @param <T> concrete derivative class toDerivative() returns
  */
@@ -47,6 +47,14 @@ public abstract class CommodityFutureTransactionDefinition<T extends InstrumentD
     _transactionDate = transactionDate;
     _transactionPrice = transactionPrice;
     _quantity = quantity;
+  }
+
+  /**
+   * Gets the underlying future.
+   * @return The underlying future.
+   */
+  public CommodityFutureSecurityDefinition<?> getUnderlying() {
+    return _underlying;
   }
 
   /**
@@ -97,7 +105,7 @@ public abstract class CommodityFutureTransactionDefinition<T extends InstrumentD
     return _quantity;
   }
 
-  public abstract CommodityFutureTransactionDefinition<?> withNewNotionalAndTransactionPrice(final double notional, final double transactionPrice);
+  public abstract CommodityFutureTransactionDefinition<?> withNewTransactionPrice(final double transactionPrice);
 
   /* (non-Javadoc)
    * @see java.lang.Object#hashCode()

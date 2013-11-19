@@ -26,6 +26,12 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
@@ -1324,22 +1330,94 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment, T data) {
+    public String visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborCompoundingFlatSpreadDefinition(CouponIborCompoundingFlatSpreadDefinition payment) {
+    public String visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitSwapMultilegDefinition(SwapMultilegDefinition swap, T data) {
+    public String visitSwapMultilegDefinition(final SwapMultilegDefinition swap, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwapMultilegDefinition(SwapMultilegDefinition swap) {
+    public String visitSwapMultilegDefinition(final SwapMultilegDefinition swap) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureSecurityDefinition(final MetalFutureSecurityDefinition future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureSecurityDefinition(final MetalFutureSecurityDefinition future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureTransactionDefinition(final MetalFutureTransactionDefinition future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitMetalFuturTransactioneDefinition(final MetalFutureTransactionDefinition future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureSecurityDefinition(final AgricultureFutureSecurityDefinition future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureSecurityDefinition(final AgricultureFutureSecurityDefinition future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureTransactionDefinition(final AgricultureFutureTransactionDefinition future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureTransactionDefinition(final AgricultureFutureTransactionDefinition future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureSecurityDefinition(final EnergyFutureSecurityDefinition future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureSecurityDefinition(final EnergyFutureSecurityDefinition future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureTransactionDefinition(final EnergyFutureTransactionDefinition future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureTransactionDefinition(final EnergyFutureTransactionDefinition future) {
+      // TODO Auto-generated method stub
       return null;
     }
 

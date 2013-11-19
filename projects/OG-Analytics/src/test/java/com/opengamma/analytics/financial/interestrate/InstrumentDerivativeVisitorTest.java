@@ -22,6 +22,12 @@ import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -1307,22 +1313,94 @@ public class InstrumentDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment) {
+    public String visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment) {
       return null;
     }
 
     @Override
-    public String visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment, T data) {
+    public String visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwapMultileg(SwapMultileg swap, T data) {
+    public String visitSwapMultileg(final SwapMultileg swap, final T data) {
       return null;
     }
 
     @Override
-    public String visitSwapMultileg(SwapMultileg swap) {
+    public String visitSwapMultileg(final SwapMultileg swap) {
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureSecurity(final MetalFutureSecurity future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureSecurity(final MetalFutureSecurity future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureSecurity(final EnergyFutureSecurity future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureSecurity(final EnergyFutureSecurity future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureSecurity(final AgricultureFutureSecurity future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureSecurity(final AgricultureFutureSecurity future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureTransaction(final MetalFutureTransaction future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitMetalFutureTransaction(final MetalFutureTransaction future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureTransaction(final EnergyFutureTransaction future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitEnergyFutureTransaction(final EnergyFutureTransaction future) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureTransaction(final AgricultureFutureTransaction future, final T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitAgricultureFutureTransaction(final AgricultureFutureTransaction future) {
+      // TODO Auto-generated method stub
       return null;
     }
   }

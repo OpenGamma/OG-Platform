@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.newcommodity.derivative;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -39,21 +40,28 @@ public abstract class CommodityFutureTransaction implements InstrumentDerivative
   /**
    * @return the _underlying
    */
-  public CommodityFutureSecurity get_underlying() {
+  public CommodityFutureSecurity getUnderlying() {
     return _underlying;
+  }
+
+  /**
+   * @return the _underlying
+   */
+  public Currency getCurrency() {
+    return _underlying.getCurrency();
   }
 
   /**
    * @return the _referencePrice
    */
-  public double get_referencePrice() {
+  public double getReferencePrice() {
     return _referencePrice;
   }
 
   /**
    * @return the _quantity
    */
-  public int get_quantity() {
+  public int getQuantity() {
     return _quantity;
   }
 

@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.provider.description.commodity;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.commodity.newcommodity.underlying.CommodityUnderlying;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;

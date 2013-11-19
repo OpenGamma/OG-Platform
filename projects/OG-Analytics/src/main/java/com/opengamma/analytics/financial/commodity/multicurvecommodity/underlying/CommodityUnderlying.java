@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.newcommodity.underlying;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying;
 
 import org.apache.commons.lang.Validate;
 

@@ -3,12 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.newcommodity.definition;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.definition;
 
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
-import com.opengamma.analytics.financial.commodity.newcommodity.underlying.CommodityUnderlying;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -180,7 +180,7 @@ public abstract class CommodityFutureSecurityDefinition<T extends InstrumentDeri
   /**
    * @return the _firstDeliveryDate
    */
-  public ZonedDateTime getNirstDeliveryDate() {
+  public ZonedDateTime getFirstDeliveryDate() {
     return _firstDeliveryDate;
   }
 

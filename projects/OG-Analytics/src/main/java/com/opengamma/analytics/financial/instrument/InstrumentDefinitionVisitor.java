@@ -14,6 +14,12 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
@@ -1549,6 +1555,96 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitEnergyFutureOptionDefinition(EnergyFutureOptionDefinition option);
+
+  /**
+   * Metal future Security method that takes data.
+   * @param future A metal future Security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFutureSecurityDefinition(MetalFutureSecurityDefinition future, DATA_TYPE data);
+
+  /**
+   * Metal future Security method.
+   * @param future A metal future Security
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFutureSecurityDefinition(MetalFutureSecurityDefinition future);
+
+  /**
+   * Metal future Transaction method that takes data.
+   * @param future A metal future Transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFutureTransactionDefinition(MetalFutureTransactionDefinition future, DATA_TYPE data);
+
+  /**
+   * Metal future Transaction method.
+   * @param future A metal future Transaction
+   * @return The result
+   */
+  RESULT_TYPE visitMetalFuturTransactioneDefinition(MetalFutureTransactionDefinition future);
+
+  /**
+   * Agriculture future Security method that takes data.
+   * @param future A metal future Security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureSecurityDefinition(AgricultureFutureSecurityDefinition future, DATA_TYPE data);
+
+  /**
+   * Agriculture future Security method.
+   * @param future A Agriculture future Security
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureSecurityDefinition(AgricultureFutureSecurityDefinition future);
+
+  /**
+   * Agriculture future Transaction method that takes data.
+   * @param future A Agriculture future Transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureTransactionDefinition(AgricultureFutureTransactionDefinition future, DATA_TYPE data);
+
+  /**
+   * Agriculture future Transaction method.
+   * @param future A Agriculture future Transaction
+   * @return The result
+   */
+  RESULT_TYPE visitAgricultureFutureTransactionDefinition(AgricultureFutureTransactionDefinition future);
+
+  /**
+   * Energy future Security method that takes data.
+   * @param future A Energy future Security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureSecurityDefinition(EnergyFutureSecurityDefinition future, DATA_TYPE data);
+
+  /**
+   * Energy future Security method.
+   * @param future A Energy future Security
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureSecurityDefinition(EnergyFutureSecurityDefinition future);
+
+  /**
+   * Energy future Transaction method that takes data.
+   * @param future A Energy future Transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureTransactionDefinition(EnergyFutureTransactionDefinition future, DATA_TYPE data);
+
+  /**
+   * Energy future Transaction method.
+   * @param future A Energy future Transaction
+   * @return The result
+   */
+  RESULT_TYPE visitEnergyFutureTransactionDefinition(EnergyFutureTransactionDefinition future);
 
   // -----     Equity    -----
 

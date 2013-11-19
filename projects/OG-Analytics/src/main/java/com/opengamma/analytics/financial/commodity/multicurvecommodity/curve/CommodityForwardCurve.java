@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.commodity.newcommodity.curve;
+package com.opengamma.analytics.financial.commodity.multicurvecommodity.curve;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,6 @@ public class CommodityForwardCurve {
 
   /**
    * Returns the estimated commodity forward value for a given time.
-   * @param time The time
    * @return The commodity forward value.
    */
   public double getSpotValue() {
