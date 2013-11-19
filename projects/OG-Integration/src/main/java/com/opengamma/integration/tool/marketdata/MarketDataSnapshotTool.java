@@ -45,6 +45,8 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotTool.class);
 
+  /** Snapshot name command line option. */
+  private static final String SNAPSHOT_NAME_OPTION = "s";
   /** View name command line option. */
   private static final String VIEW_NAME_OPTION = "v";
   /** Existing view process unique identifier option. */
@@ -118,7 +120,14 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
       s_logger.info("Creating snapshot for view definition " + viewDefinitionName);
       final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
       try {
-        String snapshotName = viewDefinitionName;
+        
+        String snapshotName;
+        if (getCommandLine().hasOption(SNAPSHOT_NAME_OPTION)) {
+          snapshotName = getCommandLine().getOptionValue(SNAPSHOT_NAME_OPTION);
+        } else {
+          snapshotName = viewDefinitionName + "/" + valuationInstant;
+        }
+        
         snapshotSaver.createSnapshot(snapshotName, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
       } catch (Exception e) {
         endWithError(e.getMessage());
@@ -138,6 +147,7 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   protected Options createOptions(boolean mandatoryConfig) {
     final Options options = super.createOptions(mandatoryConfig);
     options.addOptionGroup(createViewOptionGroup());
+    options.addOption(createSnapshotNameOption());
     options.addOption(createValuationTimeOption());
     options.addOption(createHistoricalOption());
     options.addOption(createUnstructuredSnapshot());
@@ -155,6 +165,12 @@ public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
   private static Option createViewNameOption() {
     final Option option = new Option(VIEW_NAME_OPTION, "viewName", true, "the view definition name");
     option.setArgName("view name");
+    return option;
+  }
+  
+  private static Option createSnapshotNameOption() {
+    final Option option = new Option(SNAPSHOT_NAME_OPTION, "snapshotName", true, "the name to use when persisting the snapshot. (defaults to '<view name>/<valuation time>' )");
+    option.setArgName("snapshot name");
     return option;
   }
   
