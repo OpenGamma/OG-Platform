@@ -55,6 +55,18 @@ public final class EquitySecurityUtils {
    * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
    */
   public static String getIndexOrEquityNameFromUnderlying(final Security security) {
+    return getIndexOrEquityNameFromUnderlying(security, false);
+  }
+  
+  /**
+   * Gets the underlying index or equity name from a security. At the moment, only securities with a Bloomberg ticker or BUID (if the security is an equity index option) are handled. For a Bloomberg
+   * ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be the name.
+   * 
+   * @param security The security, not null
+   * @param stopAtFirstSpace true if one wishes result to include id up to first space (eg true : "IBM US Equity" => "IBM", false : => "IBM US").
+   * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
+   */
+  public static String getIndexOrEquityNameFromUnderlying(final Security security, final boolean stopAtFirstSpace) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     if (underlyingId == null) {
@@ -71,6 +83,10 @@ public final class EquitySecurityUtils {
       s_logger.info("Can only use BUIDs for equity index options; have {}", security);
       return null;
     } else if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
+      if (stopAtFirstSpace) {
+        final int firstSpace = value.indexOf(" ");
+        return value.substring(0, firstSpace);
+      }
       final int lastSpace = value.lastIndexOf(" ");
       return value.substring(0, lastSpace);
     }
