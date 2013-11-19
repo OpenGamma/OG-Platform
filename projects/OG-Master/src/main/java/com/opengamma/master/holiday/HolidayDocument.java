@@ -105,6 +105,9 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
       case TRADING:
         setName(holiday.getExchangeExternalId().getValue());
         break;
+      case CUSTOM:
+        setName(holiday.getCustomExternalId().getValue());
+        break;
       default:
         throw new IllegalArgumentException("Unsupported holiday type");
     }

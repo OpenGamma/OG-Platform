@@ -27,6 +27,7 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.id.ExternalId;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
@@ -47,8 +48,8 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
    * Main method to run the tool.
    * @param args The program arguments
    */
-  public static void main(String[] args) {  // CSIGNORE
-    ArgumentChecker.isTrue(args.length > 1, "Two arguments required: data file name and calendar name");
+  public static void main(final String[] args) {  // CSIGNORE
+    ArgumentChecker.isTrue(args.length > 3, "At least three arguments required: data file name, scheme name and calendar name");
     new CalendarLoaderTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
@@ -61,7 +62,7 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
     final ToolContext toolContext = getToolContext();
     final HolidayMaster holidayMaster = toolContext.getHolidayMaster();  
     final String[] args = getCommandLine().getArgs();    
-    final Holiday holiday = createManageableHoliday(args[0], args[1]);
+    final Holiday holiday = createManageableHoliday(args[0], args[1], args[2]);
     if (persist) {
       final HolidayDocument holidayDocument = new HolidayDocument(holiday);    
       holidayMaster.add(holidayDocument);
@@ -72,13 +73,15 @@ public class CalendarLoaderTool extends AbstractTool<ToolContext> {
   /**
    * Parses a csv file of dates and returns a {@link Holiday}
    * @param filePath The file path
+   * @param schemeName The name of the scheme
    * @param calendarName The calendar name
    * @return The holiday
    * @throws DateTimeParseException If there is an entry that cannot be parsed by {@link LocalDate#parse}
    */
-  private static Holiday createManageableHoliday(final String filePath, final String calendarName) {
+  private static Holiday createManageableHoliday(final String filePath, final String schemeName, final String calendarName) {
     final ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.CUSTOM);
+    holiday.setCustomExternalId(ExternalId.of(schemeName, calendarName));
     CSVReader reader = null;
     try {
       reader = new CSVReader(new BufferedReader(new FileReader(filePath)), CSVParser.DEFAULT_SEPARATOR, CSVParser.DEFAULT_QUOTE_CHARACTER, 
