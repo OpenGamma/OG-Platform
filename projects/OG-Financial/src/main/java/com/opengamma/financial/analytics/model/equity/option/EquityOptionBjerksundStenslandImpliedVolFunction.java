@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -110,18 +111,23 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
     if (derivative instanceof EquityOption) {
       final double spot = market.getForwardCurve().getSpot();
       final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
-      final double costOfCarry =  discountRate;
       final BjerksundStenslandModel model = new BjerksundStenslandModel();
-    
-      final AffineDividends div = ((ForwardCurveAffineDividends) market.getForwardCurve()).getDividends();
-      final int number = div.getNumberOfDividends();
+      double costOfCarry = discountRate;
       double modSpot = spot;
-      int i = 0;
-      while (i < number && div.getTau(i) < timeToExpiry) {
-        modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * market.getDiscountCurve().getDiscountFactor(div.getTau(i));
-        ++i;
+
+      final ForwardCurve fCurve = market.getForwardCurve();
+      if (fCurve instanceof ForwardCurveAffineDividends) {
+        final AffineDividends div = ((ForwardCurveAffineDividends) fCurve).getDividends();
+        final int number = div.getNumberOfDividends();
+        int i = 0;
+        while (i < number && div.getTau(i) < timeToExpiry) {
+          modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * market.getDiscountCurve().getDiscountFactor(div.getTau(i));
+          ++i;
+        }
+      } else {
+        costOfCarry = Math.log(fCurve.getForward(timeToExpiry) / spot) / timeToExpiry;
       }
-    
+      
       if (timeToExpiry < 7. / 365.) {
         impliedVol = volatility;
       } else {

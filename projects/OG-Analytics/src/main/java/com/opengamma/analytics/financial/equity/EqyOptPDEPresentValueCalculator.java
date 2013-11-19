@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.finitedifference.applications.BlackScholesMertonPDEPricer;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.util.ArgumentChecker;
 
@@ -77,15 +78,20 @@ public final class EqyOptPDEPresentValueCalculator extends InstrumentDerivativeV
       throw new IllegalArgumentException("Can only price American or European expiry options");
     }
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate;
-
-    final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
-    final int number = div.getNumberOfDividends();
+    double costOfCarry = interestRate;
     double modSpot = spot;
-    int i = 0;
-    while (i < number && div.getTau(i) < time) {
-      modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * data.getDiscountCurve().getDiscountFactor(div.getTau(i));
-      ++i;
+
+    final ForwardCurve fCurve = data.getForwardCurve();
+    if (fCurve instanceof ForwardCurveAffineDividends) {
+      final AffineDividends div = ((ForwardCurveAffineDividends) fCurve).getDividends();
+      final int number = div.getNumberOfDividends();
+      int i = 0;
+      while (i < number && div.getTau(i) < time) {
+        modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * data.getDiscountCurve().getDiscountFactor(div.getTau(i));
+        ++i;
+      }
+    } else {
+      costOfCarry = Math.log(fCurve.getForward(time) / spot) / time;
     }
     return option.getUnitAmount() * MODEL.price(modSpot, strike, interestRate, costOfCarry, time, sigma, isCall, isAmerican, 10, 500);
   }
