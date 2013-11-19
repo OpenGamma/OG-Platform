@@ -80,10 +80,10 @@ $.register_module({
                     sec.adjustCashSettlementDate = util.get_checkbox(prefix + '.adjustCashSettlementDate');
                     sec.adjustSettlementDate = util.get_checkbox(prefix + '.adjustSettlementDate');
                     sec.notional.type = 'InterestRateNotional';
-                    if (config.standard) {
+                    if (standard) {
                         sec.upfrontAmount.type = 'InterestRateNotional';
                     }
-                    if (config.index) {
+                    if (index) {
                         sec.upfrontPayment.type = 'InterestRateNotional';
                     }
                 },
