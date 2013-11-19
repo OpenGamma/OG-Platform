@@ -31,67 +31,44 @@ import com.opengamma.util.tuple.Pairs;
 /**
  *
  */
-public class ViewRegressionTest {
+public class CreateGoldenCopyForRegressionTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ViewRegressionTest.class);
-  // TODO arg for this? different deltas for different values and/or object types?
+  private static final Logger s_logger = LoggerFactory.getLogger(CreateGoldenCopyForRegressionTest.class);
 
   private final String _dbDumpDir;
   private final Instant _valuationTime;
   private final String _baseWorkingDir;
   private final String _baseVersion;
   private final String _baseDbConfigFile;
-  private final String _testWorkingDir;
-  private final String _serverConfigFile;
-  private final String _testVersion;
-  private final String _testDbConfigFile;
-  private final String _logbackConfig;
   private final String _baseClasspath;
-  private final String _testClasspath;
 
-  public ViewRegressionTest(String projectName,
-                            String serverConfigFile,
-                            String dbDumpDir,
-                            String logbackConfigFile,
-                            Instant valuationTime,
-                            String baseWorkingDir,
-                            String baseVersion,
-                            String baseDbConfigFile,
-                            String testWorkingDir,
-                            String testVersion,
-                            String testDbConfigFile) {
+  private final String _serverConfigFile;
+  private final String _logbackConfig;
+
+
+
+  public CreateGoldenCopyForRegressionTest(String projectName,
+                                           String serverConfigFile,
+                                            String dbDumpDir,
+                                           String logbackConfigFile,
+                                           Instant valuationTime,
+                                           String baseWorkingDir,
+                                           String baseVersion,
+                                           String baseDbConfigFile) {
     _dbDumpDir = dbDumpDir;
     _baseWorkingDir = baseWorkingDir;
     _baseVersion = baseVersion;
     _baseDbConfigFile = baseDbConfigFile;
-    _testWorkingDir = testWorkingDir;
     _serverConfigFile = serverConfigFile;
-    _testVersion = testVersion;
-    _testDbConfigFile = testDbConfigFile;
     _logbackConfig = "-Dlogback.configurationFile=" + logbackConfigFile;
     _baseClasspath = "config:lib/" + projectName + "-" + baseVersion + ".jar";
-    _testClasspath = "config:lib/" + projectName + "-" + testVersion + ".jar";
     _valuationTime = valuationTime;
   }
 
-  public RegressionTestResults run() {
+  public Map<Pair<String, String>, CalculationResults> run() {
     // TODO store the results in memory for now, serialize to disk/cache when it's an actual problem
     // TODO fail if there are any view defs or snapshots with duplicate names
-    Map<Pair<String, String>, CalculationResults> testResults =
-        runTest(_testWorkingDir, _testClasspath, _testVersion, _testDbConfigFile);
-    Map<Pair<String, String>, CalculationResults> baseResults =
-        runTest(_baseWorkingDir, _baseClasspath, _baseVersion, _baseDbConfigFile);
-    List<CalculationDifference> results = Lists.newArrayList();
-    for (Map.Entry<Pair<String, String>, CalculationResults> entry : testResults.entrySet()) {
-      CalculationResults testViewResult = entry.getValue();
-      CalculationResults baseViewResult = baseResults.get(entry.getKey());
-      if (baseViewResult == null) {
-        s_logger.warn("No base result for {}", entry.getKey());
-        continue;
-      }
-      results.add(CalculationDifference.between(baseViewResult, testViewResult, ViewRegressionTestTool.DELTA));
-    }
-    return new RegressionTestResults(_baseVersion, _testVersion, results);
+    return runTest(_baseWorkingDir, _baseClasspath, _baseVersion, _baseDbConfigFile);
   }
 
   private Map<Pair<String, String>, CalculationResults> runTest(String workingDir,
