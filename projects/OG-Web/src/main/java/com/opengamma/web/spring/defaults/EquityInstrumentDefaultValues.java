@@ -50,7 +50,7 @@ public abstract class EquityInstrumentDefaultValues {
     EQUITY_NAMES.put("NKY", "JPY");
 
     EQUITY_NAMES.put("IBM", "USD");
-    EQUITY_NAMES.put("RBS", "GBP");
+    EQUITY_NAMES.put("RBS", "USD");
     EQUITY_NAMES.put("LLOY", "GBP");
     EQUITY_NAMES.put("JPM", "USD");
     EQUITY_NAMES.put("SPY", "USD");
