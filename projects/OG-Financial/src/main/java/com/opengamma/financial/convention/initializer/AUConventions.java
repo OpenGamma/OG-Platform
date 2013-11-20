@@ -64,32 +64,38 @@ public class AUConventions extends ConventionMasterInitializer {
   //-------------------------------------------------------------------------
   @Override
   public void init(final ConventionMaster master) {
+    
     // Index Overnight
     final String onIndexName = getConventionName(Currency.AUD, OVERNIGHT);
     final ExternalId onIndexId = ExternalId.of(SCHEME_NAME, onIndexName);
     final OvernightIndexConvention onIndex = createOvernightIndexConvention(onIndexName);
+    
     // Index BBSW
     final String bbswConventionName = getConventionName(Currency.AUD, BBSW);
     final ExternalId bbswConventionId = ExternalId.of(SCHEME_NAME, bbswConventionName);
     final IborIndexConvention bbswIndex = createIborIndexConvention(bbswConventionName);
+    
     // Deposit
     final String depositONConventionName = getConventionName(Currency.AUD, DEPOSIT_ON);
     final DepositConvention depositONConvention = createDepositConvention(depositONConventionName);
+    
     // Fixed Legs
     final String fixedLeg3MConventionName = getConventionName(Currency.AUD, TENOR_STR_3M, FIXED_LEG);
-    final SwapFixedLegConvention fixedLeg3MConvention = createSwapFixedLeg3MConvention(fixedLeg3MConventionName);
+    final SwapFixedLegConvention fixedLeg3MConvention = createSwapFixedLegConvention(fixedLeg3MConventionName, TENOR_STR_3M, Tenor.THREE_MONTHS);
     final String fixedLeg6MConventionName = getConventionName(Currency.AUD, TENOR_STR_6M, FIXED_LEG);
-    final SwapFixedLegConvention fixedLeg6MConvention = createSwapFixedLeg6MConvention(fixedLeg6MConventionName);
+    final SwapFixedLegConvention fixedLeg6MConvention = createSwapFixedLegConvention(fixedLeg6MConventionName, TENOR_STR_6M, Tenor.SIX_MONTHS);
     final String fixedLeg1YPayLagConventionName = getConventionName(Currency.AUD, TENOR_STR_1Y, PAY_LAG + FIXED_LEG);
-    final SwapFixedLegConvention fixedLeg1YPayLagConvention = createSwapFixedLeg1YPayLagConvention(fixedLeg1YPayLagConventionName);
+    final SwapFixedLegConvention fixedLeg1YPayLagConvention = createSwapFixedLegPayLagConvention(fixedLeg1YPayLagConventionName, TENOR_STR_1Y, Tenor.ONE_YEAR);
+    
     // BBSW Legs
     final String bbsw3MLegConventionName = getConventionName(Currency.AUD, TENOR_STR_3M, BBSW_LEG);
-    final VanillaIborLegConvention bbsw3MLegConvention = createVanillaIborLeg3MConvention(bbsw3MLegConventionName, bbswConventionId);
+    final VanillaIborLegConvention bbsw3MLegConvention = createVanillaIborLegConvention(bbsw3MLegConventionName, bbswConventionId, TENOR_STR_3M, Tenor.THREE_MONTHS);
     final String bbsw6MLegConventionName = getConventionName(Currency.AUD, TENOR_STR_6M, BBSW_LEG);
-    final VanillaIborLegConvention bbsw6MLegConvention = createVanillaIborLeg6MConvention(bbsw6MLegConventionName, bbswConventionId);
+    final VanillaIborLegConvention bbsw6MLegConvention = createVanillaIborLegConvention(bbsw6MLegConventionName, bbswConventionId, TENOR_STR_6M, Tenor.SIX_MONTHS);
+    
     // Overnight Legs
-    final String onLegConventionName = getConventionName(Currency.AUD, ON_CMP_LEG);
-    final OISLegConvention onLegConvention = createOISLegConvention(onLegConventionName, onIndexId);
+    final String onLegConventionName = getConventionName(Currency.AUD, TENOR_STR_1Y, ON_CMP_LEG);
+    final OISLegConvention onLegConvention = createOISLegConvention(onLegConventionName, onIndexId, TENOR_STR_1Y, Tenor.ONE_YEAR);
     
     // Convention add
     addConvention(master, onIndex);
@@ -110,7 +116,7 @@ public class AUConventions extends ConventionMasterInitializer {
 
   protected IborIndexConvention createIborIndexConvention(final String bbswConventionName) {
     return new IborIndexConvention(
-        bbswConventionName, getIds(Currency.AUD, BBSW), ACT_365, MODIFIED_FOLLOWING, 2, true, Currency.AUD,
+        bbswConventionName, getIds(Currency.AUD, BBSW), ACT_365, MODIFIED_FOLLOWING, 0, true, Currency.AUD,
         LocalTime.of(11, 00), "AU", AU, AU, "");
   }
 
@@ -119,40 +125,32 @@ public class AUConventions extends ConventionMasterInitializer {
         depositONConventionName, getIds(Currency.AUD, DEPOSIT_ON), ACT_365, FOLLOWING, 0, false, Currency.AUD, AU);
   }
 
-  protected SwapFixedLegConvention createSwapFixedLeg3MConvention(final String fixedLeg3MConventionName) {
+  protected SwapFixedLegConvention createSwapFixedLegConvention(final String fixedLegConventionName, 
+      final String tenorString, final Tenor resetTenor) {
     return new SwapFixedLegConvention(
-        fixedLeg3MConventionName, getIds(Currency.AUD, TENOR_STR_3M, FIXED_LEG),
-        Tenor.THREE_MONTHS, ACT_365, MODIFIED_FOLLOWING, Currency.AUD, AU, 2, true, StubType.SHORT_START, false, 0);
+        fixedLegConventionName, getIds(Currency.AUD, tenorString, FIXED_LEG),
+        resetTenor, ACT_365, MODIFIED_FOLLOWING, Currency.AUD, AU, 1, true, StubType.SHORT_START, false, 0);
   }
 
-  protected SwapFixedLegConvention createSwapFixedLeg6MConvention(final String fixedLeg6MConventionName) {
+  protected SwapFixedLegConvention createSwapFixedLegPayLagConvention(final String fixedLeg1YPayLagConventionName, 
+      final String tenorString, final Tenor resetTenor) {
     return new SwapFixedLegConvention(
-        fixedLeg6MConventionName, getIds(Currency.AUD, TENOR_STR_6M, FIXED_LEG),
-        Tenor.SIX_MONTHS, ACT_365, MODIFIED_FOLLOWING, Currency.AUD, AU, 2, true, StubType.SHORT_START, false, 0);
+        fixedLeg1YPayLagConventionName, getIds(Currency.AUD, tenorString, PAY_LAG + FIXED_LEG),
+        resetTenor, ACT_365, MODIFIED_FOLLOWING, Currency.AUD, AU, 1, true, StubType.SHORT_START, false, 1);
   }
 
-  protected SwapFixedLegConvention createSwapFixedLeg1YPayLagConvention(final String fixedLeg1YPayLagConventionName) {
-    return new SwapFixedLegConvention(
-        fixedLeg1YPayLagConventionName, getIds(Currency.AUD, TENOR_STR_1Y, PAY_LAG + FIXED_LEG),
-        Tenor.ONE_YEAR, ACT_365, MODIFIED_FOLLOWING, Currency.AUD, AU, 2, true, StubType.SHORT_START, false, 2);
-  }
-
-  protected VanillaIborLegConvention createVanillaIborLeg3MConvention(final String bbsw3MLegConventionName, final ExternalId bbswConventionId) {
+  protected VanillaIborLegConvention createVanillaIborLegConvention(final String bbswLegConventionName, final ExternalId bbswConventionId, 
+      final String tenorString, final Tenor resetTenor) {
     return new VanillaIborLegConvention(
-        bbsw3MLegConventionName, getIds(Currency.AUD, TENOR_STR_3M, BBSW_LEG),
-        bbswConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.SHORT_START, false, 0);
+        bbswLegConventionName, getIds(Currency.AUD, tenorString, BBSW_LEG),
+        bbswConventionId, true, Interpolator1DFactory.LINEAR, resetTenor, 1, true, StubType.SHORT_START, false, 0);
   }
 
-  protected VanillaIborLegConvention createVanillaIborLeg6MConvention(final String bbsw6MLegConventionName, final ExternalId bbswConventionId) {
-    return new VanillaIborLegConvention(
-        bbsw6MLegConventionName, getIds(Currency.AUD, TENOR_STR_6M, BBSW_LEG),
-        bbswConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.SHORT_START, false, 0);
-  }
-
-  protected OISLegConvention createOISLegConvention(final String onLegConventionName, final ExternalId onIndexId) {
+  protected OISLegConvention createOISLegConvention(final String onLegConventionName, final ExternalId onIndexId, 
+      final String tenorString, final Tenor resetTenor) {
     return new OISLegConvention(
-        onLegConventionName, getIds(Currency.AUD, ON_CMP_LEG), onIndexId,
-        Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, true, StubType.SHORT_START, false, 2);
+        onLegConventionName, getIds(Currency.AUD, tenorString, ON_CMP_LEG), onIndexId,
+        resetTenor, MODIFIED_FOLLOWING, 1, true, StubType.SHORT_START, false, 1);
   }
 
 }

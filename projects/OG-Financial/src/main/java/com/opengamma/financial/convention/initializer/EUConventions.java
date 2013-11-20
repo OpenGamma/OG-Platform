@@ -111,6 +111,7 @@ public class EUConventions extends ConventionMasterInitializer {
         euriborConventionName, getIds(Currency.EUR, EURIBOR), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.EUR,
         LocalTime.of(11, 00), "EU", EU, EU, "");
     final ExternalId euriborConventionId = ExternalId.of(SCHEME_NAME, euriborConventionName);
+    
     // Deposit
     final String depositONConventionName = getConventionName(Currency.EUR, DEPOSIT_ON);
     final DepositConvention depositONConvention = new DepositConvention(
