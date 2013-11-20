@@ -52,7 +52,7 @@ public class FutureTradeConverter {
   public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
       final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, conventionBundleSource, regionSource);
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);

@@ -29,6 +29,7 @@ import com.opengamma.util.money.Currency;
 public class AnnuityDefinition<P extends PaymentDefinition> implements InstrumentDefinitionWithData<Annuity<? extends Payment>, DoubleTimeSeries<ZonedDateTime>> {
   /**
    * The list of payments or coupons. All payments have the same currency. All payments have the same sign or are 0.
+   * There should be at least one payment.
    */
   private final P[] _payments;
   /**

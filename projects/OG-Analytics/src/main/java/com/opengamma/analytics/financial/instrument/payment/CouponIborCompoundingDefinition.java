@@ -234,9 +234,7 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     ArgumentChecker.notNull(accrualEndDate, "Accrual end date");
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(calendar, "Calendar");
-    final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
-    final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, accrualEndDate, index.getTenor(), isStubShort, isStubStart,
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, accrualEndDate, index.getTenor(), stub,
         businessDayConvention, calendar, endOfMonth);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
