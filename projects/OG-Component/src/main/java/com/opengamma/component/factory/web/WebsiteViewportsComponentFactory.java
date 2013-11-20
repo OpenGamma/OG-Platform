@@ -73,7 +73,7 @@ import com.opengamma.web.analytics.json.ErrorInfoMessageBodyWriter;
 import com.opengamma.web.analytics.json.GridColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.PrimitivesGridStructureMessageBodyWriter;
-import com.opengamma.web.analytics.json.ValueSpecificationMessageBodyWriter;
+import com.opengamma.web.analytics.json.ValueRequirementMessageBodyWriter;
 import com.opengamma.web.analytics.json.ViewportResultsMessageBodyWriter;
 import com.opengamma.web.analytics.push.ConnectionManagerImpl;
 import com.opengamma.web.analytics.push.LongPollingConnectionManager;
@@ -258,7 +258,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
-    repo.getRestComponents().publishHelper(new ValueSpecificationMessageBodyWriter());
+    repo.getRestComponents().publishHelper(new ValueRequirementMessageBodyWriter());
     repo.getRestComponents().publishHelper(new GridColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(viewportResultsWriter));
     repo.getRestComponents().publishHelper(new ViewDefinitionEntriesResource(configSource));

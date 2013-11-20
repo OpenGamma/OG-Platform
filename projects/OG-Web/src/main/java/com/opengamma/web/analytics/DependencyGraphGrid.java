@@ -10,7 +10,8 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.management.ValueMappings;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
@@ -24,7 +25,7 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
   /** The config name. */
   private final String _calcConfigName;
   /** The grid structure. */
-  private final ValueSpecification _target;
+  private final ValueRequirement _targetRequirement;
   /** The root vale specification. */
   private final DependencyGraphGridStructure _gridStructure;
   /**
@@ -38,26 +39,33 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
    * Creates a new grid for displaying a dependency graph of calculations.
    * 
    *
+   *
    * @param compiledViewDef the view definition from which the graph and calculations were derived
-   * @param target the object whose dependency graph is being displayed
+   * @param valueRequirement target value requirement
    * @param calcConfigName the calculation configuration used for the calculations, not null
    * @param cycle the view cycle that calculated the results, not null
    * @param callbackId the ID that's passed to listeners when the row and column structure of the grid changes
    * @param targetResolver the resolver for looking up the target of the calculation given its specification
    * @param functions the function repository for any additional function metadata, not null
-   * @param viewportListener receives notifications when any viewport changes, not null
-   * @return the grid, not null
+   * @param viewportListener receives notifications when any viewport changes, not null       @return the grid, not null
    */
   /* package */static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
-                                                 ValueSpecification target,
+                                                 ValueRequirement valueRequirement,
                                                  String calcConfigName,
                                                  ViewCycle cycle,
                                                  String callbackId,
                                                  ComputationTargetResolver targetResolver,
                                                  FunctionRepository functions,
-                                                 ViewportListener viewportListener) {
-    DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver, functions, cycle);
-    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener, target);
+                                                 ViewportListener viewportListener,
+                                                 ValueMappings valueMappings) {
+    DependencyGraphStructureBuilder builder = new DependencyGraphStructureBuilder(compiledViewDef,
+                                                                                  valueRequirement,
+                                                                                  calcConfigName,
+                                                                                  targetResolver,
+                                                                                  functions,
+                                                                                  cycle,
+                                                                                  valueMappings);
+    return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener, valueRequirement);
   }
 
   //-------------------------------------------------------------------------
@@ -69,7 +77,7 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
                               String callbackId,
                               ViewCycle cycle,
                               ViewportListener viewportListener,
-                              ValueSpecification target) {
+                              ValueRequirement target) {
     super(viewportListener, callbackId);
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
@@ -79,7 +87,7 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
     _gridStructure = gridStructure;
     _calcConfigName = calcConfigName;
     _latestCycle = cycle;
-    _target = target;
+    _targetRequirement = target;
   }
 
   //-------------------------------------------------------------------------
@@ -93,8 +101,8 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
     return _latestCycle;
   }
 
-  public ValueSpecification getTargetValueSpecification() {
-    return _target;
+  public ValueRequirement getTargetValueRequirement() {
+    return _targetRequirement;
   }
 
   @Override

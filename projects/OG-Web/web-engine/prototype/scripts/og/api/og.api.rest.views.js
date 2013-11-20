@@ -12,8 +12,7 @@ $.register_module({
             get: common.not_available_get,
             put: function (config, promise) {
                 config = config || {};
-                var promise = promise || new common.Promise,
-                    root = this.root, method = [root], data = {}, meta,
+                var promise = promise || new common.Promise, root = this.root, method = [root], data = {}, meta,
                     fields = [
                         'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction', 'blotter'
                     ],
@@ -22,7 +21,7 @@ $.register_module({
                         'portfolioVersionTime', 'portfolioCorrectionTime', 'blotter'
                     ];
                 if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
-                    return function () {api.views.put.call(context, config, promise);}; // complete, return a
+                    return function () {api.views.put.call(context, config, promise); }; // complete, return a
                 })(this), STALL), promise;                                              // promise and try again
                 meta = check({
                     bundle: {method: root + '#put', config: config},
@@ -120,7 +119,7 @@ $.register_module({
                     put: function (config) {
                         config = config || {};
                         var promise = new common.Promise, root = this.root, method = root.split('/'),
-                            data = {}, meta, fields = ['view_id', 'grid_type', 'colset', 'spec'],
+                            data = {}, meta, fields = ['view_id', 'grid_type', 'colset', 'req'],
                         meta = check({
                             bundle: {method: root + '#put', config: config}, required: [{all_of: fields}]
                         });
@@ -246,8 +245,8 @@ $.register_module({
                         put: common.not_available_put,
                         del: common.not_available_del
                     },
-                    valuespec: {
-                        root: 'views/{{view_id}}/{{grid_type}}/viewports/{{viewport_id}}/valuespec/{{row}}/{{col}}',
+                    valuereq: {
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports/{{viewport_id}}/valuereq/{{row}}/{{col}}',
                         get: function (config) {
                             config = config || {};
                             var root = this.root, method = root.split('/'), data = {}, meta;

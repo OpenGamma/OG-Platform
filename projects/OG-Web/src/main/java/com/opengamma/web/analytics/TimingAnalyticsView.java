@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -138,10 +138,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                   int graphId,
                                   String callbackId,
                                   String calcConfigName,
-                                  ValueSpecification valueSpecification) {
+                                  ValueRequirement valueRequirement) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.openDependencyGraph");
-    _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueSpecification);
+    _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
     s_logger.trace("openDependencyGraph completed in " + (System.currentTimeMillis() - startTime) + "ms");
   }
 

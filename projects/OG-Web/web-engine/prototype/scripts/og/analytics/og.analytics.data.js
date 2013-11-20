@@ -178,7 +178,7 @@ $.register_module({
                 data.viewport_id = null;
                 if (depgraph && !graph_id) { //for depgraphs make sure that a grid id exists before setting up data
                     api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type,
-                                               colset: source.colset, spec: source.spec})
+                                               colset: source.colset, req: source.req})
                     .pipe(function (result) {
                         if (result.error) {
                             return fire('fatal', data.prefix + result.message);
@@ -226,7 +226,7 @@ $.register_module({
 
                 if (depgraph && !graph_id) {
                     api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type,
-                        colset: source.colset, spec: source.spec}).pipe(function (result) {
+                        colset: source.colset, req: source.req}).pipe(function (result) {
                             if (result.error) {
                                 fire('fatal', data.prefix + result.message);
                             }

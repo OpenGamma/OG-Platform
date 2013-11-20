@@ -34,12 +34,11 @@ $.register_module({
             return types;
         };
         var is_complex = function (name) {return ~[0, 6, 8].indexOf(mapping.gadgets.indexOf(name)); }; // if not simple
-        var options = function (cell, grid, panel, spec) {
+        var options = function (cell, grid, panel, req) {
             var gadget_type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options;
             gadget_options = {
                 gadget: 'og.common.gadgets.' + gadget_type,
-                options: {source: source, child: true, spec: spec.valueSpecification,
-                    colset: spec.columnSet, type: cell.type,
+                options: {source: source, child: true, type: cell.type, row: cell.row, col: cell.col,
                     menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
                     value: cell.value.v, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */},
                 row_name: cell.row_name,
@@ -48,6 +47,10 @@ $.register_module({
                 gadget_type: gadget_type,
                 data_type: cell.type
             };
+            if (req) {
+                gadget_options.options.req = req.valueRequirement;
+                gadget_options.options.colset = req.columnSet;
+            }
             return gadget_options;
         };
         var type = function (cell, panel) {

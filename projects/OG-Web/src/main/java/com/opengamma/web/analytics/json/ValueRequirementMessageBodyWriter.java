@@ -22,25 +22,25 @@ import org.json.JSONObject;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.web.analytics.ValueSpecificationTargetForCell;
-import com.opengamma.web.json.ValueSpecificationJSONBuilder;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.web.analytics.ValueRequirementTargetForCell;
+import com.opengamma.web.json.ValueRequirementJSONBuilder;
 
 /**
- * Writes an instance of {@link ValueSpecification} to JSON.
+ * Writes an instance of {@link ValueRequirement} to JSON.
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class ValueSpecificationMessageBodyWriter implements MessageBodyWriter<ValueSpecificationTargetForCell> {
+public class ValueRequirementMessageBodyWriter implements MessageBodyWriter<ValueRequirementTargetForCell> {
 
 
   @Override
   public boolean isWriteable(Class<?> aClass, Type type, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(ValueSpecificationTargetForCell.class);
+    return type.equals(ValueRequirementTargetForCell.class);
   }
 
   @Override
-  public long getSize(ValueSpecificationTargetForCell stringValueSpecificationPair,
+  public long getSize(ValueRequirementTargetForCell stringValueRequirementPair,
                       Class<?> aClass,
                       Type type,
                       Annotation[] annotations,
@@ -50,15 +50,15 @@ public class ValueSpecificationMessageBodyWriter implements MessageBodyWriter<Va
   }
 
   @Override
-  public void writeTo(ValueSpecificationTargetForCell valueSpec,
+  public void writeTo(ValueRequirementTargetForCell valueReq,
                       Class<?> aClass,
                       Type type,
                       Annotation[] annotations,
                       MediaType mediaType,
                       MultivaluedMap<String, Object> stringObjectMultivaluedMap,
                       OutputStream outputStream) throws IOException, WebApplicationException {
-    ValueSpecificationJSONBuilder jsonBuilder = new ValueSpecificationJSONBuilder();
-    String valueSpecStr = jsonBuilder.toJSON(valueSpec.getValuleSpecification());
+    ValueRequirementJSONBuilder jsonBuilder = new ValueRequirementJSONBuilder();
+    String valueSpecStr = jsonBuilder.toJSON(valueReq.getValueRequirement());
 
     JSONObject valueReqJson;
     try {
@@ -68,8 +68,8 @@ public class ValueSpecificationMessageBodyWriter implements MessageBodyWriter<Va
     } catch (JSONException e) {
       throw new OpenGammaRuntimeException("Failed to convert ValueRequirement to JSON", e);
     }
-    ImmutableMap<String, Object> jsonMap = ImmutableMap.of("columnSet", valueSpec.getColumnSet(),
-                                                           "valueSpecification", valueReqJson);
+    ImmutableMap<String, Object> jsonMap = ImmutableMap.of("columnSet", valueReq.getColumnSet(),
+                                                           "valueRequirement", valueReqJson);
     outputStream.write(new JSONObject(jsonMap).toString().getBytes());
   }
 

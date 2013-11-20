@@ -10,7 +10,7 @@ $.register_module({
             var depgraph = this, containers;
             Grid.call(depgraph, {selector: config.selector, child: config.child,
                 cellmenu: !~config.selector.indexOf('inplace'), show_sets: false, show_views: false, collapse_level: 1,
-                source: $.extend({depgraph: true, spec: config.spec, colset: config.colset}, config.source)
+                source: $.extend({depgraph: true, req: config.req, colset: config.colset}, config.source)
                 });
             if (!og.analytics.containers) { // highlighting only works in analytics view (for now)
                 return;

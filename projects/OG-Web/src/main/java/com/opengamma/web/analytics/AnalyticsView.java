@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -190,16 +190,16 @@ public interface AnalyticsView {
    * @param gridType Specifies which of the main grids
    * @param graphId A unique ID for the dependency graph grid
    * @param callbackId A value that is sent to the client with notification that the structure has changed.
-* The server makes no assumptions about its format other than the fact that it must be unique for each grid in a view.
+   * The server makes no assumptions about its format other than the fact that it must be unique for each grid in a view.
    * @param calcConfigName Name of the calculation configuration containing the value we're interested in
-   * @param valueSpecification Requirement which requests the value we're interested in
+   * @param valueRequirement Requirement which requests the value we're interested in
    */
   void openDependencyGraph(int requestId,
                            GridType gridType,
                            int graphId,
                            String callbackId,
                            String calcConfigName,
-                           ValueSpecification valueSpecification);
+                           ValueRequirement valueRequirement);
 
   /**
    * Closes a dependency graph.

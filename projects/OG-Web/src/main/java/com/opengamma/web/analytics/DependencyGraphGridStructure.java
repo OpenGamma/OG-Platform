@@ -18,6 +18,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.id.UniqueId;
@@ -50,7 +51,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
-  private final List<ValueSpecification> _valueSpecs;
+  private final List<ValueSpecification> _valueSpecifications;
   /** Function names for all rows in the grid in row index order. */
   private final List<String> _fnNames;
   /** For looking up calculation targets using their specification. */
@@ -68,15 +69,15 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
-                                             List<ValueSpecification> valueSpecs,
+                                             List<ValueSpecification> valueSpecifications,
                                              List<String> fnNames,
                                              ComputationTargetResolver targetResolver) {
-    ArgumentChecker.notNull(valueSpecs, "valueSpecs");
+    ArgumentChecker.notNull(valueSpecifications, "valueSpecifications");
     ArgumentChecker.notNull(fnNames, "fnNames");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _root = root;
     _calcConfigName = calcConfigName;
-    _valueSpecs = Collections.unmodifiableList(valueSpecs);
+    _valueSpecifications = Collections.unmodifiableList(valueSpecifications);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
     // fixed column group with one column for the row label
@@ -99,7 +100,7 @@ public class DependencyGraphGridStructure implements GridStructure {
    * @return The value specifications used to calculate the values
    */
   /* package */ List<ValueSpecification> getValueSpecifications() {
-    return _valueSpecs;
+    return _valueSpecifications;
   }
 
   /**
@@ -150,7 +151,7 @@ public class DependencyGraphGridStructure implements GridStructure {
    */
   private GridColumn column(String header, Class<?> type, int colIndex) {
     DependencyGraphCellRenderer renderer = new DependencyGraphCellRenderer(colIndex,
-                                                                           _valueSpecs,
+                                                                           _valueSpecifications,
                                                                            _fnNames,
                                                                            _computationTargetResolver,
                                                                            _calcConfigName);
@@ -159,7 +160,7 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   @Override
   public int getRowCount() {
-    return _valueSpecs.size();
+    return _valueSpecifications.size();
   }
 
   @Override
@@ -183,11 +184,16 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   @Override
-  public Pair<String, ValueSpecification> getTargetForCell(int row, int col) {
+  public Pair<String, ValueRequirement> getValueRequirementForCell(int row, int col) {
+    // there is no value requirement available here
+    return null;
+  }
+
+  public Pair<String, ValueSpecification> getValueSpecificationForCell(int row, int col) {
     if (_calcConfigName == null || col != VALUE_COL) {
       return null;
     }
-    ValueSpecification valueSpec = _valueSpecs.get(row);
+    ValueSpecification valueSpec = _valueSpecifications.get(row);
     return valueSpec != null ? Pairs.of(_calcConfigName, valueSpec) : null;
   }
 
@@ -319,7 +325,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   @Override
   public String toString() {
     return "DependencyGraphGridStructure [" +
-        ", _valueSpecs=" + _valueSpecs +
+        ", _valueSpecifications=" + _valueSpecifications +
         ", _fnNames=" + _fnNames +
         ", _computationTargetResolver=" + _computationTargetResolver +
         ", _root=" + _root +

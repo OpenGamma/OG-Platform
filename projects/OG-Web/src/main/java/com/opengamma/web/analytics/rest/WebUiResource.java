@@ -35,7 +35,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueId;
@@ -51,12 +51,12 @@ import com.opengamma.web.analytics.ErrorInfo;
 import com.opengamma.web.analytics.GridCell;
 import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.MarketDataSpecificationJsonReader;
-import com.opengamma.web.analytics.ValueSpecificationTargetForCell;
+import com.opengamma.web.analytics.ValueRequirementTargetForCell;
 import com.opengamma.web.analytics.ViewRequest;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
-import com.opengamma.web.analytics.json.ValueSpecificationFormParam;
+import com.opengamma.web.analytics.json.ValueRequirementFormParam;
 import com.opengamma.web.analytics.push.ClientConnection;
 import com.opengamma.web.analytics.push.ConnectionManager;
 
@@ -183,18 +183,18 @@ public class WebUiResource {
     return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType));
   }
 
-  @Path("{viewId}/{gridType}/viewports/{viewportId}/valuespec/{row}/{col}")
+  @Path("{viewId}/{gridType}/viewports/{viewportId}/valuereq/{row}/{col}")
   @GET
-  public ValueSpecificationTargetForCell getValueSpecificationTargetForCell(@PathParam("viewId") String viewId,
-                                                              @PathParam("gridType") String gridType,
-                                                              @PathParam("row") int row,
-                                                              @PathParam("col") int col,
-                                                              @PathParam("viewportId") int viewportId) {
+  public ValueRequirementTargetForCell getValueRequirementForTargetForCell(@PathParam("viewId") String viewId,
+                                                                           @PathParam("gridType") String gridType,
+                                                                           @PathParam("row") int row,
+                                                                           @PathParam("col") int col,
+                                                                           @PathParam("viewportId") int viewportId) {
 
     GridStructure gridStructure =  _viewManager.getView(viewId).getGridStructure(gridType(gridType), viewportId);
 
-    Pair<String, ValueSpecification> pair = gridStructure.getTargetForCell(row, col);
-    return new ValueSpecificationTargetForCell(pair.getFirst(), pair.getSecond());
+    Pair<String, ValueRequirement> pair = gridStructure.getValueRequirementForCell(row, col);
+    return new ValueRequirementTargetForCell(pair.getFirst(), pair.getSecond());
 
   }
 
@@ -273,19 +273,23 @@ public class WebUiResource {
                                       @FormParam("row") Integer row,
                                       @FormParam("col") Integer col,
                                       @FormParam("colset") String calcConfigName,
-                                      @FormParam("spec") ValueSpecificationFormParam valueSpecificationParam) {
+                                      @FormParam("req") ValueRequirementFormParam valueRequirementParam) {
     int graphId = s_nextId.getAndIncrement();
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
     String callbackId = graphUri.getPath();
     if (row != null && col != null) {
       _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
-    } else if (calcConfigName != null && valueSpecificationParam != null) {
-      ValueSpecification spec = valueSpecificationParam.getValueSpecification();
-      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, calcConfigName, spec);
+    } else if (calcConfigName != null && valueRequirementParam != null) {
+      ValueRequirement valueRequirement = valueRequirementParam.getValueRequirement();
+      _viewManager.getView(viewId).openDependencyGraph(requestId,
+                                                       gridType(gridType),
+                                                       graphId,
+                                                       callbackId,
+                                                       calcConfigName,
+                                                       valueRequirement);
     }
-    Response r = Response.status(Response.Status.CREATED).build();
-    return r;
+    return Response.status(Response.Status.CREATED).build();
   }
 
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}")
@@ -293,8 +297,7 @@ public class WebUiResource {
   public GridStructure getDependencyGraphGridStructure(@PathParam("viewId") String viewId,
                                                        @PathParam("gridType") String gridType,
                                                        @PathParam("depgraphId") int depgraphId) {
-    GridStructure g = _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType), depgraphId);
-    return g;
+    return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType), depgraphId);
   }
 
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}")

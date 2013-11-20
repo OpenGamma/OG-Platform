@@ -132,7 +132,7 @@ public class LoggingViewportListenerTest {
   private static GridStructure gridStructure(final List<GridCell> cells) {
     final GridStructure mock = mock(GridStructure.class);
     for (final GridCell cell : cells) {
-      when(mock.getTargetForCell(cell.getRow(), cell.getColumn())).thenReturn(target(cell));
+      when(mock.getValueSpecificationForCell(cell.getRow(), cell.getColumn())).thenReturn(target(cell));
     }
     return mock;
   }

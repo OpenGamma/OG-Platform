@@ -24,7 +24,7 @@ import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -261,9 +261,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, String calcConfigName, ValueSpecification valueSpecification) {
+  public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, String calcConfigName, ValueRequirement valueRequirement) {
     getGrid(gridType).openDependencyGraph(graphId, callbackId, calcConfigName,
-                                          valueSpecification, _compiledViewDefinition, _viewportListener);
+                                          valueRequirement, _compiledViewDefinition, _viewportListener);
   }
 
   @Override

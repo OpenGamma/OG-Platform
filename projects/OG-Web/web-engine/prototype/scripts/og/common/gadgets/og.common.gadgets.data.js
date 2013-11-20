@@ -119,11 +119,12 @@ $.register_module({
                 };
             }
         };
-        var DataMan = function (row, col, type, source, config) {
+        var DataMan = function (req, colset, row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
                 .Cells({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
-                    source: source, single: {row: row, col: col}, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                    source: source, single: {req: req, colset: colset, row: row, col: col},
+                    format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
                 }, config.label))
                 .on('title', function (row_name, col_name, name) {dataman.fire('title', row_name, col_name, name);})
                 .on('data', function (raw) {
@@ -182,7 +183,7 @@ $.register_module({
                 selector: config.selector, child: config.child, show_sets: false, show_views: false,
                 source: config.source, dataman: config.rest_options
                     ? RestDataMan.partial(config.resource, config.rest_options, config.type)
-                    : DataMan.partial(config.row, config.col, config.type)
+                    : DataMan.partial(config.req, config.colset, config.row, config. col, config.type)
             });
             gadget.on('fatal', function (message) {$(config.selector).html(message);});
         };

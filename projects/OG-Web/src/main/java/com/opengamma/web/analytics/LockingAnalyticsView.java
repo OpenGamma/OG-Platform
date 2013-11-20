@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -142,10 +142,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                   int graphId,
                                   String callbackId,
                                   String calcConfigName,
-                                  ValueSpecification valueSpecification) {
+                                  ValueRequirement valueRequirement) {
     try {
       _lock.writeLock().lock();
-      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueSpecification);
+      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
     } finally {
       _lock.writeLock().unlock();
     }

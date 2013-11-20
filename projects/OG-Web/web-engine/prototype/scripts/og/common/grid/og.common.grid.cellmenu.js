@@ -119,8 +119,13 @@ $.register_module({
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
-            og.api.rest.views.grid.viewports.valuespec.get(input).pipe(function (result) {
-                options = mapping.options(cell, cellmenu.grid, panel, result.data);
+            if (cellmenu.grid.source.depgraph) {
+                implement(null);
+            } else {
+                og.api.rest.views.grid.viewports.valuereq.get(input).pipe(implement);
+            }
+            function implement(result) {
+                options = mapping.options(cell, cellmenu.grid, panel, result ? result.data : null);
                 cellmenu.container.add([options], null, true);
                 cellmenu.container.on('launch', og.analytics.url.launch);
                 inner_height = $(window).height() / 2.5;
@@ -146,8 +151,7 @@ $.register_module({
                         cellmenu.container.resize();
                     }
                 });
-
-            });
+            }
         };
         constructor.prototype.hide = function () {
             var cellmenu = this;
