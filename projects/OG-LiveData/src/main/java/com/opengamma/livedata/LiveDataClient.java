@@ -27,7 +27,7 @@ public interface LiveDataClient extends LiveDataEntitlementChecker {
    * Returns immediately without waiting for a reply from the server.
    * The reply will be sent later to the listener.
    * 
-   * @param user  the user credentials, checked to ennsure user is authorized to access the data, not null
+   * @param user  the user credentials, checked to ensure user is authorized to access the data, not null
    * @param requestedSpecification  what market data you want to subscribe to, and in which 
    *  standardized format you want the server to give it to you.
    * @param listener  the listener that receives the results of the subscription request
@@ -40,7 +40,7 @@ public interface LiveDataClient extends LiveDataEntitlementChecker {
    * Equivalent to calling {@link #subscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
    * for each specification individually, but may be more efficient. 
    * 
-   * @param user  the user credentials, checked to ennsure user is authorized to access the data, not null
+   * @param user  the user credentials, checked to ensure user is authorized to access the data, not null
    * @param requestedSpecifications  what market data you want to subscribe to, and in which 
    *  standardized format you want the server to give it to you.
    * @param listener  the listener that receives the results of the subscription request

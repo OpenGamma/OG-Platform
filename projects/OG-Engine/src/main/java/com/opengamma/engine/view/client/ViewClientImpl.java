@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.marketdata.MarketDataInjector;
@@ -132,14 +133,23 @@ public class ViewClientImpl implements ViewClient {
 
         PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
-        // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
-        // pass to downstream listeners? Some special perm denied message in place of results on each computation
-        // cycle?
-        CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
-
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+
+          if (_canAccessComputationResults) {
+
+            CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
+            listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+          } else {
+            // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
+            // pass to downstream listeners? Some special perm denied message in place of results on each computation
+            // cycle?
+
+            // In order to do something, we'll tell listeners that the compilation failed. Clearly
+            // in the future this wants to be more fine grained
+            listener.viewDefinitionCompilationFailed(
+                Instant.now(), new Exception("User: " + _user + " does not have permission for data in this view"));
+          }
         }
       }
 
