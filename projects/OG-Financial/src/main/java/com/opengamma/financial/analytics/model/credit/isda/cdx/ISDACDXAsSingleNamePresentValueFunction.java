@@ -50,6 +50,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
@@ -79,7 +80,7 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
     double pv;
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationDate.toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      pv = PRICER.pv(pricingCDS, yieldCurve, hazardRateCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread()) * definition.getNotional();
+      pv = PRICER.pv(pricingCDS, yieldCurve, hazardRateCurve, StandardVanillaCDSFunction.getCoupon(definition)) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
       pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(pricingCDS, ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(), yieldCurve,
           ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread()) * definition.getNotional();
