@@ -39,6 +39,12 @@ public abstract class InterestRateSwapLeg extends DirectBean {
   private PayReceiveType _payReceiveType;
 
   /**
+   * A description of the stub periods of the leg, can be null.
+   */
+  @PropertyDefinition
+  private StubCalculationMethod _stubCalculationMethod;
+
+  /**
    * Accepts a visitor to manage traversal of the hierarchy.
    *
    * @param <T> the result type of the visitor
@@ -118,6 +124,31 @@ public abstract class InterestRateSwapLeg extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets a description of the stub periods of the leg, can be null.
+   * @return the value of the property
+   */
+  public StubCalculationMethod getStubCalculationMethod() {
+    return _stubCalculationMethod;
+  }
+
+  /**
+   * Sets a description of the stub periods of the leg, can be null.
+   * @param stubCalculationMethod  the new value of the property
+   */
+  public void setStubCalculationMethod(StubCalculationMethod stubCalculationMethod) {
+    this._stubCalculationMethod = stubCalculationMethod;
+  }
+
+  /**
+   * Gets the the {@code stubCalculationMethod} property.
+   * @return the property, not null
+   */
+  public final Property<StubCalculationMethod> stubCalculationMethod() {
+    return metaBean().stubCalculationMethod().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public InterestRateSwapLeg clone() {
     BeanBuilder<? extends InterestRateSwapLeg> builder = metaBean().builder();
@@ -141,7 +172,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       InterestRateSwapLeg other = (InterestRateSwapLeg) obj;
       return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getPayReceiveType(), other.getPayReceiveType());
+          JodaBeanUtils.equal(getPayReceiveType(), other.getPayReceiveType()) &&
+          JodaBeanUtils.equal(getStubCalculationMethod(), other.getStubCalculationMethod());
     }
     return false;
   }
@@ -151,12 +183,13 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayReceiveType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubCalculationMethod());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("InterestRateSwapLeg{");
     int len = buf.length();
     toString(buf);
@@ -170,6 +203,7 @@ public abstract class InterestRateSwapLeg extends DirectBean {
   protected void toString(StringBuilder buf) {
     buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
     buf.append("payReceiveType").append('=').append(JodaBeanUtils.toString(getPayReceiveType())).append(',').append(' ');
+    buf.append("stubCalculationMethod").append('=').append(JodaBeanUtils.toString(getStubCalculationMethod())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -193,12 +227,18 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     private final MetaProperty<PayReceiveType> _payReceiveType = DirectMetaProperty.ofReadWrite(
         this, "payReceiveType", InterestRateSwapLeg.class, PayReceiveType.class);
     /**
+     * The meta-property for the {@code stubCalculationMethod} property.
+     */
+    private final MetaProperty<StubCalculationMethod> _stubCalculationMethod = DirectMetaProperty.ofReadWrite(
+        this, "stubCalculationMethod", InterestRateSwapLeg.class, StubCalculationMethod.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "notional",
-        "payReceiveType");
+        "payReceiveType",
+        "stubCalculationMethod");
 
     /**
      * Restricted constructor.
@@ -213,6 +253,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return _notional;
         case -1179727115:  // payReceiveType
           return _payReceiveType;
+        case 778144252:  // stubCalculationMethod
+          return _stubCalculationMethod;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -249,6 +291,14 @@ public abstract class InterestRateSwapLeg extends DirectBean {
       return _payReceiveType;
     }
 
+    /**
+     * The meta-property for the {@code stubCalculationMethod} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<StubCalculationMethod> stubCalculationMethod() {
+      return _stubCalculationMethod;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -257,6 +307,8 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return ((InterestRateSwapLeg) bean).getNotional();
         case -1179727115:  // payReceiveType
           return ((InterestRateSwapLeg) bean).getPayReceiveType();
+        case 778144252:  // stubCalculationMethod
+          return ((InterestRateSwapLeg) bean).getStubCalculationMethod();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -269,6 +321,9 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return;
         case -1179727115:  // payReceiveType
           ((InterestRateSwapLeg) bean).setPayReceiveType((PayReceiveType) newValue);
+          return;
+        case 778144252:  // stubCalculationMethod
+          ((InterestRateSwapLeg) bean).setStubCalculationMethod((StubCalculationMethod) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
