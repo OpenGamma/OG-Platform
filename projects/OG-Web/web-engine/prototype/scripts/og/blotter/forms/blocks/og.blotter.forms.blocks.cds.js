@@ -61,7 +61,7 @@ $.register_module({
                         extras:{name: prefix + '.upfrontAmount.currency'}
                     })
                 ];
-            if (config.index) {
+            if (index) {
                 children.push(new form.Block({module: 'og.views.forms.currency_tash',
                     extras: {name: prefix + '.upfrontPayment.currency'}}));
             }
