@@ -251,13 +251,13 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   /**
    * The manipulator for structured market data.
    */
-  private final MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
+  private MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
 
   /**
    * The market data selectors and function parameters which have been passed in via the ViewDefinition, which are applicable to a specific dependency graph. There will be an entry for each graph in
    * the view, even if the only contents are an empty map.
    */
-  private final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
+  private Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
 
   private final MarketDataManager _marketDataManager;
 
@@ -1620,6 +1620,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     final ViewDefinition newViewDefinition = _newViewDefinition.getAndSet(null);
     if (newViewDefinition != null) {
       _viewDefinition = newViewDefinition;
+      _specificMarketDataSelectors = extractSpecificSelectors(newViewDefinition);
+      _marketDataSelectionGraphManipulator = createMarketDataManipulator(_executionOptions.getDefaultExecutionOptions(), _specificMarketDataSelectors);
+
       // TODO [PLAT-3215] Might not need to discard the entire compilation at this point
       cacheCompiledViewDefinition(null);
 
