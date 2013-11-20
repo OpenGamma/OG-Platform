@@ -88,6 +88,18 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final OrganizationSource _organizationSource;
+  private double _recoveryRate = 0.5;
+
+  public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource,
+                                            final double recoveryRate) {
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(regionSource, "region source");
+    //ArgumentChecker.notNull(organizationSource, "organization source");
+    _holidaySource = holidaySource;
+    _regionSource = regionSource;
+    _organizationSource = organizationSource;
+    _recoveryRate = recoveryRate;
+  }
 
   public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
@@ -134,7 +146,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, 0.5, includeAccruedPremium, protectionStart, coupon);
+        amount, _recoveryRate, includeAccruedPremium, protectionStart, coupon);
   }
 
   @Override
@@ -168,7 +180,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, 0.5, includeAccruedPremium, protectionStart, parSpread);
+        amount, _recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   private PeriodFrequency getPeriodFrequency(final Frequency frequency) {
