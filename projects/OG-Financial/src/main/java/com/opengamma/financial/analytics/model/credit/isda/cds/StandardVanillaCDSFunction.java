@@ -261,7 +261,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
 
 
-  protected static double getCoupon(final CreditDefaultSwapDefinition definition) {
+  public static double getCoupon(final CreditDefaultSwapDefinition definition) {
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       return ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon();
     } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
