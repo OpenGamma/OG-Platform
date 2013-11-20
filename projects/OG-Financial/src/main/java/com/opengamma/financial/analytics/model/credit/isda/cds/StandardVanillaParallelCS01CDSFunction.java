@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
@@ -53,7 +54,7 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
                                                 ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
     //TODO: bump type
     Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
-    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4);
+    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4, definition.getBuySellProtection());
 
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01));
@@ -61,7 +62,8 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
 
   public static double parallelCS01(CreditDefaultSwapDefinition definition,
                              ISDACompliantYieldCurve yieldCurve,
-                             ZonedDateTime[] times, double[] marketSpreads, CDSAnalytic analytic, double fracBump) {
+                             ZonedDateTime[] times, double[] marketSpreads, CDSAnalytic analytic, double fracBump, final
+                             BuySellProtection buySellProtection) {
     double cs01;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
@@ -86,7 +88,8 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
     } else {
       throw new OpenGammaRuntimeException("Unexpected cds type: " + definition.getClass().getSimpleName());
     }
-    return cs01 * definition.getNotional() * 1e-4;
+    cs01 = cs01 * definition.getNotional() * 1e-4;
+    return buySellProtection == BuySellProtection.BUY ? cs01 : -cs01;
   }
 
 }
