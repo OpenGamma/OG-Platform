@@ -36,6 +36,13 @@ public interface ViewCycle extends UniqueIdentifiable {
   UniqueId getViewProcessId();
 
   /**
+   * The name of this view cycle
+   * 
+   * @return the name of this view cycle
+   */
+  String getName();
+  
+  /**
    * Gets the state of the view cycle.
    * 
    * @return the state of the view cycle, not null
