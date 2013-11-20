@@ -83,6 +83,11 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  public String getName() {
+    throw new UnsupportedOperationException("getName not supported");
+  }
+
+  @Override
   public ViewCycleState getState() {
     throw new UnsupportedOperationException("getState not supported");
   }

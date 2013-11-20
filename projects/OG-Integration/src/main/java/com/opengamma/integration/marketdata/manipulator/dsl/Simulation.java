@@ -125,6 +125,7 @@ public class Simulation {
         params.put(unusedSelector, EmptyFunctionParameters.INSTANCE);
       }
       ViewCycleExecutionOptions scenarioOptions = baseOptions.copy()
+          .setName(definition.getName())
           .setFunctionParameters(params)
           .setValuationTime(scenario.getValuationTime())
           .setResolverVersionCorrection(scenario.getResolverVersionCorrection())

@@ -197,7 +197,7 @@ public class CancelExecutionTest {
         Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph)), null, null);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(LiveMarketDataSpecification.LIVE_SPEC)
         .create();
-    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), new ComputationResultListener() {
+    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), "", new ComputationResultListener() {
       @Override
       public void resultAvailable(final ViewComputationResultModel result) {
         //ignore

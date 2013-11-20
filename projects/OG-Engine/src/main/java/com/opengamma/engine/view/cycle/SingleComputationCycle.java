@@ -100,6 +100,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   // Injected inputs
   private final UniqueId _cycleId;
+  private final String _name;
   private final ViewProcessContext _viewProcessContext;
   private final CompiledViewDefinitionWithGraphs _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
@@ -119,7 +120,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   // Output
   private final InMemoryViewComputationResultModel _resultModel;
 
-  public SingleComputationCycle(final UniqueId cycleId, final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
+  public SingleComputationCycle(final UniqueId cycleId, final String name, final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
       final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
       final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
@@ -129,6 +130,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.isFalse(versionCorrection.containsLatest(), "versionCorrection must be fully-resolved");
     _cycleId = cycleId;
+    _name = name;
     _viewProcessContext = viewProcessContext;
     _compiledViewDefinition = compiledViewDefinition;
     _cycleFragmentResultListener = cycleFragmentResultListener;
@@ -153,6 +155,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   public ViewCycleExecutionOptions getViewCycleExecutionOptions() {
     return _executionOptions;
+  }
+
+  @Override
+  public String getName() {
+    return _name;
   }
 
   /**

@@ -884,7 +884,14 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         cycleFragmentCompleted(result);
       }
     };
-    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+    final SingleComputationCycle cycle = new SingleComputationCycle(
+        cycleId, 
+        executionOptions.getName(), 
+        streamingResultListener, 
+        getProcessContext(), 
+        compiledViewDefinition, 
+        executionOptions, 
+        versionCorrection);
     return getProcessContext().getCycleManager().manage(cycle);
   }
 
