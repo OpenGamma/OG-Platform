@@ -772,7 +772,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * Gets for obtaining the live market data provider names.
    * @return the value of the property
    */
   public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
@@ -780,7 +780,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * Sets for obtaining the live market data provider names.
    * @param liveMarketDataProviderFactory  the new value of the property
    */
   public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
@@ -797,7 +797,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * Gets for looking up market data provider specifications by name.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    * @return the value of the property
@@ -808,7 +808,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * Sets for looking up market data provider specifications by name.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    * @param marketDataSpecificationRepository  the new value of the property
