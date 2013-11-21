@@ -79,6 +79,11 @@
       <artifactId>derby</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.miglayout</groupId>
+      <artifactId>miglayout</artifactId>
+      <version>3.7.3.1</version>
+    </dependency>
 
     <dependency>
       <groupId>org.hsqldb</groupId>
