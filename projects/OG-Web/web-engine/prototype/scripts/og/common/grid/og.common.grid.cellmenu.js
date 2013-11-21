@@ -119,7 +119,6 @@ $.register_module({
             cellmenu.destroy_frozen();
             cellmenu.frozen = true;
             cellmenu.menu.addClass('og-frozen');
-            console.log(cell, cellmenu.grid, panel);
             /* value requirements are not needed when:
              * 1. gadgets are launched off a depgraph
              * 2. Position/Trade gadgets are launched (cell.col = 0)
