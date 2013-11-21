@@ -106,7 +106,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     final String tradeType = desiredValue.getConstraint(PnLFunctionUtils.PNL_TRADE_TYPE_CONSTRAINT);
     if (tradeType == null) {
       s_logger.error("TradeType not set for: " + security.getName() +
-          ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
+          ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_NEW + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
     }
 
     // Create output specification. Check for trivial cases
