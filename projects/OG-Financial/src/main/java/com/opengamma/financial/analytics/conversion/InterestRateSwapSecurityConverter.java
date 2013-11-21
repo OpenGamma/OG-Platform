@@ -178,7 +178,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           fixedLegNotional,
           fixedLeg.getRate().getInitialRate(),
           payFixed,
-          StubType.SHORT_START,
+          fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
           fixedLeg.getConvention().getPaymentLag());
     } else {
       throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + fixedLeg.getConvention().getCompoundingMethod());
@@ -201,7 +201,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             floatLegFixingBusinessDayConvention,
             floatIsEOM,
             floatFixingCalendar,
-            StubType.SHORT_START,
+            fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
             0); // TODO payment lag
       } else {
         secondLeg = AnnuityDefinitionBuilder.couponIbor(
@@ -215,7 +215,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             floatLegFixingBusinessDayConvention,
             floatIsEOM,
             floatFixingCalendar, // period and payment dates are generated from these
-            StubType.SHORT_START,
+            fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
             0); // TODO payment lag
       }
     } else if (iborLeg.getConvention().getCompoundingMethod()  == CompoundingMethod.FLAT) {
@@ -231,7 +231,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           floatLegFixingBusinessDayConvention,
           floatIsEOM,
           floatFixingCalendar, // period and payment dates are generated from these
-          StubType.SHORT_START); // TODO stub periods
+          fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START); // TODO stub periods
     } else if (iborLeg.getConvention().getCompoundingMethod() == CompoundingMethod.SPREAD_EXCLUSIVE) {
       secondLeg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(
           effectiveDateTime,
@@ -245,7 +245,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           floatLegFixingBusinessDayConvention,
           floatIsEOM,
           floatFixingCalendar,
-          StubType.SHORT_START);
+          fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START);
     } else if (iborLeg.getConvention().getCompoundingMethod() == CompoundingMethod.STRAIGHT) {
       secondLeg = AnnuityDefinitionBuilder.couponIborCompounding(
           effectiveDateTime,
@@ -258,7 +258,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
           floatLegFixingBusinessDayConvention,
           floatIsEOM,
           floatFixingCalendar, // period and payment dates are generated from these
-          StubType.SHORT_START); // TODO stub compounding period
+          fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START); // TODO stub compounding period
     } else {
       throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + iborLeg.getConvention().getCompoundingMethod());
     }
