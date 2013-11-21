@@ -15,6 +15,7 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
+import com.opengamma.financial.analytics.QuantityFunction;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.InterpolatedForwardCurveDefaults;
@@ -78,6 +79,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
+    functions.add(functionConfiguration(QuantityFunction.class));
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
     addEquityDividendYieldFuturesDefaults(functions);
