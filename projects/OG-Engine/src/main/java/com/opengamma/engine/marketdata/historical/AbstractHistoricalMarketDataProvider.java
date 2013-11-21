@@ -139,8 +139,9 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
       @Override
       public Serializable getAvailabilityHintKey() {
-        final ArrayList<Serializable> key = new ArrayList<Serializable>(2);
-        key.add(getClass().getName());
+        final ArrayList<Serializable> key = new ArrayList<Serializable>(3);
+        key.add(AbstractHistoricalMarketDataProvider.this.getClass().getName());
+        key.add(date);
         key.add(getTimeSeriesResolverKey());
         return key;
       }
