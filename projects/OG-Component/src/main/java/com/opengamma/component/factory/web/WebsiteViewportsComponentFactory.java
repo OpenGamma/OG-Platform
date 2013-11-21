@@ -29,7 +29,6 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.change.AggregatingChangeManager;
@@ -244,12 +243,10 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    if (getLiveMarketDataProviderFactory() != null) {
-      repo.getRestComponents().publishResource(new LiveMarketDataProviderNamesResource(getLiveMarketDataProviderFactory()));
-    } else if (getMarketDataSpecificationRepository() != null) {
+    if (getMarketDataSpecificationRepository() != null) {
       repo.getRestComponents().publishResource(new LiveMarketDataSpecificationNamesResource(getMarketDataSpecificationRepository()));
     } else {
-      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
+      repo.getRestComponents().publishResource(new LiveMarketDataProviderNamesResource(getLiveMarketDataProviderFactory()));
     }
     repo.getRestComponents().publishResource(new WebUiResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());

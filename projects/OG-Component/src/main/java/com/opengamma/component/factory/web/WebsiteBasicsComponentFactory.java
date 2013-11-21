@@ -169,12 +169,12 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private BatchMaster _batchMaster;
   /**
-   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * For obtaining the live market data provider names.
    */
   @PropertyDefinition
   private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
   /**
-   * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * For looking up market data provider specifications by name.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    */
@@ -211,9 +211,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initMasters(ComponentRepository repo) {
-    if (getLiveMarketDataProviderFactory() == null && getMarketDataSpecificationRepository() == null) {
-      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
-    }
     JerseyRestResourceFactory resource;
     resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
     repo.getRestComponents().publishResource(resource);
