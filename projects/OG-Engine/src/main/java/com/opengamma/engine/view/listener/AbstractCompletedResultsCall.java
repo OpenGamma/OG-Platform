@@ -87,11 +87,13 @@ public abstract class AbstractCompletedResultsCall implements Function<ViewResul
           _delta = _deltaCopy;
         } else {
           // Merge the new result into the running delta
-          if (previous.equals(current)) {
-            // Two results calculated so close together they appear "at the same time". The merge order might be wrong.
-            s_logger.warn("Merging two deltas both calculated at {}", current);
-          } else {
-            s_logger.debug("Applying new delta from {} to previous delta from {}", current, previous);
+          if (s_logger.isDebugEnabled()) {
+            if (previous.equals(current)) {
+              // Two results calculated so close together they appear "at the same time". The merge order might be wrong.
+              s_logger.debug("Merging two deltas both calculated at {}", current);
+            } else {
+              s_logger.debug("Applying new delta from {} to previous delta from {}", current, previous);
+            }
           }
           if (_deltaCopy == null) {
             _deltaCopy = new InMemoryViewDeltaResultModel(_delta);

@@ -47,8 +47,9 @@ public class CycleFragmentCompletedCall extends AbstractCompletedResultsCall {
 
   @Override
   protected void ambiguousResult(final ViewComputationResultModel full) {
-    // Two results calculated so close together they appear "at the same time". Better merge them, but the result might be wrong.
-    s_logger.warn("Merging two results both calculated at the same time");
+    // This result predates the current value, so swap and merge to get ordering right. Fragments are commutative so ordering shouldn't
+    // matter unless results get calculated multiple times with different values for each because of job failure/resubmission.
+    s_logger.debug("Merging two results both calculated at the same time");
     getViewComputationResultModelCopy().update(full);
   }
 
