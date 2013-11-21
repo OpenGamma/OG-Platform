@@ -82,10 +82,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
   // scrolling down or expanding the viewport down triggers a node expansion
   @Override
   Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition) {
+    // Viewport definitions other than RectangularViewportDefinitions do not have changed nodes so just return null
     if (!(viewportDefinition instanceof RectangularViewportDefinition)) {
-      throw new IllegalArgumentException("Unexpected viewport definition type " +
-                                             viewportDefinition.getClass().getSimpleName() + ", expected " +
-                                             RectangularViewportDefinition.class.getSimpleName());
+      return null;
     }
     List<Integer> newRows = ((RectangularViewportDefinition) viewportDefinition).getRows();
 
