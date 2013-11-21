@@ -20,10 +20,9 @@ public abstract class EquityInstrumentDefaultValues {
   private static final String SURFACE_INTERPOLATOR = "Spline";
   private static final String SURFACE_NAME = "BBG";
   private static final String FUTURES_PRICE_CURVE_NAME = "BBG";
+  private static final String FUNDING_CURVE_NAME = "OIS";
   private static final String DIVIDEND_DISCRETE = "Discrete";
   private static final String DIVIDEND_CONTINUOUS = "Continuous";
-  private static final String FORWARD_CURVE_CALCULATION_METHOD_YCI = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
-  private static final String FORWARD_CURVE_CALCULATION_METHOD_FPM = ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD;
   private static final Map<String, String> EQUITY_NAMES = new HashMap<>();
   private static final Map<String, String> EXCHANGE_NAMES = new HashMap<>();
   private static final Map<String, String> DISCOUNTING_CURVE_NAMES = new HashMap<>();
@@ -72,10 +71,10 @@ public abstract class EquityInstrumentDefaultValues {
     FORWARD_CURVE_CALCULATION_CONFIG_NAMES.put("USD", "DefaultTwoCurveUSDConfig");
     FORWARD_CURVE_CALCULATION_CONFIG_NAMES.put("JPY", "DefaultTwoCurveJPYConfig");
     FORWARD_CURVE_CALCULATION_CONFIG_NAMES.put("GBP", "DefaultTwoCurveGBPConfig");
+    
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("USD", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("JPY", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("GBP", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
-    
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("DJX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("SPX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("NDX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
@@ -83,6 +82,24 @@ public abstract class EquityInstrumentDefaultValues {
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("RUY", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("NKY", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("VIX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("IBM", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("RBS", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("LLOY", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("JPM", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("SPY", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    
+    FORWARD_CURVE_NAMES.put("DJX", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("SPX", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("NDX", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("SPXQ", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("RUY", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("NKY", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("VIX", FUTURES_PRICE_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("IBM", FUNDING_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("RBS", FUNDING_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("LLOY", FUNDING_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("JPM", FUNDING_CURVE_NAME);
+    FORWARD_CURVE_NAMES.put("SPY", FUNDING_CURVE_NAME);
     
     
     VOLATILITY_SURFACE_NAMES.put("DJX", SURFACE_NAME);
@@ -395,10 +412,10 @@ public abstract class EquityInstrumentDefaultValues {
               result.add(DISCOUNTING_CURVE_CALCULATION_CONFIG_NAMES.get(currency));
               break;
             case 4:
-              result.add(FORWARD_CURVE_NAMES.get(currency));
+              result.add(FORWARD_CURVE_NAMES.get(indexName));
               break;
             case 5:
-              result.add(FORWARD_CURVE_CALCULATION_METHOD_NAMES.get(currency));
+              result.add(FORWARD_CURVE_CALCULATION_METHOD_NAMES.get(indexName));
               break;
             case 6:
               result.add(FORWARD_CURVE_CALCULATION_CONFIG_NAMES.get(currency));
