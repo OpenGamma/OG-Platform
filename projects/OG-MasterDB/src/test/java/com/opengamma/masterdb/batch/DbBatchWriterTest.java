@@ -150,6 +150,11 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
         return UniqueId.of("viewdef", "viewdef", "viewdef");
       }
 
+      @Override
+      public String getName() {
+        return "cycle_name";
+      }
+
     };
 
   }
@@ -277,6 +282,7 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
     assertNotNull(run2.getStartInstant());
     assertNull(run2.getEndInstant());
     assertNotNull(run2.getMarketData());
+    assertNotNull(run2.getName());
 
     // Map<String, String> props = run2.getPropertiesMap();
     //assertEquals(10, props.size());

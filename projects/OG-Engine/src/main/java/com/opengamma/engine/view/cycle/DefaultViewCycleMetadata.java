@@ -58,6 +58,9 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
 
   @PropertyDefinition
   private Map<String, Map<ValueSpecification, Set<ValueRequirement>>> _terminalOutputsByCalcConfig;
+  
+  @PropertyDefinition
+  private String _name;
 
   public DefaultViewCycleMetadata() {
   }
@@ -65,7 +68,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   public DefaultViewCycleMetadata(UniqueId viewCycleId, UniqueId marketDataSnapshotUniqueId, UniqueId viewDefinitionId,
       VersionCorrection versionCorrection, Instant valuationTime, Collection<String> allCalculationConfigurationNames,
       Map<String, Collection<ComputationTargetSpecification>> computationTargetsByConfigName,
-      Map<String, Map<ValueSpecification, Set<ValueRequirement>>> terminalOutputsByConfigName) {
+      Map<String, Map<ValueSpecification, Set<ValueRequirement>>> terminalOutputsByConfigName, String name) {
     _viewCycleId = viewCycleId;
     _marketDataSnapshotId = marketDataSnapshotUniqueId;
     _viewDefinitionId = viewDefinitionId;
@@ -74,6 +77,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     _allCalculationConfigurationNames = allCalculationConfigurationNames;
     _computationTargetsByCalcConfig = computationTargetsByConfigName;
     _terminalOutputsByCalcConfig = terminalOutputsByConfigName;
+    _name = name;
   }
 
   @Override
@@ -306,6 +310,31 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the name.
+   * @return the value of the property
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name.
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public DefaultViewCycleMetadata clone() {
     BeanBuilder<? extends DefaultViewCycleMetadata> builder = metaBean().builder();
@@ -335,7 +364,8 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
           JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
           JodaBeanUtils.equal(getAllCalculationConfigurationNames(), other.getAllCalculationConfigurationNames()) &&
           JodaBeanUtils.equal(getComputationTargetsByCalcConfig(), other.getComputationTargetsByCalcConfig()) &&
-          JodaBeanUtils.equal(getTerminalOutputsByCalcConfig(), other.getTerminalOutputsByCalcConfig());
+          JodaBeanUtils.equal(getTerminalOutputsByCalcConfig(), other.getTerminalOutputsByCalcConfig()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
     }
     return false;
   }
@@ -351,12 +381,13 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     hash += hash * 31 + JodaBeanUtils.hashCode(getAllCalculationConfigurationNames());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetsByCalcConfig());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTerminalOutputsByCalcConfig());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("DefaultViewCycleMetadata{");
     int len = buf.length();
     toString(buf);
@@ -376,6 +407,7 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     buf.append("allCalculationConfigurationNames").append('=').append(JodaBeanUtils.toString(getAllCalculationConfigurationNames())).append(',').append(' ');
     buf.append("computationTargetsByCalcConfig").append('=').append(JodaBeanUtils.toString(getComputationTargetsByCalcConfig())).append(',').append(' ');
     buf.append("terminalOutputsByCalcConfig").append('=').append(JodaBeanUtils.toString(getTerminalOutputsByCalcConfig())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -432,6 +464,11 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
     private final MetaProperty<Map<String, Map<ValueSpecification, Set<ValueRequirement>>>> _terminalOutputsByCalcConfig = DirectMetaProperty.ofReadWrite(
         this, "terminalOutputsByCalcConfig", DefaultViewCycleMetadata.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", DefaultViewCycleMetadata.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -443,7 +480,8 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
         "valuationTime",
         "allCalculationConfigurationNames",
         "computationTargetsByCalcConfig",
-        "terminalOutputsByCalcConfig");
+        "terminalOutputsByCalcConfig",
+        "name");
 
     /**
      * Restricted constructor.
@@ -470,6 +508,8 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
           return _computationTargetsByCalcConfig;
         case -351004092:  // terminalOutputsByCalcConfig
           return _terminalOutputsByCalcConfig;
+        case 3373707:  // name
+          return _name;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -554,6 +594,14 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
       return _terminalOutputsByCalcConfig;
     }
 
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -574,6 +622,8 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
           return ((DefaultViewCycleMetadata) bean).getComputationTargetsByCalcConfig();
         case -351004092:  // terminalOutputsByCalcConfig
           return ((DefaultViewCycleMetadata) bean).getTerminalOutputsByCalcConfig();
+        case 3373707:  // name
+          return ((DefaultViewCycleMetadata) bean).getName();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -605,6 +655,9 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
           return;
         case -351004092:  // terminalOutputsByCalcConfig
           ((DefaultViewCycleMetadata) bean).setTerminalOutputsByCalcConfig((Map<String, Map<ValueSpecification, Set<ValueRequirement>>>) newValue);
+          return;
+        case 3373707:  // name
+          ((DefaultViewCycleMetadata) bean).setName((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

@@ -62,7 +62,8 @@ public class DataBatchRunResourceTest {
       newHashSet(new RiskRunProperty()),
       false,
       VersionCorrection.LATEST,
-      UniqueId.of("Scheme", "view-def")
+      UniqueId.of("Scheme", "view-def"),
+      "cycle_name"
     );
     
     _underlying = mock(BatchMaster.class);

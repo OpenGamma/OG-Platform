@@ -575,7 +575,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 return;
               }
               cycleStarted(new DefaultViewCycleMetadata(cycleReference.get().getUniqueId(), marketDataSnapshot.getUniqueId(), compiledViewDefinition.getViewDefinition().getUniqueId(),
-                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs));
+                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs, 
+                  executionOptions.getName()));
               if (isTerminated()) {
                 return;
               }
