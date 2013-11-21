@@ -584,7 +584,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                   executionOptions.getValuationTime(),
                   singleComputationCycle.getAllCalculationConfigurationNames(),
                   configToComputationTargets,
-                  configToTerminalOutputs));
+                  configToTerminalOutputs,
+                  executionOptions.getName()));
               if (isTerminated()) {
                 return;
               }

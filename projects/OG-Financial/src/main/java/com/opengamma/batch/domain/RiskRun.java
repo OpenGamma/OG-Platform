@@ -90,6 +90,9 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   @PropertyDefinition
   private ComputationTargetResolver _computationTargetResolver;
+  
+  @PropertyDefinition
+  private String _name;
 
   /**
    * Gets the viewDefinitionUid.
@@ -119,7 +122,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
   public RiskRun(MarketData marketData, Instant createInstant, Instant valuationTime, int numRestarts,
       Set<CalculationConfiguration> calculationConfigurations, Set<RiskRunProperty> properties, boolean complete,
-      VersionCorrection versionCorrection, UniqueId viewDefinitionUid) {
+      VersionCorrection versionCorrection, UniqueId viewDefinitionUid, String name) {
     this._marketData = marketData;
     this._createInstant = createInstant;
     this._valuationTime = valuationTime;
@@ -128,6 +131,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     this._properties = properties;
     this._complete = complete;
     this._versionCorrection = versionCorrection;
+    this._name = name;
     setViewDefinitionUid(viewDefinitionUid);
     //
     for (RiskRunProperty property : properties) {
@@ -149,7 +153,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         Sets.<RiskRunProperty>newHashSet(),
         false,
         cycleMetadata.getVersionCorrection(),
-        cycleMetadata.getViewDefinitionId());
+        cycleMetadata.getViewDefinitionId(),
+        cycleMetadata.getName());
   }
 
   public Map<String, String> getPropertiesMap() {
@@ -594,6 +599,31 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the name.
+   * @return the value of the property
+   */
+  public String getName() {
+    return _name;
+  }
+
+  /**
+   * Sets the name.
+   * @param name  the new value of the property
+   */
+  public void setName(String name) {
+    this._name = name;
+  }
+
+  /**
+   * Gets the the {@code name} property.
+   * @return the property, not null
+   */
+  public final Property<String> name() {
+    return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public RiskRun clone() {
     BeanBuilder<? extends RiskRun> builder = metaBean().builder();
@@ -631,7 +661,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           JodaBeanUtils.equal(getViewDefinitionUidValue(), other.getViewDefinitionUidValue()) &&
           JodaBeanUtils.equal(getViewDefinitionUidVersion(), other.getViewDefinitionUidVersion()) &&
           JodaBeanUtils.equal(getSnapshotMode(), other.getSnapshotMode()) &&
-          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver());
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
     }
     return false;
   }
@@ -655,12 +686,13 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionUidVersion());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMode());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(544);
+    StringBuilder buf = new StringBuilder(576);
     buf.append("RiskRun{");
     int len = buf.length();
     toString(buf);
@@ -688,6 +720,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     buf.append("viewDefinitionUidVersion").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidVersion())).append(',').append(' ');
     buf.append("snapshotMode").append('=').append(JodaBeanUtils.toString(getSnapshotMode())).append(',').append(' ');
     buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -783,6 +816,11 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
     private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
         this, "computationTargetResolver", RiskRun.class, ComputationTargetResolver.class);
     /**
+     * The meta-property for the {@code name} property.
+     */
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+        this, "name", RiskRun.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -802,7 +840,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
         "viewDefinitionUidValue",
         "viewDefinitionUidVersion",
         "snapshotMode",
-        "computationTargetResolver");
+        "computationTargetResolver",
+        "name");
 
     /**
      * Restricted constructor.
@@ -845,6 +884,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           return _snapshotMode;
         case 1562222174:  // computationTargetResolver
           return _computationTargetResolver;
+        case 3373707:  // name
+          return _name;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -993,6 +1034,14 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
       return _computationTargetResolver;
     }
 
+    /**
+     * The meta-property for the {@code name} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> name() {
+      return _name;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -1029,6 +1078,8 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           return ((RiskRun) bean).getSnapshotMode();
         case 1562222174:  // computationTargetResolver
           return ((RiskRun) bean).getComputationTargetResolver();
+        case 3373707:  // name
+          return ((RiskRun) bean).getName();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1084,6 +1135,9 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
           return;
         case 1562222174:  // computationTargetResolver
           ((RiskRun) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case 3373707:  // name
+          ((RiskRun) bean).setName((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
