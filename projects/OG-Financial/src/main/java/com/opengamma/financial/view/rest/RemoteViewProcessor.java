@@ -109,4 +109,9 @@ public class RemoteViewProcessor implements ViewProcessor {
     return new RemoteMarketDataSnapshotter(uri);
   }
 
+  @Override
+  public void clearViewExecutionCache() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLEAR_CACHE).build();
+    _client.accessFudge(uri).post();
+  }
 }

@@ -594,6 +594,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     return _cycleManager;
   }
 
+  @Override
+  public void clearViewExecutionCache() {
+    _executionCache.clear();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Intended for testing.
