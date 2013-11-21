@@ -19,8 +19,11 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 public abstract class EquityInstrumentDefaultValues {
   private static final String SURFACE_INTERPOLATOR = "Spline";
   private static final String SURFACE_NAME = "BBG";
+  private static final String FUTURES_PRICE_CURVE_NAME = "BBG";
   private static final String DIVIDEND_DISCRETE = "Discrete";
   private static final String DIVIDEND_CONTINUOUS = "Continuous";
+  private static final String FORWARD_CURVE_CALCULATION_METHOD_YCI = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
+  private static final String FORWARD_CURVE_CALCULATION_METHOD_FPM = ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD;
   private static final Map<String, String> EQUITY_NAMES = new HashMap<>();
   private static final Map<String, String> EXCHANGE_NAMES = new HashMap<>();
   private static final Map<String, String> DISCOUNTING_CURVE_NAMES = new HashMap<>();
@@ -72,6 +75,16 @@ public abstract class EquityInstrumentDefaultValues {
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("USD", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("JPY", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("GBP", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+    
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("DJX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("SPX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("NDX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("SPXQ", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("RUY", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("NKY", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("VIX", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    
+    
     VOLATILITY_SURFACE_NAMES.put("DJX", SURFACE_NAME);
     VOLATILITY_SURFACE_NAMES.put("SPX", SURFACE_NAME);
     VOLATILITY_SURFACE_NAMES.put("SPXQ", SURFACE_NAME);
@@ -148,6 +161,8 @@ public abstract class EquityInstrumentDefaultValues {
     
     Builder useIdName();
     
+    List<String> createPerTickerDefaults();
+
     com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues.Builder useDividendTypes();
 
     Builder useDiscountingCurveNames();
@@ -542,6 +557,56 @@ public abstract class EquityInstrumentDefaultValues {
             break;
           default:
             throw new IllegalStateException();
+        }
+      }
+      return result;
+    }
+    
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public List<String> createPerTickerDefaults() {
+      final List<String> result = new ArrayList<>();
+      for (Map.Entry<String, String> entry : EQUITY_NAMES.entrySet()) {
+        final String indexName = entry.getKey();
+        String currency = entry.getValue();
+        for (Integer field : _order) {
+          switch (field) {
+            case 0: 
+              result.add(indexName);
+              break;
+            case 1:
+              result.add(DISCOUNTING_CURVE_NAMES.get(currency));
+              break;
+            case 2: 
+              result.add(currency);
+              break;
+            case 3:
+              result.add(DISCOUNTING_CURVE_CALCULATION_CONFIG_NAMES.get(currency));
+              break;
+            case 4:
+              result.add(FUTURES_PRICE_CURVE_NAME);
+              break;
+            case 5:
+              result.add(ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+              break;
+            case 6:
+              result.add(FORWARD_CURVE_CALCULATION_CONFIG_NAMES.get(currency));
+              break;
+            case 7:
+              result.add(SURFACE_NAME);
+              break;
+            case 8:
+              result.add(INTERPOLATOR_NAMES.get(indexName));
+              break;
+            case 9: 
+              result.add(VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.get(indexName));
+              break;
+            case 10: 
+              result.add(DIVIDEND_TYPES.get(indexName));
+              break;
+            default:
+              throw new IllegalStateException();
+          }
         }
       }
       return result;

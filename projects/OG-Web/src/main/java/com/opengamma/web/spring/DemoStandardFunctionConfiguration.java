@@ -10,12 +10,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.curve.forward.InterpolatedForwardCurveDefaults;
+import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFuturePriceImpliedPerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
@@ -398,6 +401,12 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   protected void addEquityForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
+    // Interpolation Defaults
+    functionConfigs.add(functionConfiguration(InterpolatedForwardCurveDefaults.class, 
+        Interpolator1DFactory.DOUBLE_QUADRATIC, 
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
+        Interpolator1DFactory.FLAT_EXTRAPOLATOR));
+    // EquityForward PerEquityDefaults
     final List<String> equityForwardDefaults = EquityInstrumentDefaultValues.builder()
         .useIdName()
         .useDiscountingCurveNames()
@@ -408,28 +417,42 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityForwardPerEquityDefaults.addAll(equityForwardDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardPerEquityDefaults.class.getName(), equityForwardPerEquityDefaults));
     
+    // EquityForwardCurve PerTickerDefaults (like above but for a curve requirement)
     final EquityInstrumentDefaultValues.Builder equityForwardCurveEquityAndExchangeDefaults = EquityInstrumentDefaultValues.builder()
         .useIdName()
         .useDiscountingCurveCurrency()
         .useDiscountingCurveNames()
         .useDiscountingCurveCalculationConfigNames()
         .useDividendTypes();
-    
-    final EquityInstrumentDefaultValues.Builder equityForwardCurveCurrencyDefaults = EquityInstrumentDefaultValues.builder()
-        .useDiscountingCurveCurrency()
-        .useDiscountingCurveNames()
-        .useDiscountingCurveCalculationConfigNames()
-        .useDividendTypes();
-
     final List<String> equityForwardCurvePerTickerDefaults = new ArrayList<>();
     equityForwardCurvePerTickerDefaults.add(PriorityClass.ABOVE_NORMAL.name());
     equityForwardCurvePerTickerDefaults.addAll(equityForwardCurveEquityAndExchangeDefaults.createPerEquityDefaults());
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerTickerDefaults.class.getName(), equityForwardCurvePerTickerDefaults));
 
+    // EquityForwardCurve PerCurrencyDefaults 
+    final EquityInstrumentDefaultValues.Builder equityForwardCurveCurrencyDefaults = EquityInstrumentDefaultValues.builder()
+        .useDiscountingCurveCurrency()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
+        .useDividendTypes();
     final List<String> equityForwardCurvePerCurrencyDefaults = new ArrayList<>();
     equityForwardCurvePerCurrencyDefaults.add(PriorityClass.BELOW_NORMAL.name());
     equityForwardCurvePerCurrencyDefaults.addAll(equityForwardCurveCurrencyDefaults.createPerCurrencyDefaults());
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults.class.getName(), equityForwardCurvePerCurrencyDefaults));
+    
+    // EquityForwardCurve (from Futures) PerTickerDefaults
+    EquityInstrumentDefaultValues.Builder equityForwardCurveFromFuturesDefaults = EquityInstrumentDefaultValues.builder()
+        .useIdName()
+        .useForwardCurveNames()
+        .useDiscountingCurveCurrency()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
+        .useVolatilitySurfaceNames();
+    List<String> equityForwardCurveFromFuturesPerTickerDefaults = new ArrayList<>();
+    equityForwardCurveFromFuturesPerTickerDefaults.add(PriorityClass.ABOVE_NORMAL.name());
+    equityForwardCurveFromFuturesPerTickerDefaults.addAll(equityForwardCurveFromFuturesDefaults.createPerTickerDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveFuturePriceImpliedPerTickerDefaults.class.getName(), equityForwardCurveFromFuturesPerTickerDefaults));
+    
   }
   
   protected void addEquityFuturePricingDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -558,8 +581,10 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
   
   protected void addEquityOptionCalculationMethodDefaults(final List<FunctionConfiguration> functionConfigs) {
-    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD, CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD,
-        CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD);
+    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), 
+        CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD, // (American) Equity Options
+        CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD, // (European) EquityIndexOptions
+        CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD); // (American) EquityIndexFutureOptions
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
   }
 
