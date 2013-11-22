@@ -222,8 +222,7 @@ $.register_module({
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }
-                // if this is a depgraph and we have no graph_id
-
+                // if this is a depgraph and we have no graph_id, this will create a new viewport
                 if (depgraph && !graph_id) {
                     api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type,
                         colset: source.colset, req: source.req}).pipe(function (result) {
