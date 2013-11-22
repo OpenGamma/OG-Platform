@@ -93,7 +93,7 @@ public class ISDACompliantCurveTest {
       final double[] fdSense = fdRTSense(curve, tt);
       for (int jj = 0; jj < n; jj++) {
         final double[] rtandSense = curve.getRTandSensitivity(tt, jj);
-        assertEquals("rt " + tt, rt1, rtandSense[0], 1e-15);
+        assertEquals("rt " + tt, rt1, rtandSense[0], 1e-14);
         assertEquals("sense " + tt + "\t" + jj, fdSense[jj], rtandSense[1], 1e-9);
       }
     }

@@ -14,12 +14,20 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * An ISDA compliant credit curve.
  */
 @BeanDefinition
-public class ISDACompliantCreditCurve
-    extends ISDACompliantCurve {
+public class ISDACompliantCreditCurve extends ISDACompliantCurve {
+
+  public static ISDACompliantCreditCurve makeFromRT(final double[] t, final double[] rt) {
+    ArgumentChecker.notEmpty(t, "t");
+    ArgumentChecker.notEmpty(rt, "rt");
+    ArgumentChecker.isTrue(t.length == rt.length, "length of t not equal to length of rt");
+    return new ISDACompliantCreditCurve(new ISDACompliantCurve(new double[][] {t, rt }));
+  }
 
   /**
    * Constructor for Joda-Beans.
@@ -56,20 +64,6 @@ public class ISDACompliantCreditCurve
    */
   public ISDACompliantCreditCurve(final ISDACompliantCurve from) {
     super(from);
-  }
-
-  /**
-   * Creates an instance, used by deserialization.
-   * 
-   * @param t  the set of times that form the knots of the curve. Must be ascending with the first value >= 0.
-   * @param r  the set of zero rates
-   * @param rt  the set of rates at the knot times
-   * @param df  the set of discount factors at the knot times
-   * @deprecated This constructor is deprecated
-   */
-  @Deprecated
-  public ISDACompliantCreditCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
-    super(t, r, rt, df);
   }
 
   //-------------------------------------------------------------------------

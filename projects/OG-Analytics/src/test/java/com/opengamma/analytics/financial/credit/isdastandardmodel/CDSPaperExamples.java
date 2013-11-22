@@ -575,22 +575,20 @@ public class CDSPaperExamples extends ISDABaseTest {
   }
 
   private ISDACompliantCreditCurve bumpCurve(final ISDACompliantCreditCurve curve, final double amount) {
-    final double[] r = curve.getR();
+    final double[] r = curve.getKnotZeroRates();
     final int n = r.length;
-    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = r[i] + amount;
+      r[i] += amount;
     }
-    return curve.withRates(res);
+    return curve.withRates(r);
   }
 
   private ISDACompliantCreditCurve tiltCurve(final ISDACompliantCreditCurve curve, final double amount) {
-    final double[] r = curve.getR();
+    final double[] r = curve.getKnotZeroRates();
     final int n = r.length;
-    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = r[i] + (amount / (n / 2)) * (i - n / 2);
+      r[i] += +(amount / (n / 2)) * (i - n / 2);
     }
-    return curve.withRates(res);
+    return curve.withRates(r);
   }
 }

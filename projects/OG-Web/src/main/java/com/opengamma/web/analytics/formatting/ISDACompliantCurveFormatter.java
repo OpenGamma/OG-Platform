@@ -34,7 +34,7 @@ class ISDACompliantCurveFormatter extends AbstractFormatter<ISDACompliantCurve> 
   public List<Double[]> formatCell(ISDACompliantCurve value, ValueSpecification valueSpec, Object inlineKey) {
     List<Double[]> data = new ArrayList<>();
     double[] xData = value.getT();
-    double[] yData = value.getR();
+    double[] yData = value.getKnotZeroRates();
     for (int i = 0; i < xData.length; i++) {
       data.add(new Double[] {xData[i], yData[i] });
     }

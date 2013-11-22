@@ -144,9 +144,8 @@ public class InterestRateSensitivityCalculator {
   }
 
   private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurve curve, final double bumpAmount) {
-    final int n = curve.getR().length;
-    final double[] bumped = new double[n];
-    System.arraycopy(curve.getR(), 0, bumped, 0, n);
+    final int n = curve.getNumberOfKnots();
+    final double[] bumped = curve.getKnotZeroRates();
     for (int i = 0; i < n; i++) {
       bumped[i] += bumpAmount;
     }
@@ -162,7 +161,7 @@ public class InterestRateSensitivityCalculator {
   }
 
   private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurve curve, final double bumpAmount, final int index) {
-    return curve.withRate(curve.getR()[index] + bumpAmount, index);
+    return curve.withRate(curve.getZeroRateAtIndex(index) + bumpAmount, index);
   }
 
   @SuppressWarnings("unused")
