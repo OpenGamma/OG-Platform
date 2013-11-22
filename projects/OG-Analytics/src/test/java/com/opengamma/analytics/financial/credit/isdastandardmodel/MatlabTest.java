@@ -35,7 +35,7 @@ public class MatlabTest extends ISDABaseTest {
 
     System.out.println("start " + cds.getAccStart());
     System.out.println("effProtStart " + cds.getEffectiveProtectionStart());
-    System.out.println("valuationTime " + cds.getValuationTime());
+    System.out.println("valuationTime " + cds.getCashSettleTime());
     System.out.println("protEnd " + cds.getProtectionEnd());
     System.out.println("unitAccruedPremium " + cds.getAccruedPremiumPerUnitSpread());
     System.out.println("lgd " + cds.getLGD());

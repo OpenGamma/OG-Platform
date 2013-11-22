@@ -300,6 +300,46 @@ public class ISDACompliantCurve extends DoublesCurve {
     return getRT(t, insertionPoint);
   }
 
+  public double[] getRTandSensitivity(final double t, final int nodeIndex) {
+    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0, was, {}", t);
+    ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < _n, "node index of {} out of range", nodeIndex);
+    // short-cut doing binary search
+    if (t <= _t[0]) {
+      return new double[] {_r[0] * t, nodeIndex == 0 ? t : 0.0 };
+    }
+
+    int index;
+    if (t > _t[_n - 1]) {
+      index = _n - 1;
+    } else if (t == _t[nodeIndex]) {
+      return new double[] {_rt[nodeIndex], t };
+    } else if (nodeIndex > 0 && t > _t[nodeIndex - 1] && t < _t[nodeIndex]) {
+      index = nodeIndex;
+    } else {
+      index = Arrays.binarySearch(_t, t);
+      if (index >= 0) {
+        return new double[] {_rt[index], 0.0 }; //if nodeIndex == index, would have matched earlier 
+      }
+      index = -(index + 1);
+      if (index == _n) {
+        index--;
+      }
+    }
+
+    final double t1 = _t[index - 1];
+    final double t2 = _t[index];
+    final double dt = t2 - t1;
+    final double rt = ((t2 - t) * _rt[index - 1] + (t - t1) * _rt[index]) / dt;
+    double sense = 0.0;
+    if (nodeIndex == index) {
+      sense = t2 * (t - t1) / dt;
+    } else if (nodeIndex == index - 1) {
+      sense = t1 * (t2 - t) / dt;
+    }
+
+    return new double[] {rt, sense };
+  }
+
   private double getRT(final double t, final int insertionPoint) {
     if (insertionPoint == 0) {
       return t * _r[0];
@@ -412,14 +452,28 @@ public class ISDACompliantCurve extends DoublesCurve {
     if (t <= _t[0]) {
       return nodeIndex == 0 ? 1.0 : 0.0;
     }
-    //    if (t >= _t[_n - 1]) {
-    //
-    //      return nodeIndex == _n - 1 ? 1.0 : 0.0;
-    //    }
+
+    return getSingleNodeRTSensitivity(t, nodeIndex) / t;
+  }
+
+  /**
+   * Gets the sensitivity of the interpolated zero rate times time (RT or -ln(discount factor))  at time t to the value of the zero rate at a given node (knot).
+   * For a given index, i, this is zero unless $$t_{i-1} < t < t_{i+1}$$ since the interpolation is highly local.
+   * @param t  the time
+   * @param nodeIndex  the node index
+   * @return the sensitivity to a single node
+   */
+  public double getSingleNodeRTSensitivity(final double t, final int nodeIndex) {
+    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
+    ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < _n, "index out of range");
+
+    if (t <= _t[0]) {
+      return nodeIndex == 0 ? t : 0.0;
+    }
 
     final int index = Arrays.binarySearch(_t, t);
     if (index >= 0) {
-      return nodeIndex == index ? 1.0 : 0.0;
+      return nodeIndex == index ? t : 0.0;
     }
 
     final int insertionPoint = Math.min(_n - 1, -(1 + index));
@@ -431,10 +485,10 @@ public class ISDACompliantCurve extends DoublesCurve {
     final double t2 = _t[insertionPoint];
     final double dt = t2 - t1;
     if (nodeIndex == insertionPoint) {
-      return t2 * (t - t1) / dt / t;
+      return t2 * (t - t1) / dt;
     }
 
-    return t1 * (t2 - t) / dt / t;
+    return t1 * (t2 - t) / dt;
   }
 
   /**
@@ -697,7 +751,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the n.
    * @param n  the new value of the property
    */
-  private void setN(int n) {
+  private void setN(final int n) {
     this._n = n;
   }
 
@@ -714,7 +768,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the t.
    * @param t  the new value of the property
    */
-  private void setT(double[] t) {
+  private void setT(final double[] t) {
     this._t = t;
   }
 
@@ -731,7 +785,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the r.
    * @param r  the new value of the property
    */
-  private void setR(double[] r) {
+  private void setR(final double[] r) {
     this._r = r;
   }
 
@@ -748,7 +802,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the rt.
    * @param rt  the new value of the property
    */
-  private void setRt(double[] rt) {
+  private void setRt(final double[] rt) {
     this._rt = rt;
   }
 
@@ -765,7 +819,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * Sets the df.
    * @param df  the new value of the property
    */
-  private void setDf(double[] df) {
+  private void setDf(final double[] df) {
     this._df = df;
   }
 
@@ -785,9 +839,9 @@ public class ISDACompliantCurve extends DoublesCurve {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    final StringBuilder buf = new StringBuilder(192);
     buf.append("ISDACompliantCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -797,7 +851,7 @@ public class ISDACompliantCurve extends DoublesCurve {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
     buf.append("n").append('=').append(JodaBeanUtils.toString(getN())).append(',').append(' ');
     buf.append("t").append('=').append(JodaBeanUtils.toString(getT())).append(',').append(' ');
@@ -819,38 +873,27 @@ public class ISDACompliantCurve extends DoublesCurve {
     /**
      * The meta-property for the {@code n} property.
      */
-    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(
-        this, "n", ISDACompliantCurve.class, Integer.TYPE);
+    private final MetaProperty<Integer> _n = DirectMetaProperty.ofReadWrite(this, "n", ISDACompliantCurve.class, Integer.TYPE);
     /**
      * The meta-property for the {@code t} property.
      */
-    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(
-        this, "t", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _t = DirectMetaProperty.ofReadWrite(this, "t", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code r} property.
      */
-    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadWrite(
-        this, "r", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _r = DirectMetaProperty.ofReadWrite(this, "r", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code rt} property.
      */
-    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(
-        this, "rt", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _rt = DirectMetaProperty.ofReadWrite(this, "rt", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-property for the {@code df} property.
      */
-    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadWrite(
-        this, "df", ISDACompliantCurve.class, double[].class);
+    private final MetaProperty<double[]> _df = DirectMetaProperty.ofReadWrite(this, "df", ISDACompliantCurve.class, double[].class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "n",
-        "t",
-        "r",
-        "rt",
-        "df");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "n", "t", "r", "rt", "df");
 
     /**
      * Restricted constructor.
@@ -859,7 +902,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           return _n;
@@ -933,7 +976,7 @@ public class ISDACompliantCurve extends DoublesCurve {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           return ((ISDACompliantCurve) bean).getN();
@@ -950,7 +993,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     }
 
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
           ((ISDACompliantCurve) bean).setN((Integer) newValue);

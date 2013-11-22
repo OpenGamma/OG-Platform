@@ -155,7 +155,7 @@ public class AnalyticCDSPricer {
     pv *= cds.getLGD();
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
     pv /= df;
 
     return pv;
@@ -200,7 +200,7 @@ public class AnalyticCDSPricer {
       pv += accPV;
     }
 
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
     pv /= df;
 
     if (cleanOrDirty == PriceType.CLEAN) {
@@ -349,14 +349,15 @@ public class AnalyticCDSPricer {
     final int n = cds.getNumPayments();
     double pvSense = 0.0;
     for (int i = 0; i < n; i++) {
-      final double paymentTime = cds.getPaymentTime(i);
-      final double creditObsTime = cds.getEffectiveAccEnd(i);
+      final CDSCoupon c = cds.getCoupon(i);
+      final double paymentTime = c.getPaymentTime();
+      final double creditObsTime = c.getEffEnd();
       final double dqdh = creditCurve.getSingleNodeDiscountFactorSensitivity(creditObsTime, creditCurveNode);
       if (dqdh == 0) {
         continue;
       }
       final double p = yieldCurve.getDiscountFactor(paymentTime);
-      pvSense += cds.getAccrualFraction(i) * p * dqdh;
+      pvSense += c.getYearFrac() * p * dqdh;
     }
 
     if (cds.isPayAccOnDefault()) {
@@ -371,7 +372,7 @@ public class AnalyticCDSPricer {
       pvSense += accPVSense;
     }
 
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
     pvSense /= df;
     return pvSense;
   }
@@ -396,14 +397,15 @@ public class AnalyticCDSPricer {
     final int n = cds.getNumPayments();
     double pvSense = 0.0;
     for (int i = 0; i < n; i++) {
-      final double paymentTime = cds.getPaymentTime(i);
-      final double creditObsTime = cds.getEffectiveAccEnd(i);
+      final CDSCoupon c = cds.getCoupon(i);
+      final double paymentTime = c.getPaymentTime();
+      final double creditObsTime = c.getEffEnd();
       final double dpdr = yieldCurve.getSingleNodeDiscountFactorSensitivity(paymentTime, yieldCurveNode);
       if (dpdr == 0) {
         continue;
       }
       final double q = creditCurve.getSurvivalProbability(creditObsTime);
-      pvSense += cds.getAccrualFraction(i) * q * dpdr;
+      pvSense += c.getYearFrac() * q * dpdr;
     }
 
     if (cds.isPayAccOnDefault()) {
@@ -419,11 +421,11 @@ public class AnalyticCDSPricer {
       pvSense += accPVSense;
     }
 
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
     pvSense /= df;
 
     //TODO this was put in quickly the get the right sensitivity to the first node
-    final double dfSense = yieldCurve.getSingleNodeDiscountFactorSensitivity(cds.getValuationTime(), yieldCurveNode);
+    final double dfSense = yieldCurve.getSingleNodeDiscountFactorSensitivity(cds.getCashSettleTime(), yieldCurveNode);
     if (dfSense != 0.0) {
       final double pro = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.DIRTY);
       pvSense -= pro / df * dfSense;
@@ -670,7 +672,7 @@ public class AnalyticCDSPricer {
     pvSense *= cds.getLGD();
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
 
     pvSense /= df;
 
@@ -756,12 +758,12 @@ public class AnalyticCDSPricer {
     pvSense *= cds.getLGD();
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
 
     pvSense /= df;
 
     //TODO this was put in quickly the get the right sensitivity to the first node
-    final double dfSense = yieldCurve.getSingleNodeDiscountFactorSensitivity(cds.getValuationTime(), yieldCurveNode);
+    final double dfSense = yieldCurve.getSingleNodeDiscountFactorSensitivity(cds.getCashSettleTime(), yieldCurveNode);
     if (dfSense != 0.0) {
       final double pro = protectionLeg(cds, yieldCurve, creditCurve);
       pvSense -= pro / df * dfSense;

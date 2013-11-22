@@ -20,7 +20,7 @@ public class MultiCDSAnalyticTest extends ISDABaseTest {
   public void test() {
     final CDSAnalyticFactory factory = new CDSAnalyticFactory();
     final LocalDate tradeDate = LocalDate.of(2013, 12, 19);
-    MultiCDSAnalytic multiCDS = factory.makeMultiIMMCDS(tradeDate, new int[] {0, 1, 2, 4 }, new double[] {1, 1, 1, 1 });
+    MultiCDSAnalytic multiCDS = factory.makeMultiIMMCDS(tradeDate, new int[] {0, 1, 2, 4 });
 
     CDSAnalytic[] cds = factory.makeIMMCDS(tradeDate, new Period[] {Period.ZERO, Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(12) });
 
@@ -31,7 +31,7 @@ public class MultiCDSAnalyticTest extends ISDABaseTest {
       assertEquals(cds[i].getAccStart(), multiCDS.getAccStart(), 1e-16);
     }
 
-    multiCDS = factory.makeMultiIMMCDS(tradeDate, new int[] {2, 4, 12, 20, 28, 40 }, new double[] {1, 1, 1, 1, 1, 1 });
+    multiCDS = factory.makeMultiIMMCDS(tradeDate, new int[] {2, 4, 12, 20, 28, 40 });
     cds = factory.makeIMMCDS(tradeDate, new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) });
     for (int i = 0; i < 6; i++) {
       assertEquals(cds[i].getAccuredDays(), multiCDS.getAccuredDays(i));
@@ -46,7 +46,7 @@ public class MultiCDSAnalyticTest extends ISDABaseTest {
     final CDSAnalyticFactory factory = new CDSAnalyticFactory();
     final LocalDate tradeDate = LocalDate.of(2012, 7, 30);
     final LocalDate accStart = LocalDate.of(2013, 6, 20);
-    final MultiCDSAnalytic multiCDS = factory.makeMultiIMMCDS(tradeDate, accStart, new int[] {4, 5, 6, 8 }, new double[] {1, 1, 1, 1 });
+    final MultiCDSAnalytic multiCDS = factory.makeMultiIMMCDS(tradeDate, accStart, new int[] {4, 5, 6, 8 });
 
     final CDSAnalytic[] cds = factory.makeIMMCDS(tradeDate, accStart, new Period[] {Period.ofMonths(12), Period.ofMonths(15), Period.ofMonths(18), Period.ofMonths(24) });
 

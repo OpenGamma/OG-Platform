@@ -11,6 +11,8 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
+import java.util.Arrays;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,7 +38,7 @@ public class MultiAnalyticCDSPricer {
   /**
    *  For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
-   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+   * @param formula which accrual on default formulae to use.
    */
   public MultiAnalyticCDSPricer(final AccrualOnDefaultFormulae formula) {
     ArgumentChecker.notNull(formula, "formula");
@@ -50,14 +52,33 @@ public class MultiAnalyticCDSPricer {
 
   /**
    * Present value for the payer of premiums (i.e. the buyer of protection)
-  * @param cds analytic description of a CDS traded at a certain time
+   * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
-  * @param cleanOrDirty Clean or dirty price
+   * @param premium The common CDS premium (as a fraction)
+   * @param cleanOrDirty Clean or dirty price
    * @return The PV on unit notional
    */
-  public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
+  public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double premium, final PriceType cleanOrDirty) {
     final int n = cds.getNumMaturities();
+    final double[] premiums = new double[n];
+    Arrays.fill(premiums, premium);
+    return pv(cds, yieldCurve, creditCurve, premiums, cleanOrDirty);
+  }
+
+  /**
+   * Present value for the payer of premiums (i.e. the buyer of protection)
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param premiums The CDS premiums (as fractions)
+   * @param cleanOrDirty Clean or dirty price
+   * @return The PV on unit notional
+   */
+  public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double[] premiums, final PriceType cleanOrDirty) {
+    final int n = cds.getNumMaturities();
+    ArgumentChecker.notEmpty(premiums, "premiums");
+    ArgumentChecker.isTrue(n == premiums.length, "premiums wrong length. Should be {}, but is {}", n, premiums.length);
     final double[] pv = new double[n];
 
     if (cds.getProtectionEnd(cds.getNumMaturities() - 1) <= 0.0) { //all CDSs have expired
@@ -67,9 +88,21 @@ public class MultiAnalyticCDSPricer {
     final double[] rpv01 = pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, cleanOrDirty);
     final double[] proLeg = protectionLeg(cds, yieldCurve, creditCurve);
     for (int i = 0; i < n; i++) {
-      pv[i] = proLeg[i] - cds.getCoupon(i) * rpv01[i];
+      pv[i] = proLeg[i] - premiums[i] * rpv01[i];
     }
     return pv;
+  }
+
+  /**
+   * Present value (clean price) for the payer of premiums (i.e. the buyer of protection)
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param premiums The CDS premiums (as fractions)
+   * @return The PV
+   */
+  public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double[] premiums) {
+    return pv(cds, yieldCurve, creditCurve, premiums, PriceType.CLEAN);
   }
 
   /**
@@ -77,10 +110,11 @@ public class MultiAnalyticCDSPricer {
   * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
+   * @param premium The common CDS premium (as a fraction)
    * @return The PV
    */
-  public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
-    return pv(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+  public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double premium) {
+    return pv(cds, yieldCurve, creditCurve, premium, PriceType.CLEAN);
   }
 
   /**
@@ -167,7 +201,7 @@ public class MultiAnalyticCDSPricer {
     if (cds.isPayAccOnDefault()) {
       integrationSchedule = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(nMat - 1), yieldCurve, creditCurve);
     }
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
 
     final double[] pv = new double[nMat];
     int start = 0;
@@ -417,7 +451,7 @@ public class MultiAnalyticCDSPricer {
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
 
     // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double df = yieldCurve.getDiscountFactor(cds.getValuationTime());
+    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
     final double factor = cds.getLGD() / df;
     final int nMat = cds.getNumMaturities();
     double start = cds.getEffectiveProtectionStart();

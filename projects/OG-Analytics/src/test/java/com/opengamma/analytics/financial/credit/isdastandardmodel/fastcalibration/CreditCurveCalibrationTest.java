@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.util.ArgumentChecker;
 
@@ -54,26 +55,22 @@ public class CreditCurveCalibrationTest extends com.opengamma.analytics.financia
     final int n = PILLARS.length;
     final double[] spreads = new double[] {0.01, 0.012, 0.015, 0.02, 0.023, 0.021, 0.02, 0.019 };
     ArgumentChecker.isTrue(n == spreads.length, "spreads wrong length");
-    final CDSMarketInfo[] market = new CDSMarketInfo[n];
-    for (int i = 0; i < n; i++) {
-      market[i] = new CDSMarketInfo(spreads[i], 0, RECOVERY_RATE);
-    }
 
     // final AnalyticCDSPricer pricer = new AnalyticCDSPricer(MARKIT_FIX);
-    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve, MARKIT_FIX);
-    final ISDACompliantCreditCurve cc1 = calibrator1.calibrate(market);
-    final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder(MARKIT_FIX);
+    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve);
+    final ISDACompliantCreditCurve cc1 = calibrator1.calibrate(spreads);
+    final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder();
     final ISDACompliantCreditCurve cc2 = calibrator2.calibrateCreditCurve(cds, spreads, yieldCurve);
     for (int i = 0; i < n; i++) {
-      //   System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));
+      //System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));
       assertEquals(cc2.getZeroRateAtIndex(i), cc1.getZeroRateAtIndex(i), 1e-15);
     }
 
-    final int warmups = 1;
-    final int hotspots = 0;
+    final int warmups = 200;
+    final int hotspots = 1000;
 
     for (int i = 0; i < warmups; i++) {
-      final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(market);
+      final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(spreads);
       final ISDACompliantCreditCurve cc2a = calibrator2.calibrateCreditCurve(cds, spreads, yieldCurve);
     }
 
@@ -81,7 +78,7 @@ public class CreditCurveCalibrationTest extends com.opengamma.analytics.financia
       long t0 = System.nanoTime();
       for (int i = 0; i < hotspots; i++) {
         //  final CreditCurveCalibrator calibrator1a = new CreditCurveCalibrator(cds, yieldCurve);
-        final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(market);
+        final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(spreads);
       }
       long t1 = System.nanoTime();
       System.out.println("time of new calibration: " + (t1 - t0) / hotspots / 1e6 + "ms");
@@ -117,26 +114,22 @@ public class CreditCurveCalibrationTest extends com.opengamma.analytics.financia
     final int n = cds.length;
     final double[] spreads = new double[] {0.01, 0.012, 0.015, 0.02, 0.023, 0.021, 0.02, 0.019 };
     ArgumentChecker.isTrue(n == spreads.length, "spreads wrong length");
-    final CDSMarketInfo[] market = new CDSMarketInfo[n];
-    for (int i = 0; i < n; i++) {
-      market[i] = new CDSMarketInfo(spreads[i], 0, RECOVERY_RATE);
-    }
 
     //  final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
-    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve, MARKIT_FIX);
-    final ISDACompliantCreditCurve cc1 = calibrator1.calibrate(market);
+    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve, MARKIT_FIX, ArbitrageHandling.Ignore);
+    final ISDACompliantCreditCurve cc1 = calibrator1.calibrate(spreads);
     final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder(MARKIT_FIX);
     final ISDACompliantCreditCurve cc2 = calibrator2.calibrateCreditCurve(cds, spreads, yieldCurve);
     for (int i = 0; i < n; i++) {
-      System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));
-      assertEquals(cc2.getZeroRateAtIndex(i), cc1.getZeroRateAtIndex(i), 1e-15);
+      //   System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));
+      assertEquals(cc2.getZeroRateAtIndex(i), cc1.getZeroRateAtIndex(i), 1e-13);
     }
 
-    final int warmups = 1;
-    final int hotspots = 0;
+    final int warmups = 200;
+    final int hotspots = 1000;
 
     for (int i = 0; i < warmups; i++) {
-      final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(market);
+      final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(spreads);
       final ISDACompliantCreditCurve cc2a = calibrator2.calibrateCreditCurve(cds, spreads, yieldCurve);
     }
 
@@ -144,7 +137,7 @@ public class CreditCurveCalibrationTest extends com.opengamma.analytics.financia
       long t0 = System.nanoTime();
       for (int i = 0; i < hotspots; i++) {
 
-        final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(market);
+        final ISDACompliantCreditCurve cc1a = calibrator1.calibrate(spreads);
       }
       long t1 = System.nanoTime();
       System.out.println("time of new calibration: " + (t1 - t0) / hotspots / 1e6 + "ms");

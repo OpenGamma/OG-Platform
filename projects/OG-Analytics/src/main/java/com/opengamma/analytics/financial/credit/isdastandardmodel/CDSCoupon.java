@@ -165,7 +165,7 @@ public class CDSCoupon {
   }
 
   /**
-   * Gets the year fraction ratio.
+   * Gets the ratio of the accrual period year fraction calculated using the accrual DCC to that calculated using the curve DCC. This is used in accrual on default calculations
    * @return the year fraction ratio
    */
   public double getYFRatio() {

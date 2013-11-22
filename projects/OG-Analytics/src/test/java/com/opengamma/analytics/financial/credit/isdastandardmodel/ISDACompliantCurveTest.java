@@ -81,6 +81,25 @@ public class ISDACompliantCurveTest {
   }
 
   @Test
+  public void rtandSenseTest() {
+    final double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
+    final double[] r = new double[] {1.0, 0.8, 0.7, 1.2, 1.2, 1.3, 1.2, 1.0, 0.9 };
+    final int n = t.length;
+    final ISDACompliantCurve curve = new ISDACompliantCurve(t, r);
+
+    for (int i = 0; i < 100; i++) {
+      final double tt = i * 12.0 / 100;
+      final double rt1 = curve.getRT(tt);
+      final double[] fdSense = fdRTSense(curve, tt);
+      for (int jj = 0; jj < n; jj++) {
+        final double[] rtandSense = curve.getRTandSensitivity(tt, jj);
+        assertEquals("rt " + tt, rt1, rtandSense[0], 1e-15);
+        assertEquals("sense " + tt + "\t" + jj, fdSense[jj], rtandSense[1], 1e-9);
+      }
+    }
+  }
+
+  @Test
   public void getNodeSensitivity() {
 
     final double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 3.4, 10.0 };
@@ -383,6 +402,20 @@ public class ISDACompliantCurveTest {
     // }
     // }
 
+  }
+
+  private double[] fdRTSense(final ISDACompliantCurve curve, final double t) {
+    final int n = curve.getNumberOfKnots();
+    final double[] res = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double r = curve.getZeroRateAtIndex(i);
+      final ISDACompliantCurve curveUp = curve.withRate(r + EPS, i);
+      final ISDACompliantCurve curveDown = curve.withRate(r - EPS, i);
+      final double up = curveUp.getRT(t);
+      final double down = curveDown.getRT(t);
+      res[i] = (up - down) / 2 / EPS;
+    }
+    return res;
   }
 
   private double[] fdSense(final ISDACompliantCurve curve, final double t) {
