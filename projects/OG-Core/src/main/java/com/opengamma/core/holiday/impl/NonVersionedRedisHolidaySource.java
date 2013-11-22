@@ -72,6 +72,7 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHolidaySource.class);
   private static final String EXCHANGE = "EXCHANGE";
   private static final String EXCHANGE_SCHEME = "EXCHANGE_SCHEME";
+  private static final String CUSTOM_SCHEME = "CUSTOM_SCHEME";
   /** Currency key */
   public static final String CURRENCY = "CURRENCY";
   /** Type key */
@@ -80,6 +81,8 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
   public static final String UNIQUE_ID = "UNIQUE_ID";
   /** Region value key */
   public static final String REGION = "REGION";
+  /** Custom value key */
+  public static final String CUSTOM = "CUSTOM";
   /** Region scheme key */
   public static final String REGION_SCHEME = "REGION_SCHEME";
   /** The default scheme for unique identifiers. */
@@ -210,6 +213,11 @@ public class NonVersionedRedisHolidaySource implements HolidaySource {
           jedis.hset(uniqueRedisKey, EXCHANGE_SCHEME, holiday.getExchangeExternalId().getScheme().getName());
           jedis.hset(uniqueRedisKey, EXCHANGE, holiday.getExchangeExternalId().getValue());
           jedis.hset(toRedisKey(holiday.getExchangeExternalId(), holiday.getType()), UNIQUE_ID, uniqueId.toString());
+        }
+        if (holiday.getCustomExternalId() != null) {
+          jedis.hset(uniqueRedisKey, CUSTOM_SCHEME, holiday.getCustomExternalId().getScheme().getName());
+          jedis.hset(uniqueRedisKey, CUSTOM, holiday.getCustomExternalId().getValue());
+          jedis.hset(toRedisKey(holiday.getCustomExternalId(), holiday.getType()), UNIQUE_ID, uniqueId.toString());
         }
         
         for (LocalDate holidayDate : holiday.getHolidayDates()) {
