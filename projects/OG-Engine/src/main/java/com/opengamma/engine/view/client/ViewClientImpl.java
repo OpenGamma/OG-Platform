@@ -120,15 +120,11 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition,
-          boolean hasMarketDataPermissions) {
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
 
-        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(),
-            compiledViewDefinition);
-        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(),
-            compiledViewDefinition,
-            hasMarketDataPermissions);
+        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
+        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition, hasMarketDataPermissions);
 
         PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
@@ -143,8 +139,7 @@ public class ViewClientImpl implements ViewClient {
         }
       }
 
-      private CompiledViewDefinition createFilteredViewDefinition(CompiledViewDefinition compiledViewDefinition,
-          PortfolioFilter filter) {
+      private CompiledViewDefinition createFilteredViewDefinition(CompiledViewDefinition compiledViewDefinition, PortfolioFilter filter) {
 
         // TODO see [PLAT-2478] and DependencyGraphStructureBuilder
         if (compiledViewDefinition instanceof CompiledViewDefinitionWithGraphsImpl) {
@@ -154,24 +149,13 @@ public class ViewClientImpl implements ViewClient {
           for (DependencyGraphExplorer explorer : dependencyGraphExplorers) {
             graphs.add(explorer.getWholeGraph());
           }
-          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(),
-              cvdwg.getCompilationIdentifier(),
-              cvdwg.getViewDefinition(),
-              graphs, cvdwg.getResolvedIdentifiers(),
-              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
-              cvdwg.getFunctionInitId(),
-              cvdwg.getCompiledCalculationConfigurations(),
-              cvdwg.getValidFrom(),
+          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(), cvdwg.getCompilationIdentifier(), cvdwg.getViewDefinition(), graphs, cvdwg.getResolvedIdentifiers(),
+              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()), cvdwg.getFunctionInitId(), cvdwg.getCompiledCalculationConfigurations(), cvdwg.getValidFrom(),
               cvdwg.getValidTo());
         } else {
           // Would be better if there was a builder for this!
-          return new CompiledViewDefinitionImpl(
-              compiledViewDefinition.getResolverVersionCorrection(),
-              compiledViewDefinition.getCompilationIdentifier(),
-              compiledViewDefinition.getViewDefinition(),
-              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
-              compiledViewDefinition.getCompiledCalculationConfigurations(),
-              compiledViewDefinition.getValidFrom(),
+          return new CompiledViewDefinitionImpl(compiledViewDefinition.getResolverVersionCorrection(), compiledViewDefinition.getCompilationIdentifier(), compiledViewDefinition.getViewDefinition(),
+              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()), compiledViewDefinition.getCompiledCalculationConfigurations(), compiledViewDefinition.getValidFrom(),
               compiledViewDefinition.getValidTo());
         }
       }
@@ -263,8 +247,7 @@ public class ViewClientImpl implements ViewClient {
 
       @Override
       public void clientShutdown(Exception e) {
-        throw new UnsupportedOperationException(
-            "Shutdown notification unexpectedly received from merging result listener");
+        throw new UnsupportedOperationException("Shutdown notification unexpectedly received from merging result listener");
       }
 
     };
@@ -306,45 +289,52 @@ public class ViewClientImpl implements ViewClient {
 
   @Override
   public void attachToViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions, boolean privateProcess) {
+    final boolean isPaused;
     _clientLock.lock();
     try {
       checkNotTerminated();
-
+      checkNotAttached();
       // The client is detached right now so the merging update listener is paused. Although the following calls may
       // cause initial updates to be pushed through, they will not be seen until the merging update listener is
-      // resumed, at which point the new permission provider will be in place. 
+      // resumed, at which point the new permission provider will be in place. This is important to prevent potential
+      // deadlocks as the initial notifications will be passed to the merging listener while the _clientLock is held -
+      // they must not be passed on to the underlying listener.
       ViewProcessorImpl viewProcessor = getViewProcessor();
-      ViewPermissionContext context = privateProcess ?
-          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
-              executionOptions, _viewProcessContextMap) :
-          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
-              executionOptions, _viewProcessContextMap);
-      attachToViewProcessCore(context);
+      ViewPermissionContext context = privateProcess ? viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions,
+          _viewProcessContextMap) : viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions, _viewProcessContextMap);
+      isPaused = attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
     }
+    _mergingViewProcessListener.setPaused(isPaused);
   }
 
   @Override
   public void attachToViewProcess(UniqueId processId) {
+    final boolean isPaused;
     _clientLock.lock();
     try {
       checkNotTerminated();
-      ViewPermissionContext context =
-          getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
-      attachToViewProcessCore(context);
+      checkNotAttached();
+      // See concurrency notes in {@link #attachToViewProcess(UniqueId,ViewExecutionOptions,boolean)}.
+      ViewPermissionContext context = getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
+      isPaused = attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
     }
+    _mergingViewProcessListener.setPaused(isPaused);
   }
 
-  private void attachToViewProcessCore(ViewPermissionContext context) {
+  /**
+   * @param context the permission set
+   * @return the pause state to pass to the merging result listener
+   */
+  private boolean attachToViewProcessCore(final ViewPermissionContext context) {
     _permissionProvider = context.getViewPermissionProvider();
     _portfolioPermissionProvider = context.getViewPortfolioPermissionProvider();
     _isAttached.set(true);
-    boolean isPaused = getState() == ViewClientState.PAUSED;
-    _mergingViewProcessListener.setPaused(isPaused);
     _completionLatch = new CountDownLatch(1);
+    return getState() == ViewClientState.PAUSED;
   }
 
   @Override
@@ -423,15 +413,17 @@ public class ViewClientImpl implements ViewClient {
 
   @Override
   public void resume() {
+    boolean unpause = false;
     _clientLock.lock();
     try {
       checkNotTerminated();
-      if (isAttached()) {
-        _mergingViewProcessListener.setPaused(false);
-      }
+      unpause = isAttached();
       _state = ViewClientState.STARTED;
     } finally {
       _clientLock.unlock();
+    }
+    if (unpause) {
+      _mergingViewProcessListener.setPaused(false);
     }
   }
 
@@ -590,6 +582,12 @@ public class ViewClientImpl implements ViewClient {
   private void checkAttached() {
     if (!isAttached()) {
       throw new IllegalStateException("This method is not valid on a detached view client.");
+    }
+  }
+
+  private void checkNotAttached() {
+    if (isAttached()) {
+      throw new IllegalStateException("This method is not valid on an attached view client.");
     }
   }
 
