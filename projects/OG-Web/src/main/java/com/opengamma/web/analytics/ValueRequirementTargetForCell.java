@@ -200,7 +200,7 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -2146129620:  // columnSet
           return _columnSet;
-        case 1638434991:  // valueRequirement
+        case -755281390:  // valueRequirement
           return _valueRequirement;
       }
       return super.metaPropertyGet(propertyName);
@@ -244,7 +244,7 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
       switch (propertyName.hashCode()) {
         case -2146129620:  // columnSet
           return ((ValueRequirementTargetForCell) bean).getColumnSet();
-        case 1638434991:  // valueRequirement
+        case -755281390:  // valueRequirement
           return ((ValueRequirementTargetForCell) bean).getValueRequirement();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -294,7 +294,7 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
         case -2146129620:  // columnSet
           this._columnSet = (String) newValue;
           break;
-        case 1638434991:  // valueRequirement
+        case -755281390:  // valueRequirement
           this._valueRequirement = (ValueRequirement) newValue;
           break;
         default:
