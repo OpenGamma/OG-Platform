@@ -46,6 +46,17 @@ public class RateLimitingMergingViewProcessListenerTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(RateLimitingMergingViewProcessListenerTest.class);
 
+  private Instant _nowish;
+
+  private Instant now() {
+    if (_nowish != null) {
+      _nowish = _nowish.plusMillis(1);
+    } else {
+      _nowish = Instant.now();
+    }
+    return _nowish;
+  }
+
   @Test
   public void testPassThrough() {
     final TestViewResultListener testListener = new TestViewResultListener();
@@ -120,10 +131,10 @@ public class RateLimitingMergingViewProcessListenerTest {
 
     addResults(mergingListener, 10);
     final InMemoryViewComputationResultModel initialResult = new InMemoryViewComputationResultModel();
-    initialResult.setCalculationTime(Instant.now());
+    initialResult.setCalculationTime(now());
     mergingListener.cycleCompleted(initialResult, getDeltaResult(1));
     final InMemoryViewComputationResultModel latestResult = new InMemoryViewComputationResultModel();
-    latestResult.setCalculationTime(Instant.now());
+    latestResult.setCalculationTime(now());
     mergingListener.cycleCompleted(latestResult, getDeltaResult(2));
 
     final CompiledViewDefinitionWithGraphsImpl postCompilation = mock(CompiledViewDefinitionWithGraphsImpl.class);
@@ -156,7 +167,7 @@ public class RateLimitingMergingViewProcessListenerTest {
 
   private ViewDeltaResultModel getDeltaResult(final int value) {
     final InMemoryViewDeltaResultModel deltaResult = new InMemoryViewDeltaResultModel();
-    deltaResult.setCalculationTime(Instant.now());
+    deltaResult.setCalculationTime(now());
     deltaResult.addValue("DEFAULT", getComputedValueResult("value" + value, value));
     return deltaResult;
   }
@@ -204,7 +215,7 @@ public class RateLimitingMergingViewProcessListenerTest {
   private void addResults(final ViewResultListener listener, final int count) {
     for (int i = 0; i < count; i++) {
       final InMemoryViewComputationResultModel model = new InMemoryViewComputationResultModel();
-      model.setCalculationTime(Instant.now());
+      model.setCalculationTime(now());
       listener.cycleCompleted(model, null);
     }
   }
