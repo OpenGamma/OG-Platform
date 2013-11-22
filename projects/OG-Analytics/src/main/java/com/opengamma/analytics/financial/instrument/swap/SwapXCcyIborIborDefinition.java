@@ -80,9 +80,9 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     ArgumentChecker.notNull(generator, "Swap generator");
     // TODO: create a mechanism for the simultaneous payments on both legs, i.e. joint calendar
     final AnnuityDefinition<CouponDefinition> firstLegNotional = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate,
-        notional1, generator.getIborIndex1(), spread1, isPayer, generator.getCalendar1(), StubType.SHORT_START, true, true);
+        notional1, spread1, generator.getIborIndex1(), isPayer, generator.getCalendar1(), StubType.SHORT_START, 0, true, true);
     final AnnuityDefinition<CouponDefinition> secondLegNotional = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate,
-        notional2, generator.getIborIndex2(), spread2, !isPayer, generator.getCalendar2(), StubType.SHORT_START, true, true);
+        notional2, spread2, generator.getIborIndex2(), !isPayer, generator.getCalendar2(), StubType.SHORT_START, 0, true, true);
     return new SwapXCcyIborIborDefinition(firstLegNotional, secondLegNotional);
   }
 

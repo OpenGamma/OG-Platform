@@ -59,46 +59,6 @@ public class AnnuityDefinitionBuilder {
    * @param fixedRate The fixed rate.
    * @param isPayer The payer flag.
    * @param stub The stub type.
-   * @return The fixed annuity.
-   */
-  public static AnnuityCouponFixedDefinition couponFixed(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
-      final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
-      final double fixedRate, final boolean isPayer, final StubType stub) {
-    ArgumentChecker.notNull(currency, "currency");
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(maturityDate, "Maturity date");
-    ArgumentChecker.notNull(paymentPeriod, "payment period");
-    ArgumentChecker.notNull(calendar, "calendar");
-    ArgumentChecker.notNull(dayCount, "day count");
-    ArgumentChecker.notNull(businessDay, "business day convention");
-    final double sign = isPayer ? -1.0 : 1.0;
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
-        businessDay, calendar, isEOM);
-    final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
-    //First coupon uses settlement date
-    coupons[0] = new CouponFixedDefinition(currency, paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar),
-        sign * notional, fixedRate);
-    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
-          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixedRate);
-    }
-    return new AnnuityCouponFixedDefinition(coupons, calendar);
-  }
-
-  /**
-   * Annuity builder from the conventions and common characteristics. The dates are constructed from the settlement date. If required the stub will be short.
-   * @param currency The annuity currency.
-   * @param settlementDate The settlement date.
-   * @param maturityDate The (unadjusted) maturity date of the annuity.
-   * @param paymentPeriod The period between payments.
-   * @param calendar The calendar.
-   * @param dayCount The day count.
-   * @param businessDay The business day convention.
-   * @param isEOM The end-of-month flag.
-   * @param notional The notional.
-   * @param fixedRate The fixed rate.
-   * @param isPayer The payer flag.
-   * @param stub The stub type.
    * @param paymentLag The payment lag (in days).
    * @return The fixed annuity.
    */
@@ -125,31 +85,6 @@ public class AnnuityDefinitionBuilder {
           dayCount.getDayCountFraction(adjustedEndAccrualDates[loopcpn - 1], adjustedEndAccrualDates[loopcpn], calendar), sign * notional, fixedRate);
     }
     return new AnnuityCouponFixedDefinition(coupons, calendar);
-  }
-
-  /**
-   * Annuity builder from the conventions and common characteristics. The dates are constructed from the settlement date. If required the stub will be short.
-   * @param currency The annuity currency.
-   * @param settlementDate The settlement date.
-   * @param tenor The annuity tenor.
-   * @param paymentPeriod The period between payments.
-   * @param calendar The calendar.
-   * @param dayCount The day count.
-   * @param businessDay The business day convention.
-   * @param isEOM The end-of-month flag.
-   * @param notional The notional.
-   * @param fixedRate The fixed rate.
-   * @param isPayer The payer flag.
-   * @param stub The stub type.
-   * @return The fixed annuity.
-   */
-  public static AnnuityCouponFixedDefinition couponFixed(final Currency currency, final ZonedDateTime settlementDate, final Period tenor, final Period paymentPeriod,
-      final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer,
-      final StubType stub) {
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(tenor, "Tenor");
-    final ZonedDateTime maturityDate = settlementDate.plus(tenor);
-    return couponFixed(currency, settlementDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, notional, fixedRate, isPayer, stub);
   }
 
   /**
@@ -205,15 +140,16 @@ public class AnnuityDefinitionBuilder {
    * @param fixedRate The fixed rate.
    * @param isPayer The payer flag.
    * @param stub The stub type.
+   * @param paymentLag The payment lag (in days).
    * @param notionalStart Notional paid at the start date.
    * @param notionalEnd Notional paid at the end date.
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition couponFixedWithNotional(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
       final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
-      final double fixedRate, final boolean isPayer, final StubType stub, final boolean notionalStart, final boolean notionalEnd) {
-    final AnnuityDefinition<CouponFixedDefinition> annuityNoNotional = couponFixed(currency, settlementDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, notional,
-        fixedRate, isPayer, stub);
+      final double fixedRate, final boolean isPayer, final StubType stub, final int paymentLag, final boolean notionalStart, final boolean notionalEnd) {
+    final AnnuityDefinition<CouponFixedDefinition> annuityNoNotional = couponFixed(currency, settlementDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay,
+        isEOM, notional, fixedRate, isPayer, stub, paymentLag);
     final double sign = (isPayer) ? -1.0 : 1.0;
     final int nbPay = annuityNoNotional.getNumberOfPayments();
     int nbNotional = 0;
@@ -232,74 +168,6 @@ public class AnnuityDefinitionBuilder {
       annuityWithNotional[nbPay + loopnot] = new CouponFixedDefinition(currency, payDate, payDate, payDate, 1.0, notional * sign, 1);
     }
     return new AnnuityCouponFixedDefinition(annuityWithNotional, calendar);
-  }
-
-  /**
-   * Annuity builder from the conventions and common characteristics. The dates are constructed from the settlement date. If required the stub will be short.
-   * @param currency The annuity currency.
-   * @param settlementDate The settlement date.
-   * @param tenor The annuity tenor.
-   * @param paymentPeriod The period between payments.
-   * @param calendar The calendar.
-   * @param dayCount The day count.
-   * @param businessDay The business day convention.
-   * @param isEOM The end-of-month flag.
-   * @param notional The notional.
-   * @param fixedRate The fixed rate.
-   * @param isPayer The payer flag.
-   * @param stub The stub type.
-   * @param notionalStart Notional paid at the start date.
-   * @param notionalEnd Notional paid at the end date.
-   * @return The fixed annuity.
-   */
-  public static AnnuityCouponFixedDefinition couponFixedWithNotional(final Currency currency, final ZonedDateTime settlementDate, final Period tenor,
-      final Period paymentPeriod, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
-      final double fixedRate, final boolean isPayer, final StubType stub, final boolean notionalStart, final boolean notionalEnd) {
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    final ZonedDateTime maturityDate = settlementDate.plus(tenor);
-    return couponFixedWithNotional(currency, settlementDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, notional, fixedRate, isPayer, stub,
-        notionalStart, notionalEnd);
-  }
-
-  /**
-   * Annuity coupon ibor with spread builder.
-   * When a stub is used, the fixing index and fixing period dates are the one of the underlying index. The index is not "shorten" or "lengthen".
-   * @param settlementDate The settlement date.
-   * @param maturityDate The annuity maturity date.
-   * @param paymentPeriod The payment period.
-   * @param notional The notional.
-   * @param index The Ibor index.
-   * @param isPayer The payer flag.
-   * @param dayCount The coupons day count.
-   * @param businessDayConvention The leg business day convention.
-   * @param endOfMonth The leg end-of-month convention.
-   * @param calendar The holiday calendar for the ibor leg.
-   * @param stub The stub type.
-   * @return The Ibor annuity.
-   */
-  public static AnnuityCouponIborDefinition couponIbor(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period paymentPeriod,
-      final double notional, final IborIndex index, final boolean isPayer, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
-      final Calendar calendar, final StubType stub) {
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.notNull(paymentPeriod, "payment period");
-    ArgumentChecker.notNull(index, "index");
-    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.notNull(dayCount, "Day count convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
-        businessDayConvention, calendar, endOfMonth);
-    final double sign = isPayer ? -1.0 : 1.0;
-    final CouponIborDefinition[] coupons = new CouponIborDefinition[paymentDates.length];
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
-    coupons[0] = new CouponIborDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0],
-        dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar), sign * notional, fixingDate, index, calendar);
-    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar);
-      coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
-          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, calendar);
-    }
-    return new AnnuityCouponIborDefinition(coupons, index, calendar);
   }
 
   /**
@@ -418,86 +286,46 @@ public class AnnuityDefinitionBuilder {
   }
 
   /**
-   * Create an Ibor leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster (see payment period for more details).
-   * @param startDate The start/reference date of the computation.
-   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
-   * @param endNumberRollDate The number of roll dates to the maturity of the swap.
-   * @param adjuster The date adjuster, e.g. IMM quarterly dates.
-   * @param index The Ibor index. There is no check that the index is coherent with the adjuster. 
-   * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed. 
-   * The ratio is computed with the long division (i.e. with rounding toward 0) and minimum at 1. The payment and accrual dates are the adjuster n-th dates.
-   * The start and end dates of the fixing period are given by the start and end accrual dates of the coupon that are given by the adjuster, they may differ from the theoretical index dates.
-   * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
-   * If the index tenor is P1M and the period in the adjuster is P3M, n is 1.
-   * @param spread The spread.
-   * @param notional The swap notional.
-   * @param isPayer The payer flag.
-   * @param dayCount The coupons day count. Can be different from the one of the index.
-   * @param calendar The holiday calendar for the ibor leg.
-   * @param stub The stub type.
-   * @return The Ibor annuity.
-   */
-  public static AnnuityDefinition<CouponIborSpreadDefinition> couponIborSpreadRollDateIndexAdjusted(final ZonedDateTime startDate, final int startNumberRollDate, final int endNumberRollDate,
-      final RollDateAdjuster adjuster, final IborIndex index, final double spread, final double notional, final boolean isPayer, final DayCount dayCount, final Calendar calendar,
-      final StubType stub) {
-    ArgumentChecker.isTrue(startNumberRollDate > 0, "number of start roll dates negative");
-    ArgumentChecker.isTrue(endNumberRollDate > 0, "number of end roll dates negative");
-    long rollMonths = adjuster.getMonthsToAdjust();
-    long paymentMonths = index.getTenor().toTotalMonths();
-    int rollJump = Math.max(1, (int) (paymentMonths / rollMonths)); // The roll jumps is rounded (toward 0) and is at least 1.
-    int nbRoll = endNumberRollDate - startNumberRollDate;
-    final List<ZonedDateTime> legDates = rollDateSchedule(startDate, startNumberRollDate, adjuster, calendar, stub, rollJump, nbRoll);
-    final double sign = isPayer ? -1.0 : 1.0;
-    final int nbCpn = legDates.size() - 1;
-    final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[nbCpn];
-    for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
-      ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(legDates.get(loopcpn), -index.getSpotLag(), calendar);
-      double af = dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1), calendar);
-      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), legDates.get(loopcpn + 1), legDates.get(loopcpn), legDates.get(loopcpn + 1),
-          af, sign * notional, fixingDate, legDates.get(loopcpn), legDates.get(loopcpn + 1), af, index, spread, calendar);
-    }
-    return new AnnuityDefinition<>(coupons, calendar);
-  }
-
-  /**
-   * Annuity coupon ibor with spread builder.
+   * Builder of an annuity of Ibor coupons with payment of notional at the start or at the end.
+   * The initial payment of notional is with the opposite sign as the coupons and the final notional has the same sign as the coupons.
    * @param settlementDate The settlement date.
-   * @param maturityDate The annuity maturity date.
-   * @param paymentPeriod The payment period.
+   * @param maturityDate The maturity date.
    * @param notional The notional.
-   * @param spread The spread rate.
    * @param index The Ibor index.
    * @param isPayer The payer flag.
-   * @param dayCount The coupons day count.
-   * @param businessDayConvention The leg business day convention.
-   * @param endOfMonth The leg end-of-month convention.
    * @param calendar The holiday calendar for the ibor leg.
    * @param stub The stub type.
-   * @return The Ibor annuity.
+   * @param paymentLag The payment lag (in days).
+   * @param notionalStart Notional paid at the start date.
+   * @param notionalEnd Notional paid at the end date.
+   * @return The annuity.
    */
-  public static AnnuityDefinition<CouponIborSpreadDefinition> couponIborSpread(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period paymentPeriod,
-      final double notional, final double spread, final IborIndex index, final boolean isPayer, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth, final Calendar calendar, final StubType stub) {
+  public static AnnuityDefinition<CouponDefinition> couponIborWithNotional(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
+      final IborIndex index, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag,
+      final boolean notionalStart, final boolean notionalEnd) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(index, "index");
-    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.notNull(dayCount, "Day count convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
-        businessDayConvention, calendar, endOfMonth);
-    final double sign = isPayer ? -1.0 : 1.0;
-    final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[paymentDates.length];
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(settlementDate, -index.getSpotLag(), calendar);
-    coupons[0] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0],
-        dayCount.getDayCountFraction(settlementDate, paymentDates[0], calendar), sign * notional, fixingDate, index, spread, calendar);
-    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-      fixingDate = ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -index.getSpotLag(), calendar);
-      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
-          dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, spread, calendar);
+    final AnnuityDefinition<CouponIborDefinition> annuityNoNotional = couponIbor(settlementDate, maturityDate, index.getTenor(), notional, index,
+        isPayer, index.getDayCount(), index.getBusinessDayConvention(), index.isEndOfMonth(), calendar, stub, paymentLag);
+    final double sign = (isPayer) ? -1.0 : 1.0;
+    final int nbPay = annuityNoNotional.getNumberOfPayments();
+    int nbNotional = 0;
+    nbNotional = (notionalStart ? nbNotional + 1 : nbNotional);
+    nbNotional = (notionalEnd ? nbNotional + 1 : nbNotional);
+    final CouponDefinition[] annuityWithNotional = new CouponDefinition[nbPay + nbNotional];
+    int loopnot = 0;
+    if (notionalStart) {
+      annuityWithNotional[0] = new CouponFixedDefinition(index.getCurrency(), settlementDate, settlementDate, settlementDate, 1.0, -notional * sign, 1);
+      // Implementation note: Fixed amount written as a fixed coupon.
+      loopnot++;
     }
-    return new AnnuityDefinition<>(coupons, calendar);
+    System.arraycopy(annuityNoNotional.getPayments(), 0, annuityWithNotional, loopnot, nbPay);
+    if (notionalEnd) {
+      final ZonedDateTime payDate = annuityNoNotional.getNthPayment(nbPay - 1).getPaymentDate();
+      annuityWithNotional[nbPay + loopnot] = new CouponFixedDefinition(index.getCurrency(), payDate, payDate, payDate, 1.0, notional * sign, 1);
+    }
+    return new AnnuityDefinition<>(annuityWithNotional, calendar);
   }
 
   /**
@@ -559,7 +387,7 @@ public class AnnuityDefinitionBuilder {
       final IborIndex index, final double spread, final boolean isPayer, final Calendar calendar) {
     ArgumentChecker.notNull(index, "index");
     return couponIborSpread(settlementDate, maturityDate, index.getTenor(), notional, spread, index, isPayer, index.getDayCount(), index.getBusinessDayConvention(),
-        index.isEndOfMonth(), calendar, StubType.SHORT_START);
+        index.isEndOfMonth(), calendar, StubType.SHORT_START, 0);
   }
 
   /**
@@ -581,27 +409,71 @@ public class AnnuityDefinitionBuilder {
   }
 
   /**
+   * Create an Ibor leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster (see payment period for more details).
+   * @param startDate The start/reference date of the computation.
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param endNumberRollDate The number of roll dates to the maturity of the swap.
+   * @param adjuster The date adjuster, e.g. IMM quarterly dates.
+   * @param notional The swap notional.
+   * @param index The Ibor index. There is no check that the index is coherent with the adjuster. 
+   * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed. 
+   * The ratio is computed with the long division (i.e. with rounding toward 0) and minimum at 1. The payment and accrual dates are the adjuster n-th dates.
+   * The start and end dates of the fixing period are given by the start and end accrual dates of the coupon that are given by the adjuster, they may differ from the theoretical index dates.
+   * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
+   * If the index tenor is P1M and the period in the adjuster is P3M, n is 1.
+   * @param spread The spread.
+   * @param isPayer The payer flag.
+   * @param dayCount The coupons day count. Can be different from the one of the index.
+   * @param calendar The holiday calendar for the ibor leg.
+   * @param stub The stub type.
+   * @return The Ibor annuity.
+   */
+  public static AnnuityDefinition<CouponIborSpreadDefinition> couponIborSpreadRollDateIndexAdjusted(final ZonedDateTime startDate, final int startNumberRollDate, final int endNumberRollDate,
+      final RollDateAdjuster adjuster, final double notional, final IborIndex index, final double spread, final boolean isPayer, final DayCount dayCount, final Calendar calendar,
+      final StubType stub) {
+    ArgumentChecker.isTrue(startNumberRollDate > 0, "number of start roll dates negative");
+    ArgumentChecker.isTrue(endNumberRollDate > 0, "number of end roll dates negative");
+    long rollMonths = adjuster.getMonthsToAdjust();
+    long paymentMonths = index.getTenor().toTotalMonths();
+    int rollJump = Math.max(1, (int) (paymentMonths / rollMonths)); // The roll jumps is rounded (toward 0) and is at least 1.
+    int nbRoll = endNumberRollDate - startNumberRollDate;
+    final List<ZonedDateTime> legDates = rollDateSchedule(startDate, startNumberRollDate, adjuster, calendar, stub, rollJump, nbRoll);
+    final double sign = isPayer ? -1.0 : 1.0;
+    final int nbCpn = legDates.size() - 1;
+    final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[nbCpn];
+    for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
+      ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(legDates.get(loopcpn), -index.getSpotLag(), calendar);
+      double af = dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1), calendar);
+      coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), legDates.get(loopcpn + 1), legDates.get(loopcpn), legDates.get(loopcpn + 1),
+          af, sign * notional, fixingDate, legDates.get(loopcpn), legDates.get(loopcpn + 1), af, index, spread, calendar);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
    * Builder of an annuity of Ibor coupons with spread and payment of notional at the start and at the end.
    * The initial payment of notional is the opposite of the final one.
    * @param settlementDate The settlement date.
    * @param maturityDate The maturity date.
    * @param notional The notional.
-   * @param index The Ibor index.
    * @param spread The common spread.
+   * @param index The Ibor index.
    * @param isPayer The payer flag.
    * @param calendar The holiday calendar for the ibor leg.
    * @param stub The stub type.
+   * @param paymentLag The payment lag (in days).
    * @param notionalStart Notional paid at the start date.
    * @param notionalEnd Notional paid at the end date.
    * @return The annuity.
    */
   public static AnnuityDefinition<CouponDefinition> couponIborSpreadWithNotional(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional,
-      final IborIndex index, final double spread, final boolean isPayer, final Calendar calendar, final StubType stub, final boolean notionalStart, final boolean notionalEnd) {
+      final double spread, final IborIndex index, final boolean isPayer, final Calendar calendar, final StubType stub, final int paymentLag,
+      final boolean notionalStart, final boolean notionalEnd) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
     ArgumentChecker.notNull(index, "index");
     final AnnuityDefinition<CouponIborSpreadDefinition> annuityNoNotional = couponIborSpread(settlementDate, maturityDate, index.getTenor(), notional, spread, index,
-        isPayer, index.getDayCount(), index.getBusinessDayConvention(), index.isEndOfMonth(), calendar, stub);
+        isPayer, index.getDayCount(), index.getBusinessDayConvention(), index.isEndOfMonth(), calendar, stub, paymentLag);
     final double sign = (isPayer) ? -1.0 : 1.0;
     final int nbPay = annuityNoNotional.getNumberOfPayments();
     int nbNotional = 0;
@@ -620,30 +492,6 @@ public class AnnuityDefinitionBuilder {
       annuityWithNotional[nbPay + loopnot] = new CouponFixedDefinition(index.getCurrency(), payDate, payDate, payDate, 1.0, notional * sign, 1);
     }
     return new AnnuityDefinition<>(annuityWithNotional, calendar);
-  }
-
-  /**
-   * Builder of an annuity of Ibor coupons with spread and payment of notional at the start and at the end.
-   * The initial payment of notional is the opposite of the final one.
-   * @param settlementDate The settlement date.
-   * @param tenor The tenor.
-   * @param notional The notional.
-   * @param index The Ibor index.
-   * @param spread The common spread.
-   * @param isPayer The payer flag.
-   * @param calendar The holiday calendar for the ibor leg.
-   * @param stub The stub type.
-   * @param notionalStart Notional paid at the start date.
-   * @param notionalEnd Notional paid at the end date.
-   * @return The annuity.
-   */
-  public static AnnuityDefinition<CouponDefinition> couponIborSpreadWithNotional(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index,
-      final double spread, final boolean isPayer, final Calendar calendar, final StubType stub, final boolean notionalStart, final boolean notionalEnd) {
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(index, "index");
-    ArgumentChecker.notNull(tenor, "tenor");
-    final ZonedDateTime maturityDate = settlementDate.plus(tenor);
-    return couponIborSpreadWithNotional(settlementDate, maturityDate, notional, index, spread, isPayer, calendar, stub, notionalStart, notionalEnd);
   }
 
   /**
@@ -749,45 +597,6 @@ public class AnnuityDefinitionBuilder {
     for (int loopcpn = 1; loopcpn < unadjustedDateSchedule.length; loopcpn++) {
       coupons[loopcpn] = CouponIborCompoundingFlatSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubCompound,
           businessDayConvention, endOfMonth, calendar);
-    }
-    return new AnnuityDefinition<>(coupons, calendar);
-  }
-
-  /**
-   * Annuity of coupon with compunded of ON simple rates. Simplified version (i.e. only the start date and end date of coupon periods are computed) with spread.
-   * @param settlementDate The annuity settlement date. The date is not adjusted for the calendar.
-   * @param maturityDate The annuity maturity date. The date is adjusted according to the calendar and conventions.
-   * @param paymentPeriod The annuity payment period.
-   * @param notional The notional.
-   * @param spread The spread rate.
-   * @param index The overnight index associated to all the coupons of the leg.
-   * @param isPayer The payer flag.
-   * @param businessDayConvention The leg business day convention.
-   * @param endOfMonth The leg end-of-month convention.
-   * @param calendar The calendar associated to the payments.
-   * @param stubLeg The type of stub for the leg.
-   * @return The annuity.
-   */
-  public static AnnuityDefinition<CouponONSpreadSimplifiedDefinition> couponONSimpleCompoundedSpreadSimplified(final ZonedDateTime settlementDate,
-      final ZonedDateTime maturityDate, final Period paymentPeriod, final double notional, final double spread, final IndexON index, final boolean isPayer,
-      final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, final StubType stubLeg) {
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.notNull(paymentPeriod, "payment period");
-    ArgumentChecker.notNull(index, "index");
-    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
-    final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg,
-        businessDayConvention, calendar, endOfMonth);
-    final double signedNotional = isPayer ? -notional : notional;
-    final CouponONSpreadSimplifiedDefinition[] coupons = new CouponONSpreadSimplifiedDefinition[adjustedDateSchedule.length];
-    double af = index.getDayCount().getDayCountFraction(settlementDate, adjustedDateSchedule[0]);
-    coupons[0] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[0], settlementDate, adjustedDateSchedule[0], af, signedNotional,
-        index, settlementDate, adjustedDateSchedule[0], af, spread);
-    for (int loopcpn = 1; loopcpn < adjustedDateSchedule.length; loopcpn++) {
-      af = index.getDayCount().getDayCountFraction(adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn]);
-      coupons[loopcpn] = new CouponONSpreadSimplifiedDefinition(index.getCurrency(), adjustedDateSchedule[loopcpn], adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn],
-          af, signedNotional, index, adjustedDateSchedule[loopcpn - 1], adjustedDateSchedule[loopcpn], af, spread);
     }
     return new AnnuityDefinition<>(coupons, calendar);
   }

@@ -5,11 +5,14 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import java.util.Set;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
@@ -77,12 +80,13 @@ public class NodeConverterUtils {
    * @param marketData The market data, not null
    * @param dataId The data id
    * @param valuationTime The valuation time, not null
+   * @param fx The FXMatrix with the exchange rates. Not null.
    * @return A swap definition
    */
   public static SwapDefinition getSwapDefinition(
       final FinancialConvention payLegConvention, final FinancialConvention receiveLegConvention, final Period startTenor, final Period maturityTenor,
       final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource, final SnapshotDataBundle marketData,
-      final ExternalId dataId, final ZonedDateTime valuationTime) {
+      final ExternalId dataId, final ZonedDateTime valuationTime, final FXMatrix fx) {
     ArgumentChecker.notNull(payLegConvention, "pay leg convention");
     ArgumentChecker.notNull(receiveLegConvention, "receive leg convention");
     ArgumentChecker.notNull(startTenor, "start tenor");
@@ -93,11 +97,21 @@ public class NodeConverterUtils {
     ArgumentChecker.notNull(marketData, "market data");
     ArgumentChecker.notNull(dataId, "data id");
     ArgumentChecker.notNull(valuationTime, "valuation time");
+    ArgumentChecker.notNull(fx, "FX matrix");
     final boolean isFloatFloat = isFloatFloat(payLegConvention, receiveLegConvention);
+    CurveNodeCurrencyVisitor ccyVisitor = new CurveNodeCurrencyVisitor(conventionSource);
+    final Set<Currency> ccySetPay = payLegConvention.accept(ccyVisitor);
+    final Set<Currency> ccySetRec = receiveLegConvention.accept(ccyVisitor);
+    ArgumentChecker.isTrue(ccySetPay.size() == 1, "More than one currency for one leg");
+    ArgumentChecker.isTrue(ccySetRec.size() == 1, "More than one currency for one leg");
+    final Currency ccyPay = ccySetPay.iterator().next();
+    final Currency ccyRec = ccySetRec.iterator().next();
+    final boolean isXCcy = !(ccyPay.equals(ccyRec));
+    final double notionalRec = fx.getFxRate(ccyPay, ccyRec);    
     final AnnuityDefinition<? extends PaymentDefinition> payLeg = getSwapLeg(payLegConvention, startTenor, maturityTenor, regionSource, holidaySource,
-        conventionSource, marketData, dataId, valuationTime, true, isFloatFloat);
+        conventionSource, marketData, dataId, valuationTime, true, isFloatFloat, isXCcy, 1.0);
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = getSwapLeg(receiveLegConvention, startTenor, maturityTenor, regionSource, holidaySource,
-        conventionSource, marketData, dataId, valuationTime, false, isFloatFloat);
+        conventionSource, marketData, dataId, valuationTime, false, isFloatFloat, isXCcy, notionalRec);
     return new SwapDefinition(payLeg, receiveLeg);
   }
 
@@ -151,18 +165,23 @@ public class NodeConverterUtils {
    * @param valuationTime The valuation time
    * @param isPayer True if the leg is to be paid
    * @param isMarketDataSpread True if the market data is a spread paid on a floating leg
+   * @param isXCcy Flag indicating if the swap is cross-currency.
+   * @param notional Notional of the leg. Used in particular for cross-currency swaps.
    * @return An annuity definition
    * @throws UnsupportedOperationException If the convention type has not been implemented
    */
   public static AnnuityDefinition<? extends PaymentDefinition> getSwapLeg(
-      final FinancialConvention legConvention, final Period startTenor,
-      final Period maturityTenor, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource,
-      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final boolean isPayer,
-      final boolean isMarketDataSpread) {
+      final FinancialConvention legConvention, final Period startTenor, final Period maturityTenor, final RegionSource regionSource, 
+      final HolidaySource holidaySource, final ConventionSource conventionSource, final SnapshotDataBundle marketData, final ExternalId dataId, 
+      final ZonedDateTime valuationTime, final boolean isPayer, final boolean isMarketDataSpread, final boolean isXCcy, final double notional) {
+    
     final FinancialConventionVisitor<AnnuityDefinition<? extends PaymentDefinition>> visitor = new FinancialConventionVisitorAdapter<AnnuityDefinition<? extends PaymentDefinition>>() {
 
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitONArithmeticAverageLegConvention(final ONArithmeticAverageLegConvention convention) {
+        if (isXCcy) {
+          throw new NotImplementedException("Cross-currency ON Arithmetic Average leg not implemented.");
+        }
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final IndexON indexON = indexON(indexConvention);
@@ -171,7 +190,6 @@ public class NodeConverterUtils {
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
         final boolean eomLeg = convention.isIsEOM();
         final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
-        // final int paymentLag = convention.getPaymentLag();
         // TODO: Add the payment lag in the builder.
         final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
         final StubType stub = convention.getStubType();
@@ -181,15 +199,18 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(startDate, maturityDate, paymentPeriod, 1.0d, spread, indexON, isPayer, 
+          return AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(startDate, maturityDate, paymentPeriod, notional, spread, indexON, isPayer, 
               businessDayConvention, eomLeg, calendar, stub);
         }
-        return AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(startDate, maturityDate, paymentPeriod, 1.0d, 0.0d, indexON, isPayer, 
+        return AnnuityDefinitionBuilder.couponONArithmeticAverageSpreadSimplified(startDate, maturityDate, paymentPeriod, notional, 0.0d, indexON, isPayer, 
             businessDayConvention, eomLeg, calendar, stub);
       }
       
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitCompoundingIborLegConvention(final CompoundingIborLegConvention convention) {
+        if (isXCcy) {
+          throw new NotImplementedException("Cross-currency Ibor compounded leg not implemented.");
+        }
         final IborIndexConvention indexConvention = conventionSource.getSingle(convention.getIborIndexConvention(), IborIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final boolean eomLeg = convention.isIsEOM();
@@ -211,10 +232,10 @@ public class NodeConverterUtils {
           }
           switch (compound) {
             case COMPOUNDING:
-              return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
+              return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, notional, spread, iborIndex, stubComp, isPayer,
                   iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
             case FLAT_COMPOUNDING:
-              return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
+              return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, notional, spread, iborIndex, stubComp, isPayer,
                   iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
             default:
               throw new NotImplementedException("Compounding method unimplemented: only COMPOUNDING and FLAT_COMPOUNDING implemented");
@@ -222,10 +243,10 @@ public class NodeConverterUtils {
         }
         switch (compound) {
           case COMPOUNDING:
-            return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
+            return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, notional, iborIndex, stubComp, isPayer,
               iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
           case FLAT_COMPOUNDING:
-            return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, 1, 0.0, iborIndex, stubComp, isPayer,
+            return AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(startDate, maturityDate, paymentTenor, notional, 0.0, iborIndex, stubComp, isPayer,
                 iborIndex.getBusinessDayConvention(), eom, calendar, stubLeg);
           default:
             throw new NotImplementedException("Compounding method unimplemented: only COMPOUNDING and FLAT_COMPOUNDING implemented");
@@ -234,6 +255,9 @@ public class NodeConverterUtils {
 
       @Override
       public AnnuityDefinition<? extends PaymentDefinition> visitOISLegConvention(final OISLegConvention convention) {
+        if (isXCcy) {
+          throw new NotImplementedException("Cross-currency OIS leg not implemented.");
+        }
         final OvernightIndexConvention indexConvention = conventionSource.getSingle(convention.getOvernightIndexConvention(), OvernightIndexConvention.class);
         final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
         final IndexON indexON = indexON(indexConvention);
@@ -251,10 +275,10 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(startDate, maturityDate, paymentPeriod, 1.0d, spread, indexON, isPayer, 
+          return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(startDate, maturityDate, paymentPeriod, notional, spread, indexON, isPayer, 
               businessDayConvention, eomLeg, calendar, stub, paymentLag);
         }
-        return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(startDate, maturityDate, paymentPeriod, 1.0d, 0.0d, indexON, isPayer, 
+        return AnnuityDefinitionBuilder.couponONSimpleCompoundedSpreadSimplified(startDate, maturityDate, paymentPeriod, notional, 0.0d, indexON, isPayer, 
             businessDayConvention, eomLeg, calendar, stub, paymentLag);
       }
 
@@ -276,8 +300,13 @@ public class NodeConverterUtils {
         final StubType stub = convention.getStubType();
         final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
         final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-        return AnnuityDefinitionBuilder.couponFixed(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 
-            1.0d, rate, isPayer, stub, paymentLag);
+        if (isXCcy) {
+          return AnnuityDefinitionBuilder.couponFixedWithNotional(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 
+              notional, rate, isPayer, stub, paymentLag, true, true);
+        } else {
+          return AnnuityDefinitionBuilder.couponFixed(currency, startDate, maturityDate, paymentPeriod, calendar, dayCount, businessDayConvention, eomLeg, 
+              notional, rate, isPayer, stub, paymentLag);
+        }
       }
 
       @Override
@@ -298,13 +327,23 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponIborSpread(startDate, maturityDate, indexTenor, 1.0d, spread, iborIndex, isPayer, iborIndex.getDayCount(), 
-              iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
+          if (isXCcy) {
+            return AnnuityDefinitionBuilder.couponIborSpreadWithNotional(startDate, maturityDate, notional, spread, iborIndex, isPayer, calendar, stub, paymentLag, true, true);
+          } else {
+            return AnnuityDefinitionBuilder.couponIborSpread(startDate, maturityDate, indexTenor, notional, spread, iborIndex, isPayer, iborIndex.getDayCount(), 
+                iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
+          }
+        } else {
+          if (isXCcy) {
+            return AnnuityDefinitionBuilder.couponIborWithNotional(startDate, maturityDate, notional, iborIndex, isPayer, calendar, stub, paymentLag, true, true);
+          } else {
+            return AnnuityDefinitionBuilder.couponIbor(startDate, maturityDate, indexTenor, notional, iborIndex, isPayer, iborIndex.getDayCount(), 
+                iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
+          }
         }
-        return AnnuityDefinitionBuilder.couponIbor(startDate, maturityDate, indexTenor, 1.0d, iborIndex, isPayer, iborIndex.getDayCount(), 
-            iborIndex.getBusinessDayConvention(), eomLeg, calendar, stub, paymentLag);
       }
     };
+    
     return legConvention.accept(visitor);
   }
   
@@ -363,7 +402,7 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, indexIbor, spread, 1, 
+          return AnnuityDefinitionBuilder.couponIborSpreadRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, 1, indexIbor, spread, 
               isPayer, indexIbor.getDayCount(), calendar, stub);
         }
         return AnnuityDefinitionBuilder.couponIborRollDateIndexAdjusted(adjustedStartDate, rollDateStartNumber, rollDateEndNumber, adjuster, indexIbor, 1, 

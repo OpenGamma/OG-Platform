@@ -34,6 +34,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -55,6 +56,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -203,6 +205,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       final T knownData = getKnownData(inputs);
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
@@ -227,7 +230,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource);
+      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource, fxMatrix);
       final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       return getResults(bundleSpec, jacobianSpec, bundleProperties, pair);
@@ -294,7 +297,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     /**
-     * Gets the known data from the function inputs.
+     * Gets the known data from the FX matrix. 
      * @param inputs The inputs
      * @return The known data
      */
@@ -325,10 +328,12 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param dataId The market data id for a node
      * @param historicalData The historical data
      * @param valuationTime The valuation time
+     * @param fxMatrix The FX matrix
      * @return A visitor that converts curve nodes to instrument definitions
      */
     protected abstract CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(ConventionSource conventionSource, HolidaySource holidaySource,
-        RegionSource regionSource, SnapshotDataBundle marketData, ExternalId dataId, HistoricalTimeSeriesBundle historicalData, ZonedDateTime valuationTime);
+        RegionSource regionSource, SnapshotDataBundle marketData, ExternalId dataId, HistoricalTimeSeriesBundle historicalData, ZonedDateTime valuationTime,
+        FXMatrix fxMatrix);
 
     /**
      * @param inputs The inputs
@@ -338,10 +343,11 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param conventionSource The convention source
      * @param holidaySource The holiday source
      * @param regionSource The region source
+     * @param fx The FX matrix.
      * @return The curve provider and associated results
      */
     protected abstract Pair<T, CurveBuildingBlockBundle> getCurves(FunctionInputs inputs, ZonedDateTime now, U builder, T knownData,
-        ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource);
+        ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource, FXMatrix fx);
 
     /**
      * @param bundleSpec The value specification for the curve bundle

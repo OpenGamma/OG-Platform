@@ -186,8 +186,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       }
       iborLegDefinition = new AnnuityDefinition<>(payments, calendarIbor);
     } else {
-      iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, indexIbor, spread, 
-          !payFixed, calendarIbor, StubType.SHORT_START, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
+      iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, spread, indexIbor, 
+          !payFixed, calendarIbor, StubType.SHORT_START, 0, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
     }
     // Fixed Leg
     final ExternalId regionIdFixed = fixedLeg.getRegionId();
@@ -212,7 +212,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     } else {
       final Period tenorFixed = getTenor(freqFixed);
       fixedLegDefinition = AnnuityDefinitionBuilder.couponFixedWithNotional(currencyFixed, effectiveDate, maturityDate, tenorFixed, calendarFixed, 
-          fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, StubType.SHORT_START, 
+          fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, StubType.SHORT_START, 0,
           swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
     }
     return new SwapCouponFixedCouponDefinition(fixedLegDefinition, iborLegDefinition);

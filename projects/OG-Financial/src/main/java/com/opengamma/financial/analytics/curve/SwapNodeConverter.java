@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -41,6 +42,8 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   private final ExternalId _dataId;
   /** The valuation time */
   private final ZonedDateTime _valuationTime;
+  /** The exchange rates (used in particular for notional of X-ccy swaps) **/
+  private final FXMatrix _fx;
 
   /**
    * @param conventionSource The convention source, not null
@@ -49,9 +52,10 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
    * @param marketData The market data, not null
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
+   * @param fx The FXMatrix with the exchange rates. Not null.
    */
   public SwapNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
+      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final FXMatrix fx) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
@@ -64,6 +68,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     _marketData = marketData;
     _dataId = dataId;
     _valuationTime = valuationTime;
+    _fx = fx;
   }
 
   @Override
@@ -73,7 +78,7 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final Period startTenor = swapNode.getStartTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
     return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,
-        _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
+        _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime, _fx);
   }
   
 }
