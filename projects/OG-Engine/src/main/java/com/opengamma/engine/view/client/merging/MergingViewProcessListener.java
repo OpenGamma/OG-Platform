@@ -20,6 +20,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.ClientShutdownCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
@@ -35,6 +36,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Collects and merges view process updates, releasing them only when {@code drain()} is called. Also ensures that different update types are passed to the underlying listener in the correct order
  * when drained.
+ * <p>
+ * Fragments and delta results are merged so that those corresponding to the latest cycle will be available. Individual notifications from earlier cycles will be discarded. For example, if there is a
+ * view compilation and a number of cycles run, the events released will be the compilation notification, merged events corresponding to the last full cycle, and anything available for any incomplete
+ * cycle.
  */
 public class MergingViewProcessListener implements ViewResultListener {
 
@@ -102,10 +107,38 @@ public class MergingViewProcessListener implements ViewResultListener {
 
   private Call<?> _firstCall;
   private Call<?> _lastCall;
+  /**
+   * The view compilation notification that corresponds to the last full result, or execution failure, if {@link #_latestCompilation} is set
+   */
+  private Call<?> _previousCompilation;
+  /**
+   * The last view compilation notification seen.
+   */
+  private Call<?> _latestCompilation;
+  /**
+   * The start notification that corresponds to the last full result, or execution failure, if {@link #_latestCycleStarted} is set
+   */
   private Call<CycleStartedCall> _previousCycleStarted;
+  /**
+   * The last start notification seen.
+   */
   private Call<CycleStartedCall> _latestCycleStarted;
+  /**
+   * The fragment notification that corresponds to the last full result, or execution failure, if {@link #_latestCycleFragmentCompleted} is set
+   */
+  private Call<CycleFragmentCompletedCall> _previousCycleFragmentCompleted;
+  /**
+   * The last fragment notification seen.
+   */
+  private Call<CycleFragmentCompletedCall> _latestCycleFragmentCompleted;
+  /**
+   * The last cycle failure notification seen. There will be no earlier cycle completion or failure notifications in the queue
+   */
+  private Call<CycleExecutionFailedCall> _cycleFailed;
+  /**
+   * The last cycle completed notification seen. There will be no earlier cycle completion or failure notifications in the queue.
+   */
   private Call<CycleCompletedCall> _cycleCompleted;
-  private Call<CycleFragmentCompletedCall> _cycleFragmentCompleted;
 
   public MergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -188,7 +221,11 @@ public class MergingViewProcessListener implements ViewResultListener {
     try {
       _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
-        addCall(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
+        if (_previousCompilation != null) {
+          removeCall(_previousCompilation);
+        }
+        _previousCompilation = _latestCompilation;
+        _latestCompilation = addCall(new ViewDefinitionCompiledCall(compiledViewDefinition, hasMarketDataPermissions));
         return;
       }
     } finally {
@@ -201,8 +238,10 @@ public class MergingViewProcessListener implements ViewResultListener {
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
     _mergerLock.lock();
     try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
-        addCall(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
+        clearCallQueue();
+        _previousCompilation = addCall(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
         return;
       }
     } finally {
@@ -215,6 +254,7 @@ public class MergingViewProcessListener implements ViewResultListener {
   public void cycleStarted(ViewCycleMetadata cycleMetadata) {
     _mergerLock.lock();
     try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
         if (_previousCycleStarted != null) {
           // This shouldn't happen if notifications appear as expected
@@ -234,19 +274,18 @@ public class MergingViewProcessListener implements ViewResultListener {
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     _mergerLock.lock();
     try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
       if (isLatestResultCycleRetained() && fullResult != null) {
         getCycleRetainer().replaceRetainedCycle(fullResult.getViewCycleId());
       }
-      _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
-
-        // Result merging is the most complicated. It is based on the following rules:
-        //  - only one result call in the queue, kept up-to-date by merging new result calls into it 
-        //  - the updated result call is repositioned to the end of the queue
-
-        // Result collapsing
+        if (_cycleFailed != null) {
+          // There's a previous failure in the queue; remove it
+          removeCall(_cycleFailed);
+          _cycleFailed = null;
+        }
         if (_cycleCompleted != null) {
-          // There's an old cycle completed call in the queue - move to end
+          // There's a previous cycle completed call in the queue - move to end
           putCallToEnd(_cycleCompleted);
           // Merge new cycle completed call into old one
           _cycleCompleted.getFunction().update(fullResult, deltaResult);
@@ -254,11 +293,21 @@ public class MergingViewProcessListener implements ViewResultListener {
           // No existing cycle completed call - add new one
           _cycleCompleted = addCall(new CycleCompletedCall(fullResult, deltaResult));
         }
-
+        // Only keep any fragment corresponding to this latest result
+        if (_previousCycleFragmentCompleted != null) {
+          removeCall(_previousCycleFragmentCompleted);
+        }
+        _previousCycleFragmentCompleted = _latestCycleFragmentCompleted;
+        _latestCycleFragmentCompleted = null;
         // Only keep the cycle started call for the latest complete result
         if (_previousCycleStarted != null) {
           removeCall(_previousCycleStarted);
           _previousCycleStarted = null;
+        }
+        // Only keep the compilation call for the latest complete result
+        if (_previousCompilation != null) {
+          removeCall(_previousCompilation);
+          _previousCompilation = null;
         }
         return;
       }
@@ -274,14 +323,14 @@ public class MergingViewProcessListener implements ViewResultListener {
     try {
       _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
-        if (_cycleFragmentCompleted != null) {
-          // There's an old fragment completed call in the queue - move to end
-          putCallToEnd(_cycleFragmentCompleted);
+        if (_latestCycleFragmentCompleted != null) {
+          // There's a current fragment completed call in the queue - move to end
+          putCallToEnd(_latestCycleFragmentCompleted);
           // Merge new fragment completed call into old one
-          _cycleFragmentCompleted.getFunction().update(fullFragment, deltaFragment);
+          _latestCycleFragmentCompleted.getFunction().update(fullFragment, deltaFragment);
         } else {
           // No existing fragment completed call - add new one
-          _cycleFragmentCompleted = addCall(new CycleFragmentCompletedCall(fullFragment, deltaFragment));
+          _latestCycleFragmentCompleted = addCall(new CycleFragmentCompletedCall(fullFragment, deltaFragment));
         }
         return;
       }
@@ -295,8 +344,34 @@ public class MergingViewProcessListener implements ViewResultListener {
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     _mergerLock.lock();
     try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
-        addCall(new CycleExecutionFailedCall(executionOptions, exception));
+        if (_cycleCompleted != null) {
+          // Remove any previous success
+          removeCall(_cycleCompleted);
+          _cycleCompleted = null;
+        }
+        if (_cycleFailed != null) {
+          // Remove any previous failure
+          removeCall(_cycleFailed);
+        }
+        _cycleFailed = addCall(new CycleExecutionFailedCall(executionOptions, exception));
+        // Only keep any fragment corresponding to this failure
+        if (_previousCycleFragmentCompleted != null) {
+          removeCall(_previousCycleFragmentCompleted);
+        }
+        _previousCycleFragmentCompleted = _latestCycleFragmentCompleted;
+        _latestCycleFragmentCompleted = null;
+        // Only keep the cycle started call for this failure
+        if (_previousCycleStarted != null) {
+          removeCall(_previousCycleStarted);
+          _previousCycleStarted = null;
+        }
+        // Only keep the compilation call for this failure
+        if (_previousCompilation != null) {
+          removeCall(_previousCompilation);
+          _previousCompilation = null;
+        }
         return;
       }
     } finally {
@@ -309,6 +384,7 @@ public class MergingViewProcessListener implements ViewResultListener {
   public void processCompleted() {
     _mergerLock.lock();
     try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
       if (!isPassThrough()) {
         addCall(new ProcessCompletedCall());
         return;
@@ -323,6 +399,7 @@ public class MergingViewProcessListener implements ViewResultListener {
   public void processTerminated(boolean executionInterrupted) {
     _mergerLock.lock();
     try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
       getCycleRetainer().replaceRetainedCycle(null);
       if (!isPassThrough()) {
         addCall(new ProcessTerminatedCall(executionInterrupted));
@@ -336,18 +413,33 @@ public class MergingViewProcessListener implements ViewResultListener {
 
   @Override
   public void clientShutdown(Exception e) {
-    // Client shutdowns are not queued
+    _mergerLock.lock();
+    try {
+      _lastUpdateMillis.set(System.currentTimeMillis());
+      if (!isPassThrough()) {
+        addCall(new ClientShutdownCall(e));
+        return;
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+    getUnderlying().clientShutdown(e);
   }
 
   /**
    * Clears the internal call queue state. The caller must hold the {@link #_mergerLock}.
    */
   private void clearCallQueue() {
+    _firstCall = null;
     _lastCall = null;
+    _previousCompilation = null;
+    _latestCompilation = null;
     _previousCycleStarted = null;
     _latestCycleStarted = null;
+    _cycleFailed = null;
     _cycleCompleted = null;
-    _cycleFragmentCompleted = null;
+    _previousCycleFragmentCompleted = null;
+    _latestCycleFragmentCompleted = null;
   }
 
   /**
