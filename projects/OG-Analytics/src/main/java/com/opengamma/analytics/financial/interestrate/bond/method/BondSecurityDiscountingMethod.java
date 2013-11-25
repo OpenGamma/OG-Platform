@@ -26,6 +26,7 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.util.amount.StringAmount;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -426,16 +427,19 @@ public final class BondSecurityDiscountingMethod {
   public double convexityFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
-    if (((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND))) && (nbCoupon == 1)) {
-      final double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
-      final double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
-      return 2 * timeToPay * timeToPay / (disc * disc);
+    final YieldConvention yieldConvention = bond.getYieldConvention();
+    if (nbCoupon == 1) {
+      if (((yieldConvention.equals(SimpleYieldConvention.US_STREET)) || (yieldConvention.equals(SimpleYieldConvention.GERMAN_BOND)))) {
+        final double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
+        final double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+        return 2 * timeToPay * timeToPay / (disc * disc);
+      }
+      if (yieldConvention.equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) {
+        throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + "with only one coupon is not supported.");
+      }
     }
-    if ((bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD)) && (nbCoupon == 1)) {
-      throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + "with only one coupon is not supported.");
-    }
-    if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
-        (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND)) || (bond.getYieldConvention().equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
+    if ((yieldConvention.equals(SimpleYieldConvention.US_STREET)) || (yieldConvention.equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
+        (yieldConvention.equals(SimpleYieldConvention.GERMAN_BOND)) || (yieldConvention.equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
       final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double cvAtFirstCoupon = 0;
       double pvAtFirstCoupon = 0;
@@ -451,7 +455,7 @@ public final class BondSecurityDiscountingMethod {
       final double cv = cvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
       return cv;
     }
-    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported.");
   }
 
   /**
