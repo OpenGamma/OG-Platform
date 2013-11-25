@@ -7,21 +7,21 @@ package com.opengamma.financial.analytics.model.bond;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ConvexityFromCurvesCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  *
  */
-public class BondMacaulayDurationFromCurvesFunction extends BondFromCurvesFunction {
+public class BondConvexityFromCurvesFunction extends BondFromCurvesFunction {
 
   @Override
   protected InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> getCalculator() {
-    return MacaulayDurationFromCurvesCalculator.getInstance();
+    return ConvexityFromCurvesCalculator.getInstance();
   }
 
   @Override
   protected String getValueRequirementName() {
-    return ValueRequirementNames.MACAULAY_DURATION;
+    return ValueRequirementNames.CONVEXITY;
   }
 }
