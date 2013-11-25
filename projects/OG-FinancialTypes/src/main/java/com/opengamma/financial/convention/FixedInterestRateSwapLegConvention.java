@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.irs;
+package com.opengamma.financial.convention;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -19,6 +20,19 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.convention.ConventionType;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.financial.security.irs.CompoundingMethod;
+import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapNotional;
+import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.financial.security.irs.PeriodRelationship;
+import com.opengamma.financial.security.irs.Rate;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * The convention for the fixed leg of an interest rate swap.
@@ -26,7 +40,12 @@ import com.opengamma.core.convention.ConventionType;
 @BeanDefinition
 public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLegConvention {
 
-  /** Serialization version. */
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("FixedInterestRateSwapLeg");
+
+  /** Serialization version */
   private static final long serialVersionUID = 1L;
 
   /**
@@ -35,6 +54,93 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
   @PropertyDefinition
   private int _paymentLag;
 
+  /**
+   * Creates an instance.
+   */
+  protected FixedInterestRateSwapLegConvention() {
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * This instance will be incomplete with fields that are null that should not be.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   */
+  public FixedInterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle) {
+    super(name, externalIdBundle);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param paymentCalendars  the payment calendars, not null
+   * @param calculationCalendars  the calculation calendars, not null
+   * @param maturityCalendars  the maturity calendars, not null
+   * @param paymentDayConvention  the payment day convention, not null
+   * @param calculationBusinessDayConvention  the calculation day convention, not null
+   * @param maturityBusinessDayConvention  the maturity day convention, not null
+   * @param dayCountConvention  the day count frequency, not null
+   * @param paymentFrequency  the payment frequency, not null
+   * @param calculationFrequency  the calculation frequency, not null
+   * @param paymentRelativeTo  the payment is relative to the beginning or end of the period, not null
+   * @param adjustedAccrual  whether the accrual should be adjusted
+   * @param settlementDays  the number of settlement days
+   * @param rollConvention  the roll convention, not null
+   * @param compoundingMethod  the compounding, not null
+   * @param paymentLag  the payment lag in days
+   */
+  public FixedInterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle,
+      Set<ExternalId> paymentCalendars,
+      Set<ExternalId> calculationCalendars,
+      Set<ExternalId> maturityCalendars,
+      BusinessDayConvention paymentDayConvention,
+      BusinessDayConvention calculationBusinessDayConvention,
+      BusinessDayConvention maturityBusinessDayConvention,
+      DayCount dayCountConvention,
+      Frequency paymentFrequency,
+      Frequency calculationFrequency,
+      PeriodRelationship paymentRelativeTo,
+      boolean adjustedAccrual,
+      int settlementDays,
+      RollConvention rollConvention,
+      CompoundingMethod compoundingMethod,
+      int paymentLag) {
+    super(name, externalIdBundle, paymentCalendars, calculationCalendars, maturityCalendars,
+        paymentDayConvention, calculationBusinessDayConvention, maturityBusinessDayConvention,
+        dayCountConvention, paymentFrequency, calculationFrequency, paymentRelativeTo,
+        adjustedAccrual, settlementDays, rollConvention, compoundingMethod);
+    setPaymentLag(paymentLag);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   *
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  @Override
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitFixedInterestRateSwapLegConvention(this);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Create a leg from a convention.
    *
@@ -51,17 +157,6 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
     leg.setNotional(notional);
     leg.setConvention(this);
     return leg;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public ConventionType getConventionType() {
-    return ConventionType.of(this.getClass().getSimpleName());
-  }
-
-  @Override
-  protected void validate() {
-    super.validate();
   }
 
   //------------------------- AUTOGENERATED START -------------------------

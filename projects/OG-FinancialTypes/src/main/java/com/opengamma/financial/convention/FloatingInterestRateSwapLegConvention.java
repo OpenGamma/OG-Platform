@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.irs;
+package com.opengamma.financial.convention;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,11 +19,22 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Sets;
 import com.opengamma.core.convention.ConventionType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.financial.security.irs.CompoundingMethod;
+import com.opengamma.financial.security.irs.DayType;
+import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapNotional;
+import com.opengamma.financial.security.irs.PayReceiveType;
+import com.opengamma.financial.security.irs.PeriodRelationship;
+import com.opengamma.financial.security.irs.Rate;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,7 +43,12 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegConvention {
 
-  /** Serialization version. */
+  /**
+   * Type of the convention.
+   */
+  public static final ConventionType TYPE = ConventionType.of("FloatingInterestRateSwapLeg");
+
+  /** Serialization version */
   private static final long serialVersionUID = 1L;
 
   /**
@@ -40,49 +56,158 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    */
   @PropertyDefinition(validate = "notNull")
   private FloatingRateType _rateType;
-
   /**
    * The fixing calendar.
    */
-  @PropertyDefinition(validate = "notNull")
-  private Set<ExternalId> _fixingCalendars;
-
+  @PropertyDefinition
+  private final Set<ExternalId> _fixingCalendars = Sets.newHashSet();
   /**
    * The business day convention used for fixing.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _fixingBusinessDayConvention;
-
   /**
    * The day type (calendar or business) for the fixing lag.
    */
   @PropertyDefinition(validate = "notNull")
   private DayType _settlementDayType = DayType.BUSINESS;
-
   /**
    * The reset frequency.
    */
   @PropertyDefinition(validate = "notNull")
   private Frequency _resetFrequency;
-
   /**
    * The reset calendar.
    */
-  @PropertyDefinition(validate = "notNull")
-  private Set<ExternalId> _resetCalendars;
-
+  @PropertyDefinition
+  private final Set<ExternalId> _resetCalendars = Sets.newHashSet();
   /**
    * The reset business day convention
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _resetBusinessDayConvention;
-
   /**
    * The reset relative to either the start or end of the period.
    */
   @PropertyDefinition(validate = "notNull")
   private PeriodRelationship _resetRelativeTo = PeriodRelationship.BEGINNING;
 
+  /**
+   * Creates an instance.
+   */
+  protected FloatingInterestRateSwapLegConvention() {
+    super();
+  }
+
+  /**
+   * Creates an instance.
+   * <p>
+   * This instance will be incomplete with fields that are null that should not be.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   */
+  public FloatingInterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle) {
+    super(name, externalIdBundle);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param paymentCalendars  the payment calendars, not null
+   * @param calculationCalendars  the calculation calendars, not null
+   * @param maturityCalendars  the maturity calendars, not null
+   * @param paymentDayConvention  the payment day convention, not null
+   * @param calculationBusinessDayConvention  the calculation day convention, not null
+   * @param maturityBusinessDayConvention  the maturity day convention, not null
+   * @param dayCountConvention  the day count frequency, not null
+   * @param paymentFrequency  the payment frequency, not null
+   * @param calculationFrequency  the calculation frequency, not null
+   * @param paymentRelativeTo  the payment is relative to the beginning or end of the period, not null
+   * @param adjustedAccrual  whether the accrual should be adjusted
+   * @param settlementDays  the number of settlement days
+   * @param rollConvention  the roll convention, not null
+   * @param compoundingMethod  the compounding, not null
+   * @param rateType  the rate type, not null
+   * @param fixingCalendars  the fixing calendars, not null
+   * @param fixingBusinessDayConvention  the fixing day convention, not null
+   * @param settlementDayType  the settlement date type, not null
+   * @param resetFrequency  the reset frequency, not null
+   * @param resetCalendars  the reset calendars, not null
+   * @param resetBusinessDayConvention  the reset day convention, not null
+   * @param resetRelativeTo  the reset relative to, not null
+   */
+  public FloatingInterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle,  // CSIGNORE
+      Set<ExternalId> paymentCalendars,
+      Set<ExternalId> calculationCalendars,
+      Set<ExternalId> maturityCalendars,
+      BusinessDayConvention paymentDayConvention,
+      BusinessDayConvention calculationBusinessDayConvention,
+      BusinessDayConvention maturityBusinessDayConvention,
+      DayCount dayCountConvention,
+      Frequency paymentFrequency,
+      Frequency calculationFrequency,
+      PeriodRelationship paymentRelativeTo,
+      boolean adjustedAccrual,
+      int settlementDays,
+      RollConvention rollConvention,
+      CompoundingMethod compoundingMethod,
+      FloatingRateType rateType,
+      Set<ExternalId> fixingCalendars,
+      BusinessDayConvention fixingBusinessDayConvention,
+      DayType settlementDayType,
+      Frequency resetFrequency,
+      Set<ExternalId> resetCalendars,
+      BusinessDayConvention resetBusinessDayConvention,
+      PeriodRelationship resetRelativeTo) {
+    super(name, externalIdBundle, paymentCalendars, calculationCalendars, maturityCalendars,
+        paymentDayConvention, calculationBusinessDayConvention, maturityBusinessDayConvention,
+        dayCountConvention, paymentFrequency, calculationFrequency, paymentRelativeTo,
+        adjustedAccrual, settlementDays, rollConvention, compoundingMethod);
+    setRateType(rateType);
+    setFixingCalendars(fixingCalendars);
+    setFixingBusinessDayConvention(fixingBusinessDayConvention);
+    setSettlementDayType(settlementDayType);
+    setResetFrequency(resetFrequency);
+    setResetCalendars(resetCalendars);
+    setResetBusinessDayConvention(resetBusinessDayConvention);
+    setResetRelativeTo(resetRelativeTo);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the type identifying this convention.
+   * 
+   * @return the {@link #TYPE} constant, not null
+   */
+  @Override
+  public ConventionType getConventionType() {
+    return TYPE;
+  }
+
+  /**
+   * Accepts a visitor to manage traversal of the hierarchy.
+   *
+   * @param <T>  the result type of the visitor
+   * @param visitor  the visitor, not null
+   * @return the result
+   */
+  @Override
+  public <T> T accept(final FinancialConventionVisitor<T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitFloatingInterestRateSwapLegConvention(this);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Create a leg from a convention.
+   *
+   * @param notional  the notional (may be simple or complex)
+   * @param payOrReceive  is this a pay or receive leg?
+   * @return the leg, not null
+   */
   public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive) {
     ArgumentChecker.notNull(getDayCountConvention(), "Daycount");
     FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
@@ -92,15 +217,18 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     return leg;
   }
 
+  /**
+   * Create a leg from a convention.
+   *
+   * @param notional  the notional (may be simple or complex)
+   * @param payOrReceive  is this a pay or receive leg?
+   * @param spread  the spread. may be null
+   * @return the leg, not null
+   */
   public FloatingInterestRateSwapLeg toLeg(final InterestRateSwapNotional notional, final PayReceiveType payOrReceive, Rate spread) {
     FloatingInterestRateSwapLeg leg = toLeg(notional, payOrReceive);
     leg.setSpreadSchedule(spread);
     return leg;
-  }
-
-  @Override
-  public ConventionType getConventionType() {
-    return ConventionType.of(this.getClass().getSimpleName());
   }
 
   @Override
@@ -162,7 +290,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
   //-----------------------------------------------------------------------
   /**
    * Gets the fixing calendar.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Set<ExternalId> getFixingCalendars() {
     return _fixingCalendars;
@@ -170,11 +298,11 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
 
   /**
    * Sets the fixing calendar.
-   * @param fixingCalendars  the new value of the property, not null
+   * @param fixingCalendars  the new value of the property
    */
   public void setFixingCalendars(Set<ExternalId> fixingCalendars) {
-    JodaBeanUtils.notNull(fixingCalendars, "fixingCalendars");
-    this._fixingCalendars = fixingCalendars;
+    this._fixingCalendars.clear();
+    this._fixingCalendars.addAll(fixingCalendars);
   }
 
   /**
@@ -266,7 +394,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
   //-----------------------------------------------------------------------
   /**
    * Gets the reset calendar.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Set<ExternalId> getResetCalendars() {
     return _resetCalendars;
@@ -274,11 +402,11 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
 
   /**
    * Sets the reset calendar.
-   * @param resetCalendars  the new value of the property, not null
+   * @param resetCalendars  the new value of the property
    */
   public void setResetCalendars(Set<ExternalId> resetCalendars) {
-    JodaBeanUtils.notNull(resetCalendars, "resetCalendars");
-    this._resetCalendars = resetCalendars;
+    this._resetCalendars.clear();
+    this._resetCalendars.addAll(resetCalendars);
   }
 
   /**
@@ -641,11 +769,9 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._rateType, "rateType");
-      JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._fixingCalendars, "fixingCalendars");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._fixingBusinessDayConvention, "fixingBusinessDayConvention");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._settlementDayType, "settlementDayType");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetFrequency, "resetFrequency");
-      JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetCalendars, "resetCalendars");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetBusinessDayConvention, "resetBusinessDayConvention");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetRelativeTo, "resetRelativeTo");
       super.validate(bean);

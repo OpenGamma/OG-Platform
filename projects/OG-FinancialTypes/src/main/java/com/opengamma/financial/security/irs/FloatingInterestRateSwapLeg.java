@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 

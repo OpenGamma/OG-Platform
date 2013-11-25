@@ -44,6 +44,16 @@ public class FinancialConventionVisitorAdapter<T> implements FinancialConvention
   }
 
   @Override
+  public T visitFixedInterestRateSwapLegConvention(FixedInterestRateSwapLegConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
+  public T visitFloatingInterestRateSwapLegConvention(FloatingInterestRateSwapLegConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
   public T visitFXForwardAndSwapConvention(final FXForwardAndSwapConvention convention) {
     return getErrorMessage(convention);
   }

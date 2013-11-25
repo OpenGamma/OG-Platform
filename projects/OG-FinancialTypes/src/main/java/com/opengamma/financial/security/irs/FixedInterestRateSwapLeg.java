@@ -18,6 +18,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
+
 /**
  * A fixed interest rate swap leg.
  */
