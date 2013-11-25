@@ -1250,6 +1250,10 @@ public final class ValueRequirementNames {
    * The convexity of a bond.
    */
   public static final String CONVEXITY = "Convexity";
+  /** 
+   * The accrued interest of a bond.
+   */
+  public static final String ACCRUED_INTEREST = "Accrued Interest";
   /**
    * The current yield of a bond
    */
