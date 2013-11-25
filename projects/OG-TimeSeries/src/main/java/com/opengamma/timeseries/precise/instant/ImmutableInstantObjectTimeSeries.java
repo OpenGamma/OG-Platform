@@ -396,7 +396,7 @@ public final class ImmutableInstantObjectTimeSeries<V>
   //-------------------------------------------------------------------------
   @Override
   public InstantObjectTimeSeries<V> subSeries(Instant startInstant, Instant endInstant) {
-    return subSeriesFast(convertToLong(startInstant), convertToLong(endInstant));
+    return subSeriesFast(convertToLong(startInstant), true, convertToLong(endInstant), false);
   }
 
   @Override
@@ -406,25 +406,48 @@ public final class ImmutableInstantObjectTimeSeries<V>
 
   @Override
   public InstantObjectTimeSeries<V> subSeriesFast(long startInstant, long endInstant) {
+    return subSeriesFast(startInstant, true, endInstant, false);
+  }
+
+  @Override
+  public InstantObjectTimeSeries<V> subSeriesFast(long startInstant, boolean includeStart, long endInstant, boolean includeEnd) {
+    if (endInstant < startInstant) {
+      throw new IllegalArgumentException("Invalid subSeries: endTime < startTime");
+    }
+    // special case for start equals end
+    if (startInstant == endInstant) {
+      if (includeStart && includeEnd) {
+        int pos = Arrays.binarySearch(_times, startInstant);
+        if (pos >= 0) {
+          return new ImmutableInstantObjectTimeSeries<V>(new long[] {startInstant}, Arrays.copyOfRange(_values, pos, pos + 1));
+        }
+      }
+      return ofEmpty();
+    }
+    // special case when this is empty
+    if (isEmpty()) {
+      return ofEmpty();
+    }
+    // normalize to include start and exclude end
+    if (includeStart == false) {
+      startInstant++;
+    }
+    if (includeEnd) {
+      if (endInstant != Long.MAX_VALUE) {
+        endInstant++;
+      }
+    }
+    // calculate
     int startPos = Arrays.binarySearch(_times, startInstant);
-    int endPos = (endInstant == Integer.MIN_VALUE) ? _times.length : Arrays.binarySearch(_times, endInstant);
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
+    int endPos = Arrays.binarySearch(_times, endInstant);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
-    if (endPos > _times.length) {
+    if (includeEnd && endInstant == Long.MAX_VALUE) {
       endPos = _times.length;
     }
     long[] timesArray = Arrays.copyOfRange(_times, startPos, endPos);
     V[] valuesArray = Arrays.copyOfRange(_values, startPos, endPos);
     return new ImmutableInstantObjectTimeSeries<V>(timesArray, valuesArray);
-  }
-
-  @Override
-  public InstantObjectTimeSeries<V> subSeriesFast(long startInstant, boolean includeStart, long endInstant, boolean includeEnd) {
-    if (startInstant != endInstant || includeStart || includeEnd) {
-      startInstant += (includeStart ? 0 : 1);
-      endInstant += (includeEnd ? 1 : 0);
-    }
-    return subSeriesFast(startInstant, endInstant);
   }
 
   //-------------------------------------------------------------------------

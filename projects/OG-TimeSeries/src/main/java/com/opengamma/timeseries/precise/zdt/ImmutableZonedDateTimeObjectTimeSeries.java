@@ -433,7 +433,7 @@ public final class ImmutableZonedDateTimeObjectTimeSeries<V>
   //-------------------------------------------------------------------------
   @Override
   public ZonedDateTimeObjectTimeSeries<V> subSeries(ZonedDateTime startZonedDateTime, ZonedDateTime endZonedDateTime) {
-    return subSeriesFast(convertToLong(startZonedDateTime), convertToLong(endZonedDateTime));
+    return subSeriesFast(convertToLong(startZonedDateTime), true, convertToLong(endZonedDateTime), false);
   }
 
   @Override
@@ -443,25 +443,48 @@ public final class ImmutableZonedDateTimeObjectTimeSeries<V>
 
   @Override
   public ZonedDateTimeObjectTimeSeries<V> subSeriesFast(long startZonedDateTime, long endZonedDateTime) {
+    return subSeriesFast(startZonedDateTime, true, endZonedDateTime, false);
+  }
+
+  @Override
+  public ZonedDateTimeObjectTimeSeries<V> subSeriesFast(long startZonedDateTime, boolean includeStart, long endZonedDateTime, boolean includeEnd) {
+    if (endZonedDateTime < startZonedDateTime) {
+      throw new IllegalArgumentException("Invalid subSeries: endTime < startTime");
+    }
+    // special case for start equals end
+    if (startZonedDateTime == endZonedDateTime) {
+      if (includeStart && includeEnd) {
+        int pos = Arrays.binarySearch(_times, startZonedDateTime);
+        if (pos >= 0) {
+          return new ImmutableZonedDateTimeObjectTimeSeries<V>(new long[] {startZonedDateTime}, Arrays.copyOfRange(_values, pos, pos + 1), _zone);
+        }
+      }
+      return ofEmpty(_zone);
+    }
+    // special case when this is empty
+    if (isEmpty()) {
+      return ofEmpty(_zone);
+    }
+    // normalize to include start and exclude end
+    if (includeStart == false) {
+      startZonedDateTime++;
+    }
+    if (includeEnd) {
+      if (endZonedDateTime != Long.MAX_VALUE) {
+        endZonedDateTime++;
+      }
+    }
+    // calculate
     int startPos = Arrays.binarySearch(_times, startZonedDateTime);
-    int endPos = (endZonedDateTime == Integer.MIN_VALUE) ? _times.length : Arrays.binarySearch(_times, endZonedDateTime);
     startPos = startPos >= 0 ? startPos : -(startPos + 1);
+    int endPos = Arrays.binarySearch(_times, endZonedDateTime);
     endPos = endPos >= 0 ? endPos : -(endPos + 1);
-    if (endPos > _times.length) {
+    if (includeEnd && endZonedDateTime == Long.MAX_VALUE) {
       endPos = _times.length;
     }
     long[] timesArray = Arrays.copyOfRange(_times, startPos, endPos);
     V[] valuesArray = Arrays.copyOfRange(_values, startPos, endPos);
     return new ImmutableZonedDateTimeObjectTimeSeries<V>(timesArray, valuesArray, _zone);
-  }
-
-  @Override
-  public ZonedDateTimeObjectTimeSeries<V> subSeriesFast(long startZonedDateTime, boolean includeStart, long endZonedDateTime, boolean includeEnd) {
-    if (startZonedDateTime != endZonedDateTime || includeStart || includeEnd) {
-      startZonedDateTime += (includeStart ? 0 : 1);
-      endZonedDateTime += (includeEnd ? 1 : 0);
-    }
-    return subSeriesFast(startZonedDateTime, endZonedDateTime);
   }
 
   //-------------------------------------------------------------------------

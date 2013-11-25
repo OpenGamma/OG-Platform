@@ -207,7 +207,7 @@ abstract class AbstractInstantDoubleTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public InstantDoubleTimeSeries subSeries(Instant startInstant, Instant endInstant) {
-    return subSeriesFast(convertToLong(startInstant), convertToLong(endInstant));
+    return subSeriesFast(convertToLong(startInstant), true, convertToLong(endInstant), false);
   }
 
   @Override
@@ -216,12 +216,8 @@ abstract class AbstractInstantDoubleTimeSeries
   }
 
   @Override
-  public InstantDoubleTimeSeries subSeriesFast(long startInstant, boolean includeStart, long endInstant, boolean includeEnd) {
-    if (startInstant != endInstant || includeStart || includeEnd) {
-      startInstant += (includeStart ? 0 : 1);
-      endInstant += (includeEnd ? 1 : 0);
-    }
-    return subSeriesFast(startInstant, endInstant);
+  public InstantDoubleTimeSeries subSeriesFast(long startInstant, long endInstant) {
+    return subSeriesFast(startInstant, true, endInstant, false);
   }
 
   //-------------------------------------------------------------------------
