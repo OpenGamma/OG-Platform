@@ -47,7 +47,7 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   private final CurrencyPairs _currencyPairs;
   private final SecuritySource _securitySource;
 
-  public NotionalVisitor(final CurrencyPairs currencyPairs, SecuritySource securitySource) {
+  public NotionalVisitor(final CurrencyPairs currencyPairs, final SecuritySource securitySource) {
     _currencyPairs = currencyPairs;
     _securitySource = securitySource;
   }
@@ -67,7 +67,7 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   }
 
   @Override
-  public CurrencyAmount visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
+  public CurrencyAmount visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     //TODO: Handle more than 2 legs
     final InterestRateSwapLeg payNotional = security.getPayLeg();
     final InterestRateSwapLeg receiveNotional = security.getReceiveLeg();

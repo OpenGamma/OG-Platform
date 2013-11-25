@@ -337,10 +337,16 @@ public final class BondSecurityDiscountingMethod {
   public double modifiedDurationFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
-    if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) && (nbCoupon == 1)) {
-      return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+    final YieldConvention yieldConvention = bond.getYieldConvention();
+    if (nbCoupon == 1) {
+      if (yieldConvention.equals(US_STREET)) {
+        return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+      }
+      if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
+        return bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + yield / bond.getCouponPerYear());
+      }
     }
-    if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD))) {
+    if (yieldConvention.equals(US_STREET) || yieldConvention.equals(UK_BUMP_DMO_METHOD) || yieldConvention.equals(GERMAN_BOND) || (yieldConvention.equals(FRANCE_COMPOUND_METHOD))) {
       final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
       double mdAtFirstCoupon = 0;
       double pvAtFirstCoupon = 0;
@@ -354,7 +360,7 @@ public final class BondSecurityDiscountingMethod {
       final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getAccrualFactorToNextCoupon()) / pv;
       return md;
     }
-    throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported.");
   }
 
   /**

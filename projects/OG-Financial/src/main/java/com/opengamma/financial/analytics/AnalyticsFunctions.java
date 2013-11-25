@@ -222,6 +222,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addSummingFunction(functions, ValueRequirementNames.PRICE_SERIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PV01);
+    addUnitScalingFunction(functions, ValueRequirementNames.QUANTITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.RECEIVE_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.RHO);
     addUnitScalingFunction(functions, ValueRequirementNames.SWAP_PAY_LEG_DETAILS);
