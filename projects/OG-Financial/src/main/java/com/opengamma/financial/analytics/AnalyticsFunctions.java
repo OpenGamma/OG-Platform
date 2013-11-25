@@ -96,6 +96,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(AttributesFunction.class));
+    functions.add(functionConfiguration(ExternalIdFunction.class));
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
     functions.add(functionConfiguration(NotionalFunction.class));

@@ -1118,6 +1118,10 @@ public final class ValueRequirementNames {
    * The attributes of a security
    */
   public static final String ATTRIBUTES = "Attributes";
+  /**
+   * An ExternalId of a security
+   */
+  public static final String EXTERNAL_ID = "ExternalId";
 
   ///// Value At Risk
 
