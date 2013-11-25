@@ -6,23 +6,23 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromYieldCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.ConvexityFromYieldCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * Calculates the modified duration from bond yield.
- * @deprecated The parent class of this function is deprecated
+ * Calculates the convexity from bond yield.
+ * @deprecated The parent of this class is deprecated.
  */
 @Deprecated
-public class BondModifiedDurationFromYieldFunction extends BondFromYieldFunction {
+public class BondConvexityFromYieldFunction extends BondFromYieldFunction {
 
   @Override
   protected InstrumentDerivativeVisitorAdapter<Double, Double> getCalculator() {
-    return ModifiedDurationFromYieldCalculator.getInstance();
+    return ConvexityFromYieldCalculator.getInstance();
   }
 
   @Override
   protected String getValueRequirementName() {
-    return ValueRequirementNames.MODIFIED_DURATION;
+    return ValueRequirementNames.CONVEXITY;
   }
 }

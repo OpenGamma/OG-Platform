@@ -30,19 +30,20 @@ import com.opengamma.util.tuple.Pairs;
 public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
 
   private static final String[] s_bondValueNames = new String[] {
-      ValueRequirementNames.CLEAN_PRICE,
-      ValueRequirementNames.DIRTY_PRICE,
-      ValueRequirementNames.MACAULAY_DURATION,
-      ValueRequirementNames.MODIFIED_DURATION,
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.YTM,
-      ValueRequirementNames.Z_SPREAD,
-      ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY
+    ValueRequirementNames.CLEAN_PRICE,
+    ValueRequirementNames.DIRTY_PRICE,
+    ValueRequirementNames.MACAULAY_DURATION,
+    ValueRequirementNames.MODIFIED_DURATION,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.YTM,
+    ValueRequirementNames.Z_SPREAD,
+    ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY,
+    ValueRequirementNames.CONVEXITY
   };
 
   private static final String[] s_bondFutureValueNames = new String[] {
-      ValueRequirementNames.GROSS_BASIS,
-      ValueRequirementNames.NET_BASIS
+    ValueRequirementNames.GROSS_BASIS,
+    ValueRequirementNames.NET_BASIS
   };
 
   private final Map<String, Pair<String, String>> _currencyAndRiskFreeCurveNames;
@@ -53,8 +54,8 @@ public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyAndCurveConfigNames.length % 5 == 0,
         "Must have a risk-free curve name, risk-free curve config, credit curve name and credit curve config per currency");
-    _currencyAndCreditCurveNames = new HashMap<String, Pair<String, String>>();
-    _currencyAndRiskFreeCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyAndCreditCurveNames = new HashMap<>();
+    _currencyAndRiskFreeCurveNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 5) {
       final String currency = currencyAndCurveConfigNames[i];
       final String riskFreeCurve = currencyAndCurveConfigNames[i + 1];
