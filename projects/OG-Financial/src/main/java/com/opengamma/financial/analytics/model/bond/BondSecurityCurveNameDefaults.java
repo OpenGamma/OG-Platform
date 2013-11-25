@@ -39,7 +39,9 @@ public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.Z_SPREAD,
     ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY,
     ValueRequirementNames.CONVEXITY,
-    ValueRequirementNames.ACCRUED_INTEREST
+    ValueRequirementNames.ACCRUED_INTEREST,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.DV01
   };
 
   private static final String[] s_bondFutureValueNames = new String[] {

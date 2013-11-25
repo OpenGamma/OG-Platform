@@ -6,23 +6,23 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.AccruedInterestFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCleanPriceCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * Calculates the accrued interest from bond yield.
+ * Calculates the modified duration from bond clean price.
  * @deprecated The parent of this class is deprecated.
  */
 @Deprecated
-public class BondAccruedInterestFromYieldFunction extends BondFromYieldFunction {
+public class BondModifiedDurationFromCleanPriceFunction extends BondFromCleanPriceFunction {
 
   @Override
   protected InstrumentDerivativeVisitorAdapter<Double, Double> getCalculator() {
-    return AccruedInterestFromYieldCalculator.getInstance();
+    return ModifiedDurationFromCleanPriceCalculator.getInstance();
   }
 
   @Override
   protected String getValueRequirementName() {
-    return ValueRequirementNames.ACCRUED_INTEREST;
+    return ValueRequirementNames.MODIFIED_DURATION;
   }
 }

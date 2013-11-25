@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.AccruedInterestFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.AccruedInterestFromCleanPriceCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -14,11 +14,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
  * @deprecated The parent of this class is deprecated.
  */
 @Deprecated
-public class BondAccruedInterestFromYieldFunction extends BondFromYieldFunction {
+public class BondAccruedInterestFromCleanPriceFunction extends BondFromCleanPriceFunction {
 
   @Override
   protected InstrumentDerivativeVisitorAdapter<Double, Double> getCalculator() {
-    return AccruedInterestFromYieldCalculator.getInstance();
+    return AccruedInterestFromCleanPriceCalculator.getInstance();
   }
 
   @Override
