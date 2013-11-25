@@ -49,7 +49,7 @@ public abstract class BondFromYieldFunction extends BondFunction<Double> {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
     final BondFixedSecurity bond = definition.toDerivative(date, creditCurveName, riskFreeCurveName);
-    return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data)));
+    return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data) * getScaleFactor()));
   }
 
   @Override

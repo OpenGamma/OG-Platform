@@ -52,8 +52,7 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
     final BondFixedSecurity bond = definition.toDerivative(date, creditCurveName, riskFreeCurveName);
-    return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data)));
-    // Remark: MH - 9-May-2013: factor 100 removed.
+    return Sets.newHashSet(new ComputedValue(resultSpec, bond.accept(getCalculator(), data) * getScaleFactor()));
   }
 
   @Override

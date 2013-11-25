@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bond;
@@ -34,7 +34,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
- * 
+ *
  */
 public class BondZSpreadFromMarketCleanPriceFunction extends BondFromPriceFunction {
   private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
@@ -113,15 +113,16 @@ public class BondZSpreadFromMarketCleanPriceFunction extends BondFromPriceFuncti
   }
 
   @Override
-  protected double getValue(FunctionExecutionContext context, ZonedDateTime date, String riskFreeCurveName, String creditCurveName, ComputationTarget target, YieldCurveBundle data, double price) {
-    BondSecurity bond = (BondSecurity) target.getSecurity();
+  protected double getValue(final FunctionExecutionContext context, final ZonedDateTime date, final String riskFreeCurveName,
+      final String creditCurveName, final ComputationTarget target, final YieldCurveBundle data, final double price) {
+    final BondSecurity bond = (BondSecurity) target.getSecurity();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
-    BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter visitor = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bond.accept(visitor);
-    BondFixedSecurity derivative = definition.toDerivative(date, riskFreeCurveName, creditCurveName);
-    return CALCULATOR.zSpreadFromCurvesAndClean(derivative, data, price);
+    final BondFixedSecurity derivative = definition.toDerivative(date, riskFreeCurveName, creditCurveName);
+    return 10000 * CALCULATOR.zSpreadFromCurvesAndClean(derivative, data, price);
   }
 
 }

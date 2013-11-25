@@ -25,4 +25,9 @@ public class BondCleanPriceFromYieldFunction extends BondFromYieldFunction {
   protected String getValueRequirementName() {
     return ValueRequirementNames.CLEAN_PRICE;
   }
+
+  @Override
+  protected double getScaleFactor() {
+    return 100;
+  }
 }

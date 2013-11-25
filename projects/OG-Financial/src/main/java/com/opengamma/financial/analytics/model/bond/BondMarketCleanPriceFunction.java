@@ -21,7 +21,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
- * 
+ *
  */
 public class BondMarketCleanPriceFunction extends BondMarketDataFunction {
 
@@ -33,7 +33,7 @@ public class BondMarketCleanPriceFunction extends BondMarketDataFunction {
   protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final double value, final BondSecurity security, final ComputationTargetSpecification target) {
     final ValueProperties.Builder properties = createValueProperties();
     final ValueSpecification specification = new ValueSpecification(ValueRequirementNames.MARKET_CLEAN_PRICE, target, properties.get());
-    return Sets.newHashSet(new ComputedValue(specification, value));
+    return Sets.newHashSet(new ComputedValue(specification, value * 100));
   }
 
   @Override

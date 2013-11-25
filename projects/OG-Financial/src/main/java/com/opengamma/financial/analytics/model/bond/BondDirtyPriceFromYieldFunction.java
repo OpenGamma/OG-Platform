@@ -25,4 +25,10 @@ public class BondDirtyPriceFromYieldFunction extends BondFromYieldFunction {
   protected String getValueRequirementName() {
     return ValueRequirementNames.DIRTY_PRICE;
   }
+
+  @Override
+  protected double getScaleFactor() {
+    return 100;
+  }
+
 }

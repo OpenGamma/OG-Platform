@@ -99,4 +99,12 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
    */
   protected abstract T getData(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues);
 
+  /**
+   * Gets the scale factor for the measure. The analytics library deals with all analytics as decimals,
+   * but this is not necessarily what is required as an output of the engine.
+   * @return A scale factor of one
+   */
+  protected double getScaleFactor() {
+    return 1;
+  }
 }

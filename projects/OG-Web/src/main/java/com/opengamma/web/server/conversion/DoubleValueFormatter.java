@@ -68,7 +68,7 @@ public abstract class DoubleValueFormatter {
    * @param plainNumberString  the plain number, not null
    * @return the transformed number, not null
    */
-  private String transformPlainNumberString(String plainNumberString) {
+  /* package */ String transformPlainNumberString(String plainNumberString) {
     // A plain number string is of the form:
     //   (-)?[0-9]+(\.[0-9]+)?
     // i.e. using '-' for negative numbers and '.' as the decimal separator.

@@ -146,11 +146,13 @@ public class BondFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondMarketDirtyPriceFunction.class));
     functions.add(functionConfiguration(BondMarketYieldFunction.class));
     functions.add(functionConfiguration(BondYieldFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondAccruedInterestFromCurvesFunction.class));
     functions.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class));
     functions.add(functionConfiguration(BondDirtyPriceFromCurvesFunction.class));
     functions.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondConvexityFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondAccruedInterestFromYieldFunction.class));
     functions.add(functionConfiguration(BondCleanPriceFromYieldFunction.class));
     functions.add(functionConfiguration(BondDirtyPriceFromYieldFunction.class));
     functions.add(functionConfiguration(BondMacaulayDurationFromYieldFunction.class));
