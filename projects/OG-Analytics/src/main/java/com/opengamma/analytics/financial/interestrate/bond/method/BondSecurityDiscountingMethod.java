@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
@@ -64,6 +62,9 @@ public final class BondSecurityDiscountingMethod {
    * The present value curve sensitivity calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  /**
+   * The present value parallel curve sensitivity calculator
+   */
   private static final PresentValueParallelCurveSensitivityCalculator PVPCSC = PresentValueParallelCurveSensitivityCalculator.getInstance();
   /**
    * The root bracket used for yield finding.
@@ -73,6 +74,9 @@ public final class BondSecurityDiscountingMethod {
    * The root finder used for yield finding.
    */
   private static final RealSingleRootFinder ROOT_FINDER = new BrentSingleRootFinder();
+  /**
+   * Brackets a root
+   */
   private static final BracketRoot ROOT_BRACKETER = new BracketRoot();
 
   /**
@@ -95,7 +99,7 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value.
    */
   public double presentValueFromCleanPrice(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double cleanPrice) {
-    Validate.isTrue(bond instanceof BondFixedSecurity, "Present value from clean price available only for fixed coupon bond");
+    ArgumentChecker.isTrue(bond instanceof BondFixedSecurity, "Present value from clean price available only for fixed coupon bond");
     final BondFixedSecurity bondFixed = (BondFixedSecurity) bond;
     final double dfSettle = curves.getCurve(bondFixed.getRepoCurveName()).getDiscountFactor(bondFixed.getSettlementTime());
     final double pvPrice = (cleanPrice * bondFixed.getCoupon().getNthPayment(0).getNotional() + bondFixed.getAccruedInterest()) * dfSettle;
@@ -120,6 +124,13 @@ public final class BondSecurityDiscountingMethod {
     return result;
   }
 
+  /**
+   * Calculates the sensitivity of the bond to the z spread
+   * @param bond The bond
+   * @param curves The curves
+   * @param zSpread The z spread
+   * @return The sensitivity
+   */
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double zSpread) {
     final String discountingCurveName = bond.getDiscountingCurveName();
     final YieldCurveBundle curvesWithZ = new YieldCurveBundle();
@@ -157,12 +168,13 @@ public final class BondSecurityDiscountingMethod {
 
   /**
    * Computes the dirty price from the conventional yield.
-   * @param bond  The bond security.
+   * @param bond  The bond security, not null
    * @param yield The bond yield.
    * @return The dirty price.
    */
   public double dirtyPriceFromYield(final BondFixedSecurity bond, final double yield) {
-    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if (((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.GERMAN_BOND))) && (nbCoupon == 1)) {
@@ -178,8 +190,14 @@ public final class BondSecurityDiscountingMethod {
     throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + " is not supported.");
   }
 
+  /**
+   * Calculates the dirty price from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The dirty price
+   */
   private double dirtyPriceFromYieldStandard(final BondFixedSecurity bond, final double yield) {
-    Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(0).getAmount();
     final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
@@ -466,8 +484,8 @@ public final class BondSecurityDiscountingMethod {
    * @return The z-spread.
    */
   public double zSpreadFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
-    Validate.notNull(bond, "bond");
-    Validate.notNull(curves, "curves");
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(curves, "curves");
 
     final Function1D<Double, Double> residual = new Function1D<Double, Double>() {
       @Override
