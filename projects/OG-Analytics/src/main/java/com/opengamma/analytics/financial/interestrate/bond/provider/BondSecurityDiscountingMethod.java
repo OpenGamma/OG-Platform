@@ -43,6 +43,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bond security valued by discounting.
  */
+/**
+ *
+ */
 public final class BondSecurityDiscountingMethod {
   /**
    * The unique instance of the class.
@@ -584,5 +587,54 @@ public final class BondSecurityDiscountingMethod {
     final StringAmount pvpcsNominal = bond.getNominal().accept(PVPCSDC, multicurvesDecorated);
     final StringAmount pvpcsCoupon = bond.getCoupon().accept(PVPCSDC, multicurvesDecorated);
     return StringAmount.plus(pvpcsNominal, pvpcsCoupon);
+  }
+
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the yield. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param yield The yield
+   * @return The accrued interest
+   */
+  public double accruedInterestFromYield(final BondFixedSecurity bond, final double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyPriceFromYield(bond, yield) - cleanPriceFromYield(bond, yield);
+  }
+
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the dirty price. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param dirtyPrice The dirty price
+   * @return The accrued interest
+   */
+  public double accruedInterestFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyPrice - cleanPriceFromDirtyPrice(bond, dirtyPrice);
+  }
+
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the clean price. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param cleanPrice The clean price
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    ArgumentChecker.notNull(bond, "bond");
+    return dirtyPriceFromCleanPrice(bond, cleanPrice) - cleanPrice;
+  }
+
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the curves. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param curves The curves, not null
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCurves(final BondFixedSecurity bond, final IssuerProviderInterface curves) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(curves, "curves");
+    return dirtyPriceFromCurves(bond, curves) - cleanPriceFromCurves(bond, curves);
   }
 }

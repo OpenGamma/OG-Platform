@@ -117,6 +117,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.START.name(), ValueRequirementNames.START));
     functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.TYPE.name(), ValueRequirementNames.TYPE));
 
+    addScalingAndSummingFunction(functions, ValueRequirementNames.ACCRUED_INTEREST);
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
     addUnitScalingFunction(functions, ValueRequirementNames.EXTERNAL_ID);
     addUnitScalingFunction(functions, ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE);

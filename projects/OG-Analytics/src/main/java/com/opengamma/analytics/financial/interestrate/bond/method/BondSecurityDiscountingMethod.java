@@ -560,4 +560,16 @@ public final class BondSecurityDiscountingMethod {
     return StringAmount.plus(pvpcsNominal, pvpcsCoupon);
   }
 
+  /**
+   * Calculates the accrued interest for a fixed-coupon bond using the curves. The accrued interest is defined
+   * as dirty price - clean price.
+   * @param bond The bond, not null
+   * @param curves The curves, not null
+   * @return The accrued interest
+   */
+  public double accruedInterestFromCurves(final BondFixedSecurity bond, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(curves, "curves");
+    return dirtyPriceFromCurves(bond, curves) - cleanPriceFromCurves(bond, curves);
+  }
 }
