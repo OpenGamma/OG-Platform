@@ -119,6 +119,10 @@ public enum FloatingIndex {
    */
   NZD_BBR_FRA(Currency.NZD, "BBR", "NZD-BBR-FRA"),
   /**
+   * The NZD-BBR-FRA ISDA index.
+   */
+  NZD_LIBOR_BBA(Currency.NZD, "LIBOR", "NZD-LIBOR-BBA"),
+  /**
    * The NZD-BBR-Telerate ISDA index.
    */
   NZD_BBR_TELERATE(Currency.NZD, "BBR", "NZD-BBR-Telerate"),
