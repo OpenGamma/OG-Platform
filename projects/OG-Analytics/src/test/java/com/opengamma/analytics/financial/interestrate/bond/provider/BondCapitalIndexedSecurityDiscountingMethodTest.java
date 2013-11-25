@@ -61,9 +61,11 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
   private static final IndexPrice PRICE_INDEX_UKRPI = PRICE_INDEXES[1];
   private static final IndexPrice PRICE_INDEX_USCPI = PRICE_INDEXES[2];
+  private static final IndexPrice PRICE_INDEX_AUDCPI = PRICE_INDEXES[3];
   private static final String[] ISSUER_NAMES = MulticurveProviderDiscountDataSets.getIssuerNames();
   private static final String ISSUER_US_GOVT = ISSUER_NAMES[0];
   private static final String ISSUER_UK_GOVT = ISSUER_NAMES[1];
+  private static final String ISSUER_AUD_GOVT = ISSUER_NAMES[3];
 
   private static final double SHIFT_FD = 1.0E-7;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
@@ -78,6 +80,87 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVDIC, SHIFT_FD);
   private static final PresentValueCurveSensitivityDiscountingInflationCalculator PVCSDC = PresentValueCurveSensitivityDiscountingInflationCalculator.getInstance();
   private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
+
+  // Treasury Indexed Bonds CAIN 3% Index-linked Treasury Stock 2025 - AU0000XCLWP8
+  private static final Calendar CALENDAR_AUD = new MondayToFridayCalendar("AUD");
+  private static final BusinessDayConvention BUSINESS_DAY_AUD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_CAIN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final boolean IS_EOM_CAIN = false;
+  private static final ZonedDateTime START_DATE_CAIN = DateUtils.getUTCDate(2009, 9, 30);
+  private static final ZonedDateTime FIRST_COUPON_DATE_CAIN = DateUtils.getUTCDate(2009, 12, 20);
+  private static final ZonedDateTime MATURITY_DATE_CAIN = DateUtils.getUTCDate(2025, 12, 20);
+  private static final YieldConvention YIELD_CONVENTION_CAIN = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
+  private static final int MONTH_LAG_CAIN = 6;
+  private static final double INDEX_START_CAIN = 173.60; // November 2001
+  private static final double NOTIONAL_CAIN = 1.00;
+  private static final double REAL_RATE_CAIN = 0.03;
+  private static final Period COUPON_PERIOD_CAIN = Period.ofMonths(3);
+  private static final int SETTLEMENT_DAYS_CAIN = 2;
+  // TODO: ex-coupon 7 days
+  private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_SECURITY_CAIN_DEFINITION = BondCapitalIndexedSecurityDefinition.fromMonthly(
+      PRICE_INDEX_AUDCPI, MONTH_LAG_CAIN, START_DATE_CAIN, INDEX_START_CAIN, FIRST_COUPON_DATE_CAIN, MATURITY_DATE_CAIN, COUPON_PERIOD_CAIN, NOTIONAL_CAIN, REAL_RATE_CAIN,
+      BUSINESS_DAY_AUD, SETTLEMENT_DAYS_CAIN, CALENDAR_AUD, DAY_COUNT_CAIN, YIELD_CONVENTION_CAIN, IS_EOM_CAIN, ISSUER_AUD_GOVT);
+  private static final DoubleTimeSeries<ZonedDateTime> AUD_CPI = MulticurveProviderDiscountDataSets.audCPIFrom2009();
+  private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_CAIN = BOND_SECURITY_CAIN_DEFINITION.toDerivative(PRICING_DATE, AUD_CPI);
+
+  @Test
+  /**
+   * Tests the present value computation.
+   */
+  public void presentValueCAIN() {
+    final InflationProviderDiscount marketUKGovt = new InflationProviderDiscount();
+    marketUKGovt.setCurve(BOND_SECURITY_CAIN.getCurrency(), MARKET.getCurve(BOND_SECURITY_CAIN.getIssuerCurrency()));
+    marketUKGovt.setCurve(PRICE_INDEX_AUDCPI, MARKET.getCurve(PRICE_INDEX_AUDCPI));
+    final MultipleCurrencyAmount pvNominal = METHOD_INFLATION_ZC_MONTHLY.presentValue((CouponInflationZeroCouponMonthlyGearing) BOND_SECURITY_CAIN.getNominal().getNthPayment(0), marketUKGovt);
+    MultipleCurrencyAmount pvCoupon = MultipleCurrencyAmount.of(BOND_SECURITY_CAIN.getCurrency(), 0.0);
+    for (int loopcpn = 0; loopcpn < BOND_SECURITY_CAIN.getCoupon().getNumberOfPayments(); loopcpn++) {
+      pvCoupon = pvCoupon.plus(BOND_SECURITY_CAIN.getCoupon().getNthPayment(loopcpn).accept(PVDIC, marketUKGovt));
+    }
+    final MultipleCurrencyAmount pvExpectd = pvNominal.plus(pvCoupon);
+    final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_CAIN, MARKET);
+    assertEquals("Inflation Capital Indexed bond: present value", pvExpectd.getAmount(BOND_SECURITY_CAIN.getCurrency()), pv.getAmount(BOND_SECURITY_CAIN.getCurrency()), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the present value Method vs Calculator.
+   */
+  public void presentValueMethodVsCalculatorCAIN() {
+    final MultipleCurrencyAmount pvMethod = METHOD_BOND_INFLATION.presentValue(BOND_SECURITY_CAIN, MARKET);
+    final MultipleCurrencyAmount pvCalculator = BOND_SECURITY_CAIN.accept(PVDIIC, MARKET);
+    assertEquals("Inflation Capital Indexed bond: present value", pvMethod, pvCalculator);
+  }
+
+  @Test
+  /**
+   * Test the present value parameter curves sensitivity.
+   */
+  public void presentValueParameterCurveSensitivityCAIN() {
+
+    final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(BOND_SECURITY_CAIN.getCoupon(), MARKET.getInflationProvider());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(BOND_SECURITY_CAIN.getCoupon(), MARKET.getInflationProvider(), MARKET.getAllNames());
+
+    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueParameterCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
+
+  }
+
+  @Test
+  /**
+   * Test the present value curves sensitivity.
+   */
+  public void presentValueCurveSensitivityCAIN() {
+
+    final InflationProviderInterface creditDiscounting = MARKET.withDiscountFactor(BOND_SECURITY_CAIN.getCurrency(),
+        Pairs.of(BOND_SECURITY_CAIN.getIssuer(), BOND_SECURITY_CAIN.getCurrency()));
+    final MultipleCurrencyInflationSensitivity sensitivityNominal = BOND_SECURITY_CAIN.getNominal().accept(PVCSDC, creditDiscounting);
+    final MultipleCurrencyInflationSensitivity sensitivityCoupon = BOND_SECURITY_CAIN.getCoupon().accept(PVCSDC, creditDiscounting);
+    final MultipleCurrencyInflationSensitivity pvcisCalculated = sensitivityNominal.plus(sensitivityCoupon);
+
+    final MultipleCurrencyInflationSensitivity pvcisMethod = METHOD_BOND_INFLATION.presentValueCurveSensitivity(BOND_SECURITY_CAIN, MARKET);
+
+    AssertSensivityObjects.assertEquals("Bond capital indexed security: presentValueCurveSensitivity ", pvcisCalculated, pvcisMethod, TOLERANCE_PV_DELTA);
+
+  }
 
   // Index-Lined Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
