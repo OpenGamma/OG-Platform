@@ -22,6 +22,7 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_GROUP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_SECTOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INT_ACC_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUER;
@@ -40,11 +41,17 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_FITCH;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_MOODY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_SP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BB_COMPOSITE;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.swing.text.rtf.RTFEditorKit;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -92,6 +99,7 @@ public class BondLoader extends SecurityLoader {
   private static final Set<String> BLOOMBERG_BOND_FIELDS = ImmutableSet.of(
       FIELD_ISSUER,
       FIELD_INDUSTRY_GROUP,
+      FIELD_INDUSTRY_SECTOR,
       FIELD_CNTRY_ISSUE_ISO,
       FIELD_SECURITY_TYP,
       FIELD_CALC_TYP_DES,
@@ -118,6 +126,10 @@ public class BondLoader extends SecurityLoader {
       FIELD_MTY_TYPE,
       FIELD_IS_PERPETUAL,
       FIELD_BULLET,
+      FIELD_RTG_FITCH,
+      FIELD_RTG_MOODY,
+      FIELD_RTG_SP,
+      FIELD_BB_COMPOSITE,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
@@ -217,6 +229,7 @@ public class BondLoader extends SecurityLoader {
     try {
       String issuerName = validateAndGetStringField(fieldData, FIELD_ISSUER);
       String issuerType = validateAndGetStringField(fieldData, FIELD_INDUSTRY_GROUP);
+      String issuerSector = validateAndGetStringField(fieldData, FIELD_INDUSTRY_SECTOR);
       String inflationIndicator = validateAndGetNullableStringField(fieldData, FIELD_INFLATION_LINKED_INDICATOR);
       String isPerpetualStr = validateAndGetNullableStringField(fieldData, FIELD_IS_PERPETUAL);
       boolean isPerpetual = (isPerpetualStr != null && isPerpetualStr.trim().toUpperCase().contains("Y"));
@@ -247,6 +260,10 @@ public class BondLoader extends SecurityLoader {
       } catch (Exception e) {
         throw new OpenGammaRuntimeException(maturityStr + " returned from bloomberg not in format yyyy-mm-dd", e);
       }
+      String rtgFitch = validateAndGetNullableStringField(fieldData, FIELD_RTG_FITCH);
+      String rtgMoody = validateAndGetNullableStringField(fieldData, FIELD_RTG_MOODY);
+      String rtgSp = validateAndGetNullableStringField(fieldData, FIELD_RTG_SP);
+      String bbComposite = validateAndGetNullableStringField(fieldData, FIELD_BB_COMPOSITE);
       String couponType = validateAndGetStringField(fieldData, FIELD_CPN_TYP);
       Double couponRate = validateAndGetDoubleField(fieldData, FIELD_CPN);
       String zeroCoupon = validateAndGetStringField(fieldData, FIELD_ZERO_CPN);
@@ -333,6 +350,21 @@ public class BondLoader extends SecurityLoader {
       bondSecurity.addAttribute("Callable", isCallable ? "Y" : "N");
       bondSecurity.addAttribute("Perpetual", isPerpetual ? "Y" : "N");
       bondSecurity.addAttribute("EOM", isEOM ? "Y" : "N");
+      if (rtgFitch != null) {
+        bondSecurity.addAttribute("RatingFitch", rtgFitch);
+      }
+      if (rtgMoody != null) {
+        bondSecurity.addAttribute("RatingMoody", rtgMoody);
+      }
+      if (rtgSp != null) {
+        bondSecurity.addAttribute("RatingSP", rtgSp);        
+      }
+      if (issuerSector != null) {
+        bondSecurity.addAttribute("IndustrySector", issuerSector);
+      }
+      if (bbComposite != null) {
+        bondSecurity.addAttribute("RatingComposite", bbComposite);
+      }
       // set identifiers
       parseIdentifiers(fieldData, bondSecurity);
       return bondSecurity;
