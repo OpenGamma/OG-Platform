@@ -147,10 +147,8 @@ public class RateLimitingMergingViewProcessListenerTest {
 
     mergingListener.setPaused(false);
 
-    testListener.assertViewDefinitionCompiled(Timeout.standardTimeoutMillis());
     testListener.assertViewDefinitionCompiled(Timeout.standardTimeoutMillis(), preCompilation);
     final ViewDeltaResultModel mergedDelta = testListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getDeltaResult();
-
     assertEquals(2, mergedDelta.getAllResults().size());
     final Set<Pair<String, Integer>> results = new HashSet<Pair<String, Integer>>();
     for (final ViewResultEntry deltaItem : mergedDelta.getAllResults()) {
@@ -158,7 +156,6 @@ public class RateLimitingMergingViewProcessListenerTest {
     }
     assertTrue(results.contains(Pairs.of("value1", 1)));
     assertTrue(results.contains(Pairs.of("value2", 2)));
-
     testListener.assertViewDefinitionCompiled(Timeout.standardTimeoutMillis(), postCompilation);
     testListener.assertProcessCompleted();
     testListener.assertProcessTerminated();
