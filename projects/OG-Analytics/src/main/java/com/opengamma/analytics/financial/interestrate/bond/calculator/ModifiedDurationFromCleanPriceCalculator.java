@@ -10,27 +10,27 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 
 /**
- * Calculate accrued interest from clean price.
+ * Calculate modified duration from price.
  */
-public final class AccruedInterestFromPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+public final class ModifiedDurationFromCleanPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final AccruedInterestFromPriceCalculator s_instance = new AccruedInterestFromPriceCalculator();
+  private static final ModifiedDurationFromCleanPriceCalculator s_instance = new ModifiedDurationFromCleanPriceCalculator();
 
   /**
    * Return the calculator instance.
    * @return The instance.
    */
-  public static AccruedInterestFromPriceCalculator getInstance() {
+  public static ModifiedDurationFromCleanPriceCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private AccruedInterestFromPriceCalculator() {
+  private ModifiedDurationFromCleanPriceCalculator() {
   }
 
   /**
@@ -40,7 +40,7 @@ public final class AccruedInterestFromPriceCalculator extends InstrumentDerivati
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double price) {
-    return METHOD_BOND_SECURITY.accruedInterestFromCleanPrice(bond, price);
+    return METHOD_BOND_SECURITY.modifiedDurationFromCleanPrice(bond, price);
   }
 
 }

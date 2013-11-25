@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPrice
 import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromYieldCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCurvesCalculator;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromPriceCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCleanPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromYieldCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -91,7 +91,7 @@ public class BondSecurityUKDiscountingMethodTest {
   private final static YieldFromCurvesCalculator YFCC = YieldFromCurvesCalculator.getInstance();
   private final static ModifiedDurationFromCurvesCalculator MDFC = ModifiedDurationFromCurvesCalculator.getInstance();
   private static final ModifiedDurationFromYieldCalculator MDFY = ModifiedDurationFromYieldCalculator.getInstance();
-  private static final ModifiedDurationFromPriceCalculator MDFP = ModifiedDurationFromPriceCalculator.getInstance();
+  private static final ModifiedDurationFromCleanPriceCalculator MDFP = ModifiedDurationFromCleanPriceCalculator.getInstance();
   private static final MacaulayDurationFromCurvesCalculator McDFC = MacaulayDurationFromCurvesCalculator.getInstance();
   private static final MacaulayDurationFromYieldCalculator McDFY = MacaulayDurationFromYieldCalculator.getInstance();
   private static final DirtyPriceFromYieldCalculator DPFY = DirtyPriceFromYieldCalculator.getInstance();

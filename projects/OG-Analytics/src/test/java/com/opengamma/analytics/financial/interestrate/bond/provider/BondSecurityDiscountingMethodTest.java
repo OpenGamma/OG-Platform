@@ -20,9 +20,9 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.calculator.CleanPriceFromYieldCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPriceFromYieldCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromYieldCalculator;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromPriceCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCleanPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromYieldCalculator;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromPriceCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCleanPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator;
@@ -96,9 +96,9 @@ public class BondSecurityDiscountingMethodTest {
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
   private final static YieldFromCurvesCalculator YFCC = YieldFromCurvesCalculator.getInstance();
-  private final static YieldFromPriceCalculator YFPC = YieldFromPriceCalculator.getInstance();
+  private final static YieldFromCleanPriceCalculator YFPC = YieldFromCleanPriceCalculator.getInstance();
   private final static ModifiedDurationFromCurvesCalculator MDFC = ModifiedDurationFromCurvesCalculator.getInstance();
-  private static final ModifiedDurationFromPriceCalculator MDFP = ModifiedDurationFromPriceCalculator.getInstance();
+  private static final ModifiedDurationFromCleanPriceCalculator MDFP = ModifiedDurationFromCleanPriceCalculator.getInstance();
   private static final ModifiedDurationFromYieldCalculator MDFY = ModifiedDurationFromYieldCalculator.getInstance();
   private static final MacaulayDurationFromCurvesCalculator McDFC = MacaulayDurationFromCurvesCalculator.getInstance();
   private static final MacaulayDurationFromYieldCalculator McDFY = MacaulayDurationFromYieldCalculator.getInstance();

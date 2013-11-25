@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCurvesCalculator;
-import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromPriceCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCleanPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -73,7 +73,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private final static PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   private final static YieldFromCurvesCalculator YFCC = YieldFromCurvesCalculator.getInstance();
-  private static final YieldFromPriceCalculator YFPC = YieldFromPriceCalculator.getInstance();
+  private static final YieldFromCleanPriceCalculator YFPC = YieldFromCleanPriceCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PRICE = 1.0E-8;

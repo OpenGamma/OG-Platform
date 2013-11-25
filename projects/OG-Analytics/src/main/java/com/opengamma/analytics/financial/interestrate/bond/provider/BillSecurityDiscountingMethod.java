@@ -92,7 +92,7 @@ public final class BillSecurityDiscountingMethod {
    * @param price The price. The price is the relative price at settlement.
    * @return The yield.
    */
-  public double yieldFromPrice(final BillSecurity bill, final double price) {
+  public double yieldFromCleanPrice(final BillSecurity bill, final double price) {
     if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
       return (1.0 - price) / bill.getAccrualFactor();
     }
@@ -171,7 +171,7 @@ public final class BillSecurityDiscountingMethod {
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
     final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
     final double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
-    return yieldFromPrice(bill, price);
+    return yieldFromCleanPrice(bill, price);
   }
 
   /**

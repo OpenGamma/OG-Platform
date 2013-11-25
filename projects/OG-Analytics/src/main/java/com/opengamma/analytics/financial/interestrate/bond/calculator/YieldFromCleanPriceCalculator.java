@@ -12,33 +12,32 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurity
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 
 /**
- * Calculate bond yield from price.
+ * Calculate bond yield from clean price.
  */
-public final class YieldFromPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+public final class YieldFromCleanPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final YieldFromPriceCalculator s_instance = new YieldFromPriceCalculator();
+  private static final YieldFromCleanPriceCalculator s_instance = new YieldFromCleanPriceCalculator();
 
   /**
    * Return the calculator instance.
    * @return The instance.
    */
-  public static YieldFromPriceCalculator getInstance() {
+  public static YieldFromCleanPriceCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private YieldFromPriceCalculator() {
+  private YieldFromCleanPriceCalculator() {
   }
 
-  /**
-   * The method used for different instruments.
-   */
+  /** Calculator for bills */
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
+  /** Calculator from bonds */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
@@ -50,8 +49,8 @@ public final class YieldFromPriceCalculator extends InstrumentDerivativeVisitorA
   }
 
   @Override
-  public Double visitBillSecurity(final BillSecurity bill, final Double price) {
-    return METHOD_BILL_SECURITY.yieldFromPrice(bill, price);
+  public Double visitBillSecurity(final BillSecurity bill, final Double cleanPrice) {
+    return METHOD_BILL_SECURITY.yieldFromCleanPrice(bill, cleanPrice);
   }
 
 }

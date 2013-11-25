@@ -10,27 +10,27 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 
 /**
- * Calculate modified duration from price.
+ * Calculate Macaulay duration from clean price.
  */
-public final class ModifiedDurationFromPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+public final class MacaulayDurationFromCleanPriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final ModifiedDurationFromPriceCalculator s_instance = new ModifiedDurationFromPriceCalculator();
+  private static final MacaulayDurationFromCleanPriceCalculator s_instance = new MacaulayDurationFromCleanPriceCalculator();
 
   /**
    * Return the calculator instance.
    * @return The instance.
    */
-  public static ModifiedDurationFromPriceCalculator getInstance() {
+  public static MacaulayDurationFromCleanPriceCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private ModifiedDurationFromPriceCalculator() {
+  private MacaulayDurationFromCleanPriceCalculator() {
   }
 
   /**
@@ -39,8 +39,8 @@ public final class ModifiedDurationFromPriceCalculator extends InstrumentDerivat
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
-  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double price) {
-    return METHOD_BOND_SECURITY.modifiedDurationFromCleanPrice(bond, price);
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double cleanPrice) {
+    return METHOD_BOND_SECURITY.macaulayDurationFromCleanPrice(bond, cleanPrice);
   }
 
 }

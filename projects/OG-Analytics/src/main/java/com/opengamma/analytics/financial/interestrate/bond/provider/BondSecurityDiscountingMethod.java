@@ -429,6 +429,17 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Computes the Macauley duration of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The Macauley duration.
+   */
+  public double macaulayDurationFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    final double yield = yieldFromCleanPrice(bond, cleanPrice);
+    return macaulayDurationFromYield(bond, yield);
+  }
+
+  /**
    * Computes the Macauley duration of a bond from the dirty price.
    * @param bond  The bond security.
    * @param dirtyPrice The bond dirty price.
@@ -497,6 +508,17 @@ public final class BondSecurityDiscountingMethod {
    */
   public double convexityFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
     final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    return convexityFromYield(bond, yield);
+  }
+
+  /**
+   * Computes the convexity of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The convexity.
+   */
+  public double convexityFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    final double yield = yieldFromCleanPrice(bond, cleanPrice);
     return convexityFromYield(bond, yield);
   }
 

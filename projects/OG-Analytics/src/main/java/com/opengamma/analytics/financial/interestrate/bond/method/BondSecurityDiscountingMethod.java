@@ -481,6 +481,17 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Computes the convexity of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The convexity.
+   */
+  public double convexityFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    final double yield = yieldFromCleanPrice(bond, cleanPrice);
+    return convexityFromYield(bond, yield);
+  }
+
+  /**
    * Computes a bond z-spread from the curves and a present value.
    * @param bond The bond.
    * @param curves The curve bundle.

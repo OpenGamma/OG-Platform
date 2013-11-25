@@ -107,8 +107,8 @@ public final class BillTransactionDiscountingMethod {
     final double dfCreditEnd = issuer.getDiscountFactor(bill.getBillPurchased().getIssuerCcy(), bill.getBillPurchased().getEndTime());
     final double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
     final double pricePar = dfCreditEnd / dfDscSettle;
-    return METHOD_SECURITY.yieldFromPrice(bill.getBillPurchased(), pricePar)
-        - METHOD_SECURITY.yieldFromPrice(bill.getBillPurchased(), -bill.getSettlementAmount() / (bill.getQuantity() * bill.getBillPurchased().getNotional()));
+    return METHOD_SECURITY.yieldFromCleanPrice(bill.getBillPurchased(), pricePar)
+        - METHOD_SECURITY.yieldFromCleanPrice(bill.getBillPurchased(), -bill.getSettlementAmount() / (bill.getQuantity() * bill.getBillPurchased().getNotional()));
   }
 
   /**
