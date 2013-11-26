@@ -59,7 +59,7 @@ public abstract class BondFromCleanPriceFunction extends BondFunction<Double> {
     if (cleanPriceObject == null) {
       throw new OpenGammaRuntimeException("Clean price was null");
     }
-    return (Double) cleanPriceObject / 100.;
+    return (Double) cleanPriceObject;
   }
 
   @Override

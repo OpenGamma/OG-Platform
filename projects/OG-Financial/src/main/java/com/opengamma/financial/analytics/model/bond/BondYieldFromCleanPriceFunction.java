@@ -26,8 +26,4 @@ public class BondYieldFromCleanPriceFunction extends BondFromCleanPriceFunction 
     return ValueRequirementNames.YTM;
   }
 
-  @Override
-  protected double getScaleFactor() {
-    return 0.01;
-  }
 }

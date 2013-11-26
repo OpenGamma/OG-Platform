@@ -25,4 +25,9 @@ public class BondConvexityFromCleanPriceFunction extends BondFromCleanPriceFunct
   protected String getValueRequirementName() {
     return ValueRequirementNames.CONVEXITY;
   }
+
+  @Override
+  protected double getScaleFactor() {
+    return 0.01;
+  }
 }
