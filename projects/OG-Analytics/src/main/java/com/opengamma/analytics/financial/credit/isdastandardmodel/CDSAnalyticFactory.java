@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getNextIMMDate;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
-import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.isIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 
 import org.threeten.bp.LocalDate;
@@ -474,6 +473,20 @@ public class CDSAnalyticFactory {
   //************************************************************************************************************************
   //Make MultiCDSAnalytic
   //************************************************************************************************************************
+  public MultiCDSAnalytic makeMultiCDS(final LocalDate tradeDate, final LocalDate maturityReferanceDate, final int termMatIndex) {
+    final int[] maturityIndexes = new int[termMatIndex + 1];
+    for (int i = 0; i <= termMatIndex; i++) {
+      maturityIndexes[i] = i;
+    }
+    final LocalDate accStartDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate));
+    return makeMultiCDS(tradeDate, accStartDate, maturityReferanceDate, maturityIndexes);
+  }
+
+  public MultiCDSAnalytic makeMultiCDS(final LocalDate tradeDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate, final int[] maturityIndexes) {
+    final LocalDate stepinDate = tradeDate.plusDays(_stepIn);
+    final LocalDate valueDate = addWorkDays(tradeDate, _cashSettle, _calendar);
+    return makeMultiCDS(tradeDate, stepinDate, valueDate, accStartDate, maturityReferanceDate, maturityIndexes);
+  }
 
   public MultiCDSAnalytic makeMultiCDS(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate,
       final int[] maturityIndexes) {
@@ -540,8 +553,9 @@ public class CDSAnalyticFactory {
     }
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notEmpty(matIndices, "matIndicies");
-    final int n = matIndices.length;
-    final LocalDate nextIMM = isIMMDate(tradeDate) ? tradeDate : getNextIMMDate(tradeDate);
+
+    //final LocalDate nextIMM = isIMMDate(tradeDate) ? tradeDate : getNextIMMDate(tradeDate);
+    final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final LocalDate stepinDate = tradeDate.plusDays(_stepIn);
     final LocalDate valueDate = addWorkDays(tradeDate, _cashSettle, _calendar);
 

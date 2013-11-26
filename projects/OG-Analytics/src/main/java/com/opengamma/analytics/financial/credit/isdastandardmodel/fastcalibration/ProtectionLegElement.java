@@ -9,6 +9,8 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.Doubles
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 
@@ -89,6 +91,48 @@ public class ProtectionLegElement {
       b0 = b1;
     }
     return new double[] {pv, pvSense };
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _creditCurveKnot;
+    result = prime * result + Arrays.hashCode(_knots);
+    result = prime * result + _n;
+    result = prime * result + Arrays.hashCode(_p);
+    result = prime * result + Arrays.hashCode(_rt);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ProtectionLegElement other = (ProtectionLegElement) obj;
+    if (_creditCurveKnot != other._creditCurveKnot) {
+      return false;
+    }
+    if (!Arrays.equals(_knots, other._knots)) {
+      return false;
+    }
+    if (_n != other._n) {
+      return false;
+    }
+    if (!Arrays.equals(_p, other._p)) {
+      return false;
+    }
+    if (!Arrays.equals(_rt, other._rt)) {
+      return false;
+    }
+    return true;
   }
 
 }

@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurv
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MultiCDSAnalytic;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -64,6 +65,13 @@ public class CreditCurveCalibrationTest extends com.opengamma.analytics.financia
     for (int i = 0; i < n; i++) {
       //System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));
       assertEquals(cc2.getZeroRateAtIndex(i), cc1.getZeroRateAtIndex(i), 1e-15);
+    }
+
+    final MultiCDSAnalytic multiCDS = CDS_FACTORY.makeMultiIMMCDS(tradeDate, PILLARS);
+    final CreditCurveCalibrator calibrator3 = new CreditCurveCalibrator(multiCDS, yieldCurve);
+    final ISDACompliantCreditCurve cc3 = calibrator3.calibrate(spreads);
+    for (int i = 0; i < n; i++) {
+      assertEquals(cc1.getZeroRateAtIndex(i), cc3.getZeroRateAtIndex(i), 1e-15);
     }
 
     final int warmups = 200;

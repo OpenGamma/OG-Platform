@@ -33,4 +33,41 @@ public class CouponOnlyElement {
     final double pvSense = -pv * creditCurve.getSingleNodeRTSensitivity(_effEnd, _creditCurveKnot);
     return new double[] {pv, pvSense };
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _creditCurveKnot;
+    long temp;
+    temp = Double.doubleToLongBits(_effEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_riskLessValue);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CouponOnlyElement other = (CouponOnlyElement) obj;
+    if (_creditCurveKnot != other._creditCurveKnot) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_effEnd) != Double.doubleToLongBits(other._effEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_riskLessValue) != Double.doubleToLongBits(other._riskLessValue)) {
+      return false;
+    }
+    return true;
+  }
 }

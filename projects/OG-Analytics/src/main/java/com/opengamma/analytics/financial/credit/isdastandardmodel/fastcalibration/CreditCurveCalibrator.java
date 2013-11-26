@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSCoupon;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MultiCDSAnalytic;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
@@ -42,6 +43,111 @@ public class CreditCurveCalibrator {
   private final CouponOnlyElement[] _premElems;
   private final ArbitrageHandling _arbHandle;
 
+  public CreditCurveCalibrator(final MultiCDSAnalytic multiCDS, final ISDACompliantYieldCurve yieldCurve) {
+    this(multiCDS, yieldCurve, AccrualOnDefaultFormulae.OrignalISDA, ArbitrageHandling.Ignore);
+  }
+
+  public CreditCurveCalibrator(final MultiCDSAnalytic multiCDS, final ISDACompliantYieldCurve yieldCurve, final AccrualOnDefaultFormulae formula, final ArbitrageHandling arbHandle) {
+    ArgumentChecker.notNull(multiCDS, "multiCDS");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    _arbHandle = arbHandle;
+
+    _nCDS = multiCDS.getNumMaturities();
+    _t = new double[_nCDS];
+    _lgd = new double[_nCDS];
+    _unitAccured = new double[_nCDS];
+    for (int i = 0; i < _nCDS; i++) {
+      _t[i] = multiCDS.getProtectionEnd(i);
+      _lgd[i] = multiCDS.getLGD();
+      _unitAccured[i] = multiCDS.getAccruedPremiumPerUnitSpread(i);
+    }
+    _valuationDF = yieldCurve.getDiscountFactor(multiCDS.getCashSettleTime());
+
+    //This is the global set of knots - it will be truncated down for the various leg elements 
+    //TODO this will not match ISDA C for forward starting (i.e. accStart > tradeDate) CDS, and will give different answers 
+    //if the Markit 'fix' is used in that case
+    final double[] knots = getIntegrationsPoints(multiCDS.getEffectiveProtectionStart(), _t[_nCDS - 1], yieldCurve.getKnotTimes(), _t);
+
+    //The protection leg
+    _protElems = new ProtectionLegElement[_nCDS];
+    for (int i = 0; i < _nCDS; i++) {
+      _protElems[i] = new ProtectionLegElement(i == 0 ? multiCDS.getEffectiveProtectionStart() : _t[i - 1], _t[i], yieldCurve, i, knots);
+    }
+
+    _cds2CouponsMap = new int[_nCDS][];
+    _cdsCouponsUpdateMap = new int[_nCDS][];
+    _knot2CouponsMap = new int[_nCDS][];
+
+    final List<CDSCoupon> allCoupons = new ArrayList<>(_nCDS + multiCDS.getTotalPayments() - 1);
+    allCoupons.addAll(Arrays.asList(multiCDS.getStandardCoupons()));
+    allCoupons.add(multiCDS.getTerminalCoupon(_nCDS - 1));
+    final int[] temp = new int[multiCDS.getTotalPayments()];
+    for (int i = 0; i < multiCDS.getTotalPayments(); i++) {
+      temp[i] = i;
+    }
+    _cds2CouponsMap[_nCDS - 1] = temp;
+
+    //complete the list of unique coupons and fill out the cds2CouponsMap
+    for (int i = 0; i < _nCDS - 1; i++) {
+      final CDSCoupon c = multiCDS.getTerminalCoupon(i);
+      final int nPayments = Math.max(0, multiCDS.getPaymentIndexForMaturity(i)) + 1;
+      _cds2CouponsMap[i] = new int[nPayments];
+      for (int jj = 0; jj < nPayments - 1; jj++) {
+        _cds2CouponsMap[i][jj] = jj;
+      }
+      //because of business-day adjustment, a terminal coupon can be identical to a standard coupon,
+      //in which case it is not added again 
+      int index = allCoupons.indexOf(c);
+      if (index == -1) {
+        index = allCoupons.size();
+        allCoupons.add(c);
+      }
+      _cds2CouponsMap[i][nPayments - 1] = index;
+    }
+
+    //loop over the coupons to populate the couponUpdateMap
+    _nCoupons = allCoupons.size();
+    final int[] sizes = new int[_nCDS];
+    final int[] map = new int[_nCoupons];
+    for (int i = 0; i < _nCoupons; i++) {
+      final CDSCoupon c = allCoupons.get(i);
+      int index = Arrays.binarySearch(_t, c.getEffEnd());
+      if (index < 0) {
+        index = -(index + 1);
+      }
+      sizes[index]++;
+      map[i] = index;
+    }
+
+    //make the protection leg elements 
+    _premElems = new CouponOnlyElement[_nCoupons];
+    if (multiCDS.isPayAccOnDefault()) {
+      for (int i = 0; i < _nCoupons; i++) {
+        _premElems[i] = new PremiumLegElement(multiCDS.getEffectiveProtectionStart(), allCoupons.get(i), yieldCurve, map[i], knots, formula);
+      }
+    } else {
+      for (int i = 0; i < _nCoupons; i++) {
+        _premElems[i] = new CouponOnlyElement(allCoupons.get(i), yieldCurve, map[i]);
+      }
+    }
+
+    //sort a map from coupon to curve node, to a map from curve node to coupons 
+    for (int i = 0; i < _nCDS; i++) {
+      _knot2CouponsMap[i] = new int[sizes[i]];
+    }
+    final int[] indexes = new int[_nCDS];
+    for (int i = 0; i < _nCoupons; i++) {
+      final int index = map[i];
+      _knot2CouponsMap[index][indexes[index]++] = i;
+    }
+
+    //the cdsCouponsUpdateMap is the intersection of the cds2CouponsMap and knot2CouponsMap
+    for (int i = 0; i < _nCDS; i++) {
+      _cdsCouponsUpdateMap[i] = intersection(_knot2CouponsMap[i], _cds2CouponsMap[i]);
+    }
+
+  }
+
   public CreditCurveCalibrator(final CDSAnalytic[] cds, final ISDACompliantYieldCurve yieldCurve) {
     this(cds, yieldCurve, AccrualOnDefaultFormulae.OrignalISDA, ArbitrageHandling.Ignore);
   }
@@ -53,6 +159,7 @@ public class CreditCurveCalibrator {
 
     _nCDS = cds.length;
     final boolean payAccOnDefault = cds[0].isPayAccOnDefault();
+    final double accStart = cds[0].getAccStart();
     final double effectProtStart = cds[0].getEffectiveProtectionStart();
     final double cashSettleTime = cds[0].getCashSettleTime();
     _t = new double[_nCDS];
@@ -60,6 +167,7 @@ public class CreditCurveCalibrator {
     //Check all the CDSs match
     for (int i = 1; i < _nCDS; i++) {
       ArgumentChecker.isTrue(payAccOnDefault == cds[i].isPayAccOnDefault(), "All CDSs must have same pay-accrual on default status");
+      ArgumentChecker.isTrue(accStart == cds[i].getAccStart(), "All CDSs must has same accrual start");
       ArgumentChecker.isTrue(effectProtStart == cds[i].getEffectiveProtectionStart(), "All CDSs must has same effective protection start");
       ArgumentChecker.isTrue(cashSettleTime == cds[i].getCashSettleTime(), "All CDSs must has same cash-settle time");
       _t[i] = cds[i].getProtectionEnd();
@@ -117,7 +225,6 @@ public class CreditCurveCalibrator {
     _nCoupons = allCoupons.size();
     final int[] sizes = new int[_nCDS];
     final int[] map = new int[_nCoupons];
-    _premElems = new CouponOnlyElement[_nCoupons];
     for (int i = 0; i < _nCoupons; i++) {
       final CDSCoupon c = allCoupons.get(i);
       int index = Arrays.binarySearch(_t, c.getEffEnd());
@@ -129,6 +236,7 @@ public class CreditCurveCalibrator {
     }
 
     //make the protection leg elements 
+    _premElems = new CouponOnlyElement[_nCoupons];
     if (payAccOnDefault) {
       for (int i = 0; i < _nCoupons; i++) {
         _premElems[i] = new PremiumLegElement(effectProtStart, allCoupons.get(i), yieldCurve, map[i], knots, formula);
@@ -151,19 +259,7 @@ public class CreditCurveCalibrator {
 
     //the cdsCouponsUpdateMap is the intersection of the cds2CouponsMap and knot2CouponsMap
     for (int i = 0; i < _nCDS; i++) {
-      final int[] kMap = _knot2CouponsMap[i];
-      final int[] cMap = _cds2CouponsMap[i];
-      final int nC = kMap.length;
-      final int[] store = new int[nC];
-      int count = 0;
-      for (int jj = 0; jj < nC; jj++) {
-        final int index = Arrays.binarySearch(cMap, kMap[jj]);
-        if (index >= 0) {
-          store[count++] = kMap[jj];
-        }
-      }
-      _cdsCouponsUpdateMap[i] = new int[count];
-      System.arraycopy(store, 0, _cdsCouponsUpdateMap[i], 0, count);
+      _cdsCouponsUpdateMap[i] = intersection(_knot2CouponsMap[i], _cds2CouponsMap[i]);
     }
 
   }
@@ -314,6 +410,106 @@ public class CreditCurveCalibrator {
       }
     }
 
+  }
+
+  private static int[] intersection(final int[] first, final int[] second) {
+    final int n1 = first.length;
+    final int n2 = second.length;
+    int[] a;
+    int[] b;
+    int n;
+    if (n1 > n2) {
+      a = second;
+      b = first;
+      n = n2;
+    } else {
+      a = first;
+      b = second;
+      n = n1;
+    }
+    final int[] temp = new int[n];
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+      final int index = Arrays.binarySearch(b, a[i]);
+      if (index >= 0) {
+        temp[count++] = a[i];
+      }
+    }
+    final int[] res = new int[count];
+    System.arraycopy(temp, 0, res, 0, count);
+    return res;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_arbHandle == null) ? 0 : _arbHandle.hashCode());
+    result = prime * result + Arrays.hashCode(_cds2CouponsMap);
+    result = prime * result + Arrays.hashCode(_cdsCouponsUpdateMap);
+    result = prime * result + Arrays.hashCode(_knot2CouponsMap);
+    result = prime * result + Arrays.hashCode(_lgd);
+    result = prime * result + _nCDS;
+    result = prime * result + _nCoupons;
+    result = prime * result + Arrays.hashCode(_premElems);
+    result = prime * result + Arrays.hashCode(_protElems);
+    result = prime * result + Arrays.hashCode(_t);
+    result = prime * result + Arrays.hashCode(_unitAccured);
+    long temp;
+    temp = Double.doubleToLongBits(_valuationDF);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CreditCurveCalibrator other = (CreditCurveCalibrator) obj;
+    if (_arbHandle != other._arbHandle) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_cds2CouponsMap, other._cds2CouponsMap)) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_cdsCouponsUpdateMap, other._cdsCouponsUpdateMap)) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_knot2CouponsMap, other._knot2CouponsMap)) {
+      return false;
+    }
+    if (!Arrays.equals(_lgd, other._lgd)) {
+      return false;
+    }
+    if (_nCDS != other._nCDS) {
+      return false;
+    }
+    if (_nCoupons != other._nCoupons) {
+      return false;
+    }
+    if (!Arrays.equals(_premElems, other._premElems)) {
+      return false;
+    }
+    if (!Arrays.equals(_protElems, other._protElems)) {
+      return false;
+    }
+    if (!Arrays.equals(_t, other._t)) {
+      return false;
+    }
+    if (!Arrays.equals(_unitAccured, other._unitAccured)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_valuationDF) != Double.doubleToLongBits(other._valuationDF)) {
+      return false;
+    }
+    return true;
   }
 
 }

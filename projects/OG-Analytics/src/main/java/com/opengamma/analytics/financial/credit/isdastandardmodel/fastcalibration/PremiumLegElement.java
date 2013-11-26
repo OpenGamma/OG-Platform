@@ -10,6 +10,8 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSCoupon;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
@@ -202,6 +204,66 @@ public class PremiumLegElement extends CouponOnlyElement {
       dqdr0 = dqdr1;
     }
     return new double[] {_coupon.getYFRatio() * pv, _coupon.getYFRatio() * pvSense };
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((_coupon == null) ? 0 : _coupon.hashCode());
+    result = prime * result + _creditCurveKnot;
+    result = prime * result + ((_formula == null) ? 0 : _formula.hashCode());
+    result = prime * result + Arrays.hashCode(_knots);
+    result = prime * result + _n;
+    long temp;
+    temp = Double.doubleToLongBits(_omega);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_p);
+    result = prime * result + Arrays.hashCode(_rt);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final PremiumLegElement other = (PremiumLegElement) obj;
+    if (_coupon == null) {
+      if (other._coupon != null) {
+        return false;
+      }
+    } else if (!_coupon.equals(other._coupon)) {
+      return false;
+    }
+    if (_creditCurveKnot != other._creditCurveKnot) {
+      return false;
+    }
+    if (_formula != other._formula) {
+      return false;
+    }
+    if (!Arrays.equals(_knots, other._knots)) {
+      return false;
+    }
+    if (_n != other._n) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_omega) != Double.doubleToLongBits(other._omega)) {
+      return false;
+    }
+    if (!Arrays.equals(_p, other._p)) {
+      return false;
+    }
+    if (!Arrays.equals(_rt, other._rt)) {
+      return false;
+    }
+    return true;
   }
 
 }

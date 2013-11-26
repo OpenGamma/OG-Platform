@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
+import java.util.Arrays;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.temporal.JulianFields;
@@ -154,7 +156,7 @@ public class MultiCDSAnalytic {
   }
 
   /**
-   * get payment index for a particular maturity index
+   * get payment index for a particular maturity index. The final standard coupon is one less than this
    * @param matIndex maturity index (0 for first maturity, etc)
    * @return payment index 
    */
@@ -239,6 +241,10 @@ public class MultiCDSAnalytic {
     return _standardCoupons[index];
   }
 
+  public CDSCoupon[] getStandardCoupons() {
+    return _standardCoupons;
+  }
+
   /**
    * Gets the accrued premium per unit of (fractional) spread (i.e. if the quoted spread (coupon)  was 500bps the actual
    * accrued premium paid would be this times 0.05) for the CDS at the given index (zero based). 
@@ -266,6 +272,85 @@ public class MultiCDSAnalytic {
    */
   public int getAccuredDays(final int matIndex) {
     return _accruedDays[matIndex];
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_accStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_accrued);
+    result = prime * result + Arrays.hashCode(_accruedDays);
+    temp = Double.doubleToLongBits(_effectiveProtectionStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lgd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_matIndexToPayments);
+    result = prime * result + _nMaturities;
+    result = prime * result + (_payAccOnDefault ? 1231 : 1237);
+    result = prime * result + Arrays.hashCode(_protectionEnd);
+    result = prime * result + Arrays.hashCode(_standardCoupons);
+    result = prime * result + Arrays.hashCode(_terminalCoupons);
+    result = prime * result + _totalPayments;
+    temp = Double.doubleToLongBits(_valuationTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final MultiCDSAnalytic other = (MultiCDSAnalytic) obj;
+    if (Double.doubleToLongBits(_accStart) != Double.doubleToLongBits(other._accStart)) {
+      return false;
+    }
+    if (!Arrays.equals(_accrued, other._accrued)) {
+      return false;
+    }
+    if (!Arrays.equals(_accruedDays, other._accruedDays)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_effectiveProtectionStart) != Double.doubleToLongBits(other._effectiveProtectionStart)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_lgd) != Double.doubleToLongBits(other._lgd)) {
+      return false;
+    }
+    if (!Arrays.equals(_matIndexToPayments, other._matIndexToPayments)) {
+      return false;
+    }
+    if (_nMaturities != other._nMaturities) {
+      return false;
+    }
+    if (_payAccOnDefault != other._payAccOnDefault) {
+      return false;
+    }
+    if (!Arrays.equals(_protectionEnd, other._protectionEnd)) {
+      return false;
+    }
+    if (!Arrays.equals(_standardCoupons, other._standardCoupons)) {
+      return false;
+    }
+    if (!Arrays.equals(_terminalCoupons, other._terminalCoupons)) {
+      return false;
+    }
+    if (_totalPayments != other._totalPayments) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_valuationTime) != Double.doubleToLongBits(other._valuationTime)) {
+      return false;
+    }
+    return true;
   }
 
 }
