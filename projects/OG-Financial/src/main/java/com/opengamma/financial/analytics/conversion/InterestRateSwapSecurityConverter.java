@@ -8,14 +8,12 @@ package com.opengamma.financial.analytics.conversion;
 import java.util.Collection;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
@@ -30,12 +28,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.convention.ConventionBundle;
-import com.opengamma.financial.convention.ConventionBundleImpl;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
-import com.opengamma.financial.convention.IborIndexConvention;
-import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -48,12 +41,9 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.irs.CompoundingMethod;
 import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
-import com.opengamma.financial.security.irs.FloatingInterestRateSwapLegConvention;
 import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
-import com.opengamma.financial.security.irs.PayReceiveType;
 import com.opengamma.financial.security.irs.PeriodRelationship;
-import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.lookup.irs.InterestRateSwapNotionalAmountVisitor;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -67,18 +57,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   /** A holiday source */
   private final HolidaySource _holidaySource;
 
-  private final ConventionBundleSource _conventionBundleSource;
-
   /**
    * @param holidaySource The holiday source, not <code>null</code>
-   * @param conventionBundleSource The convention bundle source used to retrieve floating rate index conventions, not <code>null</code>
    */
-  public InterestRateSwapSecurityConverter(final HolidaySource holidaySource,
-                                           final ConventionBundleSource conventionBundleSource) {
+  public InterestRateSwapSecurityConverter(final HolidaySource holidaySource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
-    ArgumentChecker.notNull(conventionBundleSource, "convention bundle source");
     _holidaySource = holidaySource;
-    _conventionBundleSource = conventionBundleSource;
   }
 
   @Override
