@@ -222,6 +222,11 @@ public class ValuePropertiesTest {
     assertSame(ValueProperties.all(), d.union(c));
     final ValueProperties e = ValueProperties.all().withoutAny("C").withoutAny("D");
     assertEquals(ValueProperties.all().withoutAny("D"), d.union(e));
+    final ValueProperties f = ValueProperties.with("X", "A").get();
+    final ValueProperties g = ValueProperties.with("Y", "B").get();
+    final ValueProperties fg = ValueProperties.with("X", "A").with("Y", "B").get();
+    assertEquals(fg, f.union(g));
+    assertEquals(fg, g.union(f));
   }
 
   public void testEquals() {

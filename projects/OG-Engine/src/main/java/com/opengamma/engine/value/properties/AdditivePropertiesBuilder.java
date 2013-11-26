@@ -146,6 +146,9 @@ public class AdditivePropertiesBuilder extends ValueProperties.Builder {
         _properties[index] = value.copy(e);
       }
     } else {
+      if (_copies == null) {
+        localCopyImpl();
+      }
       _copies[index] = true;
       _properties[index] = value.copy(null);
       _numEntries++;
