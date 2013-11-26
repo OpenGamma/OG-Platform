@@ -7,7 +7,6 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
@@ -33,7 +32,9 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(BucketedShiftType.FORWARD, ImmutableList.<Object>of(1, 2, 3, CurveShiftType.ABSOLUTE));    
+    _builder.bucketedShifts(BucketedShiftType.FORWARD)
+      .shift(1, 2, 3, CurveShiftType.ABSOLUTE)
+      .apply();
     
     YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator)_manipulatorResult;
     
@@ -51,7 +52,10 @@ public class YieldCurveManipulatorBuilderTest {
 
   @Test
   public void pointShifts() {
-    _builder.pointShifts(ImmutableList.<Object>of(1, 2, CurveShiftType.ABSOLUTE));    
+    
+    _builder.pointShifts()
+      .shift(1, 2, CurveShiftType.ABSOLUTE)
+      .apply();
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     
