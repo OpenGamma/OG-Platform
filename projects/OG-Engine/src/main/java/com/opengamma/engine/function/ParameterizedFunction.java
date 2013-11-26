@@ -85,7 +85,7 @@ public class ParameterizedFunction implements DependencyNodeFunction {
 
   @Override
   public String toString() {
-    return "ParameterizedFunction[" + getFunction() + ", " + getParameters() + "]";
+    return "ParameterizedFunction[" + getFunctionId() + ", " + getParameters() + "]";
   }
 
   @Override
