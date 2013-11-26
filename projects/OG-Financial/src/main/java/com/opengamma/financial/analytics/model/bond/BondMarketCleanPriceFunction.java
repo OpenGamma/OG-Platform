@@ -25,6 +25,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
  */
 public class BondMarketCleanPriceFunction extends BondMarketDataFunction {
 
+  /**
+   * Sets the value requirement name to {@link MarketDataRequirementNames#MARKET_VALUE}.
+   */
   public BondMarketCleanPriceFunction() {
     super(MarketDataRequirementNames.MARKET_VALUE);
   }

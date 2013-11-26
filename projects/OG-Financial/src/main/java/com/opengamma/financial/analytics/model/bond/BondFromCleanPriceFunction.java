@@ -16,6 +16,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -163,7 +164,7 @@ public abstract class BondFromCleanPriceFunction extends BondFunction<Double> {
    * @return The value requirement
    */
   private ValueRequirement getCleanPriceRequirement(final ComputationTarget target) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, target.toSpecification(), ValueProperties.builder().get());
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification(), ValueProperties.builder().get());
   }
 
   /**

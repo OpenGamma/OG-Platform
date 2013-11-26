@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -81,7 +82,7 @@ public class BondZSpreadFromMarketCleanPriceFunction extends BondFromPriceFuncti
 
   @Override
   protected ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, target.toSpecification());
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
   }
 
   @Override
