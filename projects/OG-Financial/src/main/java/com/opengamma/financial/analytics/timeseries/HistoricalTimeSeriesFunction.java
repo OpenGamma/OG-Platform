@@ -53,7 +53,7 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction {
     
     LocalDate valuationDate = executionContext.getValuationTime().atZone(ZoneId.systemDefault()).toLocalDate();
     if (startDate != null && (includeStart && valuationDate.isBefore(startDate) || !(valuationDate.isAfter(startDate)))) {
-      return new SimpleHistoricalTimeSeries(UniqueId.of("Empty", "Empty"), ImmutableLocalDateDoubleTimeSeries.builder().build());
+      return new SimpleHistoricalTimeSeries(targetSpec.getUniqueId(), ImmutableLocalDateDoubleTimeSeries.builder().build());
     }
     
     LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
