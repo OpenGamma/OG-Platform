@@ -192,7 +192,6 @@ $.register_module({
                 }
             };
             var structure_setup = function () {
-                console.log({view_id: view_id, grid_type: grid_type, update: structure_setup, viewport_id: data.viewport_id, graph_id: graph_id});
                 if (config.pool || !view_id) {
                     return; // we are not interested in pool structure or null view_ids
                 }
@@ -204,6 +203,7 @@ $.register_module({
                 } else {
                     // on a structure update get the new grid structure, storing the promise to ensure no
                     // race conditions with rapid consecutive structure changes
+                    // graph_id is ignored if normal grid
                     (structure_promise = viewports.structure.get({view_id: view_id, grid_type: grid_type,
                         update: structure_setup, viewport_id: data.viewport_id, graph_id: graph_id}))
                     .pipe(function (get_result) {
@@ -216,6 +216,17 @@ $.register_module({
                             structure_setup_impl(get_result);
                         }
                     });
+                }
+            };
+            var structure_setup_impl = function (result) {
+                if (result.error) {
+                    return fire('fatal', data.prefix + result.message);
+                }
+                // if this is a depgraph and we have no graph_id, this will create a new viewport
+                if (depgraph && !graph_id) {
+                    viewport_for_depgraph();
+                } else {// else for normal grids and depgraphs with graph_ids
+                    structure_handler(result);
                 }
             };
             var viewport_for_depgraph = function () {
@@ -231,17 +242,6 @@ $.register_module({
                             });
                     }
                 );
-            }
-            var structure_setup_impl = function (result) {
-                if (result.error) {
-                    return fire('fatal', data.prefix + result.message);
-                }
-                // if this is a depgraph and we have no graph_id, this will create a new viewport
-                if (depgraph && !graph_id) {
-                    viewport_for_depgraph();
-                } else {// else for normal grids and depgraphs with graph_ids
-                    structure_handler(result);
-                }
             };
             var structure_handler = function (result) {
                 if (!result || !grid_type || (depgraph && !graph_id)) {
