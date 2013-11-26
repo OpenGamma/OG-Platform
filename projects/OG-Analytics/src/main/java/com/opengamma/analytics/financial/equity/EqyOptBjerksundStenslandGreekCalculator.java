@@ -98,12 +98,12 @@ public final class EqyOptBjerksundStenslandGreekCalculator extends InstrumentDer
   public GreekResultCollection getGreeksDirectEquityOption(final EquityOption option, final StaticReplicationDataBundle data, final double impliedVol) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final ForwardCurve fCurve = data.getForwardCurve(); 
+    final ForwardCurve fCurve = data.getForwardCurve();
     final double s = fCurve.getSpot();
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
-    
+
     // Handle dividend behaviour. BjS expects continuous dividends, so we adjust spot if data provides discrete
     double b = r;
     double modSpot = s;

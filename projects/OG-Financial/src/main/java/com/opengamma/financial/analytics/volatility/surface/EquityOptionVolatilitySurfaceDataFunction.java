@@ -21,7 +21,9 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveAffineDividends;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
@@ -344,7 +346,21 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
             }
             final double vol;
             if (isAmerican) {
-              vol = americanModel.impliedVolatility(price, spot, strike, -Math.log(zerobond) / t, Math.log(forward / spot) / t, t, optionIsCall);
+              double modSpot = spot;
+              double costOfCarry = -Math.log(zerobond) / t;
+              if (forwardCurve instanceof ForwardCurveAffineDividends) {
+                final AffineDividends div = ((ForwardCurveAffineDividends) forwardCurve).getDividends();
+                final int number = div.getNumberOfDividends();
+                int i = 0;
+                while (i < number && div.getTau(i) < t) {
+                  modSpot = modSpot * (1. - div.getBeta(i)) - div.getAlpha(i) * discountCurve.getDiscountFactor(div.getTau(i));
+                  ++i;
+                }
+              } else {
+                costOfCarry = Math.log(forwardCurve.getForward(t) / spot) / t;
+              }
+              
+              vol = americanModel.impliedVolatility(price, modSpot, strike, -Math.log(zerobond) / t, costOfCarry, t, optionIsCall);
             } else {
               final double fwdPrice = price / zerobond;
               vol = BlackFormulaRepository.impliedVolatility(fwdPrice, forward, strike, t, optionIsCall);
