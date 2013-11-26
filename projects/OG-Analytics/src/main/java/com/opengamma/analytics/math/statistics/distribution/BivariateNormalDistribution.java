@@ -74,7 +74,8 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
           mult = mult - Y[i] * Math.exp(-h5 / rho3Sq) * (e - 1 - c * rho3Sq);
         }
       }
-      result = mult * rho2 * eab + NORMAL.getCDF(Math.min(a, b));
+      final double corr = Double.isNaN(mult) ? 0. : mult * rho2 * eab;
+      result = corr + NORMAL.getCDF(Math.min(a, b));
       if (rho < 0) {
         result = NORMAL.getCDF(a) - result;
       }
@@ -88,7 +89,8 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
         mult = mult + Y[i] * Math.exp((rho3 * ab - sumSq) / rho1) / Math.sqrt(rho1);
       }
     }
-    return NORMAL.getCDF(a) * NORMAL.getCDF(b) + rho * mult;
+    final double corr = Double.isNaN(mult) ? 0. : rho * mult;
+    return NORMAL.getCDF(a) * NORMAL.getCDF(b) + corr;
   }
 
   /**
