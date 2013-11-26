@@ -88,6 +88,13 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
   }
 
   /**
+   * Clears out the watch list.
+   */
+  public void watchNone() {
+    _targets.clear();
+  }
+
+  /**
    * Indicates whether there are any objects that must be checked for updates. This is indicative only, and might not always be accurate.
    * 
    * @return true if there might be, false otherwise

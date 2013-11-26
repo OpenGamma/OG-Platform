@@ -575,7 +575,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 return;
               }
               cycleStarted(new DefaultViewCycleMetadata(cycleReference.get().getUniqueId(), marketDataSnapshot.getUniqueId(), compiledViewDefinition.getViewDefinition().getUniqueId(),
-                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs, 
+                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs,
                   executionOptions.getName()));
               if (isTerminated()) {
                 return;
@@ -785,7 +785,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
             final UniqueId oldId = check.getValue();
             if (oldId.equals(resolution.getUniqueId())) {
               // Target resolves the same
-              s_logger.debug("No change resolving {}", check.getKey());
+              s_logger.trace("No change resolving {}", check.getKey());
               continue;
             }
           }
@@ -872,13 +872,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         cycleFragmentCompleted(result);
       }
     };
-    final SingleComputationCycle cycle = new SingleComputationCycle(
-        cycleId, 
-        executionOptions.getName(), 
-        streamingResultListener, 
-        getProcessContext(), 
-        compiledViewDefinition, 
-        executionOptions, 
+    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, executionOptions.getName(), streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions,
         versionCorrection);
     return getProcessContext().getCycleManager().manage(cycle);
   }
@@ -1216,7 +1210,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       final ComputationTargetSpecification resolved = specifications.get(target.getKey());
       if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
         // No change
-        s_logger.debug("No change resolving {}", target);
+        s_logger.trace("No change resolving {}", target);
       } else if (toCheck.contains(target.getKey())) {
         // Identifier no longer resolved, or resolved differently
         s_logger.info("New resolution of {} to {}", target, resolved);
@@ -1569,8 +1563,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   public CompiledViewDefinitionWithGraphs getCachedCompiledViewDefinition(final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     CompiledViewDefinitionWithGraphs cached = _latestCompiledViewDefinition;
     if (cached != null) {
-      boolean resolverMatch = resolverVersionCorrection.equals(cached.getResolverVersionCorrection());
-      boolean valuationMatch = CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime);
+      final VersionCorrection lastResolution = cached.getResolverVersionCorrection();
+      final boolean resolverMatch = resolverVersionCorrection.equals(lastResolution);
+      final boolean valuationMatch = CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime);
       if (!resolverMatch || !valuationMatch) {
         // Query the cache in case there is a newer one
         cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
@@ -1579,8 +1574,25 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           if (resolverVersionCorrection.equals(cached.getResolverVersionCorrection())) {
             _latestCompiledViewDefinition = cached;
           } else {
-            if (!resolverMatch && !valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
-              _latestCompiledViewDefinition = cached;
+            if (!resolverMatch) {
+              if (_targetResolverChanges != null) {
+                if (!cached.getResolverVersionCorrection().getVersionAsOf().isBefore(lastResolution.getVersionAsOf()) &&
+                    !cached.getResolverVersionCorrection().getCorrectedTo().isBefore(lastResolution.getCorrectedTo())) {
+                  // Cached form was created while we were change subscribed so we can verify it
+                  _latestCompiledViewDefinition = cached;
+                } else {
+                  // Cached form is outside of our change subscription window so verifying changes we've heard about won't help
+                  cached = _latestCompiledViewDefinition;
+                }
+              } else {
+                if (!valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
+                  // Cached form is at least valid for the valuation time
+                  _latestCompiledViewDefinition = cached;
+                } else {
+                  // Cached one is no better than the one we used last time
+                  cached = _latestCompiledViewDefinition;
+                }
+              }
             }
           }
         } else {
@@ -1592,6 +1604,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       // Query the cache
       cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
       if (cached != null) {
+        // This would have to be the "first" cycle, so ant target resolver listener will be empty
         _latestCompiledViewDefinition = cached;
       }
     }
@@ -1630,6 +1643,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
 
       // TODO [PLAT-3215] Might not need to discard the entire compilation at this point
       cacheCompiledViewDefinition(null);
+      if (_targetResolverChanges != null) {
+        _targetResolverChanges.watchNone();
+      }
 
       // A change in view definition might mean a change in market data user which could invalidate the resolutions
       _marketDataManager.replaceMarketDataProviderIfRequired(newViewDefinition.getMarketDataUser());
