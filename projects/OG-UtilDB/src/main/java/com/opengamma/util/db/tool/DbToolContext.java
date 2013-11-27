@@ -67,7 +67,7 @@ public class DbToolContext extends DirectBean implements Closeable {
     }
   }
 
-  public static DbToolContext from(com.opengamma.util.db.DbConnector dbConnector, String jdbcUrl, String user, String password){
+  public static DbToolContext from(com.opengamma.util.db.DbConnector dbConnector, String jdbcUrl, String user, String password) {
     DbManagement dbManagement = DbManagementUtils.getDbManagement(jdbcUrl);
     int lastSlashIdx = jdbcUrl.lastIndexOf("/");
     if (lastSlashIdx == -1) {
