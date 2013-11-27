@@ -93,15 +93,14 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).create();
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .interestRateFutureSecurityVisitor(irFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
@@ -148,8 +147,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (security instanceof SwapSecurity) {
       try {
         final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
-        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
-            || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
+        return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR ||
+            type == InterestRateInstrumentType.SWAP_FIXED_OIS;
       } catch (final OpenGammaRuntimeException ogre) {
         return false;
       }
@@ -159,8 +158,11 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    final ValueProperties.Builder properties = getResultProperties(currency);
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    if (currency == null) {
+      return null;
+    }
+    final ValueProperties.Builder properties = getResultProperties(currency.getCode());
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
@@ -215,16 +217,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       String curveCalculationConfigName, String currency);
 
   protected ValueProperties.Builder getResultProperties(final String currency) {
-    final ValueProperties.Builder properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .with(ValuePropertyNames.CURRENCY, currency);
+    final ValueProperties.Builder properties = createValueProperties().withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).with(ValuePropertyNames.CURRENCY, currency);
     return properties;
   }
 
   protected ValueProperties.Builder getResultProperties(final String currency, final String curveCalculationConfigName) {
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(ValuePropertyNames.CURRENCY, currency);
+    final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(ValuePropertyNames.CURRENCY, currency);
     return properties;
   }
 
@@ -259,9 +257,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
 
   protected static ValueRequirement getCurveRequirement(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
       final String curveCalculationMethod) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, yieldCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, yieldCurveName).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
   }
@@ -315,15 +311,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         } else {
           resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getReceiveLeg()).getFrequency();
         }
-        derivative = definitionConverter.convert(security, definition, now,
-            FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency), timeSeries);
+        derivative = definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency), timeSeries);
       } else {
-        derivative = definitionConverter.convert(security, definition, now,
-            FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), timeSeries);
+        derivative = definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), timeSeries);
       }
     } else {
-      derivative = definitionConverter.convert(security, definition, now,
-          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), timeSeries);
+      derivative = definitionConverter.convert(security, definition, now, FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), timeSeries);
     }
     return derivative;
   }
