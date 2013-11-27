@@ -37,6 +37,7 @@ import com.opengamma.integration.tool.config.ConfigLoader;
 import com.opengamma.integration.tool.config.ConfigSaver;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
+import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -164,7 +165,7 @@ public class DatabasePopulatorTool extends AbstractTool<ToolContext> {
       protected void doRun() throws Exception {
         final ConfigMaster remoteConfigMaster = getToolContext().getConfigMaster();
         final PortfolioMaster remotePortfolioMaster = getToolContext().getPortfolioMaster();
-        ConfigSaver configSaver = new ConfigSaver(remoteConfigMaster, remotePortfolioMaster, new ArrayList<String>(), new ArrayList<String>(), true, true);
+        ConfigSaver configSaver = new ConfigSaver(remoteConfigMaster, remotePortfolioMaster, new ArrayList<String>(), new ArrayList<String>(), true, true, ConfigSearchSortOrder.VERSION_FROM_INSTANT_DESC);
         ByteArrayOutputStream byteArrayOutput = new ByteArrayOutputStream();
         PrintStream outputStream = new PrintStream(byteArrayOutput);
         configSaver.saveConfigs(outputStream);

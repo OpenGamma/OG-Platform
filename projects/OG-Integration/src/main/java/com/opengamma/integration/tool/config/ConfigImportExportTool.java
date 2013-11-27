@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -60,6 +61,7 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
       checkForInvalidOption("type");
       checkForInvalidOption("name");
       checkForInvalidOption("save");
+      checkForInvalidOption("sort-by-name");
       boolean persist = !commandLine.hasOption("do-not-persist"); // NOTE: inverted logic here
       ConfigLoader configLoader = new ConfigLoader(configMaster, portfolioMaster, portPortfolioRefs, persist, verbose);
       if (fileList.size() > 0) {
@@ -119,7 +121,11 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
       } else {
         outputStream = System.out;
       }
-      ConfigSaver configSaver = new ConfigSaver(configMaster, portfolioMaster, names, types, portPortfolioRefs, verbose);
+      ConfigSearchSortOrder order = ConfigSearchSortOrder.VERSION_FROM_INSTANT_DESC;
+      if (commandLine.hasOption("sort-by-name")) {
+        order = ConfigSearchSortOrder.NAME_ASC;
+      }
+      ConfigSaver configSaver = new ConfigSaver(configMaster, portfolioMaster, names, types, portPortfolioRefs, verbose, order);
       configSaver.saveConfigs(outputStream);
       System.out.println("Warning: file may have been created in installation base directory");
     }
@@ -161,6 +167,7 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
     options.addOption(createPortablePortfolioReferencesOption());
     options.addOption(createDoNotPersistOption());
     options.addOption(createVerboseOption());
+    options.addOption(createSortOption());
     return options;
   }
 
@@ -227,6 +234,15 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
                         .withDescription("Display extra error messages")
                         .withLongOpt("verbose")
                         .create("v");
+  }
+  
+  @SuppressWarnings("static-access")
+  private Option createSortOption() {
+    return OptionBuilder.isRequired(false)
+                        .hasArg(false)
+                        .withDescription("Sort output by config name (default=most recent first)")
+                        .withLongOpt("sort-by-name")
+                        .create("s");
   }
   
   protected Class<?> getEntryPointClass() {
