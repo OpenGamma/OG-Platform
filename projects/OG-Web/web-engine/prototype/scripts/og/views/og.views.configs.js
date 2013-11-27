@@ -312,7 +312,8 @@ $.register_module({
             },
             rules: $.extend(view.rules(['name', 'type']), {
                 load_new: { // configs have a rule other views don't have, so we need to extend the default set
-                    route: '/' + page_name + '/new/:config_type/name:?/type:?', method: module.name + '.load_new'
+                    route: '/' + page_name + '/new/:config_type/name:?/type:?',
+                    method: module.name + '.load_new'
                 }
             }),
             search: function (args) {
