@@ -88,8 +88,8 @@ public class ExampleConfigDatabasePopulator extends AbstractTool<IntegrationTool
 
     loadTimeSeriesRating();
     // Note: historical time series need to be loaded before swap, swaption and FX portfolios can be created.
-    loadHistoricalData();
-    loadVolSurfaceData();
+    //loadHistoricalData();
+    //loadVolSurfaceData();
 
     loadFunctionConfigurations();
   }
