@@ -617,6 +617,27 @@ public abstract class AbstractDbManagement implements DbManagement {
   }
 
   @Override
+  public List<String> listTables(final String catalog) {
+    Connection conn = null;
+    try {
+      conn = connect(catalog);
+      final Statement stmt = conn.createStatement();
+        return getAllTables(catalog, null, stmt);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.err.println("e.getMessage: " + e.getMessage());
+      throw new OpenGammaRuntimeException("SQL exception", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }
+  }
+
+  @Override
   public Integer getSchemaGroupVersion(String catalog, String schema, String schemaGroupName) {
     Connection conn = null;
     try {

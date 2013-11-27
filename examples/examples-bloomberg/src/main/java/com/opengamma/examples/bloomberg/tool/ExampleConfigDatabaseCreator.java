@@ -23,10 +23,10 @@ import com.opengamma.util.db.tool.DbTool;
  * Tool class that creates and initializes the example database.
  */
 @Scriptable
-public class ExampleDatabaseCreator {
+public class ExampleConfigDatabaseCreator {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabaseCreator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleConfigDatabaseCreator.class);
 
   /** Shared database URL. */
   private static final String KEY_SHARED_URL = "db.standard.url";
@@ -55,14 +55,17 @@ public class ExampleDatabaseCreator {
    * @param args the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
+
+
     if (args.length == 0) {
       // if no command line arguments, then use default arguments suitable for development in an IDE
       // the first argument is for verbose startup, to aid understanding
       // the second argument defines the start of a chain of properties files providing the configuration
       args = new String[] {"classpath:/toolcontext/toolcontext-examplesbloomberg.properties"};
     }
+
     try {
-      new ExampleDatabaseCreator().run(args[0]);
+      new ExampleConfigDatabaseCreator().run(args[0]);
       System.exit(0);
     } catch (final Exception ex) {
       s_logger.error("Caught exception", ex);
@@ -108,7 +111,7 @@ public class ExampleDatabaseCreator {
     
     // populate the database
     s_logger.info("Populating main database...");
-    new ExampleDatabasePopulator().run(ResourceUtils.toResourceLocator(res), IntegrationToolContext.class);
+    new ExampleConfigDatabasePopulator().run(ResourceUtils.toResourceLocator(res), IntegrationToolContext.class);
     
     s_logger.info("Successfully created example databases");
   }

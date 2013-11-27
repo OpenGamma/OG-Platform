@@ -6,6 +6,7 @@
 package com.opengamma.util.db.management;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.hibernate.dialect.Dialect;
 
@@ -115,6 +116,14 @@ public interface DbManagement {
    * @return a dialect specific string describing the database, not null
    */
   String describeDatabase(final String catalog, final String prefix);
+
+  /**
+   * Returns collection of table names.
+   *
+   * @param catalog the catalog (database) name, not null
+   * @return a list of table names, not null
+   */
+  List<String> listTables(final String catalog);
 
   /**
    * Describes the structure of the database.
