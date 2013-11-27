@@ -14,7 +14,8 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.ShiftType;
 
 /**
- * How the shift should be applied.
+ * The type of shift. Relative will scale the curve by a percentage value; Absolute
+ * will add an absolute number of basis points.
  */
 public enum CurveShiftType implements GroovyAliasable {
 
