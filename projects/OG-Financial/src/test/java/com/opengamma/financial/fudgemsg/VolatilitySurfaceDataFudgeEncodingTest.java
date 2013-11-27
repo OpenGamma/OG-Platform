@@ -41,4 +41,18 @@ public class VolatilitySurfaceDataFudgeEncodingTest extends FinancialTestBase {
     final VolatilitySurfaceData<Tenor, Tenor> dataWithName = new VolatilitySurfaceData<Tenor, Tenor>("US", "US", Currency.USD, oneToTenYears, "time", oneToTenYears, "strike", values);
     assertEquals(dataWithName, cycleObject(VolatilitySurfaceData.class, dataWithName));
   }
+  
+  @Test
+  public void testEmptyCycle() {
+    final Tenor[] zero = new Tenor[0];
+    final Map<Pair<Tenor, Tenor>, Double> values = new HashMap<Pair<Tenor, Tenor>, Double>();
+    final VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<Tenor, Tenor>("US", "US", Currency.USD, zero, zero, values);
+    assertEquals(data, cycleObject(VolatilitySurfaceData.class, data));
+    final VolatilitySurfaceData<Tenor, Tenor> dataWithName = new VolatilitySurfaceData<Tenor, Tenor>("US", "US", Currency.USD, zero, "time", zero, "strike", values);
+    assertEquals(dataWithName, cycleObject(VolatilitySurfaceData.class, dataWithName));
+    Tenor[] xs = dataWithName.getXs();
+    Tenor[] ys = dataWithName.getYs();
+    assertEquals(0, xs.length);
+    assertEquals(0, ys.length);
+  }
 }
