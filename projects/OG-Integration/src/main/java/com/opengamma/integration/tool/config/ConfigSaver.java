@@ -27,6 +27,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -43,15 +44,17 @@ public class ConfigSaver {
   private List<String> _types;
   private boolean _portPortfolioRefs;
   private boolean _verbose;
+  private final ConfigSearchSortOrder _order;
 
   public ConfigSaver(ConfigMaster configMaster, PortfolioMaster portfolioMaster, List<String> names, List<String> types, 
-                     boolean portPortfolioRefs, boolean verbose) {
+                     boolean portPortfolioRefs, boolean verbose, ConfigSearchSortOrder order) {
     _configMaster = configMaster;
     _portfolioMaster = portfolioMaster;
     _names = names;
     _types = types;
     _portPortfolioRefs = portPortfolioRefs;
     _verbose = verbose;
+    _order = order;
   }
   
   public void saveConfigs(PrintStream outputStream) {
@@ -138,7 +141,7 @@ public class ConfigSaver {
   }
 
   private List<ConfigEntry> getConfigs(Class<?> type, String name) {
-    ConfigSearchRequest<Object> searchReq = new ConfigSearchRequest<Object>();
+    ConfigSearchRequest<Object> searchReq = createSearchRequest();
     searchReq.setType(type);
     searchReq.setName(name);
     ConfigSearchResult<Object> searchResult = _configMaster.search(searchReq);
@@ -146,14 +149,14 @@ public class ConfigSaver {
   }
   
   private List<ConfigEntry> getConfigs(Class<?> type) {
-    ConfigSearchRequest<Object> searchReq = new ConfigSearchRequest<Object>();
+    ConfigSearchRequest<Object> searchReq = createSearchRequest();
     searchReq.setType(type);
     ConfigSearchResult<Object> searchResult = _configMaster.search(searchReq);
     return docsToConfigEntries(searchResult);    
   }
   
   private List<ConfigEntry> getConfigs(String name) {
-    ConfigSearchRequest<Object> searchReq = new ConfigSearchRequest<Object>();
+    ConfigSearchRequest<Object> searchReq = createSearchRequest();
     searchReq.setName(name);
     searchReq.setType(Object.class);
     ConfigSearchResult<Object> searchResult = _configMaster.search(searchReq);
@@ -161,10 +164,20 @@ public class ConfigSaver {
   }
   
   private List<ConfigEntry> getConfigs() {
-    ConfigSearchRequest<Object> searchReq = new ConfigSearchRequest<Object>();
+    ConfigSearchRequest<Object> searchReq = createSearchRequest();
     searchReq.setType(Object.class);
     ConfigSearchResult<Object> searchResult = _configMaster.search(searchReq);
     return docsToConfigEntries(searchResult);    
+  }
+
+  
+  /**
+   * @return a search request with defaults set
+   */
+  private ConfigSearchRequest<Object> createSearchRequest() {
+    ConfigSearchRequest<Object> searchRequest = new ConfigSearchRequest<Object>();
+    searchRequest.setSortOrder(_order);
+    return searchRequest;
   }
   
   private List<ConfigEntry> docsToConfigEntries(ConfigSearchResult<Object> searchResult) {
