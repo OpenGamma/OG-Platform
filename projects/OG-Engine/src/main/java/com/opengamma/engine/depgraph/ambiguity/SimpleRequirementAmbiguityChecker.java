@@ -378,6 +378,7 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
                 }
               } catch (Throwable t) {
                 s_logger.error("Exception thrown by {} when handling {}", rule, requirement);
+                s_logger.warn("Exception", t);
               }
             }
             if (!resolutions.isEmpty()) {

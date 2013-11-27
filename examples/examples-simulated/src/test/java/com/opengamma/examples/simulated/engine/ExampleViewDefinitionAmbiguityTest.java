@@ -5,19 +5,27 @@
  */
 package com.opengamma.examples.simulated.engine;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.depgraph.ambiguity.ViewDefinitionAmbiguityTest;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -59,9 +67,31 @@ public class ExampleViewDefinitionAmbiguityTest extends ViewDefinitionAmbiguityT
     return _repo.getInstance(FunctionExclusionGroups.class, "main");
   }
 
-  @Override
   protected ConfigSource getConfigSource() {
     return _configSource;
+  }
+
+  @DataProvider(name = "viewDefinitions")
+  public Object[][] viewDefinitionsProvider() {
+    final Collection<ConfigItem<ViewDefinition>> items = getConfigSource().getAll(ViewDefinition.class, VersionCorrection.LATEST);
+    final Object[][] viewDefinitions = new Object[items.size()][1];
+    int i = 0;
+    for (final ConfigItem<ViewDefinition> item : items) {
+      viewDefinitions[i++][0] = item.getValue();
+    }
+    Arrays.sort(viewDefinitions, new Comparator<Object[]>() {
+      @Override
+      public int compare(Object[] o1, Object[] o2) {
+        return ((ViewDefinition) o1[0]).getName().compareTo(((ViewDefinition) o2[0]).getName());
+      }
+    });
+    return viewDefinitions;
+  }
+
+  @Override
+  @Test(dataProvider = "viewDefinitions", enabled = false, groups = TestGroup.INTEGRATION)
+  public void runAmbiguityTest(final ViewDefinition view) throws InterruptedException {
+    super.runAmbiguityTest(view);
   }
 
 }

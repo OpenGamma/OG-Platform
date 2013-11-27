@@ -6,9 +6,6 @@
 package com.opengamma.engine.depgraph.ambiguity;
 
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -16,12 +13,8 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -40,7 +33,6 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.PoolExecutor.CompletionListener;
-import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -68,27 +60,8 @@ public abstract class ViewDefinitionAmbiguityTest {
     return new AmbiguityCheckerContext(createMarketDataAvailabilityProvider(), createFunctionCompilationContext(), createFunctionResolver(), createFunctionExclusionGroups());
   }
 
-  protected abstract ConfigSource getConfigSource();
-
   protected void configureChecker(final SimpleRequirementAmbiguityChecker checker) {
     checker.setGreedyCaching(true);
-  }
-
-  @DataProvider(name = "viewDefinitions")
-  public Object[][] viewDefinitionsProvider() {
-    final Collection<ConfigItem<ViewDefinition>> items = getConfigSource().getAll(ViewDefinition.class, VersionCorrection.LATEST);
-    final Object[][] viewDefinitions = new Object[items.size()][1];
-    int i = 0;
-    for (final ConfigItem<ViewDefinition> item : items) {
-      viewDefinitions[i++][0] = item.getValue();
-    }
-    Arrays.sort(viewDefinitions, new Comparator<Object[]>() {
-      @Override
-      public int compare(Object[] o1, Object[] o2) {
-        return ((ViewDefinition) o1[0]).getName().compareTo(((ViewDefinition) o2[0]).getName());
-      }
-    });
-    return viewDefinitions;
   }
 
   protected void report(final FullRequirementResolution resolution, final PrintStream out) {
@@ -168,7 +141,6 @@ public abstract class ViewDefinitionAmbiguityTest {
     }
   }
 
-  @Test(dataProvider = "viewDefinitions", enabled = false, groups = TestGroup.INTEGRATION)
   public void runAmbiguityTest(final ViewDefinition view) throws InterruptedException {
     final PoolExecutor executor = new PoolExecutor(Runtime.getRuntime().availableProcessors(), "AmbiguityCheck");
     try {
