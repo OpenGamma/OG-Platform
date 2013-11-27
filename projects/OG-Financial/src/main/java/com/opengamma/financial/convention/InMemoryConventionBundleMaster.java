@@ -119,6 +119,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   @Override
   public UniqueId add(final ExternalIdBundle bundle, final ConventionBundleImpl convention) {
     final UniqueId uid = _mapper.add(bundle, convention);
+    // REVIEW Andrew 2013-11-27 -- should we be setting the identifier bundle into the convention here - convention.setIdentifiers(bundle); - ?
     convention.setUniqueId(uid);
     return uid;
   }
@@ -435,7 +436,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Creates a simple name security Id.
    * <p>
-   * @param securityId  the simple name security id, not null
+   * 
+   * @param securityId the simple name security id, not null
    * @return the security identifier, not null
    */
   public static ExternalId simpleNameSecurityId(final String securityId) {
@@ -449,7 +451,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Creates a simple exchange name id.
    * <p>
-   * @param exchangeName  the simple exchange name, not null
+   * 
+   * @param exchangeName the simple exchange name, not null
    * @return the exchange identifier, not null
    */
   public static ExternalId simpleExchangeNameSecurityId(final String exchangeName) {
