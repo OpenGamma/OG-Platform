@@ -46,6 +46,21 @@ public class ConfigSaver {
   private boolean _verbose;
   private final ConfigSearchSortOrder _order;
 
+  /**
+   * Process items in name order.
+   *
+   * @param configMaster the config master
+   * @param portfolioMaster the portfolio master
+   * @param names names to search for
+   * @param types types to search for
+   * @param portPortfolioRefs port portfolio references?
+   * @param verbose verbose?
+   */
+  public ConfigSaver(ConfigMaster configMaster, PortfolioMaster portfolioMaster, List<String> names, List<String> types,
+                     boolean portPortfolioRefs, boolean verbose) {
+    this(configMaster, portfolioMaster, names, types, portPortfolioRefs, verbose, ConfigSearchSortOrder.NAME_ASC);
+  }
+
   public ConfigSaver(ConfigMaster configMaster, PortfolioMaster portfolioMaster, List<String> names, List<String> types, 
                      boolean portPortfolioRefs, boolean verbose, ConfigSearchSortOrder order) {
     _configMaster = configMaster;
