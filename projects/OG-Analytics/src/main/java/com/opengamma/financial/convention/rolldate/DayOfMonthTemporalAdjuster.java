@@ -34,6 +34,10 @@ public class DayOfMonthTemporalAdjuster implements TemporalAdjuster {
   @Override
   public Temporal adjustInto(final Temporal temporal) {
     ArgumentChecker.notNull(temporal, "temporal");
+    // simple catch for Feb, need to handle the general case
+    if (temporal.get(ChronoField.MONTH_OF_YEAR) == 2 && _day > 28) {
+      return temporal.with(ChronoField.DAY_OF_MONTH, 28);
+    }
     return temporal.with(ChronoField.DAY_OF_MONTH, _day);
   }
 

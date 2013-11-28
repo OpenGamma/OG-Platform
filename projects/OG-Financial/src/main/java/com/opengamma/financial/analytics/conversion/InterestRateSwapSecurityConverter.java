@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundin
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
@@ -37,6 +38,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.irs.CompoundingMethod;
 import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
@@ -49,6 +51,7 @@ import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
@@ -144,43 +147,23 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     ZonedDateTime effectiveDateTime = effectiveDate.atStartOfDay(ZoneId.systemDefault());
     ZonedDateTime maturityDateTime = maturityDate.atStartOfDay(ZoneId.systemDefault());
 
-    AnnuityDefinition<? extends PaymentDefinition> firstLeg = null;
-    if (Frequency.NEVER_NAME.equals(periodFreqFixed.getName())) {
-      final int nbPayment = Math.max(nbNotional, 1); // Implementation note: If zero-coupon with no notional, create a fake coupon of 0.
-      final double accruedEnd = (nbNotional == 0 ? 0.0 : 1.0);
-      CouponFixedDefinition[] notional = new CouponFixedDefinition[nbPayment];
-      int loopnot = 0;
-      if (swapSecurity.getNotionalExchange().isExchangeInitialNotional()) {
-        notional[0] = new CouponFixedDefinition(currency, effectiveDateTime, effectiveDateTime, effectiveDateTime, 1.0, -signFixed * fixedLegNotional, 1.0);
-        loopnot++;
-      }
-      if (swapSecurity.getNotionalExchange().isExchangeFinalNotional() || (nbNotional == 0)) {
-        notional[loopnot] = new CouponFixedDefinition(currency, maturityDateTime, maturityDateTime, maturityDateTime, accruedEnd, signFixed * fixedLegNotional, 1.0);
-      }
-      firstLeg = new AnnuityCouponFixedDefinition(notional, fixedLegPaymentCalendar);
-    } else {
-      if (fixedLeg.getConvention().getCompoundingMethod() == CompoundingMethod.NONE) {
-        firstLeg = AnnuityDefinitionBuilder.couponFixed(
-            currency,
-            effectiveDateTime,
-            maturityDateTime,
-            getTenor(periodFreqFixed), // period and payment dates are generated from these
-            fixedLegPaymentCalendar, // period and payment dates are generated from these
-            fixedLegDayCount,
-            fixedLegFixingBusinessDayConvention,
-            fixedIsEOM,
-            fixedLegNotional,
-            fixedLeg.getRate().getInitialRate(),
-            payFixed,
-            fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
-            fixedLeg.getConvention().getPaymentLag());
-      } else {
-        throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + fixedLeg.getConvention().getCompoundingMethod());
-      }
-    }
+    AnnuityDefinition<? extends PaymentDefinition> firstLeg = generateFixedAnnuity(swapSecurity,
+                                                                                   payFixed,
+                                                                                   currency,
+                                                                                   signFixed,
+                                                                                   nbNotional,
+                                                                                   fixedLeg,
+                                                                                   periodFreqFixed,
+                                                                                   fixedLegNotional,
+                                                                                   fixedIsEOM,
+                                                                                   fixedLegDayCount,
+                                                                                   fixedLegPaymentCalendar,
+                                                                                   fixedLegFixingBusinessDayConvention,
+                                                                                   effectiveDateTime,
+                                                                                   maturityDateTime);
 
 
-
+    RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(iborLeg.getConvention().getRollConvention());
     AnnuityDefinition<? extends PaymentDefinition> secondLeg = null;
     if (Frequency.NEVER_NAME.equals(paymentFreqIbor.getName())) {
       CouponDefinition[] payments = new CouponDefinition[nbNotional + 1];
@@ -225,7 +208,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
               floatIsEOM,
               floatResetCalendar, // period and payment dates are generated from these
               fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
-              spotLag); // TODO payment lag
+              spotLag, rollDateAdjuster); // TODO payment lag
         }
       } else if (iborLeg.getConvention().getCompoundingMethod()  == CompoundingMethod.FLAT) {
         secondLeg = AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(
@@ -274,6 +257,103 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     }
     SwapDefinition swap = new SwapDefinition(firstLeg, secondLeg);
     return swap;
+  }
+
+  private AnnuityDefinition<? extends PaymentDefinition> generateFixedAnnuity(InterestRateSwapSecurity swapSecurity,
+                                                                              boolean payFixed,
+                                                                              Currency currency,
+                                                                              double signFixed,
+                                                                              int nbNotional,
+                                                                              FixedInterestRateSwapLeg fixedLeg,
+                                                                              Frequency periodFreqFixed,
+                                                                              double fixedLegNotional,
+                                                                              boolean fixedIsEOM,
+                                                                              DayCount fixedLegDayCount,
+                                                                              Calendar fixedLegPaymentCalendar,
+                                                                              BusinessDayConvention fixedLegFixingBusinessDayConvention,
+                                                                              ZonedDateTime effectiveDateTime,
+                                                                              ZonedDateTime maturityDateTime) {
+    AnnuityDefinition<? extends PaymentDefinition> firstLeg = null;
+    if (Frequency.NEVER_NAME.equals(periodFreqFixed.getName())) {
+      firstLeg = generateZCFixedAnnuity(swapSecurity,
+                                        currency,
+                                        signFixed,
+                                        nbNotional,
+                                        fixedLegNotional,
+                                        fixedLegPaymentCalendar,
+                                        effectiveDateTime,
+                                        maturityDateTime);
+    } else {
+      if (fixedLeg.getConvention().getCompoundingMethod() == CompoundingMethod.NONE) {
+
+        // TODO: Check calc frequency is the correct frequency & not index frequency
+        Period freq = getTenor(periodFreqFixed);
+        RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(fixedLeg.getConvention().getRollConvention());
+        final StubType stub = fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START;
+
+        // just using this to get number of periods - should be refactored
+        ZonedDateTime[] unadjustedDates = ScheduleCalculator.getUnadjustedDateSchedule(effectiveDateTime, maturityDateTime, freq, stub);
+        final int numPeriods = unadjustedDates.length;
+
+        //TODO: Is 1 the correct start or should it be zero indexed?
+        //firstLeg = AnnuityDefinitionBuilder.couponFixedRollDate(currency, effectiveDateTime, 0, numPeriods, rollDateAdjuster,
+        //                                                        freq, fixedLegNotional, fixedLeg.getRate().getInitialRate(),
+        //                                                        payFixed, fixedLegDayCount, fixedLegPaymentCalendar, stub, fixedLeg.getConvention().getPaymentLag());
+        firstLeg = AnnuityDefinitionBuilder.couponFixed(
+            currency,
+            effectiveDateTime,
+            maturityDateTime,
+            getTenor(periodFreqFixed), // period and payment dates are generated from these
+            fixedLegPaymentCalendar, // period and payment dates are generated from these
+            fixedLegDayCount,
+            fixedLegFixingBusinessDayConvention,
+            fixedIsEOM,
+            fixedLegNotional,
+            fixedLeg.getRate().getInitialRate(),
+            payFixed,
+            fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
+            fixedLeg.getConvention().getPaymentLag(),
+            rollDateAdjuster);
+
+        if (firstLeg.getNumberOfPayments() == 0) {
+          throw new OpenGammaRuntimeException("");
+        }
+      } else {
+        throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + fixedLeg.getConvention().getCompoundingMethod());
+      }
+    }
+    return firstLeg;
+  }
+
+  private RollDateAdjuster getRollDateAdjuster(RollConvention rollConvention) {
+    if (rollConvention == RollConvention.NONE) {
+      return null;
+    }
+    return rollConvention.getRollDateAdjuster(0);
+  }
+
+  private AnnuityDefinition<? extends PaymentDefinition> generateZCFixedAnnuity(InterestRateSwapSecurity swapSecurity,
+                                                                                Currency currency,
+                                                                                double signFixed,
+                                                                                int nbNotional,
+                                                                                double fixedLegNotional,
+                                                                                Calendar fixedLegPaymentCalendar,
+                                                                                ZonedDateTime effectiveDateTime,
+                                                                                ZonedDateTime maturityDateTime) {
+    AnnuityDefinition<? extends PaymentDefinition> firstLeg;
+    final int nbPayment = Math.max(nbNotional, 1); // Implementation note: If zero-coupon with no notional, create a fake coupon of 0.
+    final double accruedEnd = (nbNotional == 0 ? 0.0 : 1.0);
+    CouponFixedDefinition[] notional = new CouponFixedDefinition[nbPayment];
+    int loopnot = 0;
+    if (swapSecurity.getNotionalExchange().isExchangeInitialNotional()) {
+      notional[0] = new CouponFixedDefinition(currency, effectiveDateTime, effectiveDateTime, effectiveDateTime, 1.0, -signFixed * fixedLegNotional, 1.0);
+      loopnot++;
+    }
+    if (swapSecurity.getNotionalExchange().isExchangeFinalNotional() || (nbNotional == 0)) {
+      notional[loopnot] = new CouponFixedDefinition(currency, maturityDateTime, maturityDateTime, maturityDateTime, accruedEnd, signFixed * fixedLegNotional, 1.0);
+    }
+    firstLeg = new AnnuityCouponFixedDefinition(notional, fixedLegPaymentCalendar);
+    return firstLeg;
   }
 
   private SwapDefinition getFixedOISSwapDefinition(final InterestRateSwapSecurity swapSecurity, final boolean payFixed) {

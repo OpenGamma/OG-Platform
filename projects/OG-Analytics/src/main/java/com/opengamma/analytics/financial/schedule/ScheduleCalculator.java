@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
@@ -362,6 +363,29 @@ public final class ScheduleCalculator {
     return result;
   }
 
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar,
+                                                        final boolean eomApply, RollDateAdjuster adjuster) {
+    final ZonedDateTime[] result = new ZonedDateTime[dates.length];
+    if (eomApply) {
+      final BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
+      for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(TemporalAdjusters.lastDayOfMonth()));
+      }
+      return result;
+    }
+    if (adjuster != null) {
+      for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+        final BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
+        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(adjuster));
+      }
+    } else {
+      for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+        result[loopdate] = convention.adjustDate(calendar, dates[loopdate]);
+      }
+    }
+    return result;
+  }
+
   /**
    * Compute a schedule of adjusted dates from a start date, an end date and the period between dates.
    * @param startDate The start date.
@@ -397,6 +421,13 @@ public final class ScheduleCalculator {
     final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
     final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final StubType stub,
+                                                        final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule, RollDateAdjuster adjuster) {
+    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
+    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
   }
 
   /**
