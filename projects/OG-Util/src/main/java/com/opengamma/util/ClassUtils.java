@@ -5,7 +5,9 @@
  */
 package com.opengamma.util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -17,9 +19,13 @@ import com.opengamma.OpenGammaRuntimeException;
 public final class ClassUtils {
 
   /**
-   * A per-thread cache of loaded classes.
+   * A cache of loaded classes.
    */
   private static final ConcurrentMap<String, Class<?>> s_classCache = new ConcurrentHashMap<>();
+  /**
+   * A cache of singletons.
+   */
+  private static final ConcurrentMap<Class<?>, Object> s_singletonCache = new ConcurrentHashMap<>();
   /**
    * Method for resolving a class.
    */
@@ -135,6 +141,45 @@ public final class ClassUtils {
       s_classCache.putIfAbsent(className, clazz);
     }
     return clazz;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains the singleton instance of a type.
+   * <p>
+   * This finds and returns the singleton associated with a type.
+   * 
+   * @param <T>  the type
+   * @param type  the type to find an instance for, not null
+   * @return the singleton instance, not null
+   */
+  public static <T> T singletonInstance(Class<T> type) {
+    Object result =  s_singletonCache.get(type);
+    if (result == null) {
+      result = singletonInstance0(type);
+      s_singletonCache.putIfAbsent(type, result);
+    }
+    return type.cast(result);
+  }
+
+  private static <T> T singletonInstance0(Class<T> type) {
+    try {
+      Field field = type.getDeclaredField("INSTANCE");
+      if (Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
+        return type.cast(field.get(null));
+      }
+      Method method = type.getMethod("instance");
+      if (Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers())) {
+        return type.cast(method.invoke(null));
+      }
+      method = type.getMethod("getInstance");
+      if (Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers())) {
+        return type.cast(method.invoke(null));
+      }
+      throw new IllegalArgumentException("No suitable singleton found");
+    } catch (ReflectiveOperationException ex) {
+      throw new IllegalArgumentException("Exception while accessing singleton", ex);
+    }
   }
 
 }
