@@ -65,7 +65,7 @@ public class ExampleDatabaseCreatorGui {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabaseCreatorGui.class);
 
-  private static String CMD_GUI_OPTION = "gui";
+  private static final String CMD_GUI_OPTION = "gui";
 
   private static final String CMD_CONFIG_OPTION = "config";
 
