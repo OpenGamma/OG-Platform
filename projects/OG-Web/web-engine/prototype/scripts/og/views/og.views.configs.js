@@ -79,7 +79,6 @@ $.register_module({
                 }
             },
             toolbar = function (options) {
-                console.log(options);
                 ui.toolbar(options);
                 if (config_types.length) {
                     return; // if we already have config_types, return
