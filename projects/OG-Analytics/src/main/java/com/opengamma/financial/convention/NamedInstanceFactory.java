@@ -7,17 +7,30 @@ package com.opengamma.financial.convention;
 
 import java.util.List;
 
+import com.opengamma.util.ClassUtils;
+
 /**
- * Interface for factories that can create instances from names.
+ * An interface for named instances.
+ * <p>
+ * A named instance is a type where each instance is uniquely identified by a name.
+ * This factory provides access to all the instances.
+ * <p>
+ * Implementations should typically be singletons with a public static factory instance
+ * named 'INSTANCE' accessible using {@link ClassUtils#singletonInstance(Class)}.
+ * 
  * @param <T> type of objects returned
  */
 public interface NamedInstanceFactory<T extends NamedInstance> {
+
   /* 
   static T of(String name)
    */
+
   /**
-   * Gets an unmodifiable list of supported name values
-   * @return unmodifiable list of supported name values, not null
+   * Returns a list of available instances.
+   * 
+   * @return the unmodifiable list of available named instances, not null
    */
   List<T> values();
+
 }

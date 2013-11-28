@@ -6,7 +6,9 @@
 package com.opengamma.financial.convention;
 
 /**
- * Interface for factories that can create instances from names.
+ * A named instance is a type where each instance is uniquely identified by a name.
+ * 
+ * @see NamedInstanceFactory
  */
 public interface NamedInstance {
 
