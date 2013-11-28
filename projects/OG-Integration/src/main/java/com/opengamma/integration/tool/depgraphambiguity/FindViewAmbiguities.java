@@ -5,10 +5,16 @@
  */
 package com.opengamma.integration.tool.depgraphambiguity;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -23,6 +29,8 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.engine.RemoteEngineContextsComponentFactory;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.engine.depgraph.ambiguity.FullRequirementResolution;
+import com.opengamma.engine.depgraph.ambiguity.RequirementResolution;
 import com.opengamma.engine.depgraph.ambiguity.ViewDefinitionAmbiguityTest;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -36,6 +44,7 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.financial.tool.ToolContext;
@@ -60,6 +69,11 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
   // -fp com.opengamma.web.spring.DemoFunctionResolverFactoryBean$Priority
   private static final String FUNCTION_PRIORITY_OPTION = "fp";
   private static final String FUNCTION_PRIOTITY_OPTION_LONG = "functionPriority";
+  private static final String OUTPUT_OPTION = "o";
+  private static final String OUTPUT_OPTION_LONG = "output";
+
+  private final AtomicInteger _resolutions = new AtomicInteger();
+  private final AtomicInteger _ambiguities = new AtomicInteger();
 
   public static void main(String[] args) { // CSIGNORE
     new FindViewAmbiguities().initAndRun(args, ToolContext.class);
@@ -68,7 +82,12 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
 
   private final class ViewDefinitionAmbiguityTestImpl extends ViewDefinitionAmbiguityTest {
 
+    private final PrintStream _out;
     private FunctionResolver _functionResolver;
+
+    public ViewDefinitionAmbiguityTestImpl(final PrintStream out) {
+      _out = out;
+    }
 
     @Override
     protected FunctionCompilationContext createFunctionCompilationContext() {
@@ -153,6 +172,57 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
       return null;
     }
 
+    @Override
+    protected void resolved(final FullRequirementResolution resolution) {
+      super.resolved(resolution);
+      final int count = _resolutions.incrementAndGet();
+      if ((count % 100) == 0) {
+        s_logger.info("Checked {} resolutions", count);
+      }
+    }
+
+    @Override
+    protected synchronized void directAmbiguity(final FullRequirementResolution resolution) {
+      final int count = _ambiguities.incrementAndGet();
+      if ((count % 10) == 0) {
+        s_logger.info("Found {} ambiguities", count);
+      }
+      _out.println(resolution.getRequirement());
+      for (Collection<RequirementResolution> nestedResolutions : resolution.getResolutions()) {
+        final List<String> functions = new ArrayList<String>();
+        final List<ValueSpecification> specifications = new ArrayList<ValueSpecification>();
+        for (RequirementResolution nestedResolution : nestedResolutions) {
+          functions.add(nestedResolution.getFunction().getFunctionId());
+          specifications.add(nestedResolution.getSpecification());
+        }
+        for (String function : functions) {
+          _out.println("\t" + function);
+        }
+        for (ValueSpecification specification : specifications) {
+          _out.println("\t" + specification);
+        }
+        _out.println();
+      }
+    }
+
+    @Override
+    protected synchronized void deepAmbiguity(final FullRequirementResolution resolution) {
+      for (Collection<RequirementResolution> nestedResolutions : resolution.getResolutions()) {
+        for (RequirementResolution nestedResolution : nestedResolutions) {
+          for (FullRequirementResolution inputResolution : nestedResolution.getInputs()) {
+            resolved(inputResolution);
+          }
+        }
+      }
+      _out.println(resolution.getRequirement());
+      for (Collection<RequirementResolution> nestedResolutions : resolution.getResolutions()) {
+        for (RequirementResolution nestedResolution : nestedResolutions) {
+          _out.println("\t" + nestedResolution.getSpecification());
+        }
+      }
+      _out.println();
+    }
+
   }
 
   private static Option createViewNameOption() {
@@ -176,11 +246,29 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
     return option;
   }
 
+  private static Option createOutputOption() {
+    final Option option = new Option(OUTPUT_OPTION, OUTPUT_OPTION_LONG, true, "the output file to write");
+    option.setArgName("filename");
+    option.setRequired(false);
+    return option;
+  }
+
+  private static PrintStream openStream(final String filename) throws IOException {
+    if ((filename == null) || "stdout".equals(filename)) {
+      return System.out;
+    } else if ("stderr".equals(filename)) {
+      return System.err;
+    } else {
+      return new PrintStream(new FileOutputStream(filename));
+    }
+  }
+
   // AbstractTool
 
   @Override
   protected void doRun() throws Exception {
-    final ViewDefinitionAmbiguityTest test = new ViewDefinitionAmbiguityTestImpl();
+    final PrintStream out = openStream(getCommandLine().getOptionValue(OUTPUT_OPTION));
+    final ViewDefinitionAmbiguityTest test = new ViewDefinitionAmbiguityTestImpl(out);
     final String viewName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
     int count = 0;
     if (viewName != null) {
@@ -189,6 +277,7 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
       if (viewDefinition == null) {
         throw new IllegalArgumentException("View definition " + viewName + " not found");
       }
+      out.println("View = " + viewName);
       test.runAmbiguityTest(viewDefinition);
       count++;
     } else {
@@ -197,11 +286,15 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
       for (ConfigItem<ViewDefinition> viewDefinitionConfig : viewDefinitions) {
         final ViewDefinition viewDefinition = viewDefinitionConfig.getValue();
         s_logger.info("Testing {}", viewDefinition.getName());
+        out.println("View = " + viewDefinition.getName());
         test.runAmbiguityTest(viewDefinition);
         count++;
       }
     }
     s_logger.info("{} view(s) tested", count);
+    out.println("Total resolutions = " + _resolutions.get());
+    out.println("Total ambiguities = " + _ambiguities.get());
+    out.close();
   }
 
   @Override
@@ -210,6 +303,7 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
     options.addOption(createViewNameOption());
     options.addOption(createFunctionExclusionGroupsBeanOption());
     options.addOption(createFunctionPrioritiesOption());
+    options.addOption(createOutputOption());
     return options;
   }
 

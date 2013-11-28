@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.value.ValueRequirement;
@@ -69,11 +71,13 @@ import com.opengamma.engine.value.ValueRequirement;
 
   private final Set<ValueRequirement> _visited = new HashSet<ValueRequirement>();
   private final Map<Set<ValueRequirement>, VisitedKey> _visitedKey;
-  private final Map<VisitedKey, FullRequirementResolution> _cache = new HashMap<VisitedKey, FullRequirementResolution>();
+  private final ConcurrentMap<VisitedKey, FullRequirementResolution> _cache;
   private final VisitedKey _greedyCacheKey;
 
-  public CheckingCache(final boolean greedyCaching) {
+  @SuppressWarnings("unchecked")
+  public CheckingCache(final boolean greedyCaching, final ConcurrentMap<?, FullRequirementResolution> cache) {
     _visitedKey = greedyCaching ? null : new HashMap<Set<ValueRequirement>, VisitedKey>();
+    _cache = (cache != null) ? (ConcurrentMap<VisitedKey, FullRequirementResolution>) cache : new ConcurrentHashMap<VisitedKey, FullRequirementResolution>();
     _greedyCacheKey = greedyCaching ? new VisitedKey() : null;
   }
 
@@ -104,10 +108,9 @@ import com.opengamma.engine.value.ValueRequirement;
     return _cache.get(getVisitedKey(requirement));
   }
 
-  public FullRequirementResolution create(final ValueRequirement requirement) {
-    final FullRequirementResolution resolved = new FullRequirementResolution(requirement);
-    _cache.put(getVisitedKey(requirement).clone(), resolved);
-    return resolved;
+  public FullRequirementResolution put(final FullRequirementResolution resolved) {
+    final FullRequirementResolution existing = _cache.putIfAbsent(getVisitedKey(resolved.getRequirement()).clone(), resolved);
+    return (existing != null) ? existing : resolved;
   }
 
 }

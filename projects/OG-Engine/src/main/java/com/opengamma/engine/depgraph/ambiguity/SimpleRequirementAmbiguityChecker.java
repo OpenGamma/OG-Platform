@@ -14,11 +14,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.MapMaker;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -57,7 +60,9 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
   private final FunctionExclusionGroups _exclusions;
   private final FunctionCompilationContext _compilationContext;
   private final ResolutionRule[][] _rules;
+  private final ConcurrentMap<ComputationTargetType, ResolutionRule[][]> _rulesByType = new ConcurrentHashMap<ComputationTargetType, ResolutionRule[][]>();
   private boolean _greedyCaching;
+  private ConcurrentMap<?, FullRequirementResolution> _sharedCaching;
 
   public SimpleRequirementAmbiguityChecker(final AmbiguityCheckerContext context, final Instant valuationTime, VersionCorrection resolverVersionCorrection) {
     ArgumentChecker.notNull(context, "context");
@@ -140,12 +145,45 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
     return _rules;
   }
 
+  private ResolutionRule[][] getRules(final ComputationTargetType type) {
+    ResolutionRule[][] rules = _rulesByType.get(type);
+    if (rules == null) {
+      final List<ResolutionRule[]> rulesList = new ArrayList<ResolutionRule[]>(getRules().length);
+      for (ResolutionRule[] originalRules : getRules()) {
+        final List<ResolutionRule> filteredRules = new ArrayList<ResolutionRule>(originalRules.length);
+        for (ResolutionRule originalRule : originalRules) {
+          if (originalRule.getParameterizedFunction().getFunction().getTargetType().isCompatible(type)) {
+            filteredRules.add(originalRule);
+          }
+        }
+        if (!filteredRules.isEmpty()) {
+          rulesList.add(filteredRules.toArray(new ResolutionRule[filteredRules.size()]));
+        }
+      }
+      rules = rulesList.toArray(new ResolutionRule[rulesList.size()][]);
+      final ResolutionRule[][] existing = _rulesByType.putIfAbsent(type, rules);
+      if (existing != null) {
+        rules = existing;
+      }
+    }
+    return rules;
+  }
+
   public void setGreedyCaching(final boolean greedyCaching) {
     _greedyCaching = greedyCaching;
   }
 
   public boolean isGreedyCaching() {
     return _greedyCaching;
+  }
+
+  public void setSharedCaching(final boolean sharedCaching) {
+    //_sharedCaching = sharedCaching ? new ConcurrentHashMap<Object, FullRequirementResolution>() : null;
+    _sharedCaching = sharedCaching ? new MapMaker().softValues().<Object, FullRequirementResolution>makeMap() : null;
+  }
+
+  public boolean isSharedCaching() {
+    return _sharedCaching != null;
   }
 
   private ValueSpecification alias(ValueSpecification marketDataSpec, final ComputationTargetSpecification targetSpec, final ValueRequirement requirement) {
@@ -236,7 +274,7 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
     int base = 1;
     for (int i = 0; i < resolvedInputsSlice.length; i++) {
       final int size = resolvedInputsSlice[i].length;
-      final RequirementResolution resolvedInput = resolvedInputsSlice[i][j % base];
+      final RequirementResolution resolvedInput = resolvedInputsSlice[i][(j / base) % size];
       base *= size;
       inputMap.put(resolvedInput.getSpecification(), inputArray[i]);
     }
@@ -255,7 +293,7 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
       return resolved;
     }
     s_logger.debug("Resolving {}", requirement);
-    resolved = cache.create(requirement);
+    resolved = new FullRequirementResolution(requirement);
     final ComputationTargetResolver.AtVersionCorrection resolver = getCompilationContext().getComputationTargetResolver();
     final ComputationTargetSpecification targetSpec = resolver.getSpecificationResolver().getTargetSpecification(requirement.getTargetReference());
     if (targetSpec != null) {
@@ -269,74 +307,83 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
         if (target != null) {
           final List<Collection<RequirementResolution>> resolutions = new ArrayList<Collection<RequirementResolution>>();
           final Map<ComputationTargetType, ComputationTarget> targetCache = new HashMap<ComputationTargetType, ComputationTarget>();
-          for (ResolutionRule[] rules : getRules()) {
+          final Map<ValueSpecification, ValueRequirement> inputMap = new HashMap<ValueSpecification, ValueRequirement>();
+          for (ResolutionRule[] rules : getRules(target.toSpecification().getType())) {
             for (ResolutionRule rule : rules) {
               try {
                 if (isExcluded(exclusions, rule)) {
                   continue;
                 }
-                if (rule.getParameterizedFunction().getFunction().getTargetType().isCompatible(target.toSpecification().getType())) {
-                  final ComputationTarget adjustedTarget = rule.adjustTarget(targetCache, target);
-                  final ValueSpecification nominalResult = rule.getResult(requirement.getValueName(), adjustedTarget, requirement.getConstraints(), getCompilationContext());
-                  if (nominalResult != null) {
-                    s_logger.debug("Possible resolution of {} to {}", requirement, nominalResult);
-                    final Set<ValueRequirement> inputs = rule.getParameterizedFunction().getFunction().getRequirements(getCompilationContext(), adjustedTarget, requirement);
-                    if (inputs != null) {
-                      final Collection<FullRequirementResolution> resolvedInputs = resolve(cache, exclusions, target, requirement, rule, inputs);
-                      if (resolvedInputs.size() != inputs.size()) {
-                        if (!rule.getParameterizedFunction().getFunction().canHandleMissingRequirements()) {
-                          s_logger.debug("Couldn't resolve inputs for {}", rule);
-                          continue;
+                final ComputationTarget adjustedTarget = rule.adjustTarget(targetCache, target);
+                final ValueSpecification nominalResult = rule.getResult(requirement.getValueName(), adjustedTarget, requirement.getConstraints(), getCompilationContext());
+                if (nominalResult != null) {
+                  s_logger.debug("Possible resolution of {} to {}", requirement, nominalResult);
+                  final Set<ValueRequirement> inputs = rule.getParameterizedFunction().getFunction().getRequirements(getCompilationContext(), adjustedTarget, requirement);
+                  if (inputs != null) {
+                    final Collection<FullRequirementResolution> resolvedInputs = resolve(cache, exclusions, target, requirement, rule, inputs);
+                    if (resolvedInputs.size() != inputs.size()) {
+                      if (!rule.getParameterizedFunction().getFunction().canHandleMissingRequirements()) {
+                        s_logger.debug("Couldn't resolve inputs for {}", rule);
+                        continue;
+                      }
+                    }
+                    final ValueRequirement[] inputArray = new ValueRequirement[resolvedInputs.size()];
+                    @SuppressWarnings("unchecked")
+                    final Iterator<Collection<RequirementResolution>>[] itrResolvedInputs = new Iterator[resolvedInputs.size()];
+                    getResolvedInputs(resolvedInputs, inputArray, itrResolvedInputs);
+                    final RequirementResolution[][] resolvedInputsSlice = new RequirementResolution[resolvedInputs.size()][];
+                    int resolutionIndex = 0;
+                    do {
+                      int ambiguous = 1;
+                      boolean hasNext = false;
+                      for (int i = 0; i < resolvedInputsSlice.length; i++) {
+                        if (itrResolvedInputs[i].hasNext()) {
+                          final Collection<RequirementResolution> value = itrResolvedInputs[i].next();
+                          resolvedInputsSlice[i] = value.toArray(new RequirementResolution[value.size()]);
+                          hasNext = true;
+                        }
+                        ambiguous *= resolvedInputsSlice[i].length;
+                        if (ambiguous <= 0) {
+                          // The cross product can be bad enough, but this is *really* bad
+                          throw new IllegalStateException("Overflow");
                         }
                       }
-                      final Map<ValueSpecification, ValueRequirement> inputMap = new HashMap<ValueSpecification, ValueRequirement>();
-                      final ValueRequirement[] inputArray = new ValueRequirement[resolvedInputs.size()];
-                      @SuppressWarnings("unchecked")
-                      final Iterator<Collection<RequirementResolution>>[] itrResolvedInputs = new Iterator[resolvedInputs.size()];
-                      getResolvedInputs(resolvedInputs, inputArray, itrResolvedInputs);
-                      final RequirementResolution[][] resolvedInputsSlice = new RequirementResolution[resolvedInputs.size()][];
-                      int resolutionIndex = 0;
-                      do {
-                        int ambiguous = 1;
-                        boolean hasNext = false;
-                        for (int i = 0; i < resolvedInputsSlice.length; i++) {
-                          if (itrResolvedInputs[i].hasNext()) {
-                            final Collection<RequirementResolution> value = itrResolvedInputs[i].next();
-                            resolvedInputsSlice[i] = value.toArray(new RequirementResolution[value.size()]);
-                            hasNext = true;
-                          }
-                          ambiguous *= resolvedInputsSlice[i].length;
-                          if (ambiguous <= 0) {
-                            // The cross product can be bad enough, but this is *really* bad
-                            throw new IllegalStateException("Overflow");
-                          }
-                        }
-                        if (!hasNext) {
-                          break;
-                        }
-                        if (ambiguous > 1) {
-                          s_logger.info("{} ambiguous input states discovered for {}", ambiguous, requirement);
-                        }
-                        boolean failed = false;
-                        boolean succeeded = false;
-                        for (int j = 0; j < ambiguous; j++) {
-                          getResolvedInputs(j, inputArray, resolvedInputsSlice, inputMap);
-                          final Set<ValueSpecification> results = rule.getParameterizedFunction().getFunction().getResults(getCompilationContext(), adjustedTarget, inputMap);
-                          if (results != null) {
-                            ValueSpecification finalResult = null;
-                            for (ValueSpecification result : results) {
-                              if (requirement.getValueName().equals(result.getValueName())) {
-                                if (requirement.getConstraints().isSatisfiedBy(result.getProperties())) {
-                                  finalResult = result;
-                                  break;
-                                }
+                      if (!hasNext) {
+                        break;
+                      }
+                      if (ambiguous > 1) {
+                        s_logger.info("{} ambiguous input states discovered for {}", ambiguous, requirement);
+                      }
+                      boolean failed = false;
+                      boolean succeeded = false;
+                      for (int j = 0; j < ambiguous; j++) {
+                        getResolvedInputs(j, inputArray, resolvedInputsSlice, inputMap);
+                        final Set<ValueSpecification> results = rule.getParameterizedFunction().getFunction().getResults(getCompilationContext(), adjustedTarget, inputMap);
+                        if (results != null) {
+                          ValueSpecification finalResult = null;
+                          for (ValueSpecification result : results) {
+                            if (requirement.getValueName().equals(result.getValueName())) {
+                              if (requirement.getConstraints().isSatisfiedBy(result.getProperties())) {
+                                finalResult = result;
+                                break;
                               }
                             }
-                            if (finalResult != null) {
-                              final Set<ValueRequirement> additionalRequirements = rule.getParameterizedFunction().getFunction()
-                                  .getAdditionalRequirements(getCompilationContext(), adjustedTarget, inputMap.keySet(), results);
-                              if (additionalRequirements != null) {
-                                if (additionalRequirements.isEmpty()) {
+                          }
+                          if (finalResult != null) {
+                            final Set<ValueRequirement> additionalRequirements = rule.getParameterizedFunction().getFunction()
+                                .getAdditionalRequirements(getCompilationContext(), adjustedTarget, inputMap.keySet(), results);
+                            if (additionalRequirements != null) {
+                              if (additionalRequirements.isEmpty()) {
+                                s_logger.debug("Resolved {} to {}", requirement, finalResult);
+                                if (resolutionIndex >= resolutions.size()) {
+                                  resolutions.add(new HashSet<RequirementResolution>());
+                                }
+                                resolutions.get(resolutionIndex).add(new RequirementResolution(finalResult, rule.getParameterizedFunction(), resolvedInputs));
+                                succeeded = true;
+                              } else {
+                                final Collection<FullRequirementResolution> additionalResolvedRequirements = resolve(cache, exclusions, target, requirement, rule, additionalRequirements);
+                                if ((additionalResolvedRequirements.size() == additionalRequirements.size()) || rule.getParameterizedFunction().getFunction().canHandleMissingRequirements()) {
+                                  resolvedInputs.addAll(additionalResolvedRequirements);
                                   s_logger.debug("Resolved {} to {}", requirement, finalResult);
                                   if (resolutionIndex >= resolutions.size()) {
                                     resolutions.add(new HashSet<RequirementResolution>());
@@ -344,21 +391,8 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
                                   resolutions.get(resolutionIndex).add(new RequirementResolution(finalResult, rule.getParameterizedFunction(), resolvedInputs));
                                   succeeded = true;
                                 } else {
-                                  final Collection<FullRequirementResolution> additionalResolvedRequirements = resolve(cache, exclusions, target, requirement, rule, additionalRequirements);
-                                  if ((additionalResolvedRequirements.size() == additionalRequirements.size()) || rule.getParameterizedFunction().getFunction().canHandleMissingRequirements()) {
-                                    resolvedInputs.addAll(additionalResolvedRequirements);
-                                    s_logger.debug("Resolved {} to {}", requirement, finalResult);
-                                    if (resolutionIndex >= resolutions.size()) {
-                                      resolutions.add(new HashSet<RequirementResolution>());
-                                    }
-                                    resolutions.get(resolutionIndex).add(new RequirementResolution(finalResult, rule.getParameterizedFunction(), resolvedInputs));
-                                    succeeded = true;
-                                  } else {
-                                    failed = true;
-                                  }
+                                  failed = true;
                                 }
-                              } else {
-                                failed = true;
                               }
                             } else {
                               failed = true;
@@ -366,14 +400,16 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
                           } else {
                             failed = true;
                           }
+                        } else {
+                          failed = true;
                         }
-                        if (failed && succeeded) {
-                          // Not all combinations are successful; treat as ambiguous
-                          Collection<RequirementResolution> found = resolutions.get(resolutionIndex++);
-                          found.add(null);
-                        }
-                      } while (true);
-                    }
+                      }
+                      if (failed && succeeded) {
+                        // Not all combinations are successful; treat as ambiguous
+                        Collection<RequirementResolution> found = resolutions.get(resolutionIndex++);
+                        found.add(null);
+                      }
+                    } while (true);
                   }
                 }
               } catch (Throwable t) {
@@ -406,14 +442,14 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
       s_logger.warn("Couldn't resolve target specification for {}", requirement);
     }
     cache.end(requirement);
-    return resolved;
+    return cache.put(resolved);
   }
 
   // RequirementAmbiguityChecker
 
   @Override
   public FullRequirementResolution resolve(final ValueRequirement requirement) {
-    return resolve(new CheckingCache(isGreedyCaching()), null, requirement);
+    return resolve(new CheckingCache(isGreedyCaching(), _sharedCaching), null, requirement);
   }
 
 }

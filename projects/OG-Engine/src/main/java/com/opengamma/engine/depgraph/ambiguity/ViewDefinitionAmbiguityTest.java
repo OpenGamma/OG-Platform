@@ -62,6 +62,7 @@ public abstract class ViewDefinitionAmbiguityTest {
 
   protected void configureChecker(final SimpleRequirementAmbiguityChecker checker) {
     checker.setGreedyCaching(true);
+    checker.setSharedCaching(true);
   }
 
   protected void report(final FullRequirementResolution resolution, final PrintStream out) {
@@ -70,31 +71,32 @@ public abstract class ViewDefinitionAmbiguityTest {
 
   protected void directAmbiguity(final FullRequirementResolution resolution) {
     synchronized (System.err) {
-      System.err.println("Got ambiguity");
+      System.err.println("Got ambiguity on " + resolution.getRequirement());
       report(resolution, System.err);
     }
   }
 
   protected void deepAmbiguity(final FullRequirementResolution resolution) {
     synchronized (System.err) {
-      System.err.println("Got deep ambiguity");
+      System.err.println("Got deep ambiguity on " + resolution.getRequirement());
       report(resolution, System.err);
     }
   }
 
   protected void resolved(final FullRequirementResolution resolution) {
-    s_logger.debug("Resolved {} to {}", resolution.getRequirement(), resolution);
     if (resolution.isAmbiguous()) {
       directAmbiguity(resolution);
     } else if (resolution.isDeeplyAmbiguous()) {
       deepAmbiguity(resolution);
     } else if (resolution.isResolved()) {
       unresolved(resolution.getRequirement());
+    } else {
+      s_logger.debug("Resolved {} to {}", resolution.getRequirement(), resolution);
     }
   }
 
   protected void unresolved(final ValueRequirement requirement) {
-    s_logger.debug("Couldn't resolve", requirement);
+    s_logger.debug("Couldn't resolve {}", requirement);
   }
 
   protected void check(final PoolExecutor.Service<FullRequirementResolution> executor, final RequirementAmbiguityChecker checker, final ValueRequirement requirement) {
@@ -158,6 +160,7 @@ public abstract class ViewDefinitionAmbiguityTest {
 
       });
       final AmbiguityCheckerContext context = createAmbiguityCheckerContext();
+      long tStart = System.nanoTime();
       for (ViewCalculationConfiguration calcConfig : view.getAllCalculationConfigurations()) {
         s_logger.info("Testing {}.{}", view.getName(), calcConfig.getName());
         final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context, Instant.now(), VersionCorrection.LATEST, calcConfig);
@@ -165,7 +168,7 @@ public abstract class ViewDefinitionAmbiguityTest {
         checkRequirements(service, checker, calcConfig.getPortfolioRequirementsBySecurityType(), checker.getCompilationContext().getPortfolio().getRootNode(), aggregate);
       }
       service.join();
-      s_logger.info("View {} tested", view.getName());
+      s_logger.info("View {} tested in {}s", view.getName(), (double) (System.nanoTime() - tStart) / 1e9);
     } finally {
       executor.asService().shutdown();
     }
