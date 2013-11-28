@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
 package com.opengamma.examples.bloomberg.install;
 
 import java.awt.BorderLayout;
@@ -48,12 +54,15 @@ import com.opengamma.util.db.tool.DbToolContext;
 import com.opengamma.util.db.tool.DbUpgradeOperation;
 
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
+ * 
  */
 @Scriptable
 public class ExampleDatabaseCreatorGui {
+
+  /**
+   * Logger that is attached to the feedback loop.
+   */
+  private static final Logger s_feedbackLogger = LoggerFactory.getLogger(ExampleDatabaseCreator.class);
 
   /** Shared database URL. */
   private static final String KEY_SHARED_URL = "db.standard.url";
@@ -117,18 +126,27 @@ public class ExampleDatabaseCreatorGui {
   }
 
   public static void showUI(boolean databaseExists, final String configFile) {
-    Frame frame = new Frame("OpenGamma Installer");
-
-    final Dialog dialog = new Dialog(frame);
+    final Dialog dialog = new Dialog((Frame) null);
 
     dialog.addWindowListener(new WindowAdapter() {
+
+      private boolean _zOrderUpdated;
+
+      @Override
+      public void windowActivated(final WindowEvent e) {
+        if (!_zOrderUpdated) {
+          _zOrderUpdated = true;
+          s_feedbackLogger.info("#fixZOrder");
+        }
+      }
+
       @Override
       public void windowClosing(WindowEvent e) {
         dialog.dispose();
         System.exit(-1);
       }
-    });
 
+    });
 
     dialog.setModal(true);
     dialog.setTitle("Database setup.");
@@ -138,7 +156,6 @@ public class ExampleDatabaseCreatorGui {
 
     Panel p = new Panel();
     p.setLayout(new GridLayout(0, 1));
-
 
     Label label = new Label("Choose, one of the following options:");
     label.setAlignment(Label.CENTER);
@@ -155,7 +172,6 @@ public class ExampleDatabaseCreatorGui {
         confiramtionButton.setLabel("execute");
       }
     };
-
 
     final CheckboxGroup group = new CheckboxGroup();
 
@@ -192,14 +208,8 @@ public class ExampleDatabaseCreatorGui {
     if (databaseExists) {
       p.add(new Checkbox2(1, "Leave the current database as it is.", group, radiobuttonChangeListener));
     }
-    p.add(new Checkbox2(2,
-                        "Create blank database, populated only with configuration data.",
-                        group,
-                        radiobuttonChangeListener));
-    p.add(new Checkbox2(3,
-                        "Create database, populated with configuration and with example portfolio.",
-                        group,
-                        radiobuttonChangeListener));
+    p.add(new Checkbox2(2, "Create blank database, populated only with configuration data.", group, radiobuttonChangeListener));
+    p.add(new Checkbox2(3, "Create database, populated with configuration and with example portfolio.", group, radiobuttonChangeListener));
 
     p.add(confiramtionButton);
 
@@ -212,11 +222,9 @@ public class ExampleDatabaseCreatorGui {
     dialog.setSize(800, 600);
     dialog.pack();
     dialog.setLocationRelativeTo(null);
+    s_feedbackLogger.info("Waiting for the installation/upgrade mode to be selected");
     dialog.setVisible(true);
-
-
   }
-
 
   private static void upgradeDatabase(String configFile) throws Exception {
     Resource res = ResourceUtils.createResource(configFile);
