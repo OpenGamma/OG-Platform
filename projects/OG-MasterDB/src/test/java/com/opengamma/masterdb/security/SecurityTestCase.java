@@ -411,17 +411,17 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(DayCount.class, new TestDataProvider<DayCount>() {
       @Override
       public void getValues(final Collection<DayCount> values) {
-        values.add(DayCountFactory.INSTANCE.getDayCount("Act/Act"));
-        values.add(DayCountFactory.INSTANCE.getDayCount("1/1"));
-        values.add(DayCountFactory.INSTANCE.getDayCount("Bond Basis"));
+        values.add(DayCountFactory.of("Act/Act"));
+        values.add(DayCountFactory.of("1/1"));
+        values.add(DayCountFactory.of("Bond Basis"));
       }
     });
     s_dataProviders.put(BusinessDayConvention.class, new TestDataProvider<BusinessDayConvention>() {
       @Override
       public void getValues(final Collection<BusinessDayConvention> values) {
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"));
+        values.add(BusinessDayConventionFactory.of("Following"));
+        values.add(BusinessDayConventionFactory.of("Modified Following"));
+        values.add(BusinessDayConventionFactory.of("Preceding"));
       }
     });
     s_dataProviders.put(GICSCode.class, new TestDataProvider<GICSCode>() {

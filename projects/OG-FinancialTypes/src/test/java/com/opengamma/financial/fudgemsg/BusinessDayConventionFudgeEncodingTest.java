@@ -22,7 +22,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class BusinessDayConventionFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final BusinessDayConvention s_ref = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention s_ref = BusinessDayConventionFactory.of("Modified Following");
 
   @Test
   public void testCycle() {

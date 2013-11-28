@@ -5,20 +5,15 @@
  */
 package com.opengamma.financial.convention.rolldate;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.joda.convert.FromString;
 
-import com.opengamma.financial.convention.NamedInstanceFactory;
+import com.opengamma.financial.convention.AbstractNamedInstanceFactory;
 
 /**
  * Factory containing instances of {@link RollDateAdjuster}
  */
-public final class RollDateAdjusterFactory implements NamedInstanceFactory<RollDateAdjuster> {
+public final class RollDateAdjusterFactory
+    extends AbstractNamedInstanceFactory<RollDateAdjuster> {
   /**
    * Singleton instance
    */
@@ -27,66 +22,41 @@ public final class RollDateAdjusterFactory implements NamedInstanceFactory<RollD
   public static final String QUARTERLY_IMM_ROLL_STRING = "Quarterly IMM Roll";
   /** The name of the next monthly IMM roll date adjuster */
   public static final String MONTHLY_IMM_ROLL_STRING = "Monthly IMM Roll";
-  /** Adjusts dates to the next quarterly IMM roll date */
-  private static final RollDateAdjuster QUARTERLY_IMM_ROLL_ADJUSTER = QuarterlyIMMRollDateAdjuster.getAdjuster();
-  /** Adjusts dates to the next monthly IMM roll date */
-  private static final RollDateAdjuster MONTHLY_IMM_ROLL_ADJUSTER = MonthlyIMMRollDateAdjuster.getAdjuster();
-  /** Map containing the instances */
-  private static final Map<String, RollDateAdjuster> s_instances = new HashMap<>();
-  private static final List<RollDateAdjuster> s_adjusters = new ArrayList<>();
 
-  private RollDateAdjusterFactory() {
-  }
-  
-  static {
-    store(QUARTERLY_IMM_ROLL_STRING, QUARTERLY_IMM_ROLL_ADJUSTER);
-    store(MONTHLY_IMM_ROLL_STRING, MONTHLY_IMM_ROLL_ADJUSTER);
-  }
-  
-  private static void store(String name, RollDateAdjuster adjuster) {
-    s_instances.put(name, adjuster);
-    s_adjusters.add(adjuster);
-  }
-
+  //-------------------------------------------------------------------------
   /**
-   * Gets the named adjuster.
-   * @param name The name
-   * @return The adjuster
-   * @throws IllegalArgumentException if the adjuster was not found in the map
-   * @deprecated use of()
-   */
-  @Deprecated
-  public static RollDateAdjuster getAdjuster(final String name) {
-    final RollDateAdjuster adjuster = s_instances.get(name);
-    if (adjuster != null) {
-      return adjuster;
-    }
-    throw new IllegalArgumentException("Could not get adjuster called " + name);
-  }
-  
-  /**
-   * Gets the named adjuster.
-   * @param name The name
-   * @return The adjuster
-   * @throws IllegalArgumentException if the adjuster was not found in the map
+   * Finds an adjuster by name, ignoring case.
+   * 
+   * @param name  the name of the instance to find, not null
+   * @return the adjuster, not null
+   * @throws IllegalArgumentException if the name is not found
    */
   @FromString
   public static RollDateAdjuster of(final String name) {
-    final RollDateAdjuster adjuster = s_instances.get(name);
-    if (adjuster != null) {
-      return adjuster;
-    }
-    throw new IllegalArgumentException("Could not get adjuster called " + name);
+    return INSTANCE.instance(name);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor, hard coding the conventions.
+   */
+  private RollDateAdjusterFactory() {
+    super(RollDateAdjuster.class);
+    addInstance(MonthlyIMMRollDateAdjuster.getAdjuster());
+    addInstance(QuarterlyIMMRollDateAdjuster.getAdjuster());
   }
 
   /**
-   * Returns a list of available adjusters.
+   * Gets the named adjuster.
    * 
-   * @return the unmodifiable list of adjusters, not null
+   * @param name  the name, not null
+   * @return the adjuster, not null
+   * @throws IllegalArgumentException if the adjuster was not found in the map
+   * @deprecated Use {@link #of(String)} or {@link #instance(String)}.
    */
-  @Override
-  public List<RollDateAdjuster> values() {
-    return Collections.unmodifiableList(s_adjusters);
+  @Deprecated
+  public static RollDateAdjuster getAdjuster(String name) {
+    return INSTANCE.instance(name);
   }
 
 }

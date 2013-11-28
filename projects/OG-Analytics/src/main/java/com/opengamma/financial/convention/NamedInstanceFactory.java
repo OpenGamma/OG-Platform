@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention;
 
-import java.util.List;
+import java.util.Map;
 
 import com.opengamma.util.ClassUtils;
 
@@ -22,15 +22,33 @@ import com.opengamma.util.ClassUtils;
  */
 public interface NamedInstanceFactory<T extends NamedInstance> {
 
-  /* 
-  static T of(String name)
+  /**
+   * Finds a named instance by name, ignoring case.
+   * 
+   * @param name  the name of the instance to find, not null
+   * @return the named instance, not null
+   * @throws IllegalArgumentException if the name is not found
    */
+  T instance(String name);
 
   /**
-   * Returns a list of available instances.
+   * Returns the map of available instances keyed by name, excluding alternate names.
+   * <p>
+   * A named instance may be registered under more than one name.
+   * Those additional names are excluded.
    * 
-   * @return the unmodifiable list of available named instances, not null
+   * @return the unmodifiable map of named instances, not null
    */
-  List<T> values();
+  Map<String, T> instanceMap();
+
+  /**
+   * Returns the map of available instances keyed by name, including alternate names.
+   * <p>
+   * A named instance may be registered under more than one name.
+   * Those additional names are included.
+   * 
+   * @return the unmodifiable map of named instances, not null
+   */
+  Map<String, T> instanceMapWithAlternateNames();
 
 }

@@ -22,7 +22,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class DayCountFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final DayCount s_ref = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount s_ref = DayCountFactory.of("Act/360");
 
   @Test
   public void testCycle() {

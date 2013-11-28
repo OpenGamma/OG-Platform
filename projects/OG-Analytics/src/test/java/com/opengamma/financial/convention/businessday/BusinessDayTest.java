@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.calendar.CalendarFactory;
  */
 public class BusinessDayTest {
 
-  private final Calendar _calendar_UK = CalendarFactory.INSTANCE.getCalendar("UK Bank Holidays");
+  private final Calendar _calendar_UK = CalendarFactory.of("UK Bank Holidays");
 
   private void assertDate(final TemporalAdjuster adjuster, final LocalDate testDate, final LocalDate expectedDate) {
     assertEquals(expectedDate, testDate.with(adjuster));
