@@ -190,7 +190,7 @@ public class BondFixedSecurityDefinitionTest {
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, STREET_CONVENTION, COUPON_PER_YEAR,
         REPO_CURVE_NAME, "");
-    assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getAccrualFactorToNextCoupon(), bondExpected.getAccrualFactorToNextCoupon(), 1.0E-10);
+    assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getFactorToNextCoupon(), bondExpected.getFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getAccruedInterest(), bondExpected.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getYieldConvention(), bondExpected.getYieldConvention());
     assertTrue("Bond Fixed Security Definition to derivative", bondConverted.equals(bondExpected));
@@ -220,7 +220,7 @@ public class BondFixedSecurityDefinitionTest {
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, STREET_CONVENTION, COUPON_PER_YEAR,
         "");
-    assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getAccrualFactorToNextCoupon(), bondExpected.getAccrualFactorToNextCoupon(), 1.0E-10);
+    assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getFactorToNextCoupon(), bondExpected.getFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getAccruedInterest(), bondExpected.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondConverted.getYieldConvention(), bondExpected.getYieldConvention());
     assertTrue("Bond Fixed Security Definition to derivative", bondConverted.equals(bondExpected));
@@ -280,7 +280,7 @@ public class BondFixedSecurityDefinitionTest {
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G,
         REPO_CURVE_NAME, "");
-    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
+    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getFactorToNextCoupon(), bondConverted.getFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
   }
@@ -307,7 +307,7 @@ public class BondFixedSecurityDefinitionTest {
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime1, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G,
         "");
-    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
+    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getFactorToNextCoupon(), bondConverted.getFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
   }
@@ -339,7 +339,7 @@ public class BondFixedSecurityDefinitionTest {
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G,
         REPO_CURVE_NAME, "");
-    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
+    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getFactorToNextCoupon(), bondConverted.getFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
   }
@@ -370,7 +370,7 @@ public class BondFixedSecurityDefinitionTest {
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondExpected = new BondFixedSecurity(nominal, coupon, spotTime, accruedInterest, factorToNextCoupon, YIELD_CONVENTION_G, COUPON_PER_YEAR_G,
         "");
-    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccrualFactorToNextCoupon(), bondConverted.getAccrualFactorToNextCoupon(), 1.0E-10);
+    assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getFactorToNextCoupon(), bondConverted.getFactorToNextCoupon(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getAccruedInterest(), bondConverted.getAccruedInterest(), 1.0E-10);
     assertEquals("Bond Fixed Security Definition to derivative", bondExpected.getYieldConvention(), bondConverted.getYieldConvention());
   }

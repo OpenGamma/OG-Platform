@@ -135,7 +135,7 @@ public class BondSecurityUKDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getAccrualFactorToNextCoupon());
+    final double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getFactorToNextCoupon());
     assertEquals("Fixed coupon bond security: dirty price from yield UK - last period", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE);
   }
 

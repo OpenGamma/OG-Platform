@@ -292,7 +292,7 @@ public class BondSecurityDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate);
     final double yield = 0.04;
     final double dirtyPrice = METHOD_BOND_SECURITY.dirtyPriceFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
+    final double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getFactorToNextCoupon() * yield / COUPON_PER_YEAR);
     assertEquals("Fixed coupon bond security: dirty price from yield US Street - last period", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE);
   }
 
@@ -360,7 +360,7 @@ public class BondSecurityDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate);
     final double yield = 0.04;
     final double dirtyPrice = METHOD_BOND_SECURITY.modifiedDurationFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = bondSecurity.getAccrualFactorToNextCoupon() / COUPON_PER_YEAR / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
+    final double dirtyPriceExpected = bondSecurity.getFactorToNextCoupon() / COUPON_PER_YEAR / (1 + bondSecurity.getFactorToNextCoupon() * yield / COUPON_PER_YEAR);
     assertEquals("Fixed coupon bond security: modified duration from yield US Street - last period", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE);
   }
 
@@ -549,7 +549,7 @@ public class BondSecurityDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION_UK.toDerivative(referenceDate);
     final double yield = 0.04;
     final double dirtyPrice = METHOD_BOND_SECURITY.dirtyPriceFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = (1 + RATE_UK / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getAccrualFactorToNextCoupon());
+    final double dirtyPriceExpected = (1 + RATE_UK / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getFactorToNextCoupon());
     assertEquals("Fixed coupon bond security: dirty price from yield UK - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
