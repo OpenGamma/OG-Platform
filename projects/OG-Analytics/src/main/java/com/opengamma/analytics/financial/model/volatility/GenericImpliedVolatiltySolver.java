@@ -100,7 +100,7 @@ public class GenericImpliedVolatiltySolver {
 
     double lowerSigma;
     double upperSigma;
-    final double volGuess = guess < 1.e-14 ? 0.15 : guess;
+    final double volGuess = guess < 0.01 ? 0.15 : guess;
 
     try {
       final double[] temp = bracketRoot(optionPrice, pavFunc, volGuess, Math.min(volGuess, 0.1));
