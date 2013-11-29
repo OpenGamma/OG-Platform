@@ -194,7 +194,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
               floatIsEOM,
               floatResetCalendar,
               fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
-              spotLag, rollDateAdjuster); // TODO payment lag
+              0, rollDateAdjuster); // TODO payment lag
         } else {
           secondLeg = AnnuityDefinitionBuilder.couponIbor(
               effectiveDateTime,
@@ -208,7 +208,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
               floatIsEOM,
               floatResetCalendar, // period and payment dates are generated from these
               fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
-              spotLag, rollDateAdjuster); // TODO payment lag
+              0, rollDateAdjuster); // TODO payment lag
         }
       } else if (iborLeg.getConvention().getCompoundingMethod()  == CompoundingMethod.FLAT) {
         secondLeg = AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(
