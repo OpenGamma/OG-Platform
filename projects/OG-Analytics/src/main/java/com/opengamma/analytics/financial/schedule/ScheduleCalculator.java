@@ -375,8 +375,7 @@ public final class ScheduleCalculator {
     }
     if (adjuster != null) {
       for (int loopdate = 0; loopdate < dates.length; loopdate++) {
-        final BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
-        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(adjuster));
+        result[loopdate] = convention.adjustDate(calendar, dates[loopdate].with(adjuster));
       }
     } else {
       for (int loopdate = 0; loopdate < dates.length; loopdate++) {
