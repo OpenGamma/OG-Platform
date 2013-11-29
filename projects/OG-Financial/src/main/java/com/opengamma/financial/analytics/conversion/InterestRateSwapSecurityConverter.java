@@ -142,7 +142,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final IborIndex indexIbor = new IborIndex(iborLeg.getNotional().getCurrency(), resetTenorIbor, spotLag, floatDayCount,
                                                iborLeg.getConvention().getPaymentDayConvention(),
                                                floatIsEOM, iborLeg.getFloatingReferenceRateId().getValue());
-    BusinessDayConvention floatLegFixingBusinessDayConvention = iborLeg.getConvention().getFixingBusinessDayConvention();
+    BusinessDayConvention floatLegAccrualPeriodBusinessDayConvention = iborLeg.getConvention().getCalculationBusinessDayConvention();
 
     ZonedDateTime effectiveDateTime = effectiveDate.atStartOfDay(ZoneId.systemDefault());
     ZonedDateTime maturityDateTime = maturityDate.atStartOfDay(ZoneId.systemDefault());
@@ -190,7 +190,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
               indexIbor,
               !payFixed,
               floatDayCount,
-              floatLegFixingBusinessDayConvention,
+              floatLegAccrualPeriodBusinessDayConvention,
               floatIsEOM,
               floatResetCalendar,
               fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
@@ -204,7 +204,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
               indexIbor,
               !payFixed,
               floatDayCount,
-              floatLegFixingBusinessDayConvention,
+              floatLegAccrualPeriodBusinessDayConvention,
               floatIsEOM,
               floatResetCalendar, // period and payment dates are generated from these
               fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
@@ -220,7 +220,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             indexIbor,
             StubType.SHORT_START, // TODO stub compounding period
             !payFixed,
-            floatLegFixingBusinessDayConvention,
+            floatLegAccrualPeriodBusinessDayConvention,
             floatIsEOM,
             floatResetCalendar, // period and payment dates are generated from these
             fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
@@ -235,7 +235,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             indexIbor,
             StubType.SHORT_START, // TODO stub compounding period
             !payFixed,
-            floatLegFixingBusinessDayConvention,
+            floatLegAccrualPeriodBusinessDayConvention,
             floatIsEOM,
             floatResetCalendar,
             fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
@@ -249,7 +249,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             indexIbor,
             StubType.SHORT_START, // TODO stub compounding period
             !payFixed,
-            floatLegFixingBusinessDayConvention,
+            floatLegAccrualPeriodBusinessDayConvention,
             floatIsEOM,
             floatResetCalendar, // period and payment dates are generated from these
             fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START,
