@@ -7,4 +7,4 @@
  * Classes that help to define the entity issuing financial instruments
  * e.g. bonds, CDS, equity.
  */
-package com.opengamma.analytics.financial.obligor;
+package com.opengamma.analytics.financial.legalentity;

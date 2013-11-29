@@ -80,12 +80,12 @@ public enum Region {
   }
 
   /**
-   * Delegates to {@link com.opengamma.analytics.financial.obligor.Sector}, with
+   * Delegates to {@link com.opengamma.analytics.financial.legalentity.Sector}, with
    * the name set to the name of the enum value and no classifications set.
    * @return A sector object
    */
-  public com.opengamma.analytics.financial.obligor.Region toRegion() {
-    return com.opengamma.analytics.financial.obligor.Region.of(_name);
+  public com.opengamma.analytics.financial.legalentity.Region toRegion() {
+    return com.opengamma.analytics.financial.legalentity.Region.of(_name);
   }
 
   @Override

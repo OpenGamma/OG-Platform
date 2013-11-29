@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.obligor;
+package com.opengamma.analytics.financial.legalentity;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,13 +19,12 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.util.i18n.Country;
-
 /**
  * Represents an obligor with RED code information.
  */
+//TODO this shouldn't be a separate type, as it cannot be used generically
 @BeanDefinition
-public class ObligorWithREDCode extends Obligor {
+public class LegalEntityWithREDCode extends LegalEntity {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
@@ -39,7 +38,7 @@ public class ObligorWithREDCode extends Obligor {
   /**
    * For the builder.
    */
-  /* package */ObligorWithREDCode() {
+  LegalEntityWithREDCode() {
     super();
   }
 
@@ -52,9 +51,9 @@ public class ObligorWithREDCode extends Obligor {
    * @param country The country, not null
    * @param redCode The RED code, not null
    */
-  public ObligorWithREDCode(final String ticker, final String shortName, final Set<CreditRating> creditRatings, final Sector sector,
-      final Region region, final Country country, final String redCode) {
-    super(ticker, shortName, creditRatings, sector, region, country);
+  public LegalEntityWithREDCode(final String ticker, final String shortName, final Set<CreditRating> creditRatings, final Sector sector,
+      final Region region, final String redCode) {
+    super(ticker, shortName, creditRatings, sector, region);
     setRedCode(redCode);
   }
 
@@ -64,17 +63,17 @@ public class ObligorWithREDCode extends Obligor {
    * The meta-bean for {@code ObligorWithREDCode}.
    * @return the meta-bean, not null
    */
-  public static ObligorWithREDCode.Meta meta() {
-    return ObligorWithREDCode.Meta.INSTANCE;
+  public static LegalEntityWithREDCode.Meta meta() {
+    return LegalEntityWithREDCode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(ObligorWithREDCode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(LegalEntityWithREDCode.Meta.INSTANCE);
   }
 
   @Override
-  public ObligorWithREDCode.Meta metaBean() {
-    return ObligorWithREDCode.Meta.INSTANCE;
+  public LegalEntityWithREDCode.Meta metaBean() {
+    return LegalEntityWithREDCode.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -90,7 +89,7 @@ public class ObligorWithREDCode extends Obligor {
    * Sets the RED code.
    * @param redCode  the new value of the property, not null
    */
-  public void setRedCode(String redCode) {
+  public void setRedCode(final String redCode) {
     JodaBeanUtils.notNull(redCode, "redCode");
     this._redCode = redCode;
   }
@@ -105,17 +104,17 @@ public class ObligorWithREDCode extends Obligor {
 
   //-----------------------------------------------------------------------
   @Override
-  public ObligorWithREDCode clone() {
-    return (ObligorWithREDCode) super.clone();
+  public LegalEntityWithREDCode clone() {
+    return (LegalEntityWithREDCode) super.clone();
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ObligorWithREDCode other = (ObligorWithREDCode) obj;
+      final LegalEntityWithREDCode other = (LegalEntityWithREDCode) obj;
       return JodaBeanUtils.equal(getRedCode(), other.getRedCode()) &&
           super.equals(obj);
     }
@@ -131,9 +130,9 @@ public class ObligorWithREDCode extends Obligor {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    final StringBuilder buf = new StringBuilder(64);
     buf.append("ObligorWithREDCode{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -143,7 +142,7 @@ public class ObligorWithREDCode extends Obligor {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
     buf.append("redCode").append('=').append(JodaBeanUtils.toString(getRedCode())).append(',').append(' ');
   }
@@ -152,7 +151,7 @@ public class ObligorWithREDCode extends Obligor {
   /**
    * The meta-bean for {@code ObligorWithREDCode}.
    */
-  public static class Meta extends Obligor.Meta {
+  public static class Meta extends LegalEntity.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -162,7 +161,7 @@ public class ObligorWithREDCode extends Obligor {
      * The meta-property for the {@code redCode} property.
      */
     private final MetaProperty<String> _redCode = DirectMetaProperty.ofReadWrite(
-        this, "redCode", ObligorWithREDCode.class, String.class);
+        this, "redCode", LegalEntityWithREDCode.class, String.class);
     /**
      * The meta-properties.
      */
@@ -177,7 +176,7 @@ public class ObligorWithREDCode extends Obligor {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 1082206750:  // redCode
           return _redCode;
@@ -186,13 +185,13 @@ public class ObligorWithREDCode extends Obligor {
     }
 
     @Override
-    public BeanBuilder<? extends ObligorWithREDCode> builder() {
-      return new DirectBeanBuilder<ObligorWithREDCode>(new ObligorWithREDCode());
+    public BeanBuilder<? extends LegalEntityWithREDCode> builder() {
+      return new DirectBeanBuilder<LegalEntityWithREDCode>(new LegalEntityWithREDCode());
     }
 
     @Override
-    public Class<? extends ObligorWithREDCode> beanType() {
-      return ObligorWithREDCode.class;
+    public Class<? extends LegalEntityWithREDCode> beanType() {
+      return LegalEntityWithREDCode.class;
     }
 
     @Override
@@ -211,27 +210,27 @@ public class ObligorWithREDCode extends Obligor {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1082206750:  // redCode
-          return ((ObligorWithREDCode) bean).getRedCode();
+          return ((LegalEntityWithREDCode) bean).getRedCode();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1082206750:  // redCode
-          ((ObligorWithREDCode) bean).setRedCode((String) newValue);
+          ((LegalEntityWithREDCode) bean).setRedCode((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
 
     @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((ObligorWithREDCode) bean)._redCode, "redCode");
+    protected void validate(final Bean bean) {
+      JodaBeanUtils.notNull(((LegalEntityWithREDCode) bean)._redCode, "redCode");
       super.validate(bean);
     }
 

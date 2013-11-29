@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.obligor;
+package com.opengamma.analytics.financial.legalentity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -14,6 +14,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -47,22 +48,6 @@ public class RegionTest {
   }
 
   /**
-   * Tests failure on null name
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullName3() {
-    Region.of(null, CURRENCIES);
-  }
-
-  /**
-   * Test failure on null name
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullName4() {
-    Region.of(null, Currency.CAD);
-  }
-
-  /**
    * Tests failure on null currencies
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -71,35 +56,21 @@ public class RegionTest {
   }
 
   /**
-   * Tests failure on null currencies
+   * Tests null currency gives an empty set.
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCurrencies2() {
-    Region.of(NAME, (Set<Currency>) null);
-  }
-
-  /**
-   * Tests failure on null currency
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullCurrency1() {
-    Region.of(NAME, Country.CA, null);
+    final Region region = Region.of(NAME, Country.CA, null);
+    assertEquals(Collections.emptySet(), region.getCurrencies());
   }
 
   /**
-   * Tests failure on null currency
+   * Tests null country gives an empty set.
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullCurrency2() {
-    Region.of(NAME, (Currency) null);
-  }
-
-  /**
-   * Tests failure on null country
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullCountry1() {
-    Region.of(NAME, null, Currency.CAD);
+    final Region region = Region.of(NAME, null, Currency.CAD);
+    assertEquals(Collections.emptySet(), region.getCountries());
   }
 
   /**

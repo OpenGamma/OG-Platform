@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.obligor;
+package com.opengamma.analytics.financial.legalentity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -14,6 +14,9 @@ import java.util.Map;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.legalentity.GICSCode;
+import com.opengamma.analytics.financial.legalentity.ICBCode;
+import com.opengamma.analytics.financial.legalentity.Sector;
 import com.opengamma.util.test.TestGroup;
 
 /**

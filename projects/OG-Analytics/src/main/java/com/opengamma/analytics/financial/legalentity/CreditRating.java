@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.obligor;
+package com.opengamma.analytics.financial.legalentity;
 
 import java.io.Serializable;
 import java.util.Map;
