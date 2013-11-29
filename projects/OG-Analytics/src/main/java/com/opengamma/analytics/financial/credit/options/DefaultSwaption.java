@@ -13,12 +13,24 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 
 /**
- * 
+ * Pricer for option to enter a forward starting CDS (aka default swaption)
  */
 public class DefaultSwaption {
 
   private final AnalyticCDSPricer _pricer = new AnalyticCDSPricer();
 
+  /**
+   * Price a default swaption 
+   * @param cds
+   * @param yieldCurve
+   * @param creditCurve
+   * @param strike
+   * @param optionExpiry
+   * @param vol
+   * @param isPayer
+   * @param hasFrontEndProt
+   * @return
+   */
   public double price(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double strike, final double optionExpiry, final double vol,
       final boolean isPayer, final boolean hasFrontEndProt) {
 
