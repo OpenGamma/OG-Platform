@@ -144,6 +144,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+
     final ValueProperties properties = ValueProperties.all();
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirements) {

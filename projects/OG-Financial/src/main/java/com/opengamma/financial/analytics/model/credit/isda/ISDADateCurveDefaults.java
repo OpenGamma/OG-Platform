@@ -36,7 +36,8 @@ public class ISDADateCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.JUMP_TO_DEFAULT,
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.HAZARD_RATE_CURVE,
-    ValueRequirementNames.VALUE_VEGA
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.PAR_SPREAD
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToYieldCurveName;
