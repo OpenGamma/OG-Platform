@@ -405,6 +405,13 @@ public final class ScheduleCalculator {
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
   }
 
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final boolean stubShort,
+                                                        final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule, RollDateAdjuster adjuster) {
+    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd);
+    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
+  }
+
   /**
    * Compute a schedule of adjusted dates from a start date, an end date and the period between dates.
    * @param startDate The start date.

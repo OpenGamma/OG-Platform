@@ -28,6 +28,7 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -235,6 +236,28 @@ public final class CouponIborCompoundingSpreadDefinition extends CouponDefinitio
     final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
     final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, accrualEndDate, index.getTenor(), isStubShort, isStubStart,
         businessDayConvention, calendar, endOfMonth);
+    final int nbSubPeriod = accrualEndDates.length;
+    final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
+    accrualStartDates[0] = accrualStartDate;
+    System.arraycopy(accrualEndDates, 0, accrualStartDates, 1, nbSubPeriod - 1);
+    final double[] paymentAccrualFactors = new double[nbSubPeriod];
+    for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
+      paymentAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], accrualEndDates[loopsub], calendar);
+    }
+    return from(accrualEndDates[nbSubPeriod - 1], notional, index, accrualStartDates, accrualEndDates, paymentAccrualFactors, spread, calendar);
+  }
+
+  public static CouponIborCompoundingSpreadDefinition from(final double notional, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final IborIndex index,
+                                                           final double spread, final StubType stub, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, final
+                                                           RollDateAdjuster adjuster) {
+    ArgumentChecker.notNull(accrualStartDate, "Accrual start date");
+    ArgumentChecker.notNull(accrualEndDate, "Accrual end date");
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
+    final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, accrualEndDate, index.getTenor(), isStubShort, isStubStart,
+                                                                                       businessDayConvention, calendar, endOfMonth, adjuster);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;
