@@ -83,6 +83,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -567,15 +568,21 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMaxFullCalculationPeriod(500L);
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
-    final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    addValueRequirements(defaultCalConfig, EquitySecurity.SECURITY_TYPE, new String[] {VALUE_DELTA, DELTA, GAMMA, THETA, RHO, VEGA });
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VALUE_DELTA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, DELTA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, GAMMA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, THETA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, RHO, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VEGA, ValueProperties.none());
-    viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+    final ViewCalculationConfiguration defaultCalcConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    final ValueProperties constraints = ValueProperties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING).get();
+    defaultCalcConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VALUE_DELTA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, VALUE_DELTA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, DELTA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, DELTA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, GAMMA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, GAMMA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, THETA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, THETA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, RHO, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, RHO, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VEGA, constraints);
+    defaultCalcConfig.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, VEGA, constraints);
+    viewDefinition.addViewCalculationConfiguration(defaultCalcConfig);
     return viewDefinition;
   }
 
@@ -601,15 +608,20 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMaxFullCalculationPeriod(500L);
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
-    final ViewCalculationConfiguration curvesConfig = new ViewCalculationConfiguration(viewDefinition, "Curves");
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, CLEAN_PRICE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MACAULAY_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MACAULAY_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MODIFIED_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MODIFIED_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
-    curvesConfig.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, YTM, ValueProperties.none());
-    viewDefinition.addViewCalculationConfiguration(curvesConfig);
+    ViewCalculationConfiguration config = new ViewCalculationConfiguration(viewDefinition, "Curves");
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, CLEAN_PRICE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MACAULAY_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MODIFIED_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, YTM, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_CURVES_METHOD).get());
+    viewDefinition.addViewCalculationConfiguration(config);
+    config = new ViewCalculationConfiguration(viewDefinition, "Yields");
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, CLEAN_PRICE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MACAULAY_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, MODIFIED_DURATION, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
+    config.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, YTM, ValueProperties.with(CALCULATION_METHOD, BondFunction.FROM_YIELD_METHOD).get());
+    viewDefinition.addViewCalculationConfiguration(config);
     return viewDefinition;
   }
 
