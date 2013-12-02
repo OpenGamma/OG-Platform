@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -57,8 +58,13 @@ public class BillSecurityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullISSUEUR() {
-    new BillSecurity(EUR, SETTLE_TIME, END_TIME, NOTIONAL, YIELD_CONVENTION, ACCRUAL_FACTOR, null);
+  public void nullIssue1() {
+    new BillSecurity(EUR, SETTLE_TIME, END_TIME, NOTIONAL, YIELD_CONVENTION, ACCRUAL_FACTOR, (String) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullIssuer2() {
+    new BillSecurity(EUR, SETTLE_TIME, END_TIME, NOTIONAL, YIELD_CONVENTION, ACCRUAL_FACTOR, (LegalEntity) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -88,7 +94,7 @@ public class BillSecurityTest {
     assertEquals("Bill Security: getter", NOTIONAL, BILL_SEC.getNotional());
     assertEquals("Bill Security: getter", YIELD_CONVENTION, BILL_SEC.getYieldConvention());
     assertEquals("Bill Security: getter", ACCRUAL_FACTOR, BILL_SEC.getAccrualFactor());
-    assertEquals("Bill Security: getter", ISSUER_BEL, BILL_SEC.getIssuer());
+    assertEquals("Bill Security: getter", new LegalEntity(null, ISSUER_BEL, null, null, null), BILL_SEC.getIssuerEntity());
   }
 
   @Test

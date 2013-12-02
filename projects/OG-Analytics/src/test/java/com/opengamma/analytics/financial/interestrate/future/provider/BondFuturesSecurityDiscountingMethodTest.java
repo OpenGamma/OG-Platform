@@ -38,7 +38,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class BondFuturesSecurityDiscountingMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   // 5-Year U.S. Treasury Note Futures: FVU1

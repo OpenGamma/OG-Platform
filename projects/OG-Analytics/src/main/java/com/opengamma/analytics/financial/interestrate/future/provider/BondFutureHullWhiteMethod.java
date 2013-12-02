@@ -14,6 +14,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
@@ -32,7 +33,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
@@ -86,16 +86,14 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
   public double price(final BondFuture future, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
-    final Pair<String, Currency> issuerCcy = future.getDeliveryBasket()[0].getIssuerCcy();
-    ArgumentChecker.isTrue(data.getHullWhiteIssuerCurrency().equals(issuerCcy), "Incompatible data and futures");
     final int nbBond = future.getDeliveryBasket().length;
-    final String issuerName = future.getDeliveryBasket()[0].getIssuer();
+    final LegalEntity issuer = future.getDeliveryBasket()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
-    final IssuerProviderInterface issuer = data.getIssuerProvider();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuer, future.getCurrency(), issuerName);
+    final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, future.getCurrency(), issuer);
     final double expiry = future.getNoticeLastTime();
     final double delivery = future.getDeliveryLastTime();
-    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuerCcy, delivery);
+    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuer, delivery);
     // Constructing non-homogeneous point series for the numerical estimations.
     final int nbPtWing = ((int) Math.floor(nbPoint / 20.)); // Number of point on each wing.
     final int nbPtCenter = nbPoint - 2 * nbPtWing;
@@ -128,7 +126,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       cfaAdjusted[loopbnd] = new double[nbCf];
       for (int loopcf = 0; loopcf < nbCf; loopcf++) {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
-        df[loopbnd][loopcf] = issuer.getDiscountFactor(issuerCcy, cfTime[loopbnd][loopcf]);
+        df[loopbnd][loopcf] = issuerProvider.getDiscountFactor(issuer, cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(parameters, 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
         beta[loopbnd][loopcf] = MODEL.futuresConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
@@ -239,17 +237,15 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
     final Currency ccy = future.getCurrency();
-    final Pair<String, Currency> issuerCcy = future.getDeliveryBasket()[0].getIssuerCcy();
-    ArgumentChecker.isTrue(data.getHullWhiteIssuerCurrency().equals(issuerCcy), "Incompatible data and futures");
     final int nbBond = future.getDeliveryBasket().length;
-    final String issuerName = future.getDeliveryBasket()[0].getIssuer();
+    final LegalEntity issuer = future.getDeliveryBasket()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
-    final IssuerProviderInterface issuer = data.getIssuerProvider();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuer, future.getCurrency(), issuerName);
+    final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, future.getCurrency(), issuer);
 
     final double expiry = future.getNoticeLastTime();
     final double delivery = future.getDeliveryLastTime();
-    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuerCcy, delivery);
+    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuer, delivery);
     // Constructing non-homogeneous point series for the numerical estimations.
     final int nbPtWing = ((int) Math.floor(nbPoint / 20.)); // Number of point on each wing.
     final int nbPtCenter = nbPoint - 2 * nbPtWing;
@@ -282,7 +278,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       cfaAdjusted[loopbnd] = new double[nbCf];
       for (int loopcf = 0; loopcf < nbCf; loopcf++) {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
-        df[loopbnd][loopcf] = issuer.getDiscountFactor(issuerCcy, cfTime[loopbnd][loopcf]);
+        df[loopbnd][loopcf] = issuerProvider.getDiscountFactor(issuer, cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(parameters, 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
         beta[loopbnd][loopcf] = MODEL.futuresConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];

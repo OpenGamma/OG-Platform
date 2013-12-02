@@ -15,6 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -40,7 +41,7 @@ public class DepositCounterpartTest {
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final String COUNTERPART_NAME = "Ctp";
-
+  private static final LegalEntity COUNTERPARTY = new LegalEntity(null, COUNTERPART_NAME, null, null, null);
   private static final double SPOT_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, SPOT_DATE);
   private static final double END_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, END_DATE);
 
@@ -70,6 +71,7 @@ public class DepositCounterpartTest {
     assertEquals("DepositCounterpart: getter", DEPOSIT_AF, DEPOSIT_CTP.getAccrualFactor());
     assertEquals("DepositCounterpart: getter", RATE * NOTIONAL * DEPOSIT_AF, DEPOSIT_CTP.getInterestAmount());
     assertEquals("DepositCounterpart: getter", COUNTERPART_NAME, DEPOSIT_CTP.getCounterpartName());
+    assertEquals("DepositCounterpart: getter", COUNTERPARTY, DEPOSIT_CTP.getCounterparty());
   }
 
   @Test

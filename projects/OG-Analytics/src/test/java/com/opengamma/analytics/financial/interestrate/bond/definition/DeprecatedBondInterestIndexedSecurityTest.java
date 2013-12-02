@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefiniti
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -110,8 +111,13 @@ public class DeprecatedBondInterestIndexedSecurityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIssuer() {
-    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, null, PRICE_INDEX);
+  public void testNullIssuer1() {
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, (String) null, PRICE_INDEX);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIssuer2() {
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, (LegalEntity) null, PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -129,7 +135,7 @@ public class DeprecatedBondInterestIndexedSecurityTest {
     assertEquals("Inflation Interest Indexed bond: getter", COUPON_PER_YEAR, BOND_SECURITY.getCouponPerYear());
     assertEquals("Inflation Interest Indexed bond: getter", PRICE_INDEX, BOND_SECURITY.getPriceIndex());
     assertEquals("Inflation Interest Indexed bond: getter", CUR, BOND_SECURITY.getCurrency());
-    assertEquals("Inflation Interest Indexed bond: getter", ISSUER_UK, BOND_SECURITY.getIssuer());
+    assertEquals("Inflation Interest Indexed bond: getter", new LegalEntity(null, ISSUER_UK, null, null, null), BOND_SECURITY.getIssuerEntity());
   }
 
   @Test

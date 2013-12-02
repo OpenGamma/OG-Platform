@@ -73,6 +73,6 @@ public final class RateReplacingVisitor extends InstrumentDerivativeVisitorAdapt
     final AnnuityCouponFixed originalCoupons = (AnnuityCouponFixed) bond.getCoupon();
     final AnnuityCouponFixed coupons = visitFixedCouponAnnuity(originalCoupons, rate);
     return new BondFixedSecurity((AnnuityPaymentFixed) bond.getNominal(), coupons, bond.getSettlementTime(), accruedInterest, bond.getFactorToNextCoupon(), bond.getYieldConvention(),
-        bond.getCouponPerYear(), bond.getIssuer());
+        bond.getCouponPerYear(), bond.getIssuerEntity());
   }
 }

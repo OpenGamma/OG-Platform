@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class BondFuturesSecurityHullWhiteMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   // 5-Year U.S. Treasury Note Futures: FVU1
@@ -101,7 +101,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
       BASKET,
       CONVERSION_FACTOR);
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteDataSets.createHullWhiteParameters();
-  private static final HullWhiteIssuerProviderDiscount MULTICURVES_HW_ISSUER = new HullWhiteIssuerProviderDiscount(ISSUER_MULTICURVES, PARAMETERS_HW, ISSUER_CCY);
+  private static final HullWhiteIssuerProviderDiscount MULTICURVES_HW_ISSUER = new HullWhiteIssuerProviderDiscount(ISSUER_MULTICURVES, PARAMETERS_HW);
 
   private static final MarketQuoteHullWhiteIssuerCalculator MQC = MarketQuoteHullWhiteIssuerCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteIssuerCalculator MQCSC = MarketQuoteCurveSensitivityHullWhiteIssuerCalculator.getInstance();
@@ -122,7 +122,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
 
   @Test
   public void price6() {
-    final HullWhiteIssuerProviderDiscount hwIssuer6 = new HullWhiteIssuerProviderDiscount(IssuerProviderDiscountDataSets.createIssuerProvider6(), PARAMETERS_HW, ISSUER_CCY);
+    final HullWhiteIssuerProviderDiscount hwIssuer6 = new HullWhiteIssuerProviderDiscount(IssuerProviderDiscountDataSets.createIssuerProvider6(), PARAMETERS_HW);
     final double priceMethod = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, hwIssuer6);
     final double priceExpected = 1.00; // Rates are at 6%
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceMethod, 5.0E-3);

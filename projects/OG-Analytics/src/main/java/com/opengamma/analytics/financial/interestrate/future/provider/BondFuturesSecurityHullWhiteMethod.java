@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
@@ -26,9 +27,7 @@ import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Method to compute the bond futures security results with the price computed as the cheapest forward.
@@ -81,16 +80,14 @@ public final class BondFuturesSecurityHullWhiteMethod {
   public double price(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
-    final Pair<String, Currency> issuerCcy = futures.getDeliveryBasket()[0].getIssuerCcy();
-    ArgumentChecker.isTrue(data.getHullWhiteIssuerCurrency().equals(issuerCcy), "Incompatible data and futures");
     final int nbBond = futures.getDeliveryBasket().length;
-    final String issuerName = futures.getDeliveryBasket()[0].getIssuer();
+    final LegalEntity issuer = futures.getDeliveryBasket()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
-    final IssuerProviderInterface issuer = data.getIssuerProvider();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuer, futures.getCurrency(), issuerName);
+    final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, futures.getCurrency(), issuer);
     final double expiry = futures.getNoticeLastTime();
     final double delivery = futures.getDeliveryLastTime();
-    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuerCcy, delivery);
+    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuer, delivery);
     // Constructing non-homogeneous point series for the numerical estimations.
     final int nbPtWing = ((int) Math.floor(nbPoint / 20.)); // Number of point on each wing.
     final int nbPtCenter = nbPoint - 2 * nbPtWing;
@@ -123,7 +120,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
       cfaAdjusted[loopbnd] = new double[nbCf];
       for (int loopcf = 0; loopcf < nbCf; loopcf++) {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
-        df[loopbnd][loopcf] = issuer.getDiscountFactor(issuerCcy, cfTime[loopbnd][loopcf]);
+        df[loopbnd][loopcf] = issuerProvider.getDiscountFactor(issuer, cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(parameters, 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
         beta[loopbnd][loopcf] = MODEL.futuresConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / futures.getConversionFactor()[loopbnd];
@@ -222,17 +219,15 @@ public final class BondFuturesSecurityHullWhiteMethod {
   public MulticurveSensitivity priceCurveSensitivity(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
-    final Pair<String, Currency> issuerCcy = futures.getDeliveryBasket()[0].getIssuerCcy();
-    ArgumentChecker.isTrue(data.getHullWhiteIssuerCurrency().equals(issuerCcy), "Incompatible data and futures");
     final int nbBond = futures.getDeliveryBasket().length;
-    final String issuerName = futures.getDeliveryBasket()[0].getIssuer();
+    final LegalEntity issuer = futures.getDeliveryBasket()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
-    final IssuerProviderInterface issuer = data.getIssuerProvider();
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuer, futures.getCurrency(), issuerName);
+    final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, futures.getCurrency(), issuer);
 
     final double expiry = futures.getNoticeLastTime();
     final double delivery = futures.getDeliveryLastTime();
-    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuerCcy, delivery);
+    final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuer, delivery);
     // Constructing non-homogeneous point series for the numerical estimations.
     final int nbPtWing = ((int) Math.floor(nbPoint / 20.)); // Number of point on each wing.
     final int nbPtCenter = nbPoint - 2 * nbPtWing;
@@ -265,7 +260,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
       cfaAdjusted[loopbnd] = new double[nbCf];
       for (int loopcf = 0; loopcf < nbCf; loopcf++) {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
-        df[loopbnd][loopcf] = issuer.getDiscountFactor(issuerCcy, cfTime[loopbnd][loopcf]);
+        df[loopbnd][loopcf] = issuerProvider.getDiscountFactor(issuer, cfTime[loopbnd][loopcf]);
         alpha[loopbnd][loopcf] = MODEL.alpha(parameters, 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
         beta[loopbnd][loopcf] = MODEL.futuresConvexityFactor(parameters, expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / futures.getConversionFactor()[loopbnd];
@@ -363,7 +358,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
       }
       listCredit.add(DoublesPair.of(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
-    resultMap.put(data.getIssuerProvider().getName(issuerCcy), listCredit);
+    resultMap.put(data.getIssuerProvider().getName(issuer), listCredit);
     return MulticurveSensitivity.ofYieldDiscounting(resultMap);
   }
 
