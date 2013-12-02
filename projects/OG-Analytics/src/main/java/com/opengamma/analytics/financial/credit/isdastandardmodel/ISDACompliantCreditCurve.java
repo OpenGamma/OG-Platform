@@ -22,11 +22,15 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class ISDACompliantCreditCurve extends ISDACompliantCurve {
 
-  public static ISDACompliantCreditCurve makeFromRT(final double[] t, final double[] rt) {
+  public static ISDACompliantCreditCurve makeFromForwardRates(final double[] t, final double[] fwd) {
+    return new ISDACompliantCreditCurve(ISDACompliantCurve.makeFromForwardRates(t, fwd));
+  }
+
+  public static ISDACompliantCreditCurve makeFromRT(final double[] t, final double[] ht) {
     ArgumentChecker.notEmpty(t, "t");
-    ArgumentChecker.notEmpty(rt, "rt");
-    ArgumentChecker.isTrue(t.length == rt.length, "length of t not equal to length of rt");
-    return new ISDACompliantCreditCurve(new ISDACompliantCurve(new double[][] {t, rt }));
+    ArgumentChecker.notEmpty(ht, "ht");
+    ArgumentChecker.isTrue(t.length == ht.length, "length of t not equal to length of rt");
+    return new ISDACompliantCreditCurve(new ISDACompliantCurve(new double[][] {t, ht }));
   }
 
   /**
@@ -123,7 +127,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -135,15 +139,15 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    final int hash = 7;
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    final StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantCreditCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -153,7 +157,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
   }
 
@@ -170,8 +174,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

@@ -22,6 +22,10 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
+  public static ISDACompliantYieldCurve makeFromForwardRates(final double[] t, final double[] fwd) {
+    return new ISDACompliantYieldCurve(ISDACompliantCurve.makeFromForwardRates(t, fwd));
+  }
+
   public static ISDACompliantYieldCurve makeFromRT(final double[] t, final double[] rt) {
     ArgumentChecker.notEmpty(t, "t");
     ArgumentChecker.notEmpty(rt, "rt");
@@ -125,7 +129,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
@@ -137,15 +141,15 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
   @Override
   public int hashCode() {
-    int hash = 7;
+    final int hash = 7;
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(32);
+    final StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantYieldCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -155,7 +159,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
   }
 
@@ -172,8 +176,7 @@ public class ISDACompliantYieldCurve extends ISDACompliantCurve {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.
