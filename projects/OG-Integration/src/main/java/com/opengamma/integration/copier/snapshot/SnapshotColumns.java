@@ -81,6 +81,12 @@ public enum SnapshotColumns {
     return null;
   }
 
+  private static String[] getColumns(ArrayList<String> list) {
+    String[] columns = new String[list.size()];
+    columns = list.toArray(columns);
+    return columns;
+  }
+
   /**
    * @return Snapshot columns
    *   {TYPE, NAME, INSTANT, YIELD_CURVE_CURRENCY, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE,
@@ -92,8 +98,34 @@ public enum SnapshotColumns {
     for (SnapshotColumns column : SnapshotColumns.values()) {
       list.add(column._text);
     }
-    String[] columns = new String[list.size()];
-    columns = list.toArray(columns);
-    return columns;
+    return getColumns(list);
+  }
+
+  /**
+   * @return Snapshot detail columns
+   *  {TYPE, NAME}
+   */
+  public static String[] detailColumns() {
+    ArrayList<String> list = new ArrayList<>();
+    list.add(SnapshotColumns.TYPE._text);
+    list.add(SnapshotColumns.NAME._text);
+    return getColumns(list);
+  }
+
+  /**
+   * @return Snapshot curve columns
+   *  {TYPE, NAME, INSTANT, ID_BUNDLE, VALUE_NAME, VALUE_OBJECT, MARKET_VALUE, OVERRIDE_VALUE}
+   */
+  public static String[] curveColumns() {
+    ArrayList<String> list = new ArrayList<>();
+    list.add(SnapshotColumns.TYPE._text);
+    list.add(SnapshotColumns.NAME._text);
+    list.add(SnapshotColumns.INSTANT._text);
+    list.add(SnapshotColumns.ID_BUNDLE._text);
+    list.add(SnapshotColumns.VALUE_NAME._text);
+    list.add(SnapshotColumns.VALUE_OBJECT._text);
+    list.add(SnapshotColumns.MARKET_VALUE._text);
+    list.add(SnapshotColumns.OVERRIDE_VALUE._text);
+    return getColumns(list);
   }
 }

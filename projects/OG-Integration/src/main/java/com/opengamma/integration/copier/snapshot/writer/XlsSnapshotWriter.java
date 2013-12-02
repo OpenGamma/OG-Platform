@@ -24,32 +24,39 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.integration.copier.sheet.writer.CsvSheetWriter;
+import com.opengamma.integration.copier.sheet.writer.XlsSheetWriter;
+import com.opengamma.integration.copier.sheet.writer.XlsWriter;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
+import com.opengamma.integration.copier.snapshot.SnapshotUtil;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Writes a snapshot to exported file
  */
-public class FileSnapshotWriter implements SnapshotWriter {
+public class XlsSnapshotWriter implements SnapshotWriter {
 
-  private CsvSheetWriter _sheetWriter;
-  private static final Logger s_logger = LoggerFactory.getLogger(FileSnapshotWriter.class);
+  private XlsWriter _xlsWriter;
+  private XlsSheetWriter _detailsSheet;
+  private XlsSheetWriter _curveSheet;
+  private static final Logger s_logger = LoggerFactory.getLogger(XlsSnapshotWriter.class);
 
-  public FileSnapshotWriter(String filename) {
+  public XlsSnapshotWriter(String filename) {
 
     if (filename == null) {
       throw new OpenGammaRuntimeException("File name omitted, cannot export to file");
     }
-    _sheetWriter = new CsvSheetWriter(filename, SnapshotColumns.columns());
-
+    _xlsWriter = new XlsWriter(filename);
+    _detailsSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), "Details", SnapshotColumns.detailColumns());
+    _curveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), "Curves", SnapshotColumns.curveColumns());
   }
 
   /** Ordinated ValueSnapshots, needed for Volatility Surfaces */
   private void writeOrdinatedValueSnapshot(Map<String, String> prefixes,
                                            Map<Pair<Object, Object>, ValueSnapshot> valueSnapshots) {
+
+
 
     for (Map.Entry<Pair<Object, Object>, ValueSnapshot> entry : valueSnapshots.entrySet()) {
       Map<String, String> tempRow = new HashMap<>();
@@ -82,7 +89,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
           tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
         }
       }
-      _sheetWriter.writeNextRow(tempRow);
+      //TODO _sheetWriter.writeNextRow(tempRow);
     }
   }
 
@@ -113,7 +120,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
             tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
           }
         }
-        _sheetWriter.writeNextRow(tempRow);
+        //TODO _sheetWriter.writeNextRow(tempRow);
       }
     }
   }
@@ -125,7 +132,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
       tempRow.put(SnapshotColumns.VALUE_OBJECT.get(), field.getName());
       // assuming that the the value of the field is not another data structure
       tempRow.put(SnapshotColumns.MARKET_VALUE.get(), field.getValue().toString());
-      _sheetWriter.writeNextRow(tempRow);
+      //TODO _sheetWriter.writeNextRow(tempRow);
     }
   }
 
@@ -143,7 +150,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
 
   @Override
   public void flush() {
-    _sheetWriter.flush();
+    //TODO _sheetWriter.flush();
   }
 
   @Override
@@ -223,35 +230,17 @@ public class FileSnapshotWriter implements SnapshotWriter {
 
   @Override
   public void writeName(String name) {
-
-    if (name == null || name.isEmpty()) {
-      s_logger.warn("Snapshot does not contain name.");
-      return;
-    }
-
-    Map<String, String> tempRow = new HashMap<>();
-    tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.NAME.get());
-    tempRow.put(SnapshotColumns.NAME.get(), name);
-    _sheetWriter.writeNextRow(tempRow);
+    _detailsSheet.writeNextRow(SnapshotUtil.buildName(name));
   }
 
   @Override
   public void writeBasisViewName(String basisName) {
-
-    if (basisName == null || basisName.isEmpty()) {
-      s_logger.warn("Snapshot does not contain basis name.");
-      return;
-    }
-
-    Map<String, String> tempRow = new HashMap<>();
-    tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.BASIS_NAME.get());
-    tempRow.put(SnapshotColumns.NAME.get(), basisName);
-    _sheetWriter.writeNextRow(tempRow);
+    _detailsSheet.writeNextRow(SnapshotUtil.buildBasisViewName(basisName));
   }
 
   @Override
   public void close() {
     flush();
-    _sheetWriter.close();
+    _xlsWriter.close();
   }
 }
