@@ -50,7 +50,7 @@ public class ISDACDXAsSingleNameParSpreadFunction extends ISDACDXAsSingleNameFun
                                                 final ZonedDateTime[] times, final double[] marketSpreads, final ZonedDateTime valuationDate,
                                                 final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    final double parSpread = StandardVanillaParSpreadCDSFunction.getParSpread(yieldCurve, hazardCurve, analytic, definition);
+    final double parSpread = StandardVanillaParSpreadCDSFunction.getParSpread(yieldCurve, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PAR_SPREAD, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, parSpread));
   }

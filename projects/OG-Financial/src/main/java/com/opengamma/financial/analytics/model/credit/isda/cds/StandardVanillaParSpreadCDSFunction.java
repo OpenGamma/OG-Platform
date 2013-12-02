@@ -75,14 +75,14 @@ public class StandardVanillaParSpreadCDSFunction extends StandardVanillaCDSFunct
                                                 double[] marketSpreads, ZonedDateTime valuationTime, ComputationTarget target,
                                                 ValueProperties properties, FunctionInputs inputs, ISDACompliantCreditCurve hazardCurve,
                                                 CDSAnalytic analytic) {
-    final double parSpread = getParSpread(yieldCurve, hazardCurve, analytic, definition);
+    final double parSpread = getParSpread(yieldCurve, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PAR_SPREAD, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, parSpread));
   }
 
-  public static double getParSpread(ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, CreditDefaultSwapDefinition definition) {
+  public static double getParSpread(ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
     final double par = new MarketQuoteConverter().parSpreads(new CDSAnalytic[] {analytic}, yieldCurve, hazardCurve)[0];
-    return definition.getBuySellProtection() == BuySellProtection.BUY ? par : -par;
+    return par * 10000; // BPS
   }
 
   @Override
