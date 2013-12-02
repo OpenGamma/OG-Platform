@@ -7,6 +7,9 @@ package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
@@ -34,6 +37,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -42,7 +46,11 @@ import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
@@ -74,6 +82,8 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
     }
     final double recoveryRate = (Double) recoveryRateObject;
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
+    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0)));
+    definition = getStartDate(definition, security, valuationTime);
     definition = definition.withRecoveryRate(recoveryRate);
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(recoveryRate, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
@@ -102,6 +112,19 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
       }
     }
     return results;
+  }
+
+  public static LegacyVanillaCreditDefaultSwapDefinition getStartDate(final LegacyVanillaCreditDefaultSwapDefinition definition, AbstractCreditDefaultSwapSecurity security, ZonedDateTime now) {
+    if (security instanceof LegacyVanillaCDSSecurity) {
+      return definition.withStartDate(now);
+    } else if (security instanceof StandardVanillaCDSSecurity) {
+      LocalDate start = IMMDateGenerator.getPreviousIMMDate(now.toLocalDate());
+      return definition.withStartDate(ZonedDateTime.of(start, LocalTime.of(0, 0, 0, 0), ZoneId.systemDefault()));
+    } else if (security instanceof CreditDefaultSwapIndexSecurity) {
+      LocalDate start = IMMDateGenerator.getPreviousIMMDate(now.toLocalDate());
+      return definition.withStartDate(ZonedDateTime.of(start, LocalTime.of(0, 0, 0, 0), ZoneId.systemDefault()));
+    }
+    throw new OpenGammaRuntimeException("Unexpected cds type: " + security);
   }
 
   @Override
