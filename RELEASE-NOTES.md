@@ -106,6 +106,12 @@ To 2.1.11
 ---------
     [PLAT-5138] Catch exceptions building the domestic curve on a particular valuation date, allowing the function to return a result containing the curves it did build
     [PLAT-5034] Ensure main code runs without SQL server dependency
+	
+To 2.1.12
+---------
+    [PLAT-5218] Ability to sort outputs of ConfigImportExportTool
+	[PLAT-5223] Fixed fudge builder to create arrays of correct type.
+	
 
 
 OpenGamma Platform 2.1
@@ -363,6 +369,23 @@ Analytics compatibility
 - No expected differences
 
 To 2.1.11
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.12
 -----------
 
 As above, and:
