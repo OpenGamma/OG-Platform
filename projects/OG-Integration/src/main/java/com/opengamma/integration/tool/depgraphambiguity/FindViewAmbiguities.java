@@ -31,6 +31,7 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.depgraph.ambiguity.FullRequirementResolution;
+import com.opengamma.engine.depgraph.ambiguity.FullRequirementResolutionPrinter;
 import com.opengamma.engine.depgraph.ambiguity.RequirementResolution;
 import com.opengamma.engine.depgraph.ambiguity.ViewDefinitionAmbiguityTest;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
@@ -78,6 +79,8 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
   private static final String FUNCTION_PRIOTITY_OPTION_LONG = "functionPriority";
   private static final String OUTPUT_OPTION = "o";
   private static final String OUTPUT_OPTION_LONG = "output";
+  private static final String VERBOSE_OPTION = "f";
+  private static final String VERBOSE_OPTION_LONG = "full";
 
   private final AtomicInteger _resolutions = new AtomicInteger();
   private final AtomicInteger _ambiguities = new AtomicInteger();
@@ -186,6 +189,11 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
       if ((count % 100) == 0) {
         s_logger.info("Checked {} resolutions", count);
       }
+      if (resolution.isDeeplyAmbiguous() && getCommandLine().hasOption(VERBOSE_OPTION)) {
+        synchronized (this) {
+          (new FullRequirementResolutionPrinter(_out)).print(resolution);
+        }
+      }
     }
 
     protected void resolvedImpl(final FullRequirementResolution resolution) {
@@ -272,6 +280,12 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
     return option;
   }
 
+  private static Option createVerboseOption() {
+    final Option option = new Option(VERBOSE_OPTION, VERBOSE_OPTION_LONG, false, "whether to write out ambiguities in full");
+    option.setRequired(false);
+    return option;
+  }
+
   private static PrintStream openStream(final String filename) throws IOException {
     if ((filename == null) || "stdout".equals(filename)) {
       return System.out;
@@ -327,6 +341,7 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
     options.addOption(createFunctionExclusionGroupsBeanOption());
     options.addOption(createFunctionPrioritiesOption());
     options.addOption(createOutputOption());
+    options.addOption(createVerboseOption());
     return options;
   }
 
