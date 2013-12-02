@@ -29,6 +29,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.engine.RemoteEngineContextsComponentFactory;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.depgraph.ambiguity.FullRequirementResolution;
 import com.opengamma.engine.depgraph.ambiguity.RequirementResolution;
 import com.opengamma.engine.depgraph.ambiguity.ViewDefinitionAmbiguityTest;
@@ -55,6 +56,12 @@ import com.opengamma.util.ClassUtils;
 
 /**
  * Tool class that compiles a view against a function repository to identify any ambiguities.
+ * <p>
+ * The configuration is fetched from the server, but the function exclusion groups and priorities must be specified manually as these are not readily available via REST interfaces (at the moment -
+ * there is no reason why the data couldn't be available). Any ambiguities are written to a nominated output file.
+ * <p>
+ * Note that this can be an expensive operation - very expensive if there are multiple deep ambiguities which will cause an incredibly large number of possible terminal output resolutions (based on
+ * the cross product of all possible inputs). It is normally only necessary to run on small portfolio samples, for example by setting {@link SimplePortfolioNode#DEBUG_FLAG}.
  */
 @Scriptable
 public class FindViewAmbiguities extends AbstractTool<ToolContext> {
@@ -174,11 +181,15 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
 
     @Override
     protected void resolved(final FullRequirementResolution resolution) {
-      super.resolved(resolution);
+      resolvedImpl(resolution);
       final int count = _resolutions.incrementAndGet();
       if ((count % 100) == 0) {
         s_logger.info("Checked {} resolutions", count);
       }
+    }
+
+    protected void resolvedImpl(final FullRequirementResolution resolution) {
+      super.resolved(resolution);
     }
 
     @Override
@@ -191,12 +202,20 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
       for (Collection<RequirementResolution> nestedResolutions : resolution.getResolutions()) {
         final List<String> functions = new ArrayList<String>();
         final List<ValueSpecification> specifications = new ArrayList<ValueSpecification>();
+        boolean failure = false;
         for (RequirementResolution nestedResolution : nestedResolutions) {
-          functions.add(nestedResolution.getFunction().getFunctionId());
-          specifications.add(nestedResolution.getSpecification());
+          if (nestedResolution != null) {
+            functions.add(nestedResolution.getFunction().getFunctionId());
+            specifications.add(nestedResolution.getSpecification());
+          } else {
+            failure = true;
+          }
         }
         for (String function : functions) {
           _out.println("\t" + function);
+        }
+        if (failure) {
+          _out.println("\t+ failure(s)");
         }
         for (ValueSpecification specification : specifications) {
           _out.println("\t" + specification);
@@ -210,7 +229,7 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
       for (Collection<RequirementResolution> nestedResolutions : resolution.getResolutions()) {
         for (RequirementResolution nestedResolution : nestedResolutions) {
           for (FullRequirementResolution inputResolution : nestedResolution.getInputs()) {
-            resolved(inputResolution);
+            resolvedImpl(inputResolution);
           }
         }
       }
@@ -287,8 +306,12 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
         final ViewDefinition viewDefinition = viewDefinitionConfig.getValue();
         s_logger.info("Testing {}", viewDefinition.getName());
         out.println("View = " + viewDefinition.getName());
+        final int resolutions = _resolutions.get();
+        final int ambiguities = _ambiguities.get();
         test.runAmbiguityTest(viewDefinition);
         count++;
+        out.println("Resolutions = " + (_resolutions.get() - resolutions));
+        out.println("Ambiguities = " + (_ambiguities.get() - ambiguities));
       }
     }
     s_logger.info("{} view(s) tested", count);

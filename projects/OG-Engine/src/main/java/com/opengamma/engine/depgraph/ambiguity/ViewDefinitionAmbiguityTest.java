@@ -150,7 +150,11 @@ public abstract class ViewDefinitionAmbiguityTest {
 
         @Override
         public void success(final FullRequirementResolution result) {
-          resolved(result);
+          try {
+            resolved(result);
+          } catch (Throwable t) {
+            failure(t);
+          }
         }
 
         @Override

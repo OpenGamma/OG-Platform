@@ -269,15 +269,21 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
     }
   }
 
-  private void getResolvedInputs(final int j, final ValueRequirement[] inputArray, final RequirementResolution[][] resolvedInputsSlice, final Map<ValueSpecification, ValueRequirement> inputMap) {
+  private boolean getResolvedInputs(final int j, final ValueRequirement[] inputArray, final RequirementResolution[][] resolvedInputsSlice, final Map<ValueSpecification, ValueRequirement> inputMap) {
     inputMap.clear();
     int base = 1;
+    boolean success = true;
     for (int i = 0; i < resolvedInputsSlice.length; i++) {
       final int size = resolvedInputsSlice[i].length;
       final RequirementResolution resolvedInput = resolvedInputsSlice[i][(j / base) % size];
       base *= size;
-      inputMap.put(resolvedInput.getSpecification(), inputArray[i]);
+      if (resolvedInput == null) {
+        success = false;
+      } else {
+        inputMap.put(resolvedInput.getSpecification(), inputArray[i]);
+      }
     }
+    return success;
   }
 
   protected FullRequirementResolution resolve(final CheckingCache cache, final Collection<FunctionExclusionGroup> exclusions, final ValueRequirement requirement) {
@@ -318,7 +324,12 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
                 final ValueSpecification nominalResult = rule.getResult(requirement.getValueName(), adjustedTarget, requirement.getConstraints(), getCompilationContext());
                 if (nominalResult != null) {
                   s_logger.debug("Possible resolution of {} to {}", requirement, nominalResult);
-                  final Set<ValueRequirement> inputs = rule.getParameterizedFunction().getFunction().getRequirements(getCompilationContext(), adjustedTarget, requirement);
+                  Set<ValueRequirement> inputs = null;
+                  try {
+                    inputs = rule.getParameterizedFunction().getFunction().getRequirements(getCompilationContext(), adjustedTarget, requirement);
+                  } catch (Throwable t) {
+                    s_logger.debug("Exception thrown by getRequirements", t);
+                  }
                   if (inputs != null) {
                     final Collection<FullRequirementResolution> resolvedInputs = resolve(cache, exclusions, target, requirement, rule, inputs);
                     if (resolvedInputs.size() != inputs.size()) {
@@ -357,8 +368,18 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
                       boolean failed = false;
                       boolean succeeded = false;
                       for (int j = 0; j < ambiguous; j++) {
-                        getResolvedInputs(j, inputArray, resolvedInputsSlice, inputMap);
-                        final Set<ValueSpecification> results = rule.getParameterizedFunction().getFunction().getResults(getCompilationContext(), adjustedTarget, inputMap);
+                        if (!getResolvedInputs(j, inputArray, resolvedInputsSlice, inputMap)) {
+                          if (!rule.getParameterizedFunction().getFunction().canHandleMissingRequirements()) {
+                            failed = true;
+                            continue;
+                          }
+                        }
+                        Set<ValueSpecification> results = null;
+                        try {
+                          results = rule.getParameterizedFunction().getFunction().getResults(getCompilationContext(), adjustedTarget, inputMap);
+                        } catch (Throwable t) {
+                          s_logger.debug("Exception thrown by getResults", t);
+                        }
                         if (results != null) {
                           ValueSpecification finalResult = null;
                           for (ValueSpecification result : results) {
@@ -404,10 +425,12 @@ public class SimpleRequirementAmbiguityChecker implements RequirementAmbiguityCh
                           failed = true;
                         }
                       }
-                      if (failed && succeeded) {
-                        // Not all combinations are successful; treat as ambiguous
-                        Collection<RequirementResolution> found = resolutions.get(resolutionIndex++);
-                        found.add(null);
+                      if (succeeded) {
+                        if (failed) {
+                          // Not all combinations are successful; treat as ambiguous
+                          resolutions.get(resolutionIndex).add(null);
+                        }
+                        resolutionIndex++;
                       }
                     } while (true);
                   }
