@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a provider with discounting, forward, credit curves and Hull-White parameters on one issuer curve.
@@ -21,8 +19,8 @@ public class HullWhiteIssuerProviderDiscount extends HullWhiteIssuerProvider {
    * @param parameters The Hull-White one factor parameters.
    * @param issuerCcyHW The issuer/currency for which the Hull-White parameters are valid (Hull-White on the issuer discounting curve).
    */
-  public HullWhiteIssuerProviderDiscount(final IssuerProviderDiscount issuer, HullWhiteOneFactorPiecewiseConstantParameters parameters, final Pair<String, Currency> issuerCcyHW) {
-    super(issuer, parameters, issuerCcyHW);
+  public HullWhiteIssuerProviderDiscount(final IssuerProviderDiscount issuer, final HullWhiteOneFactorPiecewiseConstantParameters parameters/*, final Pair<String, Currency> issuerCcyHW*/) {
+    super(issuer, parameters/*, issuerCcyHW*/);
   }
 
   /**

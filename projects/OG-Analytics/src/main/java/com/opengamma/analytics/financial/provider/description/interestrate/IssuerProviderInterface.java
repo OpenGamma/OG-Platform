@@ -8,8 +8,9 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -28,14 +29,28 @@ public interface IssuerProviderInterface extends ParameterIssuerProviderInterfac
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time);
+  double getDiscountFactor(LegalEntity issuer, Double time);
+
+//  /**
+//   * Return the name associated to the discounting for a issuer/currency.
+//   * @param issuerCcy The issuer/currency.
+//   * @return The name.
+//   */
+//  String getName(Pair<String, Currency> issuerCcy);
 
   /**
-   * Return the name associated to the discounting for a issuer/currency.
-   * @param issuerCcy The issuer/currency.
-   * @return The name.
-   */
-  String getName(Pair<String, Currency> issuerCcy);
+  * Return the name associated to the discounting for a issuer/currency.
+  * @param issuerCcy The issuer/currency.
+  * @return The name.
+  */
+  String getName(Pair<Object, LegalEntityMeta<LegalEntity>> issuer);
+
+  /**
+  * Return the name associated to the discounting for a issuer/currency.
+  * @param issuerCcy The issuer/currency.
+  * @return The name.
+  */
+  String getName(LegalEntity issuer);
 
   /**
    * Gets the names of all curves (discounting, forward, and issuers).
@@ -58,6 +73,8 @@ public interface IssuerProviderInterface extends ParameterIssuerProviderInterfac
 
   List<String> getUnderlyingCurvesNames(String name);
 
-  Set<Pair<String, Currency>> getIssuersCurrencies();
+  //@Deprecated
+  //Set<Pair<String, Currency>> getIssuersCurrencies();
 
+  Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers();
 }

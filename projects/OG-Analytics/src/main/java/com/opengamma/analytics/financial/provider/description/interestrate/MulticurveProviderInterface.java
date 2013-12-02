@@ -52,7 +52,6 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.
-   * @param accrualFactor The Ibor accrual factor.
    * @return The forward rate.
    */
   double getForwardRate(IborIndex index, double startTime, double endTime);
@@ -73,7 +72,6 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.
-   * @param accrualFactor The Ibor accrual factor.
    * @return The forward rate.
    */
   // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.issuer;
@@ -12,6 +12,8 @@ import java.util.Set;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
@@ -41,7 +43,8 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
   /**
    * The map with the issuers and the related discounting curves names.
    */
-  private final LinkedHashMap<String, Pair<String, Currency>> _issuerMap;
+//  private final LinkedHashMap<String, Pair<String, Currency>> _issuerMap;
+  private final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> _issuerMap;
   /**
    * The map with the names and the related curves generators.
    */
@@ -61,7 +64,7 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
    * @param generatorsMap The generators map.
    */
   public GeneratorIssuerProviderDiscount(final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
-      final LinkedHashMap<String, IndexON[]> forwardONMap, LinkedHashMap<String, Pair<String, Currency>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
+      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
     ArgumentChecker.notNull(discountingMap, "Discounting curves names map");
     ArgumentChecker.notNull(forwardIborMap, "Forward curves names map");
     ArgumentChecker.notNull(forwardONMap, "Forward curves names map");
@@ -72,6 +75,19 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
     _issuerMap = issuerMap;
     _generatorsMap = generatorsMap;
   }
+
+//  public GeneratorIssuerProviderDiscount(final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
+//      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<String, Currency>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
+//    ArgumentChecker.notNull(discountingMap, "Discounting curves names map");
+//    ArgumentChecker.notNull(forwardIborMap, "Forward curves names map");
+//    ArgumentChecker.notNull(forwardONMap, "Forward curves names map");
+//    _knownData = knownData;
+//    _discountingMap = discountingMap;
+//    _forwardIborMap = forwardIborMap;
+//    _forwardONMap = forwardONMap;
+//    _issuerMap = issuerMap;
+//    _generatorsMap = generatorsMap;
+//  }
 
   /**
    * Gets the know data.
@@ -90,28 +106,28 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
   }
 
   @Override
-  public IssuerProviderDiscount evaluate(DoubleMatrix1D x) {
-    IssuerProviderDiscount provider = _knownData.copy();
-    Set<String> nameSet = _generatorsMap.keySet();
+  public IssuerProviderDiscount evaluate(final DoubleMatrix1D x) {
+    final IssuerProviderDiscount provider = _knownData.copy();
+    final Set<String> nameSet = _generatorsMap.keySet();
     int indexParam = 0;
-    for (String name : nameSet) {
-      GeneratorYDCurve gen = _generatorsMap.get(name);
-      double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + gen.getNumberOfParameter());
+    for (final String name : nameSet) {
+      final GeneratorYDCurve gen = _generatorsMap.get(name);
+      final double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + gen.getNumberOfParameter());
       indexParam += gen.getNumberOfParameter();
-      YieldAndDiscountCurve curve = gen.generateCurve(name, provider.getMulticurveProvider(), paramCurve);
+      final YieldAndDiscountCurve curve = gen.generateCurve(name, provider.getMulticurveProvider(), paramCurve);
       if (_discountingMap.containsKey(name)) {
         provider.setCurve(_discountingMap.get(name), curve);
       }
       if (_forwardIborMap.containsKey(name)) {
-        IborIndex[] indexes = _forwardIborMap.get(name);
-        for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
-          provider.setCurve(indexes[loopindex], curve);
+        final IborIndex[] indexes = _forwardIborMap.get(name);
+        for (final IborIndex indexe : indexes) {
+          provider.setCurve(indexe, curve);
         }
       }
       if (_forwardONMap.containsKey(name)) {
-        IndexON[] indexes = _forwardONMap.get(name);
-        for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
-          provider.setCurve(indexes[loopindex], curve);
+        final IndexON[] indexes = _forwardONMap.get(name);
+        for (final IndexON indexe : indexes) {
+          provider.setCurve(indexe, curve);
         }
       }
       if (_issuerMap.containsKey(name)) {

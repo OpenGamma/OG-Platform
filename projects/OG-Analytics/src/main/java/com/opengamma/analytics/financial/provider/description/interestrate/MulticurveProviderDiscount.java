@@ -239,14 +239,32 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _allCurves.get(name);
   }
 
+  /**
+   * Gets the currency of a named discounting curve. If there is no curve with
+   * this name in this provider, returns null.
+   * @param name The name of a curve
+   * @return The currency, null if not found
+   */
   public Currency getCurrencyForName(final String name) {
     return _namesToCurrency.get(name);
   }
 
+  /**
+   * Gets the ibor index of a named forward ibor index curve. If there is no
+   * curve with this name in this provider, returns null.
+   * @param name The name of a curve
+   * @return The ibor index, null if not found
+   */
   public IborIndex getIborIndexForName(final String name) {
     return _namesToIborIndex.get(name);
   }
 
+  /**
+   * Gets the overnight index of a named overnight index curve. If there is
+   * no curve with this name in this provider, returns null.
+   * @param name The name of a curve
+   * @return The overnight index, null if not found
+   */
   public IndexON getOvernightIndexForName(final String name) {
     return _namesToONIndex.get(name);
   }

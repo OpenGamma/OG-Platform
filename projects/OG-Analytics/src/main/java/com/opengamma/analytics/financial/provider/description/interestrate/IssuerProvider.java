@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +16,8 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -36,7 +37,8 @@ public class IssuerProvider implements IssuerProviderInterface {
   /**
    * A map with issuer discounting curves.
    */
-  private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
+//  private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
+  private final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
   /**
    * The set of names of all curves used in the multicurves provider.
    */
@@ -48,6 +50,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   /**
    * The map between the curves names and the curves themselves.
    */
+  //TODO these aren't the best names
   private final Map<String, YieldAndDiscountCurve> _issuerCurvesNames = new LinkedHashMap<>();
 
   /**
@@ -56,7 +59,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   public IssuerProvider() {
     _multicurveProvider = new MulticurveProviderDiscount();
     _issuerCurves = new LinkedHashMap<>();
-    init();
+    setAllCurves();
   }
 
   /**
@@ -66,7 +69,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   public IssuerProvider(final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(fxMatrix);
     _issuerCurves = new LinkedHashMap<>();
-    init();
+    setAllCurves();
   }
 
   /**
@@ -81,36 +84,37 @@ public class IssuerProvider implements IssuerProviderInterface {
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _issuerCurves = new LinkedHashMap<>();
-    init();
+    setAllCurves();
   }
 
   /**
-   * Constructs a multi-curve provider and sets the issuer curve map. The issuer curve map is not copied
+   * Constructs a multi-curve provider and sets the issuer curve map. The issuer curve map is not copied.
    * @param discountingCurves A map from currency to yield curve, not null
    * @param forwardIborCurves A map from ibor index to yield curve, not null
    * @param forwardONCurves A map from overnight index to yield curve, not null
-   * @param issuerCurve An issuer curve map
+   * @param issuerCurves An issuer curve map, not null
    * @param fxMatrix The FX matrix, not null
    */
   //TODO there is no guarantee that the map is a LinkedHashMap, which could lead to unexpected behaviour
   public IssuerProvider(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurve, final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
+    ArgumentChecker.notNull(issuerCurves, "issuer curves");
     _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
-    _issuerCurves = issuerCurve;
-    init();
+    _issuerCurves = issuerCurves;
+    setAllCurves();
   }
 
   /**
    * Constructor from existing multicurve provider and issuer map. The given provider and map are used for the new provider (the same maps are used, not copied).
-   * @param multicurve The multi-curves provider.
-   * @param issuerCurves The issuer specific curves.
+   * @param multicurve The multi-curves provider, not null
+   * @param issuerCurves The issuer specific curves, not null
    */
-  public IssuerProvider(final MulticurveProviderInterface multicurve, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
+  public IssuerProvider(final MulticurveProviderInterface multicurve, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     ArgumentChecker.notNull(multicurve, "multicurve");
     ArgumentChecker.notNull(issuerCurves, "issuer curves");
     _multicurveProvider = multicurve;
     _issuerCurves = issuerCurves;
-    init();
+    setAllCurves();
   }
 
   /**
@@ -121,7 +125,7 @@ public class IssuerProvider implements IssuerProviderInterface {
     ArgumentChecker.notNull(multicurve, "multicurve");
     _multicurveProvider = multicurve;
     _issuerCurves = new LinkedHashMap<>();
-    init();
+    setAllCurves();
   }
 
   @Override
@@ -136,35 +140,50 @@ public class IssuerProvider implements IssuerProviderInterface {
 
   @Override
   public IssuerProvider copy() {
-    final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(_issuerCurves);
+    final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new LinkedHashMap<>(_issuerCurves);
     return new IssuerProvider(_multicurveProvider.copy(), issuerCurvesNew);
   }
 
-  protected void init() {
+  /**
+   * Sets all curves.
+   */
+  protected void setAllCurves() {
     _multicurvesNames = _multicurveProvider.getAllNames();
     _allNames.addAll(_multicurvesNames);
-    final Set<Pair<String, Currency>> issuerSet = _issuerCurves.keySet();
-    for (final Pair<String, Currency> issuer : issuerSet) {
-      _allNames.add(_issuerCurves.get(issuer).getName());
-    }
-    final Set<Pair<String, Currency>> icSet = _issuerCurves.keySet();
-    for (final Pair<String, Currency> ic : icSet) {
-      final String name = _issuerCurves.get(ic).getName();
-      _issuerCurvesNames.put(name, _issuerCurves.get(ic));
+    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      _allNames.add(entry.getValue().getName());
+      _issuerCurvesNames.put(entry.getValue().getName(), entry.getValue());
     }
   }
 
   @Override
-  public double getDiscountFactor(final Pair<String, Currency> issuerCcy, final Double time) {
-    if (_issuerCurves.containsKey(issuerCcy)) {
-      return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
+  public double getDiscountFactor(final LegalEntity issuer, final Double time) {
+    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getMetaData(issuer))) {
+        return entry.getValue().getDiscountFactor(time);
+      }
     }
-    throw new IllegalArgumentException("Issuer discounting curve not found: " + issuerCcy);
+    throw new IllegalArgumentException("Issuer discounting curve not found for " + issuer);
+  }
+
+//  @Override
+//  public String getName(final Pair<String, Currency> issuerCcy) {
+//    return _issuerCurves.get(issuerCcy).getName();
+//  }
+//
+  @Override
+  public String getName(final Pair<Object, LegalEntityMeta<LegalEntity>> issuer) {
+    return _issuerCurves.get(issuer).getName();
   }
 
   @Override
-  public String getName(final Pair<String, Currency> issuerCcy) {
-    return _issuerCurves.get(issuerCcy).getName();
+  public String getName(final LegalEntity issuer) {
+    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getMetaData(issuer))) {
+        return entry.getValue().getName();
+      }
+    }
+    throw new IllegalArgumentException("Issuer discounting curve not found: " + issuer);
   }
 
   @Override
@@ -216,36 +235,71 @@ public class IssuerProvider implements IssuerProviderInterface {
     return _issuerCurvesNames.get(name).getUnderlyingCurvesNames();
   }
 
+//  @Override
+//  public Set<Pair<String, Currency>> getIssuersCurrencies() {
+//    return _issuerCurves.keySet();
+//  }
+
   @Override
-  public Set<Pair<String, Currency>> getIssuersCurrencies() {
+  public Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers() {
     return _issuerCurves.keySet();
   }
 
-  public Map<Pair<String, Currency>, YieldAndDiscountCurve> getIssuerCurves() {
+  public Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> getIssuerCurves() {
     return _issuerCurves;
   }
 
-  public YieldAndDiscountCurve getCurve(final Pair<String, Currency> ic) {
-    return _issuerCurves.get(ic);
+//  public YieldAndDiscountCurve getCurve(final Pair<String, Currency> ic) {
+//    return _issuerCurves.get(ic);
+//  }
+
+  public YieldAndDiscountCurve getCurve(final Object key) {
+    return _issuerCurves.get(key);
   }
+
+//  public <T extends Obligor> YieldAndDiscountCurve getCurveForObligorMeta(final Pair<T, ObligorMeta<T>> key) {
+//    final Object meta = key.getSecond().getMetaData(key.getFirst());
+//    return _issuerCurves.get(meta);
+//  }
+
+//  /**
+//   * Sets the discounting curve for a given issuer/currency.
+//   * @param issuerCcy The issuer/currency.
+//   * @param curve The yield curve used for discounting.
+//   */
+//  public void setCurve(final Pair<String, Currency> issuerCcy, final YieldAndDiscountCurve curve) {
+//    ArgumentChecker.notNull(issuerCcy, "Issuer/currency");
+//    ArgumentChecker.notNull(curve, "curve");
+//    if (_issuerCurves.containsKey(issuerCcy)) {
+//      throw new IllegalArgumentException("Currency discounting curve already set: " + issuerCcy.toString());
+//    }
+//    _issuerCurves.put(issuerCcy, curve);
+//    setAllCurves();
+//  }
 
   /**
    * Sets the discounting curve for a given issuer/currency.
    * @param issuerCcy The issuer/currency.
    * @param curve The yield curve used for discounting.
    */
-  public void setCurve(final Pair<String, Currency> issuerCcy, final YieldAndDiscountCurve curve) {
+  public void setCurve(final Pair<Object, LegalEntityMeta<LegalEntity>> issuerCcy, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(issuerCcy, "Issuer/currency");
     ArgumentChecker.notNull(curve, "curve");
     if (_issuerCurves.containsKey(issuerCcy)) {
       throw new IllegalArgumentException("Currency discounting curve already set: " + issuerCcy.toString());
     }
     _issuerCurves.put(issuerCcy, curve);
-    init();
+    setAllCurves();
   }
 
-  public IssuerProvider withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
-    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
+//  public IssuerProvider withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
+//    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
+//    newIssuerCurves.put(ic, replacement);
+//    return new IssuerProvider(_multicurveProvider, newIssuerCurves);
+//  }
+
+  public IssuerProvider withIssuerCurrency(final Pair<Object, LegalEntityMeta<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
+    final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
     newIssuerCurves.put(ic, replacement);
     return new IssuerProvider(_multicurveProvider, newIssuerCurves);
   }
