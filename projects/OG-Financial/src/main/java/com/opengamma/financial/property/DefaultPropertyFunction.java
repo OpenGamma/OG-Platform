@@ -247,6 +247,17 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     return getDefaults(context, target) != null;
   }
 
+  /**
+   * Offers sub-classes a chance to modify the constraints that will be ejected, or to abort the application.
+   * 
+   * @param constraints the constraint set that will be used to form the input requirement, not null
+   * @return true to proceed, false to abort the application
+   */
+  protected boolean verifyConstraints(final ValueProperties.Builder constraints) {
+    // No-op
+    return true;
+  }
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final PropertyDefaults defaults = getDefaults(context, target);
@@ -298,7 +309,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
         s_logger.debug("Does not match on property {} for {}", propertyName, desiredValue);
       }
     }
-    if (!matched) {
+    if (!matched || !verifyConstraints(constraints)) {
       // No default values were found
       s_logger.debug("No matched values");
       return null;

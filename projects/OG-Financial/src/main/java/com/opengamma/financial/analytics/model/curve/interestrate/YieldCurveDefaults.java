@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -25,13 +26,8 @@ import com.opengamma.util.ArgumentChecker;
 @Deprecated
 public class YieldCurveDefaults extends DefaultPropertyFunction {
   /** The value requirement names to which these defaults apply */
-  private static final String[] VALUE_REQUIREMENTS = new String[] {
-      ValueRequirementNames.YIELD_CURVE,
-      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
-      ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
-      ValueRequirementNames.YIELD_CURVE_SERIES,
-      ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES
-  };
+  private static final String[] VALUE_REQUIREMENTS = new String[] {ValueRequirementNames.YIELD_CURVE, ValueRequirementNames.YIELD_CURVE_JACOBIAN, ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
+      ValueRequirementNames.YIELD_CURVE_SERIES, ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES };
   /** The absolute tolerance */
   private final Set<String> _absoluteTolerance;
   /** The relative tolerance */
@@ -44,6 +40,8 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
   private final Set<String> _useFiniteDifference;
   /** The currencies for which these defaults apply */
   private final Set<String> _applicableCurrencies;
+  /** The curve calculation method */
+  private final Set<String> _curveCalculationMethod = ImmutableSet.of(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING);
 
   /**
    * @param absoluteTolerance The absolute tolerance used in root-finding
@@ -53,8 +51,8 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
    * @param useFiniteDifference True if calculations should use finite difference in root-finding, otherwise analytic derivatives are used
    * @param applicableCurrencies The currencies for which these defaults apply
    */
-  public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
-      final String useFiniteDifference, final String... applicableCurrencies) {
+  public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition, final String useFiniteDifference,
+      final String... applicableCurrencies) {
     super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(absoluteTolerance, "absolute tolerance");
     ArgumentChecker.notNull(relativeTolerance, "relative tolerance");
@@ -85,7 +83,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
     if (curveCalculationMethod == null) {
       return super.getRequirements(context, target, desiredValue);
     }
-    if (!(curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) || (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)))) {
+    if (!(curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) || curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING))) {
       return null;
     }
     return super.getRequirements(context, target, desiredValue);
@@ -99,6 +97,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
       defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
       defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -115,6 +114,8 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
         return _maxIterations;
       case MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE:
         return _useFiniteDifference;
+      case ValuePropertyNames.CURVE_CALCULATION_METHOD:
+        return _curveCalculationMethod;
       default:
         return null;
     }
