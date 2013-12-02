@@ -39,14 +39,15 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains builders for the objects that analytics needs to perform pricing.
  */
 public final class AnalyticsParameterProviderBuilders {
 
+  /**
+   * Private constructor.
+   */
   private AnalyticsParameterProviderBuilders() {
   }
 
@@ -397,25 +398,21 @@ public final class AnalyticsParameterProviderBuilders {
   public static class IssuerProviderDiscountBuilder extends AbstractFudgeBuilder<IssuerProviderDiscount> {
     /** The curve provider field */
     private static final String CURVE_PROVIDER_FIELD = "curveProvider";
-    /** The issuer curve names field */
-    private static final String ISSUER_CURVE_NAMES_FIELD = "issuerName";
-    /** The issuer currencies field */
-    private static final String ISSUER_CURRENCIES_FIELD = "issuerCurrency";
-    /** The issuer yield curves field */
-    private static final String ISSUER_CURVES_FIELD = "issuerCurve";
+    /** The issuer field */
+    private static final String ISSUER_FIELD = "issuer";
+    /** The issuer curve field */
+    private static final String ISSUER_CURVE_FIELD = "issuerCurve";
 
     @Override
     public IssuerProviderDiscount buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final MulticurveProviderDiscount multicurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(CURVE_PROVIDER_FIELD));
-      final List<FudgeField> issuerNameFields = message.getAllByName(ISSUER_CURVE_NAMES_FIELD);
-      final List<FudgeField> issuerCurrencyFields = message.getAllByName(ISSUER_CURRENCIES_FIELD);
-      final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVES_FIELD);
-      final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
-      for (int i = 0; i < issuerNameFields.size(); i++) {
-        final String issuerName = (String) issuerNameFields.get(i).getValue();
-        final Currency issuerCurrency = Currency.of((String) issuerCurrencyFields.get(i).getValue());
+      final List<FudgeField> issuerFields = message.getAllByName(ISSUER_FIELD);
+      final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVE_FIELD);
+      final Map<Object, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
+      for (int i = 0; i < issuerFields.size(); i++) {
+        final Object issuer = issuerFields.get(i).getValue();
         final YieldAndDiscountCurve curve = deserializer.fieldValueToObject(YieldAndDiscountCurve.class, issuerCurveFields.get(i));
-        issuerCurves.put(Pairs.of(issuerName, issuerCurrency), curve);
+        issuerCurves.put(issuer, curve);
       }
       return new IssuerProviderDiscount(multicurves, issuerCurves);
     }
@@ -423,10 +420,9 @@ public final class AnalyticsParameterProviderBuilders {
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IssuerProviderDiscount object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_PROVIDER_FIELD, null, object.getMulticurveProvider());
-      for (final Map.Entry<Pair<String, Currency>, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
-        message.add(ISSUER_CURVE_NAMES_FIELD, entry.getKey().getFirst());
-        message.add(ISSUER_CURRENCIES_FIELD, entry.getKey().getSecond().getCode());
-        serializer.addToMessageWithClassHeaders(message, ISSUER_CURVES_FIELD, null, entry.getValue());
+      for (final Map.Entry<Object, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
+        message.add(ISSUER_FIELD, entry.getKey());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_CURVE_FIELD, null, entry.getValue());
       }
     }
 
