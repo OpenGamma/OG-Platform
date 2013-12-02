@@ -7,14 +7,11 @@ package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import java.util.Set;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.core.holiday.HolidaySource;
@@ -29,7 +26,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -38,22 +34,15 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
-import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.financial.security.cds.LegacyCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardCDSSecurity;
-import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
@@ -62,7 +51,7 @@ import com.opengamma.util.money.Currency;
  */
 public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,

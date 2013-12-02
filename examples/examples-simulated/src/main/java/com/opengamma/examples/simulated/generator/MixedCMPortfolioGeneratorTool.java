@@ -18,7 +18,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -45,7 +45,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class MixedCMPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   /** Following business day convention */
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** The region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
   /** Act/360 day-count */

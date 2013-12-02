@@ -74,8 +74,8 @@ public final class AnalyticsParameterProviderBuilders {
     public IborIndex buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final int spotLag = message.getInt(SPOT_LAG_FIELD);
-      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
-      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
+      final DayCount dayCount = DayCountFactory.of(message.getString(DAY_COUNT_FIELD));
+      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.of(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final boolean isEOM = message.getBoolean(EOM_FIELD);
       final Period tenor = Period.parse(message.getString(TENOR_FIELD));
       final String name = message.getString(NAME_FIELD);
@@ -112,7 +112,7 @@ public final class AnalyticsParameterProviderBuilders {
     public IndexON buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
-      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
+      final DayCount dayCount = DayCountFactory.of(message.getString(DAY_COUNT_FIELD));
       final int publicationLag = message.getInt(PUBLICATION_LAG_FIELD);
       return new IndexON(name, currency, dayCount, publicationLag);
     }

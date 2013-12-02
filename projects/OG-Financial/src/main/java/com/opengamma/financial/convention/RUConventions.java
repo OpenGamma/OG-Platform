@@ -13,7 +13,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -31,7 +31,7 @@ public class RUConventions {
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final ExternalId ru = ExternalSchemes.financialRegionId("RU");
 

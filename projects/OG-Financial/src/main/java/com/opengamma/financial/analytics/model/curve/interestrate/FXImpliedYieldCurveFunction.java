@@ -81,7 +81,7 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
@@ -109,7 +109,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   /** The matrix algebra used for matrix inversion. */
   private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra();
   /** The business day convention used for FX forward dates computation **/
-  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   @Override
   public void init(final FunctionCompilationContext context) {

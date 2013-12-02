@@ -42,7 +42,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -67,7 +67,7 @@ public class BondSecurityDiscountingMethodTest {
   private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR = 2;
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(10);
   private static final int SETTLEMENT_DAYS = 3;
@@ -496,7 +496,7 @@ public class BondSecurityDiscountingMethodTest {
   private static final int COUPON_PER_YEAR_G = 2;
   private static final Calendar CALENDAR_UK = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_UK = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
-  private static final BusinessDayConvention BUSINESS_DAY_UK = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_UK = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_UK = false;
   private static final Period BOND_TENOR_G = Period.ofYears(12);
   private static final int SETTLEMENT_DAYS_UK = 1;

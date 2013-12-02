@@ -12,7 +12,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -154,8 +154,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addHUFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     //Identifiers for external data
@@ -184,8 +184,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addITFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //Identifiers for external data
@@ -222,8 +222,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addDEFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //Identifiers for external data
@@ -260,8 +260,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addFRFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //Identifiers for external data
@@ -298,8 +298,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addSEFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     //Identifiers for external data

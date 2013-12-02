@@ -86,7 +86,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -112,7 +112,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
   /** Calculates the sensitivity of the par rate to the curves */
   private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   /** The business day convention used for FX forward dates computation **/
-  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ImpliedDepositCurveFunction.class);
   /** The curve name */

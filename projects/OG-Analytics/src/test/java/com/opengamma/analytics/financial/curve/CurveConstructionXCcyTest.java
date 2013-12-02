@@ -33,7 +33,7 @@ public class CurveConstructionXCcyTest {
   //  private static final DayCount DAY_COUNT_CASH = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   //  private static final DayCount DAY_COUNT_CASH_3 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   //  private static final double NOTIONAL = 1.0;
-  //  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  //  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_1 = new GeneratorDepositON("USD Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_2 = new GeneratorDepositON("EUR Deposit ON", CCY_EUR, CALENDAR, DAY_COUNT_CASH);

@@ -35,7 +35,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -60,7 +60,7 @@ public class BondTransactionDiscountingMethodTest {
   //Fixed Coupon Semi-annual 5Y
   private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(5);
   private static final int SETTLEMENT_DAYS_FIXED = 3;
@@ -104,12 +104,12 @@ public class BondTransactionDiscountingMethodTest {
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_3 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE);
   // Ibor coupon Quarterly 2Y
   private static final DayCount DAY_COUNT_FRN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FRN = false;
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final int IBOR_SPOT_LAG = 2;
-  private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IBOR_IS_EOM = false;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM, "Ibor");
   private static final Period BOND_TENOR_FRN = Period.ofYears(2);

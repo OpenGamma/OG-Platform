@@ -37,7 +37,7 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
@@ -56,7 +56,7 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
   private static final IborIndex USDLIBOR3M = IBOR_INDEXES[2];
   private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final Calendar CALENDAR_USD = MulticurveProviderDiscountDataSets.getUSDCalendar();
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final int MATURITY = 10;
   private static final Period COUPON_TENOR = Period.ofYears(MATURITY);

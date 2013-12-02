@@ -13,7 +13,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CLConventions {
   /** Following business day convention */
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** Act/360 day count convention */
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   /** The region */

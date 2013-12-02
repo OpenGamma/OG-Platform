@@ -15,7 +15,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleMasterUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -30,8 +30,8 @@ public class SyntheticEUConventions {
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);

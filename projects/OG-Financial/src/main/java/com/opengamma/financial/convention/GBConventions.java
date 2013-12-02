@@ -14,7 +14,7 @@ import org.threeten.bp.Period;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -32,9 +32,9 @@ public class GBConventions {
   /** Month codes used by Bloomberg */
   private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
   /** Modified business day convention */
-  private static final BusinessDayConvention MODIFIED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MODIFIED = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** Following business day convention */
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** Act/365 */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   /** Annual frequency */
@@ -183,7 +183,7 @@ public class GBConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("GBP_BOND_FUTURE_DELIVERABLE_CONVENTION")),
-        "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 7, 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        "GBP_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 7, 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventions.FOLLOWING,
         SimpleYieldConvention.MONEY_MARKET);
   }
 }

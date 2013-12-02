@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRate
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
@@ -49,7 +49,7 @@ public class LastTimeCalculatorTest {
     final double fixingPeriodEndTime = 7. / 12;
     final double fixingYearFraction = 31. / 365;
     final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
+        BusinessDayConventions.FOLLOWING, true, "Ibor");
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction,
         0.05);
 
@@ -59,7 +59,7 @@ public class LastTimeCalculatorTest {
   @Test
   public void testFutures() {
     final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
+        BusinessDayConventions.FOLLOWING, true, "Ibor");
     final double lastTradingTime = 1.473;
     final double fixingPeriodStartTime = 1.467;
     final double fixingPeriodEndTime = 1.75;

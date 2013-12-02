@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndP
 import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -93,7 +93,7 @@ public class CreditDefaultSwap {
   private static final StubType stubType = StubType.FRONTSHORT;
   private static final PeriodFrequency couponFrequency = PeriodFrequency.QUARTERLY;
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventions.FOLLOWING;
 
   private static final boolean immAdjustMaturityDate = true;
   private static final boolean adjustEffectiveDate = true;

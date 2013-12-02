@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -96,7 +96,7 @@ public class MultiSwapLegVisitorTest {
     return new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         frequency,
         ExternalId.of("Reg", "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.USD, 1234),
         true,
         0.1);
@@ -106,7 +106,7 @@ public class MultiSwapLegVisitorTest {
     return new FloatingInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         frequency,
         ExternalId.of("Reg", "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.GBP, 1234),
         true,
         ExternalId.of("Rate", "ABC"),
@@ -117,7 +117,7 @@ public class MultiSwapLegVisitorTest {
     return new FixedInflationSwapLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         frequency,
         ExternalId.of("Reg", "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.USD, 1234),
         true,
         0.1);
@@ -127,7 +127,7 @@ public class MultiSwapLegVisitorTest {
     return new InflationIndexSwapLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         frequency,
         ExternalId.of("Reg", "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.USD, 1234),
         true,
         ExternalId.of("Test", "AD"),

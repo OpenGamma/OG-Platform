@@ -15,7 +15,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -45,7 +45,7 @@ public class ExternalIdVisitorTest {
       new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Act/365"),
                                SimpleFrequency.QUARTERLY,
                                ExternalId.of("Reg", "123"),
-                               BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+                               BusinessDayConventions.FOLLOWING,
                                new InterestRateNotional(Currency.GBP, 1234),
                                true,
                                0.01);
@@ -53,7 +53,7 @@ public class ExternalIdVisitorTest {
       new FloatingInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Act/365"),
                                   SimpleFrequency.ANNUAL,
                                   ExternalId.of("Reg", "123"),
-                                  BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+                                  BusinessDayConventions.FOLLOWING,
                                   new InterestRateNotional(Currency.GBP, 321),
                                   true,
                                   ExternalId.of("Rate", "1234"),

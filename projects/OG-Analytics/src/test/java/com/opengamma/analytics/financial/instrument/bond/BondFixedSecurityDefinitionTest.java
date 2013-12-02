@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
@@ -47,7 +47,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 2;
@@ -236,7 +236,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final int COUPON_PER_YEAR_G = 2;
   private static final Calendar CALENDAR_G = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_G = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
-  private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_G = false;
   private static final Period BOND_TENOR_G = Period.ofYears(12);
   private static final int SETTLEMENT_DAYS_G = 2;
@@ -379,7 +379,7 @@ public class BondFixedSecurityDefinitionTest {
 
   private static final Currency EUR = Currency.EUR;
   private static final ActualActualICMA DAY_COUNT_ACTACTICMA = new ActualActualICMA();
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
 
   private static final String ISSUER_DE = "BUNDESREPUB. DEUTSCHLAND";
   private static final YieldConvention YIELD_CONVENTION_GERMANY = SimpleYieldConvention.GERMAN_BOND;

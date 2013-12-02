@@ -18,7 +18,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -74,7 +74,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
 
   private static final String ID_SCHEME = "MULTI_ASSET_PORFOLIO_LOADER";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final ExternalId USDLIBOR3M = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
   private static final LocalDate TODAY = LocalDate.now();
 
@@ -354,7 +354,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 1.0E7),
             false,
             USDLIBOR3M,
@@ -362,7 +362,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"),
             SimpleFrequency.SEMI_ANNUAL,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 1.0E7),
             false,
             0.04));
@@ -383,7 +383,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 3000000.0),
             false,
             USDLIBOR3M,
@@ -391,7 +391,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"),
             SimpleFrequency.SEMI_ANNUAL,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 3000000.0),
             false,
             0.01));
@@ -412,7 +412,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         "Cpty",
         new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 6000000.0),
             false,
             USDLIBOR3M,
@@ -420,7 +420,7 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractTool<ToolContext> 
         new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"),
             SimpleFrequency.SEMI_ANNUAL,
             ExternalSchemes.financialRegionId("US+GB"),
-            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+            BusinessDayConventions.MODIFIED_FOLLOWING,
             new InterestRateNotional(Currency.USD, 6000000.0),
             false,
             0.035));

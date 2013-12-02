@@ -14,7 +14,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -35,7 +35,7 @@ public class CDSAnalyticFactory {
   private static final boolean PROT_START = true;
   private static final double DEFAULT_RR = 0.4;
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** Curve daycount generally fixed to Act/365 in ISDA */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");

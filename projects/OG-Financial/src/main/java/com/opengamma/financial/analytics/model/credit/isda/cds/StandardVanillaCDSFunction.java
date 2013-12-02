@@ -57,7 +57,7 @@ import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRa
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -74,7 +74,7 @@ import com.opengamma.util.time.Tenor;
  */
 //TODO rename to make clear that these functions use the ISDA methodology (specifically, for effective dates)
 public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private final String[] _valueRequirements;
   private static final Logger s_logger = LoggerFactory.getLogger(StandardVanillaCDSFunction.class);
 

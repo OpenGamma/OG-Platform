@@ -16,7 +16,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -59,7 +59,7 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = PeriodFrequency.SEMI_ANNUAL;
   /** Modified following business day convention */
-  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** The holiday region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
   /** The ibor ticker */

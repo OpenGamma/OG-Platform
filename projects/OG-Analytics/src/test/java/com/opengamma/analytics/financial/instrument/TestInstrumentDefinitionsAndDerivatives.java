@@ -111,7 +111,7 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockTy
 import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -132,7 +132,7 @@ import com.opengamma.util.time.DateUtils;
 @SuppressWarnings("unchecked")
 public class TestInstrumentDefinitionsAndDerivatives {
   public static final Currency CUR = Currency.USD;
-  public static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  public static final BusinessDayConvention BD = BusinessDayConventions.FOLLOWING;
   public static final Calendar C = new MondayToFridayCalendar("F");
   public static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   public static final Period TENOR = Period.ofYears(2);

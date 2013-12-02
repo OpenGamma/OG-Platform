@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -46,7 +46,7 @@ public class GeneratorSwapFixedCompoundedONCompoundedMaster {
     final IndexONMaster indexONMaster = IndexONMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     final DayCount bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
-    final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     _generatorSwap = new HashMap<>();
     final IndexON cdi = indexONMaster.getIndex("CDI");
     _generatorSwap.put("BRLCDI", new GeneratorSwapFixedCompoundedONCompounded("BRLCDI", cdi, bus252, modFol, true, 0, 0, baseCalendar));
