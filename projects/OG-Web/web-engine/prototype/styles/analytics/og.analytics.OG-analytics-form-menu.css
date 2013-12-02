@@ -192,6 +192,7 @@
 
     .OG-analytics-form-menu.og-menu-datasources .og-randomized-opts {
         padding-top: 2px;
+        min-width: 400px;
     }
 
 
