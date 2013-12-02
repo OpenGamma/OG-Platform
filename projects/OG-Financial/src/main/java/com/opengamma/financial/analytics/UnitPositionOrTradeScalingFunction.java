@@ -54,7 +54,7 @@ public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonComp
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType().isTargetType(ComputationTargetType.POSITION)) {
       // Only apply if there are no trades; otherwise we should use UnitPositionTradeScalingFunction
-      return !((Position) target.getValue()).getTrades().isEmpty();
+      return ((Position) target.getValue()).getTrades().isEmpty();
     }
     return true;
   }
