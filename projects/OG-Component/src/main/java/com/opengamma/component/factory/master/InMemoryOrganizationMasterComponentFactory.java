@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.component.factory.master;
 
 import java.util.LinkedHashMap;
@@ -22,6 +27,9 @@ import com.opengamma.master.orgs.impl.DataOrganizationMasterResource;
 import com.opengamma.master.orgs.impl.InMemoryOrganizationMaster;
 import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
 
+/**
+ * Component factory for an in-memory org master.
+ */
 @BeanDefinition
 public class InMemoryOrganizationMasterComponentFactory extends AbstractComponentFactory {
 
