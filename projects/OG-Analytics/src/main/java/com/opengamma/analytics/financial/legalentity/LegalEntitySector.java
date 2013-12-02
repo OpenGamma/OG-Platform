@@ -15,12 +15,14 @@ import com.opengamma.util.ArgumentChecker;
  * Gets the sector of an {@link LegalEntity}.
  */
 public class LegalEntitySector implements LegalEntityMeta<LegalEntity> {
-  private final String _sectorName;
-  private final String _classificationName;
+  private final boolean _useSectorName;
+  private final boolean _useClassificationName;
+  private final Set<String> _classifications;
 
-  protected LegalEntitySector(final String sectorName, final String classificationName) {
-    _sectorName = sectorName;
-    _classificationName = classificationName;
+  protected LegalEntitySector(final boolean useSectorName, final boolean useClassificationName, final Set<String> classifications) {
+    _useSectorName = useSectorName;
+    _useClassificationName = useClassificationName;
+    _classifications = classifications;
   }
 
   public static Builder builder() {
@@ -30,46 +32,60 @@ public class LegalEntitySector implements LegalEntityMeta<LegalEntity> {
   @Override
   public Object getMetaData(final LegalEntity legalEntity) {
     ArgumentChecker.notNull(legalEntity, "obligor");
-    if (_sectorName == null && _classificationName == null) {
+    if (!(_useSectorName || _useClassificationName)) {
       return legalEntity.getSector();
     }
     final Sector sector = legalEntity.getSector();
     final Set<Object> selections = new HashSet<>();
-    if (_sectorName != null) {
+    if (_useSectorName) {
       selections.add(sector.getName());
     }
-    if (_classificationName != null) {
+    int classificationCount = 0;
+    if (_useClassificationName) {
       final Map<String, Object> classifications = sector.getClassifications().toMap();
       if (classifications.isEmpty()) {
         throw new IllegalStateException("Sector " + legalEntity.getSector() + " does not contain any classifications");
       }
-      final Object classification = classifications.get(_classificationName);
-      if (classification != null) {
-        selections.add(classification);
+      for (final Map.Entry<String, Object> entry : classifications.entrySet()) {
+        if (_classifications.contains(entry.getKey())) {
+          selections.add(entry.getValue());
+          classificationCount++;
+        }
       }
+    }
+    if (classificationCount != _classifications.size()) {
+      throw new IllegalStateException("Classifications " + sector.getClassifications() + " do not contain matches for " + _classifications);
     }
     return selections;
   }
 
   public static class Builder {
-    private String _name;
-    private String _classificationName;
+    private boolean _name;
+    private boolean _classificationName;
+    private final Set<String> _classificationsToUse;
 
     protected Builder() {
+      _classificationsToUse = new HashSet<>();
     }
 
-    public Builder withName(final String name) {
-      _name = name;
+    public Builder useName() {
+      _name = true;
       return this;
     }
 
-    public Builder withClassificationName(final String classificationName) {
-      _classificationName = classificationName;
+    public Builder useClassificationName() {
+      _classificationName = true;
+      return this;
+    }
+
+    public Builder useClassificationForType(final String classificationToUse) {
+      _classificationName = true;
+      _classificationsToUse.add(classificationToUse);
       return this;
     }
 
     public LegalEntitySector create() {
-      return new LegalEntitySector(_name, _classificationName);
+      return new LegalEntitySector(_name, _classificationName, _classificationsToUse);
     }
   }
 }

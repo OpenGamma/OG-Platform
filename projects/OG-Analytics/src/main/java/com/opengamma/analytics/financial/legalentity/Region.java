@@ -105,9 +105,9 @@ public final class Region implements ImmutableBean, Serializable {
   }
 
   private Region(
-      final String name,
-      final Set<Country> countries,
-      final Set<Currency> currencies) {
+      String name,
+      Set<Country> countries,
+      Set<Currency> currencies) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(countries, "countries");
     JodaBeanUtils.notNull(currencies, "currencies");
@@ -122,7 +122,7 @@ public final class Region implements ImmutableBean, Serializable {
   }
 
   @Override
-  public <R> Property<R> property(final String propertyName) {
+  public <R> Property<R> property(String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -165,12 +165,12 @@ public final class Region implements ImmutableBean, Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final Region other = (Region) obj;
+      Region other = (Region) obj;
       return JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getCountries(), other.getCountries()) &&
           JodaBeanUtils.equal(getCurrencies(), other.getCurrencies());
@@ -189,7 +189,7 @@ public final class Region implements ImmutableBean, Serializable {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Region{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("countries").append('=').append(getCountries()).append(',').append(' ');
@@ -241,7 +241,7 @@ public final class Region implements ImmutableBean, Serializable {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return _name;
@@ -295,7 +295,7 @@ public final class Region implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           return ((Region) bean).getName();
@@ -308,7 +308,7 @@ public final class Region implements ImmutableBean, Serializable {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       metaProperty(propertyName);
       if (quiet) {
         return;
@@ -338,7 +338,7 @@ public final class Region implements ImmutableBean, Serializable {
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override
-    public Builder set(final String propertyName, final Object newValue) {
+    public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
           this._name = (String) newValue;
@@ -366,7 +366,7 @@ public final class Region implements ImmutableBean, Serializable {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      final StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Region.Builder{");
       buf.append("name").append('=').append(_name).append(',').append(' ');
       buf.append("countries").append('=').append(_countries).append(',').append(' ');

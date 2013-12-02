@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -52,10 +53,11 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    * The yield day count convention.
    */
   private final DayCount _dayCount;
-  /**
-   * The bill issuer name.
-   */
-  private final String _issuer;
+//  /**
+//   * The bill issuer name.
+//   */
+//  private final String _issuer;
+  private final LegalEntity _issuer;
 
   /**
    * Constructor from all details.
@@ -82,7 +84,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     _notional = notional;
     _settlementDays = settlementDays;
     _calendar = calendar;
-    _issuer = issuer;
+    _issuer = new LegalEntity(null, issuer, null, null, null);
     _yieldConvention = yieldConvention;
     _dayCount = dayCount;
   }
@@ -143,11 +145,19 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     return _dayCount;
   }
 
+//  /**
+//   * Gets the bill issuer name.
+//   * @return The name.
+//   */
+//  public String getIssuer() {
+//    return _issuer.getShortName();
+//  }
+
   /**
    * Gets the bill issuer name.
    * @return The name.
    */
-  public String getIssuer() {
+  public LegalEntity getIssuer() {
     return _issuer;
   }
 
@@ -174,7 +184,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     settlementTime = Math.max(settlementTime, 0.0);
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
     final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
-    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer, yieldCurveNames[1], yieldCurveNames[0]);
+    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer.getShortName(), yieldCurveNames[1], yieldCurveNames[0]);
   }
 
   /**
@@ -191,7 +201,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     settlementTime = Math.max(settlementTime, 0.0);
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
     final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
-    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer);
+    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer.getShortName());
   }
 
   /**

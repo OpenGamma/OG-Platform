@@ -52,6 +52,11 @@ public final class GICSCode implements ImmutableBean, Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The GICS classification name.
+   */
+  public static final String NAME = "GICS";
+
+  /**
    * The code.
    */
   @PropertyDefinition(get = "manual", validate = "notNull")
@@ -109,6 +114,14 @@ public final class GICSCode implements ImmutableBean, Serializable {
     _sector = code.substring(0, 2);
     _industryGroup = code.length() <= 4 ? "" : code.substring(0, 4);
     _industry = code.length() <= 6 ? "" : code.substring(0, 6);
+  }
+
+  /**
+   * Gets the name of this classification type.
+   * @return The name
+   */
+  public String getClassificationName() {
+    return NAME;
   }
 
   /**

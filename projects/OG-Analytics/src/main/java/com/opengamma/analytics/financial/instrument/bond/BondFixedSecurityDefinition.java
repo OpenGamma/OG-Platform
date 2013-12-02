@@ -427,7 +427,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
         couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factor = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, settleTime, accruedInterestAtSettle, factor, getYieldConvention(),
-        _couponPerYear, riskFreeCurveName, getIssuer());
+        _couponPerYear, riskFreeCurveName, getIssuer().getShortName());
     return bondStandard;
 
   }
@@ -476,7 +476,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
         couponDefinition.getNthPayment(0).getAccrualEndDate(), couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear);
     final double factor = (factorPeriod - factorSpot) / factorPeriod;
     final BondFixedSecurity bondStandard = new BondFixedSecurity(nominalStandard, couponStandard, settleTime, accruedInterestAtSettle, factor, getYieldConvention(),
-        _couponPerYear, getIssuer());
+        _couponPerYear, getIssuer().getShortName());
     return bondStandard;
   }
 

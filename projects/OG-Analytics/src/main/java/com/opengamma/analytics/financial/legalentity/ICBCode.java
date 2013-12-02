@@ -52,6 +52,10 @@ public final class ICBCode implements ImmutableBean, Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The ICB classification name.
+   */
+  public static final String NAME = "ICB";
+  /**
    * The code.
    */
   @PropertyDefinition(get = "manual", validate = "notNull")
@@ -90,6 +94,14 @@ public final class ICBCode implements ImmutableBean, Serializable {
   private ICBCode(final String code) {
     ArgumentChecker.notNull(code, "code");
     _code = code;
+  }
+
+  /**
+   * Gets the name of this classification type.
+   * @return The name
+   */
+  public String getClassificationName() {
+    return NAME;
   }
 
   /**

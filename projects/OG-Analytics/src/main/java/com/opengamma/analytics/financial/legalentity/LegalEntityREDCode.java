@@ -12,10 +12,27 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class LegalEntityREDCode implements LegalEntityMeta<LegalEntityWithREDCode> {
 
+  protected LegalEntityREDCode() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
   @Override
   public Object getMetaData(final LegalEntityWithREDCode obligor) {
     ArgumentChecker.notNull(obligor, "obligor");
     return obligor.getRedCode();
+  }
+
+  public static class Builder {
+
+    protected Builder() {
+    }
+
+    public LegalEntityREDCode create() {
+      return new LegalEntityREDCode();
+    }
   }
 
 }

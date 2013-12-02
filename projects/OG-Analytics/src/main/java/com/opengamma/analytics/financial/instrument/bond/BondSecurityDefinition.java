@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -48,7 +49,8 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
   /**
    * The bond issuer name.
    */
-  private final String _issuer;
+//  private final String _issuer;
+  private final LegalEntity _issuer;
   /**
    * The bond repo type.
    */
@@ -76,7 +78,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
     _exCouponDays = exCouponDays;
     _settlementDays = settlementDays;
     _calendar = calendar;
-    _issuer = issuer;
+    _issuer = new LegalEntity(null, issuer, null, null, null);
     _repoType = "";
   }
 
@@ -104,7 +106,7 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
     _exCouponDays = exCouponDays;
     _settlementDays = settlementDays;
     _calendar = calendar;
-    _issuer = issuer;
+    _issuer = new LegalEntity(null, issuer, null, null, null);
     _repoType = repoType;
   }
 
@@ -144,7 +146,10 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
    * Gets the issuer name.
    * @return The issuer name.
    */
-  public String getIssuer() {
+//  public String getIssuer() {
+//    return _issuer;
+//  }
+  public LegalEntity getIssuer() {
     return _issuer;
   }
 

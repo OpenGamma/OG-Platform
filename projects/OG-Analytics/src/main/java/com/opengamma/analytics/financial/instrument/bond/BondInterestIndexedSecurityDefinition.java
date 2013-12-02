@@ -374,7 +374,7 @@ public class BondInterestIndexedSecurityDefinition<N extends PaymentFixedDefinit
     final double notional = settlementDate.isBefore(date) ? 0.0 : 1.0;
     final PaymentFixedDefinition settlementDefinition = new PaymentFixedDefinition(nominalLast.getCurrency(), settlementDate2, notional);
     final PaymentFixed settlement = settlementDefinition.toDerivative(date);
-    return new BondInterestIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, getIssuer(),
+    return new BondInterestIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, getIssuer().getShortName(),
         _priceIndex);
   }
 

@@ -14,15 +14,15 @@ import com.opengamma.util.i18n.Country;
  * <p>
  * Implementing classes can also manipulate data in fields if required - e.g. performing
  * a union of the {@link Region} and {@link Country}.
- * @param <S> The type of the obligor
+ * @param <S> The type of the legal entity
  */
 public interface LegalEntityMeta<S extends LegalEntity> {
 
   /**
-   * Gets the desired field (e.g. the sector) for an obligor.
-   * @param obligor The obligor, not null
+   * Gets the desired field (e.g. the sector) for an legal entity.
+   * @param legalEntity The legal entity, not null
    * @return The meta data
    */
-  Object getMetaData(S obligor);
+  Object getMetaData(S legalEntity);
 
 }

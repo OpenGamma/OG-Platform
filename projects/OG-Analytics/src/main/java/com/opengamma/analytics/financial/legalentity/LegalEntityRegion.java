@@ -13,17 +13,23 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- * Gets the region of an {@link LegalEntity}.
+ * Gets the region or sub-fields of the region of an {@link LegalEntity}.
  */
+//TODO bean for the top level class
 public class LegalEntityRegion implements LegalEntityMeta<LegalEntity> {
-  private final String _name;
-  private final String _country;
-  private final String _currency;
+  private final boolean _useName;
+  private final boolean _useCountry;
+  private final Set<Country> _countries;
+  private final boolean _useCurrency;
+  private final Set<Currency> _currencies;
 
-  protected LegalEntityRegion(final String name, final String country, final String currency) {
-    _name = name;
-    _country = country;
-    _currency = currency;
+  protected LegalEntityRegion(final boolean useName, final boolean useCountries, final Set<Country> countries,
+      final boolean useCurrencies, final Set<Currency> currencies) {
+    _useName = useName;
+    _useCountry = useCountries;
+    _countries = countries;
+    _useCurrency = useCurrencies;
+    _currencies = currencies;
   }
 
   public static Builder builder() {
@@ -32,60 +38,82 @@ public class LegalEntityRegion implements LegalEntityMeta<LegalEntity> {
 
   @Override
   public Object getMetaData(final LegalEntity legalEntity) {
-    ArgumentChecker.notNull(legalEntity, "obligor");
-    if (_name == null && _country == null && _currency == null) {
-      return legalEntity.getRegion();
+    ArgumentChecker.notNull(legalEntity, "legal entity");
+    final Region region = legalEntity.getRegion();
+    if (region == null) {
+      throw new IllegalStateException("Region for this legal entity " + legalEntity + " was null");
+    }
+    if (!(_useName || _useCountry || _useCurrency)) {
+      return region;
     }
     final Set<Object> selections = new HashSet<>();
-    if (_name != null) {
-      selections.add(legalEntity.getRegion().getName());
+    if (_useName) {
+      selections.add(region.getName());
     }
-    if (_country != null) {
-      final Set<Country> countries = legalEntity.getRegion().getCountries();
-      selections.addAll(countries);
+    if (_useCountry) {
+      final Set<Country> countries = region.getCountries();
+      if (_countries.isEmpty()) {
+        selections.addAll(countries);
+      } else if (countries.containsAll(_countries)) {
+        selections.addAll(_countries);
+      } else {
+        throw new IllegalStateException();
+      }
     }
-    if (_currency != null) {
-      final Set<Currency> currencies = legalEntity.getRegion().getCurrencies();
-      selections.addAll(currencies);
+    if (_useCurrency) {
+      final Set<Currency> currencies = region.getCurrencies();
+      if (_currencies.isEmpty()) {
+        selections.addAll(currencies);
+      } else if (currencies.containsAll(_currencies)) {
+        selections.addAll(_currencies);
+      } else {
+        throw new IllegalStateException();
+      }
     }
     return selections;
   }
 
   public static class Builder {
-    private String _name;
-    private String _country;
-    private String _currency;
+    private boolean _name;
+    private boolean _country;
+    private final Set<Country> _countriesToUse;
+    private boolean _currency;
+    private final Set<Currency> _currenciesToUse;
 
     protected Builder() {
+      _countriesToUse = new HashSet<>();
+      _currenciesToUse = new HashSet<>();
     }
 
-    public Builder withName(final String name) {
-      _name = name;
+    public Builder useName() {
+      _name = true;
       return this;
     }
 
-    public Builder withCountry(final Country country) {
-      _country = country.getCode();
+    public Builder useCountries() {
+      _country = true;
       return this;
     }
 
-    public Builder withCountry(final String country) {
-      _country = country;
+    public Builder useCountry(final String country) {
+      _country = true;
+      _countriesToUse.add(Country.of(country));
       return this;
     }
 
-    public Builder withCurrency(final Currency currency) {
-      _currency = currency.getCode();
+    public Builder useCurrencies() {
+      _currency = true;
       return this;
     }
 
-    public Builder withCurrency(final String currency) {
-      _currency = currency;
+    public Builder useCurrency(final String currency) {
+      _currency = true;
+      _currenciesToUse.add(Currency.of(currency));
       return this;
     }
 
     public LegalEntityRegion create() {
-      return new LegalEntityRegion(_name, _country, _currency);
+      return new LegalEntityRegion(_name, _country, _countriesToUse, _currency, _currenciesToUse);
     }
   }
 }

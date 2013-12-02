@@ -15,13 +15,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.legalentity.CreditRating;
-import com.opengamma.analytics.financial.legalentity.GICSCode;
-import com.opengamma.analytics.financial.legalentity.ICBCode;
-import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityWithREDCode;
-import com.opengamma.analytics.financial.legalentity.Region;
-import com.opengamma.analytics.financial.legalentity.Sector;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -36,7 +29,7 @@ public class LegalEntityTest {
   /** The short name */
   static final String SHORT_NAME = "DEF";
   /** The credit ratings */
-  static final Set<CreditRating> CREDIT_RATINGS = Sets.newHashSet(CreditRating.of("A", "S&P", false), CreditRating.of("A", "Moody's", false));
+  static final Set<CreditRating> CREDIT_RATINGS = Sets.newHashSet(CreditRating.of("A", "Prime", "S&P", false), CreditRating.of("B", "Investment Grade", "Moody's", false));
   /** The sector */
   static final Sector SECTOR;
   /** The region */
@@ -48,7 +41,7 @@ public class LegalEntityTest {
   /** An obligor */
   static final LegalEntity LEGAL_ENTITY;
   /** An obligor with RED code */
-  static final LegalEntityWithREDCode OBLIGOR_RED_CODE;
+  static final LegalEntityWithREDCode LEGAL_ENTITY_RED_CODE;
 
   static {
     final FlexiBean industryClassifications = new FlexiBean();
@@ -56,7 +49,7 @@ public class LegalEntityTest {
     industryClassifications.put("ICB", ICBCode.of("1020"));
     SECTOR = Sector.of("INDUSTRY", industryClassifications);
     LEGAL_ENTITY = new LegalEntity(TICKER, SHORT_NAME, CREDIT_RATINGS, SECTOR, REGION);
-    OBLIGOR_RED_CODE = new LegalEntityWithREDCode(TICKER, SHORT_NAME, CREDIT_RATINGS, SECTOR, REGION, RED_CODE);
+    LEGAL_ENTITY_RED_CODE = new LegalEntityWithREDCode(TICKER, SHORT_NAME, CREDIT_RATINGS, SECTOR, REGION, RED_CODE);
   }
 
   /**
