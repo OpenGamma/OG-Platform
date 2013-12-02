@@ -65,7 +65,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /**
  * Loads the data required to run views from Fudge XML files into an empty database. TODO split this up to allow a subset of data to be dumped and restored?
  */
-/* package */class DatabaseRestore {
+public class DatabaseRestore {
 
   /** Attribute name holding a position's original unique ID from the source database. */
   public static final String REGRESSION_ID = "regressionId";
@@ -84,6 +84,38 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final OrganizationMaster _organizationMaster;
   private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
   private final FudgeDeserializer _deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
+
+  public DatabaseRestore(File dataDir,
+                         SecurityMaster securityMaster,
+                         PositionMaster positionMaster,
+                         PortfolioMaster portfolioMaster,
+                         ConfigMaster configMaster,
+                         HistoricalTimeSeriesMaster timeSeriesMaster,
+                         HolidayMaster holidayMaster,
+                         ExchangeMaster exchangeMaster,
+                         MarketDataSnapshotMaster snapshotMaster,
+                         OrganizationMaster organizationMaster) {
+    ArgumentChecker.notNull(dataDir, "dataDir");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    ArgumentChecker.notNull(configMaster, "configMaster");
+    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    ArgumentChecker.notNull(holidayMaster, "holidayMaster");
+    ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    _securityMaster = securityMaster;
+    _positionMaster = positionMaster;
+    _portfolioMaster = portfolioMaster;
+    _configMaster = configMaster;
+    _timeSeriesMaster = timeSeriesMaster;
+    _holidayMaster = holidayMaster;
+    _exchangeMaster = exchangeMaster;
+    _snapshotMaster = snapshotMaster;
+    _organizationMaster = organizationMaster;
+    _dataDir = dataDir;
+  }
 
   public DatabaseRestore(String dataDir,
       SecurityMaster securityMaster,
