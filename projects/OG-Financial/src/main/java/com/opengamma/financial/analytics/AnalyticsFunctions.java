@@ -304,6 +304,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
     addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.HEDGE_NOTIONAL);
 
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.BUCKETED_PV01);
 

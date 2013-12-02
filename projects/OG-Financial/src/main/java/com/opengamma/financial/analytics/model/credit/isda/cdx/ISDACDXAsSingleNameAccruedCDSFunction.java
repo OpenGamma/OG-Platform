@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.credit.isda.cdx;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
@@ -41,6 +42,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultIndexSwapSecurityToProxyConverter;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaAccruedCDSFunction;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -54,6 +56,7 @@ import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -70,40 +73,34 @@ public class ISDACDXAsSingleNameAccruedCDSFunction extends AbstractFunction.NonC
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource, securitySource);
-    final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapIndexSecurity security = (CreditDefaultSwapIndexSecurity) target.getSecurity();
     final CreditDefaultSwapIndexDefinitionSecurity underlyingDefinition = (CreditDefaultSwapIndexDefinitionSecurity) securitySource.getSingle(ExternalIdBundle.of(security.getReferenceEntity()));
     if (underlyingDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get underlying index definition");
     }
-    final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
     final double recoveryRate = underlyingDefinition.getRecoveryRate();
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     definition = definition.withRecoveryRate(recoveryRate);
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(recoveryRate, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
-    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .get();
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getEffectiveDate().toLocalDate(), definition.getStartDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
 
     int buySellPremiumFactor = security.isBuy() ? -1 : 1;
-    final double coupon = definition.getParSpread() * 1e-4;
+    final double coupon = definition.getParSpread(); // already in %.
 
     Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     for (ValueRequirement desired : desiredValues) {
       switch (desired.getValueName()) {
         case ValueRequirementNames.ACCRUED_DAYS:
           final int accruedDays = pricingCDS.getAccuredDays();
-          final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), properties);
+          final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), desired.getConstraints().copy().get());
           results.add(new ComputedValue(spec, accruedDays));
           break;
         case ValueRequirementNames.ACCRUED_PREMIUM:
           final double accruedInterest = pricingCDS.getAccruedPremium(coupon) * definition.getNotional() * buySellPremiumFactor;
-          final ValueSpecification spec2 = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), properties);
+          final ValueSpecification spec2 = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), desired.getConstraints().copy().get());
           results.add(new ComputedValue(spec2, accruedInterest));
           break;
         default:
@@ -120,8 +117,10 @@ public class ISDACDXAsSingleNameAccruedCDSFunction extends AbstractFunction.NonC
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     ValueSpecification daysSpec = new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), createValueProperties().get());
-    ValueSpecification interestSpec = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), createValueProperties().get());
+    ValueSpecification interestSpec = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(),
+                                                             createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).get());
     return Sets.newHashSet(daysSpec, interestSpec);
   }
 

@@ -32,6 +32,7 @@ import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCD
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSIR01Defaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSPriceTypeDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSRR01Defaults;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaHedgeNotionalCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaJumpToDefaultCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParSpreadCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelCS01CDSFunction;
@@ -426,6 +427,7 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(StandardVanillaPresentValueCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaAccruedCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaParSpreadCDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaHedgeNotionalCDSFunction.class));
 
     functions.add(functionConfiguration(ISDACDXAsSingleNameParallelCS01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedCS01Function.class));

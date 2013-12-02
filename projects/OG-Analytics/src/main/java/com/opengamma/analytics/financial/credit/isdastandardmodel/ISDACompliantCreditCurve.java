@@ -127,7 +127,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
@@ -139,15 +139,15 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
 
   @Override
   public int hashCode() {
-    final int hash = 7;
+    int hash = 7;
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(32);
+    StringBuilder buf = new StringBuilder(32);
     buf.append("ISDACompliantCreditCurve{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -157,7 +157,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
   }
 
@@ -174,7 +174,8 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap());
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

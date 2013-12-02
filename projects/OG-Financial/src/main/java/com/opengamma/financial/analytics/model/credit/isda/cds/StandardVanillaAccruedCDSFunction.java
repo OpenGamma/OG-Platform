@@ -5,30 +5,18 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
-
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSRiskFactors;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
@@ -49,9 +37,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
-import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
-import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
@@ -62,10 +47,15 @@ import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.cds.AbstractCreditDefaultSwapSecurity;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
-import com.opengamma.util.ParallelArrayBinarySort;
+import com.opengamma.financial.security.cds.LegacyCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.time.Tenor;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -95,16 +85,12 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
     }
     final double recoveryRate = (Double) recoveryRateObject;
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     definition = definition.withRecoveryRate(recoveryRate);
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(recoveryRate, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
-    final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .get();
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getEffectiveDate().toLocalDate(), definition.getStartDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
 
     int buySellPremiumFactor = security.isBuy() ? -1 : 1;
     final double coupon = definition.getParSpread() * 1e-4;
@@ -114,12 +100,12 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
       switch (desired.getValueName()) {
         case ValueRequirementNames.ACCRUED_DAYS:
           final int accruedDays = pricingCDS.getAccuredDays();
-          final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), properties);
+          final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), desired.getConstraints().copy().get());
           results.add(new ComputedValue(spec, accruedDays));
           break;
         case ValueRequirementNames.ACCRUED_PREMIUM:
           final double accruedInterest = pricingCDS.getAccruedPremium(coupon) * definition.getNotional() * buySellPremiumFactor;
-          final ValueSpecification spec2 = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), properties);
+          final ValueSpecification spec2 = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), desired.getConstraints().copy().get());
           results.add(new ComputedValue(spec2, accruedInterest));
           break;
         default:
@@ -136,8 +122,10 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     ValueSpecification daysSpec = new ValueSpecification(ValueRequirementNames.ACCRUED_DAYS, target.toSpecification(), createValueProperties().get());
-    ValueSpecification interestSpec = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(), createValueProperties().get());
+    ValueSpecification interestSpec = new ValueSpecification(ValueRequirementNames.ACCRUED_PREMIUM, target.toSpecification(),
+                                                             createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).get());
     return Sets.newHashSet(daysSpec, interestSpec);
   }
 
