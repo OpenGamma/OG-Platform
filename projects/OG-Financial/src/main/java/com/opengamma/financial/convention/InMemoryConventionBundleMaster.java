@@ -12,7 +12,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -119,6 +119,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   @Override
   public UniqueId add(final ExternalIdBundle bundle, final ConventionBundleImpl convention) {
     final UniqueId uid = _mapper.add(bundle, convention);
+    // REVIEW Andrew 2013-11-27 -- should we be setting the identifier bundle into the convention here - convention.setIdentifiers(bundle); - ?
     convention.setUniqueId(uid);
     return uid;
   }
@@ -153,8 +154,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addHUFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     //Identifiers for external data
@@ -183,8 +184,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addITFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //Identifiers for external data
@@ -221,8 +222,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addDEFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //Identifiers for external data
@@ -259,8 +260,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addFRFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
     //Identifiers for external data
@@ -297,8 +298,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   private void addSEFixedIncomeInstruments() {
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     //Identifiers for external data
@@ -435,7 +436,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Creates a simple name security Id.
    * <p>
-   * @param securityId  the simple name security id, not null
+   * 
+   * @param securityId the simple name security id, not null
    * @return the security identifier, not null
    */
   public static ExternalId simpleNameSecurityId(final String securityId) {
@@ -449,7 +451,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Creates a simple exchange name id.
    * <p>
-   * @param exchangeName  the simple exchange name, not null
+   * 
+   * @param exchangeName the simple exchange name, not null
    * @return the exchange identifier, not null
    */
   public static ExternalId simpleExchangeNameSecurityId(final String exchangeName) {

@@ -81,6 +81,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
     _couponPerYear = couponPerYear;
     _factorToNextCoupon = factorToNextCoupon;
   }
+
   /**
    * Gets the yield computation convention.
    * @return The yield convention.
@@ -106,10 +107,10 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   }
 
   /**
-   * Gets the accrual factor to the first coupon.
-   * @return The accrual factor to the first coupon.
+   * Gets the factor to the next coupon.
+   * @return The factor to the next coupon.
    */
-  public double getAccrualFactorToNextCoupon() {
+  public double getFactorToNextCoupon() {
     return _factorToNextCoupon;
   }
 

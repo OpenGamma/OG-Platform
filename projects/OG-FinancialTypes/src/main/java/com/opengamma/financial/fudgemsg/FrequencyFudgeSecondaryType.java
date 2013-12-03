@@ -37,7 +37,7 @@ public final class FrequencyFudgeSecondaryType extends SecondaryFieldType<Freque
 
   @Override
   public Frequency primaryToSecondary(final String string) {
-    return SimpleFrequencyFactory.INSTANCE.getFrequency(string);
+    return SimpleFrequencyFactory.of(string);
   }
 
 }

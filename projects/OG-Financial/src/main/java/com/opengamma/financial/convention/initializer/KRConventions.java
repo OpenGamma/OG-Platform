@@ -12,7 +12,7 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
@@ -27,7 +27,7 @@ public class KRConventions extends ConventionMasterInitializer {
   /** Singleton. */
   public static final ConventionMasterInitializer INSTANCE = new KRConventions();
 
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final ExternalId KR = ExternalSchemes.financialRegionId("KR");
 

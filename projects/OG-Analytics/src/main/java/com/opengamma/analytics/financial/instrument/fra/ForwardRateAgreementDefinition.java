@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -37,7 +37,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
   /**
    * Preceding business day convention.
    */
-  private static final BusinessDayConvention PRECEDING_BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  private static final BusinessDayConvention PRECEDING_BDC = BusinessDayConventions.PRECEDING;
   /**
    * Ibor-like index on which the FRA fixes. The index currency should be the same as the instrument currency.
    */

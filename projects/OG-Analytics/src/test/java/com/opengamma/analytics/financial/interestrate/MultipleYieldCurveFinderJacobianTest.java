@@ -26,7 +26,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -65,7 +65,7 @@ public class MultipleYieldCurveFinderJacobianTest {
 
   static {
     final IborIndex index = new IborIndex(CCY, Period.ofMonths(1), 0, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+        BusinessDayConventions.FOLLOWING, true);
     CASH = new ArrayList<>();
     FRA = new ArrayList<>();
     MIXED_INSTRUMENT = new ArrayList<>();

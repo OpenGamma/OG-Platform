@@ -12,6 +12,8 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -41,7 +43,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
   private static final BusinessDayConvention MF = BusinessDayConventionFactory.of("MF");
 
   static {
-    USD_FIXED_3M_EOM_CONVENTION = new FixedInterestRateSwapLegConvention();
+    USD_FIXED_3M_EOM_CONVENTION = new FixedInterestRateSwapLegConvention("Test1", ExternalIdBundle.of("Scheme", "TEST FIXED"));
     USD_FIXED_3M_EOM_CONVENTION.setDayCountConvention(DayCountFactory.of("ACT/360"));
     USD_FIXED_3M_EOM_CONVENTION.setCalculationCalendars(USNYGBLO);
     USD_FIXED_3M_EOM_CONVENTION.setMaturityCalendars(USNYGBLO);
@@ -56,8 +58,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_FIXED_3M_EOM_CONVENTION.setRollConvention(RollConvention.EOM);
     USD_FIXED_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);
 
-    USD_LIBOR_3M_EOM_CONVENTION = new FloatingInterestRateSwapLegConvention();
-    USD_LIBOR_3M_EOM_CONVENTION.setExternalIdBundle(ExternalId.of("Scheme", "USD_LIBOR_3M").toBundle());
+    USD_LIBOR_3M_EOM_CONVENTION = new FloatingInterestRateSwapLegConvention("Test2", ExternalIdBundle.of("Scheme", "USD_LIBOR_3M FIXED"));
     USD_LIBOR_3M_EOM_CONVENTION.setDayCountConvention(DayCountFactory.of("ACT/360"));
     USD_LIBOR_3M_EOM_CONVENTION.setCalculationCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setMaturityCalendars(USNYGBLO);

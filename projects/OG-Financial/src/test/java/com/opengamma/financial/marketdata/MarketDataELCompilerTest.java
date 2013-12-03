@@ -20,7 +20,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -57,7 +57,7 @@ public class MarketDataELCompilerTest {
     _barEquity.addExternalId(ExternalId.of("Test", "BarEquity"));
     _barEquity.setName("Bar");
     final SwapLeg swapLeg = new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("ACT/365"), SimpleFrequency.SEMI_ANNUAL,
-        ExternalId.of("Financial", "US"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new InterestRateNotional(Currency.USD, 10e6), false, 0.01);
+        ExternalId.of("Financial", "US"), BusinessDayConventions.FOLLOWING, new InterestRateNotional(Currency.USD, 10e6), false, 0.01);
     _swap = new SwapSecurity(ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "counterParty", swapLeg, swapLeg);
     _swap.addExternalId(ExternalId.of("Test", "Swap"));
   }

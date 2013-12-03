@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
@@ -55,9 +55,9 @@ public class ScheduleCalculatorTest {
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final boolean SHORT_STUB = true;
 
-  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final BusinessDayConvention FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final BusinessDayConvention PRE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
+  private static final BusinessDayConvention FOL = BusinessDayConventions.FOLLOWING;
+  private static final BusinessDayConvention PRE = BusinessDayConventions.PRECEDING;
 
   @Test
   /**

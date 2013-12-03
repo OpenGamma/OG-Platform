@@ -22,7 +22,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.cash.CashSecurity;
@@ -102,7 +102,7 @@ public class CdsRedCodeAggregationFunctionTest {
                                                                     DebtSeniority.SNRFOR, RestructuringClause.MM, ExternalSchemes.financialRegionId("US"),
                                                                     createZdt(2013, 3, 20), createZdt(2013, 3, 21), createZdt(2014,3,20), StubType.SHORT_START,
                                                                     SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/360"),
-                                                                    BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+                                                                    BusinessDayConventions.FOLLOWING,
                                                                     true, true, true, new InterestRateNotional(Currency.USD, 10000000), true, true, 500,
                                                                     new InterestRateNotional(Currency.USD, 500000), 500, createZdt(2013,3,21), true);
     ExternalId secId = ExternalId.of("SEC_ID", "12345");

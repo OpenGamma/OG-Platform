@@ -41,7 +41,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -122,7 +122,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double eps = 1e-9;
 
     final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+        BusinessDayConventions.FOLLOWING, true);
 
     final double paymentTime = 0.5;
     final double fixingTime = paymentTime;
@@ -147,7 +147,7 @@ public class PresentValueSensitivityCalculatorTest {
   //  public void testFutures() {
   //    final double eps = 1e-7;
   //    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-  //        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  //        BusinessDayConventions.FOLLOWING, true);
   //    final double lastTradingTime = 1.473;
   //    final double fixingPeriodStartTime = 1.467;
   //    final double fixingPeriodEndTime = 1.75;
@@ -198,7 +198,7 @@ public class PresentValueSensitivityCalculatorTest {
     final double absTol = notional * eps;
 
     final int settlementDays = 2;
-    final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention businessDayConvention = BusinessDayConventions.MODIFIED_FOLLOWING;
     final boolean isEOM = true;
     final boolean isPayer = true;
     final ZonedDateTime settleDate = DateUtils.getUTCDate(2014, 3, 20);
@@ -330,7 +330,7 @@ public class PresentValueSensitivityCalculatorTest {
   //  private static final ZonedDateTime EXPIRY_DATE = DateUtil.getUTCDate(2014, 3, 18);
   private static final int SETTLEMENT_DAYS = 2;
   // Swap 5Y description
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
   private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);

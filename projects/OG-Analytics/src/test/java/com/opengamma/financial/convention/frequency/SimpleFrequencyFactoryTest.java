@@ -31,6 +31,7 @@ public class SimpleFrequencyFactoryTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void enumerateAvailableFrequencies() {
     List<SimpleFrequency> frequencies = Lists.newArrayList(_factory.enumerateAvailableFrequencies());
     assertEquals(frequencies, Lists.newArrayList(

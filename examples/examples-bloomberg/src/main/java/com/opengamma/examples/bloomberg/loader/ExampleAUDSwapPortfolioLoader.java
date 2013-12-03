@@ -15,7 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -66,7 +66,7 @@ public class ExampleAUDSwapPortfolioLoader extends AbstractTool<IntegrationToolC
   /** The region */
   private static final ExternalId REGION =  ExternalSchemes.financialRegionId("AU");
   /** Following business day convention */
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** The notional */
   private static final InterestRateNotional NOTIONAL = new InterestRateNotional(Currency.AUD, 15000000);
   /** 3m Libor ticker */

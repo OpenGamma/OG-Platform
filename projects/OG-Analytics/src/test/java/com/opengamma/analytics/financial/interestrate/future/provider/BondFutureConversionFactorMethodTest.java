@@ -13,7 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -32,7 +32,7 @@ public class BondFutureConversionFactorMethodTest {
   private static final Period G_PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar G_CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount G_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention G_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention G_BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean G_IS_EOM = false;
   private static final int G_SETTLEMENT_DAYS = 2;
   private static final int G_EX_COUPON = 7;
@@ -75,7 +75,7 @@ public class BondFutureConversionFactorMethodTest {
   private static final Period PAYMENT_TENOR_GER = Period.ofMonths(12);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final DayCount DAY_COUNT_GER = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_GER = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_GER = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_GER = false;
   private static final int SETTLEMENT_DAYS_GER = 3;
   private static final int EX_COUPON_GER = 0;

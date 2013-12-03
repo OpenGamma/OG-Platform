@@ -35,7 +35,7 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -96,7 +96,7 @@ public class ZSpreadCalculatorTest {
     discounting.put(Currency.USD, YieldCurve.from(InterpolatedDoublesCurve.from(T, R2, INTERPOLATOR)));
     final Map<IborIndex, YieldAndDiscountCurve> forwardIbor = new HashMap<>();
     forwardIbor.put(new IborIndex(Currency.EUR, Period.ofMonths(6), n, DayCountFactory.INSTANCE.getDayCount("Act/360"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"), false, "Ibor"), YieldCurve.from(InterpolatedDoublesCurve.from(T, R3, INTERPOLATOR)));
+        BusinessDayConventions.NONE, false, "Ibor"), YieldCurve.from(InterpolatedDoublesCurve.from(T, R3, INTERPOLATOR)));
     final Map<IndexON, YieldAndDiscountCurve> forwardON = new HashMap<>();
     forwardON.put(new IndexON("ON", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Act/360"), 0), YieldCurve.from(InterpolatedDoublesCurve.from(T, R4, INTERPOLATOR)));
     MULTI_CURVES = new MulticurveProviderDiscount(discounting, forwardIbor, forwardON, fxMatrix);

@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAv
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.time.DateUtils;
@@ -28,7 +28,7 @@ public class AnnuityCouponArithmeticAverageONSpreadDefinitionTest {
   private static final double SPREAD = 0.0010; // 10bps
   private static final int PAY_LAG = 2;
 
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("Weekend");
 
   private static final double TOLERANCE_NOTIONAL = 1E-2;

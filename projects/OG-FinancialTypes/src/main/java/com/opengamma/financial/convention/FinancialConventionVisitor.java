@@ -55,6 +55,20 @@ public interface FinancialConventionVisitor<T> {
   T visitFederalFundsFutureConvention(FederalFundsFutureConvention convention);
 
   /**
+   * Visits {@link FixedInterestRateSwapLegConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitFixedInterestRateSwapLegConvention(FixedInterestRateSwapLegConvention convention);
+
+  /**
+   * Visits {@link FloatingInterestRateSwapLegConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitFloatingInterestRateSwapLegConvention(FloatingInterestRateSwapLegConvention convention);
+
+  /**
    * Visits {@link FXForwardAndSwapConvention}
    * @param convention The convention, not null
    * @return The return value
@@ -179,4 +193,5 @@ public interface FinancialConventionVisitor<T> {
    * @return The return value
    */
   T visitVanillaIborLegRollDateConvention(VanillaIborLegRollDateConvention convention);
+
 }

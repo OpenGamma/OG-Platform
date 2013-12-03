@@ -5,7 +5,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -36,8 +36,8 @@ public class ISDABaseTest {
   protected static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
   protected static final DayCount ACT_ACT_ISDA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
-  protected static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  protected static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  protected static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
+  protected static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   //standard CDS settings 
   protected static final boolean PAY_ACC_ON_DEFAULT = true;

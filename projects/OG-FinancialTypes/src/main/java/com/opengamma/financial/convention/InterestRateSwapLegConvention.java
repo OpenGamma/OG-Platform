@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security.irs;
+package com.opengamma.financial.convention;
 
 import java.util.Map;
 import java.util.Set;
@@ -18,12 +18,15 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.convention.FinancialConvention;
+import com.google.common.collect.Sets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.financial.security.irs.CompoundingMethod;
+import com.opengamma.financial.security.irs.PeriodRelationship;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,94 +41,151 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   /**
    * The payment calendar.
    */
-  @PropertyDefinition(validate = "notNull")
-  private Set<ExternalId> _paymentCalendars;
-
+  @PropertyDefinition
+  private final Set<ExternalId> _paymentCalendars = Sets.newHashSet();
   /**
    * The calculation calendar.
    */
-  @PropertyDefinition()
-  private Set<ExternalId> _calculationCalendars;
-
+  @PropertyDefinition
+  private final Set<ExternalId> _calculationCalendars = Sets.newHashSet();
   /**
    * The maturity calendar.
    */
-  @PropertyDefinition(validate = "notNull")
-  private Set<ExternalId> _maturityCalendars;
-
+  @PropertyDefinition
+  private Set<ExternalId> _maturityCalendars = Sets.newHashSet();
   /**
    * The payment business day calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _paymentDayConvention;
-
   /**
    * The calculation business day calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _calculationBusinessDayConvention;
-
-
   /**
    * The maturity business day calendar.
    */
   @PropertyDefinition(validate = "notNull")
   private BusinessDayConvention _maturityBusinessDayConvention;
-
   /**
    * The day count.
    */
   @PropertyDefinition(validate = "notNull")
   private DayCount _dayCountConvention;
-
   /**
    * The coupon payment frequency.
    */
   @PropertyDefinition(validate = "notNull")
   private Frequency _paymentFrequency;
-
   /**
    * The calculation frequency.
    */
   @PropertyDefinition(validate = "notNull")
   private Frequency _calculationFrequency;
-
   /**
    * The payment is relative to the beginning or end of the period.
    */
   @PropertyDefinition(validate = "notNull")
   private PeriodRelationship _paymentRelativeTo = PeriodRelationship.BEGINNING;
-
   /**
    * Should the accrual be adjusted.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _adjustedAccrual;
-
   /**
-   * the number of settlement days.
+   * The number of settlement days.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private int _settlementDays;
-
   /**
    * The roll convention (e.g. EOM)
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private RollConvention _rollConvention = RollConvention.NONE;
-
   /**
    * The compounding.
    */
   @PropertyDefinition(validate = "notNull")
   private CompoundingMethod _compoundingMethod = CompoundingMethod.NONE;
 
-  /* package */ InterestRateSwapLegConvention() {
+  /**
+   * Creates an instance.
+   */
+  protected InterestRateSwapLegConvention() {
     super();
   }
 
+  /**
+   * Creates an instance.
+   * <p>
+   * This instance will be incomplete with fields that are null that should not be.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   */
+  public InterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle) {
+    super(name, externalIdBundle);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param name  the convention name, not null
+   * @param externalIdBundle  the external identifiers for this convention, not null
+   * @param paymentCalendars  the payment calendars, not null
+   * @param calculationCalendars  the calculation calendars, not null
+   * @param maturityCalendars  the maturity calendars, not null
+   * @param paymentDayConvention  the payment day convention, not null
+   * @param calculationBusinessDayConvention  the calculation day convention, not null
+   * @param maturityBusinessDayConvention  the maturity day convention, not null
+   * @param dayCountConvention  the day count frequency, not null
+   * @param paymentFrequency  the payment frequency, not null
+   * @param calculationFrequency  the calculation frequency, not null
+   * @param paymentRelativeTo  the payment is relative to the beginning or end of the period, not null
+   * @param adjustedAccrual  whether the accrual should be adjusted
+   * @param settlementDays  the number of settlement days
+   * @param rollConvention  the roll convention, not null
+   * @param compoundingMethod  the compounding, not null
+   */
+  public InterestRateSwapLegConvention(final String name, final ExternalIdBundle externalIdBundle,
+      Set<ExternalId> paymentCalendars,
+      Set<ExternalId> calculationCalendars,
+      Set<ExternalId> maturityCalendars,
+      BusinessDayConvention paymentDayConvention,
+      BusinessDayConvention calculationBusinessDayConvention,
+      BusinessDayConvention maturityBusinessDayConvention,
+      DayCount dayCountConvention,
+      Frequency paymentFrequency,
+      Frequency calculationFrequency,
+      PeriodRelationship paymentRelativeTo,
+      boolean adjustedAccrual,
+      int settlementDays,
+      RollConvention rollConvention,
+      CompoundingMethod compoundingMethod) {
+    super(name, externalIdBundle);
+    setPaymentCalendars(paymentCalendars);
+    setCalculationCalendars(calculationCalendars);
+    setMaturityCalendars(maturityCalendars);
+    setPaymentDayConvention(paymentDayConvention);
+    setCalculationBusinessDayConvention(calculationBusinessDayConvention);
+    setMaturityBusinessDayConvention(maturityBusinessDayConvention);
+    setDayCountConvention(dayCountConvention);
+    setPaymentFrequency(paymentFrequency);
+    setCalculationFrequency(calculationFrequency);
+    setPaymentRelativeTo(paymentRelativeTo);
+    setAdjustedAccrual(adjustedAccrual);
+    setSettlementDays(settlementDays);
+    setRollConvention(rollConvention);
+    setCompoundingMethod(compoundingMethod);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Validates the data.
+   */
   protected void validate() {
-    ArgumentChecker.notNull(getDayCountConvention(), "Daycount");
+    ArgumentChecker.notNull(getDayCountConvention(), "daycount");
     ArgumentChecker.notNull(getPaymentDayConvention(), "payment daycount");
     ArgumentChecker.notNull(getPaymentFrequency(), "payment frequency");
     ArgumentChecker.notNull(getCalculationFrequency(), "calculation frequency");
@@ -154,7 +214,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets the payment calendar.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Set<ExternalId> getPaymentCalendars() {
     return _paymentCalendars;
@@ -162,11 +222,11 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets the payment calendar.
-   * @param paymentCalendars  the new value of the property, not null
+   * @param paymentCalendars  the new value of the property
    */
   public void setPaymentCalendars(Set<ExternalId> paymentCalendars) {
-    JodaBeanUtils.notNull(paymentCalendars, "paymentCalendars");
-    this._paymentCalendars = paymentCalendars;
+    this._paymentCalendars.clear();
+    this._paymentCalendars.addAll(paymentCalendars);
   }
 
   /**
@@ -191,7 +251,8 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * @param calculationCalendars  the new value of the property
    */
   public void setCalculationCalendars(Set<ExternalId> calculationCalendars) {
-    this._calculationCalendars = calculationCalendars;
+    this._calculationCalendars.clear();
+    this._calculationCalendars.addAll(calculationCalendars);
   }
 
   /**
@@ -205,7 +266,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets the maturity calendar.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public Set<ExternalId> getMaturityCalendars() {
     return _maturityCalendars;
@@ -213,10 +274,9 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets the maturity calendar.
-   * @param maturityCalendars  the new value of the property, not null
+   * @param maturityCalendars  the new value of the property
    */
   public void setMaturityCalendars(Set<ExternalId> maturityCalendars) {
-    JodaBeanUtils.notNull(maturityCalendars, "maturityCalendars");
     this._maturityCalendars = maturityCalendars;
   }
 
@@ -413,7 +473,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets should the accrual be adjusted.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public boolean isAdjustedAccrual() {
     return _adjustedAccrual;
@@ -421,10 +481,9 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets should the accrual be adjusted.
-   * @param adjustedAccrual  the new value of the property, not null
+   * @param adjustedAccrual  the new value of the property
    */
   public void setAdjustedAccrual(boolean adjustedAccrual) {
-    JodaBeanUtils.notNull(adjustedAccrual, "adjustedAccrual");
     this._adjustedAccrual = adjustedAccrual;
   }
 
@@ -439,7 +498,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets the number of settlement days.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public int getSettlementDays() {
     return _settlementDays;
@@ -447,10 +506,9 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets the number of settlement days.
-   * @param settlementDays  the new value of the property, not null
+   * @param settlementDays  the new value of the property
    */
   public void setSettlementDays(int settlementDays) {
-    JodaBeanUtils.notNull(settlementDays, "settlementDays");
     this._settlementDays = settlementDays;
   }
 
@@ -465,7 +523,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets the roll convention (e.g. EOM)
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public RollConvention getRollConvention() {
     return _rollConvention;
@@ -473,9 +531,10 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets the roll convention (e.g. EOM)
-   * @param rollConvention  the new value of the property
+   * @param rollConvention  the new value of the property, not null
    */
   public void setRollConvention(RollConvention rollConvention) {
+    JodaBeanUtils.notNull(rollConvention, "rollConvention");
     this._rollConvention = rollConvention;
   }
 
@@ -952,8 +1011,6 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentCalendars, "paymentCalendars");
-      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._maturityCalendars, "maturityCalendars");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentDayConvention, "paymentDayConvention");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._calculationBusinessDayConvention, "calculationBusinessDayConvention");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._maturityBusinessDayConvention, "maturityBusinessDayConvention");
@@ -961,8 +1018,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentFrequency, "paymentFrequency");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._calculationFrequency, "calculationFrequency");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentRelativeTo, "paymentRelativeTo");
-      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._adjustedAccrual, "adjustedAccrual");
-      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._settlementDays, "settlementDays");
+      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._rollConvention, "rollConvention");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._compoundingMethod, "compoundingMethod");
       super.validate(bean);
     }

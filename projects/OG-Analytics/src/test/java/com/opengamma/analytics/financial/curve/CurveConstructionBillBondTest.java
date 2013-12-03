@@ -24,7 +24,7 @@ public class CurveConstructionBillBondTest {
   //  private static final int SPOT_LAG_OIS = 2;
   //  private static final DayCount DAY_COUNT_CASH = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   //  private static final double NOTIONAL = 1.0;
-  //  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  //  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final IndexON INDEX_FED_FUND = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH);
   //  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_FED_FUND, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG_OIS, SPOT_LAG_OIS);

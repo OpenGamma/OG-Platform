@@ -5,19 +5,50 @@
  */
 package com.opengamma.financial.convention;
 
-import java.util.List;
+import java.util.Map;
+
+import com.opengamma.util.ClassUtils;
 
 /**
- * Interface for factories that can create instances from names.
+ * An interface for named instances.
+ * <p>
+ * A named instance is a type where each instance is uniquely identified by a name.
+ * This factory provides access to all the instances.
+ * <p>
+ * Implementations should typically be singletons with a public static factory instance
+ * named 'INSTANCE' accessible using {@link ClassUtils#singletonInstance(Class)}.
+ * 
  * @param <T> type of objects returned
  */
 public interface NamedInstanceFactory<T extends NamedInstance> {
-  /* 
-  static T of(String name)
-   */
+
   /**
-   * Gets an unmodifiable list of supported name values
-   * @return unmodifiable list of supported name values, not null
+   * Finds a named instance by name, ignoring case.
+   * 
+   * @param name  the name of the instance to find, not null
+   * @return the named instance, not null
+   * @throws IllegalArgumentException if the name is not found
    */
-  List<T> values();
+  T instance(String name);
+
+  /**
+   * Returns the map of available instances keyed by name, excluding alternate names.
+   * <p>
+   * A named instance may be registered under more than one name.
+   * Those additional names are excluded.
+   * 
+   * @return the unmodifiable map of named instances, not null
+   */
+  Map<String, T> instanceMap();
+
+  /**
+   * Returns the map of available instances keyed by name, including alternate names.
+   * <p>
+   * A named instance may be registered under more than one name.
+   * Those additional names are included.
+   * 
+   * @return the unmodifiable map of named instances, not null
+   */
+  Map<String, T> instanceMapWithAlternateNames();
+
 }

@@ -24,7 +24,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
@@ -92,7 +92,7 @@ public class JsonJodaRoundTripTest {
         DayCountFactory.INSTANCE.getDayCount("Act/360"),
         SimpleFrequency.MONTHLY,
         ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.GBP, 123),
         false,
         0.01);
@@ -100,7 +100,7 @@ public class JsonJodaRoundTripTest {
         DayCountFactory.INSTANCE.getDayCount("Act/Act"),
         SimpleFrequency.QUARTERLY,
         ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        BusinessDayConventions.MODIFIED_FOLLOWING,
         new InterestRateNotional(Currency.GBP, 234),
         false,
         ExternalId.of("Rate", "asdf"),

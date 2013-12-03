@@ -17,7 +17,7 @@ import cern.jet.random.engine.MersenneTwister;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -35,8 +35,8 @@ public class ISDACompliantYieldCurveBuildTest {
 
   private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister(MersenneTwister.DEFAULT_SEED));
 
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
+  private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   @SuppressWarnings("unused")
   @Test
@@ -580,7 +580,7 @@ public class ISDACompliantYieldCurveBuildTest {
     for (int ii = 0; ii < 3; ++ii) {
       //      System.out.println(ii);
       final ISDACompliantCurve hc = ISDACompliantYieldCurveBuild.build(spotDate, types, tenors, rates, moneyMarketDCC[ii], swapDCC[ii], swapInterval,
-          BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
+          BusinessDayConventions.FOLLOWING);
 
       final int nCurvePoints = hc.getNumberOfKnots();
       assertEquals(nInstruments, nCurvePoints);
@@ -700,7 +700,7 @@ public class ISDACompliantYieldCurveBuildTest {
    */
   @Test
   public void anotherConventionTest() {
-    final BusinessDayConvention conv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention conv = BusinessDayConventions.FOLLOWING;
 
     // date from ISDA excel
     final double[] sampleTimes = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904, 0.747945205479452, 1.00547945205479, 1.4958904109589, 2.0027397260274,
@@ -768,7 +768,7 @@ public class ISDACompliantYieldCurveBuildTest {
    */
   @Test(enabled = false)
   public void ConventionTest() {
-    final BusinessDayConvention conv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+    final BusinessDayConvention conv = BusinessDayConventions.PRECEDING;
 
     // date from ISDA excel
     final double[] sampleTimes = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904, 0.747945205479452, 0.997260273972603, 1.00547945205479, 1.4958904109589,

@@ -10,7 +10,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.convention.ConventionMaster;
@@ -23,7 +23,7 @@ public class USFXConventions extends ConventionMasterInitializer {
   /** Singleton. */
   public static final ConventionMasterInitializer INSTANCE = new USFXConventions();
 
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private static final ExternalId US = ExternalSchemes.financialRegionId("US");
 
   /**

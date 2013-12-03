@@ -17,7 +17,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -118,7 +118,7 @@ public class ExposureFunctionTestHelper {
   private static final ExternalId US = ExternalId.of("Test", "US");
   private static final ExternalId DE = ExternalId.of("Test", "DE");
   private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
+  private static final BusinessDayConvention BDC = BusinessDayConventions.NONE;
   private static final String SETTLEMENT = "X";
   private static final String TRADING = "Y";
 

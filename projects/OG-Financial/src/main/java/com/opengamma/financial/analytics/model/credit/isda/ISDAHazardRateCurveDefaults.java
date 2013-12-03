@@ -35,7 +35,9 @@ public class ISDAHazardRateCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.BUCKETED_IR01,
     ValueRequirementNames.JUMP_TO_DEFAULT,
     ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VALUE_VEGA
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.PAR_SPREAD,
+    ValueRequirementNames.HEDGE_NOTIONAL
   };
   private final PriorityClass _priority;
   //private final Map<String, String> _currencyToHazardRateCurveName;

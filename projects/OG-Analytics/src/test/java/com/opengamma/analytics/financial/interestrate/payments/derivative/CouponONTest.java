@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDe
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -30,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class CouponONTest {
   private static final int EUR_SETTLEMENT_DAYS = 2;
-  private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean EUR_IS_EOM = true;
   //EUR Eonia
   private static final String EUR_OIS_NAME = "EUR EONIA";

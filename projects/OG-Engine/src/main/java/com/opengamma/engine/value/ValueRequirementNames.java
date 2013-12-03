@@ -530,6 +530,11 @@ public final class ValueRequirementNames {
   public static final String PILLAR_SPREADS = "Pillar Spreads";
 
   /**
+   * The hedge notional, a matrix of notionals and tenors required to hedge an instrument.
+   */
+  public static final String HEDGE_NOTIONAL = "Hedge Notional";
+
+  /**
    * The dividend yield of an equity or equity index.
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";

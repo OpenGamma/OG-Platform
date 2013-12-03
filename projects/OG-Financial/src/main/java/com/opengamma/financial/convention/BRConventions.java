@@ -14,7 +14,7 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -35,7 +35,7 @@ public class BRConventions {
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
     final DayCount bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
     final ExternalId br = ExternalSchemes.financialRegionId("BR");
 
@@ -71,14 +71,14 @@ public class BRConventions {
     }
 
     final DayCount swapFixedLegDayCount = DayCountFactory.INSTANCE.getDayCount("Bus/252");
-    final BusinessDayConvention swapFixedLegBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention swapFixedLegBusinessDayConvention = BusinessDayConventions.MODIFIED_FOLLOWING;
     final Frequency swapFixedLegPaymentFrequency = PeriodFrequency.ANNUAL;
     final int swapFixedLegSettlementDays = 2;
     final ExternalId swapFixedLegRegion = br;
     final Frequency swapFixedLegCompoundingFrequency = PeriodFrequency.DAILY;
     final InterestRate.Type swapFixedLegCompoundingType = InterestRate.Type.CONTINUOUS;
     final DayCount swapFloatingLegDayCount = DayCountFactory.INSTANCE.getDayCount("Bus/252");
-    final BusinessDayConvention swapFloatingLegBusinessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention swapFloatingLegBusinessDayConvention = BusinessDayConventions.MODIFIED_FOLLOWING;
     final Frequency swapFloatingLegPaymentFrequency = PeriodFrequency.ANNUAL;
     final int swapFloatingLegSettlementDays = 2;
     final ExternalId swapFloatingLegInitialRate = bloombergTickerSecurityId("BZDIOVRA Index");

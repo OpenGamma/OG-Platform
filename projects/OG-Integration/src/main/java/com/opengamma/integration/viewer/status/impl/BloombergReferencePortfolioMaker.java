@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -232,8 +232,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
   }
 
   private BusinessDayConvention businessDayConvention() {
-    return select(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"));
+    return select(BusinessDayConventions.FOLLOWING, BusinessDayConventions.MODIFIED_FOLLOWING, BusinessDayConventions.NONE);
   }
 
   private Currency currency() {

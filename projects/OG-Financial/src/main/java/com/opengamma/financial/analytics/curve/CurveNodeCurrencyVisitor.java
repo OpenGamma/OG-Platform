@@ -37,7 +37,9 @@ import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.FinancialConventionVisitor;
+import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.FixedLegRollDateConvention;
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -205,6 +207,16 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   public Set<Currency> visitFederalFundsFutureConvention(final FederalFundsFutureConvention convention) {
     final FinancialConvention underlyingConvention = _conventionSource.getSingle(convention.getIndexConvention(), FinancialConvention.class);
     return underlyingConvention.accept(this);
+  }
+
+  @Override
+  public Set<Currency> visitFixedInterestRateSwapLegConvention(FixedInterestRateSwapLegConvention convention) {
+    return null;
+  }
+
+  @Override
+  public Set<Currency> visitFloatingInterestRateSwapLegConvention(FloatingInterestRateSwapLegConvention convention) {
+    return null;
   }
 
   @Override
