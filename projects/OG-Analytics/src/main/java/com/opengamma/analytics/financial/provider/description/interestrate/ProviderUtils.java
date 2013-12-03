@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -21,6 +24,8 @@ import com.opengamma.util.money.Currency;
  * have been refactored.
  */
 public class ProviderUtils {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ProviderUtils.class);
 
   /**
    * Merges discounting curve providers.
@@ -108,7 +113,15 @@ public class ProviderUtils {
       final Currency initialCurrency = iterator.next();
       while (iterator.hasNext()) {
         final Currency otherCurrency = iterator.next();
-        result.getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
+
+        FXMatrix fxMatrix = result.getFxRates();
+        if (fxMatrix.containsPair(initialCurrency, otherCurrency)) {
+          // todo - getting this suggests something may not be configured correctly
+          s_logger.warn("Skipping addition of currency pair: {} {} as it is already in the FX matrix - is the configuration correct?",
+                        initialCurrency, otherCurrency);
+        } else {
+          fxMatrix.addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
+        }
       }
     }
     return result;
