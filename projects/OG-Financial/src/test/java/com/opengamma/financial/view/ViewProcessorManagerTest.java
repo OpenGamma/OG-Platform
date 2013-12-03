@@ -138,7 +138,7 @@ public class ViewProcessorManagerTest {
     public ViewProcess getViewProcess(UniqueId viewProcessId) {
       return null;
     }
-    
+
     @Override
     public Collection<ViewClient> getViewClients() {
       return null;
@@ -202,7 +202,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {      
+    public void entityChanged(ChangeType type, ObjectId oid, Instant versionFrom, Instant versionTo, Instant versionInstant) {
     }
 
     public void notifyListenerUnwatchedIdentifier() {

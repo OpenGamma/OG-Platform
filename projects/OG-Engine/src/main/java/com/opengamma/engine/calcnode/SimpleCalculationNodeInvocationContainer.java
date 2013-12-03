@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
@@ -33,7 +34,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Base class for objects that manage a set of AbstractCalculationNodes with the intention of invoking job executions on them.
  */
-public abstract class SimpleCalculationNodeInvocationContainer {
+public abstract class SimpleCalculationNodeInvocationContainer implements Lifecycle {
 
   /**
    * After how many failed jobs should a cleanup be attempted.
@@ -254,7 +255,11 @@ public abstract class SimpleCalculationNodeInvocationContainer {
    */
   private final Queue<PartialJobEntry> _partialJobs = new ConcurrentLinkedQueue<PartialJobEntry>();
 
-  private final ExecutorService _executorService = NamedThreadPoolFactory.newCachedThreadPool("CalcNode", true);
+  private ExecutorService _executorService = createExecutorService();
+
+  private static ExecutorService createExecutorService() {
+    return NamedThreadPoolFactory.newCachedThreadPool("CalcNode", true);
+  }
 
   protected Queue<SimpleCalculationNode> getNodes() {
     return _nodes;
@@ -726,6 +731,34 @@ public abstract class SimpleCalculationNodeInvocationContainer {
       return false;
     }
     return true;
+  }
+
+  // Lifecycle
+
+  @Override
+  public void start() {
+    synchronized (this) {
+      if (_executorService == null) {
+        _executorService = createExecutorService();
+      }
+    }
+  }
+
+  @Override
+  public void stop() {
+    final ExecutorService executorService;
+    synchronized (this) {
+      executorService = _executorService;
+      _executorService = null;
+    }
+    if (executorService != null) {
+      executorService.shutdown();
+    }
+  }
+
+  @Override
+  public boolean isRunning() {
+    return _executorService != null;
   }
 
 }

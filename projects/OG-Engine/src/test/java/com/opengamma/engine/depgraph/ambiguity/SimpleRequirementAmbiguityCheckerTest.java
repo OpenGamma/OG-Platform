@@ -49,6 +49,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the {@link SimpleRequirementAmbiguityChecker} class.
@@ -141,6 +142,7 @@ public class SimpleRequirementAmbiguityCheckerTest {
     functionRepository.addFunction(mockFunctionZ2());
     final FunctionRepositoryCompiler compiler = new CachingFunctionRepositoryCompiler();
     final CompiledFunctionService cfs = new CompiledFunctionService(functionRepository, compiler, compilationContext);
+    TestLifecycle.register(cfs);
     cfs.initialize();
     return new DefaultFunctionResolver(cfs);
   }
@@ -154,125 +156,167 @@ public class SimpleRequirementAmbiguityCheckerTest {
   }
 
   public void testPortfolioResolution() {
-    ViewDefinition viewDefinition = new ViewDefinition("Test 1", UniqueId.of("Portfolio", "Test"), UserPrincipal.getTestUser());
-    ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Default");
-    SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST, calcConfig);
-    // Resolved the portfolio
-    assertEquals(checker.getCompilationContext().getPortfolio().getUniqueId(), portfolio().getUniqueId());
-    viewDefinition = new ViewDefinition("Test 2", UniqueId.of("Portfolio", "Missing", "1"), UserPrincipal.getTestUser());
-    calcConfig = new ViewCalculationConfiguration(viewDefinition, "Default");
-    checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST, calcConfig);
-    // Portfolio id not found
-    assertEquals(checker.getCompilationContext().getPortfolio(), null);
-    viewDefinition = new ViewDefinition("Test 3", UserPrincipal.getTestUser());
-    calcConfig = new ViewCalculationConfiguration(viewDefinition, "Default");
-    checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST, calcConfig);
-    // No portfolio requested
-    assertEquals(checker.getCompilationContext().getPortfolio(), null);
+    TestLifecycle.begin();
+    try {
+      ViewDefinition viewDefinition = new ViewDefinition("Test 1", UniqueId.of("Portfolio", "Test"), UserPrincipal.getTestUser());
+      ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Default");
+      SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST, calcConfig);
+      // Resolved the portfolio
+      assertEquals(checker.getCompilationContext().getPortfolio().getUniqueId(), portfolio().getUniqueId());
+      viewDefinition = new ViewDefinition("Test 2", UniqueId.of("Portfolio", "Missing", "1"), UserPrincipal.getTestUser());
+      calcConfig = new ViewCalculationConfiguration(viewDefinition, "Default");
+      checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST, calcConfig);
+      // Portfolio id not found
+      assertEquals(checker.getCompilationContext().getPortfolio(), null);
+      viewDefinition = new ViewDefinition("Test 3", UserPrincipal.getTestUser());
+      calcConfig = new ViewCalculationConfiguration(viewDefinition, "Default");
+      checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST, calcConfig);
+      // No portfolio requested
+      assertEquals(checker.getCompilationContext().getPortfolio(), null);
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testDirectMarketDataRequest() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.NULL);
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertEquals(resolved.getRequirement(), requirement);
-    assertTrue(resolved.isResolved());
-    assertFalse(resolved.isAmbiguous());
-    assertEquals(resolved.getResolutions().size(), 1);
-    Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
-    assertEquals(requirementResolutions.size(), 1);
-    final RequirementResolution requirementResolution = requirementResolutions.iterator().next();
-    assertEquals(requirementResolution.getSpecification(),
-        new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "MarketDataSourcingFunction").get()));
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.NULL);
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertEquals(resolved.getRequirement(), requirement);
+      assertTrue(resolved.isResolved());
+      assertFalse(resolved.isAmbiguous());
+      assertEquals(resolved.getResolutions().size(), 1);
+      Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
+      assertEquals(requirementResolutions.size(), 1);
+      final RequirementResolution requirementResolution = requirementResolutions.iterator().next();
+      assertEquals(requirementResolution.getSpecification(),
+          new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.NULL, ValueProperties
+              .with(ValuePropertyNames.FUNCTION, "MarketDataSourcingFunction").get()));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testAliasedMarketDataRequest() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement("Market_FooBar", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foobar").with("X", "Y").get());
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertEquals(resolved.getRequirement(), requirement);
-    assertTrue(resolved.isResolved());
-    assertFalse(resolved.isAmbiguous());
-    assertEquals(resolved.getResolutions().size(), 1);
-    Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
-    assertEquals(requirementResolutions.size(), 1);
-    final RequirementResolution requirementResolution = requirementResolutions.iterator().next();
-    assertEquals(requirementResolution.getSpecification(), new ValueSpecification("Market_FooBar", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foobar")
-        .with("X", "Y").get()));
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement("Market_FooBar", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foobar")
+          .with("X", "Y").get());
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertEquals(resolved.getRequirement(), requirement);
+      assertTrue(resolved.isResolved());
+      assertFalse(resolved.isAmbiguous());
+      assertEquals(resolved.getResolutions().size(), 1);
+      Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
+      assertEquals(requirementResolutions.size(), 1);
+      final RequirementResolution requirementResolution = requirementResolutions.iterator().next();
+      assertEquals(requirementResolution.getSpecification(),
+          new ValueSpecification("Market_FooBar", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "Foobar").with("X", "Y").get()));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testUnresolved() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement("Fail", ComputationTargetSpecification.NULL);
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertFalse(resolved.isResolved());
-    assertFalse(resolved.isAmbiguous());
-    assertFalse(resolved.isDeeplyAmbiguous());
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement("Fail", ComputationTargetSpecification.NULL);
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertFalse(resolved.isResolved());
+      assertFalse(resolved.isAmbiguous());
+      assertFalse(resolved.isDeeplyAmbiguous());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testUnambigousGraph() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement("X", ComputationTargetSpecification.NULL);
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertTrue(resolved.isResolved());
-    assertFalse(resolved.isAmbiguous());
-    assertFalse(resolved.isDeeplyAmbiguous());
-    assertEquals(resolved.getResolutions().size(), 1);
-    Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
-    assertEquals(requirementResolutions.size(), 1);
-    final RequirementResolution requirementResolution = requirementResolutions.iterator().next();
-    assertEquals(requirementResolution.getSpecification().getFunctionUniqueId(), "X");
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement("X", ComputationTargetSpecification.NULL);
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertTrue(resolved.isResolved());
+      assertFalse(resolved.isAmbiguous());
+      assertFalse(resolved.isDeeplyAmbiguous());
+      assertEquals(resolved.getResolutions().size(), 1);
+      Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
+      assertEquals(requirementResolutions.size(), 1);
+      final RequirementResolution requirementResolution = requirementResolutions.iterator().next();
+      assertEquals(requirementResolution.getSpecification().getFunctionUniqueId(), "X");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testAmbigiousFunctionSelection() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement("A", ComputationTargetSpecification.NULL);
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertTrue(resolved.isResolved());
-    assertTrue(resolved.isAmbiguous());
-    assertTrue(resolved.isDeeplyAmbiguous());
-    assertEquals(resolved.getResolutions().size(), 1);
-    Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
-    assertEquals(requirementResolutions.size(), 2);
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement("A", ComputationTargetSpecification.NULL);
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertTrue(resolved.isResolved());
+      assertTrue(resolved.isAmbiguous());
+      assertTrue(resolved.isDeeplyAmbiguous());
+      assertEquals(resolved.getResolutions().size(), 1);
+      Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
+      assertEquals(requirementResolutions.size(), 2);
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testAmbigousInputSelection() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement("Y", ComputationTargetSpecification.NULL);
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertTrue(resolved.isResolved());
-    assertFalse(resolved.isAmbiguous());
-    assertTrue(resolved.isDeeplyAmbiguous());
-    assertEquals(resolved.getResolutions().size(), 1);
-    Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
-    assertEquals(requirementResolutions.size(), 1);
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement("Y", ComputationTargetSpecification.NULL);
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertTrue(resolved.isResolved());
+      assertFalse(resolved.isAmbiguous());
+      assertTrue(resolved.isDeeplyAmbiguous());
+      assertEquals(resolved.getResolutions().size(), 1);
+      Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
+      assertEquals(requirementResolutions.size(), 1);
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testAmbiguousAdditionalRequirements() {
-    final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
-    final ValueRequirement requirement = new ValueRequirement("Z", ComputationTargetSpecification.NULL);
-    final FullRequirementResolution resolved = checker.resolve(requirement);
-    assertNotNull(resolved);
-    assertTrue(resolved.isResolved());
-    assertTrue(resolved.isAmbiguous());
-    assertTrue(resolved.isDeeplyAmbiguous());
-    assertEquals(resolved.getResolutions().size(), 1);
-    Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
-    assertEquals(requirementResolutions.size(), 2);
-    for (RequirementResolution requirementResolution : requirementResolutions) {
-      final Collection<FullRequirementResolution> inputs = requirementResolution.getInputs();
-      assertEquals(inputs.size(), 2);
-      boolean ambiguous = false;
-      for (FullRequirementResolution input : inputs) {
-        ambiguous |= input.isAmbiguous();
+    TestLifecycle.begin();
+    try {
+      final SimpleRequirementAmbiguityChecker checker = new SimpleRequirementAmbiguityChecker(context(), Instant.now(), VersionCorrection.LATEST);
+      final ValueRequirement requirement = new ValueRequirement("Z", ComputationTargetSpecification.NULL);
+      final FullRequirementResolution resolved = checker.resolve(requirement);
+      assertNotNull(resolved);
+      assertTrue(resolved.isResolved());
+      assertTrue(resolved.isAmbiguous());
+      assertTrue(resolved.isDeeplyAmbiguous());
+      assertEquals(resolved.getResolutions().size(), 1);
+      Collection<RequirementResolution> requirementResolutions = resolved.getResolutions().iterator().next();
+      assertEquals(requirementResolutions.size(), 2);
+      for (RequirementResolution requirementResolution : requirementResolutions) {
+        final Collection<FullRequirementResolution> inputs = requirementResolution.getInputs();
+        assertEquals(inputs.size(), 2);
+        boolean ambiguous = false;
+        for (FullRequirementResolution input : inputs) {
+          ambiguous |= input.isAmbiguous();
+        }
+        assertTrue(ambiguous);
       }
-      assertTrue(ambiguous);
+    } finally {
+      TestLifecycle.end();
     }
   }
 

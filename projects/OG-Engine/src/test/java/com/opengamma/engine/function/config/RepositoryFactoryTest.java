@@ -39,6 +39,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * 
@@ -140,38 +141,43 @@ public class RepositoryFactoryTest {
   }
 
   public void singleConfigurationNoArgs() {
-    final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
-    configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
-    final InMemoryFunctionRepository repo = FunctionRepositoryFactory.constructRepository(configuration);
-    assertNotNull(repo);
-    final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
-    assertNotNull(definitions);
-    assertEquals(FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT + 1, definitions.size());
-    FunctionDefinition definition = null;
-    for (final FunctionDefinition d : definitions) {
-      if (d instanceof MockEmptyFunction) {
-        assertNotNull(d.getUniqueId());
-        definition = d;
+    TestLifecycle.begin();
+    try {
+      final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
+      configuration.addFunctions(new StaticFunctionConfiguration(MockEmptyFunction.class.getName()));
+      final InMemoryFunctionRepository repo = FunctionRepositoryFactory.constructRepository(configuration);
+      assertNotNull(repo);
+      final Collection<FunctionDefinition> definitions = repo.getAllFunctions();
+      assertNotNull(definitions);
+      assertEquals(FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT + 1, definitions.size());
+      FunctionDefinition definition = null;
+      for (final FunctionDefinition d : definitions) {
+        if (d instanceof MockEmptyFunction) {
+          assertNotNull(d.getUniqueId());
+          definition = d;
+        }
       }
+      assertNotNull(definition);
+      final FunctionCompilationContext context = new FunctionCompilationContext();
+      context.setRawComputationTargetResolver(new DefaultComputationTargetResolver());
+      final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), context);
+      TestLifecycle.register(cfs);
+      cfs.initialize();
+      final CompiledFunctionRepository compiledRepo = cfs.compileFunctionRepository(System.currentTimeMillis());
+      assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));
+      final FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueId());
+      assertNotNull(invoker);
+      assertTrue(invoker instanceof MockEmptyFunction);
+      assertSame(definition, invoker);
+    } finally {
+      TestLifecycle.end();
     }
-    assertNotNull(definition);
-    final FunctionCompilationContext context = new FunctionCompilationContext();
-    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver());
-    final CompiledFunctionService cfs = new CompiledFunctionService(repo, new CachingFunctionRepositoryCompiler(), context);
-    cfs.initialize();
-    final CompiledFunctionRepository compiledRepo = cfs.compileFunctionRepository(System.currentTimeMillis());
-    assertNotNull(compiledRepo.getDefinition(definition.getUniqueId()));
-    final FunctionInvoker invoker = compiledRepo.getInvoker(definition.getUniqueId());
-    assertNotNull(invoker);
-    assertTrue(invoker instanceof MockEmptyFunction);
-    assertSame(definition, invoker);
   }
 
   public void twoConfigurationsWithArgs() {
     final FunctionConfigurationBundle configuration = new FunctionConfigurationBundle();
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
-    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList(
-        "foo1", "foo2")));
+    configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionArrayForm.class.getName(), Lists.newArrayList("foo1", "foo2")));
     configuration.addFunctions(new ParameterizedFunctionConfiguration(MockMultiArgumentFunctionIndividualParameterForm.class.getName(), Lists.newArrayList("bar1", "bar2")));
     final InMemoryFunctionRepository repo = FunctionRepositoryFactory.constructRepository(configuration);
     assertNotNull(repo);

@@ -61,8 +61,8 @@ public class CalculationNodeUtils {
     final Set<ValueRequirement> requirements = function.getRequirements();
     final Set<ValueSpecification> inputs = Sets.newHashSetWithExpectedSize(requirements.size());
     for (final ValueRequirement requirement : requirements) {
-      inputs.add(new ValueSpecification(requirement.getValueName(), requirement.getTargetReference().getSpecification(), requirement.getConstraints().copy().with(ValuePropertyNames.FUNCTION, "mock")
-          .get()));
+      inputs.add(new ValueSpecification(requirement.getValueName(), requirement.getTargetReference().getSpecification(), requirement.getConstraints().copy()
+          .with(ValuePropertyNames.FUNCTION, "mock").get()));
     }
     return inputs;
   }
