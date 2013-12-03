@@ -59,7 +59,7 @@ public class BerkeleyDBValueIdentifierMapTest extends AbstractIdentifierMapTest 
     return dbEnvironment;
   }
 
-  @AfterClass
+  @AfterClass(alwaysRun = true)
   public static void deleteDbDirs() {
     for (File f : s_dbDirsToDelete) {
       try {
