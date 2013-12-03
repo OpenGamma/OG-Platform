@@ -319,18 +319,10 @@ public class ExampleDatabaseCreatorGui {
     buttonPannel.add(cancellationButton, BorderLayout.WEST);
 
 
-    dialog.add(new Panel() {{
-      setSize(new Dimension(100, 100));
-    }}, BorderLayout.NORTH);
-    dialog.add(new Panel() {{
-      setSize(new Dimension(100, 100));
-    }}, BorderLayout.SOUTH);
-    dialog.add(new Panel() {{
-      setSize(new Dimension(100, 100));
-    }}, BorderLayout.EAST);
-    dialog.add(new Panel() {{
-      setSize(new Dimension(100, 100));
-    }}, BorderLayout.WEST);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.NORTH);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.SOUTH);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.EAST);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.WEST);
     dialog.add(p, BorderLayout.CENTER);
 
     dialog.setSize(800, 600);
