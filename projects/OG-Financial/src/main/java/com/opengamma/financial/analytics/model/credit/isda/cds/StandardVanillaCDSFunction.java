@@ -90,7 +90,6 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
@@ -102,9 +101,10 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       //recoveryRateObject = 0.4;
     }
     final double recoveryRate = (Double) recoveryRateObject;
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    definition = definition.withRecoveryRate(recoveryRate);
+    //definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    //definition = definition.withRecoveryRate(recoveryRate);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -130,11 +130,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getEffectiveDate().toLocalDate(), definition.getStartDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS, tenors);
   }
 
   @Override
@@ -244,7 +244,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
                                                          ComputationTarget target,
                                                          ValueProperties properties,
                                                          FunctionInputs inputs,
-                                                         ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic);
+                                                         ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic,
+                                                         Tenor[] tenors);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 

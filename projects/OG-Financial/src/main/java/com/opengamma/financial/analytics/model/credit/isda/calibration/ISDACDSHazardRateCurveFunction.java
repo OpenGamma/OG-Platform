@@ -79,19 +79,20 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
-    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
     Object recoveryRateObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
     if (recoveryRateObject == null) {
       //throw new OpenGammaRuntimeException("Could not get recovery rate");
       recoveryRateObject = 0.4;
     }
-    cds = cds.withRecoveryRate((Double) recoveryRateObject);
+    final double recoveryRate = (Double) recoveryRateObject;
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
+    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
+    //cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    //cds = cds.withRecoveryRate((Double) recoveryRateObject);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");

@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.credit.isda.cds;
 import java.util.Collections;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -26,6 +27,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -48,14 +50,14 @@ public class StandardVanillaHedgeNotionalCDSFunction extends StandardVanillaCDSF
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    final TenorLabelledMatrix1D hedgeNotional = getHedgeNotional(definition, yieldCurve, times, analytic, marketSpreads);
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+    final TenorLabelledMatrix1D hedgeNotional = getHedgeNotional(definition, yieldCurve, times, analytic, marketSpreads, tenors, valuationDate);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.HEDGE_NOTIONAL, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, hedgeNotional));
   }
 
   public static TenorLabelledMatrix1D getHedgeNotional(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve,
-                                                        ZonedDateTime[] times, CDSAnalytic analytic, double[] spreads) {
+                                                        ZonedDateTime[] times, CDSAnalytic analytic, double[] spreads, Tenor[] tenors, ZonedDateTime valuationTime) {
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
@@ -63,14 +65,12 @@ public class StandardVanillaHedgeNotionalCDSFunction extends StandardVanillaCDSF
 
     double coupon = getCoupon(definition);
     Period[] periods = new Period[times.length];
-    Tenor[] tenors = new Tenor[periods.length];
     double[] hedgeCoupons = new double[periods.length];
     for (int i = 0; i < times.length; i++) {
-      periods[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
-      tenors[i] = Tenor.of(periods[i]);
+      periods[i] = tenors[i].getPeriod();
       hedgeCoupons[i] = coupon;
     }
-    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), periods);
+    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(valuationTime.toLocalDate(), periods);
 
     // Can't use flat hazard curve here as that doesn't make much sense - hence generate full hazard curve and use that
     ISDACompliantCreditCurve hazardCurve2 = new CreditCurveCalibrator(buckets, yieldCurve).calibrate(spreads);

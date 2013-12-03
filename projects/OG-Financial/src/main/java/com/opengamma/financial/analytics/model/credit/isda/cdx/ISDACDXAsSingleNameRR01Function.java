@@ -34,6 +34,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaRR01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -54,7 +55,7 @@ public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic, Tenor[] tenors) {
     final double rr01 = StandardVanillaRR01CDSFunction.getRR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, rr01));

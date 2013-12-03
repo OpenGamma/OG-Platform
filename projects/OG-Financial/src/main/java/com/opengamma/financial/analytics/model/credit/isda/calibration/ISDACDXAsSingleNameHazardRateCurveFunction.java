@@ -75,8 +75,8 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource, securitySource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource, securitySource, valuationTime);
     final CreditDefaultSwapIndexSecurity security = (CreditDefaultSwapIndexSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
     LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);

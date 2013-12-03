@@ -68,7 +68,6 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(
@@ -81,10 +80,11 @@ public class StandardVanillaAccruedCDSFunction extends AbstractFunction.NonCompi
       //recoveryRateObject = 0.4;
     }
     final double recoveryRate = (Double) recoveryRateObject;
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0)));
-    definition = getStartDate(definition, security, valuationTime);
-    definition = definition.withRecoveryRate(recoveryRate);
+    //definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0)));
+    //definition = getStartDate(definition, security, valuationTime);
+    //definition = definition.withRecoveryRate(recoveryRate);
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(recoveryRate, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())

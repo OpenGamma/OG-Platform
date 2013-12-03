@@ -59,8 +59,8 @@ public class ISDACDXAsSingleNameAccruedCDSFunction extends AbstractFunction.NonC
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
-    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource, securitySource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource, securitySource, valuationTime);
     final CreditDefaultSwapIndexSecurity security = (CreditDefaultSwapIndexSecurity) target.getSecurity();
     final CreditDefaultSwapIndexDefinitionSecurity underlyingDefinition = (CreditDefaultSwapIndexDefinitionSecurity) securitySource.getSingle(ExternalIdBundle.of(security.getReferenceEntity()));
     if (underlyingDefinition == null) {
@@ -71,7 +71,7 @@ public class ISDACDXAsSingleNameAccruedCDSFunction extends AbstractFunction.NonC
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
     definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(
         0).withNano(0)));
-    definition = StandardVanillaAccruedCDSFunction.getStartDate(definition, security, valuationTime);
+    //definition = StandardVanillaAccruedCDSFunction.getStartDate(definition, security, valuationTime);
     definition = definition.withRecoveryRate(recoveryRate);
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(recoveryRate, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())

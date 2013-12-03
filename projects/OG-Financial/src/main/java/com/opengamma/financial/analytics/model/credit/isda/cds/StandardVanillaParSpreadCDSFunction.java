@@ -60,6 +60,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.time.Tenor;
 
 /**
  *
@@ -74,7 +75,7 @@ public class StandardVanillaParSpreadCDSFunction extends StandardVanillaCDSFunct
   protected Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve, ZonedDateTime[] times,
                                                 double[] marketSpreads, ZonedDateTime valuationTime, ComputationTarget target,
                                                 ValueProperties properties, FunctionInputs inputs, ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic, Tenor[] tenors) {
     final double parSpread = getParSpread(yieldCurve, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PAR_SPREAD, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, parSpread));

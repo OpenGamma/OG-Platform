@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelIR01CDSFunction;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -41,7 +42,7 @@ public class ISDACDXAsSingleNameParallelIR01Function extends ISDACDXAsSingleName
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic, Tenor[] tenors) {
     final double ir01 = StandardVanillaParallelIR01CDSFunction.getParallelIR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.IR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, ir01));
