@@ -101,31 +101,4 @@ public enum SnapshotColumns {
     return getColumns(list);
   }
 
-  /**
-   * @return Snapshot detail columns
-   *  {TYPE, NAME}
-   */
-  public static String[] detailColumns() {
-    ArrayList<String> list = new ArrayList<>();
-    list.add(SnapshotColumns.TYPE._text);
-    list.add(SnapshotColumns.NAME._text);
-    return getColumns(list);
-  }
-
-  /**
-   * @return Snapshot curve columns
-   *  {TYPE, NAME, INSTANT, ID_BUNDLE, VALUE_NAME, VALUE_OBJECT, MARKET_VALUE, OVERRIDE_VALUE}
-   */
-  public static String[] curveColumns() {
-    ArrayList<String> list = new ArrayList<>();
-    list.add(SnapshotColumns.TYPE._text);
-    list.add(SnapshotColumns.NAME._text);
-    list.add(SnapshotColumns.INSTANT._text);
-    list.add(SnapshotColumns.ID_BUNDLE._text);
-    list.add(SnapshotColumns.VALUE_NAME._text);
-    list.add(SnapshotColumns.VALUE_OBJECT._text);
-    list.add(SnapshotColumns.MARKET_VALUE._text);
-    list.add(SnapshotColumns.OVERRIDE_VALUE._text);
-    return getColumns(list);
-  }
 }
