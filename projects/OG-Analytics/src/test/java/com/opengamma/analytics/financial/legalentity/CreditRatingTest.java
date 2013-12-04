@@ -11,7 +11,6 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -50,22 +49,6 @@ public class CreditRatingTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDescription() {
     CreditRating.of(RATING, null, AGENCY, IS_LONG_TERM);
-  }
-
-  /**
-   * Testing failure of null agency name
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullAgency1() {
-    CreditRating.of(RATING, null, IS_LONG_TERM);
-  }
-
-  /**
-   * Testing failure of null agency name
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullAgency2() {
-    CreditRating.of(RATING, DESCRIPTION, null, IS_LONG_TERM);
   }
 
   /**

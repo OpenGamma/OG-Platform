@@ -37,7 +37,6 @@ public class IssuerProvider implements IssuerProviderInterface {
   /**
    * A map with issuer discounting curves.
    */
-//  private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
   private final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
   /**
    * The set of names of all curves used in the multicurves provider.
@@ -235,50 +234,30 @@ public class IssuerProvider implements IssuerProviderInterface {
     return _issuerCurvesNames.get(name).getUnderlyingCurvesNames();
   }
 
-//  @Override
-//  public Set<Pair<String, Currency>> getIssuersCurrencies() {
-//    return _issuerCurves.keySet();
-//  }
-
   @Override
   public Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers() {
     return _issuerCurves.keySet();
   }
 
+  /**
+   * Gets all issuer curves.
+   * @return The issuer curves
+   */
   public Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> getIssuerCurves() {
     return _issuerCurves;
   }
 
-//  public YieldAndDiscountCurve getCurve(final Pair<String, Currency> ic) {
-//    return _issuerCurves.get(ic);
-//  }
-
-  public YieldAndDiscountCurve getCurve(final Object key) {
+  /**
+   * Gets an issuer curve.
+   * @param key The key
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> key) {
     return _issuerCurves.get(key);
   }
 
-//  public <T extends Obligor> YieldAndDiscountCurve getCurveForObligorMeta(final Pair<T, ObligorMeta<T>> key) {
-//    final Object meta = key.getSecond().getMetaData(key.getFirst());
-//    return _issuerCurves.get(meta);
-//  }
-
-//  /**
-//   * Sets the discounting curve for a given issuer/currency.
-//   * @param issuerCcy The issuer/currency.
-//   * @param curve The yield curve used for discounting.
-//   */
-//  public void setCurve(final Pair<String, Currency> issuerCcy, final YieldAndDiscountCurve curve) {
-//    ArgumentChecker.notNull(issuerCcy, "Issuer/currency");
-//    ArgumentChecker.notNull(curve, "curve");
-//    if (_issuerCurves.containsKey(issuerCcy)) {
-//      throw new IllegalArgumentException("Currency discounting curve already set: " + issuerCcy.toString());
-//    }
-//    _issuerCurves.put(issuerCcy, curve);
-//    setAllCurves();
-//  }
-
   /**
-   * Sets the discounting curve for a given issuer/currency.
+   * Sets the discounting curve for a given issuer.
    * @param issuerCcy The issuer/currency.
    * @param curve The yield curve used for discounting.
    */
@@ -292,13 +271,13 @@ public class IssuerProvider implements IssuerProviderInterface {
     setAllCurves();
   }
 
-//  public IssuerProvider withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
-//    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
-//    newIssuerCurves.put(ic, replacement);
-//    return new IssuerProvider(_multicurveProvider, newIssuerCurves);
-//  }
-
-  public IssuerProvider withIssuerCurrency(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
+  /**
+   * Replaces an issuer curve.
+   * @param ic The key of the curve to replace
+   * @param replacement The replacement curve
+   * @return A new provider with the curve replaced.
+   */
+  public IssuerProvider withIssuerCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
     final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
     newIssuerCurves.put(ic, replacement);
     return new IssuerProvider(_multicurveProvider, newIssuerCurves);

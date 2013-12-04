@@ -150,7 +150,7 @@ public class SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
         final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
         final YieldAndDiscountCurve icBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-        final IssuerProvider providerIcBumped = issuercurves.withIssuerCurrency(ic, icBumped);
+        final IssuerProvider providerIcBumped = issuercurves.withIssuerCurve(ic, icBumped);
         final Double valueBumped = instrument.accept(_valueCalculator, providerIcBumped);
         final Double valueDiff = valueBumped + valueInitMinus;
         sensitivity[loopnode] = valueDiff / _shift;

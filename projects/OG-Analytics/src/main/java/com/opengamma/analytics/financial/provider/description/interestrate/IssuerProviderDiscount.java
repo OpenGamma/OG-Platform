@@ -63,10 +63,6 @@ public class IssuerProviderDiscount extends IssuerProvider {
     super(discountingCurves, forwardIborCurves, forwardONCurves, issuerCurves, fxMatrix);
   }
 
-//  public IssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-//      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
-//    super(discountingCurves, forwardIborCurves, forwardONCurves, issuerCurves, fxMatrix);
-//  }
   /**
    * Constructor from exiting multi-curve provider and issuer map. The given provider and map are used for the new provider (the same maps are used, not copied).
    * @param multicurve The multi-curves provider.
@@ -75,10 +71,6 @@ public class IssuerProviderDiscount extends IssuerProvider {
   public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     super(multicurve, issuerCurves);
   }
-
-//  public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves) {
-//    super(multicurve, issuerCurves);
-//  }
 
   /**
    * Constructs a provider from an existing multi-curve provider. The maps are not copied
@@ -103,12 +95,6 @@ public class IssuerProviderDiscount extends IssuerProvider {
     final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(getIssuerCurves());
     return new IssuerProviderDiscount(getMulticurveProvider().copy(), issuerCurvesNew);
   }
-
-//  @Override
-//  public IssuerProviderDiscount copy() {
-//    final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(getIssuerCurves());
-//    return new IssuerProviderDiscount(getMulticurveProvider().copy(), issuerCurvesNew);
-//  }
 
   /**
    * Sets the discounting curve for a currency.
@@ -153,16 +139,10 @@ public class IssuerProviderDiscount extends IssuerProvider {
   }
 
   @Override
-  public IssuerProviderDiscount withIssuerCurrency(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
+  public IssuerProviderDiscount withIssuerCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
     final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(getIssuerCurves());
     newIssuerCurves.put(ic, replacement);
     return new IssuerProviderDiscount(getMulticurveProvider(), newIssuerCurves);
   }
 
-//  @Override
-//  public IssuerProviderDiscount withIssuerCurrency(final Pair<String, Currency> ic, final YieldAndDiscountCurve replacement) {
-//    final Map<Pair<String, Currency>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(getIssuerCurves());
-//    newIssuerCurves.put(ic, replacement);
-//    return new IssuerProviderDiscount(getMulticurveProvider(), newIssuerCurves);
-//  }
 }

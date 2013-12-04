@@ -7,11 +7,13 @@ package com.opengamma.financial.analytics.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
-import org.joda.beans.impl.flexi.FlexiBean;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
@@ -19,7 +21,10 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.legalentity.Sector;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityRegion;
+import com.opengamma.analytics.financial.legalentity.LegalEntitySector;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -38,6 +43,7 @@ import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
@@ -200,13 +206,13 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     overnight.put(new IndexON("NAME1", Currency.USD, DayCountFactory.INSTANCE.getDayCount("Act/360"), 1), new YieldCurve("E", ConstantDoublesCurve.from(0.003, "e")));
     overnight.put(new IndexON("NAME2", Currency.EUR, DayCountFactory.INSTANCE.getDayCount("Act/360"), 0), new YieldCurve("F", ConstantDoublesCurve.from(0.006, "f")));
     final MulticurveProviderDiscount provider = new MulticurveProviderDiscount(discounting, ibor, overnight, matrix);
-    final Map<Object, YieldAndDiscountCurve> curves = new HashMap<>();
-    curves.put(Currency.USD, new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
-    final FlexiBean classifications = new FlexiBean();
-    classifications.put("B", "C");
-    classifications.put("D", "E");
-    curves.put(Sector.of("A", classifications), new YieldCurve("P", ConstantDoublesCurve.from(0.1234, "p")));
-    final IssuerProviderDiscount issuer = null; //new IssuerProviderDiscount(provider, curves);
+    final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> curves = new HashMap<>();
+    curves.put(Pairs.<Object, LegalEntityFilter<LegalEntity>>of(Currency.USD, new LegalEntityRegion(true, false, Collections.<Country>emptySet(), true, Collections.singleton(Currency.USD))), new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
+    final Set<String> classifications = new HashSet<>();
+    classifications.add("C");
+    classifications.add("E");
+    curves.put(Pairs.<Object, LegalEntityFilter<LegalEntity>>of("A", new LegalEntitySector(true, false, classifications)), new YieldCurve("P", ConstantDoublesCurve.from(0.1234, "p")));
+    final IssuerProviderDiscount issuer = new IssuerProviderDiscount(provider, curves);
     assertEquals(issuer, cycleObject(IssuerProviderDiscount.class, issuer));
   }
 

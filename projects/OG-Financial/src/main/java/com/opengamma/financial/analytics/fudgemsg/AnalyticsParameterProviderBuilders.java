@@ -42,6 +42,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains builders for the objects that analytics needs to perform pricing.
@@ -401,21 +402,29 @@ public final class AnalyticsParameterProviderBuilders {
   public static class IssuerProviderDiscountBuilder extends AbstractFudgeBuilder<IssuerProviderDiscount> {
     /** The curve provider field */
     private static final String CURVE_PROVIDER_FIELD = "curveProvider";
-    /** The issuer field */
-    private static final String ISSUER_FIELD = "issuer";
+    /** The issuer reference class field */
+    private static final String ISSUER_REFERENCE_CLASS_FIELD = "issuerReferenceClass";
+    /** The issuer reference field */
+    private static final String ISSUER_REFERENCE_FIELD = "issuerReference";
+    /** The issuer legal entity filter */
+    private static final String ISSUER_FILTER_FIELD = "issuerFilter";
     /** The issuer curve field */
     private static final String ISSUER_CURVE_FIELD = "issuerCurve";
 
     @Override
     public IssuerProviderDiscount buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final MulticurveProviderDiscount multicurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(CURVE_PROVIDER_FIELD));
-      final List<FudgeField> issuerFields = message.getAllByName(ISSUER_FIELD);
+      final List<FudgeField> issuerClassFields = message.getAllByName(ISSUER_REFERENCE_CLASS_FIELD);
+      final List<FudgeField> issuerReferenceFields = message.getAllByName(ISSUER_REFERENCE_FIELD);
+      final List<FudgeField> issuerFilterFields = message.getAllByName(ISSUER_FILTER_FIELD);
       final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVE_FIELD);
       final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
-      for (int i = 0; i < issuerFields.size(); i++) {
-        final Pair<Object, LegalEntityFilter<LegalEntity>> issuer = deserializer.fieldValueToObject(Pair.class, issuerFields.get(i));
+      for (int i = 0; i < issuerReferenceFields.size(); i++) {
+        final Class<?> clazz = deserializer.fieldValueToObject(Class.class, issuerClassFields.get(i));
+        final Object issuerReference = deserializer.fieldValueToObject(clazz, issuerReferenceFields.get(i));
+        final LegalEntityFilter<LegalEntity> issuerFilter = deserializer.fieldValueToObject(LegalEntityFilter.class, issuerFilterFields.get(i));
         final YieldAndDiscountCurve curve = deserializer.fieldValueToObject(YieldAndDiscountCurve.class, issuerCurveFields.get(i));
-        issuerCurves.put(issuer, curve);
+        issuerCurves.put(Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuerReference, issuerFilter), curve);
       }
       return new IssuerProviderDiscount(multicurves, issuerCurves);
     }
@@ -424,7 +433,9 @@ public final class AnalyticsParameterProviderBuilders {
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IssuerProviderDiscount object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_PROVIDER_FIELD, null, object.getMulticurveProvider());
       for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
-        serializer.addToMessageWithClassHeaders(message, ISSUER_FIELD, null, entry.getValue());
+        serializer.addToMessage(message, ISSUER_REFERENCE_CLASS_FIELD, null, entry.getKey().getFirst().getClass());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_REFERENCE_FIELD, null, entry.getKey().getFirst());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_FILTER_FIELD, null, entry.getKey().getSecond());
         serializer.addToMessageWithClassHeaders(message, ISSUER_CURVE_FIELD, null, entry.getValue());
       }
     }

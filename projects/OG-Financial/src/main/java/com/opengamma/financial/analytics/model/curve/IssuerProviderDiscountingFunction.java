@@ -232,7 +232,7 @@ public class IssuerProviderDiscountingFunction extends
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
-      final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = null;// builder.makeCurvesFromDerivatives(curveBundles,;
+      final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = null; // builder.makeCurvesFromDerivatives(curveBundles,;
           //(IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
       final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
