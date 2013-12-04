@@ -6,7 +6,6 @@
 package com.opengamma.financial.fudgemsg;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -95,7 +94,8 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
     if (message.hasField(XS_SUBMESSAGE_FIELD)) {
       try {
         FudgeMsg xsSubMsg = message.getMessage(XS_SUBMESSAGE_FIELD);
-        Class<?> xClass = Class.forName(xsSubMsg.getString(0));
+        String xClassName = xsSubMsg.getString(0);
+        Class<?> xClass = xClassName != null ? Class.forName(xClassName) : Object.class;
         final List<FudgeField> xsFields = xsSubMsg.getAllByName(XS_FIELD);        
         xsArray = (Object[]) Array.newInstance(xClass, xsFields.size());
         int i = 0;
@@ -105,7 +105,8 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
           i++;
         }
         FudgeMsg ysSubMsg = message.getMessage(YS_SUBMESSAGE_FIELD);
-        Class<?> yClass = Class.forName(ysSubMsg.getString(0));
+        String yClassName = ysSubMsg.getString(0);
+        Class<?> yClass = yClassName != null ? Class.forName(yClassName) : Object.class;
         final List<FudgeField> ysFields = ysSubMsg.getAllByName(YS_FIELD);        
         ysArray = (Object[]) Array.newInstance(yClass, ysFields.size());
         int j = 0;
