@@ -16,7 +16,6 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -27,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * that must be set is the name.
  */
 @BeanDefinition
-public class LegalEntity extends DirectBean implements Serializable {
+public class LegalEntity implements Bean, Serializable {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
@@ -65,7 +64,7 @@ public class LegalEntity extends DirectBean implements Serializable {
   /**
    * For the builder.
    */
-  LegalEntity() {
+  /* package */ LegalEntity() {
   }
 
   /**
@@ -103,6 +102,16 @@ public class LegalEntity extends DirectBean implements Serializable {
     return LegalEntity.Meta.INSTANCE;
   }
 
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the ticker
@@ -116,7 +125,7 @@ public class LegalEntity extends DirectBean implements Serializable {
    * Sets the ticker
    * @param ticker  the new value of the property
    */
-  public void setTicker(final String ticker) {
+  public void setTicker(String ticker) {
     this._ticker = ticker;
   }
 
@@ -141,7 +150,7 @@ public class LegalEntity extends DirectBean implements Serializable {
    * Sets the short name
    * @param shortName  the new value of the property, not null
    */
-  public void setShortName(final String shortName) {
+  public void setShortName(String shortName) {
     JodaBeanUtils.notNull(shortName, "shortName");
     this._shortName = shortName;
   }
@@ -167,7 +176,7 @@ public class LegalEntity extends DirectBean implements Serializable {
    * Sets a set of credit ratings from various agencies.
    * @param creditRatings  the new value of the property
    */
-  public void setCreditRatings(final Set<CreditRating> creditRatings) {
+  public void setCreditRatings(Set<CreditRating> creditRatings) {
     this._creditRatings = creditRatings;
   }
 
@@ -192,7 +201,7 @@ public class LegalEntity extends DirectBean implements Serializable {
    * Sets the sector.
    * @param sector  the new value of the property
    */
-  public void setSector(final Sector sector) {
+  public void setSector(Sector sector) {
     this._sector = sector;
   }
 
@@ -217,7 +226,7 @@ public class LegalEntity extends DirectBean implements Serializable {
    * Sets the region.
    * @param region  the new value of the property
    */
-  public void setRegion(final Region region) {
+  public void setRegion(Region region) {
     this._region = region;
   }
 
@@ -232,8 +241,8 @@ public class LegalEntity extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntity clone() {
-    final BeanBuilder<? extends LegalEntity> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    BeanBuilder<? extends LegalEntity> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -246,12 +255,12 @@ public class LegalEntity extends DirectBean implements Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final LegalEntity other = (LegalEntity) obj;
+      LegalEntity other = (LegalEntity) obj;
       return JodaBeanUtils.equal(getTicker(), other.getTicker()) &&
           JodaBeanUtils.equal(getShortName(), other.getShortName()) &&
           JodaBeanUtils.equal(getCreditRatings(), other.getCreditRatings()) &&
@@ -274,9 +283,9 @@ public class LegalEntity extends DirectBean implements Serializable {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("LegalEntity{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -285,7 +294,7 @@ public class LegalEntity extends DirectBean implements Serializable {
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     buf.append("ticker").append('=').append(JodaBeanUtils.toString(getTicker())).append(',').append(' ');
     buf.append("shortName").append('=').append(JodaBeanUtils.toString(getShortName())).append(',').append(' ');
     buf.append("creditRatings").append('=').append(JodaBeanUtils.toString(getCreditRatings())).append(',').append(' ');
@@ -347,7 +356,7 @@ public class LegalEntity extends DirectBean implements Serializable {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -873960694:  // ticker
           return _ticker;
@@ -421,7 +430,7 @@ public class LegalEntity extends DirectBean implements Serializable {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -873960694:  // ticker
           return ((LegalEntity) bean).getTicker();
@@ -439,7 +448,7 @@ public class LegalEntity extends DirectBean implements Serializable {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -873960694:  // ticker
           ((LegalEntity) bean).setTicker((String) newValue);
@@ -461,7 +470,7 @@ public class LegalEntity extends DirectBean implements Serializable {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((LegalEntity) bean)._shortName, "shortName");
     }
 

@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -59,7 +59,7 @@ public class IssuerProviderDiscount extends IssuerProvider {
    * @param fxMatrix The FX matrix, not null
    */
   public IssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
     super(discountingCurves, forwardIborCurves, forwardONCurves, issuerCurves, fxMatrix);
   }
 
@@ -72,7 +72,7 @@ public class IssuerProviderDiscount extends IssuerProvider {
    * @param multicurve The multi-curves provider.
    * @param issuerCurves The issuer specific curves.
    */
-  public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
+  public IssuerProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     super(multicurve, issuerCurves);
   }
 
@@ -100,7 +100,7 @@ public class IssuerProviderDiscount extends IssuerProvider {
 
   @Override
   public IssuerProviderDiscount copy() {
-    final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(getIssuerCurves());
+    final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new HashMap<>(getIssuerCurves());
     return new IssuerProviderDiscount(getMulticurveProvider().copy(), issuerCurvesNew);
   }
 
@@ -153,8 +153,8 @@ public class IssuerProviderDiscount extends IssuerProvider {
   }
 
   @Override
-  public IssuerProviderDiscount withIssuerCurrency(final Pair<Object, LegalEntityMeta<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
-    final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(getIssuerCurves());
+  public IssuerProviderDiscount withIssuerCurrency(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
+    final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(getIssuerCurves());
     newIssuerCurves.put(ic, replacement);
     return new IssuerProviderDiscount(getMulticurveProvider(), newIssuerCurves);
   }

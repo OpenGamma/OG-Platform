@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -175,10 +175,10 @@ public class MulticurveProviderDiscountDataSets {
   private static final InterpolatedDoublesCurve CURVE_AUD = InterpolatedDoublesCurve.from(TIME_VALUE_AUD, INDEX_VALUE_AUD, new LinearInterpolator1D(), NAME_AUD_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_AUD = new PriceIndexCurve(CURVE_AUD);
 
-  private static final LegalEntityMeta<LegalEntity> META = LegalEntityShortName.builder().create();
-  private static final Pair<Object, LegalEntityMeta<LegalEntity>> ISSUER_UK_GOVT = Pairs.of((Object) "UK GOVT", META);
-  private static final Pair<Object, LegalEntityMeta<LegalEntity>> ISSUER_US_GOVT = Pairs.of((Object) "US GOVT", META);
-  private static final Pair<Object, LegalEntityMeta<LegalEntity>> ISSUER_AUD_GOVT = Pairs.of((Object) "AUD GOVT", META);
+  private static final LegalEntityFilter<LegalEntity> META = new LegalEntityShortName();
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_UK_GOVT = Pairs.of((Object) "UK GOVT", META);
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_US_GOVT = Pairs.of((Object) "US GOVT", META);
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_AUD_GOVT = Pairs.of((Object) "AUD GOVT", META);
 
   private static final InflationIssuerProviderDiscount MARKET_1 = new InflationIssuerProviderDiscount();
   static {
@@ -221,7 +221,7 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_CAD.setCurve(CADCDOR3M, CAD_FWD3);
   }
 
-  private static final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
   static {
     ISSUER_CURVES.put(Pairs.of((Object) ISSUER_NAME, META), EUR_ISSUER);
   }

@@ -41,7 +41,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
@@ -201,11 +201,11 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   private static final GeneratorYDCurve[][][] GENERATORS_UNITS = new GeneratorYDCurve[NB_BLOCKS][][];
   private static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
   private static final MulticurveProviderDiscount KNOWN_MULTICURVES = new MulticurveProviderDiscount(FX_MATRIX);
-  private static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve>());
+  private static final IssuerProviderDiscount KNOWN_DATA = new IssuerProviderDiscount(KNOWN_MULTICURVES, new HashMap<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve>());
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
   private static final LinkedHashMap<String, IborIndex[]> FWD_IBOR_MAP = new LinkedHashMap<>();
-  private static final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> DSC_ISS_MAP = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> DSC_ISS_MAP = new LinkedHashMap<>();
 
   static {
     DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
@@ -224,7 +224,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
     NAMES_UNITS[0][1] = new String[] {CURVE_NAME_GOVTUS_USD };
     DSC_MAP.put(CURVE_NAME_DSC_USD, USD);
     FWD_ON_MAP.put(CURVE_NAME_DSC_USD, new IndexON[] {INDEX_ON_USD });
-    DSC_ISS_MAP.put(CURVE_NAME_GOVTUS_USD, Pairs.of((Object) NAME_COUNTERPART, (LegalEntityMeta<LegalEntity>) LegalEntityShortName.builder().create()));
+    DSC_ISS_MAP.put(CURVE_NAME_GOVTUS_USD, Pairs.of((Object) NAME_COUNTERPART, (LegalEntityFilter<LegalEntity>) new LegalEntityShortName()));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })

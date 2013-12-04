@@ -20,9 +20,9 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityCombinedMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityCombiningFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityCreditRatings;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityRegion;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.legalentity.Region;
@@ -111,7 +111,7 @@ public class IssuerProviderDiscountDataSets {
   private static final String UK_GBP_CURVE_NAME = "GBP " + UK_NAME;
   private static final YieldAndDiscountCurve UK_GBP_CURVE = new YieldCurve(UK_GBP_CURVE_NAME, new InterpolatedDoublesCurve(UK_GBP_TIME, UK_GBP_RATE, LINEAR_FLAT, true, UK_GBP_CURVE_NAME));
   /** Extracts the short name (i.e. issuer name) from a legal entity */
-  private static final LegalEntityMeta<LegalEntity> SHORT_NAME_META = LegalEntityShortName.builder().create();
+  private static final LegalEntityFilter<LegalEntity> SHORT_NAME_FILTER = new LegalEntityShortName();
   /** A set of discounting curves for EUR, USD and GBP */
   private static final MulticurveProviderDiscount DISCOUNTING_CURVES = new MulticurveProviderDiscount();
   static {
@@ -121,43 +121,48 @@ public class IssuerProviderDiscountDataSets {
     DISCOUNTING_CURVES.setCurve(GBP, GBP_DSC);
   }
   /** A set of issuer-specific curves for US GOVT, BELGIUM GOVT, GERMANY GOVT and UK GOVT */
-  private static final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> ISSUER_SPECIFIC = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_SPECIFIC = new LinkedHashMap<>();
   static {
-    ISSUER_SPECIFIC.put(Pairs.of((Object) US_NAME, SHORT_NAME_META), US_USD_CURVE);
-    ISSUER_SPECIFIC.put(Pairs.of((Object) BEL_NAME, SHORT_NAME_META), BEL_EUR_CURVE);
-    ISSUER_SPECIFIC.put(Pairs.of((Object) GER_NAME, SHORT_NAME_META), GER_EUR_CURVE);
-    ISSUER_SPECIFIC.put(Pairs.of((Object) UK_NAME, SHORT_NAME_META), UK_GBP_CURVE);
+    ISSUER_SPECIFIC.put(Pairs.of((Object) US_NAME, SHORT_NAME_FILTER), US_USD_CURVE);
+    ISSUER_SPECIFIC.put(Pairs.of((Object) BEL_NAME, SHORT_NAME_FILTER), BEL_EUR_CURVE);
+    ISSUER_SPECIFIC.put(Pairs.of((Object) GER_NAME, SHORT_NAME_FILTER), GER_EUR_CURVE);
+    ISSUER_SPECIFIC.put(Pairs.of((Object) UK_NAME, SHORT_NAME_FILTER), UK_GBP_CURVE);
   }
   /** Extracts the country from a legal entity */
-  private static final LegalEntityMeta<LegalEntity> COUNTRY_META;
+  private static final LegalEntityRegion COUNTRY_FILTER;
   /** A set of country-specific curves for US, DE, UK and GB */
-  private static final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> COUNTRY_SPECIFIC = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> COUNTRY_SPECIFIC = new LinkedHashMap<>();
   static {
-    COUNTRY_META = LegalEntityRegion.builder().useCountries().create();
-    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.US), COUNTRY_META), US_USD_CURVE);
-    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.BE), COUNTRY_META), BEL_EUR_CURVE);
-    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.DE), COUNTRY_META), GER_EUR_CURVE);
-    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.GB), COUNTRY_META), UK_GBP_CURVE);
+    COUNTRY_FILTER = new LegalEntityRegion();
+    COUNTRY_FILTER.setUseCountry(true);
+    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.US), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), US_USD_CURVE);
+    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.BE), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), BEL_EUR_CURVE);
+    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.DE), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), GER_EUR_CURVE);
+    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.GB), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), UK_GBP_CURVE);
   }
   /** Extracts the currency from a legal entity */
-  private static final LegalEntityMeta<LegalEntity> CURRENCY_META;
+  private static final LegalEntityRegion CURRENCY_FILTER;
   /** A set of currency-specific curves for USD, EUR and GBP */
-  private static final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> CURRENCY_SPECIFIC = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> CURRENCY_SPECIFIC = new LinkedHashMap<>();
   static {
-    CURRENCY_META = LegalEntityRegion.builder().useCurrencies().create();
-    CURRENCY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(USD), CURRENCY_META), US_USD_CURVE);
-    CURRENCY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(EUR), CURRENCY_META), GER_EUR_CURVE);
-    CURRENCY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(GBP), CURRENCY_META), UK_GBP_CURVE);
+    CURRENCY_FILTER = new LegalEntityRegion();
+    CURRENCY_FILTER.setUseCurrency(true);
+    CURRENCY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(USD), (LegalEntityFilter<LegalEntity>) CURRENCY_FILTER), US_USD_CURVE);
+    CURRENCY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(EUR), (LegalEntityFilter<LegalEntity>) CURRENCY_FILTER), GER_EUR_CURVE);
+    CURRENCY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(GBP), (LegalEntityFilter<LegalEntity>) CURRENCY_FILTER), UK_GBP_CURVE);
   }
   /** Extracts the country and rating from a legal entity */
-  private static final LegalEntityMeta<LegalEntity> COUNTRY_RATING_META;
+  private static final LegalEntityCombiningFilter COUNTRY_RATING_FILTER;
   /** A set of country and rating-specific curves for US, BE, DE and GB */
-  private static final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> COUNTRY_RATING_SPECIFIC = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> COUNTRY_RATING_SPECIFIC = new LinkedHashMap<>();
   static {
-    COUNTRY_RATING_META = LegalEntityCombinedMeta.builder()
-        .useMeta(COUNTRY_META)
-        .useMeta(LegalEntityCreditRatings.builder().useRatings().create())
-        .create();
+    COUNTRY_RATING_FILTER = new LegalEntityCombiningFilter();
+    final LegalEntityCreditRatings ratingsFilter = new LegalEntityCreditRatings();
+    ratingsFilter.setUseRating(true);
+    final Set<LegalEntityFilter<LegalEntity>> underlyingFilters = new HashSet<>();
+    underlyingFilters.add(COUNTRY_FILTER);
+    underlyingFilters.add(ratingsFilter);
+    COUNTRY_RATING_FILTER.setFiltersToUse(underlyingFilters);
     final Set<Object> us = new HashSet<>();
     us.add(Sets.newHashSet(Country.US));
     us.add(Sets.newHashSet(Pairs.of("S&P", "AA")));
@@ -170,16 +175,16 @@ public class IssuerProviderDiscountDataSets {
     final Set<Object> gb = new HashSet<>();
     gb.add(Sets.newHashSet(Country.GB));
     gb.add(Sets.newHashSet(Pairs.of("S&P", "B")));
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) us, COUNTRY_RATING_META), US_USD_CURVE);
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) be, COUNTRY_RATING_META), BEL_EUR_CURVE);
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) de, COUNTRY_RATING_META), GER_EUR_CURVE);
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) gb, COUNTRY_RATING_META), UK_GBP_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) us, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), US_USD_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) be, (LegalEntityFilter<LegalEntity>)COUNTRY_RATING_FILTER), BEL_EUR_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) de, (LegalEntityFilter<LegalEntity>)COUNTRY_RATING_FILTER), GER_EUR_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) gb, (LegalEntityFilter<LegalEntity>)COUNTRY_RATING_FILTER), UK_GBP_CURVE);
   }
 
   /** US GOVT curve with constant 6% rate */
-  private static final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> USD_GOVT_6PC = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> USD_GOVT_6PC = new LinkedHashMap<>();
   static {
-    USD_GOVT_6PC.put(Pairs.of((Object) US_NAME, SHORT_NAME_META), US_USD_CURVE_6);
+    USD_GOVT_6PC.put(Pairs.of((Object) US_NAME, SHORT_NAME_FILTER), US_USD_CURVE_6);
   }
   /** Curves for pricing bonds with issuer-specific risky curves */
   private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVE = new IssuerProviderDiscount(DISCOUNTING_CURVES, ISSUER_SPECIFIC);

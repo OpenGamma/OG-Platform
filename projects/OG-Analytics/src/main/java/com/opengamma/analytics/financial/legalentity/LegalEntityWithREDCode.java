@@ -38,7 +38,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
   /**
    * For the builder.
    */
-  LegalEntityWithREDCode() {
+  public LegalEntityWithREDCode() {
     super();
   }
 
@@ -48,7 +48,6 @@ public class LegalEntityWithREDCode extends LegalEntity {
    * @param creditRatings The set of credit ratings, not null
    * @param sector The sector, not null
    * @param region The region, not null
-   * @param country The country, not null
    * @param redCode The RED code, not null
    */
   public LegalEntityWithREDCode(final String ticker, final String shortName, final Set<CreditRating> creditRatings, final Sector sector,
@@ -89,7 +88,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
    * Sets the RED code.
    * @param redCode  the new value of the property, not null
    */
-  public void setRedCode(String redCode) {
+  public void setRedCode(final String redCode) {
     JodaBeanUtils.notNull(redCode, "redCode");
     this._redCode = redCode;
   }
@@ -109,12 +108,12 @@ public class LegalEntityWithREDCode extends LegalEntity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      LegalEntityWithREDCode other = (LegalEntityWithREDCode) obj;
+      final LegalEntityWithREDCode other = (LegalEntityWithREDCode) obj;
       return JodaBeanUtils.equal(getRedCode(), other.getRedCode()) &&
           super.equals(obj);
     }
@@ -130,9 +129,9 @@ public class LegalEntityWithREDCode extends LegalEntity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    final StringBuilder buf = new StringBuilder(64);
     buf.append("LegalEntityWithREDCode{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -142,7 +141,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
     buf.append("redCode").append('=').append(JodaBeanUtils.toString(getRedCode())).append(',').append(' ');
   }
@@ -176,7 +175,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 1082206750:  // redCode
           return _redCode;
@@ -210,7 +209,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1082206750:  // redCode
           return ((LegalEntityWithREDCode) bean).getRedCode();
@@ -219,7 +218,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
     }
 
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case 1082206750:  // redCode
           ((LegalEntityWithREDCode) bean).setRedCode((String) newValue);
@@ -229,7 +228,7 @@ public class LegalEntityWithREDCode extends LegalEntity {
     }
 
     @Override
-    protected void validate(Bean bean) {
+    protected void validate(final Bean bean) {
       JodaBeanUtils.notNull(((LegalEntityWithREDCode) bean)._redCode, "redCode");
       super.validate(bean);
     }

@@ -5,24 +5,21 @@
  */
 package com.opengamma.analytics.financial.legalentity;
 
-import com.opengamma.util.i18n.Country;
+import java.io.Serializable;
 
 /**
  * Classes that pull out a specific field from an {@link LegalEntity}. As the legal entity is a bundle of
  * various data types, these classes are necessary to allow the correct values to be
  * extracted in a general way.
- * <p>
- * Implementing classes can also manipulate data in fields if required - e.g. performing
- * a union of the {@link Region} and {@link Country}.
  * @param <S> The type of the legal entity
  */
-public interface LegalEntityMeta<S extends LegalEntity> {
+public interface LegalEntityFilter<S extends LegalEntity> extends Serializable {
 
   /**
    * Gets the desired field (e.g. the sector) for an legal entity.
    * @param legalEntity The legal entity, not null
    * @return The meta data
    */
-  Object getMetaData(S legalEntity);
+  Object getFilteredData(S legalEntity);
 
 }

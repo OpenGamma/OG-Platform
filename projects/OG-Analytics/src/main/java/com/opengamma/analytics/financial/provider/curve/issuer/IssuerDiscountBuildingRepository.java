@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
@@ -101,7 +101,7 @@ public class IssuerDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
       final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
@@ -156,7 +156,7 @@ public class IssuerDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
       final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorIssuerProviderDiscount generator = new GeneratorIssuerProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, generatorsMap);
@@ -287,7 +287,7 @@ public class IssuerDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
       final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     ArgumentChecker.notNull(curveBundles, "curve bundles");

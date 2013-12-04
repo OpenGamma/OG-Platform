@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorY
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
@@ -44,7 +44,7 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
    * The map with the issuers and the related discounting curves names.
    */
 //  private final LinkedHashMap<String, Pair<String, Currency>> _issuerMap;
-  private final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> _issuerMap;
+  private final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> _issuerMap;
   /**
    * The map with the names and the related curves generators.
    */
@@ -64,7 +64,7 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
    * @param generatorsMap The generators map.
    */
   public GeneratorIssuerProviderDiscount(final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
-      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<Object, LegalEntityMeta<LegalEntity>>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
+      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
     ArgumentChecker.notNull(discountingMap, "Discounting curves names map");
     ArgumentChecker.notNull(forwardIborMap, "Forward curves names map");
     ArgumentChecker.notNull(forwardONMap, "Forward curves names map");

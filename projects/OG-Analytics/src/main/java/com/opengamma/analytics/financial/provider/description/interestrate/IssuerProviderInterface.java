@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -43,7 +43,7 @@ public interface IssuerProviderInterface extends ParameterIssuerProviderInterfac
   * @param issuerCcy The issuer/currency.
   * @return The name.
   */
-  String getName(Pair<Object, LegalEntityMeta<LegalEntity>> issuer);
+  String getName(Pair<Object, LegalEntityFilter<LegalEntity>> issuer);
 
   /**
   * Return the name associated to the discounting for a issuer/currency.
@@ -76,5 +76,5 @@ public interface IssuerProviderInterface extends ParameterIssuerProviderInterfac
   //@Deprecated
   //Set<Pair<String, Currency>> getIssuersCurrencies();
 
-  Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers();
+  Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers();
 }

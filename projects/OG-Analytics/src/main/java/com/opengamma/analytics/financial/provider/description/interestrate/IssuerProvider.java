@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -38,7 +38,7 @@ public class IssuerProvider implements IssuerProviderInterface {
    * A map with issuer discounting curves.
    */
 //  private final Map<Pair<String, Currency>, YieldAndDiscountCurve> _issuerCurves;
-  private final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
+  private final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
   /**
    * The set of names of all curves used in the multicurves provider.
    */
@@ -97,7 +97,7 @@ public class IssuerProvider implements IssuerProviderInterface {
    */
   //TODO there is no guarantee that the map is a LinkedHashMap, which could lead to unexpected behaviour
   public IssuerProvider(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
     ArgumentChecker.notNull(issuerCurves, "issuer curves");
     _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _issuerCurves = issuerCurves;
@@ -109,7 +109,7 @@ public class IssuerProvider implements IssuerProviderInterface {
    * @param multicurve The multi-curves provider, not null
    * @param issuerCurves The issuer specific curves, not null
    */
-  public IssuerProvider(final MulticurveProviderInterface multicurve, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
+  public IssuerProvider(final MulticurveProviderInterface multicurve, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     ArgumentChecker.notNull(multicurve, "multicurve");
     ArgumentChecker.notNull(issuerCurves, "issuer curves");
     _multicurveProvider = multicurve;
@@ -140,7 +140,7 @@ public class IssuerProvider implements IssuerProviderInterface {
 
   @Override
   public IssuerProvider copy() {
-    final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new LinkedHashMap<>(_issuerCurves);
+    final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurvesNew = new LinkedHashMap<>(_issuerCurves);
     return new IssuerProvider(_multicurveProvider.copy(), issuerCurvesNew);
   }
 
@@ -150,7 +150,7 @@ public class IssuerProvider implements IssuerProviderInterface {
   protected void setAllCurves() {
     _multicurvesNames = _multicurveProvider.getAllNames();
     _allNames.addAll(_multicurvesNames);
-    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
       _allNames.add(entry.getValue().getName());
       _issuerCurvesNames.put(entry.getValue().getName(), entry.getValue());
     }
@@ -158,8 +158,8 @@ public class IssuerProvider implements IssuerProviderInterface {
 
   @Override
   public double getDiscountFactor(final LegalEntity issuer, final Double time) {
-    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
-      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getMetaData(issuer))) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(issuer))) {
         return entry.getValue().getDiscountFactor(time);
       }
     }
@@ -172,14 +172,14 @@ public class IssuerProvider implements IssuerProviderInterface {
 //  }
 //
   @Override
-  public String getName(final Pair<Object, LegalEntityMeta<LegalEntity>> issuer) {
+  public String getName(final Pair<Object, LegalEntityFilter<LegalEntity>> issuer) {
     return _issuerCurves.get(issuer).getName();
   }
 
   @Override
   public String getName(final LegalEntity issuer) {
-    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
-      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getMetaData(issuer))) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(issuer))) {
         return entry.getValue().getName();
       }
     }
@@ -241,11 +241,11 @@ public class IssuerProvider implements IssuerProviderInterface {
 //  }
 
   @Override
-  public Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers() {
+  public Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers() {
     return _issuerCurves.keySet();
   }
 
-  public Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> getIssuerCurves() {
+  public Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> getIssuerCurves() {
     return _issuerCurves;
   }
 
@@ -282,7 +282,7 @@ public class IssuerProvider implements IssuerProviderInterface {
    * @param issuerCcy The issuer/currency.
    * @param curve The yield curve used for discounting.
    */
-  public void setCurve(final Pair<Object, LegalEntityMeta<LegalEntity>> issuerCcy, final YieldAndDiscountCurve curve) {
+  public void setCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(issuerCcy, "Issuer/currency");
     ArgumentChecker.notNull(curve, "curve");
     if (_issuerCurves.containsKey(issuerCcy)) {
@@ -298,8 +298,8 @@ public class IssuerProvider implements IssuerProviderInterface {
 //    return new IssuerProvider(_multicurveProvider, newIssuerCurves);
 //  }
 
-  public IssuerProvider withIssuerCurrency(final Pair<Object, LegalEntityMeta<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
-    final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
+  public IssuerProvider withIssuerCurrency(final Pair<Object, LegalEntityFilter<LegalEntity>> ic, final YieldAndDiscountCurve replacement) {
+    final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> newIssuerCurves = new LinkedHashMap<>(_issuerCurves);
     newIssuerCurves.put(ic, replacement);
     return new IssuerProvider(_multicurveProvider, newIssuerCurves);
   }

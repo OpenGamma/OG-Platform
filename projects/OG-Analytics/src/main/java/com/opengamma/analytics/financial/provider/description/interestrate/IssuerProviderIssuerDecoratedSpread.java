@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -70,7 +70,7 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
   }
 
   @Override
-  public String getName(final Pair<Object, LegalEntityMeta<LegalEntity>> issuerCcy) {
+  public String getName(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy) {
     return _issuerProvider.getName(issuerCcy);
   }
 
@@ -110,7 +110,7 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
   }
 
   @Override
-  public Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers() {
+  public Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers() {
     return _issuerProvider.getIssuers();
   }
 

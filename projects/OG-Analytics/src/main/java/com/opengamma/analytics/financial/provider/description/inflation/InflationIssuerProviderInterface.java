@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -58,13 +58,13 @@ public interface InflationIssuerProviderInterface {
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountFactor(Pair<Object, LegalEntityMeta<LegalEntity>> issuerCcy, Double time);
+  double getDiscountFactor(Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, Double time);
 
   /**
    * Gets the set of issuer names by currency defined in the market.
    * @return The set of issuers names/currencies.
    */
-  Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers();
+  Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers();
 
   /**
    * Gets the names of all curves (discounting, forward, price index and issuers).
@@ -171,7 +171,7 @@ public interface InflationIssuerProviderInterface {
 
   //     =====     Convenience methods     =====
 
-  InflationProviderInterface withDiscountFactor(Currency ccy, Pair<Object, LegalEntityMeta<LegalEntity>> replacement);
+  InflationProviderInterface withDiscountFactor(Currency ccy, Pair<Object, LegalEntityFilter<LegalEntity>> replacement);
 
   InflationProviderInterface withDiscountFactor(Currency ccy, LegalEntity replacement);
 }

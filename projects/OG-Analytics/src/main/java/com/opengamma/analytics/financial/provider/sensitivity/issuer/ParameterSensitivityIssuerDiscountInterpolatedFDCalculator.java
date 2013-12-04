@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
@@ -152,8 +152,8 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
       }
     }
     // Discounting issuer
-    final Set<Pair<Object, LegalEntityMeta<LegalEntity>>> issuerCcies = issuercurves.getIssuers();
-    for (final Pair<Object, LegalEntityMeta<LegalEntity>> ic : issuerCcies) {
+    final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerCcies = issuercurves.getIssuers();
+    for (final Pair<Object, LegalEntityFilter<LegalEntity>> ic : issuerCcies) {
       final YieldAndDiscountCurve curve = issuercurves.getCurve(ic);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
       final YieldCurve curveYield = (YieldCurve) curve;

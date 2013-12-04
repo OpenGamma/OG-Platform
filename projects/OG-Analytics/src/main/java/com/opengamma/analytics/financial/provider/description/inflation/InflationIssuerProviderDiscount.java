@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
-import com.opengamma.analytics.financial.legalentity.LegalEntityMeta;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -36,7 +36,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   /**
    * A map with issuer discounting curves.
    */
-  private final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
+  private final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> _issuerCurves;
 
   /**
    * Constructor with empty maps for discounting, forward and price index.
@@ -65,7 +65,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param fxMatrix The FXMatrix.
    */
   public InflationIssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves,
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves,
       final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, priceIndexCurves, fxMatrix);
     _issuerCurves = issuerCurves;
@@ -76,7 +76,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param inflation The inflation provider.
    * @param issuerCurves A map with issuer discounting curves.
    */
-  public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final Map<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
+  public InflationIssuerProviderDiscount(final InflationProviderDiscount inflation, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves) {
     _inflationProvider = inflation;
     _issuerCurves = issuerCurves;
   }
@@ -84,7 +84,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   @Override
   public InflationIssuerProviderDiscount copy() {
     final InflationProviderDiscount inflationProvider = _inflationProvider.copy();
-    final LinkedHashMap<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<>(_issuerCurves);
+    final LinkedHashMap<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves = new LinkedHashMap<>(_issuerCurves);
     return new InflationIssuerProviderDiscount(inflationProvider, issuerCurves);
   }
 
@@ -93,7 +93,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param issuerCcy The issuer/currency pair.
    * @param curve The curve.
    */
-  public void setCurve(final Pair<Object, LegalEntityMeta<LegalEntity>> issuerCcy, final YieldAndDiscountCurve curve) {
+  public void setCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(issuerCcy, "Name-currency");
     ArgumentChecker.notNull(curve, "curve");
     if (_issuerCurves.containsKey(issuerCcy)) {
@@ -107,12 +107,12 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
 //  }
 
   @Override
-  public double getDiscountFactor(final Pair<Object, LegalEntityMeta<LegalEntity>> issuerCcy, final Double time) {
+  public double getDiscountFactor(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final Double time) {
     return _issuerCurves.get(issuerCcy).getDiscountFactor(time);
   }
 
   @Override
-  public Set<Pair<Object, LegalEntityMeta<LegalEntity>>> getIssuers() {
+  public Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers() {
     return _issuerCurves.keySet();
   }
 
@@ -126,13 +126,13 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     return _inflationProvider;
   }
 
-  public YieldAndDiscountCurve getCurve(final Pair<Object, LegalEntityMeta<LegalEntity>> issuer) {
+  public YieldAndDiscountCurve getCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> issuer) {
     return _issuerCurves.get(issuer);
   }
 
   public YieldAndDiscountCurve getCurve(final LegalEntity issuer) {
-    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
-      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getMetaData(issuer))) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(issuer))) {
         return entry.getValue();
       }
     }
@@ -328,8 +328,8 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   public Set<String> getAllNames() {
     final Set<String> names = new TreeSet<>();
     names.addAll(_inflationProvider.getAllNames());
-    final Set<Pair<Object, LegalEntityMeta<LegalEntity>>> issuerSet = _issuerCurves.keySet();
-    for (final Pair<Object, LegalEntityMeta<LegalEntity>> issuer : issuerSet) {
+    final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerSet = _issuerCurves.keySet();
+    for (final Pair<Object, LegalEntityFilter<LegalEntity>> issuer : issuerSet) {
       names.add(_issuerCurves.get(issuer).getName());
     }
     return names;
@@ -349,14 +349,14 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   //     =====     Convenience methods     =====
 
   @Override
-  public InflationProviderInterface withDiscountFactor(final Currency ccy, final Pair<Object, LegalEntityMeta<LegalEntity>> replacement) {
+  public InflationProviderInterface withDiscountFactor(final Currency ccy, final Pair<Object, LegalEntityFilter<LegalEntity>> replacement) {
     return _inflationProvider.withDiscountFactor(ccy, _issuerCurves.get(replacement));
   }
 
   @Override
   public InflationProviderInterface withDiscountFactor(final Currency ccy, final LegalEntity replacement) {
-    for (final Map.Entry<Pair<Object, LegalEntityMeta<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
-      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getMetaData(replacement))) {
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(replacement))) {
         return _inflationProvider.withDiscountFactor(ccy, entry.getValue());
       }
     }
