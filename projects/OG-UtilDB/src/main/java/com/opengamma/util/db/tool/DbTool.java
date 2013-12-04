@@ -656,7 +656,6 @@ public class DbTool {
   /**
    * Returns collection of table names.
    *
-   * @param catalog the catalog (database) name, not null
    * @return a list of table names, not null
    */
   public List<String> listTables() {

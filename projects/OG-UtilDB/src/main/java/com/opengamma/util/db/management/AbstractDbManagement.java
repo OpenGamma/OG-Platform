@@ -622,7 +622,7 @@ public abstract class AbstractDbManagement implements DbManagement {
     try {
       conn = connect(catalog);
       final Statement stmt = conn.createStatement();
-        return getAllTables(catalog, null, stmt);
+      return getAllTables(catalog, null, stmt);
     } catch (SQLException e) {
       e.printStackTrace();
       System.err.println("e.getMessage: " + e.getMessage());

@@ -328,7 +328,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return jobResult;
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   private static <T> AsynchronousOperation<Deferred<T>> deferredOperation() {
     return (AsynchronousOperation) AsynchronousOperation.create(Deferred.class);
   }
@@ -653,6 +653,7 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
     return cache;
   }
 
+  @SuppressWarnings("deprecation")
   private static Set<ValueRequirement> plat2290(final ValueSpecification[] outputs) {
     final Set<ValueRequirement> result = Sets.newHashSetWithExpectedSize(outputs.length);
     for (final ValueSpecification output : outputs) {

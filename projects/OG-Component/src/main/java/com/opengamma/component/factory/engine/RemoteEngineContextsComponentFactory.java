@@ -90,6 +90,7 @@ import com.opengamma.util.tuple.Pairs;
  * required construction pattern.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class RemoteEngineContextsComponentFactory extends AbstractComponentFactory {
 
   // TODO: Update the Spring based configuration for remote calc nodes to use this

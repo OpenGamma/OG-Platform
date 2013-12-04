@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.core.historicaltimeseries.impl;
 
 import java.util.HashMap;
@@ -14,9 +19,10 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
+ * Abstract cache.
+ * 
+ * @param <A>  the first type
+ * @param <B>  the second type
  */
 public abstract class HierarhicalEHCache<A, B> {
 
@@ -26,11 +32,11 @@ public abstract class HierarhicalEHCache<A, B> {
 
   private final Cache _missedCache;
 
-  private final String A_CACHE_NAME = getCachePrefix() + "A_Cache";
+  private final String _cacheNameA = getCachePrefix() + "A_Cache";
 
-  private final String B_CACHE_NAME = getCachePrefix() + "B_Cache";
+  private final String _cacheNameB = getCachePrefix() + "B_Cache";
 
-  private final String MISSED_CACHE_NAME = getCachePrefix() + "Missed_Cache";
+  private final String _missedCacheName = getCachePrefix() + "Missed_Cache";
 
   abstract String getCachePrefix();
 
@@ -42,14 +48,14 @@ public abstract class HierarhicalEHCache<A, B> {
   private static final Logger s_logger = LoggerFactory.getLogger(HierarhicalEHCache.class);
 
   public HierarhicalEHCache(CacheManager cacheManager) {
-    EHCacheUtils.addCache(cacheManager, A_CACHE_NAME);
-    _aCache = EHCacheUtils.getCacheFromManager(cacheManager, A_CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, _cacheNameA);
+    _aCache = EHCacheUtils.getCacheFromManager(cacheManager, _cacheNameA);
 
-    EHCacheUtils.addCache(cacheManager, B_CACHE_NAME);
-    _bCache = EHCacheUtils.getCacheFromManager(cacheManager, B_CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, _cacheNameB);
+    _bCache = EHCacheUtils.getCacheFromManager(cacheManager, _cacheNameB);
 
-    EHCacheUtils.addCache(cacheManager, MISSED_CACHE_NAME);
-    _missedCache = EHCacheUtils.getCacheFromManager(cacheManager, MISSED_CACHE_NAME);
+    EHCacheUtils.addCache(cacheManager, _missedCacheName);
+    _missedCache = EHCacheUtils.getCacheFromManager(cacheManager, _missedCacheName);
   }
 
   public void setTimeout(long timeout) {
@@ -60,6 +66,7 @@ public abstract class HierarhicalEHCache<A, B> {
     _missedCache.put(new Element(key, null));
   }
 
+  @SuppressWarnings("unchecked")
   public B deepInsert(A aKey, Object bKey, B value) {
     try {
       _bCache.tryWriteLockOnKey(bKey, _timeout);
@@ -99,6 +106,7 @@ public abstract class HierarhicalEHCache<A, B> {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public B shallowInsert(Object bKey, B value) {
     try {
       _bCache.tryWriteLockOnKey(bKey, _timeout);
@@ -146,6 +154,7 @@ public abstract class HierarhicalEHCache<A, B> {
       Object bKey = aElement.getObjectValue();
       Element bElement = _bCache.get(bKey);
       if (bElement != null) {
+        @SuppressWarnings("unchecked")
         Map<Object, B> map = (Map<Object, B>) bElement.getObjectValue();
         B value = map.get(aKey);
         if (value == null) {
@@ -165,6 +174,7 @@ public abstract class HierarhicalEHCache<A, B> {
     }
     Element bElement = _bCache.get(bKey);
     if (bElement != null) {
+      @SuppressWarnings("unchecked")
       Map<Object, B> map = (Map<Object, B>) bElement.getObjectValue();
       B value = map.get(bKey);
       if (value == null) {
@@ -182,8 +192,8 @@ public abstract class HierarhicalEHCache<A, B> {
   }
 
   public void shutdown() {
-    _aCache.getCacheManager().removeCache(A_CACHE_NAME);
-    _bCache.getCacheManager().removeCache(B_CACHE_NAME);
-    _missedCache.getCacheManager().removeCache(MISSED_CACHE_NAME);
+    _aCache.getCacheManager().removeCache(_cacheNameA);
+    _bCache.getCacheManager().removeCache(_cacheNameB);
+    _missedCache.getCacheManager().removeCache(_missedCacheName);
   }
 }
