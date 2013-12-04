@@ -113,7 +113,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
    * Sets the issuer name.
    * @param filters  the new value of the property, not null
    */
-  public void setFilters(final LegalEntityCombiningFilter filters) {
+  public void setFilters(LegalEntityCombiningFilter filters) {
     JodaBeanUtils.notNull(filters, "filters");
     this._filters = filters;
   }
@@ -143,7 +143,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
    * @param underlyingReference  the new value of the property, not null
    */
   @Deprecated
-  public void setUnderlyingReference(final String underlyingReference) {
+  public void setUnderlyingReference(String underlyingReference) {
     JodaBeanUtils.notNull(underlyingReference, "underlyingReference");
     this._underlyingReference = underlyingReference;
   }
@@ -165,12 +165,12 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final IssuerCurveTypeConfiguration other = (IssuerCurveTypeConfiguration) obj;
+      IssuerCurveTypeConfiguration other = (IssuerCurveTypeConfiguration) obj;
       return JodaBeanUtils.equal(getFilters(), other.getFilters()) &&
           JodaBeanUtils.equal(getUnderlyingReference(), other.getUnderlyingReference()) &&
           super.equals(obj);
@@ -188,9 +188,9 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("IssuerCurveTypeConfiguration{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -200,7 +200,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("filters").append('=').append(JodaBeanUtils.toString(getFilters())).append(',').append(' ');
     buf.append("underlyingReference").append('=').append(JodaBeanUtils.toString(getUnderlyingReference())).append(',').append(' ');
@@ -241,7 +241,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -854547461:  // filters
           return _filters;
@@ -287,7 +287,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -854547461:  // filters
           return ((IssuerCurveTypeConfiguration) bean).getFilters();
@@ -298,7 +298,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -854547461:  // filters
           ((IssuerCurveTypeConfiguration) bean).setFilters((LegalEntityCombiningFilter) newValue);
@@ -311,7 +311,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._filters, "filters");
       JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._underlyingReference, "underlyingReference");
       super.validate(bean);

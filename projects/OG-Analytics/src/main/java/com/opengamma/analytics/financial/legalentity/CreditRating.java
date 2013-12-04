@@ -139,7 +139,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
   }
 
   @Override
-  public <R> Property<R> property(final String propertyName) {
+  public <R> Property<R> property(String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -151,7 +151,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the rating agency.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public String getAgencyName() {
     return _agencyName;
@@ -173,12 +173,12 @@ public final class CreditRating implements ImmutableBean, Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CreditRating other = (CreditRating) obj;
+      CreditRating other = (CreditRating) obj;
       return JodaBeanUtils.equal(getRating(), other.getRating()) &&
           JodaBeanUtils.equal(getRatingDescription(), other.getRatingDescription()) &&
           JodaBeanUtils.equal(getAgencyName(), other.getAgencyName()) &&
@@ -199,7 +199,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("CreditRating{");
     buf.append("rating").append('=').append(getRating()).append(',').append(' ');
     buf.append("ratingDescription").append('=').append(getRatingDescription()).append(',').append(' ');
@@ -256,7 +256,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -938102371:  // rating
           return _rating;
@@ -320,7 +320,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -938102371:  // rating
           return ((CreditRating) bean).getRating();
@@ -335,7 +335,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       metaProperty(propertyName);
       if (quiet) {
         return;
@@ -365,7 +365,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
 
     //-----------------------------------------------------------------------
     @Override
-    public Builder set(final String propertyName, final Object newValue) {
+    public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -938102371:  // rating
           this._rating = (String) newValue;
@@ -397,7 +397,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      final StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("CreditRating.Builder{");
       buf.append("rating").append('=').append(_rating).append(',').append(' ');
       buf.append("ratingDescription").append('=').append(_ratingDescription).append(',').append(' ');

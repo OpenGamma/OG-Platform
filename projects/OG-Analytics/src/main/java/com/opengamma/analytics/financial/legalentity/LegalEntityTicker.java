@@ -60,7 +60,7 @@ public class LegalEntityTicker implements LegalEntityFilter<LegalEntity>, Bean {
   }
 
   @Override
-  public <R> Property<R> property(final String propertyName) {
+  public <R> Property<R> property(String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -72,8 +72,8 @@ public class LegalEntityTicker implements LegalEntityFilter<LegalEntity>, Bean {
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityTicker clone() {
-    final BeanBuilder<? extends LegalEntityTicker> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    BeanBuilder<? extends LegalEntityTicker> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -86,7 +86,7 @@ public class LegalEntityTicker implements LegalEntityFilter<LegalEntity>, Bean {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
@@ -98,15 +98,15 @@ public class LegalEntityTicker implements LegalEntityFilter<LegalEntity>, Bean {
 
   @Override
   public int hashCode() {
-    final int hash = getClass().hashCode();
+    int hash = getClass().hashCode();
     return hash;
   }
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(32);
+    StringBuilder buf = new StringBuilder(32);
     buf.append("LegalEntityTicker{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -115,7 +115,7 @@ public class LegalEntityTicker implements LegalEntityFilter<LegalEntity>, Bean {
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
   }
 
   //-----------------------------------------------------------------------
