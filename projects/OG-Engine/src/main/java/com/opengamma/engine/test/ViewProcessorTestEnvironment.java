@@ -136,6 +136,7 @@ public class ViewProcessorTestEnvironment {
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
     vpFactBean.setViewResultListenerFactory(_viewResultListenerFactory);
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
+    _viewProcessor.start();
     TestLifecycle.register(_viewProcessor);
   }
 
