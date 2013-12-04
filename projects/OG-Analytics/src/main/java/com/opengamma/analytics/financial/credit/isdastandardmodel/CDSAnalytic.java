@@ -148,7 +148,8 @@ public class CDSAnalytic {
 
     _accStart = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
     _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
-    _effectiveProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
+    _effectiveProtectionStart = effectiveStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(effectiveStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate,
+        effectiveStartDate);
     _protectionEnd = curveDayCount.getDayCountFraction(tradeDate, endDate);
     _lgd = 1 - recoveryRate;
 
