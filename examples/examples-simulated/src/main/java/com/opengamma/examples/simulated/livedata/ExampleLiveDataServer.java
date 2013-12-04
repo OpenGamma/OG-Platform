@@ -270,14 +270,13 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
           liveDataReceived(identifier, nextValues);
           s_logger.debug("{} lastValues: {} nextValues: {}", identifier, lastValues, nextValues);
         }
-        try {
-          Thread.sleep(_random.nextInt(_maxMillisBetweenTicks));
-        } catch (final InterruptedException e) {
-          s_logger.error("Sleep interrupted, finishing");
-          Thread.interrupted();
-        }
       }
+      try {
+        Thread.sleep(_random.nextInt(_maxMillisBetweenTicks));
+      } catch (final InterruptedException e) {
+         s_logger.error("Sleep interrupted, finishing");
+         Thread.interrupted();
+     }
     }
   }
-
 }
