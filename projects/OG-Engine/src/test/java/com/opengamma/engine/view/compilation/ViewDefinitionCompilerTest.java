@@ -112,7 +112,8 @@ public class ViewDefinitionCompilerTest {
       final ViewCompilationServices vcs = new ViewCompilationServices(new FixedMarketDataAvailabilityProvider(), functionResolver, functionCompilationContext, cfs.getExecutorService(),
           new DependencyGraphBuilderFactory());
       final ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueId.of("FOO", "BAR"), "kirk");
-      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
+      final Instant now = Instant.now();
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, now, VersionCorrection.of(now, now));
       assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
       assertTrue(compiledViewDefinition.getDependencyGraphExplorers().isEmpty());
       assertEquals(0, compiledViewDefinition.getComputationTargets().size());
@@ -159,7 +160,8 @@ public class ViewDefinitionCompilerTest {
       final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
       calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
       viewDefinition.addViewCalculationConfiguration(calcConfig);
-      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
+      final Instant now = Instant.now();
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, now, VersionCorrection.of(now, now));
       assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
       assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
       assertNotNull(compiledViewDefinition.getDependencyGraphExplorer("Fibble"));
@@ -209,7 +211,8 @@ public class ViewDefinitionCompilerTest {
       final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(viewDefinition, "Fibble");
       calcConfig.addPortfolioRequirementName("My Sec", "OUTPUT");
       viewDefinition.addViewCalculationConfiguration(calcConfig);
-      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, Instant.now(), VersionCorrection.LATEST);
+      final Instant now = Instant.now();
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, vcs, now, VersionCorrection.of(now, now));
       assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
       assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
       final DependencyGraph dg = compiledViewDefinition.getDependencyGraphExplorer("Fibble").getWholeGraph();
@@ -246,7 +249,8 @@ public class ViewDefinitionCompilerTest {
           cfs.getExecutorService(), new DependencyGraphBuilderFactory());
       // We'll require r1 which can be satisfied by f1
       calcConfig.addSpecificRequirement(f1.getResultSpec().toRequirementSpecification());
-      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
+      final Instant now = Instant.now();
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, now, VersionCorrection.of(now, now));
       assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
       assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
       assertNotNull(compiledViewDefinition.getDependencyGraphExplorer("Config1"));
@@ -288,20 +292,21 @@ public class ViewDefinitionCompilerTest {
       // Additionally, the security should be resolved through the ComputationTargetResolver, which only has a security
       // source.
       calcConfig.addSpecificRequirement(f2.getResultSpec().toRequirementSpecification());
-      CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
+      final Instant now = Instant.now();
+      CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, now, VersionCorrection.of(now, now));
       assertTrue(compiledViewDefinition.getMarketDataRequirements().isEmpty());
       assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
       assertNotNull(compiledViewDefinition.getDependencyGraphExplorer("Config1"));
       assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
       // Turning off primitive outputs should not affect the dep graph since the primitive is needed for the security
       viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.NONE);
-      compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
+      compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, now, VersionCorrection.of(now, now));
       assertTargets(compiledViewDefinition, sec1.getUniqueId(), t1);
       // Turning off security outputs, even if all primitive outputs are enabled, should allow the dep graph to be
       // pruned completely, since the only *terminal* output is the security output.
       viewDefinition.getResultModelDefinition().setPrimitiveOutputMode(ResultOutputMode.TERMINAL_OUTPUTS);
       viewDefinition.getResultModelDefinition().setSecurityOutputMode(ResultOutputMode.NONE);
-      compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, Instant.now(), VersionCorrection.LATEST);
+      compiledViewDefinition = ViewDefinitionCompiler.compile(viewDefinition, compilationServices, now, VersionCorrection.of(now, now));
       assertTargets(compiledViewDefinition);
     } finally {
       TestLifecycle.end();
