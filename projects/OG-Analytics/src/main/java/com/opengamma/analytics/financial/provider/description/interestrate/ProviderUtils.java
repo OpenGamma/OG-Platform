@@ -107,6 +107,7 @@ public class ProviderUtils {
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(matrix, "matrix");
     final MulticurveProviderDiscount result = provider.copy();
+    final FXMatrix fxMatrix = result.getFxRates();
     final Collection<Currency> currencies = matrix.getCurrencies().keySet();
     final Iterator<Currency> iterator = currencies.iterator();
     if (currencies.size() > 0) {
@@ -114,7 +115,6 @@ public class ProviderUtils {
       while (iterator.hasNext()) {
         final Currency otherCurrency = iterator.next();
 
-        FXMatrix fxMatrix = result.getFxRates();
         if (fxMatrix.containsPair(initialCurrency, otherCurrency)) {
           // todo - getting this suggests something may not be configured correctly
           s_logger.warn("Skipping addition of currency pair: {} {} as it is already in the FX matrix - is the configuration correct?",
