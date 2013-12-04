@@ -81,7 +81,7 @@ public class InterestRateSwapSecurityUtils {
       }
       return InterestRateInstrumentType.SWAP_CMS_CMS;
     }
-    throw new OpenGammaRuntimeException("Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps");
+    throw new OpenGammaRuntimeException("Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps, got " + security);
   }
 
   public static boolean payFixed(final InterestRateSwapSecurity security) {
@@ -93,7 +93,7 @@ public class InterestRateSwapSecurityUtils {
     if (payLeg instanceof FloatingInterestRateSwapLeg && receiveLeg instanceof FixedInterestRateSwapLeg) {
       return false;
     }
-    throw new OpenGammaRuntimeException("Swap was not fixed / floating");
+    throw new OpenGammaRuntimeException("Swap was not fixed / floating ");
   }
 
   //public static boolean isFloatFloat(final SwapSecurity security) {
