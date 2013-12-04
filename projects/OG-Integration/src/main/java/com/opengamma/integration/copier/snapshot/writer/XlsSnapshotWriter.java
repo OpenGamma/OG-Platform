@@ -42,6 +42,8 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   private XlsSheetWriter _nameSheet;
   private XlsSheetWriter _curveSheet;
   private XlsSheetWriter _yieldCurveSheet;
+  private XlsSheetWriter _globalsSheet;
+
   private static final Logger s_logger = LoggerFactory.getLogger(XlsSnapshotWriter.class);
 
   public XlsSnapshotWriter(String filename) {
@@ -53,6 +55,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     _nameSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), "name");
     _curveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.CURVE.get());
     _yieldCurveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.YIELD_CURVE.get());
+    _globalsSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.GLOBAL_VALUES.get());
 
 
   }
@@ -98,37 +101,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     }
   }
 
-  /** Named ValueSnapshots, needed for Unstructured Market */
-  private void writeValueSnapshot(Map<String, String> prefixes, Map<String, ValueSnapshot> valueSnapshots) {
 
-    for (Map.Entry<String, ValueSnapshot> entry : valueSnapshots.entrySet()) {
-      ValueSnapshot valueSnapshot = entry.getValue();
-
-      prefixes.put(SnapshotColumns.VALUE_NAME.get(), entry.getKey());
-
-      //// special case for Market_All fudge message
-      if (valueSnapshot != null && valueSnapshot.getMarketValue() instanceof FudgeMsg) {
-        // Multiple rows written by writeFudgeMsg
-        writeFudgeMsg(prefixes, (FudgeMsg) valueSnapshot.getMarketValue());
-      } else {
-        Map<String, String> tempRow = new HashMap<>();
-        tempRow.putAll(prefixes);
-        // if valueSnapshot is null preserve this in the output
-        if (valueSnapshot == null) {
-          tempRow.put(SnapshotColumns.VALUE_OBJECT.get(), "null");
-        } else {
-          // standard valueSnapshot market and override are added
-          if (valueSnapshot.getMarketValue() != null) {
-            tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
-          }
-          if (valueSnapshot.getOverrideValue() != null) {
-            tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
-          }
-        }
-        //TODO _sheetWriter.writeNextRow(tempRow);
-      }
-    }
-  }
 
   private void writeFudgeMsg(Map<String, String> prefixes, FudgeMsg message) {
     for (FudgeField field : message.getAllFields()) {
@@ -141,36 +114,13 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     }
   }
 
-  private void writeUnstructuredMarketDataSnapshot(Map<String, String> prefixes,
-                                                   UnstructuredMarketDataSnapshot snapshot) {
-
-    for (ExternalIdBundle eib : snapshot.getTargets()) {
-      Map<String, String> tempRow = new HashMap<>();
-      tempRow.putAll(prefixes);
-      tempRow.put(SnapshotColumns.ID_BUNDLE.get(), StringUtils.join(eib.getExternalIds(), '|'));
-      //Row written by writeValueSnapshot
-      writeValueSnapshot(tempRow, snapshot.getTargetValues(eib));
-    }
-  }
 
   @Override
   public void flush() {
     //TODO _sheetWriter.flush();
   }
 
-  @Override
-  public void writeGlobalValues(UnstructuredMarketDataSnapshot globalValues) {
 
-    if (globalValues == null || globalValues.isEmpty()) {
-      s_logger.warn("Snapshot does not contain any Global Values.");
-      return;
-    }
-
-    Map<String, String> tempRow = new HashMap<>();
-    tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.GLOBAL_VALUES.get());
-    //Row written via writeUnstructuredMarketDataSnapshot
-    writeUnstructuredMarketDataSnapshot(tempRow, globalValues);
-  }
 
   @Override
   public void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
@@ -207,8 +157,6 @@ public class XlsSnapshotWriter implements SnapshotWriter {
 
 
 
-
-
   private Map<String, ObjectsPair<String, String>> buildUnstructuredMarketDataSnapshotMap(UnstructuredMarketDataSnapshot snapshot) {
     Map<String, ObjectsPair<String, String>> values = new LinkedHashMap<>();
     values.put(SnapshotColumns.ID_BUNDLE.get(),
@@ -229,6 +177,17 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     }
     return values;
   }
+
+  @Override
+   public void writeGlobalValues(UnstructuredMarketDataSnapshot globalValues) {
+
+    if (globalValues == null || globalValues.isEmpty()) {
+      s_logger.warn("Snapshot does not contain any Global Values.");
+      return;
+    }
+    _globalsSheet.writePairBlock(buildUnstructuredMarketDataSnapshotMap(globalValues));
+  }
+
 
   @Override
   public void writeYieldCurves(Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves) {

@@ -112,14 +112,14 @@ public class XlsSheetWriter {
 
     for (Map.Entry<String, ObjectsPair<String, String>> entry : details.entrySet()) {
       Row row = getCurrentRow();
-      Cell keyCell = getCell(row, 1);
+      Cell keyCell = getCell(row, 0);
       keyCell.setCellValue(entry.getKey());
       if (entry.getValue().getFirst() != null) {
-        Cell firstValueCell = getCell(row, 2);
+        Cell firstValueCell = getCell(row, 1);
         firstValueCell.setCellValue(entry.getValue().getFirst());
       }
       if (entry.getValue().getSecond() != null) {
-        Cell secondValueCell = getCell(row, 3);
+        Cell secondValueCell = getCell(row, 2);
         secondValueCell.setCellValue(entry.getValue().getSecond());
       }
       _currentRow++;
