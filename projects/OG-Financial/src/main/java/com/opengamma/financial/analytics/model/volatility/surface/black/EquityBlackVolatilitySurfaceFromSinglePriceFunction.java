@@ -75,6 +75,7 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
 
   private ValueProperties getResultProperties() {
     ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.SNAP_TIME)
         .withAny(ValuePropertyNames.DISCOUNTING_CURVE_NAME)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.FORWARD_CURVE_NAME)
@@ -92,8 +93,18 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
     final ValueProperties constraints = desiredValue.getConstraints();
     Set<ValueRequirement> requirements = Sets.newHashSet();
     
-    // 1. Market Value Requirement
-    requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification()));
+    // Snap time determines path of all requirements 
+    String snapTime = constraints.getStrictValue(ValuePropertyNames.SNAP_TIME);
+    if (snapTime == null) {
+      snapTime = ValuePropertyNames.SNAP_TIME_LIVE;
+    }
+    
+    // 1. Market/Closing Value Requirement
+    if (snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_CLOSE)) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.MARK_PREVIOUS, target.toSpecification()));
+    } else {
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification()));
+    }
 
     
     // 2. Discounting Curve Requirements
@@ -108,6 +119,7 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
       return null;
     }
     final ValueProperties fundingCurveProperties = ValueProperties.builder()
+//        .with(SNAP_TIME, snapTime) // TODO <===============
         .with(ValuePropertyNames.CURVE, discountingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
@@ -124,6 +136,7 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
       return null;
     }
     final ValueProperties forwardCurveProperties = ValueProperties.builder()
+      .with(ValuePropertyNames.SNAP_TIME, snapTime) // TODO <=============== 
       .with(ValuePropertyNames.CURVE, forwardCurveName)
       .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
       .get();
@@ -164,10 +177,22 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
   protected BlackVolatilitySurface<?> getVolatilitySurface(final FunctionExecutionContext executionContext,
       final FunctionInputs inputs, final ComputationTarget target, Set<ValueRequirement> desiredValues) {
 
-    // First, get the market value
-    final ComputedValue optionPriceValue = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final String snapTime = constraints.getStrictValue(ValuePropertyNames.SNAP_TIME);
+    
+    // First, get the market value at the snap time
+    final ComputedValue optionPriceValue;
+    if (snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_LIVE)) {
+      optionPriceValue = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
+    } else if (snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_CLOSE)) {
+      optionPriceValue = inputs.getComputedValue(ValueRequirementNames.MARK_PREVIOUS);
+    } else {
+      s_logger.error("Invalid {} provided. Use {} or {}", ValuePropertyNames.SNAP_TIME, ValuePropertyNames.SNAP_TIME_LIVE, ValuePropertyNames.SNAP_TIME_CLOSE);
+      return null;
+    }
     if (optionPriceValue == null) {
-      s_logger.error("Could not get value of security: {}", target.getSecurity());
+      s_logger.error("Could not get value of security at {}: {}", snapTime, target.getSecurity());
       return null;
     }
     final Double spotOptionPrice = (Double) optionPriceValue.getValue();

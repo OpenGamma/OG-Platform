@@ -41,7 +41,7 @@ import com.opengamma.id.ExternalScheme;
 public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Set<ExternalScheme> s_validSchemes = ImmutableSet.of(
-      ExternalSchemes.BLOOMBERG_TICKER, 
+      ExternalSchemes.BLOOMBERG_TICKER,
       ExternalSchemes.BLOOMBERG_TICKER_WEAK,
       ExternalSchemes.BLOOMBERG_BUID,
       ExternalSchemes.BLOOMBERG_BUID_WEAK,
@@ -68,6 +68,7 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD)
         .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.SNAP_TIME, desiredValue.getConstraint(ValuePropertyNames.SNAP_TIME))
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
@@ -97,6 +98,7 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
     final ValueProperties properties = createValueProperties()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD)
         .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.SNAP_TIME)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
@@ -113,6 +115,12 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
     // curve
     final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
     if (curveName == null) {
+      return null;
+    }
+    
+    // time when data was snapped
+    final String snapTime = constraints.getStrictValue(ValuePropertyNames.SNAP_TIME);
+    if (snapTime == null) {
       return null;
     }
 
@@ -137,6 +145,7 @@ public class EquityForwardCurveFromFutureCurveFunction extends AbstractFunction.
     final ValueProperties futureCurveProperties = ValueProperties.builder()
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_FUTURE_PRICE)
         .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.SNAP_TIME, snapTime)
         .get();
 
     requirements.add(new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, target.toSpecification(), futureCurveProperties));
