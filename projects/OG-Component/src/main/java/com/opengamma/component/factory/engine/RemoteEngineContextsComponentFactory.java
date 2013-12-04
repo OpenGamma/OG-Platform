@@ -613,7 +613,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code RemoteEngineContextsComponentFactory}.
-   * 
    * @return the meta-bean, not null
    */
   public static RemoteEngineContextsComponentFactory.Meta meta() {
@@ -632,7 +631,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier to distinguish these contexts from elsewhere
-   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -641,8 +639,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets the classifier to distinguish these contexts from elsewhere
-   * 
-   * @param classifier the new value of the property, not null
+   * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -651,7 +648,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code classifier} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -661,7 +657,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration URL where the end-points for the components can be found.
-   * 
    * @return the value of the property, not null
    */
   public URI getConfiguration() {
@@ -670,8 +665,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets the configuration URL where the end-points for the components can be found.
-   * 
-   * @param configuration the new value of the property, not null
+   * @param configuration  the new value of the property, not null
    */
   public void setConfiguration(URI configuration) {
     JodaBeanUtils.notNull(configuration, "configuration");
@@ -680,7 +674,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code configuration} property.
-   * 
    * @return the property, not null
    */
   public final Property<URI> configuration() {
@@ -690,7 +683,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets the component factory to use as a template for the engine contexts.
-   * 
    * @return the value of the property, not null
    */
   public Class<? extends AbstractComponentFactory> getTemplateEngineContexts() {
@@ -699,8 +691,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets the component factory to use as a template for the engine contexts.
-   * 
-   * @param templateEngineContexts the new value of the property, not null
+   * @param templateEngineContexts  the new value of the property, not null
    */
   public void setTemplateEngineContexts(Class<? extends AbstractComponentFactory> templateEngineContexts) {
     JodaBeanUtils.notNull(templateEngineContexts, "templateEngineContexts");
@@ -709,7 +700,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code templateEngineContexts} property.
-   * 
    * @return the property, not null
    */
   public final Property<Class<? extends AbstractComponentFactory>> templateEngineContexts() {
@@ -720,7 +710,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   /**
    * Gets the component factory to use as a template for the target resolver. Target resolvers aren't accessed remotely as the components that make them up are often used independently. Performance is
    * better if the resolver goes through these, cached, instances rather than make independently cached remote requests.
-   * 
    * @return the value of the property, not null
    */
   public Class<? extends AbstractComponentFactory> getTemplateTargetResolver() {
@@ -730,8 +719,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   /**
    * Sets the component factory to use as a template for the target resolver. Target resolvers aren't accessed remotely as the components that make them up are often used independently. Performance is
    * better if the resolver goes through these, cached, instances rather than make independently cached remote requests.
-   * 
-   * @param templateTargetResolver the new value of the property, not null
+   * @param templateTargetResolver  the new value of the property, not null
    */
   public void setTemplateTargetResolver(Class<? extends AbstractComponentFactory> templateTargetResolver) {
     JodaBeanUtils.notNull(templateTargetResolver, "templateTargetResolver");
@@ -739,8 +727,8 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   }
 
   /**
-   * Gets the the {@code templateTargetResolver} property. better if the resolver goes through these, cached, instances rather than make independently cached remote requests.
-   * 
+   * Gets the the {@code templateTargetResolver} property.
+   * better if the resolver goes through these, cached, instances rather than make independently cached remote requests.
    * @return the property, not null
    */
   public final Property<Class<? extends AbstractComponentFactory>> templateTargetResolver() {
@@ -750,7 +738,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets flag which controls whether to fail if there is a property from the template factory that can't be handled.
-   * 
    * @return the value of the property
    */
   public boolean isStrict() {
@@ -759,8 +746,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets flag which controls whether to fail if there is a property from the template factory that can't be handled.
-   * 
-   * @param strict the new value of the property
+   * @param strict  the new value of the property
    */
   public void setStrict(boolean strict) {
     this._strict = strict;
@@ -768,7 +754,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code strict} property.
-   * 
    * @return the property, not null
    */
   public final Property<Boolean> strict() {
@@ -778,7 +763,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector to use for components that require it. This might be fetched from the configuration document, or configured separately.
-   * 
    * @return the value of the property
    */
   public JmsConnector getJmsConnector() {
@@ -787,8 +771,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets the JMS connector to use for components that require it. This might be fetched from the configuration document, or configured separately.
-   * 
-   * @param jmsConnector the new value of the property
+   * @param jmsConnector  the new value of the property
    */
   public void setJmsConnector(JmsConnector jmsConnector) {
     this._jmsConnector = jmsConnector;
@@ -796,7 +779,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code jmsConnector} property.
-   * 
    * @return the property, not null
    */
   public final Property<JmsConnector> jmsConnector() {
@@ -806,7 +788,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
   //-----------------------------------------------------------------------
   /**
    * Gets eHCache, if required, to wrap around the remote sources.
-   * 
    * @return the value of the property
    */
   public CacheManager getCacheManager() {
@@ -815,8 +796,7 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Sets eHCache, if required, to wrap around the remote sources.
-   * 
-   * @param cacheManager the new value of the property
+   * @param cacheManager  the new value of the property
    */
   public void setCacheManager(CacheManager cacheManager) {
     this._cacheManager = cacheManager;
@@ -824,7 +804,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
   /**
    * Gets the the {@code cacheManager} property.
-   * 
    * @return the property, not null
    */
   public final Property<CacheManager> cacheManager() {
@@ -844,9 +823,14 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RemoteEngineContextsComponentFactory other = (RemoteEngineContextsComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) && JodaBeanUtils.equal(getConfiguration(), other.getConfiguration()) &&
-          JodaBeanUtils.equal(getTemplateEngineContexts(), other.getTemplateEngineContexts()) && JodaBeanUtils.equal(getTemplateTargetResolver(), other.getTemplateTargetResolver()) &&
-          (isStrict() == other.isStrict()) && JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) && JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) && super.equals(obj);
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getConfiguration(), other.getConfiguration()) &&
+          JodaBeanUtils.equal(getTemplateEngineContexts(), other.getTemplateEngineContexts()) &&
+          JodaBeanUtils.equal(getTemplateTargetResolver(), other.getTemplateTargetResolver()) &&
+          (isStrict() == other.isStrict()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -902,40 +886,52 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     /**
      * The meta-property for the {@code classifier} property.
      */
-    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(this, "classifier", RemoteEngineContextsComponentFactory.class, String.class);
+    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
+        this, "classifier", RemoteEngineContextsComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code configuration} property.
      */
-    private final MetaProperty<URI> _configuration = DirectMetaProperty.ofReadWrite(this, "configuration", RemoteEngineContextsComponentFactory.class, URI.class);
+    private final MetaProperty<URI> _configuration = DirectMetaProperty.ofReadWrite(
+        this, "configuration", RemoteEngineContextsComponentFactory.class, URI.class);
     /**
      * The meta-property for the {@code templateEngineContexts} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<? extends AbstractComponentFactory>> _templateEngineContexts = DirectMetaProperty.ofReadWrite(this, "templateEngineContexts",
-        RemoteEngineContextsComponentFactory.class, (Class) Class.class);
+    private final MetaProperty<Class<? extends AbstractComponentFactory>> _templateEngineContexts = DirectMetaProperty.ofReadWrite(
+        this, "templateEngineContexts", RemoteEngineContextsComponentFactory.class, (Class) Class.class);
     /**
      * The meta-property for the {@code templateTargetResolver} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<? extends AbstractComponentFactory>> _templateTargetResolver = DirectMetaProperty.ofReadWrite(this, "templateTargetResolver",
-        RemoteEngineContextsComponentFactory.class, (Class) Class.class);
+    private final MetaProperty<Class<? extends AbstractComponentFactory>> _templateTargetResolver = DirectMetaProperty.ofReadWrite(
+        this, "templateTargetResolver", RemoteEngineContextsComponentFactory.class, (Class) Class.class);
     /**
      * The meta-property for the {@code strict} property.
      */
-    private final MetaProperty<Boolean> _strict = DirectMetaProperty.ofReadWrite(this, "strict", RemoteEngineContextsComponentFactory.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _strict = DirectMetaProperty.ofReadWrite(
+        this, "strict", RemoteEngineContextsComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code jmsConnector} property.
      */
-    private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(this, "jmsConnector", RemoteEngineContextsComponentFactory.class, JmsConnector.class);
+    private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
+        this, "jmsConnector", RemoteEngineContextsComponentFactory.class, JmsConnector.class);
     /**
      * The meta-property for the {@code cacheManager} property.
      */
-    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(this, "cacheManager", RemoteEngineContextsComponentFactory.class, CacheManager.class);
+    private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
+        this, "cacheManager", RemoteEngineContextsComponentFactory.class, CacheManager.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "classifier", "configuration",
-        "templateEngineContexts", "templateTargetResolver", "strict", "jmsConnector", "cacheManager");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "classifier",
+        "configuration",
+        "templateEngineContexts",
+        "templateTargetResolver",
+        "strict",
+        "jmsConnector",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -946,19 +942,19 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return _classifier;
-        case 1932752118: // configuration
+        case 1932752118:  // configuration
           return _configuration;
-        case -1897285600: // templateEngineContexts
+        case -1897285600:  // templateEngineContexts
           return _templateEngineContexts;
-        case -21551: // templateTargetResolver
+        case -21551:  // templateTargetResolver
           return _templateTargetResolver;
-        case -891986231: // strict
+        case -891986231:  // strict
           return _strict;
-        case -1495762275: // jmsConnector
+        case -1495762275:  // jmsConnector
           return _jmsConnector;
-        case -1452875317: // cacheManager
+        case -1452875317:  // cacheManager
           return _cacheManager;
       }
       return super.metaPropertyGet(propertyName);
@@ -982,7 +978,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -991,7 +986,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
     /**
      * The meta-property for the {@code configuration} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<URI> configuration() {
@@ -1000,7 +994,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
     /**
      * The meta-property for the {@code templateEngineContexts} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Class<? extends AbstractComponentFactory>> templateEngineContexts() {
@@ -1009,7 +1002,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
     /**
      * The meta-property for the {@code templateTargetResolver} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Class<? extends AbstractComponentFactory>> templateTargetResolver() {
@@ -1018,7 +1010,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
     /**
      * The meta-property for the {@code strict} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> strict() {
@@ -1027,7 +1018,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
     /**
      * The meta-property for the {@code jmsConnector} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
@@ -1036,7 +1026,6 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
 
     /**
      * The meta-property for the {@code cacheManager} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<CacheManager> cacheManager() {
@@ -1047,19 +1036,19 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return ((RemoteEngineContextsComponentFactory) bean).getClassifier();
-        case 1932752118: // configuration
+        case 1932752118:  // configuration
           return ((RemoteEngineContextsComponentFactory) bean).getConfiguration();
-        case -1897285600: // templateEngineContexts
+        case -1897285600:  // templateEngineContexts
           return ((RemoteEngineContextsComponentFactory) bean).getTemplateEngineContexts();
-        case -21551: // templateTargetResolver
+        case -21551:  // templateTargetResolver
           return ((RemoteEngineContextsComponentFactory) bean).getTemplateTargetResolver();
-        case -891986231: // strict
+        case -891986231:  // strict
           return ((RemoteEngineContextsComponentFactory) bean).isStrict();
-        case -1495762275: // jmsConnector
+        case -1495762275:  // jmsConnector
           return ((RemoteEngineContextsComponentFactory) bean).getJmsConnector();
-        case -1452875317: // cacheManager
+        case -1452875317:  // cacheManager
           return ((RemoteEngineContextsComponentFactory) bean).getCacheManager();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -1069,25 +1058,25 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           ((RemoteEngineContextsComponentFactory) bean).setClassifier((String) newValue);
           return;
-        case 1932752118: // configuration
+        case 1932752118:  // configuration
           ((RemoteEngineContextsComponentFactory) bean).setConfiguration((URI) newValue);
           return;
-        case -1897285600: // templateEngineContexts
+        case -1897285600:  // templateEngineContexts
           ((RemoteEngineContextsComponentFactory) bean).setTemplateEngineContexts((Class<? extends AbstractComponentFactory>) newValue);
           return;
-        case -21551: // templateTargetResolver
+        case -21551:  // templateTargetResolver
           ((RemoteEngineContextsComponentFactory) bean).setTemplateTargetResolver((Class<? extends AbstractComponentFactory>) newValue);
           return;
-        case -891986231: // strict
+        case -891986231:  // strict
           ((RemoteEngineContextsComponentFactory) bean).setStrict((Boolean) newValue);
           return;
-        case -1495762275: // jmsConnector
+        case -1495762275:  // jmsConnector
           ((RemoteEngineContextsComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
           return;
-        case -1452875317: // cacheManager
+        case -1452875317:  // cacheManager
           ((RemoteEngineContextsComponentFactory) bean).setCacheManager((CacheManager) newValue);
           return;
       }
