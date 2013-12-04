@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
@@ -94,7 +93,6 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   @Test
   public void testIssuerCurveTypeConfiguration() {
     assertEquals(DEPRECATED_ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, DEPRECATED_ISSUER_CONFIG));
-    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(ISSUER_CONFIG));
     assertEquals(ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, ISSUER_CONFIG));
   }
 
