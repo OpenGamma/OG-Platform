@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -89,7 +89,6 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static FXForwardCurveDefinition.Builder builder() {
@@ -236,7 +235,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -321,7 +320,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   /**
    * The bean-builder for {@code FXForwardCurveDefinition}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<FXForwardCurveDefinition> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FXForwardCurveDefinition> {
 
     private String _name;
     private UnorderedCurrencyPair _target;
@@ -331,7 +330,6 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(FXForwardCurveDefinition.Meta.INSTANCE);
     }
 
     /**
@@ -339,7 +337,6 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FXForwardCurveDefinition beanToCopy) {
-      super(FXForwardCurveDefinition.Meta.INSTANCE);
       this._name = beanToCopy.getName();
       this._target = beanToCopy.getTarget();
       this._tenors = new ArrayList<Tenor>(beanToCopy.getTenors());
@@ -362,6 +359,30 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -412,9 +433,9 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("FXForwardCurveDefinition.Builder{");
-      buf.append("name").append('=').append(_name).append(',').append(' ');
-      buf.append("target").append('=').append(_target).append(',').append(' ');
-      buf.append("tenors").append('=').append(_tenors);
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
+      buf.append("target").append('=').append(JodaBeanUtils.toString(_target)).append(',').append(' ');
+      buf.append("tenors").append('=').append(JodaBeanUtils.toString(_tenors));
       buf.append('}');
       return buf.toString();
     }

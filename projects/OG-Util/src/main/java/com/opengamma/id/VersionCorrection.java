@@ -19,7 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -420,7 +420,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -493,7 +493,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
   /**
    * The bean-builder for {@code VersionCorrection}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<VersionCorrection> {
+  private static final class Builder extends DirectFieldsBeanBuilder<VersionCorrection> {
 
     private Instant _versionAsOf;
     private Instant _correctedTo;
@@ -502,7 +502,6 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
      * Restricted constructor.
      */
     private Builder() {
-      super(VersionCorrection.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -522,6 +521,30 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public VersionCorrection build() {
       return new VersionCorrection(
           _versionAsOf,
@@ -533,8 +556,8 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("VersionCorrection.Builder{");
-      buf.append("versionAsOf").append('=').append(_versionAsOf).append(',').append(' ');
-      buf.append("correctedTo").append('=').append(_correctedTo);
+      buf.append("versionAsOf").append('=').append(JodaBeanUtils.toString(_versionAsOf)).append(',').append(' ');
+      buf.append("correctedTo").append('=').append(JodaBeanUtils.toString(_correctedTo));
       buf.append('}');
       return buf.toString();
     }

@@ -75,7 +75,7 @@ public class ConventionMetaDataResult extends AbstractMetaDataResult {
   /**
    * Gets the list of valid convention types.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ConventionType> getConventionTypes() {
     return _conventionTypes;
@@ -84,9 +84,10 @@ public class ConventionMetaDataResult extends AbstractMetaDataResult {
   /**
    * Sets the list of valid convention types.
    * This is only populated if requested.
-   * @param conventionTypes  the new value of the property
+   * @param conventionTypes  the new value of the property, not null
    */
   public void setConventionTypes(List<ConventionType> conventionTypes) {
+    JodaBeanUtils.notNull(conventionTypes, "conventionTypes");
     this._conventionTypes.clear();
     this._conventionTypes.addAll(conventionTypes);
   }
@@ -278,6 +279,12 @@ public class ConventionMetaDataResult extends AbstractMetaDataResult {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConventionMetaDataResult) bean)._conventionTypes, "conventionTypes");
+      super.validate(bean);
     }
 
   }

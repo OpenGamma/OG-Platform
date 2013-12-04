@@ -5,17 +5,18 @@
  */
 package com.opengamma.engine.marketdata.spec;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -54,7 +55,6 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static CombinedMarketDataSpecification.Builder builder() {
@@ -179,7 +179,7 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -252,7 +252,7 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
   /**
    * The bean-builder for {@code CombinedMarketDataSpecification}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CombinedMarketDataSpecification> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CombinedMarketDataSpecification> {
 
     private MarketDataSpecification _preferredSpecification;
     private MarketDataSpecification _fallbackSpecification;
@@ -261,7 +261,6 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
      * Restricted constructor.
      */
     private Builder() {
-      super(CombinedMarketDataSpecification.Meta.INSTANCE);
     }
 
     /**
@@ -269,7 +268,6 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CombinedMarketDataSpecification beanToCopy) {
-      super(CombinedMarketDataSpecification.Meta.INSTANCE);
       this._preferredSpecification = beanToCopy.getPreferredSpecification();
       this._fallbackSpecification = beanToCopy.getFallbackSpecification();
     }
@@ -287,6 +285,30 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -325,8 +347,8 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("CombinedMarketDataSpecification.Builder{");
-      buf.append("preferredSpecification").append('=').append(_preferredSpecification).append(',').append(' ');
-      buf.append("fallbackSpecification").append('=').append(_fallbackSpecification);
+      buf.append("preferredSpecification").append('=').append(JodaBeanUtils.toString(_preferredSpecification)).append(',').append(' ');
+      buf.append("fallbackSpecification").append('=').append(JodaBeanUtils.toString(_fallbackSpecification));
       buf.append('}');
       return buf.toString();
     }

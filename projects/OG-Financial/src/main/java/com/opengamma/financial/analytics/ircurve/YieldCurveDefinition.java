@@ -385,7 +385,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying strips.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public SortedSet<FixedIncomeStrip> getStrips() {
     return _strips;
@@ -393,9 +393,10 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
 
   /**
    * Sets the underlying strips.
-   * @param strips  the new value of the property
+   * @param strips  the new value of the property, not null
    */
   public void setStrips(SortedSet<FixedIncomeStrip> strips) {
+    JodaBeanUtils.notNull(strips, "strips");
     this._strips.clear();
     this._strips.addAll(strips);
   }
@@ -741,6 +742,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
       JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._interpolatorName, "interpolatorName");
       JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._leftExtrapolatorName, "leftExtrapolatorName");
       JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._rightExtrapolatorName, "rightExtrapolatorName");
+      JodaBeanUtils.notNull(((YieldCurveDefinition) bean)._strips, "strips");
     }
 
   }

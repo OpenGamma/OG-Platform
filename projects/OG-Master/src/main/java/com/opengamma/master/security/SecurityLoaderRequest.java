@@ -148,7 +148,7 @@ public class SecurityLoaderRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of security external identifiers to load.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalIdBundle> getExternalIdBundles() {
     return _externalIdBundles;
@@ -156,9 +156,10 @@ public class SecurityLoaderRequest extends DirectBean {
 
   /**
    * Sets the set of security external identifiers to load.
-   * @param externalIdBundles  the new value of the property
+   * @param externalIdBundles  the new value of the property, not null
    */
   public void setExternalIdBundles(Set<ExternalIdBundle> externalIdBundles) {
+    JodaBeanUtils.notNull(externalIdBundles, "externalIdBundles");
     this._externalIdBundles.clear();
     this._externalIdBundles.addAll(externalIdBundles);
   }
@@ -411,6 +412,11 @@ public class SecurityLoaderRequest extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityLoaderRequest) bean)._externalIdBundles, "externalIdBundles");
     }
 
   }

@@ -124,7 +124,7 @@ public final class SeasonalCurve extends FunctionalDoublesCurve {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

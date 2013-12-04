@@ -122,7 +122,7 @@ public class ReferenceDataProviderGetResult extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the reference data that was obtained, one entry for each identifier.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ReferenceData> getReferenceData() {
     return _referenceData;
@@ -130,9 +130,10 @@ public class ReferenceDataProviderGetResult extends DirectBean {
 
   /**
    * Sets the reference data that was obtained, one entry for each identifier.
-   * @param referenceData  the new value of the property
+   * @param referenceData  the new value of the property, not null
    */
   public void setReferenceData(List<ReferenceData> referenceData) {
+    JodaBeanUtils.notNull(referenceData, "referenceData");
     this._referenceData.clear();
     this._referenceData.addAll(referenceData);
   }
@@ -278,6 +279,11 @@ public class ReferenceDataProviderGetResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ReferenceDataProviderGetResult) bean)._referenceData, "referenceData");
     }
 
   }

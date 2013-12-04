@@ -338,7 +338,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
    * Gets map of attributes to search for.
    * The returned documents must match all of the specified attributes.
    * Wildcards are allowed for the values. Nulls are not allowed.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -348,9 +348,10 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
    * Sets map of attributes to search for.
    * The returned documents must match all of the specified attributes.
    * Wildcards are allowed for the values. Nulls are not allowed.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -370,7 +371,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
    * Gets map of indexed properties to search for.
    * The returned documents must match all of the specified properties.
    * Wildcards are allowed for the values. Nulls are not allowed.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getIndexedProperties() {
     return _indexedProperties;
@@ -380,9 +381,10 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
    * Sets map of indexed properties to search for.
    * The returned documents must match all of the specified properties.
    * Wildcards are allowed for the values. Nulls are not allowed.
-   * @param indexedProperties  the new value of the property
+   * @param indexedProperties  the new value of the property, not null
    */
   public void setIndexedProperties(Map<String, String> indexedProperties) {
+    JodaBeanUtils.notNull(indexedProperties, "indexedProperties");
     this._indexedProperties.clear();
     this._indexedProperties.putAll(indexedProperties);
   }
@@ -890,6 +892,13 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BeanMasterSearchRequest) bean)._attributes, "attributes");
+      JodaBeanUtils.notNull(((BeanMasterSearchRequest) bean)._indexedProperties, "indexedProperties");
+      super.validate(bean);
     }
 
   }

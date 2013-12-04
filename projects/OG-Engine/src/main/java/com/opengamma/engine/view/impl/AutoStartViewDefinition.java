@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -78,7 +78,6 @@ public final class AutoStartViewDefinition implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static AutoStartViewDefinition.Builder builder() {
@@ -194,7 +193,7 @@ public final class AutoStartViewDefinition implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -267,7 +266,7 @@ public final class AutoStartViewDefinition implements ImmutableBean {
   /**
    * The bean-builder for {@code AutoStartViewDefinition}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<AutoStartViewDefinition> {
+  public static final class Builder extends DirectFieldsBeanBuilder<AutoStartViewDefinition> {
 
     private UniqueId _viewDefinitionId;
     private ViewExecutionOptions _executionOptions;
@@ -276,7 +275,6 @@ public final class AutoStartViewDefinition implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(AutoStartViewDefinition.Meta.INSTANCE);
     }
 
     /**
@@ -284,7 +282,6 @@ public final class AutoStartViewDefinition implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(AutoStartViewDefinition beanToCopy) {
-      super(AutoStartViewDefinition.Meta.INSTANCE);
       this._viewDefinitionId = beanToCopy.getViewDefinitionId();
       this._executionOptions = beanToCopy.getExecutionOptions();
     }
@@ -302,6 +299,30 @@ public final class AutoStartViewDefinition implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -338,8 +359,8 @@ public final class AutoStartViewDefinition implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("AutoStartViewDefinition.Builder{");
-      buf.append("viewDefinitionId").append('=').append(_viewDefinitionId).append(',').append(' ');
-      buf.append("executionOptions").append('=').append(_executionOptions);
+      buf.append("viewDefinitionId").append('=').append(JodaBeanUtils.toString(_viewDefinitionId)).append(',').append(' ');
+      buf.append("executionOptions").append('=').append(JodaBeanUtils.toString(_executionOptions));
       buf.append('}');
       return buf.toString();
     }

@@ -238,7 +238,7 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

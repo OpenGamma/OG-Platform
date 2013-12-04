@@ -298,7 +298,7 @@ public final class ValueSnapshot implements Bean, Serializable {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

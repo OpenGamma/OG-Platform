@@ -118,7 +118,7 @@ public class SecurityEnhancerRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the list of securities to enhance.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<Security> getSecurities() {
     return _securities;
@@ -126,9 +126,10 @@ public class SecurityEnhancerRequest extends DirectBean {
 
   /**
    * Sets the list of securities to enhance.
-   * @param securities  the new value of the property
+   * @param securities  the new value of the property, not null
    */
   public void setSecurities(List<Security> securities) {
+    JodaBeanUtils.notNull(securities, "securities");
     this._securities.clear();
     this._securities.addAll(securities);
   }
@@ -274,6 +275,11 @@ public class SecurityEnhancerRequest extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityEnhancerRequest) bean)._securities, "securities");
     }
 
   }

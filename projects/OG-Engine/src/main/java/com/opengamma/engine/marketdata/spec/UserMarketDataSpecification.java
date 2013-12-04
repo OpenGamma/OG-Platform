@@ -5,22 +5,23 @@
  */
 package com.opengamma.engine.marketdata.spec;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.id.UniqueId;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -59,7 +60,6 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static UserMarketDataSpecification.Builder builder() {
@@ -163,7 +163,7 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -224,7 +224,7 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
   /**
    * The bean-builder for {@code UserMarketDataSpecification}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<UserMarketDataSpecification> {
+  public static final class Builder extends DirectFieldsBeanBuilder<UserMarketDataSpecification> {
 
     private UniqueId _userSnapshotId;
 
@@ -232,7 +232,6 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
      * Restricted constructor.
      */
     private Builder() {
-      super(UserMarketDataSpecification.Meta.INSTANCE);
     }
 
     /**
@@ -240,7 +239,6 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(UserMarketDataSpecification beanToCopy) {
-      super(UserMarketDataSpecification.Meta.INSTANCE);
       this._userSnapshotId = beanToCopy.getUserSnapshotId();
     }
 
@@ -254,6 +252,30 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -280,7 +302,7 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("UserMarketDataSpecification.Builder{");
-      buf.append("userSnapshotId").append('=').append(_userSnapshotId);
+      buf.append("userSnapshotId").append('=').append(JodaBeanUtils.toString(_userSnapshotId));
       buf.append('}');
       return buf.toString();
     }

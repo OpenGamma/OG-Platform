@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -87,7 +87,6 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static YieldCurvePointShiftManipulator.Builder builder() {
@@ -191,7 +190,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -252,7 +251,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   /**
    * The bean-builder for {@code YieldCurvePointShiftManipulator}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<YieldCurvePointShiftManipulator> {
+  public static final class Builder extends DirectFieldsBeanBuilder<YieldCurvePointShiftManipulator> {
 
     private List<YieldCurvePointShift> _pointShifts;
 
@@ -260,7 +259,6 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
      * Restricted constructor.
      */
     private Builder() {
-      super(YieldCurvePointShiftManipulator.Meta.INSTANCE);
     }
 
     /**
@@ -268,7 +266,6 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(YieldCurvePointShiftManipulator beanToCopy) {
-      super(YieldCurvePointShiftManipulator.Meta.INSTANCE);
       this._pointShifts = (beanToCopy.getPointShifts() != null ? new ArrayList<YieldCurvePointShift>(beanToCopy.getPointShifts()) : null);
     }
 
@@ -283,6 +280,30 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -308,7 +329,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("YieldCurvePointShiftManipulator.Builder{");
-      buf.append("pointShifts").append('=').append(_pointShifts);
+      buf.append("pointShifts").append('=').append(JodaBeanUtils.toString(_pointShifts));
       buf.append('}');
       return buf.toString();
     }

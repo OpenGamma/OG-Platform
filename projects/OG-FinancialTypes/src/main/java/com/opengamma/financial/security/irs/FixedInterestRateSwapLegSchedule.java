@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -107,7 +107,6 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static FixedInterestRateSwapLegSchedule.Builder builder() {
@@ -270,7 +269,7 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -367,7 +366,7 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
   /**
    * The bean-builder for {@code FixedInterestRateSwapLegSchedule}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<FixedInterestRateSwapLegSchedule> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FixedInterestRateSwapLegSchedule> {
 
     private InterestRateSwapLegConvention _convention;
     private int[] _dates;
@@ -378,7 +377,6 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(FixedInterestRateSwapLegSchedule.Meta.INSTANCE);
     }
 
     /**
@@ -386,7 +384,6 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FixedInterestRateSwapLegSchedule beanToCopy) {
-      super(FixedInterestRateSwapLegSchedule.Meta.INSTANCE);
       this._convention = beanToCopy.getConvention();
       this._dates = (beanToCopy.getDates() != null ? beanToCopy.getDates().clone() : null);
       this._paymentDates = beanToCopy.getPaymentDates();
@@ -412,6 +409,30 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -470,10 +491,10 @@ public final class FixedInterestRateSwapLegSchedule implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("FixedInterestRateSwapLegSchedule.Builder{");
-      buf.append("convention").append('=').append(_convention).append(',').append(' ');
-      buf.append("dates").append('=').append(_dates).append(',').append(' ');
-      buf.append("paymentDates").append('=').append(_paymentDates).append(',').append(' ');
-      buf.append("calculationDates").append('=').append(_calculationDates);
+      buf.append("convention").append('=').append(JodaBeanUtils.toString(_convention)).append(',').append(' ');
+      buf.append("dates").append('=').append(JodaBeanUtils.toString(_dates)).append(',').append(' ');
+      buf.append("paymentDates").append('=').append(JodaBeanUtils.toString(_paymentDates)).append(',').append(' ');
+      buf.append("calculationDates").append('=').append(JodaBeanUtils.toString(_calculationDates));
       buf.append('}');
       return buf.toString();
     }

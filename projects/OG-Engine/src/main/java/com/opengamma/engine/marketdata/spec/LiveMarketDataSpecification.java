@@ -5,20 +5,19 @@
  */
 package com.opengamma.engine.marketdata.spec;
 
-import org.apache.commons.lang.StringUtils;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
-
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -71,7 +70,6 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static LiveMarketDataSpecification.Builder builder() {
@@ -174,7 +172,7 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -235,7 +233,7 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
   /**
    * The bean-builder for {@code LiveMarketDataSpecification}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<LiveMarketDataSpecification> {
+  public static final class Builder extends DirectFieldsBeanBuilder<LiveMarketDataSpecification> {
 
     private String _dataSource;
 
@@ -243,7 +241,6 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
      * Restricted constructor.
      */
     private Builder() {
-      super(LiveMarketDataSpecification.Meta.INSTANCE);
     }
 
     /**
@@ -251,7 +248,6 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(LiveMarketDataSpecification beanToCopy) {
-      super(LiveMarketDataSpecification.Meta.INSTANCE);
       this._dataSource = beanToCopy.getDataSource();
     }
 
@@ -265,6 +261,30 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -290,7 +310,7 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("LiveMarketDataSpecification.Builder{");
-      buf.append("dataSource").append('=').append(_dataSource);
+      buf.append("dataSource").append('=').append(JodaBeanUtils.toString(_dataSource));
       buf.append('}');
       return buf.toString();
     }

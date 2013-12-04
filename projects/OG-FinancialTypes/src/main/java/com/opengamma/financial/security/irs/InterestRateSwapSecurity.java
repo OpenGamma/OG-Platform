@@ -348,7 +348,7 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

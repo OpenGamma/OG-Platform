@@ -301,7 +301,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

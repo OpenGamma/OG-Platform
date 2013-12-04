@@ -211,7 +211,7 @@ public class ManageablePortfolio extends DirectBean implements MutableUniqueIden
   //-----------------------------------------------------------------------
   /**
    * Gets the general purpose portfolio attributes.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -219,9 +219,10 @@ public class ManageablePortfolio extends DirectBean implements MutableUniqueIden
 
   /**
    * Sets the general purpose portfolio attributes.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -439,6 +440,11 @@ public class ManageablePortfolio extends DirectBean implements MutableUniqueIden
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageablePortfolio) bean)._attributes, "attributes");
     }
 
   }

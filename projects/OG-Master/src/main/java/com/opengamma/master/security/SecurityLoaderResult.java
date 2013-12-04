@@ -114,7 +114,7 @@ public class SecurityLoaderResult extends DirectBean {
   /**
    * Gets the unique IDs of the securities that were obtained.
    * The bundle is the original search key, it is not updated with additional external IDs.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<ExternalIdBundle, UniqueId> getResultMap() {
     return _resultMap;
@@ -123,9 +123,10 @@ public class SecurityLoaderResult extends DirectBean {
   /**
    * Sets the unique IDs of the securities that were obtained.
    * The bundle is the original search key, it is not updated with additional external IDs.
-   * @param resultMap  the new value of the property
+   * @param resultMap  the new value of the property, not null
    */
   public void setResultMap(Map<ExternalIdBundle, UniqueId> resultMap) {
+    JodaBeanUtils.notNull(resultMap, "resultMap");
     this._resultMap.clear();
     this._resultMap.putAll(resultMap);
   }
@@ -143,7 +144,7 @@ public class SecurityLoaderResult extends DirectBean {
   /**
    * Gets the loaded securities, keyed by unique ID.
    * This map is optional, and is only returned if the flag in the request is set to true.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<UniqueId, Security> getSecurityMap() {
     return _securityMap;
@@ -152,9 +153,10 @@ public class SecurityLoaderResult extends DirectBean {
   /**
    * Sets the loaded securities, keyed by unique ID.
    * This map is optional, and is only returned if the flag in the request is set to true.
-   * @param securityMap  the new value of the property
+   * @param securityMap  the new value of the property, not null
    */
   public void setSecurityMap(Map<UniqueId, Security> securityMap) {
+    JodaBeanUtils.notNull(securityMap, "securityMap");
     this._securityMap.clear();
     this._securityMap.putAll(securityMap);
   }
@@ -326,6 +328,12 @@ public class SecurityLoaderResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityLoaderResult) bean)._resultMap, "resultMap");
+      JodaBeanUtils.notNull(((SecurityLoaderResult) bean)._securityMap, "securityMap");
     }
 
   }

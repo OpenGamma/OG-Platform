@@ -100,7 +100,7 @@ public class BatchRunSearchResult extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the values, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<RiskRun> getValues() {
     return _values;
@@ -108,9 +108,10 @@ public class BatchRunSearchResult extends DirectBean {
 
   /**
    * Sets the values, not null.
-   * @param values  the new value of the property
+   * @param values  the new value of the property, not null
    */
   public void setValues(List<RiskRun> values) {
+    JodaBeanUtils.notNull(values, "values");
     this._values.clear();
     this._values.addAll(values);
   }
@@ -280,6 +281,11 @@ public class BatchRunSearchResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BatchRunSearchResult) bean)._values, "values");
     }
 
   }

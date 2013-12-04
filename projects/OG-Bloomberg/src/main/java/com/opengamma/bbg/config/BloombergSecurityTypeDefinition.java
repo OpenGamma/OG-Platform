@@ -357,6 +357,11 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
       super.propertySet(bean, propertyName, newValue, quiet);
     }
 
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergSecurityTypeDefinition) bean)._securityTypes, "securityTypes");
+    }
+
   }
 
   ///CLOVER:ON

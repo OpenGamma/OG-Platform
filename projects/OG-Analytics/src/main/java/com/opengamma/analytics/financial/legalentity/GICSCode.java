@@ -19,7 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -255,7 +255,7 @@ public final class GICSCode implements ImmutableBean, Serializable {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -316,7 +316,7 @@ public final class GICSCode implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code GICSCode}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<GICSCode> {
+  private static final class Builder extends DirectFieldsBeanBuilder<GICSCode> {
 
     private String _code;
 
@@ -324,7 +324,6 @@ public final class GICSCode implements ImmutableBean, Serializable {
      * Restricted constructor.
      */
     private Builder() {
-      super(GICSCode.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -341,6 +340,30 @@ public final class GICSCode implements ImmutableBean, Serializable {
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public GICSCode build() {
       return new GICSCode(
           _code);
@@ -351,7 +374,7 @@ public final class GICSCode implements ImmutableBean, Serializable {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("GICSCode.Builder{");
-      buf.append("code").append('=').append(_code);
+      buf.append("code").append('=').append(JodaBeanUtils.toString(_code));
       buf.append('}');
       return buf.toString();
     }

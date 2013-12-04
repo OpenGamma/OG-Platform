@@ -208,7 +208,7 @@ public abstract class ManageableConvention
   //-----------------------------------------------------------------------
   /**
    * Gets the map of attributes, which can be used for attaching additional application-level information.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -216,9 +216,10 @@ public abstract class ManageableConvention
 
   /**
    * Sets the map of attributes, which can be used for attaching additional application-level information.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -470,6 +471,7 @@ public abstract class ManageableConvention
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((ManageableConvention) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((ManageableConvention) bean)._attributes, "attributes");
       JodaBeanUtils.notNull(((ManageableConvention) bean)._name, "name");
     }
 

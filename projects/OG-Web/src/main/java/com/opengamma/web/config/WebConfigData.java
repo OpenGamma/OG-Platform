@@ -317,7 +317,7 @@ public class WebConfigData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the valid map of types.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public BiMap<String, Class<?>> getTypeMap() {
     return _typeMap;
@@ -325,9 +325,10 @@ public class WebConfigData extends DirectBean {
 
   /**
    * Sets the valid map of types.
-   * @param typeMap  the new value of the property
+   * @param typeMap  the new value of the property, not null
    */
   public void setTypeMap(BiMap<String, Class<?>> typeMap) {
+    JodaBeanUtils.notNull(typeMap, "typeMap");
     this._typeMap.clear();
     this._typeMap.putAll(typeMap);
   }
@@ -343,7 +344,7 @@ public class WebConfigData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the valid map of templates.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<Class<?>, JSONBuilder<?>> getJsonBuilderMap() {
     return _jsonBuilderMap;
@@ -351,9 +352,10 @@ public class WebConfigData extends DirectBean {
 
   /**
    * Sets the valid map of templates.
-   * @param jsonBuilderMap  the new value of the property
+   * @param jsonBuilderMap  the new value of the property, not null
    */
   public void setJsonBuilderMap(Map<Class<?>, JSONBuilder<?>> jsonBuilderMap) {
+    JodaBeanUtils.notNull(jsonBuilderMap, "jsonBuilderMap");
     this._jsonBuilderMap.clear();
     this._jsonBuilderMap.putAll(jsonBuilderMap);
   }
@@ -693,6 +695,12 @@ public class WebConfigData extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebConfigData) bean)._typeMap, "typeMap");
+      JodaBeanUtils.notNull(((WebConfigData) bean)._jsonBuilderMap, "jsonBuilderMap");
     }
 
   }

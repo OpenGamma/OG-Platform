@@ -20,7 +20,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -478,7 +478,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -551,7 +551,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
   /**
    * The bean-builder for {@code ExternalIdSearch}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdSearch> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdSearch> {
 
     private Set<ExternalId> _externalIds = new HashSet<ExternalId>();
     private ExternalIdSearchType _searchType;
@@ -560,7 +560,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
      * Restricted constructor.
      */
     private Builder() {
-      super(ExternalIdSearch.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -581,6 +580,30 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public ExternalIdSearch build() {
       return new ExternalIdSearch(
           _externalIds,
@@ -592,8 +615,8 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ExternalIdSearch.Builder{");
-      buf.append("externalIds").append('=').append(_externalIds).append(',').append(' ');
-      buf.append("searchType").append('=').append(_searchType);
+      buf.append("externalIds").append('=').append(JodaBeanUtils.toString(_externalIds)).append(',').append(' ');
+      buf.append("searchType").append('=').append(JodaBeanUtils.toString(_searchType));
       buf.append('}');
       return buf.toString();
     }

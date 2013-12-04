@@ -544,9 +544,10 @@ public class ManageableTrade extends DirectBean
    * Sets the general purpose trade attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }

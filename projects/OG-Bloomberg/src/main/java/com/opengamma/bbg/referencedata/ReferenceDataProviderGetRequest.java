@@ -181,7 +181,7 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
   /**
    * Gets the set of external identifiers to get.
    * For Bloomberg, these are typically BUIDs.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<String> getIdentifiers() {
     return _identifiers;
@@ -190,9 +190,10 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
   /**
    * Sets the set of external identifiers to get.
    * For Bloomberg, these are typically BUIDs.
-   * @param identifiers  the new value of the property
+   * @param identifiers  the new value of the property, not null
    */
   public void setIdentifiers(Set<String> identifiers) {
+    JodaBeanUtils.notNull(identifiers, "identifiers");
     this._identifiers.clear();
     this._identifiers.addAll(identifiers);
   }
@@ -217,9 +218,10 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
 
   /**
    * Sets the data fields to fetch.
-   * @param fields  the new value of the property
+   * @param fields  the new value of the property, not null
    */
   public void setFields(Set<String> fields) {
+    JodaBeanUtils.notNull(fields, "fields");
     this._fields.clear();
     this._fields.addAll(fields);
   }
@@ -449,6 +451,7 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ReferenceDataProviderGetRequest) bean)._identifiers, "identifiers");
       JodaBeanUtils.notNull(((ReferenceDataProviderGetRequest) bean)._fields, "fields");
     }
 

@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -252,7 +252,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -349,7 +349,7 @@ public final class CreditRating implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code CreditRating}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<CreditRating> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CreditRating> {
 
     private String _rating;
     private String _ratingDescription;
@@ -360,7 +360,6 @@ public final class CreditRating implements ImmutableBean, Serializable {
      * Restricted constructor.
      */
     private Builder() {
-      super(CreditRating.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -386,6 +385,30 @@ public final class CreditRating implements ImmutableBean, Serializable {
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public CreditRating build() {
       return new CreditRating(
           _rating,
@@ -399,10 +422,10 @@ public final class CreditRating implements ImmutableBean, Serializable {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("CreditRating.Builder{");
-      buf.append("rating").append('=').append(_rating).append(',').append(' ');
-      buf.append("ratingDescription").append('=').append(_ratingDescription).append(',').append(' ');
-      buf.append("agencyName").append('=').append(_agencyName).append(',').append(' ');
-      buf.append("longTerm").append('=').append(_longTerm);
+      buf.append("rating").append('=').append(JodaBeanUtils.toString(_rating)).append(',').append(' ');
+      buf.append("ratingDescription").append('=').append(JodaBeanUtils.toString(_ratingDescription)).append(',').append(' ');
+      buf.append("agencyName").append('=').append(JodaBeanUtils.toString(_agencyName)).append(',').append(' ');
+      buf.append("longTerm").append('=').append(JodaBeanUtils.toString(_longTerm));
       buf.append('}');
       return buf.toString();
     }

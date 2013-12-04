@@ -241,7 +241,7 @@ public final class Sector implements Bean, Serializable {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

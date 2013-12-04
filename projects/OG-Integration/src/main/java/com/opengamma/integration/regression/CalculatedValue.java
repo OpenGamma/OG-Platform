@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -107,7 +107,6 @@ public final class CalculatedValue implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static CalculatedValue.Builder builder() {
@@ -273,7 +272,7 @@ public final class CalculatedValue implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -370,7 +369,7 @@ public final class CalculatedValue implements ImmutableBean {
   /**
    * The bean-builder for {@code CalculatedValue}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CalculatedValue> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CalculatedValue> {
 
     private Object _value;
     private ValueProperties _specificationProperties;
@@ -381,7 +380,6 @@ public final class CalculatedValue implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(CalculatedValue.Meta.INSTANCE);
     }
 
     /**
@@ -389,7 +387,6 @@ public final class CalculatedValue implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CalculatedValue beanToCopy) {
-      super(CalculatedValue.Meta.INSTANCE);
       this._value = beanToCopy.getValue();
       this._specificationProperties = beanToCopy.getSpecificationProperties();
       this._targetType = beanToCopy.getTargetType();
@@ -415,6 +412,30 @@ public final class CalculatedValue implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -476,10 +497,10 @@ public final class CalculatedValue implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("CalculatedValue.Builder{");
-      buf.append("value").append('=').append(_value).append(',').append(' ');
-      buf.append("specificationProperties").append('=').append(_specificationProperties).append(',').append(' ');
-      buf.append("targetType").append('=').append(_targetType).append(',').append(' ');
-      buf.append("targetName").append('=').append(_targetName);
+      buf.append("value").append('=').append(JodaBeanUtils.toString(_value)).append(',').append(' ');
+      buf.append("specificationProperties").append('=').append(JodaBeanUtils.toString(_specificationProperties)).append(',').append(' ');
+      buf.append("targetType").append('=').append(JodaBeanUtils.toString(_targetType)).append(',').append(' ');
+      buf.append("targetName").append('=').append(JodaBeanUtils.toString(_targetName));
       buf.append('}');
       return buf.toString();
     }

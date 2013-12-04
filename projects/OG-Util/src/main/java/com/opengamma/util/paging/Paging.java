@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -407,7 +407,7 @@ public final class Paging implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -480,7 +480,7 @@ public final class Paging implements ImmutableBean {
   /**
    * The bean-builder for {@code Paging}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<Paging> {
+  private static final class Builder extends DirectFieldsBeanBuilder<Paging> {
 
     private PagingRequest _request;
     private int _totalItems;
@@ -489,7 +489,6 @@ public final class Paging implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(Paging.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -509,6 +508,30 @@ public final class Paging implements ImmutableBean {
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public Paging build() {
       return new Paging(
           _request,
@@ -520,8 +543,8 @@ public final class Paging implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("Paging.Builder{");
-      buf.append("request").append('=').append(_request).append(',').append(' ');
-      buf.append("totalItems").append('=').append(_totalItems);
+      buf.append("request").append('=').append(JodaBeanUtils.toString(_request)).append(',').append(' ');
+      buf.append("totalItems").append('=').append(JodaBeanUtils.toString(_totalItems));
       buf.append('}');
       return buf.toString();
     }

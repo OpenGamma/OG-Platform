@@ -363,7 +363,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   //-----------------------------------------------------------------------
   /**
    * Gets the list of dates that the target (currency/region/exchange) is on holiday, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<LocalDate> getHolidayDates() {
     return _holidayDates;
@@ -371,9 +371,10 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
 
   /**
    * Sets the list of dates that the target (currency/region/exchange) is on holiday, not null.
-   * @param holidayDates  the new value of the property
+   * @param holidayDates  the new value of the property, not null
    */
   public void setHolidayDates(List<LocalDate> holidayDates) {
+    JodaBeanUtils.notNull(holidayDates, "holidayDates");
     this._holidayDates.clear();
     this._holidayDates.addAll(holidayDates);
   }
@@ -663,6 +664,11 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableHoliday) bean)._holidayDates, "holidayDates");
     }
 
   }

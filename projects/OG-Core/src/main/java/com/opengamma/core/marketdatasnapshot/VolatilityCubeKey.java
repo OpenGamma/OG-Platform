@@ -23,7 +23,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -121,7 +121,6 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static VolatilityCubeKey.Builder builder() {
@@ -236,7 +235,7 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -309,7 +308,7 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   /**
    * The bean-builder for {@code VolatilityCubeKey}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<VolatilityCubeKey> {
+  public static final class Builder extends DirectFieldsBeanBuilder<VolatilityCubeKey> {
 
     private Currency _currency;
     private String _name;
@@ -318,7 +317,6 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
      * Restricted constructor.
      */
     private Builder() {
-      super(VolatilityCubeKey.Meta.INSTANCE);
     }
 
     /**
@@ -326,7 +324,6 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(VolatilityCubeKey beanToCopy) {
-      super(VolatilityCubeKey.Meta.INSTANCE);
       this._currency = beanToCopy.getCurrency();
       this._name = beanToCopy.getName();
     }
@@ -344,6 +341,30 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -382,8 +403,8 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("VolatilityCubeKey.Builder{");
-      buf.append("currency").append('=').append(_currency).append(',').append(' ');
-      buf.append("name").append('=').append(_name);
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(_currency)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name));
       buf.append('}');
       return buf.toString();
     }

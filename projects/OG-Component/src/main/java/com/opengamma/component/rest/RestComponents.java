@@ -239,9 +239,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the managed components.
    * These will be controlled by {@link DataComponentServerResource}.
-   * @param localComponents  the new value of the property
+   * @param localComponents  the new value of the property, not null
    */
   public void setLocalComponents(List<RestComponent> localComponents) {
+    JodaBeanUtils.notNull(localComponents, "localComponents");
     this._localComponents.clear();
     this._localComponents.addAll(localComponents);
   }
@@ -268,9 +269,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the remote components.
    * These have been imported from another server and are being re-exposed.
-   * @param remoteComponents  the new value of the property
+   * @param remoteComponents  the new value of the property, not null
    */
   public void setRemoteComponents(List<ComponentInfo> remoteComponents) {
+    JodaBeanUtils.notNull(remoteComponents, "remoteComponents");
     this._remoteComponents.clear();
     this._remoteComponents.addAll(remoteComponents);
   }
@@ -297,9 +299,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the set of root resources.
    * These are not managed by {@link DataComponentServerResource}.
-   * @param rootResourceSingletons  the new value of the property
+   * @param rootResourceSingletons  the new value of the property, not null
    */
   public void setRootResourceSingletons(Set<Object> rootResourceSingletons) {
+    JodaBeanUtils.notNull(rootResourceSingletons, "rootResourceSingletons");
     this._rootResourceSingletons.clear();
     this._rootResourceSingletons.addAll(rootResourceSingletons);
   }
@@ -326,9 +329,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the set of root resource factories.
    * These are not managed by {@link DataComponentServerResource}.
-   * @param rootResourceFactories  the new value of the property
+   * @param rootResourceFactories  the new value of the property, not null
    */
   public void setRootResourceFactories(Set<RestResourceFactory> rootResourceFactories) {
+    JodaBeanUtils.notNull(rootResourceFactories, "rootResourceFactories");
     this._rootResourceFactories.clear();
     this._rootResourceFactories.addAll(rootResourceFactories);
   }
@@ -355,9 +359,10 @@ public class RestComponents extends DirectBean {
   /**
    * Sets the set of additional singleton JAX-RS helper objects that are used by JAX-RS.
    * This may include filters, providers and consumers that should be used directly by JAX-RS.
-   * @param helpers  the new value of the property
+   * @param helpers  the new value of the property, not null
    */
   public void setHelpers(Set<Object> helpers) {
+    JodaBeanUtils.notNull(helpers, "helpers");
     this._helpers.clear();
     this._helpers.addAll(helpers);
   }

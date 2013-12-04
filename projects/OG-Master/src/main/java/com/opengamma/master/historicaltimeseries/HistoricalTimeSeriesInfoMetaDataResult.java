@@ -86,7 +86,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Gets the list if valid data fields.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<String> getDataFields() {
     return _dataFields;
@@ -95,9 +95,10 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Sets the list if valid data fields.
    * This is only populated if requested.
-   * @param dataFields  the new value of the property
+   * @param dataFields  the new value of the property, not null
    */
   public void setDataFields(List<String> dataFields) {
+    JodaBeanUtils.notNull(dataFields, "dataFields");
     this._dataFields.clear();
     this._dataFields.addAll(dataFields);
   }
@@ -115,7 +116,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Gets the list if valid data sources.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<String> getDataSources() {
     return _dataSources;
@@ -124,9 +125,10 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Sets the list if valid data sources.
    * This is only populated if requested.
-   * @param dataSources  the new value of the property
+   * @param dataSources  the new value of the property, not null
    */
   public void setDataSources(List<String> dataSources) {
+    JodaBeanUtils.notNull(dataSources, "dataSources");
     this._dataSources.clear();
     this._dataSources.addAll(dataSources);
   }
@@ -144,7 +146,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Gets the list if valid data providers.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<String> getDataProviders() {
     return _dataProviders;
@@ -153,9 +155,10 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Sets the list if valid data providers.
    * This is only populated if requested.
-   * @param dataProviders  the new value of the property
+   * @param dataProviders  the new value of the property, not null
    */
   public void setDataProviders(List<String> dataProviders) {
+    JodaBeanUtils.notNull(dataProviders, "dataProviders");
     this._dataProviders.clear();
     this._dataProviders.addAll(dataProviders);
   }
@@ -173,7 +176,7 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Gets the list if valid observation times.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<String> getObservationTimes() {
     return _observationTimes;
@@ -182,9 +185,10 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   /**
    * Sets the list if valid observation times.
    * This is only populated if requested.
-   * @param observationTimes  the new value of the property
+   * @param observationTimes  the new value of the property, not null
    */
   public void setObservationTimes(List<String> observationTimes) {
+    JodaBeanUtils.notNull(observationTimes, "observationTimes");
     this._observationTimes.clear();
     this._observationTimes.addAll(observationTimes);
   }
@@ -399,6 +403,15 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._dataFields, "dataFields");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._dataSources, "dataSources");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._dataProviders, "dataProviders");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesInfoMetaDataResult) bean)._observationTimes, "observationTimes");
+      super.validate(bean);
     }
 
   }

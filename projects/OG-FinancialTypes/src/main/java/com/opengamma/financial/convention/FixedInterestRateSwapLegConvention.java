@@ -273,7 +273,7 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

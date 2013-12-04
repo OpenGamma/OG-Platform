@@ -7,28 +7,27 @@ package com.opengamma.integration.regression;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.DerivedProperty;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.PropertyDefinition;
-
-import com.google.common.collect.ImmutableList;
-import com.opengamma.util.ArgumentChecker;
-
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.DerivedProperty;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.ImmutableList;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -86,7 +85,6 @@ public final class RegressionTestResults implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static RegressionTestResults.Builder builder() {
@@ -230,7 +228,7 @@ public final class RegressionTestResults implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -327,7 +325,7 @@ public final class RegressionTestResults implements ImmutableBean {
   /**
    * The bean-builder for {@code RegressionTestResults}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<RegressionTestResults> {
+  public static final class Builder extends DirectFieldsBeanBuilder<RegressionTestResults> {
 
     private String _baseVersion;
     private String _testVersion;
@@ -337,7 +335,6 @@ public final class RegressionTestResults implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(RegressionTestResults.Meta.INSTANCE);
     }
 
     /**
@@ -345,7 +342,6 @@ public final class RegressionTestResults implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(RegressionTestResults beanToCopy) {
-      super(RegressionTestResults.Meta.INSTANCE);
       this._baseVersion = beanToCopy.getBaseVersion();
       this._testVersion = beanToCopy.getTestVersion();
       this._differences = new ArrayList<CalculationDifference>(beanToCopy.getDifferences());
@@ -368,6 +364,30 @@ public final class RegressionTestResults implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -418,9 +438,9 @@ public final class RegressionTestResults implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("RegressionTestResults.Builder{");
-      buf.append("baseVersion").append('=').append(_baseVersion).append(',').append(' ');
-      buf.append("testVersion").append('=').append(_testVersion).append(',').append(' ');
-      buf.append("differences").append('=').append(_differences);
+      buf.append("baseVersion").append('=').append(JodaBeanUtils.toString(_baseVersion)).append(',').append(' ');
+      buf.append("testVersion").append('=').append(JodaBeanUtils.toString(_testVersion)).append(',').append(' ');
+      buf.append("differences").append('=').append(JodaBeanUtils.toString(_differences));
       buf.append('}');
       return buf.toString();
     }

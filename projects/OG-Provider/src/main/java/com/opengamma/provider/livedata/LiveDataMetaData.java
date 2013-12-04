@@ -126,7 +126,7 @@ public class LiveDataMetaData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the external identifier schemes that are supported, in order of preference.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ExternalScheme> getSupportedSchemes() {
     return _supportedSchemes;
@@ -134,9 +134,10 @@ public class LiveDataMetaData extends DirectBean {
 
   /**
    * Sets the external identifier schemes that are supported, in order of preference.
-   * @param supportedSchemes  the new value of the property
+   * @param supportedSchemes  the new value of the property, not null
    */
   public void setSupportedSchemes(List<ExternalScheme> supportedSchemes) {
+    JodaBeanUtils.notNull(supportedSchemes, "supportedSchemes");
     this._supportedSchemes.clear();
     this._supportedSchemes.addAll(supportedSchemes);
   }
@@ -694,6 +695,7 @@ public class LiveDataMetaData extends DirectBean {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LiveDataMetaData) bean)._supportedSchemes, "supportedSchemes");
       JodaBeanUtils.notNull(((LiveDataMetaData) bean)._serverType, "serverType");
       JodaBeanUtils.notNull(((LiveDataMetaData) bean)._description, "description");
     }

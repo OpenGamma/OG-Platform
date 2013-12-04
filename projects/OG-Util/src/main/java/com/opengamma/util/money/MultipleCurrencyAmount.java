@@ -24,7 +24,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -442,7 +442,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -503,7 +503,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   /**
    * The bean-builder for {@code MultipleCurrencyAmount}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<MultipleCurrencyAmount> {
+  private static final class Builder extends DirectFieldsBeanBuilder<MultipleCurrencyAmount> {
 
     private SortedMap<Currency, CurrencyAmount> _currencyAmountMap = new TreeMap<Currency, CurrencyAmount>();
 
@@ -511,7 +511,6 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
      * Restricted constructor.
      */
     private Builder() {
-      super(MultipleCurrencyAmount.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -529,6 +528,30 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public MultipleCurrencyAmount build() {
       return new MultipleCurrencyAmount(
           _currencyAmountMap);
@@ -539,7 +562,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("MultipleCurrencyAmount.Builder{");
-      buf.append("currencyAmountMap").append('=').append(_currencyAmountMap);
+      buf.append("currencyAmountMap").append('=').append(JodaBeanUtils.toString(_currencyAmountMap));
       buf.append('}');
       return buf.toString();
     }

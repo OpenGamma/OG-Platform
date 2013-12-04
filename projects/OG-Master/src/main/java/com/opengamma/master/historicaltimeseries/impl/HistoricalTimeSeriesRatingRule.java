@@ -5,23 +5,24 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.util.ArgumentChecker;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An individual rule for rating for a field name and value.
@@ -95,7 +96,6 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static HistoricalTimeSeriesRatingRule.Builder builder() {
@@ -229,7 +229,7 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -314,7 +314,7 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
   /**
    * The bean-builder for {@code HistoricalTimeSeriesRatingRule}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<HistoricalTimeSeriesRatingRule> {
+  public static final class Builder extends DirectFieldsBeanBuilder<HistoricalTimeSeriesRatingRule> {
 
     private String _fieldName;
     private String _fieldValue;
@@ -324,7 +324,6 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(HistoricalTimeSeriesRatingRule.Meta.INSTANCE);
     }
 
     /**
@@ -332,7 +331,6 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(HistoricalTimeSeriesRatingRule beanToCopy) {
-      super(HistoricalTimeSeriesRatingRule.Meta.INSTANCE);
       this._fieldName = beanToCopy.getFieldName();
       this._fieldValue = beanToCopy.getFieldValue();
       this._rating = beanToCopy.getRating();
@@ -354,6 +352,30 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -403,9 +425,9 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("HistoricalTimeSeriesRatingRule.Builder{");
-      buf.append("fieldName").append('=').append(_fieldName).append(',').append(' ');
-      buf.append("fieldValue").append('=').append(_fieldValue).append(',').append(' ');
-      buf.append("rating").append('=').append(_rating);
+      buf.append("fieldName").append('=').append(JodaBeanUtils.toString(_fieldName)).append(',').append(' ');
+      buf.append("fieldValue").append('=').append(JodaBeanUtils.toString(_fieldValue)).append(',').append(' ');
+      buf.append("rating").append('=').append(JodaBeanUtils.toString(_rating));
       buf.append('}');
       return buf.toString();
     }
