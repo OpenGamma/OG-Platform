@@ -76,14 +76,10 @@ public class ViewProcessorTest {
       final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
       env.init();
       final ViewProcessorImpl vp = env.getViewProcessor();
-
-      assertFalse(vp.isRunning());
-
-      vp.start();
-
       assertTrue(vp.isRunning());
       assertTrue(vp.getViewProcesses().isEmpty());
       vp.stop();
+      assertFalse(vp.isRunning());
     } finally {
       TestLifecycle.end();
     }
