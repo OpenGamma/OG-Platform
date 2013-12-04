@@ -8,20 +8,31 @@ package com.opengamma.financial.analytics.curve;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityRegion;
+import com.opengamma.analytics.financial.legalentity.LegalEntitySector;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.i18n.Country;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final String DISCOUNTING_NAME = "USD Discounting";
   private static final String DISCOUNTING_CODE = "USD";
@@ -35,7 +46,8 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final String BOND_CURVE_NAME = "OG Bond Curve";
   private static final String BOND_ISSUER_NAME = "OG";
   private static final String BOND_CODE = "USD";
-  private static final IssuerCurveTypeConfiguration ISSUER_CONFIG = new IssuerCurveTypeConfiguration(BOND_ISSUER_NAME, BOND_CODE);
+  private static final IssuerCurveTypeConfiguration DEPRECATED_ISSUER_CONFIG = new IssuerCurveTypeConfiguration(BOND_ISSUER_NAME, BOND_CODE);
+  private static final IssuerCurveTypeConfiguration ISSUER_CONFIG;
   private static final ExternalId OVERNIGHT_CONVENTION = ExternalId.of("Test", "USD Overnight");
   private static final OvernightCurveTypeConfiguration OVERNIGHT_CONFIG = new OvernightCurveTypeConfiguration(OVERNIGHT_CONVENTION);
   private static final InflationCurveTypeConfiguration INFLATION_CONFIG = new InflationCurveTypeConfiguration("US", ExternalId.of("Test", "USCPI"));
@@ -53,10 +65,14 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     group2Map.put(LIBOR_6M_NAME, Arrays.asList((CurveTypeConfiguration) LIBOR_6M_CONFIG));
     GROUP2 = new CurveGroupConfiguration(2, group2Map);
     final Map<String, List<CurveTypeConfiguration>> group3Map = new HashMap<>();
-    group3Map.put(BOND_CURVE_NAME, Arrays.asList((CurveTypeConfiguration) ISSUER_CONFIG));
+    group3Map.put(BOND_CURVE_NAME, Arrays.asList((CurveTypeConfiguration) DEPRECATED_ISSUER_CONFIG));
     GROUP3 = new CurveGroupConfiguration(3, group3Map);
     CONSTRUCTION = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), null);
     CONSTRUCTION.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "678"));
+    final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();
+    filters.add(new LegalEntitySector(true, false, Collections.<String>emptySet()));
+    filters.add(new LegalEntityRegion(true, true, Collections.<Country>emptySet(), true, Collections.<Currency>emptySet()));
+    ISSUER_CONFIG = new IssuerCurveTypeConfiguration(filters);
   }
 
   @Test
@@ -76,6 +92,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIssuerCurveTypeConfiguration() {
+    assertEquals(DEPRECATED_ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, DEPRECATED_ISSUER_CONFIG));
     assertEquals(ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, ISSUER_CONFIG));
   }
 

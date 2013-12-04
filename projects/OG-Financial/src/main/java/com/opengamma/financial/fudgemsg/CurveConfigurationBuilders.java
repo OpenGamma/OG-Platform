@@ -7,8 +7,10 @@ package com.opengamma.financial.fudgemsg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -20,6 +22,8 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
@@ -130,26 +134,48 @@ import com.opengamma.util.time.Tenor;
    */
   @FudgeBuilderFor(IssuerCurveTypeConfiguration.class)
   public static class IssuerCurveTypeConfigurationBuilder implements FudgeBuilder<IssuerCurveTypeConfiguration> {
-    /** The issuer type field */
+    /**
+     * The issuer type field
+     * @deprecated This field is kept for backwards compatibility
+     */
+    @Deprecated
     private static final String ISSUER_NAME_FIELD = "issuerName";
-    /** The underlying reference field */
+    /**
+     * The underlying reference field
+     * @deprecated This field is kept for backwards compatibility
+     */
+    @Deprecated
     private static final String UNDERLYING_REFERENCE_FIELD = "underlyingReference";
+    /** The legal entity filter field */
+    private static final String LEGAL_ENTITY_FILTER_FIELD = "filter";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IssuerCurveTypeConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      serializer.addToMessage(message, ISSUER_NAME_FIELD, null, object.getIssuerName());
-      serializer.addToMessage(message, UNDERLYING_REFERENCE_FIELD, null, object.getUnderlyingReference());
+      for (final LegalEntityFilter<LegalEntity> filter : object.getFilters().getFiltersToUse()) {
+        serializer.addToMessageWithClassHeaders(message, LEGAL_ENTITY_FILTER_FIELD, null, filter);
+      }
       return message;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public IssuerCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-      final String issuerName = message.getString(ISSUER_NAME_FIELD);
-      final String underlyingReference = message.getString(UNDERLYING_REFERENCE_FIELD);
-      final IssuerCurveTypeConfiguration configuration = new IssuerCurveTypeConfiguration(issuerName, underlyingReference);
-      return configuration;
+      if (message.hasField(ISSUER_NAME_FIELD)) {
+        if (message.hasField(UNDERLYING_REFERENCE_FIELD)) {
+          final String issuerName = message.getString(ISSUER_NAME_FIELD);
+          final String underlyingReference = message.getString(UNDERLYING_REFERENCE_FIELD);
+          return new IssuerCurveTypeConfiguration(issuerName, underlyingReference);
+        }
+        throw new IllegalStateException("Configuration has " + ISSUER_NAME_FIELD + " but no " + UNDERLYING_REFERENCE_FIELD);
+      }
+      final List<FudgeField> fields = message.getAllByName(LEGAL_ENTITY_FILTER_FIELD);
+      final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();
+      for (final FudgeField field : fields) {
+        filters.add(deserializer.fieldValueToObject(LegalEntityFilter.class, field));
+      }
+      return new IssuerCurveTypeConfiguration(filters);
     }
 
   }

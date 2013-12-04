@@ -24,6 +24,8 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
@@ -39,6 +41,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Contains builders for the objects that analytics needs to perform pricing.
@@ -408,9 +411,9 @@ public final class AnalyticsParameterProviderBuilders {
       final MulticurveProviderDiscount multicurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(CURVE_PROVIDER_FIELD));
       final List<FudgeField> issuerFields = message.getAllByName(ISSUER_FIELD);
       final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVE_FIELD);
-      final Map<Object, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
+      final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
       for (int i = 0; i < issuerFields.size(); i++) {
-        final Object issuer = issuerFields.get(i).getValue();
+        final Pair<Object, LegalEntityFilter<LegalEntity>> issuer = deserializer.fieldValueToObject(Pair.class, issuerFields.get(i));
         final YieldAndDiscountCurve curve = deserializer.fieldValueToObject(YieldAndDiscountCurve.class, issuerCurveFields.get(i));
         issuerCurves.put(issuer, curve);
       }
@@ -420,8 +423,8 @@ public final class AnalyticsParameterProviderBuilders {
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IssuerProviderDiscount object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_PROVIDER_FIELD, null, object.getMulticurveProvider());
-      for (final Map.Entry<Object, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
-        message.add(ISSUER_FIELD, entry.getKey());
+      for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
+        serializer.addToMessageWithClassHeaders(message, ISSUER_FIELD, null, entry.getValue());
         serializer.addToMessageWithClassHeaders(message, ISSUER_CURVE_FIELD, null, entry.getValue());
       }
     }

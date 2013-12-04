@@ -212,7 +212,7 @@ public class IssuerProviderDiscountingFunction extends
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else if (type instanceof IssuerCurveTypeConfiguration) {
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
-              final String issuerName = issuer.getIssuerName();
+              final String issuerName = null; //issuer.getIssuerName();
               final Currency currency = Currency.of(issuer.getUnderlyingReference());
               issuerMap.put(curveName, Pairs.of(issuerName, currency));
             } else {
@@ -232,8 +232,8 @@ public class IssuerProviderDiscountingFunction extends
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
-      final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
-          (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
+      final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = null;// builder.makeCurvesFromDerivatives(curveBundles,;
+          //(IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
       final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
@@ -303,3 +303,4 @@ public class IssuerProviderDiscountingFunction extends
     }
   }
 }
+
