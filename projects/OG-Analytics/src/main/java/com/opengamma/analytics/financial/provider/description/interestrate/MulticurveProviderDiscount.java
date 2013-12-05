@@ -300,11 +300,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
 
   @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime) {
-    ArgumentChecker.isFalse(startTime == endTime, "sart time should be different from end time");
-    if (_forwardIborCurves.containsKey(index)) {
-      return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / (endTime - startTime);
-    }
-    throw new IllegalArgumentException("Forward curve not found: " + index);
+    ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
+    double accrualFactor = endTime - startTime;
+    return getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -330,11 +328,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
 
   @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime) {
-    ArgumentChecker.isFalse(startTime == endTime, "sart time should be different from end time");
-    if (_forwardIborCurves.containsKey(index)) {
-      return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / (endTime - startTime);
-    }
-    throw new IllegalArgumentException("Forward curve not found: " + index);
+    ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
+    double accrualFactor = endTime - startTime;
+    return getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
