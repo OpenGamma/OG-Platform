@@ -10,10 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +29,8 @@ public class XlsSheetWriter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(XlsSheetWriter.class);
 
-  private HSSFSheet _sheet;
-  private HSSFWorkbook _workbook;
+  private Sheet _sheet;
+  private Workbook _workbook;
   private Integer _currentRow = 0;
 
   public XlsSheetWriter(HSSFWorkbook workbook, String sheetname) {
@@ -66,13 +67,15 @@ public class XlsSheetWriter {
     return cell;
   }
 
-
   public void writeKeyValueBlock(Map<String, String> details) {
     ArgumentChecker.notNull(details, "details");
+
+
 
     for (Map.Entry<String, String> entry : details.entrySet()) {
       Row row = getCurrentRow();
       Cell keyCell = getCell(row, 0);
+
       Cell valueCell = getCell(row, 1);
       keyCell.setCellValue(entry.getKey());
       valueCell.setCellValue(entry.getValue());
