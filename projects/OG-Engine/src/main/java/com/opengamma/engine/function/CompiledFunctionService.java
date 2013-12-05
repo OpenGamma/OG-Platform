@@ -44,7 +44,7 @@ public class CompiledFunctionService implements Lifecycle {
    * <p>
    * This is not null unless the service has been shutdown.
    */
-  private volatile PoolExecutor _executorService = createExecutorService();
+  private volatile PoolExecutor _executorService;
   private final FunctionReinitializer _reinitializer = new FunctionReinitializer() {
 
     @Override
@@ -69,12 +69,20 @@ public class CompiledFunctionService implements Lifecycle {
 
   public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
       final FunctionCompilationContext functionCompilationContext) {
+    this(functionRepository, functionRepositoryCompiler, functionCompilationContext, createExecutorService());
+   
+  }
+  
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, 
+      final FunctionCompilationContext functionCompilationContext, PoolExecutor poolExecutor) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
+    
     _rawFunctionRepository = functionRepository;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
+    _executorService = poolExecutor;
   }
 
   private static final class StaticFunctionRepository implements FunctionRepository {
