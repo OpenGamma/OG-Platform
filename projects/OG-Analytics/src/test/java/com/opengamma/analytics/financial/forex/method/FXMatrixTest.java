@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the FXMatrix.
  */
+@Test(groups = TestGroup.UNIT)
 public class FXMatrixTest {
 
   private static final Currency USD = Currency.USD;

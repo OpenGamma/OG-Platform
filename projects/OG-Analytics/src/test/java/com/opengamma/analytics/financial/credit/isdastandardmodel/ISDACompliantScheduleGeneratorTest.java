@@ -13,10 +13,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantScheduleGeneratorTest {
   private static final DayCount ACT = DayCounts.ACT_365;
 

@@ -8,14 +8,17 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CreditCurveCalibrationTest extends ISDABaseTest {
 
   private static final CDSAnalytic[][] PILLAR_CDS;

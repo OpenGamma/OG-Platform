@@ -5,11 +5,16 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 
 /**
  * Build curves using bills and bonds. 
  * TODO: This is old code that has been commented. It should be removed at some point.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveConstructionBillBondTest {
 
   //  private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,

@@ -47,6 +47,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -56,6 +57,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * Tests related to the pricing method for vanilla Forex option transactions with Black function and a volatility provider.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();

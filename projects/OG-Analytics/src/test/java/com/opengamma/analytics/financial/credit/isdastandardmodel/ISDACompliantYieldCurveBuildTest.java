@@ -19,14 +19,15 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This tests yield curve construction against numbers from ISDA C code. Note,  the ISDA C code has a tolerance of 1e-10 on the root finder (Brent) 
- *so it is not possible to get a accuracy greater that around 1e-10 using a different numerical procedure  
+ * so it is not possible to get a accuracy greater that around 1e-10 using a different numerical procedure  
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantYieldCurveBuildTest {
 
   private static final DayCount ACT365 = DayCounts.ACT_365;

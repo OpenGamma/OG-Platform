@@ -124,11 +124,13 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the visitor of Forex derivatives.
  */
 @SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class ForexDerivativeVisitorTest {
 
   private static final Forex FX = ForexInstrumentsDescriptionDataSet.createForexDeprecated();

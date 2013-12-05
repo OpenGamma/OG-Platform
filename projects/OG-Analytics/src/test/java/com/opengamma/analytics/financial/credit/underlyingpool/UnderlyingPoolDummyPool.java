@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.underlyingpool;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
@@ -17,10 +19,12 @@ import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Dummy pool of obligors used for testing purposes
  */
+@Test(groups = TestGroup.UNIT)
 public class UnderlyingPoolDummyPool {
 
   //--------------------------------------------------------------------------------------------------------------------------------------------------

@@ -22,11 +22,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the valuation of non-deliverable forward by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   private static final MulticurveProviderInterface MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();

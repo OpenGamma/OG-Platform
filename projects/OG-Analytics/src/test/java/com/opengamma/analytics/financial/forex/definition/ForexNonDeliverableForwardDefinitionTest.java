@@ -15,11 +15,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of ForexNonDeliverableForwardDefinition and it conversion to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexNonDeliverableForwardDefinitionTest {
 
   private static final Currency KRW = Currency.of("KRW");

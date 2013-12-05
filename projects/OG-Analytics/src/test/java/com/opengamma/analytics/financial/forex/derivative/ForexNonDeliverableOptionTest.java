@@ -7,8 +7,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ForexNonDeliverableOptionTest {
 
   private static final Currency KRW = Currency.of("KRW");

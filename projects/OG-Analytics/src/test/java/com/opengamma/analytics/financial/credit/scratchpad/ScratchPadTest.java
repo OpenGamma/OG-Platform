@@ -7,12 +7,17 @@ package com.opengamma.analytics.financial.credit.scratchpad;
 
 import java.util.Arrays;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ScratchPadTest {
 
-  //@Test
+  @Test(enabled = false)
   public void test() {
 
     double startTime = tic(); //System.nanoTime();

@@ -18,11 +18,13 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of vanilla Forex options (definition version).
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;

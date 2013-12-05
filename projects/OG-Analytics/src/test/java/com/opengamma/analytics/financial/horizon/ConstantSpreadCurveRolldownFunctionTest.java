@@ -16,10 +16,12 @@ import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConstantSpreadCurveRolldownFunctionTest {
   private static final double[] TIMES = new double[] {1, 2, 3, 4, 5, 10};
   private static final double[] RATES = new double[] {0.03, 0.05, 0.04, 0.07, 0.02, 0.1};

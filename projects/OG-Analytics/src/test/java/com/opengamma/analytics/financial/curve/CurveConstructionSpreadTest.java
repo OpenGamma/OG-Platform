@@ -5,11 +5,16 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Curves are using different types of interpolations (on cc rate, periodic rates and discount factors) and spread curves.
  * TODO: This is old code that has been commented. It should be removed at some point.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveConstructionSpreadTest {
 
   //  private static final Interpolator1D INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,

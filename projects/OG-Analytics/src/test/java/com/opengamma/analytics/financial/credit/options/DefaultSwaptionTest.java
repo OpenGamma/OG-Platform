@@ -20,10 +20,12 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDABaseTest;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.CreditCurveCalibrator;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DefaultSwaptionTest extends ISDABaseTest {
   private static AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
   private static ISDACompliantYieldCurve YIELD_CURVE;

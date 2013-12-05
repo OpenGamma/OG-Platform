@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Digital Forex options (derivative version).
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionDigitalTest {
   // FX Option: EUR call/USD put; 1m EUR @ 1.4177
   private static final Currency CUR_1 = Currency.EUR;

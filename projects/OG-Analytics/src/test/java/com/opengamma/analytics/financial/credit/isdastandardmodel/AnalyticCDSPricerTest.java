@@ -12,10 +12,12 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnalyticCDSPricerTest extends ISDABaseTest {
 
   @SuppressWarnings("unused")

@@ -21,15 +21,16 @@ import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Checks the wiring of the  CommodityFutureOptionPresentValueCalculator
  */
+@Test(groups = TestGroup.UNIT)
 public class CommodityFutureOptionDeltaCalculatorTest extends CommodityFutureOptionTestDefaults {
 
   private static final CommodityFutureOptionBlackDeltaCalculator PRICER = CommodityFutureOptionBlackDeltaCalculator.getInstance();
 
-  @Test
   public void testAgricultureFutureOption() {
     final double answer = 0.8830720154313743;
 
@@ -41,7 +42,6 @@ public class CommodityFutureOptionDeltaCalculatorTest extends CommodityFutureOpt
     assertEquals(answer, pv, TOLERANCE);
   }
 
-  @Test
   public void testEnergyFutureOption() {
     final double answer = 0.8830720154313743;
 
@@ -53,7 +53,6 @@ public class CommodityFutureOptionDeltaCalculatorTest extends CommodityFutureOpt
     assertEquals(answer, pv, TOLERANCE);
   }
 
-  @Test
   public void testMetalFutureOption() {
     final double answer = 0.8830720154313743;
 
@@ -64,4 +63,5 @@ public class CommodityFutureOptionDeltaCalculatorTest extends CommodityFutureOpt
     final double pv = option.accept(PRICER, MARKET);
     assertEquals(answer, pv, TOLERANCE);
   }
+
 }

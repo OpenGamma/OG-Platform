@@ -15,11 +15,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AgricultureForwardDefinitionTest {
 
   private final static ExternalId AN_UNDERLYING= ExternalId.of("Scheme", "value");

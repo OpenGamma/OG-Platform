@@ -20,10 +20,12 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CS01TestGrids extends ISDABaseTest {
 
   private static final MarketQuoteConverter QUOTE_CONVERTER = new MarketQuoteConverter();

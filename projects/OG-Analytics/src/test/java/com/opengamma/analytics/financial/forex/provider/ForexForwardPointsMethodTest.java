@@ -35,6 +35,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -42,6 +43,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Test related to the method for Forex transaction by discounting on each payment.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexForwardPointsMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesEURUSD();

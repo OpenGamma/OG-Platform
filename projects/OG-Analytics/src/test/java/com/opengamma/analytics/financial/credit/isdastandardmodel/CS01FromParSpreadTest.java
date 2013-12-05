@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CS01FromParSpreadTest extends ISDABaseTest {
 
   private static final LocalDate TODAY = LocalDate.of(2013, 6, 4);

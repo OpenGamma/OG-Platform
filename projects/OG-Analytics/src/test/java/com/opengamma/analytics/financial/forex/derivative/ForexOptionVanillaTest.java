@@ -17,11 +17,13 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of vanilla Forex options (derivative version).
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaTest {
   // FX Option: EUR call/USD put; 1m EUR @ 1.4177
   private static final Currency CUR_1 = Currency.EUR;

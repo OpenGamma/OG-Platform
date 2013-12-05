@@ -32,6 +32,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pairs;
@@ -40,6 +41,7 @@ import com.opengamma.util.tuple.Pairs;
  * Tests related to the valuation of non-deliverable forward by discounting.
  * @deprecated This class tests deprecated code
  */
+@Test(groups = TestGroup.UNIT)
 @Deprecated
 public class ForexNonDeliverableOptionBlackMethodTest {
 

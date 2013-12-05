@@ -19,11 +19,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PDEGreekResultCollectionTest {
   private static final double[] STRIKES = new double[] {1.1, 1.2, 1.3, 1.4};
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.LINEAR_INSTANCE;

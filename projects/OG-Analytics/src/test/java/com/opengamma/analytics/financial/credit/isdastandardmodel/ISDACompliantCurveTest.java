@@ -11,9 +11,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantCurveTest {
   private static final double EPS = 1e-5;
 

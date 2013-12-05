@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefi
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the visitor of Forex definitions.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexDefinitionVisitorTest {
 
   private static final ForexDefinition FX_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexDefinition();

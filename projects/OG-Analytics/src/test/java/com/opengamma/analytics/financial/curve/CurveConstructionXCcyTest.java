@@ -5,11 +5,16 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Build of curve in several currencies in several blocks with relevant Jacobian matrices.
  * Currencies: USD (2 curves), EUR (2 curves), JPY (3 curves)
  * TODO: This is old code that has been commented. It should be removed at some point.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveConstructionXCcyTest {
 
   //  //  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,

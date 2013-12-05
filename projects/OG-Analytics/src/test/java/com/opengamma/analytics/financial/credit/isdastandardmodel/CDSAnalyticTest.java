@@ -13,10 +13,12 @@ import org.threeten.bp.Month;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CDSAnalyticTest {
   private static CDSAnalyticFactory FACTORY = new CDSAnalyticFactory();
 

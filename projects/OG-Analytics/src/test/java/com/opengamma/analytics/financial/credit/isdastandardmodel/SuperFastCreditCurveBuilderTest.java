@@ -8,14 +8,16 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.SuperFastCreditCurveBuilder;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SuperFastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
   private static final SuperFastCreditCurveBuilder BUILDER_ISDA = new SuperFastCreditCurveBuilder();
-  private static final SuperFastCreditCurveBuilder BUILDER_MARKIT = new SuperFastCreditCurveBuilder(MARKIT_FIX);
+//  private static final SuperFastCreditCurveBuilder BUILDER_MARKIT = new SuperFastCreditCurveBuilder(MARKIT_FIX);
 
   @Test
   public void test() {

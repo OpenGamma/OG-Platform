@@ -7,13 +7,17 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
-
+  @SuppressWarnings("deprecation")
   private static ISDACompliantCreditCurveBuilder BUILDER_ISDA = new SimpleCreditCurveBuilder();
+  @SuppressWarnings("deprecation")
   private static ISDACompliantCreditCurveBuilder BUILDER_MARKIT = new SimpleCreditCurveBuilder(MARKIT_FIX);
 
   @Test

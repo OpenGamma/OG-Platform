@@ -25,11 +25,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests functionality of TPC, which returns currency amounts paid on provided date
  */
+@Test(groups = TestGroup.UNIT)
 public class TodayPaymentCalculatorTest {
 
   // Swap Fixed-Ibor

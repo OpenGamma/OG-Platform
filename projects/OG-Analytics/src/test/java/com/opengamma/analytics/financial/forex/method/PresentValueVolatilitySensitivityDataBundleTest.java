@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -22,6 +23,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests related to the construction of volatility sensitivity data bundle.
  */
+@Test(groups = TestGroup.UNIT)
 public class PresentValueVolatilitySensitivityDataBundleTest {
 
   private static final Currency CUR_1 = Currency.EUR;
