@@ -1225,6 +1225,7 @@
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>
     <jersey.version>1.17.1</jersey.version>
+    <maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version><!-- downgrade to fix site plugin -->
     <!-- Testing properties -->
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
