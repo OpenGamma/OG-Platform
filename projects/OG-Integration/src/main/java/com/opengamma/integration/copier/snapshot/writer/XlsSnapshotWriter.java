@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +29,11 @@ import com.opengamma.integration.copier.sheet.writer.XlsSheetWriter;
 import com.opengamma.integration.copier.sheet.writer.XlsWriter;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Writes a snapshot to exported file
+ * Export snapshot to XLS, separating snapshot elements into workbook sheets
  */
 public class XlsSnapshotWriter implements SnapshotWriter {
 
@@ -47,7 +44,6 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   private XlsSheetWriter _globalsSheet;
   private XlsSheetWriter _surfaceSheet;
 
-
   private static final Logger s_logger = LoggerFactory.getLogger(XlsSnapshotWriter.class);
 
   public XlsSnapshotWriter(String filename) {
@@ -55,6 +51,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     if (filename == null) {
       throw new OpenGammaRuntimeException("File name omitted, cannot export to file");
     }
+
     _xlsWriter = new XlsWriter(filename);
     _nameSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), "name");
     _curveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.CURVE.get());
@@ -62,83 +59,12 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     _globalsSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.GLOBAL_VALUES.get());
     _surfaceSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.VOL_SURFACE.get());
 
-
   }
 
-  /** Ordinated ValueSnapshots, needed for Volatility Surfaces */
-  private void writeOrdinatedValueSnapshot(Map<String, String> prefixes,
-                                           Map<Pair<Object, Object>, ValueSnapshot> valueSnapshots) {
-
-
-
-    for (Map.Entry<Pair<Object, Object>, ValueSnapshot> entry : valueSnapshots.entrySet()) {
-      Map<String, String> tempRow = new HashMap<>();
-      ValueSnapshot valueSnapshot = entry.getValue();
-      tempRow.putAll(prefixes);
-
-      String surfaceX;
-      if (entry.getKey().getFirst() instanceof Tenor) {
-        surfaceX = ((Tenor) entry.getKey().getFirst()).toFormattedString();
-      } else {
-        surfaceX = entry.getKey().getFirst().toString();
-      }
-
-      String surfaceY;
-      if (entry.getKey().getSecond() instanceof Pair) {
-        surfaceY = ((Pair) entry.getKey().getSecond()).getFirst() + "|" + ((Pair) entry.getKey().getSecond()).getSecond();
-      } else {
-        surfaceY = entry.getKey().getSecond().toString();
-      }
-
-      tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
-      tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
-      if (valueSnapshot == null) {
-        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), "null");
-      } else {
-        if (valueSnapshot.getMarketValue() != null) {
-          tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
-        }
-        if (valueSnapshot.getOverrideValue() != null) {
-          tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
-        }
-      }
-      //TODO _sheetWriter.writeNextRow(tempRow);
-    }
-  }
-
-
-
-  private void writeFudgeMsg(Map<String, String> prefixes, FudgeMsg message) {
-    for (FudgeField field : message.getAllFields()) {
-      Map<String, String> tempRow = new HashMap<>();
-      tempRow.putAll(prefixes);
-      tempRow.put(SnapshotColumns.VALUE_OBJECT.get(), field.getName());
-      // assuming that the the value of the field is not another data structure
-      tempRow.put(SnapshotColumns.MARKET_VALUE.get(), field.getValue().toString());
-      //TODO _sheetWriter.writeNextRow(tempRow);
-    }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  /**
+   * @param snapshot UnstructuredMarketDataSnapshot
+   * @return Map of ID Bundle (delimited with |) to Pair of market and override value
+   */
   private Map<String, ObjectsPair<String, String>> buildUnstructuredMarketDataSnapshotMap(UnstructuredMarketDataSnapshot snapshot) {
     Map<String, ObjectsPair<String, String>> values = new LinkedHashMap<>();
     values.put(SnapshotColumns.ID_BUNDLE.get(),
@@ -232,9 +158,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       details.put(SnapshotColumns.YIELD_CURVE_CURRENCY.get(), entry.getKey().getCurrency().toString());
       details.put(SnapshotColumns.INSTANT.get(), curve.getValuationTime().toString());
       _yieldCurveSheet.writeKeyValueBlock(details);
-
-      UnstructuredMarketDataSnapshot snapshot = curve.getValues();
-      _yieldCurveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
+      _yieldCurveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(curve.getValues()));
     }
 
   }
@@ -253,8 +177,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       details.put(SnapshotColumns.NAME.get(), entry.getKey().getName());
       details.put(SnapshotColumns.INSTANT.get(), curve.getValuationTime().toString());
       _curveSheet.writeKeyValueBlock(details);
-      UnstructuredMarketDataSnapshot snapshot = curve.getValues();
-      _curveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
+      _curveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(curve.getValues()));
     }
   }
 
@@ -262,7 +185,6 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   public void writeName(String name) {
     Map<String, String> detail = new HashMap<>();
     detail.put(SnapshotType.NAME.get(), name);
-
     _nameSheet.writeKeyValueBlock(detail);
   }
 

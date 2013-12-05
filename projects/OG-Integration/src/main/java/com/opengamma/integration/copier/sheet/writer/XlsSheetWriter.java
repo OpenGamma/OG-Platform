@@ -27,7 +27,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Provides tha ability to create and write to sheets in a given workbook
  */
 public class XlsSheetWriter {
 
@@ -56,7 +56,6 @@ public class XlsSheetWriter {
 
   /**
    * Auto size all accessed columns, note this should only be called just before the workbook is closed.
-   *
    */
   public void autoSizeAllColumns() {
     for (int index : _columnIndices) {
@@ -170,23 +169,33 @@ public class XlsSheetWriter {
     _currentRow++;
   }
 
+  /**
+   *
+   * @param xMap Set of ordered labels for the x axis
+   * @param yMap  Set of ordered labels for the y axis
+   * @param label String label for cell 0/0
+   * @param valueMap Map containing a Pair of x and y co-ordinates to value
+   */
   public void writeMatrix(Set<String> xMap,
                           Set<String> yMap,
                           String label,
-                          Map<Pair<String, String>, String> marketValueMap) {
+                          Map<Pair<String, String>, String> valueMap) {
 
     ArgumentChecker.notNull(xMap, "xMap");
     ArgumentChecker.notNull(yMap, "yMap");
-    ArgumentChecker.notNull(marketValueMap, "marketValueMap");
+    ArgumentChecker.notNull(valueMap, "valueMap");
 
+    //Maps used to store the index of each x and y axis
     Map<String, Integer> xCol = new HashMap<>();
     Map<String, Integer> yRow = new HashMap<>();
 
+    //Print out the label
     Row labelRow = getCurrentRow();
     Cell labelCell = getCell(labelRow, 0);
     labelCell.setCellValue(label);
     labelCell.setCellStyle(_axisStyle);
 
+    //Print out the x axis
     int colIndex = 1;
     for (String entry : xMap) {
       Row row = getCurrentRow();
@@ -198,6 +207,7 @@ public class XlsSheetWriter {
     }
 
     _currentRow++;
+    //Print out the y axis
     for (String entry : yMap) {
       Row row = getCurrentRow();
       Cell cell = getCell(row, 0);
@@ -208,7 +218,8 @@ public class XlsSheetWriter {
     }
     _currentRow++;
 
-    for (Map.Entry<Pair<String, String>, String> entry : marketValueMap.entrySet()) {
+    //Print out the values of the matrix, locate co-ordinates based on  key of valueMap and the xCol/yRow maps
+    for (Map.Entry<Pair<String, String>, String> entry : valueMap.entrySet()) {
       Cell valueCell = getCell(getRow(yRow.get(entry.getKey().getSecond())), xCol.get(entry.getKey().getFirst()));
       valueCell.setCellValue(entry.getValue());
       valueCell.setCellStyle(_valueBlockStyle);

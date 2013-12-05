@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- *  TODO add description
+ *  Util to create and output xls
  */
 public class XlsWriter {
 
@@ -51,8 +51,10 @@ public class XlsWriter {
     try {
       _workbook.write(_output);
       _output.close();
+      s_logger.info("XLS successfully written: {}", _fileName);
     } catch (IOException e) {
-      /*TODO*/ e.printStackTrace();
+      s_logger.error("Error writing/outputting XLS: {}", _fileName);
+      e.printStackTrace();
     }
   }
 }
