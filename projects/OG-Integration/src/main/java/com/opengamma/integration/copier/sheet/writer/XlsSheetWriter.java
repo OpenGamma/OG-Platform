@@ -6,7 +6,9 @@
 
 package com.opengamma.integration.copier.sheet.writer;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -26,21 +29,8 @@ public class XlsSheetWriter {
   private static final Logger s_logger = LoggerFactory.getLogger(XlsSheetWriter.class);
 
   private HSSFSheet _sheet;
-  //private final String[] _columns;
   private HSSFWorkbook _workbook;
   private Integer _currentRow = 0;
-
-  //public XlsSheetWriter(HSSFWorkbook workbook, String sheetname, String[] columns) {
-  //
-  //  ArgumentChecker.notEmpty(sheetname, "sheetname");
-  //  ArgumentChecker.notNull(columns, "columns");
-  //  ArgumentChecker.notNull(workbook, "workbook");
-  //
-  //  _workbook = workbook;
-  //  _sheet = _workbook.createSheet(sheetname);
-  //  _columns = columns;
-  //
-  //}
 
   public XlsSheetWriter(HSSFWorkbook workbook, String sheetname) {
 
@@ -60,6 +50,14 @@ public class XlsSheetWriter {
     return row;
   }
 
+  private Row getRow(int rowIndex) {
+    Row row = _sheet.getRow(rowIndex);
+    if (row == null) {
+      row = _sheet.createRow(rowIndex);
+    }
+    return row;
+  }
+
   private Cell getCell(Row row, int index) {
     Cell cell = row.getCell(index);
     if (cell == null) {
@@ -68,31 +66,8 @@ public class XlsSheetWriter {
     return cell;
   }
 
-  //public void writeColumns() {
-  //  Row row = getCurrentRow();
-  //
-  //  for (int i = 0; i < _columns.length; i++) {
-  //    String value =  _columns[i];
-  //    Cell cell = getCell(row, i);
-  //    cell.setCellValue(value);
-  //  }
-  //  _currentRow++;
-  //}
-  //
-  //public void writeNextRow(Map<String, String> entries) {
-  //
-  //  ArgumentChecker.notNull(entries, "entries");
-  //  Row row = getCurrentRow();
-  //
-  //  for (int i = 0; i < _columns.length; i++) {
-  //    String value = entries.get(_columns[i]);
-  //    Cell cell = getCell(row, i);
-  //    cell.setCellValue(value);
-  //  }
-  //  _currentRow++;
-  //}
 
-  public void writeBlock(Map<String, String> details) {
+  public void writeKeyValueBlock(Map<String, String> details) {
     ArgumentChecker.notNull(details, "details");
 
     for (Map.Entry<String, String> entry : details.entrySet()) {
@@ -125,6 +100,48 @@ public class XlsSheetWriter {
       _currentRow++;
     }
     _currentRow++;
+
+  }
+
+  public void writeMatrix(Set<String> xMap,
+                          Set<String> yMap,
+                          String label,
+                          Map<Pair<String, String>, String> marketValueMap) {
+
+    ArgumentChecker.notNull(xMap, "xMap");
+    ArgumentChecker.notNull(yMap, "yMap");
+    ArgumentChecker.notNull(marketValueMap, "marketValueMap");
+
+    Map<String, Integer> xCol = new HashMap<>();
+    Map<String, Integer> yRow = new HashMap<>();
+
+    Row labelRow = getCurrentRow();
+    Cell labelCell = getCell(labelRow, 0);
+    labelCell.setCellValue(label);
+
+    int colIndex = 1;
+    for (String entry : xMap) {
+      Row row = getCurrentRow();
+      Cell cell = getCell(row, colIndex);
+      cell.setCellValue(entry);
+      xCol.put(entry, colIndex);
+      colIndex++;
+    }
+
+    _currentRow++;
+    for (String entry : yMap) {
+      Row row = getCurrentRow();
+      Cell cell = getCell(row, 0);
+      cell.setCellValue(entry);
+      yRow.put(entry, _currentRow);
+      _currentRow++;
+    }
+    _currentRow++;
+
+    for (Map.Entry<Pair<String, String>, String> entry : marketValueMap.entrySet()) {
+      Cell valueCell = getCell(getRow(yRow.get(entry.getKey().getSecond())), xCol.get(entry.getKey().getFirst()));
+      valueCell.setCellValue(entry.getValue());
+    }
 
   }
 }

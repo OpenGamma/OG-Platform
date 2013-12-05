@@ -6,8 +6,10 @@
 package com.opengamma.integration.copier.snapshot.writer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeField;
@@ -43,6 +45,8 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   private XlsSheetWriter _curveSheet;
   private XlsSheetWriter _yieldCurveSheet;
   private XlsSheetWriter _globalsSheet;
+  private XlsSheetWriter _surfaceSheet;
+
 
   private static final Logger s_logger = LoggerFactory.getLogger(XlsSnapshotWriter.class);
 
@@ -56,6 +60,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     _curveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.CURVE.get());
     _yieldCurveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.YIELD_CURVE.get());
     _globalsSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.GLOBAL_VALUES.get());
+    _surfaceSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.VOL_SURFACE.get());
 
 
   }
@@ -122,27 +127,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
 
 
 
-  @Override
-  public void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
 
-    if (volatilitySurface == null || volatilitySurface.isEmpty()) {
-      s_logger.warn("Snapshot does not contain any Volatility Surfaces.");
-      return;
-    }
-
-    for (Map.Entry<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> entry : volatilitySurface.entrySet()) {
-      VolatilitySurfaceSnapshot surface = entry.getValue();
-      Map<String, String> tempRow = new HashMap<>();
-      tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.VOL_SURFACE.get());
-      tempRow.put(SnapshotColumns.NAME.get(), entry.getKey().getName());
-      tempRow.put(SnapshotColumns.SURFACE_TARGET.get(), entry.getKey().getTarget().toString());
-      tempRow.put(SnapshotColumns.SURFACE_INSTRUMENT_TYPE.get(), entry.getKey().getInstrumentType());
-      tempRow.put(SnapshotColumns.SURFACE_QUOTE_TYPE.get(), entry.getKey().getQuoteType());
-      tempRow.put(SnapshotColumns.SURFACE_QUOTE_UNITS.get(), entry.getKey().getQuoteUnits());
-      //Row written by writeOrdinatedValueSnapshot
-      writeOrdinatedValueSnapshot(tempRow, surface.getValues());
-    }
-  }
 
 
 
@@ -179,7 +164,53 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   }
 
   @Override
-   public void writeGlobalValues(UnstructuredMarketDataSnapshot globalValues) {
+  public void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
+
+    if (volatilitySurface == null || volatilitySurface.isEmpty()) {
+      s_logger.warn("Snapshot does not contain any Volatility Surfaces.");
+      return;
+    }
+
+    for (Map.Entry<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> entry : volatilitySurface.entrySet()) {
+      VolatilitySurfaceSnapshot surface = entry.getValue();
+      Map<String, String> details = new HashMap<>();
+      details.put(SnapshotColumns.TYPE.get(), SnapshotType.VOL_SURFACE.get());
+      details.put(SnapshotColumns.NAME.get(), entry.getKey().getName());
+      details.put(SnapshotColumns.SURFACE_TARGET.get(), entry.getKey().getTarget().toString());
+      details.put(SnapshotColumns.SURFACE_INSTRUMENT_TYPE.get(), entry.getKey().getInstrumentType());
+      details.put(SnapshotColumns.SURFACE_QUOTE_TYPE.get(), entry.getKey().getQuoteType());
+      details.put(SnapshotColumns.SURFACE_QUOTE_UNITS.get(), entry.getKey().getQuoteUnits());
+
+      Map<Pair<String, String>, String> marketValueMap = new LinkedHashMap<>();
+      Map<Pair<String, String>, String> overrideValueMap = new LinkedHashMap<>();
+
+
+      Set<String> xMap = new HashSet<>();
+      Set<String> yMap = new HashSet<>();
+
+      for (Map.Entry<Pair<Object, Object>, ValueSnapshot> value : surface.getValues().entrySet()) {
+        Pair<String, String> ordinal = ObjectsPair.of(value.getKey().getFirst().toString(), value.getKey().getSecond().toString());
+
+        xMap.add(ordinal.getFirst());
+        yMap.add(ordinal.getSecond());
+
+        ValueSnapshot valueSnapshot = value.getValue();
+        String market = (valueSnapshot.getMarketValue() == null) ? "" : valueSnapshot.getMarketValue().toString();
+        String override = (valueSnapshot.getOverrideValue() == null) ? "" : valueSnapshot.getOverrideValue().toString();
+
+        marketValueMap.put(ordinal, market);
+        overrideValueMap.put(ordinal, override);
+      }
+
+      _surfaceSheet.writeKeyValueBlock(details);
+      _surfaceSheet.writeMatrix(xMap, yMap, SnapshotColumns.MARKET_VALUE.get(), marketValueMap);
+      _surfaceSheet.writeMatrix(xMap, yMap, SnapshotColumns.OVERRIDE_VALUE.get(), overrideValueMap);
+
+    }
+  }
+
+  @Override
+  public void writeGlobalValues(UnstructuredMarketDataSnapshot globalValues) {
 
     if (globalValues == null || globalValues.isEmpty()) {
       s_logger.warn("Snapshot does not contain any Global Values.");
@@ -203,7 +234,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       details.put(SnapshotColumns.NAME.get(), entry.getKey().getName());
       details.put(SnapshotColumns.YIELD_CURVE_CURRENCY.get(), entry.getKey().getCurrency().toString());
       details.put(SnapshotColumns.INSTANT.get(), curve.getValuationTime().toString());
-      _yieldCurveSheet.writeBlock(details);
+      _yieldCurveSheet.writeKeyValueBlock(details);
 
       UnstructuredMarketDataSnapshot snapshot = curve.getValues();
       _yieldCurveSheet.writePairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
@@ -224,7 +255,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       Map<String, String> details = new LinkedHashMap<>();
       details.put(SnapshotColumns.NAME.get(), entry.getKey().getName());
       details.put(SnapshotColumns.INSTANT.get(), curve.getValuationTime().toString());
-      _curveSheet.writeBlock(details);
+      _curveSheet.writeKeyValueBlock(details);
       UnstructuredMarketDataSnapshot snapshot = curve.getValues();
       _curveSheet.writePairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
     }
@@ -234,14 +265,15 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   public void writeName(String name) {
     Map<String, String> detail = new HashMap<>();
     detail.put(SnapshotType.NAME.get(), name);
-    _nameSheet.writeBlock(detail);
+
+    _nameSheet.writeKeyValueBlock(detail);
   }
 
   @Override
   public void writeBasisViewName(String basisName) {
     Map<String, String> detail = new HashMap<>();
     detail.put(SnapshotType.BASIS_NAME.get(), basisName);
-    _nameSheet.writeBlock(detail);
+    _nameSheet.writeKeyValueBlock(detail);
   }
 
   @Override
