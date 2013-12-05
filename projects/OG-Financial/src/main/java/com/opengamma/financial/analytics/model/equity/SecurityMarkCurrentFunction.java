@@ -1,6 +1,6 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity;
@@ -27,50 +27,50 @@ import com.opengamma.financial.security.MarketSecurityVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * Provides the market price for the security of a position as a value on the position. <p>
- * See also {@link SecurityMarkCurrentFunction}
+ * Produces output {@link ValueRequirementNames#MARK_CURRENT}. <p>
+ * See also {@link SecurityMarketPriceFunction}
  */
-public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInvoker {
+public class SecurityMarkCurrentFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static MarketSecurityVisitor s_judgeOfMarketSecurities = new MarketSecurityVisitor();
-
+  
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final double marketValue = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.SECURITY_MARKET_PRICE, target.toSpecification(), desiredValue.getConstraints()), marketValue));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.MARK_CURRENT, target.toSpecification(), desiredValue.getConstraints()), marketValue));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION_OR_TRADE;
+    return ComputationTargetType.SECURITY;
   }
-
+  
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getPositionOrTrade().getSecurity() instanceof FinancialSecurity)) {
+    if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getPositionOrTrade().getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     return security.accept(s_judgeOfMarketSecurities);
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getPositionOrTrade().getSecurity().getUniqueId()));
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
       valueProperties = createValueProperties().get();
     } else {
       valueProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
     }
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.SECURITY_MARKET_PRICE, target.toSpecification(), valueProperties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.MARK_CURRENT, target.toSpecification(), valueProperties));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId()));
   }
 
 }

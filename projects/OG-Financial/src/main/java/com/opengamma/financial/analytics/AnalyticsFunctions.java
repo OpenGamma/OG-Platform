@@ -230,6 +230,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_MODEL_PRICE);
+    addUnitScalingFunction(functions, ValueRequirementNames.MARK_CURRENT);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED_P);
     addUnitScalingFunction(functions, ValueRequirementNames.SPOT);
