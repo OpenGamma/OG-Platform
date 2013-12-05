@@ -112,6 +112,9 @@ To 2.1.12
     [PLAT-5218] Ability to sort outputs of ConfigImportExportTool
 	[PLAT-5223] Fixed fudge builder to create arrays of correct type.
 	
+To 2.1.13
+---------
+    [PLAT-5288] Fix for NPE in VolatilitySurfaceDataFudgeBuilder
 
 
 OpenGamma Platform 2.1
