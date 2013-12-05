@@ -24,7 +24,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -36,7 +36,7 @@ public class CouponIborAverageDefinitionTest {
   private static final Period TENOR_2 = Period.ofMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_INDEX = DayCounts.ACT_360;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
@@ -52,7 +52,7 @@ public class CouponIborAverageDefinitionTest {
   private static final ZonedDateTime FIXING_END_DATE_1 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, TENOR_1, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE, TENOR_2, BUSINESS_DAY, CALENDAR, IS_EOM);
 
-  private static final DayCount DAY_COUNT_PAYMENT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount DAY_COUNT_PAYMENT = DayCounts.ACT_365;
   private static final double ACCRUAL_FACTOR = DAY_COUNT_PAYMENT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double ACCRUAL_FACTOR_FIXING_1 = DAY_COUNT_INDEX.getDayCountFraction(FIXING_START_DATE, FIXING_END_DATE_1);
   private static final double ACCRUAL_FACTOR_FIXING_2 = DAY_COUNT_INDEX.getDayCountFraction(FIXING_START_DATE, FIXING_END_DATE_2);
@@ -186,7 +186,7 @@ public class CouponIborAverageDefinitionTest {
 
   @Test
   public void testToDerivativeBeforeFixing() {
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
     final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
     final double fixingPeriodStartTime1 = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_AVERAGE_COUPON_DEFINITION_1.getFixingPeriodStartDate1());

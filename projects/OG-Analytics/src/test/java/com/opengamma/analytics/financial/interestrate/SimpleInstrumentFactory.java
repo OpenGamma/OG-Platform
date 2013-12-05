@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
@@ -30,7 +30,7 @@ public abstract class SimpleInstrumentFactory {
   /** Replaces rates */
   protected static final RateReplacingVisitor REPLACE_RATE = RateReplacingVisitor.getInstance();
   private static final Currency DUMMY_CUR = Currency.EUR;
-  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, DayCounts.ACT_365,
       BusinessDayConventions.FOLLOWING, true, "Ibor");
 
   public static InstrumentDerivative makeCash(final double time, final double rate, final double notional) {

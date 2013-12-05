@@ -32,7 +32,7 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -66,7 +66,7 @@ public class ConventionBuildersTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testDepositConvention() {
     final DepositConvention convention = new DepositConvention("EUR Deposit", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Deposit")),
-        DayCountFactory.INSTANCE.getDayCount("Act/365"), BusinessDayConventions.FOLLOWING, 2, true,
+        DayCounts.ACT_365, BusinessDayConventions.FOLLOWING, 2, true,
         Currency.EUR, ExternalId.of("Test", "EU"));
     convention.setUniqueId(UniqueId.of("Test", "1234"));
     assertEncodeDecodeCycle(DepositConvention.class, convention);
@@ -91,7 +91,7 @@ public class ConventionBuildersTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testIborIndexConvention() {
     final IborIndexConvention convention = new IborIndexConvention("EUR Deposit", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Deposit")),
-        DayCountFactory.INSTANCE.getDayCount("Act/365"), BusinessDayConventions.FOLLOWING, 2, true,
+        DayCounts.ACT_365, BusinessDayConventions.FOLLOWING, 2, true,
         Currency.EUR, LocalTime.of(11, 0), "EU", ExternalId.of("Test", "EU"), ExternalId.of("Test", "EU"), "Page");
     convention.setUniqueId(UniqueId.of("Test", "1234567"));
     assertEncodeDecodeCycle(IborIndexConvention.class, convention);
@@ -148,7 +148,7 @@ public class ConventionBuildersTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testOvernightIndexConvention() {
     final OvernightIndexConvention convention = new OvernightIndexConvention("EONIA", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EONIA")),
-        DayCountFactory.INSTANCE.getDayCount("Act/360"), 2, Currency.EUR, ExternalId.of("Test", "EU"));
+        DayCounts.ACT_360, 2, Currency.EUR, ExternalId.of("Test", "EU"));
     convention.setUniqueId(UniqueId.of("Test", "1234"));
     assertEncodeDecodeCycle(OvernightIndexConvention.class, convention);
   }
@@ -172,7 +172,7 @@ public class ConventionBuildersTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testSwapFixedLegConvention() {
     final SwapFixedLegConvention convention = new SwapFixedLegConvention("EUR Fixed Leg", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Fixed Leg")),
-        Tenor.THREE_MONTHS, DayCountFactory.INSTANCE.getDayCount("30/360"), BusinessDayConventions.FOLLOWING,
+        Tenor.THREE_MONTHS, DayCounts.THIRTY_U_360, BusinessDayConventions.FOLLOWING,
         Currency.EUR, ExternalId.of("Test", "EU"), 2, true, StubType.LONG_END, false, 3);
     convention.setUniqueId(UniqueId.of("Test", "123"));
     assertEncodeDecodeCycle(SwapFixedLegConvention.class, convention);
@@ -197,7 +197,7 @@ public class ConventionBuildersTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testInflationLegConvention() {
     final InflationLegConvention convention = new InflationLegConvention("CPI", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("CPI")),
-        BusinessDayConventions.FOLLOWING, DayCountFactory.INSTANCE.getDayCount("Act/360"), true, 3, 1, ExternalId.of("Test", "Price"));
+        BusinessDayConventions.FOLLOWING, DayCounts.ACT_360, true, 3, 1, ExternalId.of("Test", "Price"));
     convention.setUniqueId(UniqueId.of("Test", "98657"));
     assertEncodeDecodeCycle(InflationLegConvention.class, convention);
   }

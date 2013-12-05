@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -56,7 +56,7 @@ public class AnnuityDefinitionTest {
     FIXED_PAYMENTS = new PaymentFixedDefinition[n];
     FIXED_FLOAT_PAYMENTS = new PaymentDefinition[n];
     ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
-    final IborIndex index = new IborIndex(CCY, Period.ofMonths(3), 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    final IborIndex index = new IborIndex(CCY, Period.ofMonths(3), 0, DayCounts.ACT_360,
         BusinessDayConventions.FOLLOWING, false, "Ibor");
     for (int i = 0; i < n; i++) {
       FIXED_PAYMENTS[i] = new PaymentFixedDefinition(CCY, date, 1000);

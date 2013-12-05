@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -32,7 +32,7 @@ public class AnnuityCapFloorIborDefinitionTest {
   private static final boolean IS_EOM = true;
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
-  private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   // Annuity
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2011, 3, 17);
@@ -40,7 +40,7 @@ public class AnnuityCapFloorIborDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = START_DATE.plus(ANNUITY_TENOR);
   private static final double NOTIONAL = 100000000; //100m
   private static final Period LEG_PAYMENT_PERIOD = Period.ofMonths(12);
-  private static final DayCount LEG_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount LEG_DAY_COUNT = DayCounts.ACT_365;
   private static final boolean IS_PAYER = true;
   private static final double STRIKE = 0.04;
   private static final boolean IS_CAP = true;

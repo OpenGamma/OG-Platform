@@ -43,7 +43,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -83,7 +83,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   // Treasury Indexed Bonds CAIN 3% Index-linked Treasury Stock 2025 - AU0000XCLWP8
   private static final Calendar CALENDAR_AUD = new MondayToFridayCalendar("AUD");
   private static final BusinessDayConvention BUSINESS_DAY_AUD = BusinessDayConventions.FOLLOWING;
-  private static final DayCount DAY_COUNT_CAIN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT_CAIN = DayCounts.ACT_ACT_ISDA;
   private static final boolean IS_EOM_CAIN = false;
   private static final ZonedDateTime START_DATE_CAIN = DateUtils.getUTCDate(2009, 9, 30);
   private static final ZonedDateTime FIRST_COUPON_DATE_CAIN = DateUtils.getUTCDate(2009, 12, 20);
@@ -164,7 +164,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   // Index-Lined Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY_GBP = BusinessDayConventions.FOLLOWING;
-  private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT_GILT_1 = DayCounts.ACT_ACT_ISDA;
   private static final boolean IS_EOM_GILT_1 = false;
   private static final ZonedDateTime START_DATE_GILT_1 = DateUtils.getUTCDate(2002, 7, 11);
   private static final ZonedDateTime FIRST_COUPON_DATE_GILT_1 = DateUtils.getUTCDate(2003, 1, 26);
@@ -214,7 +214,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventions.FOLLOWING;
-  private static final DayCount DAY_COUNT_TIPS_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+  private static final DayCount DAY_COUNT_TIPS_1 = DayCounts.ACT_ACT_ICMA;
   private static final boolean IS_EOM_TIPS_1 = false;
   private static final ZonedDateTime START_DATE_TIPS_1 = DateUtils.getUTCDate(2006, 1, 15);
   private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtils.getUTCDate(2016, 1, 15);

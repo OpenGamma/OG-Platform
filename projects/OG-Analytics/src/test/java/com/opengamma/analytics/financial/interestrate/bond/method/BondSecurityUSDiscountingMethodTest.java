@@ -32,7 +32,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
@@ -58,7 +58,7 @@ public class BondSecurityUSDiscountingMethodTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final Period PAYMENT_TENOR_FIXED_US = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR = 2;
-  private static final DayCount DAY_COUNT_ACTACTICMA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+  private static final DayCount DAY_COUNT_ACTACTICMA = DayCounts.ACT_ACT_ICMA;
   private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(10);
@@ -72,7 +72,7 @@ public class BondSecurityUSDiscountingMethodTest {
       RATE_FIXED, SETTLEMENT_DAYS_US, NOTIONAL, CALENDAR, DAY_COUNT_ACTACTICMA, BUSINESS_DAY_FIXED, YIELD_CONVENTION_FIXED, IS_EOM_FIXED, ISSUER_US, REPO_TYPE);
 
   // To derivatives
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String FORWARD_CURVE_NAME = "Forward";

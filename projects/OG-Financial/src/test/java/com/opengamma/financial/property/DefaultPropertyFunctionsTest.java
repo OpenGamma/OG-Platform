@@ -68,7 +68,7 @@ import com.opengamma.financial.analytics.PositionOrTradeScalingFunction;
 import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -235,7 +235,7 @@ public class DefaultPropertyFunctionsTest {
   private SecuritySource createSecuritySource() {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     final ZonedDateTime zdt = ZonedDateTime.now();
-    final SwapLeg leg = new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("ACT/365"), SimpleFrequency.ANNUAL, ExternalId.of("Test", "Region"), BusinessDayConventions.FOLLOWING,
+    final SwapLeg leg = new FixedInterestRateLeg(DayCounts.ACT_365, SimpleFrequency.ANNUAL, ExternalId.of("Test", "Region"), BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.USD, 0d), false, 0d);
     final SwapSecurity security = new SwapSecurity(zdt, zdt, zdt, "Counterparty", leg, leg);
     security.addExternalId(ExternalId.of("Security", "Swap"));

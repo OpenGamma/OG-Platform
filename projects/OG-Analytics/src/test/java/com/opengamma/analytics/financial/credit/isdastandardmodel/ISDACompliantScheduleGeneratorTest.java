@@ -11,15 +11,14 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantScheduleGenerator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  *
  */
 public class ISDACompliantScheduleGeneratorTest {
-  private static final DayCount ACT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT = DayCounts.ACT_365;
 
   private static final LocalDate START_DATE = LocalDate.of(2013, 2, 13);
   private static final LocalDate END_DATE = LocalDate.of(2015, 6, 30);

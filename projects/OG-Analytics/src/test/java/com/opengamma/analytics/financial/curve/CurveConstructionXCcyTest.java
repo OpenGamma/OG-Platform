@@ -30,8 +30,8 @@ public class CurveConstructionXCcyTest {
   //  private static final FXMatrix FX_MATRIX = new FXMatrix(CCY_USD);
   //  private static final Calendar CALENDAR = new MondayToFridayCalendar("CAL");
   //  private static final int SPOT_LAG = 2;
-  //  private static final DayCount DAY_COUNT_CASH = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  //  private static final DayCount DAY_COUNT_CASH_3 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  //  private static final DayCount DAY_COUNT_CASH = DayCounts.ACT_360;
+  //  private static final DayCount DAY_COUNT_CASH_3 = DayCounts.ACT_365;
   //  private static final double NOTIONAL = 1.0;
   //  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);

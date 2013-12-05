@@ -10,10 +10,8 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateYieldCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
@@ -28,8 +26,8 @@ public abstract class ISDAModelDatasets {
   protected static final LocalTime LOCAL_TIME = DateUtils.getUTCDate(2013, 4, 21).toLocalTime(); // to convert LocalDate to ZonedDateTime
   protected static final ZoneId TIME_ZONE = ZoneId.of("Z");
 
-  protected static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  protected static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  protected static final DayCount ACT360 = DayCounts.ACT_360;
+  protected static final DayCount ACT365 = DayCounts.ACT_365;
   protected static final double OFFSET = 0.0;// 1. / 365;
 
   protected static class ISDA_Results {

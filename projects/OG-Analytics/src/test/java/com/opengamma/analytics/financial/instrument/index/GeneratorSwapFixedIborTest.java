@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 
 public class GeneratorSwapFixedIborTest {
@@ -25,13 +25,13 @@ public class GeneratorSwapFixedIborTest {
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int SPOT_LAG = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_IBOR = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_IBOR = DayCounts.ACT_360;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SPOT_LAG, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
-  private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount DAY_COUNT_FIXED = DayCounts.THIRTY_U_360;
   private static final GeneratorSwapFixedIbor GENERATOR_FROM_INDEX = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CALENDAR);
 
   private static final BusinessDayConvention BUSINESS_DAY_2 = BusinessDayConventions.FOLLOWING;

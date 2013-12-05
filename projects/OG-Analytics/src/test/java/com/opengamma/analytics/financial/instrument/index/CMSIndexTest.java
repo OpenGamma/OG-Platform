@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 
 public class CMSIndexTest {
@@ -24,14 +24,14 @@ public class CMSIndexTest {
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_IBOR = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_IBOR = DayCounts.ACT_360;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM, "Ibor");
   //CMS index: CMS2YUSD3M6M - Semi-bond/Quarterly-money
   private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
-  private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount DAY_COUNT_FIXED = DayCounts.THIRTY_U_360;
   private static final Period CMS_TENOR = Period.ofYears(2);
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR, CALENDAR);
 

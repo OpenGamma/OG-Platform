@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
@@ -28,7 +28,7 @@ public class GeneratorDepositONTest {
   // USD deposits
   private static final String NAME = "USD Deposit ON";
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final Currency CUR = Currency.USD;
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON(NAME, CUR, CALENDAR, DAY_COUNT);
 
@@ -66,7 +66,7 @@ public class GeneratorDepositONTest {
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD.equals(other));
     other = new GeneratorDepositON(NAME, CUR, new MondayToFridayCalendar("B"), DAY_COUNT);
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD.equals(other));
-    other = new GeneratorDepositON(NAME, CUR, CALENDAR, DayCountFactory.INSTANCE.getDayCount("Actual/365"));
+    other = new GeneratorDepositON(NAME, CUR, CALENDAR, DayCounts.ACT_365);
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD.equals(other));
   }
 

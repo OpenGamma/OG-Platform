@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -248,7 +248,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
   }
 
   private DayCount dayCount() {
-    return select(DayCountFactory.INSTANCE.getDayCount("Act/Act"), DayCountFactory.INSTANCE.getDayCount("30/360"));
+    return select(DayCounts.ACT_ACT_ISDA, DayCounts.THIRTY_U_360);
   }
 
   @SuppressWarnings("unchecked")

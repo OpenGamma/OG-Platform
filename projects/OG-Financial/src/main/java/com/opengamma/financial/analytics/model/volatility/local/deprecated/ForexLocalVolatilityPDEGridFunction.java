@@ -35,7 +35,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -79,7 +79,7 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
     } else {
       strike = fxOption.getPutAmount() / fxOption.getCallAmount();
     }
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double t = actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());
     return new EuropeanVanillaOption(strike, t, true); //TODO this shouldn't be hard coded to a call
   }

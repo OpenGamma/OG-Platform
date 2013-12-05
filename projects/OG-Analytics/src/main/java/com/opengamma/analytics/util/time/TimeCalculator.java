@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,7 +35,7 @@ public final class TimeCalculator {
     if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
       MODEL_DAYCOUNT = DayCountFactory.of(modelDayCount);
     } else {
-      MODEL_DAYCOUNT = DayCountFactory.of("Actual/Actual ISDA");
+      MODEL_DAYCOUNT = DayCounts.ACT_ACT_ISDA;
     }
   }
 

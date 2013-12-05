@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -23,7 +23,7 @@ import com.opengamma.util.time.Tenor;
  */
 public class CapFloorCMSSpreadSecurityGenerator extends SecurityGenerator<CapFloorCMSSpreadSecurity> {
 
-  private static final DayCount[] DAY_COUNT = new DayCount[] {DayCountFactory.INSTANCE.getDayCount("Act/360"), DayCountFactory.INSTANCE.getDayCount("30U/360") };
+  private static final DayCount[] DAY_COUNT = new DayCount[] {DayCounts.ACT_360, DayCounts.THIRTY_U_360 };
   private static final Frequency[] FREQUENCY = new Frequency[] {SimpleFrequency.QUARTERLY, SimpleFrequency.SEMI_ANNUAL, SimpleFrequency.ANNUAL };
   private static final Tenor[] SHORT_TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(8) };
   private static final Tenor[] LONG_TENORS = new Tenor[] {Tenor.ofYears(8), Tenor.ofYears(9), Tenor.ofYears(10), Tenor.ofYears(20) };

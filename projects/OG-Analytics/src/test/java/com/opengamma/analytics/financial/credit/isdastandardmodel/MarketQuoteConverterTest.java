@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,8 +29,8 @@ public class MarketQuoteConverterTest {
   private static final MarketQuoteConverter PUF = new MarketQuoteConverter();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final DayCount ACT365 = DayCounts.ACT_365;
+  private static final DayCount ACT360 = DayCounts.ACT_360;
 
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
 

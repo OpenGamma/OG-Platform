@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * A list of generators for swaps Fixed/ON available for tests.
@@ -47,8 +47,8 @@ public final class GeneratorSwapFixedONMaster {
   private GeneratorSwapFixedONMaster() {
     final IndexONMaster indexONMaster = IndexONMaster.getInstance();
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
     final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     _generatorSwap = new HashMap<>();
     final IndexON fedFund = indexONMaster.getIndex("FED FUND");

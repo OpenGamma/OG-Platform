@@ -14,7 +14,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -156,8 +156,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addHUFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "HUFCASHP1D")), "HUFCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "HUFCASHP1M")), "HUFCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -186,8 +186,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addITFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "ITLCASHP1D")), "ITLCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "ITLCASHP1M")), "ITLCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -224,8 +224,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addDEFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DEMCASHP1D")), "DEMCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "DEMCASHP1M")), "DEMCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -262,8 +262,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addFRFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "FRFCASHP1D")), "FRFCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "FRFCASHP1M")), "FRFCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
@@ -300,8 +300,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   private void addSEFixedIncomeInstruments() {
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
     //Identifiers for external data
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKCASHP1D")), "SEKCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKCASHP1M")), "SEKCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);

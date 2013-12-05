@@ -23,7 +23,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
@@ -63,7 +63,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinitionTest {
   private static final double WEIGHT_END = 0.8;
   private static final CapFloorInflationYearOnYearInterpolationDefinition YoY_CAP_DEFINITION = new CapFloorInflationYearOnYearInterpolationDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
       ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, REFERENCE_START_DATE, REFERENCE_END_DATE, WEIGHT_START, WEIGHT_END, STRIKE, IS_CAP);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {

@@ -116,6 +116,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
@@ -137,14 +138,14 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   public static final Period TENOR = Period.ofYears(2);
   public static final Period FIXED_PERIOD = Period.ofMonths(6);
-  public static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  public static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   public static final boolean IS_EOM = true;
   public static final double NOTIONAL = 100000000; //100m
   public static final double FIXED_RATE = 0.05;
   public static final boolean IS_PAYER = true;
   public static final Period IBOR_PERIOD_1 = Period.ofMonths(3);
   public static final int SPOT_LAG = 2;
-  public static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  public static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
   public static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, IBOR_DAY_COUNT, BD, IS_EOM, "Ibor1");
   public static final IndexON INDEX_ON = new IndexON("A", CUR, FIXED_DAY_COUNT, 0);
   public static final IndexSwap CMS_INDEX = new IndexSwap(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1, C);

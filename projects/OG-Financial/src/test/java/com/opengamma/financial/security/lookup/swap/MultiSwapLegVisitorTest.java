@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
@@ -93,7 +93,7 @@ public class MultiSwapLegVisitorTest {
   }
 
   private static SwapLeg fixedLeg(final Frequency frequency) {
-    return new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    return new FixedInterestRateLeg(DayCounts.ACT_360,
         frequency,
         ExternalId.of("Reg", "123"),
         BusinessDayConventions.FOLLOWING,
@@ -103,7 +103,7 @@ public class MultiSwapLegVisitorTest {
   }
 
   private static SwapLeg floatingLeg(final Frequency frequency) {
-    return new FloatingInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    return new FloatingInterestRateLeg(DayCounts.ACT_360,
         frequency,
         ExternalId.of("Reg", "123"),
         BusinessDayConventions.FOLLOWING,
@@ -114,7 +114,7 @@ public class MultiSwapLegVisitorTest {
   }
 
   private static SwapLeg fixedInflationLeg(final Frequency frequency) {
-    return new FixedInflationSwapLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    return new FixedInflationSwapLeg(DayCounts.ACT_360,
         frequency,
         ExternalId.of("Reg", "123"),
         BusinessDayConventions.FOLLOWING,
@@ -124,7 +124,7 @@ public class MultiSwapLegVisitorTest {
   }
 
   private static SwapLeg indexInflationLeg(final Frequency frequency) {
-    return new InflationIndexSwapLeg(DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    return new InflationIndexSwapLeg(DayCounts.ACT_360,
         frequency,
         ExternalId.of("Reg", "123"),
         BusinessDayConventions.FOLLOWING,

@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.ConventionBundleMasterUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
@@ -32,7 +32,7 @@ public class SyntheticNZConventions {
     Validate.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount act365 = DayCounts.ACT_365;
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final ExternalId nz = ExternalSchemes.financialRegionId("NZ");

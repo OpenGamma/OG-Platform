@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.util.money.Currency;
@@ -30,7 +30,7 @@ public class GBConventions extends ConventionMasterInitializer {
   public static final ConventionMasterInitializer INSTANCE = new GBConventions();
 
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
   private static final ExternalId GB = ExternalSchemes.financialRegionId("GB");
 
   /**

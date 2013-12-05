@@ -27,7 +27,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -70,7 +70,7 @@ public class ExampleEURFixedIncomePortfolioLoader extends AbstractTool<Integrati
   /** The currency */
   private static final Currency CURRENCY = Currency.EUR;
   /** Act/360 day-count */
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   /** Quarterly frequency */
   private static final Frequency QUARTERLY = PeriodFrequency.QUARTERLY;
   /** Semi-annual frequency */

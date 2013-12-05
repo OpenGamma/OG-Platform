@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.tool.ToolContext;
@@ -93,7 +93,7 @@ public class ExampleCDSLoader extends AbstractTool<ToolContext> {
     ZonedDateTime maturity = LocalDateTime.of(2020, 12, 20, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     ZonedDateTime startDate = LocalDateTime.of(2010, 12, 20, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     SimpleFrequency frequency = SimpleFrequency.ANNUAL;
-    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    DayCount dayCount = DayCounts.ACT_360;
     BusinessDayConvention businessDayConvention = BusinessDayConventions.FOLLOWING;
     final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.4, Currency.USD, maturity, startDate,
                                              frequency, 

@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
@@ -34,7 +34,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final Currency CUR = Currency.EUR;
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
-  private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT_INDEX = DayCounts.ACT_360;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
@@ -87,7 +87,7 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final Currency BNDFUT_CUR = Currency.EUR;
   private static final String ISSUER_NAME = "Issuer";
   private static final Period BNDFUT_PAYMENT_TENOR = Period.ofMonths(6);
-  private static final DayCount BNDFUT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount BNDFUT_DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final BusinessDayConvention BNDFUT_BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean BNDFUT_IS_EOM = false;
   private static final int BNDFUT_SETTLEMENT_DAYS = 1;

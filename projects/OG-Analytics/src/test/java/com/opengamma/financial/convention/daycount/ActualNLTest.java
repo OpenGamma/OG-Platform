@@ -14,7 +14,7 @@ import org.threeten.bp.LocalDate;
  * 
  */
 public class ActualNLTest {
-  private static final DayCount ACTUAL_NL = DayCountFactory.INSTANCE.getDayCount("Actual/NL");
+  private static final DayCount ACTUAL_NL = DayCountFactory.of("Actual/NL");
   private static final double EPS = 1e-12;
 
   @Test

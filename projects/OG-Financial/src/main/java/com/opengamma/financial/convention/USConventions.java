@@ -17,7 +17,7 @@ import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
@@ -40,8 +40,8 @@ public class USConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
     final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     final Frequency annual = PeriodFrequency.ANNUAL;
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
@@ -253,7 +253,7 @@ public class USConventions {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BOND_FUTURE_DELIVERABLE_CONVENTION")),
-        "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventions.FOLLOWING,
+        "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0, DayCounts.ACT_360, BusinessDayConventions.FOLLOWING,
         SimpleYieldConvention.MONEY_MARKET);
   }
 

@@ -39,7 +39,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -63,7 +63,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   /** The business day convention */
   private static final BusinessDayConvention BUSINESS_DAY_GBP = BusinessDayConventions.FOLLOWING;
   /** The day count */
-  private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT_GILT_1 = DayCounts.ACT_ACT_ISDA;
   /** The EOM convention */
   private static final boolean IS_EOM_GILT_1 = false;
   /** The bond start */
@@ -237,7 +237,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   /** The business day convention */
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventions.FOLLOWING;
   /** The day count */
-  private static final DayCount DAY_COUNT_TIPS_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT_TIPS_1 = DayCounts.ACT_ACT_ISDA;
   /** Is EOM */
   private static final boolean IS_EOM_TIPS_1 = false;
   /** The start date */

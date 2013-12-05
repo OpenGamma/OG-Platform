@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * Data used for tests on the LMM displaced diffusion.
@@ -21,7 +21,7 @@ public class TestsDataSetLiborMarketModelDisplacedDiffusion {
 
   private static final double MEAN_REVERSION = 0.001;
   private static final double DISPLACEMENT = 0.10;
-  private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
 
   /**
    * Create LMM parameters adapted to a given swap with the test data.

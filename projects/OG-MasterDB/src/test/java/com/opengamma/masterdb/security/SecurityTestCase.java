@@ -38,9 +38,10 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -411,7 +412,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(DayCount.class, new TestDataProvider<DayCount>() {
       @Override
       public void getValues(final Collection<DayCount> values) {
-        values.add(DayCountFactory.of("Act/Act"));
+        values.add(DayCounts.ACT_ACT_ISDA);
         values.add(DayCountFactory.of("1/1"));
         values.add(DayCountFactory.of("Bond Basis"));
       }
@@ -419,9 +420,9 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(BusinessDayConvention.class, new TestDataProvider<BusinessDayConvention>() {
       @Override
       public void getValues(final Collection<BusinessDayConvention> values) {
-        values.add(BusinessDayConventionFactory.of("Following"));
-        values.add(BusinessDayConventionFactory.of("Modified Following"));
-        values.add(BusinessDayConventionFactory.of("Preceding"));
+        values.add(BusinessDayConventions.FOLLOWING);
+        values.add(BusinessDayConventions.MODIFIED_FOLLOWING);
+        values.add(BusinessDayConventions.PRECEDING);
       }
     });
     s_dataProviders.put(GICSCode.class, new TestDataProvider<GICSCode>() {

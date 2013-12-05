@@ -294,10 +294,7 @@ public class BondLoader extends SecurityLoader {
           dayCountString = "Actual/365";
         }
       }
-      DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(dayCountString);
-      if (dayCount == null) {
-        throw new OpenGammaRuntimeException("Could not find day count convention " + dayCountString);
-      }
+      DayCount dayCount = DayCountFactory.of(dayCountString);
       Double issuancePrice = validateAndGetNullableDoubleField(fieldData, FIELD_ISSUE_PX);
       Double totalAmountIssued = validateAndGetDoubleField(fieldData, FIELD_AMT_ISSUED);
       Double minimumAmount = validateAndGetDoubleField(fieldData, FIELD_MIN_PIECE);

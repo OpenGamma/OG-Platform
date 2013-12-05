@@ -103,7 +103,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -279,7 +279,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
         final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
         final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
-        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
+        final DayCount dayCount = DayCounts.ACT_365; //TODO
         final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
         final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
             _rightExtrapolatorName);

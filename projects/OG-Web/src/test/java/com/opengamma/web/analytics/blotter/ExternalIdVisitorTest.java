@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -42,7 +42,7 @@ public class ExternalIdVisitorTest {
 
   // TODO use test data from BlotterTestUtils
   private static final SwapLeg PAY_LEG =
-      new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Act/365"),
+      new FixedInterestRateLeg(DayCounts.ACT_365,
                                SimpleFrequency.QUARTERLY,
                                ExternalId.of("Reg", "123"),
                                BusinessDayConventions.FOLLOWING,
@@ -50,7 +50,7 @@ public class ExternalIdVisitorTest {
                                true,
                                0.01);
   private static final SwapLeg RECEIVE_LEG =
-      new FloatingInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Act/365"),
+      new FloatingInterestRateLeg(DayCounts.ACT_365,
                                   SimpleFrequency.ANNUAL,
                                   ExternalId.of("Reg", "123"),
                                   BusinessDayConventions.FOLLOWING,

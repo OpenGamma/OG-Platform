@@ -14,15 +14,11 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantPresentValueCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAModelDatasets.ISDA_Results;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  *
@@ -49,7 +45,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
   private static final ISDACompliantDateYieldCurve YIELD_CURVE_ZERO_FLAT;
   private static final ISDACompliantDateYieldCurve YIELD_CURVE_5PC_FLAT;
 
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT365 = DayCounts.ACT_365;
   // examples
   private static final ISDA_Results[] EXAMPLE1 = ISDAModelDatasets.getExample1();
   private static final ISDA_Results[] EXAMPLE3 = ISDAModelDatasets.getExample3();

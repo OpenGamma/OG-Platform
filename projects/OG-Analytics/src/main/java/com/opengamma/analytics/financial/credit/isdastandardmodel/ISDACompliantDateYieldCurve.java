@@ -22,7 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * An ISDA compliant date yield curve.
@@ -35,7 +35,7 @@ public class ISDACompliantDateYieldCurve
   /**
    * The standard ACT/365 day count.
    */
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
 
   /**
    * The base date.

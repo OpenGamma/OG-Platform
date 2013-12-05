@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.i18n.Country;
@@ -41,7 +41,7 @@ public class BillTransactionDefinitionTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
 
   /** The day count */
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   /** The settlement days */
   private static final int SETTLEMENT_DAYS = 2;
   /** The yield convention */

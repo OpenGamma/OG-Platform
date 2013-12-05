@@ -72,7 +72,7 @@ import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.expirycalc.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
@@ -95,9 +95,9 @@ public class USConventions extends ConventionMasterInitializer {
 
   private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final DayCount THIRTY_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual AFB");
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
+  private static final DayCount THIRTY_360 = DayCounts.THIRTY_U_360;
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_AFB;
   private static final ExternalId US = ExternalSchemes.financialRegionId("US");
   private static final ExternalId NYLON = ExternalSchemes.financialRegionId("US+GB");
 

@@ -56,6 +56,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -69,9 +70,9 @@ import com.opengamma.util.money.Currency;
 public class ISDACompliantYieldCurveFunction extends AbstractFunction {
   private static final BusinessDayConvention badDayConv = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter();
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final DayCount DCC_30_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
+  private static final DayCount DCC_30_360 = DayCounts.THIRTY_U_360;
   private static final DayCount CURVE_DCC = ACT_365;
 
 

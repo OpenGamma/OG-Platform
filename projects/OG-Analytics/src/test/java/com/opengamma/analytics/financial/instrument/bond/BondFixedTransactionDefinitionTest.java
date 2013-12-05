@@ -14,12 +14,12 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -32,8 +32,8 @@ public class BondFixedTransactionDefinitionTest {
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
-  private static final DayCount DAY_COUNT = DayCountFactory.of("Actual/Actual ICMA");//("Actual/Actual ICMA");("Actual/Actual ISDA")
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.of("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;//("Actual/Actual ICMA");("Actual/Actual ISDA")
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 2;
@@ -105,7 +105,7 @@ public class BondFixedTransactionDefinitionTest {
   private static final Currency GBP = Currency.GBP;
 
   private static final ActualActualICMA DAY_COUNT_ACTACTICMA = new ActualActualICMA();
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.of("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private static final String ISSUER_MON = " MONDELEZ INTERNATIONAL";
   private static final YieldConvention US_STREET = SimpleYieldConvention.US_STREET;
   private static final int SETTLEMENT_DAYS_MON = 3;

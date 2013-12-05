@@ -28,7 +28,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -46,7 +46,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final int COUPON_PER_YEAR = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
@@ -59,7 +59,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final BondFixedSecurityDefinition BOND_SECURITY_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR,
       RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, STREET_CONVENTION, IS_EOM, ISSUER_NAME);
   // to derivatives: common
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
@@ -235,7 +235,7 @@ public class BondFixedSecurityDefinitionTest {
   private static final Period PAYMENT_TENOR_G = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR_G = 2;
   private static final Calendar CALENDAR_G = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_G = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
+  private static final DayCount DAY_COUNT_G = DayCounts.ACT_ACT_ICMA; // To check
   private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_G = false;
   private static final Period BOND_TENOR_G = Period.ofYears(12);
