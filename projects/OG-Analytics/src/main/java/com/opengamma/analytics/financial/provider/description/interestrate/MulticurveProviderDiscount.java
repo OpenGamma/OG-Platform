@@ -403,11 +403,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(ccy, "currency");
     ArgumentChecker.notNull(curve, "curve");
-    if (_discountingCurves.containsKey(ccy)) {
+    if (!_discountingCurves.containsKey(ccy)) {
+      _discountingCurves.put(ccy, curve);
+      setAllCurves();
+    } else if (!_discountingCurves.get(ccy).equals(curve)) {
       throw new IllegalArgumentException("Currency discounting curve already set: " + ccy.toString());
     }
-    _discountingCurves.put(ccy, curve);
-    setAllCurves();
   }
 
   /**
@@ -418,11 +419,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(curve, "curve");
-    if (_forwardIborCurves.containsKey(index)) {
+    if (!_forwardIborCurves.containsKey(index)) {
+      _forwardIborCurves.put(index, curve);
+      setAllCurves();
+    } else if (!_forwardIborCurves.get(index).equals(curve)) {
       throw new IllegalArgumentException("Ibor index forward curve already set: " + index.toString());
     }
-    _forwardIborCurves.put(index, curve);
-    setAllCurves();
   }
 
   /**
@@ -433,11 +435,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(curve, "curve");
-    if (_forwardONCurves.containsKey(index)) {
+    if (!_forwardONCurves.containsKey(index)) {
+      _forwardONCurves.put(index, curve);
+      setAllCurves();
+    } else if (!_forwardONCurves.get(index).equals(curve)) {
       throw new IllegalArgumentException("ON index forward curve already set: " + index.toString());
     }
-    _forwardONCurves.put(index, curve);
-    setAllCurves();
   }
 
   /**
