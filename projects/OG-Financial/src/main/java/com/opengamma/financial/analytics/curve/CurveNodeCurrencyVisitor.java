@@ -12,6 +12,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -91,6 +92,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   @Override
   public Set<Currency> visitBondNode(final BondNode node) {
     return null;
+  }
+
+  @Override
+  public Set<Currency> visitCalendarSwapNode(final CalendarSwapNode node) {
+    final FinancialConvention convention = _conventionSource.getSingle(node.getSwapConvention(), SwapConvention.class);
+    return convention.accept(this);
   }
 
   @Override
