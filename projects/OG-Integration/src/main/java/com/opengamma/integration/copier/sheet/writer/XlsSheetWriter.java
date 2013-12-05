@@ -88,7 +88,23 @@ public class XlsSheetWriter {
   private Cell getCell(Row row, int index) {
     Cell cell = row.getCell(index);
     if (cell == null) {
-      cell = row.createCell(index, Cell.CELL_TYPE_STRING);
+      cell = row.createCell(index);
+    }
+    _columnIndices.add(index); //Store indices of columns
+    return cell;
+  }
+
+  /**
+   * @param row the current row
+   * @param index the column index
+   * @param cellType int that represents the type of cell
+   * @return Cell that matches the row/column co-ordinates
+   * _columnIndices stores the unique column indices, needed for auto resize of columns
+   */
+  private Cell getCell(Row row, int index, int cellType) {
+    Cell cell = row.getCell(index);
+    if (cell == null) {
+      cell = row.createCell(index, cellType);
     }
     _columnIndices.add(index); //Store indices of columns
     return cell;
@@ -170,16 +186,17 @@ public class XlsSheetWriter {
   }
 
   /**
-   *
    * @param xMap Set of ordered labels for the x axis
    * @param yMap  Set of ordered labels for the y axis
    * @param label String label for cell 0/0
    * @param valueMap Map containing a Pair of x and y co-ordinates to value
+   * @param cellValueType int that represents the type of cell
    */
   public void writeMatrix(Set<String> xMap,
                           Set<String> yMap,
                           String label,
-                          Map<Pair<String, String>, String> valueMap) {
+                          Map<Pair<String, String>, String> valueMap,
+                          int cellValueType) {
 
     ArgumentChecker.notNull(xMap, "xMap");
     ArgumentChecker.notNull(yMap, "yMap");
@@ -189,7 +206,7 @@ public class XlsSheetWriter {
     Map<String, Integer> xCol = new HashMap<>();
     Map<String, Integer> yRow = new HashMap<>();
 
-    //Print out the label
+    /* Print out the label */
     Row labelRow = getCurrentRow();
     Cell labelCell = getCell(labelRow, 0);
     labelCell.setCellValue(label);
@@ -210,7 +227,7 @@ public class XlsSheetWriter {
     //Print out the y axis
     for (String entry : yMap) {
       Row row = getCurrentRow();
-      Cell cell = getCell(row, 0);
+      Cell cell = getCell(row, 0, cellValueType);
       cell.setCellValue(entry);
       cell.setCellStyle(_axisStyle);
       yRow.put(entry, _currentRow);

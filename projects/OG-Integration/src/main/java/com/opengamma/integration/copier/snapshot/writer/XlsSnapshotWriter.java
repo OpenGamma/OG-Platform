@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,8 +127,8 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       }
 
       _surfaceSheet.writeKeyValueBlock(details);
-      _surfaceSheet.writeMatrix(xMap, yMap, SnapshotColumns.MARKET_VALUE.get(), marketValueMap);
-      _surfaceSheet.writeMatrix(xMap, yMap, SnapshotColumns.OVERRIDE_VALUE.get(), overrideValueMap);
+      _surfaceSheet.writeMatrix(xMap, yMap, SnapshotColumns.MARKET_VALUE.get(), marketValueMap, Cell.CELL_TYPE_NUMERIC);
+      _surfaceSheet.writeMatrix(xMap, yMap, SnapshotColumns.OVERRIDE_VALUE.get(), overrideValueMap, Cell.CELL_TYPE_NUMERIC);
 
     }
   }
