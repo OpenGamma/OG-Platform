@@ -142,7 +142,8 @@ public class BjerksundStenslandModelDeprecated extends AnalyticOptionModel<Ameri
    * @return The American option price
    */
   protected double getCallPrice(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
-    return MODEL.getCallPrice(s0, k, r, b, t, sigma);
+    //minimum price condition is imposed in the end of the computation
+    return MODEL.price(s0, k, r, b, t, sigma, true);
   }
 
   protected double getPhi(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b, final double sigma) {
