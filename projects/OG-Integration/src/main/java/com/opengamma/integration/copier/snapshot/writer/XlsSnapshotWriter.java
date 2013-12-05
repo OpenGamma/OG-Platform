@@ -120,10 +120,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
   }
 
 
-  @Override
-  public void flush() {
-    //TODO _sheetWriter.flush();
-  }
+
 
 
 
@@ -216,7 +213,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       s_logger.warn("Snapshot does not contain any Global Values.");
       return;
     }
-    _globalsSheet.writePairBlock(buildUnstructuredMarketDataSnapshotMap(globalValues));
+    _globalsSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(globalValues));
   }
 
 
@@ -237,7 +234,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       _yieldCurveSheet.writeKeyValueBlock(details);
 
       UnstructuredMarketDataSnapshot snapshot = curve.getValues();
-      _yieldCurveSheet.writePairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
+      _yieldCurveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
     }
 
   }
@@ -257,7 +254,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       details.put(SnapshotColumns.INSTANT.get(), curve.getValuationTime().toString());
       _curveSheet.writeKeyValueBlock(details);
       UnstructuredMarketDataSnapshot snapshot = curve.getValues();
-      _curveSheet.writePairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
+      _curveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(snapshot));
     }
   }
 
@@ -278,7 +275,16 @@ public class XlsSnapshotWriter implements SnapshotWriter {
 
   @Override
   public void close() {
-    flush();
+    _nameSheet.autoSizeAllColumns();
+    _curveSheet.autoSizeAllColumns();
+    _yieldCurveSheet.autoSizeAllColumns();
+    _globalsSheet.autoSizeAllColumns();
+    _surfaceSheet.autoSizeAllColumns();
     _xlsWriter.close();
+  }
+
+  @Override
+  public void flush() {
+    // not used here
   }
 }
