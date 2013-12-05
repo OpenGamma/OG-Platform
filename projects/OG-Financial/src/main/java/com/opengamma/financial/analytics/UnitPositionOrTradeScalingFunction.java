@@ -28,8 +28,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Takes as input the result of a function that acts on ComputationTargetType.SECURITY, applies unit scaling ( * 1.0 ) and outputs the result for ComputationTargetType.POSITION_OR_TRADE.
- * <p>
- * Closely related to UnitPositionTradeScalingFunction but with different requirement target.
  */
 public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -48,15 +46,6 @@ public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonComp
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION_OR_TRADE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType().isTargetType(ComputationTargetType.POSITION)) {
-      // Only apply if there are no trades; otherwise we should use UnitPositionTradeScalingFunction
-      return ((Position) target.getValue()).getTrades().isEmpty();
-    }
-    return true;
   }
 
   @Override
