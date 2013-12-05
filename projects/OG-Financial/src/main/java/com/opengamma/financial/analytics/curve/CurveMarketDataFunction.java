@@ -36,6 +36,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
@@ -109,7 +110,12 @@ public class CurveMarketDataFunction extends AbstractFunction {
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(executionContext.getComputationTargetResolver());
       for (final CurveNodeWithIdentifier id : _specification.getNodes()) {
         if (id.getDataField() != null) {
-          final ComputedValue value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          final ComputedValue value;
+          if (id.getCurveNode() instanceof BondNode) {
+            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+          } else {
+            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          }
           if (value != null) {
             final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
             if (id instanceof PointsCurveNodeWithIdentifier) {
@@ -160,10 +166,14 @@ public class CurveMarketDataFunction extends AbstractFunction {
       for (final CurveNodeWithIdentifier id : _specification.getNodes()) {
         try {
           if (id.getDataField() != null) {
-            requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
-            if (id instanceof PointsCurveNodeWithIdentifier) {
-              final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-              requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+            if (id.getCurveNode() instanceof BondNode) {
+              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+            } else {
+              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+              if (id instanceof PointsCurveNodeWithIdentifier) {
+                final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+                requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+              }
             }
           } else {
             requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
