@@ -74,15 +74,16 @@ public class CompiledFunctionService implements Lifecycle {
   }
   
   public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, 
-      final FunctionCompilationContext functionCompilationContext, PoolExecutor poolExecutor) {
+      final FunctionCompilationContext functionCompilationContext, PoolExecutor executorService) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
+    ArgumentChecker.notNull(executorService, "executorService");
     
     _rawFunctionRepository = functionRepository;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
-    _executorService = poolExecutor;
+    _executorService = executorService;
   }
 
   private static final class StaticFunctionRepository implements FunctionRepository {
