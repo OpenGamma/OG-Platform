@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.datasets.CalendarECBSettlements;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the next or n-th (non-)good business date from a starting point.
  */
+@Test(groups = TestGroup.UNIT)
 public class CalendarBusinessDateUtilsTest {
 
   private static final Calendar ECB = new CalendarECBSettlements();

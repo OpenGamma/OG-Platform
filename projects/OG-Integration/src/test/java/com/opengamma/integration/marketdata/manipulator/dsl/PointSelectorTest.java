@@ -23,8 +23,13 @@ import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class PointSelectorTest {
 
   private final SelectorResolver _noOpResolver = mock(SelectorResolver.class);

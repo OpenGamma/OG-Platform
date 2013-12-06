@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.depgraph.rest;
 
 import static org.mockito.Mockito.mock;
@@ -33,10 +38,12 @@ import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test for {@link DependencyGraphTraceProviderResource}
  */
+@Test(groups = TestGroup.UNIT)
 public class DependencyGraphTraceProviderResourceTest {
 
   private static final String s_testUrl = "http://testurl.com/";

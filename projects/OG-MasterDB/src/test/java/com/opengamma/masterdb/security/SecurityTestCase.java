@@ -137,6 +137,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
@@ -146,6 +147,7 @@ import com.opengamma.util.tuple.Pairs;
  * Creates random securities.
  */
 @SuppressWarnings("unchecked")
+@Test(groups = TestGroup.UNIT)
 public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
@@ -755,241 +757,201 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   // SecurityMasterTestCaseMethods
 
   @Override
-  @Test
   public void testAgricultureFutureSecurity() {
     assertSecurities(AgricultureFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testBondFutureSecurity() {
     assertSecurities(BondFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testCashSecurity() {
     assertSecurities(CashSecurity.class);
   }
 
   @Override
-  @Test
   public void testCorporateBondSecurity() {
     assertSecurities(CorporateBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testEnergyFutureSecurity() {
     assertSecurities(EnergyFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityOptionSecurity() {
     assertSecurities(EquityOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testEquityBarrierOptionSecurity() {
     assertSecurities(EquityBarrierOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquitySecurity() {
     assertSecurities(EquitySecurity.class);
   }
 
   @Override
-  @Test
   public void testFRASecurity() {
     assertSecurities(FRASecurity.class);
   }
 
   @Override
-  @Test
   public void testFXFutureSecurity() {
     assertSecurities(FXFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testNonDeliverableFXOptionSecurity() {
     assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testFXBarrierOptionSecurity() {
     assertSecurities(FXBarrierOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testForwardSwapSecurity() {
     assertSecurities(ForwardSwapSecurity.class);
   }
 
   @Override
-  @Test
   public void testIRFutureOptionSecurity() {
     assertSecurities(IRFutureOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityIndexDividendFutureOptionSecurity() {
     assertSecurities(EquityIndexDividendFutureOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testGovernmentBondSecurity() {
     assertSecurities(GovernmentBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testIndexFutureSecurity() {
     assertSecurities(IndexFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testInterestRateFutureSecurity() {
     assertSecurities(InterestRateFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testMetalFutureSecurity() {
     assertSecurities(MetalFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testMunicipalBondSecurity() {
     assertSecurities(MunicipalBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testStockFutureSecurity() {
     assertSecurities(StockFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testSwaptionSecurity() {
     assertSecurities(SwaptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testSwapSecurity() {
     assertSecurities(SwapSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityIndexOptionSecurity() {
     assertSecurities(EquityIndexOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testFXDigitalOptionSecurity() {
     assertSecurities(FXDigitalOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testFXForwardSecurity() {
     assertSecurities(FXForwardSecurity.class);
   }
   
   @Override
-  @Test
   public void testNonDeliverableFXForwardSecurity() {
     assertSecurities(NonDeliverableFXForwardSecurity.class);
   }
   
   @Override
-  @Test
   public void testCapFloorSecurity() {
     assertSecurities(CapFloorSecurity.class);
   }
 
   @Override
-  @Test
   public void testCapFloorCMSSpreadSecurity() {
     assertSecurities(CapFloorCMSSpreadSecurity.class);
   }
   
   @Override
-  @Test
   public void testRawSecurity() {
     assertSecurities(RawSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityVarianceSwapSecurity() {
     assertSecurities(EquityVarianceSwapSecurity.class);
   }
   
   @Override
-  @Test
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testStandardFixedRecoveryCDSSecurity() {
     assertSecurities(StandardFixedRecoveryCDSSecurity.class);
   }
   
   @Override
-  @Test
   public void testStandardRecoveryLockCDSSecurity() {
     assertSecurities(StandardRecoveryLockCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testStandardVanillaCDSSecurity() {
     assertSecurities(StandardVanillaCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyFixedRecoveryCDSSecurity() {
     assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyRecoveryLockCDSSecurity() {
     assertSecurities(LegacyRecoveryLockCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyVanillaCDSSecurity() {
     assertSecurities(LegacyVanillaCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testCashFlowSecurity() {
     assertSecurities(CashFlowSecurity.class);
   }
