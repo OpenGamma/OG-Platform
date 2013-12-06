@@ -22,8 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.core.config.Config;
@@ -38,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
 @Config(description = "Bloomberg security type definition")
 @BeanDefinition
 public class BloombergSecurityTypeDefinition implements Bean, Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
-
+  
   /**
    * Serialization version.
    */
@@ -52,7 +52,7 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
    * The map of security types.
    */
   @PropertyDefinition(get = "manual", set = "manual")
-  private final SetMultimap<SecurityType, String> _securityTypes = HashMultimap.create();
+  private final SetMultimap<SecurityType, String> _securityTypes = LinkedHashMultimap.create();
   /**
    * The unique identifier.
    */
@@ -229,7 +229,7 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = getClass().getName().hashCode(); //name and hashcode cached in Class and String
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityTypes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
     return hash;

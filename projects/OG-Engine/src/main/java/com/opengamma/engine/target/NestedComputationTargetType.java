@@ -57,7 +57,7 @@ import com.opengamma.util.ArgumentChecker;
   };
 
   private NestedComputationTargetType(final List<ComputationTargetType> target) {
-    super(NestedComputationTargetType.class.hashCode() * 31 + target.hashCode());
+    super(NestedComputationTargetType.class.getName().hashCode() * 31 + target.hashCode());
     _target = target;
   }
 

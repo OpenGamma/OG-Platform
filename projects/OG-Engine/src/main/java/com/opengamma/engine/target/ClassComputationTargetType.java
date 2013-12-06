@@ -34,7 +34,8 @@ import com.opengamma.id.UniqueIdentifiable;
    * @param name the preferred display name for the type, this must not contain {@code ()/|} characters
    */
   public ClassComputationTargetType(final Class<? extends UniqueIdentifiable> target, final String name, final boolean nameWellKnown) {
-    super(ClassComputationTargetType.class.hashCode() * 31 + target.hashCode());
+    //ok to use concrete class rather than getClass() since this class is final
+    super(ClassComputationTargetType.class.getName().hashCode() * 31 + target.getName().hashCode());
     _target = target;
     _name = name;
     _nameWellKnown = nameWellKnown;

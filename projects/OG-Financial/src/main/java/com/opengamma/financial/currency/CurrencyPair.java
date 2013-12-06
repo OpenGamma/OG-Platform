@@ -265,7 +265,8 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    //getClass() and getName() cached on respective objects
+    int hash = getClass().getName().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getBase());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounter());
     return hash;
