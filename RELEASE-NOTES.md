@@ -279,6 +279,11 @@ Analytics compatibility
 Changes since 2.1.0
 ===================
 
+To 2.2.0-M4p03
+--------------
+* Bug
+  * [PLAT-4840,PLAT-5232] - Fix for bug in scaling function where the dependency graph does not build when a position has no trades
+
 To 2.2.0-M4p02
 -----------
 * Improvement
