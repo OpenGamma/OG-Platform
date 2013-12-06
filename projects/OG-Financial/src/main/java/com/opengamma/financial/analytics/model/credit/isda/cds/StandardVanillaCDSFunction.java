@@ -96,7 +96,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
     Object recoveryRateObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
     if (recoveryRateObject == null) {
-      throw new OpenGammaRuntimeException("Could not get recovery rate");
+      throw new OpenGammaRuntimeException("Could not get recovery rate for " + security.getExternalIdBundle());
       //s_logger.warn("Could not get recovery rate, defaulting to 0.4: " + recoveryRateIdentifier);
       //recoveryRateObject = 0.4;
     }

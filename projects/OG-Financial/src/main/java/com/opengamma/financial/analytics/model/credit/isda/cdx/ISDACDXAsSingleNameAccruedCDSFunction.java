@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultIndexSwapSecurityToProxyConverter;
-import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaAccruedCDSFunction;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -80,7 +79,7 @@ public class ISDACDXAsSingleNameAccruedCDSFunction extends AbstractFunction.NonC
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getEffectiveDate().toLocalDate(), definition.getStartDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
 
     int buySellPremiumFactor = security.isBuy() ? -1 : 1;
-    final double coupon = definition.getParSpread(); // already in %.
+    final double coupon = definition.getParSpread() * 1e-4;
 
     Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(desiredValues.size());
     for (ValueRequirement desired : desiredValues) {
