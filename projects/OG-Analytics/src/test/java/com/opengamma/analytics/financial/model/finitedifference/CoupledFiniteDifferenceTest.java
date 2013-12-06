@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests on a pair of backwards Black-Scholes PDEs. The model is a Black-Scholes SDE where the volatility can take one of two values
@@ -26,6 +27,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * to Monte Carlo.  
  */
 @SuppressWarnings("unused")
+@Test(groups = TestGroup.UNIT)
 public class CoupledFiniteDifferenceTest {
 
   private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();

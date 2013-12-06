@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GreekDataBundleTest {
   private static final double DELTA_VALUE = 120;
   private static final UnderlyingType UNDERLYING_TYPE = UnderlyingType.SPOT_PRICE;

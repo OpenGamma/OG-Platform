@@ -12,11 +12,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test ActualActualICMA.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualActualICMATest {
 
   protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);

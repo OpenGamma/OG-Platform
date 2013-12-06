@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of Cash instruments.
  */
+@Test(groups = TestGroup.UNIT)
 public class CashTest {
 
   private static final Currency CCY = Currency.AUD;

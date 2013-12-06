@@ -14,10 +14,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DrawdownCalculatorTest {
   private static final int N = 100;
   private static final int[] T = new int[N];

@@ -10,7 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class RungeKuttaIntegrator1DTest {
 
   private static final double ROOT_2PI = Math.sqrt(2.0 * java.lang.Math.PI);

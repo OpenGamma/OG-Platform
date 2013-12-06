@@ -10,18 +10,22 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.Test;
+
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class InterpolatorNDTestCase {
   protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<>();
   protected static final List<Pair<double[], Double>> COS_EXP_DATA = new ArrayList<>();

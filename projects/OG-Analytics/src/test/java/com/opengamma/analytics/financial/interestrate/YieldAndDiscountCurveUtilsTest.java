@@ -22,12 +22,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests for the Utils function related to YieldAndDiscount curves and MulticurveProvider.
  */
+@Test(groups = TestGroup.UNIT)
 public class YieldAndDiscountCurveUtilsTest {
 
   /** Calibrated curves **/

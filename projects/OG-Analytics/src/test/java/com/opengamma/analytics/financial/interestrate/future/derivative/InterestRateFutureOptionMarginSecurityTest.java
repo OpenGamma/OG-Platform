@@ -23,11 +23,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests on the construction of interest rate future option with up-front payment.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginSecurityTest {
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);

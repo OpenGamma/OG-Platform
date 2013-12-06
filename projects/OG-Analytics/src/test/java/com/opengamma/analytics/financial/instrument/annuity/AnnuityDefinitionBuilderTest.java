@@ -31,11 +31,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the construction of annuities definition of different types.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityDefinitionBuilderTest {
 
   private static final IndexIborMaster IBOR_MASTER = IndexIborMaster.getInstance();

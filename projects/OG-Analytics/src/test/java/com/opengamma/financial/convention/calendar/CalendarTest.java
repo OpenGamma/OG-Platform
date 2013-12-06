@@ -13,9 +13,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test Calendar.
  */
+@Test(groups = TestGroup.UNIT)
 public class CalendarTest {
 
   @Test

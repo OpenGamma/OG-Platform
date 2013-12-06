@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.finitedifference;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.apache.commons.lang.Validate;
+import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.fourier.FFTPricer;
 import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
@@ -19,11 +20,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class HestonPDETestCase {
 
   private static BoundaryCondition2D F_LOWER;

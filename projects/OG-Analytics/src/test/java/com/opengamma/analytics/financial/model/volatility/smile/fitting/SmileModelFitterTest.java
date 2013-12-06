@@ -30,7 +30,7 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
 @Test(groups = TestGroup.INTEGRATION)
 public abstract class SmileModelFitterTest<T extends SmileModelData> {

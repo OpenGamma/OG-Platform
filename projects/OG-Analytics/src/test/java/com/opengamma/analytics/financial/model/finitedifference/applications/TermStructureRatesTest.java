@@ -32,10 +32,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.Integrator1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Check that the pde solver correctly prices the forward
  */
+@Test(groups = TestGroup.UNIT)
 public class TermStructureRatesTest {
   private static final PDE1DCoefficientsProvider PDE = new PDE1DCoefficientsProvider();
 

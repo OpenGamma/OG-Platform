@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveSpreadFunctionTest {
   private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
   private static final CurveSpreadFunction DIVIDE = new DivideCurveSpreadFunction();

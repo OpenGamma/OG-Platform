@@ -22,7 +22,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Test.
  */
 @Test(groups = TestGroup.UNIT)
 public class TenorUtilsTest {

@@ -13,7 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DoublesCurveNelsonSiegelTest {
 
   private static final String CURVE_NAME = "NS curve";

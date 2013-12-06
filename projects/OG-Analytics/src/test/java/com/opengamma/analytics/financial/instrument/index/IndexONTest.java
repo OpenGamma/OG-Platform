@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the IndexOIS class.
  */
+@Test(groups = TestGroup.UNIT)
 public class IndexONTest {
 
   // USD OIS

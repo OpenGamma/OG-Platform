@@ -27,11 +27,13 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests on the constructor of annuity for overnight-indexed coupons with spread.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityCouponONSpreadSimplifiedDefinitionTest {
 
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");

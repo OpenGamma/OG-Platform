@@ -13,11 +13,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test AccruedInterestCalculator.
  */
+@Test(groups = TestGroup.UNIT)
 public class AccruedInterestCalculatorTest {
 
   private static final DayCount DC1 = DayCounts.ACT_ACT_ICMA;

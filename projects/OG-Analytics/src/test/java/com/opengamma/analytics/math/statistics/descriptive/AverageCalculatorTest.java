@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AverageCalculatorTest {
   private static final double[] DATA = {1., 1., 3., 2.5, 5.7, 3.7, 5.7, 5.7, -4., 9.};
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();

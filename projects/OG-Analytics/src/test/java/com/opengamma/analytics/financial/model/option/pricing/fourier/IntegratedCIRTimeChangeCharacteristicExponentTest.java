@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class IntegratedCIRTimeChangeCharacteristicExponentTest {
   private static final double KAPPA = 0.5;
   private static final double THETA = 0.8;

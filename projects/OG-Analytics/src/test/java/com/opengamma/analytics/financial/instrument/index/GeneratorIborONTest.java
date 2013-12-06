@@ -13,10 +13,12 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of Ibor/ON generators.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorIborONTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

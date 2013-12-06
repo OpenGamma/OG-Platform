@@ -24,11 +24,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of DepositZero.
  */
+@Test(groups = TestGroup.UNIT)
 public class DepositZeroTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

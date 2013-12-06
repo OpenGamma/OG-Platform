@@ -8,10 +8,12 @@ package com.opengamma.analytics.math.rootfinding.newton;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionCommons;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BroydenVectorRootFinderTest extends VectorRootFinderTest {
   private static final NewtonVectorRootFinder DEFAULT = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS);
   private static final NewtonVectorRootFinder SV = new BroydenVectorRootFinder(TOLERANCE, TOLERANCE, MAXSTEPS, new SVDecompositionCommons());

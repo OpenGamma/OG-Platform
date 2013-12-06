@@ -13,11 +13,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test ThirtyEThreeSixtyISDA.
  */
+@Test(groups = TestGroup.UNIT)
 public class ThirtyEThreeSixtyISDATest {
   private static final ThirtyEThreeSixtyISDA DC = new ThirtyEThreeSixtyISDA();
   protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);

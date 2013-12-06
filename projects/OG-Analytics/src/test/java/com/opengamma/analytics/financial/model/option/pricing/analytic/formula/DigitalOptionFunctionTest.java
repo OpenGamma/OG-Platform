@@ -26,13 +26,15 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
-*
-*/
+ * Test.
+ */
 @SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class DigitalOptionFunctionTest {
 
   private static final double SPOT = 105.;

@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DeltaGammaCovarianceMatrixFisherKurtosisCalculatorTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
   private static final DeltaGammaCovarianceMatrixFisherKurtosisCalculator F = new DeltaGammaCovarianceMatrixFisherKurtosisCalculator(ALGEBRA);

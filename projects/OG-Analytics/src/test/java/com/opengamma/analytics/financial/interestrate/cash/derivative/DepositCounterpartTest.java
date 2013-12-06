@@ -21,11 +21,13 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the DepositCounterpart instruments construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class DepositCounterpartTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

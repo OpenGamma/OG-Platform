@@ -37,6 +37,7 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -44,6 +45,7 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesSecurityHullWhiteMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();

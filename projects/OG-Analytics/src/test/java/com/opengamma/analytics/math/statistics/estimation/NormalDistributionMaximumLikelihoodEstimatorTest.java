@@ -14,10 +14,12 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NormalDistributionMaximumLikelihoodEstimatorTest {
   private static final DistributionParameterEstimator<Double> ESTIMATOR = new NormalDistributionMaximumLikelihoodEstimator();
 

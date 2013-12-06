@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CornishFisherDeltaGammaVaRCalculatorTest {
   private static final double QUANTILE = new NormalDistribution(0, 1).getCDF(3.);
   private static final NormalVaRParameters CORNISH_FISHER_PARAMETERS = new NormalVaRParameters(10, 250, QUANTILE);

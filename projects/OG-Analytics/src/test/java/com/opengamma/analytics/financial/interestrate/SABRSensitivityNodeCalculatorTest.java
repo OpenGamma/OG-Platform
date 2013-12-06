@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the distribution of a given SABR sensitivity to the nodes. *
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRSensitivityNodeCalculatorTest {
 
   private static final SABRInterestRateParameters SABR_PARAMETERS = SABRDataSets.createSABR2();

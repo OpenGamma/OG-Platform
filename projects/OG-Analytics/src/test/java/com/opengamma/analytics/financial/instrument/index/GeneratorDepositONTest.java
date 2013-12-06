@@ -19,11 +19,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructor and method of GeneratorDepositON.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorDepositONTest {
   // USD deposits
   private static final String NAME = "USD Deposit ON";

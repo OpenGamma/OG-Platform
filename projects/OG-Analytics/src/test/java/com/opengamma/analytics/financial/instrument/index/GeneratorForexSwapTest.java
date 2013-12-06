@@ -19,11 +19,13 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructor and method of GeneratorDeposit.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorForexSwapTest {
   // USD deposits
   private static final String NAME = "EUR/USD Swap";

@@ -14,9 +14,12 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final GaussianRadialBasisFunction BASIS_FUNCTION = new GaussianRadialBasisFunction();
   private static final boolean USE_NORMALIZED = false;

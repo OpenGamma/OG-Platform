@@ -38,11 +38,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ZSpreadCalculatorTest {
   private static final String CURVE_NAME = "Discounting";
   private static final PresentValueDiscountingCalculator PV_CALCULATOR = PresentValueDiscountingCalculator.getInstance();

@@ -17,11 +17,13 @@ import com.opengamma.analytics.math.integration.Integrator1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * The stock price, S_t, is given by S_t = (F_t-D_t)X_t + D_t where F_t is the forward, D_t is the discounted value of future dividend payments
  * and X_t is the "pure stock price" process. See Buehler, Hans. Volatility and Dividends 
  */
+@Test(groups = TestGroup.UNIT)
 public class PureStockPriceImpliedVolTest {
 
   private static final Integrator1D<Double, Double> DEFAULT_INTEGRATOR = new RungeKuttaIntegrator1D();

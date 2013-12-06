@@ -14,11 +14,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GridInterpolator2DSensitivityTest {
   private static final Interpolator1D LINEAR_1D = new LinearInterpolator1D();
   private static final GridInterpolator2D INTERPOLATOR;

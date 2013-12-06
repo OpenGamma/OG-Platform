@@ -14,10 +14,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the Cholesky decomposition OpenGamma implementation.
  */
+@Test(groups = TestGroup.UNIT)
 public class CholeskyDecompositionOpenGammaTest {
 
   private static final MatrixAlgebra ALGEBRA = new OGMatrixAlgebra();

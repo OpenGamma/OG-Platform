@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolationBoundedValuesTest {
   private static final int LOWER_BOUND_INDEX = 2;
   private static final double LOWER_BOUND_KEY = 3;

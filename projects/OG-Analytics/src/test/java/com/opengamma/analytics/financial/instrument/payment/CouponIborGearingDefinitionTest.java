@@ -27,11 +27,13 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Ibor coupon with gearing factor and spread and its conversion to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborGearingDefinitionTest {
   // The index: Libor 3m
   private static final Period TENOR = Period.ofMonths(3);

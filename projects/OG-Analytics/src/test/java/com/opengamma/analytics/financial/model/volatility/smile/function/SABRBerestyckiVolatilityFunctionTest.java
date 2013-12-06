@@ -5,11 +5,14 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
 
+import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRBerestyckiVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
   private static final SABRBerestyckiVolatilityFunction FUNCTION = new SABRBerestyckiVolatilityFunction();
 

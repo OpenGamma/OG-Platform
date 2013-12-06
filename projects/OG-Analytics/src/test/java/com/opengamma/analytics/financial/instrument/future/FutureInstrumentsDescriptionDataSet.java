@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -22,11 +23,13 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Contains a set of Future instruments that can be used in tests.
  */
+@Test(groups = TestGroup.UNIT)
 public class FutureInstrumentsDescriptionDataSet {
 
   //EURIBOR 3M Index

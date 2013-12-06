@@ -15,10 +15,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NelsonSiegelBondCurveModelTest {
   private static final NelsonSiegelBondCurveModel MODEL = new NelsonSiegelBondCurveModel();
   private static final NonLinearLeastSquare NLLS = new NonLinearLeastSquare();

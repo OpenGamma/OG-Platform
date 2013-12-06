@@ -27,11 +27,13 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the year on year inflation constructors.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponInflationYearOnYearMonthlyDefinitionTest {
 
   private static final String NAME = "Euro HICP x";

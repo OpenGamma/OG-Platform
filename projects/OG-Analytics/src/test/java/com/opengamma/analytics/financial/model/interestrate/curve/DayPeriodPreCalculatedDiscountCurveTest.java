@@ -14,6 +14,10 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DayPeriodPreCalculatedDiscountCurveTest {
 
   private static double TOLERANCE = 1e-10;

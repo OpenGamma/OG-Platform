@@ -13,7 +13,6 @@ import org.threeten.bp.Period;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**

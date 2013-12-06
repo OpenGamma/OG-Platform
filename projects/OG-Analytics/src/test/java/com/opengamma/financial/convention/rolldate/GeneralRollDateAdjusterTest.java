@@ -14,7 +14,7 @@ import org.threeten.bp.temporal.TemporalAdjuster;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
 @Test(groups = TestGroup.UNIT)
 public class GeneralRollDateAdjusterTest {

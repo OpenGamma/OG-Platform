@@ -17,10 +17,12 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.sensitivity.PositionGreek;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GreekAndPositionGreekDataBundleTest {
   private static final GreekResultCollection GREEKS = new GreekResultCollection();
   private static final Map<PositionGreek, Double> RISK_FACTOR = new HashMap<>();

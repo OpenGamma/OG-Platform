@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StandardTwoAssetOptionDataBundleTest {
   private static final YieldAndDiscountCurve CURVE1 = YieldCurve.from(ConstantDoublesCurve.from(0.1));
   private static final YieldAndDiscountCurve CURVE2 = YieldCurve.from(ConstantDoublesCurve.from(0.05));

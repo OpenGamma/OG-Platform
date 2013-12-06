@@ -27,11 +27,13 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the construction and the conversion of Ibor coupon with spread.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborSpreadDefinitionTest {
 
   private static final Period TENOR = Period.ofMonths(3);

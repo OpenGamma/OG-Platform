@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackScholesFormulaRepositoryTest {
   private static final double EPS = 1.e-14;
   private static final double DELTA = 1.e-6;

@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
 @Test(groups = TestGroup.UNIT)
 public class EquityIndexFutureOptionTest {

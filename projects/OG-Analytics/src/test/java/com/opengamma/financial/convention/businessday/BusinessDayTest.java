@@ -14,10 +14,12 @@ import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test BusinessDayConvention.
  */
+@Test(groups = TestGroup.UNIT)
 public class BusinessDayTest {
 
   private final Calendar _calendar_UK = CalendarFactory.of("UK Bank Holidays");

@@ -57,11 +57,13 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondSecurityDiscountingMethodTest {
   /** Curves for a specific issuer name */
   private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();

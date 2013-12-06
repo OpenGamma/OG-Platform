@@ -21,10 +21,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LUDecompositionCommonsResultTest {
   static final double DETERMINANT = 3;
   static final int[] PIVOT = new int[] {1, 2, 3};

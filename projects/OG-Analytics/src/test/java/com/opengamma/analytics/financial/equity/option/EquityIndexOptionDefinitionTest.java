@@ -19,7 +19,7 @@ import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
 @Test(groups = TestGroup.UNIT)
 public class EquityIndexOptionDefinitionTest {

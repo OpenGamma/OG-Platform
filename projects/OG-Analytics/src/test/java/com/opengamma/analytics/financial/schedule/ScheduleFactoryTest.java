@@ -16,11 +16,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ScheduleFactoryTest {
   private static final LocalDate START1 = LocalDate.of(2000, 1, 31);
   private static final LocalDate END1 = LocalDate.of(2002, 1, 31);

@@ -23,11 +23,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the MultipleCurrencyCurveSensitivityMarket class.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultipleCurrencyInflationSensitivityTest {
 
   private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 10d), DoublesPair.of(2d, 20d), DoublesPair.of(3d, 30d), DoublesPair.of(4d, 40d)});

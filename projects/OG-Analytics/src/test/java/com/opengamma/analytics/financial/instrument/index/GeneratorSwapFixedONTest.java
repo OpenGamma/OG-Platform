@@ -15,10 +15,12 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of Fixed/ON (OIS) generators.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorSwapFixedONTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.timeseries.precise.instant.InstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis TEST = new PortmanteauIIDHypothesis(0.05, 20);
 

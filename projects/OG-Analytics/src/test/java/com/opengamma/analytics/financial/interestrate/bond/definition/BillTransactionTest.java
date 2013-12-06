@@ -20,11 +20,13 @@ import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of bills transaction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BillTransactionTest {
 
   private final static Currency EUR = Currency.EUR;

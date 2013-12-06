@@ -11,10 +11,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
 @SuppressWarnings("synthetic-access")
+@Test(groups = TestGroup.UNIT)
 public class MatrixAlgebraTest {
   private static final MatrixAlgebra ALGEBRA = new MyMatrixAlgebra();
 

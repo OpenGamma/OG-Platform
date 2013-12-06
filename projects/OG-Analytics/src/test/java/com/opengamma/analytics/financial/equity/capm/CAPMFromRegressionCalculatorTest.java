@@ -16,7 +16,7 @@ import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
 @Test(groups = TestGroup.UNIT)
 public class CAPMFromRegressionCalculatorTest {

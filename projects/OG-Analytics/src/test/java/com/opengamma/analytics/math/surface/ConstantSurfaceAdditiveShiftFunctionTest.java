@@ -10,9 +10,12 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConstantSurfaceAdditiveShiftFunctionTest {
   private static final ConstantSurfaceAdditiveShiftFunction F = new ConstantSurfaceAdditiveShiftFunction();
   private static final double Z = 3;

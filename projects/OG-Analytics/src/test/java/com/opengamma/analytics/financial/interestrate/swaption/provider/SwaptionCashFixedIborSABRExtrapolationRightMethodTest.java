@@ -40,6 +40,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -47,6 +48,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR with extrapolation method.
  * The SABR smile is extrapolated above a certain cut-off strike.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

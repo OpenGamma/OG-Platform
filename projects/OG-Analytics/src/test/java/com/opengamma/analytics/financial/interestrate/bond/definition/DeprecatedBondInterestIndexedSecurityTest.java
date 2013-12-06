@@ -36,6 +36,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -43,6 +44,7 @@ import com.opengamma.util.time.DateUtils;
  *  @deprecated This code tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedBondInterestIndexedSecurityTest {
 
   private static final String NAME = "UK RPI";

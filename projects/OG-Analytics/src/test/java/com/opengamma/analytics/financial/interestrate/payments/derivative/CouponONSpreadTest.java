@@ -22,11 +22,13 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the coupon overnight-indexed with spread derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONSpreadTest {
 
   private static final int EUR_SETTLEMENT_DAYS = 2;

@@ -10,10 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ThetaMethodFiniteDifference when theta = 0.5 (i.e. A Crank-Nicolson scheme)
  */
+@Test(groups = TestGroup.UNIT)
 public class ThetaMethodFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();

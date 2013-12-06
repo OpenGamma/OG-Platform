@@ -10,9 +10,12 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualNLTest {
   private static final DayCount ACTUAL_NL = DayCountFactory.of("Actual/NL");
   private static final double EPS = 1e-12;

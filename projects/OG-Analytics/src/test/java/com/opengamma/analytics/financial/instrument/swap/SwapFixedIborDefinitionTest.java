@@ -26,11 +26,13 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Class testing the Fixed vs Ibor swap definition.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFixedIborDefinitionTest {
 
   // Swap 2Y

@@ -28,11 +28,13 @@ import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderHul
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the calibration engine for Hull-White one factor calibration to cap/floor.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorHullWhiteCalibrationObjectiveTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
