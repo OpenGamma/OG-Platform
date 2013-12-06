@@ -200,6 +200,8 @@
 
   <!-- ==================================================================== -->
   <properties>
+    <!-- Version properties -->
+    <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version><!-- downgrade to fix site plugin -->
     <!-- Properties for maven-javadoc-plugin -->
     <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
     <excludePackageNames>javax.time.i18n;org.jodah.typetools</excludePackageNames>
