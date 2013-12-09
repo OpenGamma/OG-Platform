@@ -91,7 +91,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
    */
   @Override
   public Set<Currency> visitBondNode(final BondNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -108,12 +108,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
   public Set<Currency> visitCreditSpreadNode(final CreditSpreadNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -124,7 +124,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitDiscountFactorNode(final DiscountFactorNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -201,7 +201,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitEquityConvention(final EquityConvention convention) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -217,23 +217,23 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
-  public Set<Currency> visitFixedInterestRateSwapLegConvention(FixedInterestRateSwapLegConvention convention) {
-    return null;
+  public Set<Currency> visitFixedInterestRateSwapLegConvention(final FixedInterestRateSwapLegConvention convention) {
+    return Collections.emptySet();
   }
 
   @Override
-  public Set<Currency> visitFloatingInterestRateSwapLegConvention(FloatingInterestRateSwapLegConvention convention) {
-    return null;
+  public Set<Currency> visitFloatingInterestRateSwapLegConvention(final FloatingInterestRateSwapLegConvention convention) {
+    return Collections.emptySet();
   }
 
   @Override
   public Set<Currency> visitFXForwardAndSwapConvention(final FXForwardAndSwapConvention convention) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
   public Set<Currency> visitFXSpotConvention(final FXSpotConvention convention) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override

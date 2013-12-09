@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -365,19 +364,19 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testContinuouslyCompoundedRateNode() {
     final ContinuouslyCompoundedRateNode node = new ContinuouslyCompoundedRateNode(SCHEME, Tenor.TWELVE_MONTHS);
-    assertNull(node.accept(VISITOR));
+    assertEquals(0, node.accept(VISITOR).size());
   }
 
   @Test
   public void testCreditSpreadNode() {
     final CreditSpreadNode node = new CreditSpreadNode(SCHEME, Tenor.THREE_MONTHS);
-    assertNull(node.accept(VISITOR));
+    assertEquals(0, node.accept(VISITOR).size());
   }
 
   @Test
   public void testDiscountFactorNode() {
     final DiscountFactorNode node = new DiscountFactorNode(SCHEME, Tenor.FIVE_YEARS);
-    assertNull(node.accept(VISITOR));
+    assertEquals(0, node.accept(VISITOR).size());
   }
 
   @Test
