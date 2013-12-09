@@ -194,6 +194,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       }
       functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
+      functions.add(functionConfiguration(MultiCurveInterpolatedFunction.class, curveConfigName));
     }
 
     /**

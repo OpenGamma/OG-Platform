@@ -29,6 +29,8 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -158,7 +160,7 @@ public class IssuerProviderDiscountingFunction extends
       final LinkedHashMap<String, Currency> discountingMap = new LinkedHashMap<>();
       final LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
       final LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();
-      final LinkedHashMap<String, Pair<String, Currency>> issuerMap = new LinkedHashMap<>();
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap = new LinkedHashMap<>();
       //TODO comparator to sort groups by order
       int i = 0; // Implementation Note: loop on the groups
       for (final CurveGroupConfiguration group : _curveConstructionConfiguration.getCurveGroups()) { // Group - start
@@ -212,9 +214,7 @@ public class IssuerProviderDiscountingFunction extends
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else if (type instanceof IssuerCurveTypeConfiguration) {
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
-              final String issuerName = null; //issuer.getIssuerName();
-              final Currency currency = Currency.of(issuer.getUnderlyingReference());
-              issuerMap.put(curveName, Pairs.of(issuerName, currency));
+              issuerMap.put(curveName, Pairs.<Object, LegalEntityFilter<LegalEntity>>of(null, issuer.getFilters()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -232,8 +232,8 @@ public class IssuerProviderDiscountingFunction extends
         curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
-      final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = null; // builder.makeCurvesFromDerivatives(curveBundles,;
-          //(IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
+      final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
+          (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
       final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
