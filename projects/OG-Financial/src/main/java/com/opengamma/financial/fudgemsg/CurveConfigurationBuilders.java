@@ -48,6 +48,9 @@ import com.opengamma.util.time.Tenor;
   /** The unique id field */
   private static final String UNIQUE_ID_FIELD = "uniqueId";
 
+  /**
+   * Private constructor.
+   */
   private CurveConfigurationBuilders() {
   }
 
@@ -146,6 +149,10 @@ import com.opengamma.util.time.Tenor;
      */
     @Deprecated
     private static final String UNDERLYING_REFERENCE_FIELD = "underlyingReference";
+    /** The key field */
+    private static final String KEY_FIELD = "key";
+    /** The key class field */
+    private static final String KEY_CLASS_FIELD = "keyClass";
     /** The legal entity filter field */
     private static final String LEGAL_ENTITY_FILTER_FIELD = "filter";
 
@@ -153,6 +160,10 @@ import com.opengamma.util.time.Tenor;
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IssuerCurveTypeConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
+      for (final Object key : object.getKeys()) {
+        serializer.addToMessageWithClassHeaders(message, KEY_FIELD, null, key);
+        serializer.addToMessage(message, KEY_CLASS_FIELD, null, key.getClass());
+      }
       for (final LegalEntityFilter<LegalEntity> filter : object.getFilters().getFiltersToUse()) {
         serializer.addToMessageWithClassHeaders(message, LEGAL_ENTITY_FILTER_FIELD, null, filter);
       }
@@ -170,12 +181,19 @@ import com.opengamma.util.time.Tenor;
         }
         throw new IllegalStateException("Configuration has " + ISSUER_NAME_FIELD + " but no " + UNDERLYING_REFERENCE_FIELD);
       }
-      final List<FudgeField> fields = message.getAllByName(LEGAL_ENTITY_FILTER_FIELD);
-      final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();
-      for (final FudgeField field : fields) {
-        filters.add(deserializer.fieldValueToObject(LegalEntityFilter.class, field));
+      final List<FudgeField> keyFields = message.getAllByName(KEY_FIELD);
+      final List<FudgeField> keyClassFields = message.getAllByName(KEY_CLASS_FIELD);
+      final Set<Object> keys = new HashSet<>();
+      for (int i = 0; i < keyFields.size(); i++) {
+        final Class<?> clazz = deserializer.fieldValueToObject(Class.class, keyClassFields.get(i));
+        keys.add(deserializer.fieldValueToObject(clazz, keyFields.get(i)));
       }
-      return new IssuerCurveTypeConfiguration(filters);
+      final List<FudgeField> filterFields = message.getAllByName(LEGAL_ENTITY_FILTER_FIELD);
+      final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();
+      for (final FudgeField field : filterFields) {
+        filters.add((LegalEntityFilter<LegalEntity>) deserializer.fieldValueToObject(field));
+      }
+      return new IssuerCurveTypeConfiguration(keys, filters);
     }
 
   }

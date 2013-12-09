@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,17 +21,18 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityCombiningFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityRegion;
 import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.i18n.Country;
+import com.opengamma.util.money.Currency;
 
 /**
  * Configuration object for curves that are to be used as an issuer curve.
- * This class should no longer be used directly, as it contains unnecessary
- * information about the underlying reference. Equivalent functionality is
- * found in {@link IssuerShortNameCurveTypeConfiguration}.
  */
 @BeanDefinition
 public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
@@ -39,17 +41,31 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The issuer name.
+   * The set of keys for the issuer curve.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Set<Object> _keys;
+
+  /**
+   * The legal entity filters.
    */
   @PropertyDefinition(validate = "notNull")
   private LegalEntityCombiningFilter _filters;
+
+  /**
+   * The issuer name.
+   * @deprecated This field is no longer used.
+   */
+  @Deprecated
+  @PropertyDefinition
+  private String _issuerName;
 
   /**
    * The underlying reference.
    * @deprecated This field is no longer used.
    */
   @Deprecated
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _underlyingReference;
 
   /**
@@ -62,22 +78,30 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   /**
    * @param issuerName The issuer name, not null
    * @param underlyingReference The underlying reference (e.g. a currency) for the curve
-   * @deprecated This configuration no longer uses the underlyingReference field.
+   * @deprecated This constructor can only be used to construct an (issuer name, currency) key for
+   * the issuer curve.
    */
   @Deprecated
   public IssuerCurveTypeConfiguration(final String issuerName, final String underlyingReference) {
     super();
-    final LegalEntityCombiningFilter filters =
-        new LegalEntityCombiningFilter(Collections.<LegalEntityFilter<LegalEntity>>singleton(new LegalEntityShortName()));
+    final Set<Object> keys = Sets.<Object>newHashSet(issuerName, underlyingReference);
+    final Set<LegalEntityFilter<LegalEntity>> filterSet = new HashSet<>();
+    filterSet.add(new LegalEntityRegion(false, false, Collections.<Country>emptySet(), true, Collections.singleton(Currency.of(underlyingReference))));
+    filterSet.add(new LegalEntityShortName());
+    final LegalEntityCombiningFilter filters = new LegalEntityCombiningFilter(filterSet);
+    setKeys(keys);
     setFilters(filters);
   }
 
   /**
+   * @param keys The keys for the curves, not null
    * @param filters The legal entity filters, not null
    */
-  public IssuerCurveTypeConfiguration(final Set<LegalEntityFilter<LegalEntity>> filters) {
+  public IssuerCurveTypeConfiguration(final Set<Object> keys, final Set<LegalEntityFilter<LegalEntity>> filters) {
     super();
+    ArgumentChecker.notNull(keys, "keys");
     ArgumentChecker.notNull(filters, "filters");
+    setKeys(keys);
     setFilters(new LegalEntityCombiningFilter(filters));
   }
 
@@ -102,7 +126,33 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the issuer name.
+   * Gets the set of keys for the issuer curve.
+   * @return the value of the property, not null
+   */
+  public Set<Object> getKeys() {
+    return _keys;
+  }
+
+  /**
+   * Sets the set of keys for the issuer curve.
+   * @param keys  the new value of the property, not null
+   */
+  public void setKeys(Set<Object> keys) {
+    JodaBeanUtils.notNull(keys, "keys");
+    this._keys = keys;
+  }
+
+  /**
+   * Gets the the {@code keys} property.
+   * @return the property, not null
+   */
+  public final Property<Set<Object>> keys() {
+    return metaBean().keys().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the legal entity filters.
    * @return the value of the property, not null
    */
   public LegalEntityCombiningFilter getFilters() {
@@ -110,7 +160,7 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   }
 
   /**
-   * Sets the issuer name.
+   * Sets the legal entity filters.
    * @param filters  the new value of the property, not null
    */
   public void setFilters(LegalEntityCombiningFilter filters) {
@@ -128,9 +178,40 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the issuer name.
+   * @deprecated This field is no longer used.
+   * @return the value of the property
+   */
+  @Deprecated
+  public String getIssuerName() {
+    return _issuerName;
+  }
+
+  /**
+   * Sets the issuer name.
+   * @deprecated This field is no longer used.
+   * @param issuerName  the new value of the property
+   */
+  @Deprecated
+  public void setIssuerName(String issuerName) {
+    this._issuerName = issuerName;
+  }
+
+  /**
+   * Gets the the {@code issuerName} property.
+   * @deprecated This field is no longer used.
+   * @return the property, not null
+   */
+  @Deprecated
+  public final Property<String> issuerName() {
+    return metaBean().issuerName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the underlying reference.
    * @deprecated This field is no longer used.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   @Deprecated
   public String getUnderlyingReference() {
@@ -140,11 +221,10 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   /**
    * Sets the underlying reference.
    * @deprecated This field is no longer used.
-   * @param underlyingReference  the new value of the property, not null
+   * @param underlyingReference  the new value of the property
    */
   @Deprecated
   public void setUnderlyingReference(String underlyingReference) {
-    JodaBeanUtils.notNull(underlyingReference, "underlyingReference");
     this._underlyingReference = underlyingReference;
   }
 
@@ -171,7 +251,9 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       IssuerCurveTypeConfiguration other = (IssuerCurveTypeConfiguration) obj;
-      return JodaBeanUtils.equal(getFilters(), other.getFilters()) &&
+      return JodaBeanUtils.equal(getKeys(), other.getKeys()) &&
+          JodaBeanUtils.equal(getFilters(), other.getFilters()) &&
+          JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
           JodaBeanUtils.equal(getUnderlyingReference(), other.getUnderlyingReference()) &&
           super.equals(obj);
     }
@@ -181,14 +263,16 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getKeys());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFilters());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingReference());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("IssuerCurveTypeConfiguration{");
     int len = buf.length();
     toString(buf);
@@ -202,7 +286,9 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
+    buf.append("keys").append('=').append(JodaBeanUtils.toString(getKeys())).append(',').append(' ');
     buf.append("filters").append('=').append(JodaBeanUtils.toString(getFilters())).append(',').append(' ');
+    buf.append("issuerName").append('=').append(JodaBeanUtils.toString(getIssuerName())).append(',').append(' ');
     buf.append("underlyingReference").append('=').append(JodaBeanUtils.toString(getUnderlyingReference())).append(',').append(' ');
   }
 
@@ -217,10 +303,21 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code keys} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<Object>> _keys = DirectMetaProperty.ofReadWrite(
+        this, "keys", IssuerCurveTypeConfiguration.class, (Class) Set.class);
+    /**
      * The meta-property for the {@code filters} property.
      */
     private final MetaProperty<LegalEntityCombiningFilter> _filters = DirectMetaProperty.ofReadWrite(
         this, "filters", IssuerCurveTypeConfiguration.class, LegalEntityCombiningFilter.class);
+    /**
+     * The meta-property for the {@code issuerName} property.
+     */
+    private final MetaProperty<String> _issuerName = DirectMetaProperty.ofReadWrite(
+        this, "issuerName", IssuerCurveTypeConfiguration.class, String.class);
     /**
      * The meta-property for the {@code underlyingReference} property.
      */
@@ -231,7 +328,9 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "keys",
         "filters",
+        "issuerName",
         "underlyingReference");
 
     /**
@@ -243,8 +342,12 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 3288564:  // keys
+          return _keys;
         case -854547461:  // filters
           return _filters;
+        case 1459772644:  // issuerName
+          return _issuerName;
         case -1415245714:  // underlyingReference
           return _underlyingReference;
       }
@@ -268,11 +371,29 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code keys} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<Object>> keys() {
+      return _keys;
+    }
+
+    /**
      * The meta-property for the {@code filters} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<LegalEntityCombiningFilter> filters() {
       return _filters;
+    }
+
+    /**
+     * The meta-property for the {@code issuerName} property.
+     * @deprecated This field is no longer used.
+     * @return the meta-property, not null
+     */
+    @Deprecated
+    public final MetaProperty<String> issuerName() {
+      return _issuerName;
     }
 
     /**
@@ -289,19 +410,30 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 3288564:  // keys
+          return ((IssuerCurveTypeConfiguration) bean).getKeys();
         case -854547461:  // filters
           return ((IssuerCurveTypeConfiguration) bean).getFilters();
+        case 1459772644:  // issuerName
+          return ((IssuerCurveTypeConfiguration) bean).getIssuerName();
         case -1415245714:  // underlyingReference
           return ((IssuerCurveTypeConfiguration) bean).getUnderlyingReference();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 3288564:  // keys
+          ((IssuerCurveTypeConfiguration) bean).setKeys((Set<Object>) newValue);
+          return;
         case -854547461:  // filters
           ((IssuerCurveTypeConfiguration) bean).setFilters((LegalEntityCombiningFilter) newValue);
+          return;
+        case 1459772644:  // issuerName
+          ((IssuerCurveTypeConfiguration) bean).setIssuerName((String) newValue);
           return;
         case -1415245714:  // underlyingReference
           ((IssuerCurveTypeConfiguration) bean).setUnderlyingReference((String) newValue);
@@ -312,8 +444,8 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._keys, "keys");
       JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._filters, "filters");
-      JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._underlyingReference, "underlyingReference");
       super.validate(bean);
     }
 

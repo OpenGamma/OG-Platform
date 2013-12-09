@@ -17,10 +17,12 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.legalentity.LegalEntityRegion;
 import com.opengamma.analytics.financial.legalentity.LegalEntitySector;
+import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -57,6 +59,15 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
   private static final CurveConstructionConfiguration CONSTRUCTION;
 
   static {
+    final Set<Object> keys = new HashSet<>();
+    keys.add("INDUSTRY");
+    keys.add("North America");
+    keys.add(Country.US);
+    keys.add(Currency.USD);
+    final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();
+    filters.add(new LegalEntitySector(true, false, Collections.<String>emptySet()));
+    filters.add(new LegalEntityRegion(true, true, Collections.singleton(Country.US), true, Collections.singleton(Currency.USD)));
+    ISSUER_CONFIG = new IssuerCurveTypeConfiguration(keys, filters);
     final Map<String, List<CurveTypeConfiguration>> group1Map = new HashMap<>();
     group1Map.put(DISCOUNTING_NAME, Arrays.asList(DISCOUNTING_CONFIG, OVERNIGHT_CONFIG));
     GROUP1 = new CurveGroupConfiguration(1, group1Map);
@@ -65,14 +76,10 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     group2Map.put(LIBOR_6M_NAME, Arrays.asList((CurveTypeConfiguration) LIBOR_6M_CONFIG));
     GROUP2 = new CurveGroupConfiguration(2, group2Map);
     final Map<String, List<CurveTypeConfiguration>> group3Map = new HashMap<>();
-    group3Map.put(BOND_CURVE_NAME, Arrays.asList((CurveTypeConfiguration) DEPRECATED_ISSUER_CONFIG));
+    group3Map.put(BOND_CURVE_NAME, Arrays.asList((CurveTypeConfiguration) ISSUER_CONFIG));
     GROUP3 = new CurveGroupConfiguration(3, group3Map);
     CONSTRUCTION = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), null);
     CONSTRUCTION.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "678"));
-    final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();
-    filters.add(new LegalEntitySector(true, false, Collections.<String>emptySet()));
-    filters.add(new LegalEntityRegion(true, true, Collections.<Country>emptySet(), true, Collections.<Currency>emptySet()));
-    ISSUER_CONFIG = new IssuerCurveTypeConfiguration(filters);
   }
 
   @Test
@@ -92,7 +99,11 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIssuerCurveTypeConfiguration() {
-    assertEquals(DEPRECATED_ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, DEPRECATED_ISSUER_CONFIG));
+    final Set<Object> keys = Sets.<Object>newHashSet("OG", "USD");
+    final Set<LegalEntityFilter<LegalEntity>> filterSet = new HashSet<>();
+    filterSet.add(new LegalEntityRegion(false, false, Collections.<Country>emptySet(), true, Collections.singleton(Currency.USD)));
+    filterSet.add(new LegalEntityShortName());
+    assertEquals(new IssuerCurveTypeConfiguration(keys, filterSet), cycleObject(IssuerCurveTypeConfiguration.class, DEPRECATED_ISSUER_CONFIG));
     assertEquals(ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, ISSUER_CONFIG));
   }
 
