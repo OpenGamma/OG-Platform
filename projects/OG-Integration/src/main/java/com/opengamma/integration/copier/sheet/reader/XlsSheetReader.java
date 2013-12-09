@@ -20,35 +20,36 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A class for importing portfolio data from XLS (pre-Excel 2007) worksheets
  * TODO XLS reader is incomplete, and does not really work yet!!!
  */
-public class SimpleXlsSheetReader extends SheetReader {
+public class XlsSheetReader extends SheetReader {
 
   private Sheet _sheet;
   private Workbook _workbook;
-  private int _currentRowNumber;
+  private int _currentRowIndex =0;
   private InputStream _inputStream;
   
-  public SimpleXlsSheetReader(String filename, int sheetIndex) {
+  public XlsSheetReader(String filename, int sheetIndex) {
     
     ArgumentChecker.notEmpty(filename, "filename");
 
     _inputStream = openFile(filename);
     _workbook = getWorkbook(_inputStream);
     _sheet = _workbook.getSheetAt(sheetIndex);
-    _currentRowNumber = _sheet.getFirstRowNum();
+    _currentRowIndex = _sheet.getFirstRowNum();
     
     // Read in the header row
-    Row rawRow = _sheet.getRow(_currentRowNumber++);
+    Row rawRow = _sheet.getRow(_currentRowIndex++);
     
     // Normalise read-in headers (to lower case) and set as columns
     setColumns(getColumnNames(rawRow));
   }
   
-  public SimpleXlsSheetReader(String filename, String sheetName) {
+  public XlsSheetReader(String filename, String sheetName) {
     
     ArgumentChecker.notEmpty(filename, "filename");
     ArgumentChecker.notEmpty(sheetName, "sheetName");
@@ -56,41 +57,41 @@ public class SimpleXlsSheetReader extends SheetReader {
     InputStream fileInputStream = openFile(filename);
     _workbook = getWorkbook(fileInputStream);
     _sheet = _workbook.getSheet(sheetName);
-    _currentRowNumber = _sheet.getFirstRowNum();
+    _currentRowIndex = _sheet.getFirstRowNum();
 
     // Read in the header row
-    Row rawRow = _sheet.getRow(_currentRowNumber++);
+    Row rawRow = _sheet.getRow(_currentRowIndex++);
 
     // Normalise read-in headers (to lower case) and set as columns
     setColumns(getColumnNames(rawRow)); 
   }
 
-  public SimpleXlsSheetReader(InputStream inputStream, int sheetIndex) {
+  public XlsSheetReader(InputStream inputStream, int sheetIndex) {
     
     ArgumentChecker.notNull(inputStream, "inputStream");
 
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheetAt(sheetIndex);
-    _currentRowNumber = _sheet.getFirstRowNum();
+    _currentRowIndex = _sheet.getFirstRowNum();
     
     // Read in the header row
-    Row rawRow = _sheet.getRow(_currentRowNumber++);
+    Row rawRow = _sheet.getRow(_currentRowIndex++);
     
     // Normalise read-in headers (to lower case) and set as columns
     setColumns(getColumnNames(rawRow));
   }
   
-  public SimpleXlsSheetReader(InputStream inputStream, String sheetName) {
+  public XlsSheetReader(InputStream inputStream, String sheetName) {
     
     ArgumentChecker.notNull(inputStream, "inputStream");
     ArgumentChecker.notEmpty(sheetName, "sheetName");
 
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheet(sheetName);
-    _currentRowNumber = _sheet.getFirstRowNum();
+    _currentRowIndex = _sheet.getFirstRowNum();
 
     // Read in the header row
-    Row rawRow = _sheet.getRow(_currentRowNumber++);
+    Row rawRow = _sheet.getRow(_currentRowIndex++);
 
     String[] columns = getColumnNames(rawRow);
     setColumns(columns); 
@@ -110,7 +111,7 @@ public class SimpleXlsSheetReader extends SheetReader {
   public Map<String, String> loadNextRow() {
     
     // Get a reference to the next Excel row
-    Row rawRow = _sheet.getRow(_currentRowNumber++);
+    Row rawRow = _sheet.getRow(_currentRowIndex++);
 
     // If the row is empty return null (assume end of table)
     if (rawRow == null || rawRow.getFirstCellNum() == -1) {
@@ -176,5 +177,46 @@ public class SimpleXlsSheetReader extends SheetReader {
       // TODO Auto-generated catch block
     }
   }
-  
+
+  public int getCurrentRowIndex() {
+    return _currentRowIndex++;
+  }
+
+  public Map<String, String> readKeyValueBlock(int startRow, int startCol) {
+    Map<String, String> keyValueMap = new HashMap<>();
+    _currentRowIndex = startRow;
+    Row row = _sheet.getRow(_currentRowIndex);
+    while (row != null) {
+      Cell keyCell = row.getCell(startCol);
+      Cell valueCell = row.getCell(startCol + 1);
+      keyValueMap.put(keyCell.getStringCellValue(), valueCell.getStringCellValue());
+      _currentRowIndex++;
+      row = _sheet.getRow(_currentRowIndex);
+    }
+    _currentRowIndex++;
+    return keyValueMap;
+  }
+
+  public Map<Pair<String, String>, String> readMatrix(int startRow, int startCol) {
+
+
+
+    Map<Pair<String, String>, String> valueMap = new HashMap<>();
+    //Maps used to store the index of each x and y axis
+    Map<String, Integer> xCol = new HashMap<>();
+    Map<String, Integer> yRow = new HashMap<>();
+
+    Row row = _sheet.getRow(startRow);
+
+    for (Cell cell : row) {
+     xCol.put(getCellAsString(cell), cell.getColumnIndex());
+    }
+
+    //do {
+    //  Cell cell;
+    //}
+    //while (cell != null);
+
+    return valueMap;
+  }
 }

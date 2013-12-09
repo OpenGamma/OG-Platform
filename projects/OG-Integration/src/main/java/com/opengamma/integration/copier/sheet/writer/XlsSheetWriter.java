@@ -35,7 +35,7 @@ public class XlsSheetWriter {
 
   private HSSFSheet _sheet;
   private HSSFWorkbook _workbook;
-  private Integer _currentRow = 0;
+  private Integer _currentRowIndex = 0;
   private CellStyle _keyBlockStyle;
   private CellStyle _valueBlockStyle;
   private CellStyle _axisStyle;
@@ -64,9 +64,9 @@ public class XlsSheetWriter {
   }
 
   private Row getCurrentRow() {
-    Row row = _sheet.getRow(_currentRow);
+    Row row = _sheet.getRow(_currentRowIndex);
     if (row == null) {
-      row = _sheet.createRow(_currentRow);
+      row = _sheet.createRow(_currentRowIndex);
     }
     return row;
   }
@@ -156,9 +156,9 @@ public class XlsSheetWriter {
       valueCell.setCellStyle(_valueBlockStyle);
       keyCell.setCellValue(entry.getKey());
       valueCell.setCellValue(entry.getValue());
-      _currentRow++;
+      _currentRowIndex++;
     }
-    _currentRow++;
+    _currentRowIndex++;
   }
 
   public void writeKeyPairBlock(Map<String, ObjectsPair<String, String>> details) {
@@ -179,10 +179,10 @@ public class XlsSheetWriter {
         secondValueCell.setCellValue(entry.getValue().getSecond());
         secondValueCell.setCellStyle(currentStyle);
       }
-      _currentRow++;
+      _currentRowIndex++;
       currentStyle = _valueBlockStyle;
     }
-    _currentRow++;
+    _currentRowIndex++;
   }
 
   /**
@@ -223,17 +223,17 @@ public class XlsSheetWriter {
       colIndex++;
     }
 
-    _currentRow++;
+    _currentRowIndex++;
     //Print out the y axis
     for (String entry : yMap) {
       Row row = getCurrentRow();
       Cell cell = getCell(row, 0, cellValueType);
       cell.setCellValue(entry);
       cell.setCellStyle(_axisStyle);
-      yRow.put(entry, _currentRow);
-      _currentRow++;
+      yRow.put(entry, _currentRowIndex);
+      _currentRowIndex++;
     }
-    _currentRow++;
+    _currentRowIndex++;
 
     //Print out the values of the matrix, locate co-ordinates based on  key of valueMap and the xCol/yRow maps
     for (Map.Entry<Pair<String, String>, String> entry : valueMap.entrySet()) {
