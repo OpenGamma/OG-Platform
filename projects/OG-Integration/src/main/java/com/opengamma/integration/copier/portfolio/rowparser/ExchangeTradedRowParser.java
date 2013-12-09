@@ -27,6 +27,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * A row parser that reads in a ticker for an exchange-traded security, a quantity for a position, and
@@ -40,6 +41,8 @@ public class ExchangeTradedRowParser extends RowParser {
   private static final String QUANTITY = "quantity";
   private static final String TRADE_DATE = "trade date";
   private static final String PREMIUM = "premium";
+  private static final String PREMIUM_CURRENCY = "premiumcurrency";
+  private static final String PREMIUM_DATE = "premiumdate";
   private static final String COUNTERPARTY = "counterparty";
   
   private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
@@ -125,6 +128,13 @@ public class ExchangeTradedRowParser extends RowParser {
               tradeDate, 
               LocalTime.of(11, 11).atOffset(ZoneOffset.UTC), 
               counterpartyId);
+      result.setPremium(Double.parseDouble(row.get(PREMIUM)));
+      if (row.containsKey(PREMIUM_CURRENCY)) {
+        result.setPremiumCurrency(Currency.parse(getWithException(row, PREMIUM_CURRENCY)));
+      } 
+      if (row.containsKey(PREMIUM_DATE)) {
+        result.setPremiumDate(getDateWithException(row, PREMIUM_DATE));
+      }
       return result;
      
     } else {
