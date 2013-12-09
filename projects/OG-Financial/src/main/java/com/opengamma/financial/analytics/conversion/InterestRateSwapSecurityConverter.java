@@ -292,7 +292,11 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final IndexON index = new IndexON(floatLeg.getConvention().getName(), currency, floatLeg.getConvention().getDayCountConvention(), publicationLag);
     final ExternalId[] floatFixingCalendarIds = floatLeg.getConvention().getFixingCalendars().toArray(new ExternalId[floatLeg.getConvention().getFixingCalendars().size()]);
     final Calendar floatFixingCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatFixingCalendarIds);
-    final Period paymentTenor = PeriodFrequency.convertToPeriodFrequency(floatLeg.getConvention().getPaymentFrequency()).getPeriod();
+    Period paymentTenor = PeriodFrequency.convertToPeriodFrequency(floatLeg.getConvention().getPaymentFrequency()).getPeriod();
+    // If calc period == Term (aka 0D) - replace with length of swap  -- possible this should be 1Y for compounding OIS
+    if (Period.ZERO.equals(paymentTenor)) {
+      paymentTenor = Period.between(swapSecurity.getEffectiveDate(), swapSecurity.getUnadjustedMaturityDate());
+    }
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currency.getCode() + "_OIS_Convention", index, paymentTenor,
         fixedLeg.getConvention().getDayCountConvention(), floatLeg.getConvention().getFixingBusinessDayConvention(),
         isEOM, floatLeg.getConvention().getSettlementDays(), publicationLag, floatFixingCalendar);
