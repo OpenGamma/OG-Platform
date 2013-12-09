@@ -21,6 +21,8 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.integration.copier.sheet.reader.XlsSheetReader;
+import com.opengamma.integration.copier.snapshot.SnapshotType;
 
 /**
  * Reads a snapshot from an imported file
@@ -34,10 +36,26 @@ public class XlsSnapshotReader implements SnapshotReader{
   private Map<YieldCurveKey, YieldCurveSnapshot> _yieldCurve;
   private String _name;
   private String _basisName;
+  private XlsSheetReader _nameSheet;
+  private InputStream _fileInputStream;
 
   public XlsSnapshotReader(String filename) {
-    InputStream fileInputStream = openFile(filename);
+    _fileInputStream = openFile(filename);
+    buildNameData();
+    buildGlobalData();
 
+  }
+
+  private void buildGlobalData() {
+
+  }
+
+  private void buildNameData() {
+    _nameSheet = new XlsSheetReader(_fileInputStream, SnapshotType.NAME.get());
+    Map<String, String> nameMap = _nameSheet.readKeyValueBlock(_nameSheet.getCurrentRowIndex(), 0);
+    nameMap.putAll(_nameSheet.readKeyValueBlock(_nameSheet.getCurrentRowIndex(), 0));
+    _name = nameMap.get(SnapshotType.NAME.get());
+    _basisName = nameMap.get(SnapshotType.BASIS_NAME.get());
   }
 
   protected static InputStream openFile(String filename) {
