@@ -11,6 +11,7 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.temporal.ChronoUnit;
 
+import com.bloomberglp.blpapi.AbstractSession.StopOption;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 import com.opengamma.OpenGammaRuntimeException;
@@ -19,13 +20,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
 /**
- * Supplies a Bloomberg session and service, creating the connection and managaing reconnection if necessary.
- * The main purpose of this class is to throttle the rate of attempts to reconnect. If Bloomberg is down and a
- * connection is attempted every time a request is made the Bloomberg API runs out of memory, possibly due to
- * an unconstrained thread pool.
+ * Supplies a Bloomberg session and service, creating the connection and managaing reconnection if necessary. The main purpose of this class is to throttle the rate of attempts to reconnect. If
+ * Bloomberg is down and a connection is attempted every time a request is made the Bloomberg API runs out of memory, possibly due to an unconstrained thread pool.
  * <p>
- * This class creates a session on demand but if connection fails it won't retry until a delay has elapsed to avoid
- * overwhelming the Bloomberg API.
+ * This class creates a session on demand but if connection fails it won't retry until a delay has elapsed to avoid overwhelming the Bloomberg API.
  */
 public class SessionProvider {
 
@@ -70,8 +68,8 @@ public class SessionProvider {
   }
 
   /**
-   * Returns a session, creating it if necessary. If this method is called after the provider is closed a new session
-   * will be created.
+   * Returns a session, creating it if necessary. If this method is called after the provider is closed a new session will be created.
+   * 
    * @return The session, not null
    * @throws ConnectionUnavailableException If no connection is available
    */
@@ -87,26 +85,40 @@ public class SessionProvider {
         }
         _lastRetry = now;
         s_logger.info("Bloomberg session being opened...");
-        Session session;
+        Session session = null;
         try {
-          session = _connector.createOpenSession();
-        } catch (OpenGammaRuntimeException e) {
-          throw new ConnectionUnavailableException("Failed to open session", e);
-        }
-        s_logger.info("Bloomberg session open");
-        s_logger.info("Bloomberg service being opened...");
-        try {
-          if (!session.openService(_serviceName)) {
-            throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName);
+          try {
+            session = _connector.createOpenSession();
+          } catch (OpenGammaRuntimeException e) {
+            throw new ConnectionUnavailableException("Failed to open session", e);
           }
-        } catch (InterruptedException ex) {
-          Thread.interrupted();
-          throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName, ex);
-        } catch (Exception ex) {
-          throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName, ex);
+          s_logger.info("Bloomberg session open");
+          s_logger.info("Bloomberg service being opened...");
+          try {
+            if (!session.openService(_serviceName)) {
+              throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName);
+            }
+          } catch (InterruptedException ex) {
+            Thread.interrupted();
+            throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName, ex);
+          } catch (Exception ex) {
+            throw new ConnectionUnavailableException("Bloomberg service failed to start: " + _serviceName, ex);
+          }
+          s_logger.info("Bloomberg service open: {}", _serviceName);
+          _session = session;
+          session = null;
+        } finally {
+          if (session != null) {
+            // If the session was started but the service not opened, then there will be sockets open and threads allocated by
+            // the Bloomberg API which need to be killed. Just letting the session fall out of scope doesn't work (PLAT-5309)
+            s_logger.debug("Attempting to stop partially constructed session");
+            try {
+              session.stop(StopOption.ASYNC);
+            } catch (Exception e) {
+              s_logger.error("Error stopping partial session", e);
+            }
+          }
         }
-        s_logger.info("Bloomberg service open: {}", _serviceName);
-        _session = session;
         return _session;
       }
     }
@@ -133,8 +145,7 @@ public class SessionProvider {
   }
 
   /**
-   * Stops the session. If {@link #getSession()} is called after this method a new session will be created. Calling
-   * this method when there is no active session does nothing.
+   * Stops the session. If {@link #getSession()} is called after this method a new session will be created. Calling this method when there is no active session does nothing.
    */
   public void invalidateSession() {
     synchronized (_lock) {
