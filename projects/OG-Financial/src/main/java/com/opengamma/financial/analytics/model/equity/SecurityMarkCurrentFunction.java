@@ -58,14 +58,7 @@ public class SecurityMarkCurrentFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    ValueProperties valueProperties;
-    if (ccy == null) {
-      valueProperties = createValueProperties().get();
-    } else {
-      valueProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    }
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.MARK_CURRENT, target.toSpecification(), valueProperties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.MARK_CURRENT, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override
