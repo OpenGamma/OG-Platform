@@ -46,9 +46,9 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Reads a snapshot from an imported file
  */
-public class FileSnapshotReader implements SnapshotReader {
+public class CsvSnapshotReader implements SnapshotReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(FileSnapshotReader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CsvSnapshotReader.class);
 
   private CsvSheetReader _sheetReader;
   private Map<CurveKey, CurveSnapshot> _curves;
@@ -60,7 +60,7 @@ public class FileSnapshotReader implements SnapshotReader {
   private static final String MARKET_ALL = "market_all";
   private final FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  public FileSnapshotReader(String filename) {
+  public CsvSnapshotReader(String filename) {
     _sheetReader = new CsvSheetReader(filename);
     iterateSheetRows();
   }

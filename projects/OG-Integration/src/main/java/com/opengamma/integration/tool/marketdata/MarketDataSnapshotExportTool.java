@@ -19,7 +19,7 @@ import com.opengamma.integration.copier.snapshot.copier.SimpleSnapshotCopier;
 import com.opengamma.integration.copier.snapshot.copier.SnapshotCopier;
 import com.opengamma.integration.copier.snapshot.reader.MasterSnapshotReader;
 import com.opengamma.integration.copier.snapshot.reader.SnapshotReader;
-import com.opengamma.integration.copier.snapshot.writer.FileSnapshotWriter;
+import com.opengamma.integration.copier.snapshot.writer.CsvSnapshotWriter;
 import com.opengamma.integration.copier.snapshot.writer.SnapshotWriter;
 import com.opengamma.integration.copier.snapshot.writer.XlsSnapshotWriter;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -90,7 +90,7 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
     }
 
     if (SheetFormat.of(filename) == SheetFormat.CSV) {
-      return new FileSnapshotWriter(filename);
+      return new CsvSnapshotWriter(filename);
     } else if (SheetFormat.of(filename) == SheetFormat.XLS) {
       return new XlsSnapshotWriter(filename);
     } else {

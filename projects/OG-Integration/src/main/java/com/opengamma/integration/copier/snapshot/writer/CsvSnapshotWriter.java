@@ -33,12 +33,12 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Writes a snapshot to exported file
  */
-public class FileSnapshotWriter implements SnapshotWriter {
+public class CsvSnapshotWriter implements SnapshotWriter {
 
   private CsvSheetWriter _sheetWriter;
-  private static final Logger s_logger = LoggerFactory.getLogger(FileSnapshotWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(CsvSnapshotWriter.class);
 
-  public FileSnapshotWriter(String filename) {
+  public CsvSnapshotWriter(String filename) {
 
     if (filename == null) {
       throw new OpenGammaRuntimeException("File name omitted, cannot export to file");
