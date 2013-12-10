@@ -87,7 +87,7 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
       s_logger.error("Caught exception", ex);
       ex.printStackTrace();
     } finally {
-      if(feedback != null){
+      if (feedback != null) {
         try {
           feedback.close();
         } catch (Exception e) {
@@ -122,7 +122,8 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
     }
     final AtomicInteger errors = new AtomicInteger();
     final AtomicInteger successes = new AtomicInteger();
-    final BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(historicalTimeSeriesMaster, historicalTimeSeriesProvider, new BloombergIdentifierProvider(bloombergReferenceDataProvider)) {
+    final BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(historicalTimeSeriesMaster, historicalTimeSeriesProvider, new BloombergIdentifierProvider(
+        bloombergReferenceDataProvider)) {
 
       private long _lastNotify;
       private int _toUpdate;
