@@ -116,7 +116,9 @@ public class ViewRegressionTestTool {
     if (cl.hasOption(VALUATION_TIME)) {
       valuationTime = Instant.parse(cl.getOptionValue(VALUATION_TIME));
     } else {
-      valuationTime = Instant.now();
+      // NOTE jonathan 2013-12-10 -- imply the valuation time from the market data source.
+      // We should never be using Instant.now() as the valuation time in regression tests - the results would be meaningless.
+      valuationTime = null;
     }
     if (cl.hasOption(RESULT_OUT) || cl.hasOption(RESULT_IN)) {
       final CreateGoldenCopyForRegressionTest test;
