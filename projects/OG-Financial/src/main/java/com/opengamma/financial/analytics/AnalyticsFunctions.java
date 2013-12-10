@@ -63,6 +63,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
    */
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
+    
   }
 
   public static void addUnitScalingAndSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
