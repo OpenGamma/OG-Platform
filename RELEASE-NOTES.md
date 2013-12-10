@@ -115,6 +115,10 @@ To 2.1.12
 To 2.1.13
 ---------
     [PLAT-5288] Fix for NPE in VolatilitySurfaceDataFudgeBuilder
+    
+To 2.1.14
+---------
+    [PLAT-5312] Exception casting Object[] to Double[] in IRFutureOptionVolatilitySurfaceDataFunction
 
 
 OpenGamma Platform 2.1
@@ -405,3 +409,36 @@ API compatibility
 Analytics compatibility
 - No expected differences
 
+To 2.1.13
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.14
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
