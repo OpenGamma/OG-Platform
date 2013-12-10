@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -30,7 +31,7 @@ public class XlsSheetReader extends SheetReader {
 
   private Sheet _sheet;
   private Workbook _workbook;
-  private int _currentRowIndex =0;
+  private int _currentRowIndex;
   private InputStream _inputStream;
   
   public XlsSheetReader(String filename, int sheetIndex) {
@@ -97,9 +98,16 @@ public class XlsSheetReader extends SheetReader {
     setColumns(columns); 
   }
 
+  public XlsSheetReader(Workbook workbook, String sheetName) {
+    ArgumentChecker.notNull(workbook, "workbook");
+    ArgumentChecker.notEmpty(sheetName, "sheetName");
+    _workbook = workbook;
+    _sheet = _workbook.getSheet(sheetName);
+    _currentRowIndex = _sheet.getFirstRowNum();
+  }
+
   
   private Workbook getWorkbook(InputStream inputStream) {
-    
     try {
       return new HSSFWorkbook(inputStream);
     } catch (IOException ex) {
@@ -196,6 +204,24 @@ public class XlsSheetReader extends SheetReader {
     _currentRowIndex++;
     return keyValueMap;
   }
+
+  public Map<String, ObjectsPair<String, String>> readKeyPairBlock(int startRow, int startCol) {
+    Map<String, ObjectsPair<String, String>> keyPairMap = new HashMap<>();
+    _currentRowIndex = startRow + 1; //Skip the header row
+    Row row = _sheet.getRow(_currentRowIndex);
+    while (row != null) {
+      Cell keyCell = row.getCell(startCol);
+      Cell firstValueCell = row.getCell(startCol + 1);
+      Cell secondValueCell = row.getCell(startCol + 2);
+      keyPairMap.put(keyCell.getStringCellValue(),
+                     ObjectsPair.of(firstValueCell.getStringCellValue(), secondValueCell.getStringCellValue()));
+      _currentRowIndex++;
+      row = _sheet.getRow(_currentRowIndex);
+    }
+    _currentRowIndex++;
+    return keyPairMap;
+  }
+
 
   public Map<Pair<String, String>, String> readMatrix(int startRow, int startCol) {
 
