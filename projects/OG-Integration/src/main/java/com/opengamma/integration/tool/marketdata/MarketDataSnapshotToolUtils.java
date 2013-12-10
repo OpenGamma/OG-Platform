@@ -187,7 +187,7 @@ public class MarketDataSnapshotToolUtils {
     Object overrideValue = null;
 
     // marketValue can only be Double, LocalDate, empty or (FudgeMsg which is special cased for Market_All)
-    if (market != null) {
+    if (market != null && !market.isEmpty()) {
       if (NumberUtils.isNumber(market)) {
         marketValue = NumberUtils.createDouble(market);
       } else {
@@ -200,7 +200,7 @@ public class MarketDataSnapshotToolUtils {
     }
 
     //overrideValue can only be Double, LocalDate or empty
-    if (override != null) {
+    if (override != null && !override.isEmpty()) {
       if (NumberUtils.isNumber(override)) {
         overrideValue = NumberUtils.createDouble(override);
       } else {

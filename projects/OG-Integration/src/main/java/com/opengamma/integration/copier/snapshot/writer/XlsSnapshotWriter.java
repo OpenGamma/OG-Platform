@@ -54,7 +54,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     }
 
     _xlsWriter = new XlsWriter(filename);
-    _nameSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), "name");
+    _nameSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.NAME.get());
     _curveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.CURVE.get());
     _yieldCurveSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.YIELD_CURVE.get());
     _globalsSheet = new XlsSheetWriter(_xlsWriter.getWorkbook(), SnapshotType.GLOBAL_VALUES.get());
