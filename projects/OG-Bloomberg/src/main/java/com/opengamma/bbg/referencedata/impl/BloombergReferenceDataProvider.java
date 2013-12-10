@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import org.springframework.context.Lifecycle;
 
-import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
 import com.google.common.base.CharMatcher;
@@ -63,7 +62,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
    * <p>
    * This will use the statistics tool in the connector.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param bloombergConnector the Bloomberg connector, not null
    */
   public BloombergReferenceDataProvider(BloombergConnector bloombergConnector) {
     this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
@@ -72,8 +71,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
   /**
    * Creates an instance with statistics gathering.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
-   * @param statistics  the statistics to collect, not null
+   * @param bloombergConnector the Bloomberg connector, not null
+   * @param statistics the statistics to collect, not null
    */
   public BloombergReferenceDataProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
     _impl = new BloombergReferenceDataProviderImpl(bloombergConnector, statistics);
@@ -115,7 +114,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Creates an instance.
      * 
-     * @param provider  the provider, not null
+     * @param provider the provider, not null
      */
     public BloombergReferenceDataProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
       super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
@@ -133,7 +132,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Get reference-data from Bloomberg.
      * 
-     * @param request  the request, not null
+     * @param request the request, not null
      * @return the reference-data result, not null
      */
     ReferenceDataProviderGetResult doBulkGet(ReferenceDataProviderGetRequest request) {
@@ -141,13 +140,13 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       Set<String> dataFields = request.getFields();
       validateIdentifiers(identifiers);
       validateFields(dataFields);
-      
+
       ensureStarted();
       s_logger.debug("Getting reference data for {}, fields {}", identifiers, dataFields);
-      
+
       Request bbgRequest = createRequest(identifiers, dataFields);
       _statistics.recordStatistics(identifiers, dataFields);
-      BlockingQueue<Element> resultElements = callBloomberg(bbgRequest);
+      BlockingQueue<Element> resultElements = submitBloombergRequest(bbgRequest);
       if (resultElements == null || resultElements.isEmpty()) {
         throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + dataFields + " fields for " + identifiers);
       }
@@ -158,7 +157,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Checks that all the identifiers are valid.
      * 
-     * @param identifiers  the set of identifiers, not null
+     * @param identifiers the set of identifiers, not null
      */
     private void validateIdentifiers(Set<String> identifiers) {
       Set<String> excluded = new HashSet<String>();
@@ -181,7 +180,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Checks that all the fields are valid.
      * 
-     * @param fields  the set of fields, not null
+     * @param fields the set of fields, not null
      */
     private void validateFields(Set<String> fields) {
       Set<String> excluded = new HashSet<String>();
@@ -208,7 +207,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       // create request
       Request request = getService().createRequest(BLOOMBERG_REFERENCE_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
-      
+
       // identifiers
       for (String identifier : identifiers) {
         if (StringUtils.isEmpty(identifier)) {
@@ -216,7 +215,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
         }
         securitiesElem.appendValue(identifier);
       }
-      
+
       // fields
       Element fieldElem = request.getElement(BLOOMBERG_FIELDS_REQUEST);
       for (String dataField : dataFields) {
@@ -233,27 +232,14 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
       return request;
     }
 
-    //-------------------------------------------------------------------------
-    /**
-     * Call Bloomberg.
-     * 
-     * @param request  the request, not null
-     * @return the response, may be null
-     */
-    private BlockingQueue<Element> callBloomberg(Request request) {
-      CorrelationID cid = submitBloombergRequest(request);
-      return getResultElement(cid);
-    }
-
-    //-------------------------------------------------------------------------
     /**
      * Performs the main work to parse the result from Bloomberg.
      * <p>
      * This is part of {@link #getFields(Set, Set)}.
      * 
-     * @param securityKeys  the set of securities, not null
-     * @param fields  the set of fields, not null
-     * @param resultElements  the result elements from Bloomberg, not null
+     * @param securityKeys the set of securities, not null
+     * @param fields the set of fields, not null
+     * @param resultElements the result elements from Bloomberg, not null
      * @return the parsed result, not null
      */
     protected ReferenceDataProviderGetResult parse(Set<String> securityKeys, Set<String> fields, BlockingQueue<Element> resultElements) {
@@ -267,7 +253,7 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
           }
           throw new OpenGammaRuntimeException("Unable to get a Bloomberg response for " + fields + " fields for " + securityKeys + ": " + responseError);
         }
-        
+
         Element securityDataArray = resultElem.getElement(SECURITY_DATA);
         int numSecurities = securityDataArray.numValues();
         for (int iSecurityElem = 0; iSecurityElem < numSecurities; iSecurityElem++) {
@@ -295,8 +281,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes an error affecting the whole identifier.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param element  the bloomberg element, not null
+     * @param refData the per identifier reference data result, not null
+     * @param element the bloomberg element, not null
      */
     protected void parseIdentifierError(ReferenceData refData, Element element) {
       ReferenceDataError error = buildError(null, element);
@@ -306,8 +292,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the field data.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param element  the bloomberg element, not null
+     * @param refData the per identifier reference data result, not null
+     * @param element the bloomberg element, not null
      */
     protected void parseFieldData(ReferenceData refData, Element element) {
       FudgeMsg fieldData = BloombergDataUtils.parseElement(element);
@@ -317,8 +303,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the an error affecting a single field on a one identifier.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param fieldExceptionArray  the bloomberg data, not null
+     * @param refData the per identifier reference data result, not null
+     * @param fieldExceptionArray the bloomberg data, not null
      */
     protected void parseFieldExceptions(ReferenceData refData, Element fieldExceptionArray) {
       int numExceptions = fieldExceptionArray.numValues();
@@ -333,8 +319,8 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Processes the EID data.
      * 
-     * @param refData  the per identifier reference data result, not null
-     * @param element  the bloomberg element, not null
+     * @param refData the per identifier reference data result, not null
+     * @param element the bloomberg element, not null
      */
     protected void parseEidData(ReferenceData refData, Element element) {
       refData.setEntitlementInfo(element);
@@ -343,13 +329,13 @@ public class BloombergReferenceDataProvider extends AbstractReferenceDataProvide
     /**
      * Creates an instance from a Bloomberg element.
      * 
-     * @param field  the field, null if linked to the identifier rather than a field
-     * @param element  the element, not null
+     * @param field the field, null if linked to the identifier rather than a field
+     * @param element the element, not null
      * @return the error, not null
      */
     public ReferenceDataError buildError(String field, Element element) {
-      return new ReferenceDataError(field, element.getElementAsInt32("code"), element.getElementAsString("category"),
-          element.getElementAsString("subcategory"), element.getElementAsString("message"));
+      return new ReferenceDataError(field, element.getElementAsInt32("code"), element.getElementAsString("category"), element.getElementAsString("subcategory"),
+          element.getElementAsString("message"));
     }
   }
 

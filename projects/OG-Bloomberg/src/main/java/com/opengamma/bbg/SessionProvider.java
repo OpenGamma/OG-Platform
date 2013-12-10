@@ -7,6 +7,7 @@ package com.opengamma.bbg;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.temporal.ChronoUnit;
@@ -25,7 +26,7 @@ import com.opengamma.util.OpenGammaClock;
  * <p>
  * This class creates a session on demand but if connection fails it won't retry until a delay has elapsed to avoid overwhelming the Bloomberg API.
  */
-public class SessionProvider {
+public class SessionProvider implements Lifecycle {
 
   /** The logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SessionProvider.class);
@@ -43,8 +44,8 @@ public class SessionProvider {
 
   /** The session. */
   private Session _session;
-  /** The time of the last connection attempt. */
-  private Instant _lastRetry = Instant.EPOCH;
+  /** The time of the last connection attempt. Also used as a lifecycle indicator - being null if the provider is not running */
+  private Instant _lastRetry;
 
   /**
    * @param connector Bloomberg connection details
@@ -78,7 +79,9 @@ public class SessionProvider {
       if (_session != null) {
         return _session;
       } else {
-        _session = null;
+        if (_lastRetry == null) {
+          throw new ConnectionUnavailableException("Session provider has not been started");
+        }
         Instant now = OpenGammaClock.getInstance().instant();
         if (Duration.between(_lastRetry, now).compareTo(_retryDuration) < 0) {
           throw new ConnectionUnavailableException("No Bloomberg connection is available");
@@ -136,16 +139,15 @@ public class SessionProvider {
    * @return true if there is an open connection to Bloomberg.
    */
   public boolean isConnected() {
-    try {
-      getSession();
-      return true;
-    } catch (ConnectionUnavailableException e) {
-      return false;
+    synchronized (_lock) {
+      return _session != null;
     }
   }
 
   /**
-   * Stops the session. If {@link #getSession()} is called after this method a new session will be created. Calling this method when there is no active session does nothing.
+   * Stops the session. If {@link #getSession()} is called after this method a new session will be created.
+   * <p>
+   * Calling this method when there is no active session does nothing.
    */
   public void invalidateSession() {
     synchronized (_lock) {
@@ -162,4 +164,48 @@ public class SessionProvider {
       }
     }
   }
+
+  // Lifecycle
+
+  /**
+   * Enables the provider, starting it so that {@link #getSession} will connect on demand to Bloomberg.
+   * <p>
+   * Calling this method when the provider is already started does nothing.
+   */
+  @Override
+  public void start() {
+    synchronized (_lock) {
+      if (_lastRetry == null) {
+        _lastRetry = Instant.EPOCH;
+        // First call to {@link #getSession} will now attempt to connect
+      }
+    }
+  }
+
+  /**
+   * Tests if the provider is running, that is a call has been made to {@link #start}. This does not mean that there is a connection to Bloomberg - use {@link #isConnected} to test for that. If this
+   * returns false it will mean there is no active connection and none will be made by calls to {@link #getSession}.
+   * 
+   * @return true if the provider is started, false otherwise.
+   */
+  @Override
+  public boolean isRunning() {
+    synchronized (_lock) {
+      return _lastRetry != null;
+    }
+  }
+
+  /**
+   * Disables the provider, stopping it so that any active session is closed and {@link #getSession} will no longer connect to Bloomberg.
+   * <p>
+   * Calling this method when the provider is not started does nothing.
+   */
+  @Override
+  public void stop() {
+    synchronized (_lock) {
+      invalidateSession();
+      _lastRetry = null;
+    }
+  }
+
 }
