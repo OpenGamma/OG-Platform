@@ -34,17 +34,17 @@ import org.slf4j.helpers.MessageFormatter;
 public final class FailureFunctionResult<T> implements FunctionResult<T>, ImmutableBean {
 
   /**
+   * The status associated with the failure.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final FailureStatus _status;
+
+  /**
    * The error message associated with the failure. Not evaluated unless
    * actually requested.
    */
   @PropertyDefinition(validate = "notNull")
   private final FormattingTuple _errorMessage;
-
-  /**
-   * The status associated with the failure.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private final FailureStatus _status;
 
   /* package */ FailureFunctionResult(FailureStatus failureStatus, String message, Object... messageArgs) {
     this(failureStatus, MessageFormatter.arrayFormat(message, messageArgs));
@@ -128,20 +128,21 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the errorMessage.
-   * @return the value of the property, not null
-   */
-  public FormattingTuple getErrorMessage() {
-    return _errorMessage;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the status.
+   * Gets the status associated with the failure.
    * @return the value of the property, not null
    */
   public FailureStatus getStatus() {
     return _status;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the error message associated with the failure. Not evaluated unless
+   * actually requested.
+   * @return the value of the property, not null
+   */
+  public FormattingTuple getErrorMessage() {
+    return _errorMessage;
   }
 
   //-----------------------------------------------------------------------
@@ -165,8 +166,8 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FailureFunctionResult<?> other = (FailureFunctionResult<?>) obj;
-      return JodaBeanUtils.equal(getErrorMessage(), other.getErrorMessage()) &&
-          JodaBeanUtils.equal(getStatus(), other.getStatus());
+      return JodaBeanUtils.equal(getStatus(), other.getStatus()) &&
+          JodaBeanUtils.equal(getErrorMessage(), other.getErrorMessage());
     }
     return false;
   }
@@ -174,8 +175,8 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorMessage());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStatus());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrorMessage());
     return hash;
   }
 
@@ -191,22 +192,22 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code errorMessage} property.
-     */
-    private final MetaProperty<FormattingTuple> _errorMessage = DirectMetaProperty.ofImmutable(
-        this, "errorMessage", FailureFunctionResult.class, FormattingTuple.class);
-    /**
      * The meta-property for the {@code status} property.
      */
     private final MetaProperty<FailureStatus> _status = DirectMetaProperty.ofImmutable(
         this, "status", FailureFunctionResult.class, FailureStatus.class);
     /**
+     * The meta-property for the {@code errorMessage} property.
+     */
+    private final MetaProperty<FormattingTuple> _errorMessage = DirectMetaProperty.ofImmutable(
+        this, "errorMessage", FailureFunctionResult.class, FormattingTuple.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "errorMessage",
-        "status");
+        "status",
+        "errorMessage");
 
     /**
      * Restricted constructor.
@@ -217,10 +218,10 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1203236063:  // errorMessage
-          return _errorMessage;
         case -892481550:  // status
           return _status;
+        case 1203236063:  // errorMessage
+          return _errorMessage;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -243,14 +244,6 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code errorMessage} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FormattingTuple> errorMessage() {
-      return _errorMessage;
-    }
-
-    /**
      * The meta-property for the {@code status} property.
      * @return the meta-property, not null
      */
@@ -258,14 +251,22 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
       return _status;
     }
 
+    /**
+     * The meta-property for the {@code errorMessage} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FormattingTuple> errorMessage() {
+      return _errorMessage;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1203236063:  // errorMessage
-          return ((FailureFunctionResult<?>) bean).getErrorMessage();
         case -892481550:  // status
           return ((FailureFunctionResult<?>) bean).getStatus();
+        case 1203236063:  // errorMessage
+          return ((FailureFunctionResult<?>) bean).getErrorMessage();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -287,8 +288,8 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<FailureFunctionResult<T>> {
 
-    private FormattingTuple _errorMessage;
     private FailureStatus _status;
+    private FormattingTuple _errorMessage;
 
     /**
      * Restricted constructor.
@@ -301,8 +302,8 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FailureFunctionResult<T> beanToCopy) {
-      this._errorMessage = beanToCopy.getErrorMessage();
       this._status = beanToCopy.getStatus();
+      this._errorMessage = beanToCopy.getErrorMessage();
     }
 
     //-----------------------------------------------------------------------
@@ -310,11 +311,11 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     @Override
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1203236063:  // errorMessage
-          this._errorMessage = (FormattingTuple) newValue;
-          break;
         case -892481550:  // status
           this._status = (FailureStatus) newValue;
+          break;
+        case 1203236063:  // errorMessage
+          this._errorMessage = (FormattingTuple) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -349,22 +350,11 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
     @Override
     public FailureFunctionResult<T> build() {
       return new FailureFunctionResult<T>(
-          _status, _errorMessage
-      );
+          _status,
+          _errorMessage);
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code errorMessage} property in the builder.
-     * @param errorMessage  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder<T> errorMessage(FormattingTuple errorMessage) {
-      JodaBeanUtils.notNull(errorMessage, "errorMessage");
-      this._errorMessage = errorMessage;
-      return this;
-    }
-
     /**
      * Sets the {@code status} property in the builder.
      * @param status  the new value, not null
@@ -376,13 +366,24 @@ public final class FailureFunctionResult<T> implements FunctionResult<T>, Immuta
       return this;
     }
 
+    /**
+     * Sets the {@code errorMessage} property in the builder.
+     * @param errorMessage  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder<T> errorMessage(FormattingTuple errorMessage) {
+      JodaBeanUtils.notNull(errorMessage, "errorMessage");
+      this._errorMessage = errorMessage;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("FailureFunctionResult.Builder{");
-      buf.append("errorMessage").append('=').append(JodaBeanUtils.toString(_errorMessage)).append(',').append(' ');
-      buf.append("status").append('=').append(JodaBeanUtils.toString(_status));
+      buf.append("status").append('=').append(JodaBeanUtils.toString(_status)).append(',').append(' ');
+      buf.append("errorMessage").append('=').append(JodaBeanUtils.toString(_errorMessage));
       buf.append('}');
       return buf.toString();
     }

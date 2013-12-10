@@ -113,7 +113,7 @@ public final class SuccessFunctionResult<T> implements FunctionResult<T>, Immuta
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the result.
+   * Gets the result of the function invocation.
    * @return the value of the property, not null
    */
   public T getResult() {
