@@ -17,12 +17,17 @@ import java.util.TimeZone;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.apache.commons.lang.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.SignStyle;
 
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.integration.tool.marketdata.SnapshotUtils.VersionInfo;
 
 /**
@@ -40,7 +45,8 @@ public class MarketDataSnapshotToolUtils {
   /** Snapshot query option flag */
   private static final String SNAPSHOT_QUERY_OPTION = "q";
   /** Snapshot version list option flag */
-  private static final String SNAPSHOT_VERSION_LIST_OPTION = "v";  
+  private static final String SNAPSHOT_VERSION_LIST_OPTION = "v";
+  private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotToolUtils.class);
   
   public static Option createSnapshotListOption() {
     final Option option = new Option(SNAPSHOT_LIST_OPTION, "snapshot-list", false, "List the snapshots available");
@@ -173,5 +179,39 @@ public class MarketDataSnapshotToolUtils {
   private static void pad(int n) {
     String repeat = org.apache.commons.lang.StringUtils.repeat(" ", n);
     System.out.print(repeat);
+  }
+
+
+  public static ValueSnapshot createValueSnapshot(String market, String override) {
+    Object marketValue = null;
+    Object overrideValue = null;
+
+    // marketValue can only be Double, LocalDate, empty or (FudgeMsg which is special cased for Market_All)
+    if (market != null) {
+      if (NumberUtils.isNumber(market)) {
+        marketValue = NumberUtils.createDouble(market);
+      } else {
+        try {
+          marketValue = LocalDate.parse(market);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Market value {} should be a Double, LocalDate or empty.", market);
+        }
+      }
+    }
+
+    //overrideValue can only be Double, LocalDate or empty
+    if (override != null) {
+      if (NumberUtils.isNumber(override)) {
+        overrideValue = NumberUtils.createDouble(override);
+      } else {
+        try {
+          overrideValue = LocalDate.parse(override);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Override value {} should be a Double, LocalDate or empty.", override);
+        }
+      }
+    }
+
+    return ValueSnapshot.of(marketValue, overrideValue);
   }
 }

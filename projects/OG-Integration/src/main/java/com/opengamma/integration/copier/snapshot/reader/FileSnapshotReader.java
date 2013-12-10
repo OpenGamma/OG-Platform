@@ -36,6 +36,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.sheet.reader.CsvSheetReader;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
+import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -324,41 +325,13 @@ public class FileSnapshotReader implements SnapshotReader {
     String market = currentRow.get(SnapshotColumns.MARKET_VALUE.get());
     String override = currentRow.get(SnapshotColumns.OVERRIDE_VALUE.get());
     String valueObject = currentRow.get(SnapshotColumns.VALUE_OBJECT.get());
-    Object marketValue = null;
-    Object overrideValue = null;
 
     //preserve null valueSnapshots
     if (valueObject != null && valueObject.equalsIgnoreCase("null")) {
       return null;
     }
 
-    // marketValue can only be Double, LocalDate, empty or (FudgeMsg which is special cased for Market_All)
-    if (market != null) {
-      if (NumberUtils.isNumber(market)) {
-        marketValue = NumberUtils.createDouble(market);
-      } else {
-        try {
-          marketValue = LocalDate.parse(market);
-        } catch (IllegalArgumentException e)  {
-          s_logger.error("Market value {} should be a Double, LocalDate or empty.", market);
-        }
-      }
-    }
-
-    //overrideValue can only be Double, LocalDate or empty
-    if (override != null) {
-      if (NumberUtils.isNumber(override)) {
-        overrideValue = NumberUtils.createDouble(override);
-      } else {
-        try {
-          overrideValue = LocalDate.parse(override);
-        } catch (IllegalArgumentException e)  {
-          s_logger.error("Override value {} should be a Double, LocalDate or empty.", override);
-        }
-      }
-    }
-
-    return ValueSnapshot.of(marketValue, overrideValue);
+    return MarketDataSnapshotToolUtils.createValueSnapshot(market, override);
   }
 
   private ExternalIdBundle createExternalIdBundle(Map<String, String> currentRow) {
