@@ -10,12 +10,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
@@ -26,10 +28,13 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.copier.sheet.reader.XlsSheetReader;
+import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
 import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -46,6 +51,7 @@ public class XlsSnapshotReader implements SnapshotReader{
   private String _basisName;
   private XlsSheetReader _nameSheet;
   private XlsSheetReader _globalsSheet;
+  private XlsSheetReader _yieldCurveSheet;
   private Workbook _workbook;
   private InputStream _fileInputStream;
   private final String valueObject = "Market_Value";
@@ -53,8 +59,12 @@ public class XlsSnapshotReader implements SnapshotReader{
   public XlsSnapshotReader(String filename) {
     _fileInputStream = openFile(filename);
     _workbook = getWorkbook(_fileInputStream);
+    _curves = new HashMap<>();
+    _surface = new HashMap<>();
+    _yieldCurve = new HashMap<>();
     buildNameData();
     buildGlobalData();
+    buildYieldCurveData();
 
   }
 
@@ -72,17 +82,38 @@ public class XlsSnapshotReader implements SnapshotReader{
     return ExternalIdBundle.parse(iterable);
   }
 
-  private void buildGlobalData() {
-    _globalsSheet = new XlsSheetReader(_workbook, SnapshotType.GLOBAL_VALUES.get());
-    Map<String, ObjectsPair<String, String>> globalMap = _globalsSheet.readKeyPairBlock(_globalsSheet.getCurrentRowIndex(), 0);
-    ManageableUnstructuredMarketDataSnapshot globalBuilder = new ManageableUnstructuredMarketDataSnapshot();
-    for (Map.Entry<String, ObjectsPair<String, String>> entry : globalMap.entrySet()) {
-      globalBuilder.putValue(createExternalIdBundle(entry.getKey()),
+  private void buildYieldCurveData() {
+    _yieldCurveSheet = new XlsSheetReader(_workbook, SnapshotType.YIELD_CURVE.get());
+    while (true) {
+      Map<String, String> details = _yieldCurveSheet.readKeyValueBlock(_yieldCurveSheet.getCurrentRowIndex(), 0);
+      if (details.isEmpty() || details == null) {
+        break;
+      }
+      YieldCurveKey key = YieldCurveKey.of(Currency.of(details.get(SnapshotColumns.YIELD_CURVE_CURRENCY.get())),
+                                           details.get(SnapshotColumns.NAME.get()));
+      Instant instant = Instant.parse(details.get(SnapshotColumns.INSTANT.get()));
+      ManageableUnstructuredMarketDataSnapshot snapshot = getManageableUnstructuredMarketDataSnapshot(_yieldCurveSheet);
+      ManageableYieldCurveSnapshot curve = ManageableYieldCurveSnapshot.of(instant, snapshot);
+      _yieldCurve.put(key, curve);
+    }
+  }
+
+  private ManageableUnstructuredMarketDataSnapshot getManageableUnstructuredMarketDataSnapshot(XlsSheetReader sheet) {
+    //Skip the header row
+    Map<String, ObjectsPair<String, String>> map = sheet.readKeyPairBlock(sheet.getCurrentRowIndex() + 1, 0);
+    ManageableUnstructuredMarketDataSnapshot builder = new ManageableUnstructuredMarketDataSnapshot();
+    for (Map.Entry<String, ObjectsPair<String, String>> entry : map.entrySet()) {
+      builder.putValue(createExternalIdBundle(entry.getKey()),
                              valueObject,
                              MarketDataSnapshotToolUtils.createValueSnapshot(entry.getValue().getFirst(),
                                                                              entry.getValue().getSecond()));
     }
-    _global = globalBuilder;
+    return builder;
+  }
+
+  private void buildGlobalData() {
+    _globalsSheet = new XlsSheetReader(_workbook, SnapshotType.GLOBAL_VALUES.get());
+    _global = getManageableUnstructuredMarketDataSnapshot(_globalsSheet);
   }
 
   private void buildNameData() {

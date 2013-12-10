@@ -207,7 +207,7 @@ public class XlsSheetReader extends SheetReader {
 
   public Map<String, ObjectsPair<String, String>> readKeyPairBlock(int startRow, int startCol) {
     Map<String, ObjectsPair<String, String>> keyPairMap = new HashMap<>();
-    _currentRowIndex = startRow + 1; //Skip the header row
+    _currentRowIndex = startRow;
     Row row = _sheet.getRow(_currentRowIndex);
     while (row != null) {
       Cell keyCell = row.getCell(startCol);
@@ -224,8 +224,6 @@ public class XlsSheetReader extends SheetReader {
 
 
   public Map<Pair<String, String>, String> readMatrix(int startRow, int startCol) {
-
-
 
     Map<Pair<String, String>, String> valueMap = new HashMap<>();
     //Maps used to store the index of each x and y axis
