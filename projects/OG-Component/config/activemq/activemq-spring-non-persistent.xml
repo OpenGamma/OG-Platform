@@ -5,12 +5,12 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
-  <!-- This config file is called from fullstack-examplessimulated.ini via SpringActiveMqComponentFactory -->
+  <!-- This config file is called via SpringActiveMqComponentFactory -->
 
     <!-- 
         The <broker> element is used to configure the ActiveMQ broker. 
     -->
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.base}/data">
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" persistent="false">
  
         <!--
       For better performances use VM cursor and small memory limit.
@@ -64,10 +64,11 @@
             For more information, see: 
             
             http://activemq.apache.org/persistence.html 
-        -->
+        
         <persistenceAdapter>
             <kahaDB directory="${activemq.base}/data/kahadb"/>
         </persistenceAdapter>
+        -->
         
         
           <!--
