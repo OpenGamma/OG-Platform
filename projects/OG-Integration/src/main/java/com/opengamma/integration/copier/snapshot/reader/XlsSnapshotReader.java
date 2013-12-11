@@ -27,6 +27,7 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalIdBundle;
@@ -52,6 +53,7 @@ public class XlsSnapshotReader implements SnapshotReader{
   private XlsSheetReader _nameSheet;
   private XlsSheetReader _globalsSheet;
   private XlsSheetReader _yieldCurveSheet;
+  private XlsSheetReader _curveSheet;
   private Workbook _workbook;
   private InputStream _fileInputStream;
   private final String valueObject = "Market_Value";
@@ -65,6 +67,7 @@ public class XlsSnapshotReader implements SnapshotReader{
     buildNameData();
     buildGlobalData();
     buildYieldCurveData();
+    buildCurveData();
 
   }
 
@@ -95,6 +98,22 @@ public class XlsSnapshotReader implements SnapshotReader{
       ManageableUnstructuredMarketDataSnapshot snapshot = getManageableUnstructuredMarketDataSnapshot(_yieldCurveSheet);
       ManageableYieldCurveSnapshot curve = ManageableYieldCurveSnapshot.of(instant, snapshot);
       _yieldCurve.put(key, curve);
+    }
+  }
+
+  private void buildCurveData() {
+    _curveSheet = new XlsSheetReader(_workbook, SnapshotType.CURVE.get());
+    while (true) {
+      Map<String, String> details = _curveSheet.readKeyValueBlock(_curveSheet.getCurrentRowIndex(), 0);
+      if (details.isEmpty() || details == null) {
+        break;
+      }
+      ManageableCurveSnapshot curve = new ManageableCurveSnapshot();
+      ManageableUnstructuredMarketDataSnapshot snapshot =  getManageableUnstructuredMarketDataSnapshot(_curveSheet);
+      Instant instant = Instant.parse(details.get(SnapshotColumns.INSTANT.get()));
+      curve.setValuationTime(instant);
+      curve.setValues(snapshot);
+      _curves.put(CurveKey.of(details.get(SnapshotColumns.NAME.get())), curve);
     }
   }
 
