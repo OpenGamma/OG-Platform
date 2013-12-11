@@ -20,7 +20,6 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.omg.DynamicAny._DynEnumStub;
 import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
@@ -28,7 +27,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * A security for a swap.
@@ -120,13 +118,14 @@ public final class InterestRateSwapSecurity extends FinancialSecurity {
     return legs;
   }
 
-  public Collection<InterestRateSwapLeg> getLegs(final Class<? extends InterestRateSwapLeg> desiredLegClass) {
+  @SuppressWarnings("unchecked")
+  public <T extends InterestRateSwapLeg> Collection<T> getLegs(final Class<T> desiredLegClass) {
     //ArgumentChecker.isTrue(desiredLegClass.isAssignableFrom(InterestRateSwapLeg.class),
     //                       "desiredLegClass must be a subtype of InterestRateSwpaLeg: got" + desiredLegClass);
-    List<InterestRateSwapLeg> legs = new ArrayList<>();
+    List<T> legs = new ArrayList<>();
     for (InterestRateSwapLeg leg : getLegs()) {
       if (leg.getClass().isAssignableFrom(desiredLegClass)) {
-        legs.add(leg);
+        legs.add((T) leg);
       }
     }
     return legs;

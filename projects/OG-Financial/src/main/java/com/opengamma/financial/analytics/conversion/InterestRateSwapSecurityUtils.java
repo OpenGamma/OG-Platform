@@ -73,11 +73,22 @@ public class InterestRateSwapSecurityUtils {
       if (payLeg1.getConvention().getRateType().isIbor()) {
         if (receiveLeg1.getConvention().getRateType().isIbor()) {
           return InterestRateInstrumentType.SWAP_IBOR_IBOR;
+        } else if (receiveLeg1.getConvention().getRateType().isOis()) {
+          return InterestRateInstrumentType.SWAP_IBOR_OIS;
+        } else if (receiveLeg1.getConvention().getRateType().isCms()) {
+          return InterestRateInstrumentType.SWAP_IBOR_CMS;
+        } else {
+          throw new OpenGammaRuntimeException("Unknown swap type: " + security);
         }
-        return InterestRateInstrumentType.SWAP_IBOR_CMS;
       }
       if (receiveLeg1.getConvention().getRateType().isIbor()) {
-        return InterestRateInstrumentType.SWAP_IBOR_CMS;
+        if (payLeg1.getConvention().getRateType().isOis()) {
+          return InterestRateInstrumentType.SWAP_IBOR_OIS;
+        } else if (payLeg1.getConvention().getRateType().isCms()) {
+          return InterestRateInstrumentType.SWAP_IBOR_CMS;
+        } else {
+          throw new OpenGammaRuntimeException("Unknown swap type: " + security);
+        }
       }
       return InterestRateInstrumentType.SWAP_CMS_CMS;
     }
