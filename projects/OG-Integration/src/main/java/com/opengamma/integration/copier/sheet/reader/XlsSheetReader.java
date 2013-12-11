@@ -190,6 +190,10 @@ public class XlsSheetReader extends SheetReader {
     return _currentRowIndex++;
   }
 
+  public void decrementCurrentRowIndex() {
+    _currentRowIndex--;
+  }
+
   public Map<String, String> readKeyValueBlock(int startRow, int startCol) {
     Map<String, String> keyValueMap = new HashMap<>();
     _currentRowIndex = startRow;
@@ -226,20 +230,48 @@ public class XlsSheetReader extends SheetReader {
   public Map<Pair<String, String>, String> readMatrix(int startRow, int startCol) {
 
     Map<Pair<String, String>, String> valueMap = new HashMap<>();
+    _currentRowIndex = startRow;
+    int tempRowIndex = _currentRowIndex + 1; // Ignore top left cell
     //Maps used to store the index of each x and y axis
-    Map<String, Integer> xCol = new HashMap<>();
-    Map<String, Integer> yRow = new HashMap<>();
+    Map<Integer, String> colIndexToXAxis = new HashMap<>();
+    Map<Integer, String> rowIndexToYAxis = new HashMap<>();
 
-    Row row = _sheet.getRow(startRow);
-
-    for (Cell cell : row) {
-     xCol.put(getCellAsString(cell), cell.getColumnIndex());
+    Row xAxisRow = _sheet.getRow(_currentRowIndex);
+    for (Cell cell : xAxisRow) {
+      int columnIndex = cell.getColumnIndex();
+      if (columnIndex != startCol) { // Ignore top left cell
+        colIndexToXAxis.put(columnIndex, getCellAsString(cell));
+      }
     }
 
-    //do {
-    //  Cell cell;
-    //}
-    //while (cell != null);
+    while (true) {
+      Row yAxisRow = _sheet.getRow(tempRowIndex);
+      if (yAxisRow == null) {
+        break;
+      }
+      Cell yAxisCell = yAxisRow.getCell(startCol);
+      rowIndexToYAxis.put(yAxisCell.getRowIndex(), getCellAsString(yAxisCell));
+      tempRowIndex++;
+    }
+
+    _currentRowIndex++; //move to first row after x-axis
+
+    while (true) {
+      Row valueRow = _sheet.getRow(_currentRowIndex);
+      if (valueRow == null) {
+        break;
+      }
+      for (Cell valueCell : valueRow) {
+        int columnIndex = valueCell.getColumnIndex();
+        if (columnIndex != startCol) { // Ignore left y axis cells
+          String xAxis = colIndexToXAxis.get(columnIndex);
+          String yAxis = rowIndexToYAxis.get(_currentRowIndex);
+          valueMap.put(ObjectsPair.of(xAxis, yAxis), valueCell.getStringCellValue());
+        }
+      }
+      _currentRowIndex++;
+    }
+    _currentRowIndex++;
 
     return valueMap;
   }

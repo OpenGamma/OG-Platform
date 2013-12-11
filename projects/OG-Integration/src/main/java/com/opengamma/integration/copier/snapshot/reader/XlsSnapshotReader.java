@@ -37,6 +37,7 @@ import com.opengamma.integration.copier.snapshot.SnapshotType;
 import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Reads a snapshot from an imported file
@@ -54,6 +55,7 @@ public class XlsSnapshotReader implements SnapshotReader{
   private XlsSheetReader _globalsSheet;
   private XlsSheetReader _yieldCurveSheet;
   private XlsSheetReader _curveSheet;
+  private XlsSheetReader _surfaceSheet;
   private Workbook _workbook;
   private InputStream _fileInputStream;
   private final String valueObject = "Market_Value";
@@ -68,7 +70,19 @@ public class XlsSnapshotReader implements SnapshotReader{
     buildGlobalData();
     buildYieldCurveData();
     buildCurveData();
+    buildSurfaceData();
+  }
 
+  private void buildSurfaceData() {
+    _surfaceSheet = new XlsSheetReader(_workbook, SnapshotType.VOL_SURFACE.get());
+    while(true) {
+      Map<String, String> details = _surfaceSheet.readKeyValueBlock(_surfaceSheet.getCurrentRowIndex(), 0);
+      if (details.isEmpty() || details == null) {
+        break;
+      }
+      Map<Pair<String, String>, String> marketValue = _surfaceSheet.readMatrix(_surfaceSheet.getCurrentRowIndex(), 0);
+      Map<Pair<String, String>, String> overrideValue = _surfaceSheet.readMatrix(_surfaceSheet.getCurrentRowIndex(), 0);
+    }
   }
 
   private Workbook getWorkbook(InputStream inputStream) {
