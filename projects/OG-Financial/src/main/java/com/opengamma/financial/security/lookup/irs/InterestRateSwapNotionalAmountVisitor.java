@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security.lookup.irs;
 
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.financial.security.irs.InterestRateSwapNotional;
 import com.opengamma.financial.security.irs.InterestRateSwapNotionalVisitor;
 import com.opengamma.financial.security.swap.CommodityNotional;
@@ -15,28 +17,34 @@ import com.opengamma.financial.security.swap.VarianceSwapNotional;
 /**
  * Visitor to obtain the IR notional amount.
  */
-public class InterestRateSwapNotionalAmountVisitor implements InterestRateSwapNotionalVisitor<Integer,  Double> {
+public class InterestRateSwapNotionalAmountVisitor implements InterestRateSwapNotionalVisitor<LocalDate,  Double> {
 
-  public Double visitCommodityNotional(CommodityNotional notional, Integer period) {
+  @Override
+  public Double visitCommodityNotional(CommodityNotional notional, LocalDate period) {
     return null;
   }
 
-  public Double visitInterestRateNotional(InterestRateNotional notional, Integer period) {
+  @Override
+  public Double visitInterestRateNotional(InterestRateNotional notional, LocalDate period) {
     return notional.getAmount();
   }
 
-  public Double visitSecurityNotional(SecurityNotional notional, Integer period) {
+  @Override
+  public Double visitSecurityNotional(SecurityNotional notional, LocalDate period) {
     return null;
   }
 
-  public Double visitVarianceSwapNotional(VarianceSwapNotional notional, Integer period) {
+  @Override
+  public Double visitVarianceSwapNotional(VarianceSwapNotional notional, LocalDate period) {
     return null;
   }
 
-  public Double visitInterestRateSwapNotional(InterestRateSwapNotional notional, Integer period) {
+  @Override
+  public Double visitInterestRateSwapNotional(InterestRateSwapNotional notional, LocalDate period) {
     return notional.getAmount(period);
   }
 
+  @Override
   public Double visitInterestRateSwapNotional(InterestRateSwapNotional notional) {
     throw new UnsupportedOperationException("InterestRateSwapNotional requires a period to get the notional for: " + notional);
   }
@@ -45,6 +53,8 @@ public class InterestRateSwapNotionalAmountVisitor implements InterestRateSwapNo
   public Double visitInterestRateNotional(InterestRateNotional notional) {
     return notional.getAmount();
   }
+
+
 
   @Override
   public Double visitCommodityNotional(CommodityNotional notional) {

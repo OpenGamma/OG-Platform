@@ -18,10 +18,13 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+
+//TODO: Take business day convention
 
 /**
  * Notional that can handle a schedule. Currency must be constant throughout.
@@ -35,10 +38,10 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The periods for which custom notionals are required.
+   * The dates for which custom notionals take effect.
    */
   @PropertyDefinition
-  private int[] _overridePeriods;
+  private LocalDate[] _dates;
 
   /**
    * The custom notionals. Possible this should be delta's on top of first notional.
@@ -53,7 +56,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   private Rate.ShiftType[] _shiftTypes;
 
   //@Override
-  public <T> T accept(InterestRateSwapNotionalVisitor<Integer, T> visitor, Integer period) {
+  public <T> T accept(InterestRateSwapNotionalVisitor<LocalDate, T> visitor, LocalDate period) {
     return visitor.visitInterestRateSwapNotional(this, period);
   }
 
@@ -62,56 +65,123 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     return visitor.visitInterestRateSwapNotional(this);
   }
 
+  /**
+   * Return the notional amount.
+   *
+   * @deprecated getInitialAmount() should be used in preference to this.
+   * @return the initial notional.
+   */
+  @Deprecated
   @Override
   public double getAmount() {
-    if (_overridePeriods.length == 0) {
-      return super.getAmount();
-    }
-    throw new UnsupportedOperationException("Need the period to return the notional for in the schedule: " + this);
+    return getInitialAmount();
   }
 
+  /**
+   * Return the initial notional amount.
+   *
+   * @return the initial notional.
+   */
   public double getInitialAmount() {
-    return getAmount(0);
+    return super.getAmount();
   }
 
-  public double getAmount(final int date) {
-    if (_notionals.length == 0) {
+  /**
+  * Get the notional as of a given date
+  *
+  * @param date the date you want the notional for.
+  * @return the notional
+  */
+  public double getAmount(final LocalDate date) {
+    if (getDates().length == 0 || date.isBefore(getDates()[0])) {  // constant notional or before schedule begins
       return super.getAmount();
     }
-    final int index = Arrays.binarySearch(_overridePeriods, date);
+    final int index = Arrays.binarySearch(_dates, date);
     if (index >= 0) {
-      final int previousIndex = Math.max(0, index - 1);
-      return _shiftTypes[index].getRate(getAmount(previousIndex), _notionals[index]);
-    } else {
-      // if value not explicitly set for this period, take from previous period with a value.
-      //TODO: Explicitly work out amount here - avoid 2nd binary search.
-      return getAmount(-(index + 2));
+      if (_shiftTypes[index] == Rate.ShiftType.OUTRIGHT) {
+        return _notionals[index]; // short circuit if we don't need to adjust from previous
+      }
+      // Recurse back until it hits an outright amount (the initial notional is outright)
+      final int previousIndex = index - 1;
+      double previousValue;
+      if (previousIndex < 0) {
+        previousValue = getInitialAmount();
+      } else {
+        previousValue = getAmount(getDates()[previousIndex]);
+      }
+      return _shiftTypes[index].getRate(previousValue, getNotionals()[index]);
     }
+    // if value not explicitly set for this date, take from last notional before this date.
+    return getAmount(getDates()[-(index + 2)]);
   }
 
-  public static InterestRateSwapNotional of(Currency ccy, final int[] dates, final double[] notionals, Rate.ShiftType[] types) {
+  /**
+   * Create a variable notional schedule.
+   *
+   * @param ccy the currency
+   * @param dates the dates the provided values take effect
+   * @param notionals the notional values (or shifts to the previous notional) that take effect
+   * @param types the shift types for each step in the schedule
+   * @return the notional schedule
+   */
+  public static InterestRateSwapNotional of(Currency ccy, final LocalDate[] dates, final double[] notionals, Rate.ShiftType[] types) {
+    ArgumentChecker.isTrue(ArgumentChecker.noNulls(dates, "dates").length == notionals.length, "Different numbers of overrides & notionals");
+    ArgumentChecker.isTrue(ArgumentChecker.noNulls(types, "shift types").length == dates.length, "Different numbers of overrides & adjustment types");
+    if (notionals.length == 1) {      // constant notional
+      return new InterestRateSwapNotional(ccy, notionals[0]);
+    }
+    ArgumentChecker.isTrue(ArgumentChecker.notEmpty(types, "types")[0] == Rate.ShiftType.OUTRIGHT, "First notional in schedule must be an OUTRIGHT quote");
     return new InterestRateSwapNotional(ccy, dates, notionals, types);
   }
 
-  public InterestRateSwapNotional(Currency ccy, int[] overridePeriods, double[] notionals, Rate.ShiftType[] types) {
-    super(ccy, 0.0); // could store 1st notional but never accessed anyway
+  /**
+   * Create a variable notional schedule.
+   *
+   * @param ccy the currency
+   * @param dates the dates the provided values take effect
+   * @param notionals the notional values that take effect
+   * @return the notional schedule
+   */
+  public static InterestRateSwapNotional of(Currency ccy, final LocalDate[] dates, final double[] notionals) {
+    ArgumentChecker.isTrue(ArgumentChecker.noNulls(dates, "dates").length == notionals.length, "Different numbers of overrides & notionals");
+    if (notionals.length == 1) {      // constant notional
+      return new InterestRateSwapNotional(ccy, notionals[0]);
+    }
+    Rate.ShiftType[] types = new Rate.ShiftType[notionals.length];
+    Arrays.fill(types, Rate.ShiftType.OUTRIGHT);
+    return new InterestRateSwapNotional(ccy, dates, notionals, types);
+  }
+
+  /**
+   * Create a constant notional
+   *
+   * @param ccy the currency
+   * @param notional the notional value
+   * @return the constant notional
+   */
+  public static InterestRateSwapNotional of(Currency ccy, final double notional) {
+    return new InterestRateSwapNotional(ccy, notional);
+  }
+
+  private InterestRateSwapNotional(Currency ccy, LocalDate[] overridePeriods, double[] notionals, Rate.ShiftType[] types) {
+    super(ccy, ArgumentChecker.notEmpty(notionals, "notionals")[0]);
     ArgumentChecker.isTrue(overridePeriods.length == notionals.length, "Different overrides & notionals");
     ArgumentChecker.isTrue(overridePeriods.length == types.length, "Different overrides & adjustment types");
-    _overridePeriods = overridePeriods;
+    _dates = overridePeriods;
     _notionals = notionals;
     _shiftTypes = types;
   }
 
-  //private InterestRateSwapNotional() {
-  //  super();
-  //  _overridePeriods = new int[0];
-  //  _notionals = new double[0];
-  //  _shiftTypes = new Rate.ShiftType[0];
-  //}
-
-  public InterestRateSwapNotional(final Currency ccy, final double amount) {
-    super(ccy, amount);
-    _overridePeriods = new int[0];
+  /**
+   * Create a constant notional
+   *
+   * @param ccy the currency
+   * @param notional the notional value
+   * @return the constant notional
+   */
+  public InterestRateSwapNotional(final Currency ccy, final double notional) {
+    super(ccy, notional);
+    _dates = new LocalDate[0];
     _notionals = new double[0];
     _shiftTypes = new Rate.ShiftType[0];
   }
@@ -140,27 +210,27 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the periods for which custom notionals are required.
+   * Gets the dates for which custom notionals take effect.
    * @return the value of the property
    */
-  public int[] getOverridePeriods() {
-    return (_overridePeriods != null ? _overridePeriods.clone() : null);
+  public LocalDate[] getDates() {
+    return _dates;
   }
 
   /**
-   * Sets the periods for which custom notionals are required.
-   * @param overridePeriods  the new value of the property
+   * Sets the dates for which custom notionals take effect.
+   * @param dates  the new value of the property
    */
-  public void setOverridePeriods(int[] overridePeriods) {
-    this._overridePeriods = overridePeriods;
+  public void setDates(LocalDate[] dates) {
+    this._dates = dates;
   }
 
   /**
-   * Gets the the {@code overridePeriods} property.
+   * Gets the the {@code dates} property.
    * @return the property, not null
    */
-  public Property<int[]> overridePeriods() {
-    return metaBean().overridePeriods().createProperty(this);
+  public Property<LocalDate[]> dates() {
+    return metaBean().dates().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -226,7 +296,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InterestRateSwapNotional other = (InterestRateSwapNotional) obj;
-      return JodaBeanUtils.equal(getOverridePeriods(), other.getOverridePeriods()) &&
+      return JodaBeanUtils.equal(getDates(), other.getDates()) &&
           JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
           JodaBeanUtils.equal(getShiftTypes(), other.getShiftTypes()) &&
           super.equals(obj);
@@ -237,7 +307,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOverridePeriods());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
     hash += hash * 31 + JodaBeanUtils.hashCode(getShiftTypes());
     return hash ^ super.hashCode();
@@ -259,7 +329,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("overridePeriods").append('=').append(JodaBeanUtils.toString(getOverridePeriods())).append(',').append(' ');
+    buf.append("dates").append('=').append(JodaBeanUtils.toString(getDates())).append(',').append(' ');
     buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
     buf.append("shiftTypes").append('=').append(JodaBeanUtils.toString(getShiftTypes())).append(',').append(' ');
   }
@@ -275,10 +345,10 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code overridePeriods} property.
+     * The meta-property for the {@code dates} property.
      */
-    private final MetaProperty<int[]> _overridePeriods = DirectMetaProperty.ofReadWrite(
-        this, "overridePeriods", InterestRateSwapNotional.class, int[].class);
+    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofReadWrite(
+        this, "dates", InterestRateSwapNotional.class, LocalDate[].class);
     /**
      * The meta-property for the {@code notionals} property.
      */
@@ -294,7 +364,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "overridePeriods",
+        "dates",
         "notionals",
         "shiftTypes");
 
@@ -307,8 +377,8 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 980951398:  // overridePeriods
-          return _overridePeriods;
+        case 95356549:  // dates
+          return _dates;
         case 1910080819:  // notionals
           return _notionals;
         case 1923906839:  // shiftTypes
@@ -334,11 +404,11 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code overridePeriods} property.
+     * The meta-property for the {@code dates} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<int[]> overridePeriods() {
-      return _overridePeriods;
+    public MetaProperty<LocalDate[]> dates() {
+      return _dates;
     }
 
     /**
@@ -361,8 +431,8 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 980951398:  // overridePeriods
-          return ((InterestRateSwapNotional) bean).getOverridePeriods();
+        case 95356549:  // dates
+          return ((InterestRateSwapNotional) bean).getDates();
         case 1910080819:  // notionals
           return ((InterestRateSwapNotional) bean).getNotionals();
         case 1923906839:  // shiftTypes
@@ -374,8 +444,8 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 980951398:  // overridePeriods
-          ((InterestRateSwapNotional) bean).setOverridePeriods((int[]) newValue);
+        case 95356549:  // dates
+          ((InterestRateSwapNotional) bean).setDates((LocalDate[]) newValue);
           return;
         case 1910080819:  // notionals
           ((InterestRateSwapNotional) bean).setNotionals((double[]) newValue);
