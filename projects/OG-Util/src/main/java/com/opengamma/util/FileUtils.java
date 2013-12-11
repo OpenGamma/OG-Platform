@@ -28,6 +28,10 @@ public final class FileUtils {
     return copyResourceToTempFile(null, resource);
   }
   
+  public static File copyResourceToTempFile(InputStream resource, String fileName) {
+    return copyResourceToTempFile((String) null, resource, fileName);
+  }
+  
   public static File copyResourceToTempFile(String subdirName, InputStream resource) {
     return copyResourceToTempFile(subdirName, resource, null);
   }
