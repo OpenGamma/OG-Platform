@@ -10,6 +10,7 @@ import java.util.HashSet;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
@@ -80,7 +81,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_LIBOR_3M_EOM_CONVENTION.setRateType(FloatingRateType.IBOR);
     USD_LIBOR_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);
 
-    USD_FIX_LEG = USD_FIXED_3M_EOM_CONVENTION.toLeg(new InterestRateSwapNotional(Currency.USD, 1e6), PayReceiveType.PAY, new Rate(0.01234));
+    USD_FIX_LEG = USD_FIXED_3M_EOM_CONVENTION.toLeg(InterestRateSwapNotional.of(Currency.USD, Lists.newArrayList(LocalDate.MIN, LocalDate.MAX), Lists.newArrayList(1e6, 1e5)), PayReceiveType.PAY, new Rate(0.01234));
 
     USD_FLOAT_LEG = USD_LIBOR_3M_EOM_CONVENTION.toLeg(new InterestRateSwapNotional(Currency.USD, 1e6), PayReceiveType.RECEIVE);
   }

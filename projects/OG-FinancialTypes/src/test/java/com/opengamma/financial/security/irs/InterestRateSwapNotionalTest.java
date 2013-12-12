@@ -6,10 +6,13 @@
 
 package com.opengamma.financial.security.irs;
 
+import java.util.List;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -33,9 +36,9 @@ public class InterestRateSwapNotionalTest {
   @Test
   public void testAmortizingNotional() throws Exception {
     LocalDate start = LocalDate.now();
-    LocalDate[] dates = new LocalDate[] {start, start.plusYears(1), start.plusYears(2), start.plusYears(3)};
-    double[] notionals = new double[] {1e6, 1e5, 1e4, 1e3};
-    Rate.ShiftType[] shiftTypes = new Rate.ShiftType[] {Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT};
+    List<LocalDate> dates = Lists.newArrayList(start, start.plusYears(1), start.plusYears(2), start.plusYears(3));
+    List<Double> notionals = Lists.newArrayList(1e6, 1e5, 1e4, 1e3);
+    List<Rate.ShiftType> shiftTypes = Lists.newArrayList(Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT);
     InterestRateSwapNotional amortizing = InterestRateSwapNotional.of(Currency.GBP, dates, notionals, shiftTypes);
     Assert.assertEquals(1e6, amortizing.getInitialAmount(), TOLERACE);
     Assert.assertEquals(1e3, amortizing.getAmount(LocalDate.MAX), TOLERACE);
@@ -52,8 +55,8 @@ public class InterestRateSwapNotionalTest {
   @Test
   public void testAmortizingNotional2() throws Exception {
     LocalDate start = LocalDate.now();
-    LocalDate[] dates = new LocalDate[] {start, start.plusYears(1), start.plusYears(2), start.plusYears(3)};
-    double[] notionals = new double[] {1e6, 1e5, 1e4, 1e3};
+    List<LocalDate> dates = Lists.newArrayList(start, start.plusYears(1), start.plusYears(2), start.plusYears(3));
+    List<Double> notionals = Lists.newArrayList(1e6, 1e5, 1e4, 1e3);
     InterestRateSwapNotional amortizing = InterestRateSwapNotional.of(Currency.GBP, dates, notionals);
     Assert.assertEquals(1e6, amortizing.getInitialAmount(), TOLERACE);
     Assert.assertEquals(1e3, amortizing.getAmount(LocalDate.MAX), TOLERACE);
@@ -70,9 +73,9 @@ public class InterestRateSwapNotionalTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDeltaInitialNotional() throws Exception {
     LocalDate start = LocalDate.now();
-    LocalDate[] dates = new LocalDate[] {start, start.plusYears(1), start.plusYears(2), start.plusYears(3)};
-    double[] notionals = new double[] {1e6, 1e5, 1e4, 1e3};
-    Rate.ShiftType[] shiftTypes = new Rate.ShiftType[] {Rate.ShiftType.DELTA, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT};
+    List<LocalDate> dates = Lists.newArrayList(start, start.plusYears(1), start.plusYears(2), start.plusYears(3));
+    List<Double> notionals = Lists.newArrayList(1e6, 1e5, 1e4, 1e3);
+    List<Rate.ShiftType> shiftTypes = Lists.newArrayList(Rate.ShiftType.DELTA, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT, Rate.ShiftType.OUTRIGHT);
     InterestRateSwapNotional.of(Currency.GBP, dates, notionals, shiftTypes);
   }
 

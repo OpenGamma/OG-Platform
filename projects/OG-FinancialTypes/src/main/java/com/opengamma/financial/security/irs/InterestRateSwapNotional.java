@@ -6,6 +6,8 @@
 package com.opengamma.financial.security.irs;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -20,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -41,19 +44,19 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * The dates for which custom notionals take effect.
    */
   @PropertyDefinition
-  private LocalDate[] _dates;
+  private List<LocalDate> _dates;
 
   /**
    * The custom notionals. Possible this should be delta's on top of first notional.
    */
   @PropertyDefinition
-  private double[] _notionals;
+  private List<Double> _notionals;
 
   /**
    * Controls if the custom notionals are delta on the original or absolute values.
    */
   @PropertyDefinition
-  private Rate.ShiftType[] _shiftTypes;
+  private List<Rate.ShiftType> _shiftTypes;
 
   //@Override
   public <T> T accept(InterestRateSwapNotionalVisitor<LocalDate, T> visitor, LocalDate period) {
@@ -93,13 +96,13 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   * @return the notional
   */
   public double getAmount(final LocalDate date) {
-    if (getDates().length == 0 || date.isBefore(getDates()[0])) {  // constant notional or before schedule begins
+    if (getDates().size() == 0 || date.isBefore(getDates().get(0))) {  // constant notional or before schedule begins
       return super.getAmount();
     }
-    final int index = Arrays.binarySearch(_dates, date);
+    final int index = Collections.binarySearch(_dates, date);
     if (index >= 0) {
-      if (_shiftTypes[index] == Rate.ShiftType.OUTRIGHT) {
-        return _notionals[index]; // short circuit if we don't need to adjust from previous
+      if (_shiftTypes.get(index) == Rate.ShiftType.OUTRIGHT) {
+        return _notionals.get(index); // short circuit if we don't need to adjust from previous
       }
       // Recurse back until it hits an outright amount (the initial notional is outright)
       final int previousIndex = index - 1;
@@ -107,12 +110,12 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
       if (previousIndex < 0) {
         previousValue = getInitialAmount();
       } else {
-        previousValue = getAmount(getDates()[previousIndex]);
+        previousValue = getAmount(getDates().get(previousIndex));
       }
-      return _shiftTypes[index].getRate(previousValue, getNotionals()[index]);
+      return _shiftTypes.get(index).getRate(previousValue, getNotionals().get(index));
     }
     // if value not explicitly set for this date, take from last notional before this date.
-    return getAmount(getDates()[-(index + 2)]);
+    return getAmount(getDates().get(-(index + 2)));
   }
 
   /**
@@ -124,13 +127,17 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * @param types the shift types for each step in the schedule
    * @return the notional schedule
    */
-  public static InterestRateSwapNotional of(Currency ccy, final LocalDate[] dates, final double[] notionals, Rate.ShiftType[] types) {
-    ArgumentChecker.isTrue(ArgumentChecker.noNulls(dates, "dates").length == notionals.length, "Different numbers of overrides & notionals");
-    ArgumentChecker.isTrue(ArgumentChecker.noNulls(types, "shift types").length == dates.length, "Different numbers of overrides & adjustment types");
-    if (notionals.length == 1) {      // constant notional
-      return new InterestRateSwapNotional(ccy, notionals[0]);
+  public static InterestRateSwapNotional of(Currency ccy, final List<LocalDate> dates, final List<Double> notionals, List<Rate.ShiftType> types) {
+    ArgumentChecker.noNulls(dates, "dates");
+    ArgumentChecker.noNulls(notionals, "notionals");
+    ArgumentChecker.noNulls(types, "types");
+    ArgumentChecker.isTrue(dates.size() == notionals.size(), "Different numbers of overrides & notionals");
+    ArgumentChecker.isTrue(dates.size() == types.size(), "Different numbers of overrides & notionals");
+    ArgumentChecker.isTrue(notionals.size() > 0, "Require at least one notional");
+    if (notionals.size() == 1) {      // constant notional
+      return new InterestRateSwapNotional(ccy, notionals.get(0));
     }
-    ArgumentChecker.isTrue(ArgumentChecker.notEmpty(types, "types")[0] == Rate.ShiftType.OUTRIGHT, "First notional in schedule must be an OUTRIGHT quote");
+    ArgumentChecker.isTrue(types.get(0) == Rate.ShiftType.OUTRIGHT, "First notional in schedule must be an OUTRIGHT quote");
     return new InterestRateSwapNotional(ccy, dates, notionals, types);
   }
 
@@ -142,14 +149,12 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * @param notionals the notional values that take effect
    * @return the notional schedule
    */
-  public static InterestRateSwapNotional of(Currency ccy, final LocalDate[] dates, final double[] notionals) {
-    ArgumentChecker.isTrue(ArgumentChecker.noNulls(dates, "dates").length == notionals.length, "Different numbers of overrides & notionals");
-    if (notionals.length == 1) {      // constant notional
-      return new InterestRateSwapNotional(ccy, notionals[0]);
+  public static InterestRateSwapNotional of(Currency ccy, final List<LocalDate> dates, final List<Double> notionals) {
+    List<Rate.ShiftType> types = Lists.newArrayListWithExpectedSize(notionals.size());
+    for (LocalDate _ : dates) {
+      types.add(Rate.ShiftType.OUTRIGHT);
     }
-    Rate.ShiftType[] types = new Rate.ShiftType[notionals.length];
-    Arrays.fill(types, Rate.ShiftType.OUTRIGHT);
-    return new InterestRateSwapNotional(ccy, dates, notionals, types);
+    return of(ccy, dates, notionals, types);
   }
 
   /**
@@ -163,10 +168,10 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     return new InterestRateSwapNotional(ccy, notional);
   }
 
-  private InterestRateSwapNotional(Currency ccy, LocalDate[] overridePeriods, double[] notionals, Rate.ShiftType[] types) {
-    super(ccy, ArgumentChecker.notEmpty(notionals, "notionals")[0]);
-    ArgumentChecker.isTrue(overridePeriods.length == notionals.length, "Different overrides & notionals");
-    ArgumentChecker.isTrue(overridePeriods.length == types.length, "Different overrides & adjustment types");
+  private InterestRateSwapNotional(Currency ccy, List<LocalDate> overridePeriods, List<Double> notionals, List<Rate.ShiftType> types) {
+    super(ccy, ArgumentChecker.notEmpty(notionals, "notionals").iterator().next());
+    ArgumentChecker.isTrue(overridePeriods.size() == notionals.size(), "Different overrides & notionals");
+    ArgumentChecker.isTrue(overridePeriods.size() == types.size(), "Different overrides & adjustment types");
     _dates = overridePeriods;
     _notionals = notionals;
     _shiftTypes = types;
@@ -181,9 +186,9 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    */
   public InterestRateSwapNotional(final Currency ccy, final double notional) {
     super(ccy, notional);
-    _dates = new LocalDate[0];
-    _notionals = new double[0];
-    _shiftTypes = new Rate.ShiftType[0];
+    _dates = Collections.emptyList();
+    _notionals = Collections.emptyList();
+    _shiftTypes = Collections.emptyList();
   }
 
   protected InterestRateSwapNotional() {
@@ -213,7 +218,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Gets the dates for which custom notionals take effect.
    * @return the value of the property
    */
-  public LocalDate[] getDates() {
+  public List<LocalDate> getDates() {
     return _dates;
   }
 
@@ -221,7 +226,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Sets the dates for which custom notionals take effect.
    * @param dates  the new value of the property
    */
-  public void setDates(LocalDate[] dates) {
+  public void setDates(List<LocalDate> dates) {
     this._dates = dates;
   }
 
@@ -229,7 +234,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Gets the the {@code dates} property.
    * @return the property, not null
    */
-  public Property<LocalDate[]> dates() {
+  public Property<List<LocalDate>> dates() {
     return metaBean().dates().createProperty(this);
   }
 
@@ -238,15 +243,15 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Gets the custom notionals. Possible this should be delta's on top of first notional.
    * @return the value of the property
    */
-  public double[] getNotionals() {
-    return (_notionals != null ? _notionals.clone() : null);
+  public List<Double> getNotionals() {
+    return _notionals;
   }
 
   /**
    * Sets the custom notionals. Possible this should be delta's on top of first notional.
    * @param notionals  the new value of the property
    */
-  public void setNotionals(double[] notionals) {
+  public void setNotionals(List<Double> notionals) {
     this._notionals = notionals;
   }
 
@@ -254,7 +259,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Gets the the {@code notionals} property.
    * @return the property, not null
    */
-  public Property<double[]> notionals() {
+  public Property<List<Double>> notionals() {
     return metaBean().notionals().createProperty(this);
   }
 
@@ -263,7 +268,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Gets controls if the custom notionals are delta on the original or absolute values.
    * @return the value of the property
    */
-  public Rate.ShiftType[] getShiftTypes() {
+  public List<Rate.ShiftType> getShiftTypes() {
     return _shiftTypes;
   }
 
@@ -271,7 +276,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Sets controls if the custom notionals are delta on the original or absolute values.
    * @param shiftTypes  the new value of the property
    */
-  public void setShiftTypes(Rate.ShiftType[] shiftTypes) {
+  public void setShiftTypes(List<Rate.ShiftType> shiftTypes) {
     this._shiftTypes = shiftTypes;
   }
 
@@ -279,7 +284,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Gets the the {@code shiftTypes} property.
    * @return the property, not null
    */
-  public Property<Rate.ShiftType[]> shiftTypes() {
+  public Property<List<Rate.ShiftType>> shiftTypes() {
     return metaBean().shiftTypes().createProperty(this);
   }
 
@@ -347,18 +352,21 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     /**
      * The meta-property for the {@code dates} property.
      */
-    private final MetaProperty<LocalDate[]> _dates = DirectMetaProperty.ofReadWrite(
-        this, "dates", InterestRateSwapNotional.class, LocalDate[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<LocalDate>> _dates = DirectMetaProperty.ofReadWrite(
+        this, "dates", InterestRateSwapNotional.class, (Class) List.class);
     /**
      * The meta-property for the {@code notionals} property.
      */
-    private final MetaProperty<double[]> _notionals = DirectMetaProperty.ofReadWrite(
-        this, "notionals", InterestRateSwapNotional.class, double[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Double>> _notionals = DirectMetaProperty.ofReadWrite(
+        this, "notionals", InterestRateSwapNotional.class, (Class) List.class);
     /**
      * The meta-property for the {@code shiftTypes} property.
      */
-    private final MetaProperty<Rate.ShiftType[]> _shiftTypes = DirectMetaProperty.ofReadWrite(
-        this, "shiftTypes", InterestRateSwapNotional.class, Rate.ShiftType[].class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<List<Rate.ShiftType>> _shiftTypes = DirectMetaProperty.ofReadWrite(
+        this, "shiftTypes", InterestRateSwapNotional.class, (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -407,7 +415,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
      * The meta-property for the {@code dates} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<LocalDate[]> dates() {
+    public MetaProperty<List<LocalDate>> dates() {
       return _dates;
     }
 
@@ -415,7 +423,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
      * The meta-property for the {@code notionals} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<double[]> notionals() {
+    public MetaProperty<List<Double>> notionals() {
       return _notionals;
     }
 
@@ -423,7 +431,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
      * The meta-property for the {@code shiftTypes} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Rate.ShiftType[]> shiftTypes() {
+    public MetaProperty<List<Rate.ShiftType>> shiftTypes() {
       return _shiftTypes;
     }
 
@@ -441,17 +449,18 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 95356549:  // dates
-          ((InterestRateSwapNotional) bean).setDates((LocalDate[]) newValue);
+          ((InterestRateSwapNotional) bean).setDates((List<LocalDate>) newValue);
           return;
         case 1910080819:  // notionals
-          ((InterestRateSwapNotional) bean).setNotionals((double[]) newValue);
+          ((InterestRateSwapNotional) bean).setNotionals((List<Double>) newValue);
           return;
         case 1923906839:  // shiftTypes
-          ((InterestRateSwapNotional) bean).setShiftTypes((Rate.ShiftType[]) newValue);
+          ((InterestRateSwapNotional) bean).setShiftTypes((List<Rate.ShiftType>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
