@@ -106,7 +106,7 @@ public class BondNode extends CurveNode {
    * Sets the tenor.
    * @param maturityTenor  the new value of the property, not null
    */
-  public void setMaturityTenor(final Tenor maturityTenor) {
+  public void setMaturityTenor(Tenor maturityTenor) {
     JodaBeanUtils.notNull(maturityTenor, "maturityTenor");
     this._maturityTenor = maturityTenor;
   }
@@ -126,12 +126,12 @@ public class BondNode extends CurveNode {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final BondNode other = (BondNode) obj;
+      BondNode other = (BondNode) obj;
       return JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
           super.equals(obj);
     }
@@ -147,9 +147,9 @@ public class BondNode extends CurveNode {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(64);
     buf.append("BondNode{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -159,7 +159,7 @@ public class BondNode extends CurveNode {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
   }
@@ -193,7 +193,7 @@ public class BondNode extends CurveNode {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 45907375:  // maturityTenor
           return _maturityTenor;
@@ -227,7 +227,7 @@ public class BondNode extends CurveNode {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 45907375:  // maturityTenor
           return ((BondNode) bean).getMaturityTenor();
@@ -236,7 +236,7 @@ public class BondNode extends CurveNode {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 45907375:  // maturityTenor
           ((BondNode) bean).setMaturityTenor((Tenor) newValue);
@@ -246,7 +246,7 @@ public class BondNode extends CurveNode {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((BondNode) bean)._maturityTenor, "maturityTenor");
       super.validate(bean);
     }
