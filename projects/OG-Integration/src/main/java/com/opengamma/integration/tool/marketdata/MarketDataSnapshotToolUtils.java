@@ -13,6 +13,7 @@ import static org.threeten.bp.temporal.ChronoField.SECOND_OF_MINUTE;
 import static org.threeten.bp.temporal.ChronoField.YEAR;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.cli.CommandLine;
@@ -28,7 +29,12 @@ import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.SignStyle;
 
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
+import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.tool.marketdata.SnapshotUtils.VersionInfo;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utility methods for the MarketDataSnapshot Import/Export tools
@@ -214,4 +220,59 @@ public class MarketDataSnapshotToolUtils {
 
     return ValueSnapshot.of(marketValue, overrideValue);
   }
+
+  public static Pair<Object, Object> createOrdinatePair(String xValue, String yValue) {
+    String[] yValues = yValue.split("\\|");
+    Object surfaceX = null;
+    Object surfaceY = null;
+
+    if (xValue != null) {
+      if (NumberUtils.isNumber(xValue)) {
+        surfaceX = NumberUtils.createDouble(xValue);
+      } else {
+        try {
+          surfaceX = Tenor.parse(xValue);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Volatility surface X ordinate {} should be a Double, Tenor or empty.", xValue);
+        }
+      }
+    }
+
+    if (yValues != null) {
+      if (yValues.length == 1 && NumberUtils.isNumber(yValues[0])) {
+        surfaceY = NumberUtils.createDouble(yValues[0]);
+      } else {
+        try {
+          surfaceY = createYOrdinatePair(yValues);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Volatility surface Y ordinate {} should be a Double, Pair<Number, FXVolQuoteType> or empty.", xValue);
+        }
+      }
+    }
+
+    return Pairs.of(surfaceX, surfaceY);
+  }
+
+  // Bloomberg FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from ATM.
+  private static Pair<Number, BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType> createYOrdinatePair(String[] yPair) {
+    Number firstElement = null;
+    BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType secondElement = null;
+    if (NumberUtils.isNumber(yPair[0])) {
+      firstElement = NumberUtils.createDouble(yPair[0]);
+    }
+    switch (yPair[1]) {
+      case "ATM":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.ATM;
+        break;
+      case "RISK_REVERSAL":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.RISK_REVERSAL;
+        break;
+      case "BUTTERFLY":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.BUTTERFLY;
+        break;
+    }
+    return Pairs.of(firstElement, secondElement);
+  }
+
+
 }

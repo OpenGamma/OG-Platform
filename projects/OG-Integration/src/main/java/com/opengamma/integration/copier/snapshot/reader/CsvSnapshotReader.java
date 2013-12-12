@@ -268,57 +268,8 @@ public class CsvSnapshotReader implements SnapshotReader {
   }
 
   private Pair<Object, Object> createOrdinatePair(Map<String, String> currentRow) {
-    String x = currentRow.get(SnapshotColumns.SURFACE_X.get());
-    String[] y = currentRow.get(SnapshotColumns.SURFACE_Y.get()).split("\\|");
-    Object surfaceX = null;
-    Object surfaceY = null;
-
-    if (x != null) {
-      if (NumberUtils.isNumber(x)) {
-        surfaceX = NumberUtils.createDouble(x);
-      } else {
-        try {
-          surfaceX = Tenor.parse(x);
-        } catch (IllegalArgumentException e)  {
-          s_logger.error("Volatility surface X ordinate {} should be a Double, Tenor or empty.", x);
-        }
-      }
-    }
-
-    if (y != null) {
-      if (y.length == 1 && NumberUtils.isNumber(y[0])) {
-        surfaceY = NumberUtils.createDouble(y[0]);
-      } else {
-        try {
-          surfaceY = createYOrdinatePair(y);
-        } catch (IllegalArgumentException e)  {
-          s_logger.error("Volatility surface Y ordinate {} should be a Double, Pair<Number, FXVolQuoteType> or empty.", x);
-        }
-      }
-    }
-
-    return Pairs.of(surfaceX, surfaceY);
-  }
-
-  // Bloomberg FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from ATM.
-  private Pair<Number, BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType> createYOrdinatePair(String[] yPair) {
-    Number firstElement = null;
-    BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType secondElement = null;
-    if (NumberUtils.isNumber(yPair[0])) {
-      firstElement = NumberUtils.createDouble(yPair[0]);
-    }
-    switch (yPair[1]) {
-      case "ATM":
-        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.ATM;
-        break;
-      case "RISK_REVERSAL":
-        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.RISK_REVERSAL;
-        break;
-      case "BUTTERFLY":
-        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.BUTTERFLY;
-        break;
-    }
-    return Pairs.of(firstElement, secondElement);
+    return MarketDataSnapshotToolUtils.createOrdinatePair(currentRow.get(SnapshotColumns.SURFACE_X.get()),
+                                                   currentRow.get(SnapshotColumns.SURFACE_Y.get()));
   }
 
   private ValueSnapshot createValueSnapshot(Map<String, String> currentRow) {
