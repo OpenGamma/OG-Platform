@@ -23,14 +23,17 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.sheet.reader.XlsSheetReader;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
@@ -75,13 +78,34 @@ public class XlsSnapshotReader implements SnapshotReader{
 
   private void buildSurfaceData() {
     _surfaceSheet = new XlsSheetReader(_workbook, SnapshotType.VOL_SURFACE.get());
+
     while(true) {
       Map<String, String> details = _surfaceSheet.readKeyValueBlock(_surfaceSheet.getCurrentRowIndex(), 0);
       if (details.isEmpty() || details == null) {
         break;
       }
-      Map<Pair<String, String>, String> marketValue = _surfaceSheet.readMatrix(_surfaceSheet.getCurrentRowIndex(), 0);
-      Map<Pair<String, String>, String> overrideValue = _surfaceSheet.readMatrix(_surfaceSheet.getCurrentRowIndex(), 0);
+
+      Map<Pair<String, String>, String> marketValues = _surfaceSheet.readMatrix(_surfaceSheet.getCurrentRowIndex(), 0);
+      Map<Pair<String, String>, String> overrideValues = _surfaceSheet.readMatrix(_surfaceSheet.getCurrentRowIndex(), 0);
+      ManageableVolatilitySurfaceSnapshot surface = new ManageableVolatilitySurfaceSnapshot();
+      VolatilitySurfaceKey key = VolatilitySurfaceKey.of(UniqueId.parse(details.get(SnapshotColumns.SURFACE_TARGET.get())),
+                                                         details.get(SnapshotColumns.NAME.get()),
+                                                         details.get(SnapshotColumns.SURFACE_INSTRUMENT_TYPE.get()),
+                                                         details.get(SnapshotColumns.SURFACE_QUOTE_TYPE.get()),
+                                                         details.get(SnapshotColumns.SURFACE_QUOTE_UNITS.get()));
+      HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<>();
+
+      for (Map.Entry<Pair<String, String>, String> entry : marketValues.entrySet()) {
+        Pair rawOrdinals = entry.getKey();
+        Pair ordinals = MarketDataSnapshotToolUtils.createOrdinatePair(rawOrdinals.getFirst().toString(),
+                                                                       rawOrdinals.getSecond().toString());
+        String override = overrideValues.get(rawOrdinals);
+        String market = entry.getValue();
+        values.put(ordinals, MarketDataSnapshotToolUtils.createValueSnapshot(market, override));
+      }
+
+      surface.setValues(values);
+      _surface.put(key, surface);
     }
   }
 

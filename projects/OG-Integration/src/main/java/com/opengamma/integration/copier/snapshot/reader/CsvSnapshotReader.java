@@ -269,7 +269,7 @@ public class CsvSnapshotReader implements SnapshotReader {
 
   private Pair<Object, Object> createOrdinatePair(Map<String, String> currentRow) {
     return MarketDataSnapshotToolUtils.createOrdinatePair(currentRow.get(SnapshotColumns.SURFACE_X.get()),
-                                                   currentRow.get(SnapshotColumns.SURFACE_Y.get()));
+                                                          currentRow.get(SnapshotColumns.SURFACE_Y.get()));
   }
 
   private ValueSnapshot createValueSnapshot(Map<String, String> currentRow) {
