@@ -90,14 +90,18 @@ public class FXMatrixFunction extends AbstractFunction {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
-    final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
-    final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, VersionCorrection.LATEST, conventionSource, visitor);
-    final ValueProperties properties = createValueProperties()
-        .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
-        .get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
-    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000),
-        spec, currencies);
+    try {
+      final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
+      final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, VersionCorrection.LATEST, visitor);
+      final ValueProperties properties = createValueProperties()
+          .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
+          .get();
+      final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
+      return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000),
+          spec, currencies);
+    } catch (final Exception e) {
+      throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveConstructionConfiguration called " + _configurationName);
+    }
   }
 
   /**

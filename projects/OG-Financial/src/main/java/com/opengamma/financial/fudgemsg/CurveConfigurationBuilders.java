@@ -37,6 +37,7 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -186,7 +187,16 @@ import com.opengamma.util.time.Tenor;
       final Set<Object> keys = new HashSet<>();
       for (int i = 0; i < keyFields.size(); i++) {
         final Class<?> clazz = deserializer.fieldValueToObject(Class.class, keyClassFields.get(i));
-        keys.add(deserializer.fieldValueToObject(clazz, keyFields.get(i)));
+        final Object value = deserializer.fieldValueToObject(clazz, keyFields.get(i));
+        if (clazz.equals(String.class)) {
+          try {
+            keys.add(Currency.of((String) value));
+          } catch (final IllegalArgumentException e) {
+            keys.add(value);
+          }
+        } else {
+          keys.add(value);
+        }
       }
       final List<FudgeField> filterFields = message.getAllByName(LEGAL_ENTITY_FILTER_FIELD);
       final Set<LegalEntityFilter<LegalEntity>> filters = new HashSet<>();

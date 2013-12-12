@@ -211,12 +211,8 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       ValueProperties bundleProperties = null;
       for (final ValueRequirement desiredValue : desiredValues) {
-        if (desiredValue.getValueName().equals(CURVE_BUNDLE)) {
+        if (desiredValue.getValueName().equals(CURVE_BUNDLE) || desiredValue.getValueName().equals(_curveRequirement)) {
           bundleProperties = desiredValue.getConstraints();
-          break;
-        } else if (desiredValue.getValueName().equals(_curveRequirement)) {
-          bundleProperties = desiredValue.getConstraints()
-              .withoutAny(CURVE);
           break;
         }
       }

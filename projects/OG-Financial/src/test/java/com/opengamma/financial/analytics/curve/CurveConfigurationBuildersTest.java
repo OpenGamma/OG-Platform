@@ -99,7 +99,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIssuerCurveTypeConfiguration() {
-    final Set<Object> keys = Sets.<Object>newHashSet("OG", "USD");
+    final Set<Object> keys = Sets.<Object>newHashSet("OG", Currency.USD);
     final Set<LegalEntityFilter<LegalEntity>> filterSet = new HashSet<>();
     filterSet.add(new LegalEntityRegion(false, false, Collections.<Country>emptySet(), true, Collections.singleton(Currency.USD)));
     filterSet.add(new LegalEntityShortName());
