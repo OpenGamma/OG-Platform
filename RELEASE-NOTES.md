@@ -279,6 +279,13 @@ Analytics compatibility
 Changes since 2.1.0
 ===================
 
+To 2.2.0-M4p04
+--------------
+* Bug
+  * [PLAT-5223] Made ForexPutCallDeltaVolatilitySurfaceFunction handle Object arrays 
+  * [PLAT-5214] Empty time series now has real unique id attached
+  * [PLAT-5162] Stop NPE when asking for a timeseries without specifying the start date
+
 To 2.2.0-M4p03
 --------------
 * Bug
