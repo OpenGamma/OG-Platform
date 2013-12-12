@@ -93,9 +93,17 @@ public class CurveMarketDataFunction extends AbstractFunction {
    * Function that gets market data for a curve.
    */
   protected class MyCompiledFunction extends AbstractInvokingCompiledFunction {
+    /** The curve specification */
     private final CurveSpecification _specification;
+    /** The result specification */
     private final ValueSpecification _spec;
 
+    /**
+     * @param earliestInvocation The earliest time at which this function can be invoked
+     * @param latestInvocation The latest time at which this function can be invoked
+     * @param specification The curve specification
+     * @param spec The result specification
+     */
     public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final CurveSpecification specification,
         final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
@@ -103,6 +111,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
       _spec = spec;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
@@ -160,6 +169,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
       return Collections.singleton(_spec);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<ValueRequirement> requirements = new HashSet<>();

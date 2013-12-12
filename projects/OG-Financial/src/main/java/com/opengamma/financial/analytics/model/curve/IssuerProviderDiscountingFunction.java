@@ -48,6 +48,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionInputs;
@@ -148,7 +149,8 @@ public class IssuerProviderDiscountingFunction extends
     @SuppressWarnings("unchecked")
     @Override
     protected Pair<IssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final IssuerDiscountBuildingRepository builder,
-        final IssuerProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource, final FXMatrix fx) {
+        final IssuerProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+        final SecuritySource securitySource, final FXMatrix fx) {
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -214,7 +216,7 @@ public class IssuerProviderDiscountingFunction extends
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else if (type instanceof IssuerCurveTypeConfiguration) {
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
-              issuerMap.put(curveName, Pairs.<Object, LegalEntityFilter<LegalEntity>>of(null, issuer.getFilters()));
+              issuerMap.put(curveName, Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuer.getKeys(), issuer.getFilters()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
