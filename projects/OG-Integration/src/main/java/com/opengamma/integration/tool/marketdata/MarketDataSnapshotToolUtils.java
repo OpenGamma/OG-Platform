@@ -33,6 +33,7 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVol
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.tool.marketdata.SnapshotUtils.VersionInfo;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -221,6 +222,15 @@ public class MarketDataSnapshotToolUtils {
     return ValueSnapshot.of(marketValue, overrideValue);
   }
 
+  private static Boolean isTenor(String tenor) {
+    try {
+      Tenor.parse(tenor);
+      return true;
+    } catch (IllegalArgumentException e)  {
+      return false;
+    }
+  }
+
   public static Pair<Object, Object> createOrdinatePair(String xValue, String yValue) {
     String[] yValues = yValue.split("\\|");
     Object surfaceX = null;
@@ -229,23 +239,25 @@ public class MarketDataSnapshotToolUtils {
     if (xValue != null) {
       if (NumberUtils.isNumber(xValue)) {
         surfaceX = NumberUtils.createDouble(xValue);
+      } else if (isTenor(xValue)) {
+        surfaceX = Tenor.parse(xValue);
       } else {
-        try {
-          surfaceX = Tenor.parse(xValue);
-        } catch (IllegalArgumentException e)  {
-          s_logger.error("Volatility surface X ordinate {} should be a Double, Tenor or empty.", xValue);
-        }
+        s_logger.error("Volatility surface X ordinate {} should be a Double, Tenor or empty.", xValue);
       }
     }
 
     if (yValues != null) {
-      if (yValues.length == 1 && NumberUtils.isNumber(yValues[0])) {
-        surfaceY = NumberUtils.createDouble(yValues[0]);
-      } else {
+      if (yValues.length > 1) {
         try {
           surfaceY = createYOrdinatePair(yValues);
         } catch (IllegalArgumentException e)  {
           s_logger.error("Volatility surface Y ordinate {} should be a Double, Pair<Number, FXVolQuoteType> or empty.", xValue);
+        }
+      } else if (yValues.length == 1){
+        if (NumberUtils.isNumber(yValues[0])) {
+          surfaceY = NumberUtils.createDouble(yValues[0]);
+        } else if (isTenor(yValues[0])) {
+          surfaceY = Tenor.parse(yValues[0]);
         }
       }
     }
@@ -272,6 +284,26 @@ public class MarketDataSnapshotToolUtils {
         break;
     }
     return Pairs.of(firstElement, secondElement);
+  }
+
+  public static Pair<String, String> ordinatesAsString(Pair<Object, Object> rawOrdinates) {
+    String surfaceX;
+    if (rawOrdinates.getFirst() instanceof Tenor) {
+      surfaceX = ((Tenor) rawOrdinates.getFirst()).toFormattedString();
+    } else {
+      surfaceX = rawOrdinates.getFirst().toString();
+    }
+
+    String surfaceY;
+    if (rawOrdinates.getSecond() instanceof Pair) {
+      surfaceY = ((Pair) rawOrdinates.getSecond()).getFirst() + "|" + ((Pair) rawOrdinates.getSecond()).getSecond();
+    } else if (rawOrdinates.getSecond() instanceof Tenor) {
+      surfaceY = ((Tenor) rawOrdinates.getSecond()).toFormattedString();
+    } else {
+      surfaceY = rawOrdinates.getSecond().toString();
+    }
+
+    return ObjectsPair.of(surfaceX, surfaceY);
   }
 
 

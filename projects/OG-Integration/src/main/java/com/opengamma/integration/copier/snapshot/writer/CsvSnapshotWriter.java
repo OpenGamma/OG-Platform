@@ -27,6 +27,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.copier.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
+import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -56,21 +57,9 @@ public class CsvSnapshotWriter implements SnapshotWriter {
       ValueSnapshot valueSnapshot = entry.getValue();
       tempRow.putAll(prefixes);
 
-      String surfaceX;
-      if (entry.getKey().getFirst() instanceof Tenor) {
-        surfaceX = ((Tenor) entry.getKey().getFirst()).toFormattedString();
-      } else {
-        surfaceX = entry.getKey().getFirst().toString();
-      }
-
-      String surfaceY;
-      if (entry.getKey().getSecond() instanceof Pair) {
-        surfaceY = ((Pair) entry.getKey().getSecond()).getFirst() + "|" + ((Pair) entry.getKey().getSecond()).getSecond();
-      } else if (entry.getKey().getSecond() instanceof Tenor) {
-        surfaceY = ((Tenor) entry.getKey().getSecond()).toFormattedString();
-      } else {
-        surfaceY = entry.getKey().getSecond().toString();
-      }
+      Pair<String, String> ordinates = MarketDataSnapshotToolUtils.ordinatesAsString(entry.getKey());
+      String surfaceX  = ordinates.getFirst();
+      String surfaceY  = ordinates.getFirst();
 
       tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
       tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
