@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -209,7 +208,6 @@ public class LegalEntityFilterTest {
     assertEquals(Sets.newHashSet(Currency.CAD, Currency.USD), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
     filter = new LegalEntityRegion();
     filter.setCurrencies(Collections.singleton(Currency.USD));
-    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(filter));
     assertEquals(Sets.newHashSet(Currency.USD), filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(Sets.newHashSet(Currency.USD), filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
     //TODO test builder chaining and currency / country pairs
