@@ -297,10 +297,8 @@ public class LegalEntityFilterTest {
     underlyingFilters.add(sectorFilter);
     filter.setFiltersToUse(underlyingFilters);
     final Set<Object> expected = new HashSet<>();
-    expected.add(Collections.singleton(SECTOR.getName()));
-    final Set<Object> ratings = new HashSet<>();
-    ratings.add(Pairs.of("S&P", "A"));
-    expected.add(ratings);
+    expected.add(SECTOR.getName());
+    expected.add(Pairs.of("S&P", "A"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
   }
