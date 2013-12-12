@@ -12,6 +12,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * Calculates the yield from bond clean price.
  * @deprecated The parent of this class is deprecated.
+ * Use {@link com.opengamma.financial.analytics.model.bondcleanprice.BondYieldFromCleanPriceFunction}
  */
 @Deprecated
 public class BondYieldFromCleanPriceFunction extends BondFromCleanPriceFunction {

@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,10 +40,16 @@ public final class ConvexityFromCleanPriceCalculator extends InstrumentDerivativ
   }
 
   @Override
-  public Double visitBondFixedSecurity(final BondFixedSecurity yield, final Double curves) {
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double curves) {
     ArgumentChecker.notNull(curves, "curves");
-    ArgumentChecker.notNull(yield, "yield");
-    return METHOD_BOND.convexityFromCleanPrice(yield, curves);
+    ArgumentChecker.notNull(bond, "bond");
+    return METHOD_BOND.convexityFromCleanPrice(bond, curves) / 100;
   }
 
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double curves) {
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(bond, "bond");
+    return METHOD_BOND.convexityFromCleanPrice(bond.getBondTransaction(), curves) / 100;
+  }
 }

@@ -165,11 +165,6 @@ public class IssuerProvider implements IssuerProviderInterface {
     throw new IllegalArgumentException("Issuer discounting curve not found for " + issuer);
   }
 
-//  @Override
-//  public String getName(final Pair<String, Currency> issuerCcy) {
-//    return _issuerCurves.get(issuerCcy).getName();
-//  }
-//
   @Override
   public String getName(final Pair<Object, LegalEntityFilter<LegalEntity>> issuer) {
     return _issuerCurves.get(issuer).getName();
@@ -252,8 +247,17 @@ public class IssuerProvider implements IssuerProviderInterface {
    * @param key The key
    * @return The curve.
    */
-  public YieldAndDiscountCurve getCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> key) {
+  public YieldAndDiscountCurve getIssuerCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> key) {
     return _issuerCurves.get(key);
+  }
+
+  /**
+   * Gets a named issuer curve.
+   * @param name The name
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getIssuerCurve(final String name) {
+    return _issuerCurvesNames.get(name);
   }
 
   /**

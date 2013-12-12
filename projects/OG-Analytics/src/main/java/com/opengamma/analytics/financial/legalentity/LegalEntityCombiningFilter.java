@@ -58,7 +58,12 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     ArgumentChecker.notNull(legalEntity, "legal entity");
     final Set<Object> selections = new HashSet<>();
     for (final LegalEntityFilter<LegalEntity> filter : _filtersToUse) {
-      selections.add(filter.getFilteredData(legalEntity));
+      final Object filteredData = filter.getFilteredData(legalEntity);
+      if (filteredData instanceof Set<?>) {
+        selections.addAll((Set<?>) filteredData);
+      } else {
+        selections.add(filteredData);
+      }
     }
     return selections;
   }
@@ -83,7 +88,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
   }
 
   @Override
-  public <R> Property<R> property(String propertyName) {
+  public <R> Property<R> property(final String propertyName) {
     return metaBean().<R>metaProperty(propertyName).createProperty(this);
   }
 
@@ -105,7 +110,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
    * Sets the filters to use
    * @param filtersToUse  the new value of the property, not null
    */
-  public void setFiltersToUse(Set<LegalEntityFilter<LegalEntity>> filtersToUse) {
+  public void setFiltersToUse(final Set<LegalEntityFilter<LegalEntity>> filtersToUse) {
     JodaBeanUtils.notNull(filtersToUse, "filtersToUse");
     this._filtersToUse = filtersToUse;
   }
@@ -121,8 +126,8 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
   //-----------------------------------------------------------------------
   @Override
   public LegalEntityCombiningFilter clone() {
-    BeanBuilder<? extends LegalEntityCombiningFilter> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    final BeanBuilder<? extends LegalEntityCombiningFilter> builder = metaBean().builder();
+    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -135,12 +140,12 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      LegalEntityCombiningFilter other = (LegalEntityCombiningFilter) obj;
+      final LegalEntityCombiningFilter other = (LegalEntityCombiningFilter) obj;
       return JodaBeanUtils.equal(getFiltersToUse(), other.getFiltersToUse());
     }
     return false;
@@ -155,9 +160,9 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    final StringBuilder buf = new StringBuilder(64);
     buf.append("LegalEntityCombiningFilter{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -166,7 +171,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     return buf.toString();
   }
 
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     buf.append("filtersToUse").append('=').append(JodaBeanUtils.toString(getFiltersToUse())).append(',').append(' ');
   }
 
@@ -200,7 +205,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -1274996271:  // filtersToUse
           return _filtersToUse;
@@ -234,7 +239,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1274996271:  // filtersToUse
           return ((LegalEntityCombiningFilter) bean).getFiltersToUse();
@@ -244,7 +249,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1274996271:  // filtersToUse
           ((LegalEntityCombiningFilter) bean).setFiltersToUse((Set<LegalEntityFilter<LegalEntity>>) newValue);
@@ -254,7 +259,7 @@ public class LegalEntityCombiningFilter implements LegalEntityFilter<LegalEntity
     }
 
     @Override
-    protected void validate(Bean bean) {
+    protected void validate(final Bean bean) {
       JodaBeanUtils.notNull(((LegalEntityCombiningFilter) bean)._filtersToUse, "filtersToUse");
     }
 

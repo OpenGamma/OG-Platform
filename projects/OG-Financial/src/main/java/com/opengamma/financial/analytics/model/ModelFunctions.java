@@ -16,6 +16,7 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
+import com.opengamma.financial.analytics.model.bondcleanprice.CleanPriceFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
@@ -61,26 +62,62 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(MarginPriceFunction.class));
   }
 
+  /**
+   * Adds deprecated bond functions.
+   * @return A configuration source containing deprecated bond functions
+   * @deprecated The new versions of these functions are added in {{@link #cleanPriceFunctionConfiguration()}
+   */
+  @Deprecated
   protected FunctionConfigurationSource bondFunctionConfiguration() {
     return BondFunctions.instance();
   }
 
+  /**
+   * Adds deprecated bond functions.
+   * @return A configuration source containing deprecated bond future functions
+   * @deprecated The functions that are added are deprecated
+   */
+  @Deprecated
   protected FunctionConfigurationSource bondFutureOptionFunctionConfiguration() {
     return BondFutureOptionFunctions.instance();
   }
 
+  /**
+   * Adds CDS functions.
+   * @return A configuration source containing CDS functions
+   */
   protected FunctionConfigurationSource cdsFunctionConfiguration() {
     return CDSFunctions.instance();
   }
 
+  /**
+   * Adds functions that produce bond analytics from the clean price.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource cleanPriceFunctionConfiguration() {
+    return CleanPriceFunctions.instance();
+  }
+
+  /**
+   * Adds credit functions.
+   * @return A configuration source containing credit functions
+   */
   protected FunctionConfigurationSource creditFunctionConfiguration() {
     return CreditFunctions.instance();
   }
 
+  /**
+   * Adds functions that produce curves.
+   * @return A configuration source containing curve functions
+   */
   protected FunctionConfigurationSource curveFunctionConfiguration() {
     return CurveFunctions.instance();
   }
 
+  /**
+   * Adds equity functions.
+   * @return A configuration source containing equity functions
+   */
   protected FunctionConfigurationSource equityFunctionConfiguration() {
     return EquityFunctions.instance();
   }
@@ -239,6 +276,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         bondFunctionConfiguration(),
         bondFutureOptionFunctionConfiguration(),
         cdsFunctionConfiguration(),
+        cleanPriceFunctionConfiguration(),
         creditFunctionConfiguration(),
         curveFunctionConfiguration(),
         equityFunctionConfiguration(),

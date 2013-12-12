@@ -16,7 +16,6 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
@@ -75,17 +74,15 @@ public class CurveUtils {
    * @param configuration The curve construction configuration, not null
    * @param configSource The config source that contains information about any exogenous curve configurations, not null
    * @param versionCorrection The version-correction, not null
-   * @param conventionSource The convention source, not null
    * @param curveNodeCurrencyVisitor The curve node currency visitor, not null
    * @return An ordered set of currencies for these curves
    * @throws OpenGammaRuntimeException if any of the definitions are not found
    */
   public static Set<Currency> getCurrencies(final CurveConstructionConfiguration configuration, final ConfigSource configSource, final VersionCorrection versionCorrection,
-      final ConventionSource conventionSource, final CurveNodeVisitor<Set<Currency>> curveNodeCurrencyVisitor) {
+      final CurveNodeVisitor<Set<Currency>> curveNodeCurrencyVisitor) {
     ArgumentChecker.notNull(configuration, "configuration");
     ArgumentChecker.notNull(configSource, "config source");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(curveNodeCurrencyVisitor, "curve node currency visitor");
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
     final Set<Currency> currencies = new TreeSet<>();
@@ -106,7 +103,7 @@ public class CurveUtils {
       final CurveConstructionConfigurationSource source = new ConfigDBCurveConstructionConfigurationSource(configSource);
       for (final String name : exogenousConfigurations) {
         final CurveConstructionConfiguration exogenousConfiguration = source.getCurveConstructionConfiguration(name, versionCorrection);
-        currencies.addAll(getCurrencies(exogenousConfiguration, configSource, versionCorrection, conventionSource, curveNodeCurrencyVisitor));
+        currencies.addAll(getCurrencies(exogenousConfiguration, configSource, versionCorrection, curveNodeCurrencyVisitor));
       }
     }
     return currencies;

@@ -12,6 +12,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * Calculates the accrued interest from bond yield.
  * @deprecated The parent of this class is deprecated.
+ * Use {@link com.opengamma.financial.analytics.model.bondcleanprice.BondAccruedInterestFromCleanPriceFunction}
  */
 @Deprecated
 public class BondAccruedInterestFromCleanPriceFunction extends BondFromCleanPriceFunction {

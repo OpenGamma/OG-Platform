@@ -145,7 +145,7 @@ public class SimpleParameterSensitivityHullWhiteIssuerDiscountInterpolatedFDCalc
     // Discounting issuer
     final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerCcies = issuercurves.getIssuerProvider().getIssuers();
     for (final Pair<Object, LegalEntityFilter<LegalEntity>> ic : issuerCcies) {
-      final YieldAndDiscountCurve curve = issuercurves.getIssuerProvider().getCurve(ic);
+      final YieldAndDiscountCurve curve = issuercurves.getIssuerProvider().getIssuerCurve(ic);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
       final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");

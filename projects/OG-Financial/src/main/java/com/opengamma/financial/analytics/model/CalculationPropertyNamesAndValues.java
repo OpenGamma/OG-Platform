@@ -24,7 +24,7 @@ public final class CalculationPropertyNamesAndValues {
   public static final String BAW_METHOD = "BaroneAdesiWhaleyMethod";
   /** The Bjerksund-Stensland approximation for American options, from a vol surface */
   public static final String BJERKSUND_STENSLAND_METHOD = "BjerksundStenslandMethod";
-  /** The Bjerksund-Stensland approximation for American options, when option's market price is available */  
+  /** The Bjerksund-Stensland approximation for American options, when option's market price is available */
   public static final String BJERKSUND_STENSLAND_LISTED_METHOD = "BjerksundStenslandListedMethod";
   /** The so-called PDE method computes prices for American and European options under the BlackScholesMerton model*/
   public static final String PDE_METHOD = "PDE";
@@ -53,6 +53,13 @@ public final class CalculationPropertyNamesAndValues {
   /** The name of the property that sets the number of days per financial year */
   public static final String PROPERTY_DAYS_PER_YEAR = "DaysInYear";
 
+  // Properties for bond pricing
+  /** The property value indicating that bonds analytics are produced from the clean price */
+  public static final String CLEAN_PRICE_METHOD = "CleanPrice";
+
+  /**
+   * Private constructor.
+   */
   private CalculationPropertyNamesAndValues() {
   }
 

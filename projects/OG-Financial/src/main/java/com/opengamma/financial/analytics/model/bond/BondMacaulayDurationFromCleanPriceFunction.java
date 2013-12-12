@@ -12,6 +12,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * Calculates the Macaulay duration from bond clean price.
  * @deprecated The parent of this class is deprecated.
+ * Use {@link com.opengamma.financial.analytics.model.bondcleanprice.BondMacaulayDurationFromCleanPriceFunction}
  */
 @Deprecated
 public class BondMacaulayDurationFromCleanPriceFunction extends BondFromCleanPriceFunction {

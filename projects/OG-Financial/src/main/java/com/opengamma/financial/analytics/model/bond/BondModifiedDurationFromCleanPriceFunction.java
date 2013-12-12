@@ -12,6 +12,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * Calculates the modified duration from bond clean price.
  * @deprecated The parent of this class is deprecated.
+ * Use {@link com.opengamma.financial.analytics.model.bondcleanprice.BondModifiedDurationFromCleanPriceFunction}
  */
 @Deprecated
 public class BondModifiedDurationFromCleanPriceFunction extends BondFromCleanPriceFunction {
