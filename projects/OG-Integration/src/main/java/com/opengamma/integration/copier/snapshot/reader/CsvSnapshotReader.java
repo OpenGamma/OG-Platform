@@ -218,7 +218,7 @@ public class CsvSnapshotReader implements SnapshotReader {
                                                           currentRow.get(SnapshotColumns.SURFACE_INSTRUMENT_TYPE.get()),
                                                           currentRow.get(SnapshotColumns.SURFACE_QUOTE_TYPE.get()),
                                                           currentRow.get(SnapshotColumns.SURFACE_QUOTE_UNITS.get()));
-      HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
+      HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<>();
 
       values.put(createOrdinatePair(currentRow), createValueSnapshot(currentRow));
       surface.setValues(values);

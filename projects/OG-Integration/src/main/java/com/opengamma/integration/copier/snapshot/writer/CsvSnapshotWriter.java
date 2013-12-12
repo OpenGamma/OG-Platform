@@ -66,6 +66,8 @@ public class CsvSnapshotWriter implements SnapshotWriter {
       String surfaceY;
       if (entry.getKey().getSecond() instanceof Pair) {
         surfaceY = ((Pair) entry.getKey().getSecond()).getFirst() + "|" + ((Pair) entry.getKey().getSecond()).getSecond();
+      } else if (entry.getKey().getSecond() instanceof Tenor) {
+        surfaceY = ((Tenor) entry.getKey().getSecond()).toFormattedString();
       } else {
         surfaceY = entry.getKey().getSecond().toString();
       }
