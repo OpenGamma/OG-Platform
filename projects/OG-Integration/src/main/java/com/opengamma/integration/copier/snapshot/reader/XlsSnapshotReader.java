@@ -119,7 +119,6 @@ public class XlsSnapshotReader implements SnapshotReader{
 
   private ExternalIdBundle createExternalIdBundle(String idBundle) {
     Iterable<String> iterable = Arrays.asList(idBundle.split("\\|"));
-    s_logger.warn("ID Bundle {}", iterable.toString());
     return ExternalIdBundle.parse(iterable);
   }
 
@@ -176,7 +175,6 @@ public class XlsSnapshotReader implements SnapshotReader{
   private void buildNameData() {
     _nameSheet = new XlsSheetReader(_workbook, SnapshotType.NAME.get());
     Map<String, String> nameMap = _nameSheet.readKeyValueBlock(_nameSheet.getCurrentRowIndex(), 0);
-    nameMap.putAll(_nameSheet.readKeyValueBlock(_nameSheet.getCurrentRowIndex(), 0));
     _name = nameMap.get(SnapshotType.NAME.get());
     _basisName = nameMap.get(SnapshotType.BASIS_NAME.get());
   }

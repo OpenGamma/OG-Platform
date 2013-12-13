@@ -186,6 +186,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
     Map<String, String> detail = new HashMap<>();
     detail.put(SnapshotType.NAME.get(), name);
     _nameSheet.writeKeyValueBlock(detail);
+    _nameSheet.decrementCurrentRowIndex(); //this ensures basis name is directly after name, rather than a new block
   }
 
   @Override

@@ -190,10 +190,6 @@ public class XlsSheetReader extends SheetReader {
     return _currentRowIndex++;
   }
 
-  public void decrementCurrentRowIndex() {
-    _currentRowIndex--;
-  }
-
   public Map<String, String> readKeyValueBlock(int startRow, int startCol) {
     Map<String, String> keyValueMap = new HashMap<>();
     _currentRowIndex = startRow;

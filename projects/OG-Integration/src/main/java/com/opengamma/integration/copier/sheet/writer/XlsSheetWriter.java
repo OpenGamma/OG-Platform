@@ -31,8 +31,6 @@ import com.opengamma.util.tuple.Pair;
  */
 public class XlsSheetWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(XlsSheetWriter.class);
-
   private HSSFSheet _sheet;
   private HSSFWorkbook _workbook;
   private Integer _currentRowIndex = 0;
@@ -77,6 +75,10 @@ public class XlsSheetWriter {
       row = _sheet.createRow(rowIndex);
     }
     return row;
+  }
+
+  public void decrementCurrentRowIndex() {
+    _currentRowIndex--;
   }
 
   /**
