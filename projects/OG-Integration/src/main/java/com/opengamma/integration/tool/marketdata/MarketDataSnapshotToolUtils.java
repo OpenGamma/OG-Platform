@@ -253,7 +253,7 @@ public class MarketDataSnapshotToolUtils {
         } catch (IllegalArgumentException e)  {
           s_logger.error("Volatility surface Y ordinate {} should be a Double, Pair<Number, FXVolQuoteType> or empty.", xValue);
         }
-      } else if (yValues.length == 1){
+      } else if (yValues.length == 1) {
         if (NumberUtils.isNumber(yValues[0])) {
           surfaceY = NumberUtils.createDouble(yValues[0]);
         } else if (isTenor(yValues[0])) {

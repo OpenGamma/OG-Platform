@@ -15,8 +15,6 @@ import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -45,7 +43,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Reads a snapshot from an imported file
  */
-public class XlsSnapshotReader implements SnapshotReader{
+public class XlsSnapshotReader implements SnapshotReader {
 
 
   private Map<CurveKey, CurveSnapshot> _curves;
@@ -61,7 +59,7 @@ public class XlsSnapshotReader implements SnapshotReader{
   private XlsSheetReader _surfaceSheet;
   private Workbook _workbook;
   private InputStream _fileInputStream;
-  private final String valueObject = "Market_Value";
+  private final String _valueObject = "Market_Value";
 
   public XlsSnapshotReader(String filename) {
     _fileInputStream = openFile(filename);
@@ -84,7 +82,7 @@ public class XlsSnapshotReader implements SnapshotReader{
     _surfaceSheet = new XlsSheetReader(_workbook, SnapshotType.VOL_SURFACE.get());
 
     //continue reading in each surface object until current row incrementing returns no data
-    while(true) {
+    while (true) {
       Map<String, String> details = _surfaceSheet.readKeyValueBlock(_surfaceSheet.getCurrentRowIndex(), 0);
       if (details.isEmpty() || details == null) {
         break;
@@ -173,7 +171,7 @@ public class XlsSnapshotReader implements SnapshotReader{
     ManageableUnstructuredMarketDataSnapshot builder = new ManageableUnstructuredMarketDataSnapshot();
     for (Map.Entry<String, ObjectsPair<String, String>> entry : map.entrySet()) {
       builder.putValue(createExternalIdBundle(entry.getKey()),
-                             valueObject,
+                       _valueObject,
                              MarketDataSnapshotToolUtils.createValueSnapshot(entry.getValue().getFirst(),
                                                                              entry.getValue().getSecond()));
     }

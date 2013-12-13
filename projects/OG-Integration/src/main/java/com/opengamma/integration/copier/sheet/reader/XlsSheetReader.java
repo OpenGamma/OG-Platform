@@ -220,7 +220,7 @@ public class XlsSheetReader extends SheetReader {
       _currentRowIndex++;
       row = _sheet.getRow(_currentRowIndex);
     }
-    _currentRowIndex++;//increment to prepare for next read method
+    _currentRowIndex++; //increment to prepare for next read method
     return keyValueMap;
   }
 
@@ -242,7 +242,7 @@ public class XlsSheetReader extends SheetReader {
       _currentRowIndex++;
       row = _sheet.getRow(_currentRowIndex);
     }
-    _currentRowIndex++;//increment to prepare for next read method
+    _currentRowIndex++; //increment to prepare for next read method
     return keyPairMap;
   }
 
@@ -294,7 +294,7 @@ public class XlsSheetReader extends SheetReader {
       }
       _currentRowIndex++;
     }
-    _currentRowIndex++;//increment to prepare for next read method
+    _currentRowIndex++; //increment to prepare for next read method
 
     return valueMap;
   }
