@@ -70,6 +70,25 @@ public class InterestRateSwapNotionalTest {
     Assert.assertEquals(Currency.GBP, amortizing.getCurrency());
   }
 
+  @Test
+  public void testAdditiveShifts() throws Exception {
+    LocalDate start = LocalDate.now();
+    List<LocalDate> dates = Lists.newArrayList(start, start.plusYears(1), start.plusYears(2), start.plusYears(3));
+    List<Double> notionals = Lists.newArrayList(1e6d, -2.5e5d, -2.5e5d, -2.5e5d);
+    List<Rate.ShiftType> shiftTypes = Lists.newArrayList(Rate.ShiftType.OUTRIGHT, Rate.ShiftType.ADDITIVE, Rate.ShiftType.ADDITIVE, Rate.ShiftType.ADDITIVE);
+    InterestRateSwapNotional amortizing = InterestRateSwapNotional.of(Currency.GBP, dates, notionals, shiftTypes);
+    Assert.assertEquals(1e6, amortizing.getInitialAmount(), TOLERACE);
+    Assert.assertEquals(2.5e5d, amortizing.getAmount(LocalDate.MAX), TOLERACE);
+    Assert.assertEquals(1e6, amortizing.getAmount(LocalDate.MIN), TOLERACE);
+    Assert.assertEquals(1e6, amortizing.getAmount(start), TOLERACE);
+    Assert.assertEquals(1e6, amortizing.getAmount(start.plusMonths(11)), TOLERACE);
+    Assert.assertEquals(7.5e5d, amortizing.getAmount(start.plusYears(1)), TOLERACE);
+    Assert.assertEquals(5e5d, amortizing.getAmount(start.plusYears(2)), TOLERACE);
+    Assert.assertEquals(2.5e5d, amortizing.getAmount(start.plusYears(3)), TOLERACE);
+    Assert.assertEquals(5e5d, amortizing.getAmount(start.plusYears(3).minusDays(1)), TOLERACE);
+    Assert.assertEquals(Currency.GBP, amortizing.getCurrency());
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testDeltaInitialNotional() throws Exception {
     LocalDate start = LocalDate.now();

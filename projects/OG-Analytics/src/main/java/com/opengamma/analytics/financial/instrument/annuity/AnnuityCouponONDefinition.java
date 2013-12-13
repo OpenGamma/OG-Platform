@@ -229,9 +229,9 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
                                                 final boolean isPayer) {
     final double sign = isPayer ? -1.0 : 1.0;
     final CouponONDefinition[] coupons = new CouponONDefinition[endFixingPeriodDates.length];
-    coupons[0] = CouponONDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDates[0], sign * notional.getAmount(endFixingPeriodDates[0].toLocalDate()), generator.getPaymentLag(), generator.getOvernightCalendar());
+    coupons[0] = CouponONDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDates[0], sign * notional.getAmount(settlementDate.toLocalDate()), generator.getPaymentLag(), generator.getOvernightCalendar());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
-      coupons[loopcpn] = CouponONDefinition.from(generator.getIndex(), endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], sign * notional.getAmount(endFixingPeriodDates[loopcpn].toLocalDate()), generator.getPaymentLag(),
+      coupons[loopcpn] = CouponONDefinition.from(generator.getIndex(), endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], sign * notional.getAmount(endFixingPeriodDates[loopcpn - 1].toLocalDate()), generator.getPaymentLag(),
                                                  generator.getOvernightCalendar());
     }
     return new AnnuityCouponONDefinition(coupons, generator.getIndex(), generator.getOvernightCalendar());
@@ -272,9 +272,9 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
                                                 final boolean isPayer) {
     final double sign = isPayer ? -1.0 : 1.0;
     final CouponONDefinition[] coupons = new CouponONDefinition[endFixingPeriodDates.length];
-    coupons[0] = CouponONDefinition.from(generator.getIndexON(), settlementDate, endFixingPeriodDates[0], sign * notional.getAmount(endFixingPeriodDates[0].toLocalDate()), generator.getPaymentLag(), generator.getOvernightCalendar());
+    coupons[0] = CouponONDefinition.from(generator.getIndexON(), settlementDate, endFixingPeriodDates[0], sign * notional.getAmount(settlementDate.toLocalDate()), generator.getPaymentLag(), generator.getOvernightCalendar());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
-      coupons[loopcpn] = CouponONDefinition.from(generator.getIndexON(), endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], sign * notional.getAmount(endFixingPeriodDates[loopcpn].toLocalDate()), generator.getPaymentLag(),
+      coupons[loopcpn] = CouponONDefinition.from(generator.getIndexON(), endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], sign * notional.getAmount(endFixingPeriodDates[loopcpn - 1].toLocalDate()), generator.getPaymentLag(),
                                                  generator.getOvernightCalendar());
     }
     return new AnnuityCouponONDefinition(coupons, generator.getIndexON(), generator.getOvernightCalendar());

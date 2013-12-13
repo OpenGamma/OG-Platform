@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security.irs;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +26,11 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
-//TODO: Take business day convention
-
 /**
  * Notional that can handle a schedule. Currency must be constant throughout.
  * Expects to be handed a list of dates and the notional (absolute or delta) taking effect in that period.
  * Can be passed a single amount for a constant notional.
+ * Dates provided may be business day adjusted during analytics calculations.
  */
 @BeanDefinition
 public final class InterestRateSwapNotional extends InterestRateNotional {
@@ -92,7 +90,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
   /**
   * Get the notional as of a given date
   *
-  * @param date the date you want the notional for.
+  * @param date the (business day adjusted) date you want the notional for.
   * @return the notional
   */
   public double getAmount(final LocalDate date) {
@@ -122,7 +120,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Create a variable notional schedule.
    *
    * @param ccy the currency
-   * @param dates the dates the provided values take effect
+   * @param dates the dates the provided values take effect (unadjusted for business days)
    * @param notionals the notional values (or shifts to the previous notional) that take effect
    * @param types the shift types for each step in the schedule
    * @return the notional schedule
@@ -145,7 +143,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
    * Create a variable notional schedule.
    *
    * @param ccy the currency
-   * @param dates the dates the provided values take effect
+   * @param dates the dates the provided values take effect (unadjusted for business days)
    * @param notionals the notional values that take effect
    * @return the notional schedule
    */
@@ -172,7 +170,7 @@ public final class InterestRateSwapNotional extends InterestRateNotional {
     super(ccy, ArgumentChecker.notEmpty(notionals, "notionals").iterator().next());
     ArgumentChecker.isTrue(overridePeriods.size() == notionals.size(), "Different overrides & notionals");
     ArgumentChecker.isTrue(overridePeriods.size() == types.size(), "Different overrides & adjustment types");
-    _dates = overridePeriods;
+    _dates = Lists.newArrayList(overridePeriods);
     _notionals = notionals;
     _shiftTypes = types;
   }

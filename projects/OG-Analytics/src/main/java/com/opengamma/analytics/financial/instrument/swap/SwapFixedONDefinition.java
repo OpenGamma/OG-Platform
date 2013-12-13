@@ -123,7 +123,7 @@ public class SwapFixedONDefinition extends SwapDefinition {
     final double sign = isPayer ? -1.0 : 1.0;
     for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
       cpnFixed[loopcpn] = new CouponFixedDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg.getNthPayment(
-          loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), sign * notional.getAmount(oisLeg.getNthPayment(loopcpn).getPaymentDate().toLocalDate()), fixedRate);
+          loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), sign * notional.getAmount(oisLeg.getNthPayment(loopcpn).getAccrualStartDate().toLocalDate()), fixedRate);
     }
     return new SwapFixedONDefinition(new AnnuityCouponFixedDefinition(cpnFixed, calendar), oisLeg);
   }
