@@ -3,14 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bondcleanprice;
+package com.opengamma.financial.analytics.model.bondyield;
 
-import static com.opengamma.core.value.MarketDataRequirementNames.MARKET_VALUE;
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
-import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.CLEAN_PRICE_METHOD;
+import static com.opengamma.engine.value.ValueRequirementNames.MARKET_YTM;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.YIELD_METHOD;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,16 +48,16 @@ import com.opengamma.util.async.AsynchronousExecution;
 /**
  *
  */
-public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BondZSpreadFromCleanPriceFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BondZSpreadFromYieldFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
 
   /**
    * @param valueRequirementName The value requirement name, not null
    */
-  public BondFromCleanPriceAndCurvesFunction(final String valueRequirementName) {
+  public BondFromYieldAndCurvesFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
   }
@@ -68,7 +68,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-    final Double cleanPrice = (Double) inputs.getValue(MARKET_VALUE);
+    final Double cleanPrice = (Double) inputs.getValue(MARKET_YTM);
     final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
     final BondFixedTransaction bond = (BondFixedTransaction) derivative;
     final IssuerProvider issuerCurves = (IssuerProvider) inputs.getValue(CURVE_BUNDLE);
@@ -101,7 +101,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
     }
     final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<>();
-    requirements.add(new ValueRequirement(MARKET_VALUE, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
+    requirements.add(new ValueRequirement(MARKET_YTM, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
     try {
       final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
       final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
@@ -128,7 +128,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
    */
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(CALCULATION_METHOD, CLEAN_PRICE_METHOD)
+        .with(CALCULATION_METHOD, YIELD_METHOD)
         .withAny(CURVE_EXPOSURES);
   }
 

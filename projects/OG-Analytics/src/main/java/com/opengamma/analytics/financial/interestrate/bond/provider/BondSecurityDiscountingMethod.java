@@ -121,6 +121,20 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
+   * Compute the present value of a bond transaction from its yield.
+   * @param bond The bond transaction.
+   * @param multicurves The multi-curves provider.
+   * @param yield The bond yield.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValueFromYield(final BondSecurity<? extends Payment, ? extends Coupon> bond, final MulticurveProviderInterface multicurves, final double yield) {
+    ArgumentChecker.isTrue(bond instanceof BondFixedSecurity, "Present value from clean price available only for fixed coupon bond");
+    final BondFixedSecurity bondFixed = (BondFixedSecurity) bond;
+    final double cleanPrice = cleanPriceFromYield(bondFixed, yield);
+    return presentValueFromCleanPrice(bondFixed, multicurves, cleanPrice);
+  }
+
+  /**
    * Computes the present value of a bond security from z-spread. The z-spread is a parallel shift applied to the discounting curve associated to the bond.
    * The parallel shift is done in the curve convention.
    * @param bond The bond security.
@@ -559,6 +573,17 @@ public final class BondSecurityDiscountingMethod {
    */
   public double zSpreadFromCurvesAndClean(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double cleanPrice) {
     return zSpreadFromCurvesAndPV(bond, issuerMulticurves, presentValueFromCleanPrice(bond, issuerMulticurves.getMulticurveProvider(), cleanPrice));
+  }
+
+  /**
+   * Computes a bond z-spread from the curves and a yield.
+   * @param bond The bond.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @param yield The yield.
+   * @return The z-spread.
+   */
+  public double zSpreadFromCurvesAndYield(final BondSecurity<? extends Payment, ? extends Coupon> bond, final IssuerProviderInterface issuerMulticurves, final double yield) {
+    return zSpreadFromCurvesAndPV(bond, issuerMulticurves, presentValueFromYield(bond, issuerMulticurves.getMulticurveProvider(), yield));
   }
 
   /**

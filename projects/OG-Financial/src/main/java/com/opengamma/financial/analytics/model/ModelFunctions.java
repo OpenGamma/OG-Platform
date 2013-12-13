@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingPricingFunc
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondcleanprice.CleanPriceFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
+import com.opengamma.financial.analytics.model.bondyield.YieldFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
@@ -65,7 +66,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds deprecated bond functions.
    * @return A configuration source containing deprecated bond functions
-   * @deprecated The new versions of these functions are added in {{@link #cleanPriceFunctionConfiguration()}
+   * @deprecated The new versions of these functions are added in {{@link #bondCleanPriceFunctionConfiguration()}
    */
   @Deprecated
   protected FunctionConfigurationSource bondFunctionConfiguration() {
@@ -83,19 +84,27 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   }
 
   /**
-   * Adds CDS functions.
-   * @return A configuration source containing CDS functions
+   * Adds functions that produce bond analytics from the clean price.
+   * @return A configuration source containing bond functions
    */
-  protected FunctionConfigurationSource cdsFunctionConfiguration() {
-    return CDSFunctions.instance();
+  protected FunctionConfigurationSource bondCleanPriceFunctionConfiguration() {
+    return CleanPriceFunctions.instance();
   }
 
   /**
    * Adds functions that produce bond analytics from the clean price.
    * @return A configuration source containing bond functions
    */
-  protected FunctionConfigurationSource cleanPriceFunctionConfiguration() {
-    return CleanPriceFunctions.instance();
+  protected FunctionConfigurationSource bondYieldFunctionConfiguration() {
+    return YieldFunctions.instance();
+  }
+
+  /**
+   * Adds CDS functions.
+   * @return A configuration source containing CDS functions
+   */
+  protected FunctionConfigurationSource cdsFunctionConfiguration() {
+    return CDSFunctions.instance();
   }
 
   /**
@@ -275,8 +284,9 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return CombiningFunctionConfigurationSource.of(super.createObject(),
         bondFunctionConfiguration(),
         bondFutureOptionFunctionConfiguration(),
+        bondCleanPriceFunctionConfiguration(),
+        bondYieldFunctionConfiguration(),
         cdsFunctionConfiguration(),
-        cleanPriceFunctionConfiguration(),
         creditFunctionConfiguration(),
         curveFunctionConfiguration(),
         equityFunctionConfiguration(),

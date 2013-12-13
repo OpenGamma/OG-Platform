@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.util.ArgumentChecker;
 
@@ -36,5 +37,12 @@ public final class AccruedInterestFromYieldCalculator extends InstrumentDerivati
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(yield, "yield");
     return BondSecurityDiscountingMethod.getInstance().accruedInterestFromYield(bond, yield);
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(yield, "yield");
+    return BondSecurityDiscountingMethod.getInstance().accruedInterestFromYield(bond.getBondTransaction(), yield);
   }
 }

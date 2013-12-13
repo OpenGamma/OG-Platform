@@ -7,14 +7,13 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculate convexity for bonds.
- * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.issuer.ConvexityFromYieldCalculator}
  */
-@Deprecated
 public final class ConvexityFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
@@ -41,10 +40,16 @@ public final class ConvexityFromYieldCalculator extends InstrumentDerivativeVisi
   }
 
   @Override
-  public Double visitBondFixedSecurity(final BondFixedSecurity yield, final Double curves) {
-    ArgumentChecker.notNull(curves, "curves");
-    ArgumentChecker.notNull(yield, "yield");
-    return METHOD_BOND.convexityFromYield(yield, curves);
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double yield) {
+    ArgumentChecker.notNull(yield, "curves");
+    ArgumentChecker.notNull(bond, "yield");
+    return METHOD_BOND.convexityFromYield(bond, yield) / 100;
   }
 
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double yield) {
+    ArgumentChecker.notNull(yield, "curves");
+    ArgumentChecker.notNull(bond, "yield");
+    return METHOD_BOND.convexityFromYield(bond.getBondTransaction(), yield) / 100;
+  }
 }

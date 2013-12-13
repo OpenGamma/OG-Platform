@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bondcleanprice;
+package com.opengamma.financial.analytics.model;
 
 import org.threeten.bp.ZonedDateTime;
 
@@ -22,10 +22,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Utility methods that are used in functions that calculate bond analytics
- * from the clean price.
+ * Utility methods that are used in functions that calculate bond analytics.
  */
-public class CleanPriceFunctionUtils {
+public class BondFunctionUtils {
 
   /**
    * Converts a bond trade into a form that can be used in the analytics library.

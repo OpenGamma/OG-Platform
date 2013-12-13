@@ -54,8 +54,10 @@ public final class CalculationPropertyNamesAndValues {
   public static final String PROPERTY_DAYS_PER_YEAR = "DaysInYear";
 
   // Properties for bond pricing
-  /** The property value indicating that bonds analytics are produced from the clean price */
+  /** The property value indicating that bond analytics are produced from the clean price */
   public static final String CLEAN_PRICE_METHOD = "CleanPrice";
+  /** The property value indicating that bond analytics are produced from the yield */
+  public static final String YIELD_METHOD = "Yield";
 
   /**
    * Private constructor.

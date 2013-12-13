@@ -32,7 +32,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Bond related figures computed from the market yield.
- * @deprecated This class uses deprecated analytics functions.
+ * @deprecated Use {@link com.opengamma.financial.analytics.model.bondyield.BondFromYieldFunction}
  */
 @Deprecated
 public abstract class BondFromYieldFunction extends BondFunction<Double> {
