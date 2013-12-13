@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.fudgemsg;
 
+import static org.fudgemsg.mapping.FudgeSerializer.addClassHeader;
+
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -28,6 +30,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.impl.direct.DirectBean;
 
 import com.google.common.collect.Maps;
 
@@ -75,6 +78,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
           serializer.addToMessageWithClassHeaders(msg, prop.name(), null, obj, prop.propertyType()); // ignores null
         }
       }
+      addClassHeader(msg, bean.getClass(), Bean.class);
       return msg;
     } catch (RuntimeException ex) {
       throw new FudgeRuntimeException("Unable to serialize: " + _metaBean.beanName(), ex);
