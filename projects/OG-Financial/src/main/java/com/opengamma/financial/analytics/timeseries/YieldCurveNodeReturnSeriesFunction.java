@@ -198,7 +198,7 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
       sensitivityToRate = new boolean[n];
       int i = 0;
       for (final FixedIncomeStripWithSecurity strip : strips) {
-        tenors[i] = strip.getResolvedTenor();
+        tenors[i] = strip.getTenor();
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)
         sensitivityToRate[i] = strip.getInstrumentType() == StripInstrumentType.FUTURE;
         i++;
