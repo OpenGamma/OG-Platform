@@ -49,7 +49,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
    * The set of identifiers.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableSet<ExternalId> _externalIds;
+  private final Set<ExternalId> _externalIds;
   /**
    * The search type, default 'ANY'.
    */
@@ -396,7 +396,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
    * Gets the set of identifiers.
    * @return the value of the property, not null
    */
-  public ImmutableSet<ExternalId> getExternalIds() {
+  public Set<ExternalId> getExternalIds() {
     return _externalIds;
   }
 
@@ -460,8 +460,8 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
      * The meta-property for the {@code externalIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableSet<ExternalId>> _externalIds = DirectMetaProperty.ofImmutable(
-        this, "externalIds", ExternalIdSearch.class, (Class) ImmutableSet.class);
+    private final MetaProperty<Set<ExternalId>> _externalIds = DirectMetaProperty.ofImmutable(
+        this, "externalIds", ExternalIdSearch.class, (Class) Set.class);
     /**
      * The meta-property for the {@code searchType} property.
      */
@@ -512,7 +512,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
      * The meta-property for the {@code externalIds} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableSet<ExternalId>> externalIds() {
+    public MetaProperty<Set<ExternalId>> externalIds() {
       return _externalIds;
     }
 
