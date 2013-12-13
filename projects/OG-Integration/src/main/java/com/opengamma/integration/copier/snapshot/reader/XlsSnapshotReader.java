@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
  * Reads a snapshot from an imported file
  */
 public class XlsSnapshotReader implements SnapshotReader{
-  private static final Logger s_logger = LoggerFactory.getLogger(XlsSnapshotReader.class);
+
 
   private Map<CurveKey, CurveSnapshot> _curves;
   private UnstructuredMarketDataSnapshot _global;

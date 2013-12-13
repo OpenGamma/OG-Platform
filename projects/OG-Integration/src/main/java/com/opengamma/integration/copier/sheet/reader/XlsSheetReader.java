@@ -17,6 +17,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -27,6 +29,8 @@ import com.opengamma.util.tuple.Pair;
  * A class for importing portfolio data from XLS worksheets
  */
 public class XlsSheetReader extends SheetReader {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(XlsSheetReader.class);
 
   private Sheet _sheet;
   private Workbook _workbook;
@@ -56,7 +60,7 @@ public class XlsSheetReader extends SheetReader {
 
     InputStream fileInputStream = openFile(filename);
     _workbook = getWorkbook(fileInputStream);
-    _sheet = _workbook.getSheet(sheetName);
+    _sheet = getSheetSafely(sheetName);
     _currentRowIndex = _sheet.getFirstRowNum();
 
     // Read in the header row
@@ -87,7 +91,7 @@ public class XlsSheetReader extends SheetReader {
     ArgumentChecker.notEmpty(sheetName, "sheetName");
 
     _workbook = getWorkbook(inputStream);
-    _sheet = _workbook.getSheet(sheetName);
+    _sheet = getSheetSafely(sheetName);
     _currentRowIndex = _sheet.getFirstRowNum();
 
     // Read in the header row
@@ -101,11 +105,23 @@ public class XlsSheetReader extends SheetReader {
     ArgumentChecker.notNull(workbook, "workbook");
     ArgumentChecker.notEmpty(sheetName, "sheetName");
     _workbook = workbook;
-    _sheet = _workbook.getSheet(sheetName);
+    _sheet = getSheetSafely(sheetName);
+    if (_sheet == null) {
+      _sheet = _workbook.createSheet(sheetName);
+      s_logger.warn("Workbook does not contain a sheet for {}", sheetName);
+    }
     _currentRowIndex = _sheet.getFirstRowNum();
   }
 
-  
+  private Sheet getSheetSafely(String sheetName) {
+    Sheet sheet = _workbook.getSheet(sheetName);
+    if (sheet == null) {
+      sheet = _workbook.createSheet(sheetName);
+      s_logger.warn("Workbook does not contain a sheet for {}, temporary sheet created", sheetName);
+    }
+    return sheet;
+  }
+
   private Workbook getWorkbook(InputStream inputStream) {
     try {
       return new HSSFWorkbook(inputStream);
