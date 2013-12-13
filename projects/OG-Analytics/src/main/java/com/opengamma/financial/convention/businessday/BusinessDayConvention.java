@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.businessday;
@@ -25,7 +25,7 @@ public interface BusinessDayConvention extends NamedInstance {
 
   /**
    * Adjusts the specified date using the working day calendar.
-   * 
+   *
    * @param workingDayCalendar  the working days, not null
    * @param date  the date to adjust, not null
    * @return the adjusted date, not null
@@ -34,7 +34,7 @@ public interface BusinessDayConvention extends NamedInstance {
 
   /**
    * Adjusts the specified date-time using the working day calendar.
-   * 
+   *
    * @param workingDayCalendar  the working days, not null
    * @param dateTime  the date-time to adjust, not null
    * @return the adjusted date-time, not null
@@ -43,7 +43,7 @@ public interface BusinessDayConvention extends NamedInstance {
 
   /**
    * Converts this convention to a {@code TemporalAdjuster} using the specified working day calendar.
-   * 
+   *
    * @param workingDayCalendar  the working days, not null
    * @return the date adjuster, not null
    */
@@ -51,7 +51,7 @@ public interface BusinessDayConvention extends NamedInstance {
 
   /**
    * Gets the name of the convention.
-   * 
+   *
    * @return the name, not null
    * @deprecated use getName()
    */
@@ -60,9 +60,10 @@ public interface BusinessDayConvention extends NamedInstance {
 
   /**
    * Gets the name of the convention.
-   * 
+   *
    * @return the name, not null
    */
+  @Override
   @ToString
   String getName();
 

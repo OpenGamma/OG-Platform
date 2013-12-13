@@ -28,8 +28,8 @@ public class SpreadDoublesCurveTest {
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
   private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.from(X, Y1, new LinearInterpolator1D(), "a");
   private static final InterpolatedDoublesCurve INTERPOLATED2 = InterpolatedDoublesCurve.from(X, Y2, new LinearInterpolator1D(), "b");
-  private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
-  private static final CurveSpreadFunction SUBTRACT = new SubtractCurveSpreadFunction();
+  private static final CurveSpreadFunction ADD = CurveSpreadFunctionFactory.of("+");
+  private static final CurveSpreadFunction SUBTRACT = CurveSpreadFunctionFactory.of("-");
   private static final String NAME1 = "X";
   private static final String NAME2 = "Y";
   private static final String NAME3 = "Z";
