@@ -85,7 +85,6 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
    * Gets the unique identifier of the curve.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -94,8 +93,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
    * Sets the unique identifier of the curve.
    * @param uniqueId  the new value of the property
    */
-  @Override
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -120,7 +118,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
    * Sets the name of the curve.
    * @param name  the new value of the property, not null
    */
-  public void setName(final String name) {
+  public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -136,8 +134,8 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
   //-----------------------------------------------------------------------
   @Override
   public AbstractCurveDefinition clone() {
-    final BeanBuilder<? extends AbstractCurveDefinition> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    BeanBuilder<? extends AbstractCurveDefinition> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -150,12 +148,12 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final AbstractCurveDefinition other = (AbstractCurveDefinition) obj;
+      AbstractCurveDefinition other = (AbstractCurveDefinition) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName());
     }
@@ -172,9 +170,9 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("AbstractCurveDefinition{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -183,7 +181,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
@@ -223,7 +221,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
@@ -267,7 +265,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return ((AbstractCurveDefinition) bean).getUniqueId();
@@ -278,7 +276,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           ((AbstractCurveDefinition) bean).setUniqueId((UniqueId) newValue);
@@ -291,7 +289,7 @@ public abstract class AbstractCurveDefinition extends DirectBean implements Seri
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((AbstractCurveDefinition) bean)._name, "name");
     }
 
