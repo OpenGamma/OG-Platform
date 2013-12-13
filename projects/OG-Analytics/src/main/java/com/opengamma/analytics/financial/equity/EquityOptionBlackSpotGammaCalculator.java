@@ -36,7 +36,7 @@ public final class EquityOptionBlackSpotGammaCalculator extends InstrumentDeriva
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    return EquityIndexOptionBlackMethod.getInstance().gammaWrtSpot(option, data);
+    return EquityIndexOptionBlackMethod.getInstance().gammaWrtForward(option, data);
   }
 
   @Override
