@@ -120,6 +120,10 @@ To 2.1.14
 ---------
     [PLAT-5312] Exception casting Object[] to Double[] in IRFutureOptionVolatilitySurfaceDataFunction
 
+To 2.1.15
+---------
+    [PLAT-5331] YieldCurveNodeReturnSeriesFunction qualifies result using user-specified tenors, not resolved ones.
+
 
 OpenGamma Platform 2.1
 ---------------------------------
