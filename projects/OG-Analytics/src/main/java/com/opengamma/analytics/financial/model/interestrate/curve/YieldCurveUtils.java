@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.curve;
@@ -32,9 +32,9 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class YieldCurveUtils {
   /** Curve spread function that adds two curves */
-  private static final CurveSpreadFunction ADD_SPREAD = new AddCurveSpreadFunction();
+  private static final CurveSpreadFunction ADD_SPREAD = AddCurveSpreadFunction.getInstance();
   /** Curve spread function that multiplies one curve by another */
-  private static final CurveSpreadFunction MULTIPLY_SPREAD = new MultiplyCurveSpreadFunction();
+  private static final CurveSpreadFunction MULTIPLY_SPREAD = MultiplyCurveSpreadFunction.getInstance();
   /** Suffix for parallel shifts */
   private static final String PARALLEL_SHIFT_NAME = "_WithParallelShift";
   /** Suffix for bucketed shifts */

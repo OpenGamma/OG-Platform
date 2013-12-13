@@ -41,9 +41,10 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -52,6 +53,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated The class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DepositZeroDiscountingMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -68,7 +70,7 @@ public class DepositZeroDiscountingMethodTest {
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final Calendar CALENDAR = new NoHolidayCalendar();
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Act/Act");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final DepositZeroDefinition DEPOSIT_DEFINITION = new DepositZeroDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, DEPOSIT_AF, RATE, CALENDAR, DAY_COUNT);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();

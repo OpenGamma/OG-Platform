@@ -36,13 +36,28 @@ import com.opengamma.util.time.DateUtils;
 public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
   /** Array containing the pre-calculated discount factors */
   private double[] _preCalculatedDiscountFactors;
+  /** The days in a year - used to convert from a fraction of a year to a whole number of days */
+  private final double _daysPerYear;
 
   /**
+   * Create a curve capable of pre interpolation.
+   * Assumes 365.25 days per year.
+   *
    * @param name The discount curve name.
    * @param discountFactorCurve The underlying curve.
    */
   public DayPeriodPreCalculatedDiscountCurve(final String name, final DoublesCurve discountFactorCurve) {
+    this(name, discountFactorCurve, DateUtils.DAYS_PER_YEAR);
+  }
+
+  /**
+   * @param name The discount curve name.
+   * @param discountFactorCurve The underlying curve.
+   * @param daysPerYear the days per year, used to convert a time as a double to a whole number of days.
+   */
+  public DayPeriodPreCalculatedDiscountCurve(final String name, final DoublesCurve discountFactorCurve, double daysPerYear) {
     super(name, discountFactorCurve);
+    _daysPerYear = daysPerYear;
   }
 
   /**
@@ -60,7 +75,7 @@ public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
     _preCalculatedDiscountFactors = new double[numYears * 366];
     int numDays = 0;
     while (numDays < _preCalculatedDiscountFactors.length) {
-      final double xValue = (numDays) / DateUtils.DAYS_PER_YEAR;
+      final double xValue = (numDays) / _daysPerYear;
       final double yValue = super.getDiscountFactor(xValue);
       _preCalculatedDiscountFactors[numDays] = yValue;
       numDays++;
@@ -72,7 +87,7 @@ public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
     if (_preCalculatedDiscountFactors == null) {
       return super.getDiscountFactor(t);
     }
-    final long nDaysLong = Math.round(t * 365.5);
+    final long nDaysLong = Math.round(t * _daysPerYear);
     if (nDaysLong > Integer.MAX_VALUE) {
       return super.getDiscountFactor(t);
     }
@@ -97,8 +112,7 @@ public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
    * @return True if the discount factors are pre-calculated for the number of days
    */
   public boolean isPreCalculated(final int nDaysForward) {
-    return
-        (_preCalculatedDiscountFactors != null)
+    return (_preCalculatedDiscountFactors != null)
         && (_preCalculatedDiscountFactors.length >= nDaysForward);
   }
 

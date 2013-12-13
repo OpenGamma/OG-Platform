@@ -269,6 +269,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
+    super.curveFunctions();
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "Discounting"));
   }
 

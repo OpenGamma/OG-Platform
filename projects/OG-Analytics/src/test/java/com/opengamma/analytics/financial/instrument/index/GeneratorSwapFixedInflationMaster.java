@@ -13,7 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -51,7 +51,7 @@ public final class GeneratorSwapFixedInflationMaster {
     final DoubleTimeSeries<ZonedDateTime> usPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.usCpiFrom2009();
     final DoubleTimeSeries<ZonedDateTime> ukPriceIndexTimeSerie = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
 
-    final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention modFol = BusinessDayConventions.MODIFIED_FOLLOWING;
     final Calendar baseCalendar = new CalendarNoHoliday("No Holidays");
     final boolean endOfMonth = true;
     final int monthLag = 3;

@@ -17,26 +17,28 @@ import cern.jet.random.engine.MersenneTwister;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This tests yield curve construction against numbers from ISDA C code. Note,  the ISDA C code has a tolerance of 1e-10 on the root finder (Brent) 
- *so it is not possible to get a accuracy greater that around 1e-10 using a different numerical procedure  
+ * so it is not possible to get a accuracy greater that around 1e-10 using a different numerical procedure  
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantYieldCurveBuildTest {
 
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT365 = DayCounts.ACT_365;
+  private static final DayCount ACT360 = DayCounts.ACT_360;
+  private static final DayCount D30360 = DayCounts.THIRTY_U_360;
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
 
   private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister(MersenneTwister.DEFAULT_SEED));
 
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
+  private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   @SuppressWarnings("unused")
   @Test
@@ -580,7 +582,7 @@ public class ISDACompliantYieldCurveBuildTest {
     for (int ii = 0; ii < 3; ++ii) {
       //      System.out.println(ii);
       final ISDACompliantCurve hc = ISDACompliantYieldCurveBuild.build(spotDate, types, tenors, rates, moneyMarketDCC[ii], swapDCC[ii], swapInterval,
-          BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
+          BusinessDayConventions.FOLLOWING);
 
       final int nCurvePoints = hc.getNumberOfKnots();
       assertEquals(nInstruments, nCurvePoints);
@@ -700,7 +702,7 @@ public class ISDACompliantYieldCurveBuildTest {
    */
   @Test
   public void anotherConventionTest() {
-    final BusinessDayConvention conv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention conv = BusinessDayConventions.FOLLOWING;
 
     // date from ISDA excel
     final double[] sampleTimes = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904, 0.747945205479452, 1.00547945205479, 1.4958904109589, 2.0027397260274,
@@ -768,7 +770,7 @@ public class ISDACompliantYieldCurveBuildTest {
    */
   @Test(enabled = false)
   public void ConventionTest() {
-    final BusinessDayConvention conv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+    final BusinessDayConvention conv = BusinessDayConventions.PRECEDING;
 
     // date from ISDA excel
     final double[] sampleTimes = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904, 0.747945205479452, 0.997260273972603, 1.00547945205479, 1.4958904109589,

@@ -20,21 +20,23 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * @deprecated This class tests deprecated code
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedBondFixedSecurityTest {
 
   //Semi-annual 2Y
@@ -43,8 +45,8 @@ public class DeprecatedBondFixedSecurityTest {
   private static final int PAYMENT_PER_YEAR = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 2;
@@ -62,7 +64,7 @@ public class DeprecatedBondFixedSecurityTest {
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
   // to derivatives: first coupon
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);
   private static final ZonedDateTime SPOT_1 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_1, SETTLEMENT_DAYS, CALENDAR);
   private static final double SETTLEMENT_TIME_1 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_1, SPOT_1);

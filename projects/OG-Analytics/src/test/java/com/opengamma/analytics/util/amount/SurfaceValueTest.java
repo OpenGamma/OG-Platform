@@ -10,9 +10,13 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SurfaceValueTest {
 
   private static final double TOLERANCE = 1.0E-10;

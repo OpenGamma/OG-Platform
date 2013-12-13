@@ -17,11 +17,13 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BucketedGreekResultCollectionTest {
   private static final double[] EXPIRIES = new double[] {1, 5, 10, 20};
   private static final double[][] STRIKES = new double[][] {

@@ -11,11 +11,10 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing a multi-curves provider created from a issuer provider where the discounting curve
@@ -34,11 +33,12 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   /**
    * The issuer for which the associated discounting curve will replace the currency discounting curve.
    */
-  private final String _decoratingIssuer;
+//  private final String _decoratingIssuer;
+  private final LegalEntity _decoratingIssuer;
   /**
    * The issuer/currency pair.
    */
-  private final Pair<String, Currency> _decoratingIssuerCcy;
+  //private final Pair<Object, Currency> _decoratingIssuerCcy;
 
   /**
    * Constructor.
@@ -46,11 +46,11 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
    * @param decoratedCurrency The currency for which the discounting curve will be replaced (decorated).
    * @param decoratingIssuer The issuer for which the associated discounting curve will replace the currency discounting curve.
    */
-  public MulticurveProviderDiscountingDecoratedIssuer(final IssuerProviderInterface issuerProvider, final Currency decoratedCurrency, final String decoratingIssuer) {
+  public MulticurveProviderDiscountingDecoratedIssuer(final IssuerProviderInterface issuerProvider, final Currency decoratedCurrency, final LegalEntity decoratingIssuer) {
     _issuerProvider = issuerProvider;
     _decoratedCurrency = decoratedCurrency;
     _decoratingIssuer = decoratingIssuer;
-    _decoratingIssuerCcy = Pairs.of(_decoratingIssuer, _decoratedCurrency);
+//    _decoratingIssuerCcy = Pairs.of(_decoratingIssuer, _decoratedCurrency);
   }
 
   @Override
@@ -66,7 +66,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   @Override
   public double getDiscountFactor(final Currency ccy, final Double time) {
     if (ccy.equals(_decoratedCurrency)) {
-      return _issuerProvider.getDiscountFactor(_decoratingIssuerCcy, time);
+      return _issuerProvider.getDiscountFactor(_decoratingIssuer, time);
     }
     return _issuerProvider.getMulticurveProvider().getDiscountFactor(ccy, time);
   }
@@ -119,7 +119,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   @Override
   public String getName(final Currency ccy) {
     if (ccy.equals(_decoratedCurrency)) {
-      return _issuerProvider.getName(_decoratingIssuerCcy);
+      return _issuerProvider.getName(_decoratingIssuer);
     }
     return _issuerProvider.getMulticurveProvider().getName(ccy);
   }

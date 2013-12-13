@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NonLinearTransformFunctionTest {
 
   private static final ParameterLimitsTransform[] NULL_TRANSFORMS;

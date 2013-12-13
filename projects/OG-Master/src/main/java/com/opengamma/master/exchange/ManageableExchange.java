@@ -305,7 +305,7 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
   //-----------------------------------------------------------------------
   /**
    * Gets the detailed information about when an exchange is open or closed, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ManageableExchangeDetail> getDetail() {
     return _detail;
@@ -313,9 +313,10 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
 
   /**
    * Sets the detailed information about when an exchange is open or closed, not null.
-   * @param detail  the new value of the property
+   * @param detail  the new value of the property, not null
    */
   public void setDetail(List<ManageableExchangeDetail> detail) {
+    JodaBeanUtils.notNull(detail, "detail");
     this._detail.clear();
     this._detail.addAll(detail);
   }
@@ -566,6 +567,11 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableExchange) bean)._detail, "detail");
     }
 
   }

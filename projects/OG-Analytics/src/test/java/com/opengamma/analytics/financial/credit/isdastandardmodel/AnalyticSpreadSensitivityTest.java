@@ -13,10 +13,12 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnalyticSpreadSensitivityTest extends ISDABaseTest {
 
   private static final AnalyticSpreadSensitivityCalculator ANAL_CS01_CAL = new AnalyticSpreadSensitivityCalculator();

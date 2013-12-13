@@ -30,11 +30,13 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor compounded coupon in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborCompoundingSpreadDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveCad();

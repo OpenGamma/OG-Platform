@@ -15,10 +15,12 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test constructor and volatility provider for BlackForexTermStructureParameters.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackForexTermStructureParametersTest {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);

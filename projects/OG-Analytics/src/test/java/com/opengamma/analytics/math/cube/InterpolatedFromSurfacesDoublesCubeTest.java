@@ -23,11 +23,13 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.LogLinearInterpolator1D;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromSurfacesDoublesCubeTest {
   private static final double A0 = 0;
   private static final double A1 = 2;

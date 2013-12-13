@@ -16,10 +16,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.local.AbsoluteLocalVolatilitySurface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwoStateMarkovChainWithLocalVolDensityTest {
 
   private static final double VOL1 = 0.2;

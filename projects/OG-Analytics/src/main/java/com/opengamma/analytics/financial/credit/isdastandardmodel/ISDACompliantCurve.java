@@ -37,6 +37,19 @@ public class ISDACompliantCurve extends DoublesCurve {
   @PropertyDefinition(get = "manual", set = "private")
   private double[] _rt;
 
+  public static ISDACompliantCurve makeFromForwardRates(final double[] t, final double[] fwd) {
+    ArgumentChecker.notEmpty(t, "t");
+    ArgumentChecker.notEmpty(fwd, "fwd");
+    final int n = t.length;
+    ArgumentChecker.isTrue(n == fwd.length, "length of t not equal to length of fwd");
+    final double[] rt = new double[n];
+    rt[0] = t[0] * fwd[0];
+    for (int i = 1; i < n; i++) {
+      rt[i] = rt[i - 1] + fwd[i] * (t[i] - t[i - 1]);
+    }
+    return new ISDACompliantCurve(new double[][] {t, rt });
+  }
+
   public static ISDACompliantCurve makeFromRT(final double[] t, final double[] rt) {
     ArgumentChecker.notEmpty(t, "t");
     ArgumentChecker.notEmpty(rt, "rt");
@@ -252,7 +265,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * @return the RT value
    */
   public double getRT(final double t) {
-    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0, was, {}", t);
+    //  ArgumentChecker.isTrue(t >= 0, "require t >= 0.0, was, {}", t);
     // short-cut doing binary search
     if (t <= _t[0]) {
       return _rt[0] * t / _t[0];
@@ -274,7 +287,7 @@ public class ISDACompliantCurve extends DoublesCurve {
     final int n = _t.length;
     ArgumentChecker.isTrue(nodeIndex >= 0 && nodeIndex < n, "node index of {} out of range", nodeIndex);
     // short-cut doing binary search
-    if (t <= _t[0]) {
+    if (n == 1 || t <= _t[0]) {
       return new double[] {_rt[0] * t / _t[0], nodeIndex == 0 ? t : 0.0 };
     }
 

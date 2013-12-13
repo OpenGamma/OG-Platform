@@ -7,10 +7,13 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests below hit argumentCheckers in {@link BinomialTreeOptionPricingModel}. 
  * Successful tests are given in test classes of respective subclasses of {@link OptionFunctionProvider1D} or {@link OptionFunctionProvider2D} 
  */
+@Test(groups = TestGroup.UNIT)
 public class BinomialTreeOptionPricingModelTest {
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();

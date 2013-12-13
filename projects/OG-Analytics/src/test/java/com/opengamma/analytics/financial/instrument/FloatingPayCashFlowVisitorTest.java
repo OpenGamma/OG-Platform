@@ -43,10 +43,12 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.Iterables;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FloatingPayCashFlowVisitorTest {
   private static final FloatingPayCashFlowVisitor VISITOR = FloatingPayCashFlowVisitor.getInstance();
 

@@ -20,26 +20,28 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
 
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final ZonedDateTime LAST_KNOWN_FIXING_DATE = DateUtils.getUTCDate(2008, 6, 1);
   private static final int MATURITY = 10;
@@ -56,7 +58,7 @@ public class CapFloorInflationZeroCouponMonthlyDefinitionTest {
   private static final double INDEX_START_VALUE = 108.23;
   private static final CapFloorInflationZeroCouponMonthlyDefinition ZERO_COUPON_CAP_DEFINITION = new CapFloorInflationZeroCouponMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
       ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, MONTH_LAG, MATURITY, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
 
   private static final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
       new ZonedDateTime[] {DateUtils.getUTCDate(2008, 5, 31), DateUtils.getUTCDate(2018, 5, 31), DateUtils.getUTCDate(2018, 6, 30) }, new double[] {108.23, 128.23, 128.43 });

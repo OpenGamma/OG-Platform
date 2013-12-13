@@ -38,11 +38,13 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the Libor Market Model method for Annuity on Ibor Ratchet.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityCouponIborRatchetLMMMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

@@ -25,7 +25,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -450,7 +450,7 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -511,7 +511,7 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
   /**
    * The bean-builder for {@code ExternalIdBundleWithDates}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdBundleWithDates> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdBundleWithDates> {
 
     private SortedSet<ExternalIdWithDates> _externalIds = new TreeSet<ExternalIdWithDates>();
 
@@ -519,7 +519,6 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
      * Restricted constructor.
      */
     private Builder() {
-      super(ExternalIdBundleWithDates.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -537,6 +536,30 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public ExternalIdBundleWithDates build() {
       return new ExternalIdBundleWithDates(
           _externalIds);
@@ -547,7 +570,7 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("ExternalIdBundleWithDates.Builder{");
-      buf.append("externalIds").append('=').append(_externalIds);
+      buf.append("externalIds").append('=').append(JodaBeanUtils.toString(_externalIds));
       buf.append('}');
       return buf.toString();
     }

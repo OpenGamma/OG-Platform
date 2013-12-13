@@ -114,7 +114,7 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
         try {
           outputStream = new PrintStream(new FileOutputStream(fileList.get(0)));
         } catch (FileNotFoundException ex) {
-          s_logger.error("Couldn't file file " + fileList.get(0));
+          s_logger.error("Couldn't find file " + fileList.get(0));
           System.exit(1);
           return;
         }

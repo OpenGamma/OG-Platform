@@ -16,10 +16,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedDoublesSurfaceTest extends DoublesSurfaceTestCase {
   private static final LinearInterpolator1D INTERPOLATOR_1D = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);

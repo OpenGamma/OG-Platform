@@ -11,7 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class YieldAndDiscountAddZeroSpreadCurveTest {
 
   private static final double[] TIME_YIELD = new double[] {1, 2, 2.5, 3};

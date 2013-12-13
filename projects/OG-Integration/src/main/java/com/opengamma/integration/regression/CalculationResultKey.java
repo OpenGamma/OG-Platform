@@ -20,7 +20,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -172,7 +172,6 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static CalculationResultKey.Builder builder() {
@@ -343,7 +342,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -452,7 +451,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
   /**
    * The bean-builder for {@code CalculationResultKey}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CalculationResultKey> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CalculationResultKey> {
 
     private String _calcConfigName;
     private String _valueName;
@@ -464,7 +463,6 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
      * Restricted constructor.
      */
     private Builder() {
-      super(CalculationResultKey.Meta.INSTANCE);
     }
 
     /**
@@ -472,7 +470,6 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CalculationResultKey beanToCopy) {
-      super(CalculationResultKey.Meta.INSTANCE);
       this._calcConfigName = beanToCopy.getCalcConfigName();
       this._valueName = beanToCopy.getValueName();
       this._properties = beanToCopy.getProperties();
@@ -503,6 +500,30 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -575,11 +596,11 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("CalculationResultKey.Builder{");
-      buf.append("calcConfigName").append('=').append(_calcConfigName).append(',').append(' ');
-      buf.append("valueName").append('=').append(_valueName).append(',').append(' ');
-      buf.append("properties").append('=').append(_properties).append(',').append(' ');
-      buf.append("path").append('=').append(_path).append(',').append(' ');
-      buf.append("targetId").append('=').append(_targetId);
+      buf.append("calcConfigName").append('=').append(JodaBeanUtils.toString(_calcConfigName)).append(',').append(' ');
+      buf.append("valueName").append('=').append(JodaBeanUtils.toString(_valueName)).append(',').append(' ');
+      buf.append("properties").append('=').append(JodaBeanUtils.toString(_properties)).append(',').append(' ');
+      buf.append("path").append('=').append(JodaBeanUtils.toString(_path)).append(',').append(' ');
+      buf.append("targetId").append('=').append(JodaBeanUtils.toString(_targetId));
       buf.append('}');
       return buf.toString();
     }

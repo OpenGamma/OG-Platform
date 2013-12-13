@@ -22,8 +22,24 @@ import com.opengamma.util.ArgumentChecker;
 
 public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
   /** The operation name */
-  private static final String NAME = "*";
+  public static final String NAME = "*";
+  /** An instance of this function */
+  private static final MultiplyCurveSpreadFunction INSTANCE = new MultiplyCurveSpreadFunction();
 
+  /**
+   * Gets an instance of this function
+   * @return The instance
+   */
+  public static CurveSpreadFunction getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * @deprecated Use {@link #getInstance()}
+   */
+  @Deprecated
+  public MultiplyCurveSpreadFunction() {
+  }
   /**
    * @param curves An array of curves, not null or empty
    * @return A function that will find the value of each curve at the given input <i>x</i> and multiply each in turn
@@ -50,11 +66,14 @@ public class MultiplyCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getOperationName() {
     return NAME;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

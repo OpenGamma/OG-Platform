@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -148,7 +148,6 @@ public final class Rate implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static Rate.Builder builder() {
@@ -293,7 +292,7 @@ public final class Rate implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -378,7 +377,7 @@ public final class Rate implements ImmutableBean {
   /**
    * The bean-builder for {@code Rate}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<Rate> {
+  public static final class Builder extends DirectFieldsBeanBuilder<Rate> {
 
     private int[] _dates;
     private double[] _rates;
@@ -388,7 +387,6 @@ public final class Rate implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(Rate.Meta.INSTANCE);
     }
 
     /**
@@ -396,7 +394,6 @@ public final class Rate implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(Rate beanToCopy) {
-      super(Rate.Meta.INSTANCE);
       this._dates = (beanToCopy.getDates() != null ? beanToCopy.getDates().clone() : null);
       this._rates = (beanToCopy.getRates() != null ? beanToCopy.getRates().clone() : null);
       this._types = beanToCopy.getTypes();
@@ -418,6 +415,30 @@ public final class Rate implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -465,9 +486,9 @@ public final class Rate implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("Rate.Builder{");
-      buf.append("dates").append('=').append(_dates).append(',').append(' ');
-      buf.append("rates").append('=').append(_rates).append(',').append(' ');
-      buf.append("types").append('=').append(_types);
+      buf.append("dates").append('=').append(JodaBeanUtils.toString(_dates)).append(',').append(' ');
+      buf.append("rates").append('=').append(JodaBeanUtils.toString(_rates)).append(',').append(' ');
+      buf.append("types").append('=').append(JodaBeanUtils.toString(_types));
       buf.append('}');
       return buf.toString();
     }

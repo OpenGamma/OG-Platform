@@ -173,7 +173,7 @@ public class Bundle extends DirectBean implements BundleNode {
   //-----------------------------------------------------------------------
   /**
    * Gets the ordered list of nodes, consisting of bundles and fragments.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<BundleNode> getChildNodes() {
     return _childNodes;
@@ -181,9 +181,10 @@ public class Bundle extends DirectBean implements BundleNode {
 
   /**
    * Sets the ordered list of nodes, consisting of bundles and fragments.
-   * @param childNodes  the new value of the property
+   * @param childNodes  the new value of the property, not null
    */
   public void setChildNodes(List<BundleNode> childNodes) {
+    JodaBeanUtils.notNull(childNodes, "childNodes");
     this._childNodes.clear();
     this._childNodes.addAll(childNodes);
   }
@@ -377,6 +378,11 @@ public class Bundle extends DirectBean implements BundleNode {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((Bundle) bean)._childNodes, "childNodes");
     }
 
   }

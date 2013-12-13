@@ -77,7 +77,7 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the time-series that were obtained.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<ExternalIdBundle, LocalDateDoubleTimeSeries> getResultMap() {
     return _resultMap;
@@ -85,9 +85,10 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
 
   /**
    * Sets the time-series that were obtained.
-   * @param resultMap  the new value of the property
+   * @param resultMap  the new value of the property, not null
    */
   public void setResultMap(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> resultMap) {
+    JodaBeanUtils.notNull(resultMap, "resultMap");
     this._resultMap.clear();
     this._resultMap.putAll(resultMap);
   }
@@ -233,6 +234,11 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetResult) bean)._resultMap, "resultMap");
     }
 
   }

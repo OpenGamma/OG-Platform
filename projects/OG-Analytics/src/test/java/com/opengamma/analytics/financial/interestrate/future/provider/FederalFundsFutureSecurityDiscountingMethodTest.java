@@ -18,8 +18,13 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureSecurityDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

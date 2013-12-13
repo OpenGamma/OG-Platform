@@ -10,10 +10,15 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorSwapIborIborTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -40,11 +45,11 @@ public class GeneratorSwapIborIborTest {
    * Tests the constructor with business day convention and end-of-month.
    */
   public void constructor() {
-    final GeneratorSwapIborIbor generator2 = new GeneratorSwapIborIbor("Generator 2", USDLIBOR3M, USDLIBOR6M, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false, 1, NYC, NYC);
+    final GeneratorSwapIborIbor generator2 = new GeneratorSwapIborIbor("Generator 2", USDLIBOR3M, USDLIBOR6M, BusinessDayConventions.FOLLOWING, false, 1, NYC, NYC);
     assertEquals("GeneratorSwapIborIbor: getter", USDLIBOR3M, generator2.getIborIndex1());
     assertEquals("GeneratorSwapIborIbor: getter", USDLIBOR6M, generator2.getIborIndex2());
     assertTrue("GeneratorSwapIborIbor: getter", generator2.getName().equals("Generator 2"));
-    assertEquals("GeneratorSwapIborIbor: getter", BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), generator2.getBusinessDayConvention());
+    assertEquals("GeneratorSwapIborIbor: getter", BusinessDayConventions.FOLLOWING, generator2.getBusinessDayConvention());
     assertTrue("GeneratorSwapIborIbor: getter", generator2.isEndOfMonth() == false);
     assertEquals("GeneratorSwapIborIbor: getter", generator2.getSpotLag(), 1);
   }

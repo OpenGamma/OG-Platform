@@ -11,9 +11,14 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ReferenceAmountTest {
 
   private static final double TOLERANCE = 1.0E-10;

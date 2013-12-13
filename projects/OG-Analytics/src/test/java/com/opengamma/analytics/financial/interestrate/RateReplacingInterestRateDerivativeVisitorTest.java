@@ -19,20 +19,22 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class RateReplacingInterestRateDerivativeVisitorTest {
   private static final double R1 = 0.05;
   private static final double R2 = 0.04;
@@ -47,8 +49,8 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
     final ZonedDateTime firstAccrualDate = DateUtils.getUTCDate(2010, 1, 1);
     final Period paymentPeriod = Period.ofMonths(6);
     final Calendar calendar = new MondayToFridayCalendar("A");
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final DayCount dayCount = DayCounts.ACT_360;
+    final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING;
     final YieldConvention yieldConvention = SimpleYieldConvention.TRUE;
     final ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
     final String c1 = "a";
@@ -76,8 +78,8 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
 
   @Test
   public void testFRA() {
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCounts.ACT_365,
+        BusinessDayConventions.FOLLOWING, true);
     final ForwardRateAgreement fra1 = new ForwardRateAgreement(CUR, 0.5, N1, 0.5, 1, index, 0.5, 0.5, 1, 0.5, R1, N2);
     final ForwardRateAgreement fra2 = new ForwardRateAgreement(CUR, 0.5, N1, 0.5, 1, index, 0.5, 0.5, 1, 0.5, R2, N2);
     assertEquals(fra1.accept(VISITOR, R2), fra2);
@@ -85,8 +87,8 @@ public class RateReplacingInterestRateDerivativeVisitorTest {
 
   @Test
   public void testIRFuture() {
-    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, DayCounts.ACT_365,
+        BusinessDayConventions.FOLLOWING, true);
     final double lastTradingTime = 1.473;
     final double fixingPeriodStartTime = 1.467;
     final double fixingPeriodEndTime = 1.75;

@@ -266,7 +266,7 @@ public final class CurrencyPairs implements Bean, UniqueIdentifiable, MutableUni
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

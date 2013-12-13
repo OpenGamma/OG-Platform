@@ -22,6 +22,10 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
+  public static ISDACompliantYieldCurve makeFromForwardRates(final double[] t, final double[] fwd) {
+    return new ISDACompliantYieldCurve(ISDACompliantCurve.makeFromForwardRates(t, fwd));
+  }
+
   public static ISDACompliantYieldCurve makeFromRT(final double[] t, final double[] rt) {
     ArgumentChecker.notEmpty(t, "t");
     ArgumentChecker.notEmpty(rt, "rt");

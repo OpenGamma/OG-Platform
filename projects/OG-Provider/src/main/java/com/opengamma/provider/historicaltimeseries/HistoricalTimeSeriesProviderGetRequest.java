@@ -222,7 +222,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of time-series external identifiers to get.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalIdBundle> getExternalIdBundles() {
     return _externalIdBundles;
@@ -230,9 +230,10 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
 
   /**
    * Sets the set of time-series external identifiers to get.
-   * @param externalIdBundles  the new value of the property
+   * @param externalIdBundles  the new value of the property, not null
    */
   public void setExternalIdBundles(Set<ExternalIdBundle> externalIdBundles) {
+    JodaBeanUtils.notNull(externalIdBundles, "externalIdBundles");
     this._externalIdBundles.clear();
     this._externalIdBundles.addAll(externalIdBundles);
   }
@@ -646,6 +647,7 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._externalIdBundles, "externalIdBundles");
       JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dataSource, "dataSource");
       JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dataProvider, "dataProvider");
       JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dataField, "dataField");

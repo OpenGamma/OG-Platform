@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -101,7 +101,7 @@ public class ViewClientImpl implements ViewClient {
    * @param user the user who owns this client
    * @param timer the timer to use for scheduled tasks
    */
-  public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, Timer timer) {
+  public ViewClientImpl(UniqueId id, ViewProcessorImpl viewProcessor, UserPrincipal user, ScheduledExecutorService timer) {
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(user, "user");
@@ -149,14 +149,14 @@ public class ViewClientImpl implements ViewClient {
           for (DependencyGraphExplorer explorer : dependencyGraphExplorers) {
             graphs.add(explorer.getWholeGraph());
           }
-          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(), cvdwg.getCompilationIdentifier(), cvdwg.getViewDefinition(), graphs, cvdwg.getResolvedIdentifiers(),
-              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()), cvdwg.getFunctionInitId(), cvdwg.getCompiledCalculationConfigurations(), cvdwg.getValidFrom(),
-              cvdwg.getValidTo());
+          return new CompiledViewDefinitionWithGraphsImpl(cvdwg.getResolverVersionCorrection(), cvdwg.getCompilationIdentifier(), cvdwg.getViewDefinition(), graphs,
+              cvdwg.getResolvedIdentifiers(), filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()), cvdwg.getFunctionInitId(),
+              cvdwg.getCompiledCalculationConfigurations(), cvdwg.getValidFrom(), cvdwg.getValidTo());
         } else {
           // Would be better if there was a builder for this!
-          return new CompiledViewDefinitionImpl(compiledViewDefinition.getResolverVersionCorrection(), compiledViewDefinition.getCompilationIdentifier(), compiledViewDefinition.getViewDefinition(),
-              filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()), compiledViewDefinition.getCompiledCalculationConfigurations(), compiledViewDefinition.getValidFrom(),
-              compiledViewDefinition.getValidTo());
+          return new CompiledViewDefinitionImpl(compiledViewDefinition.getResolverVersionCorrection(), compiledViewDefinition.getCompilationIdentifier(),
+              compiledViewDefinition.getViewDefinition(), filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+              compiledViewDefinition.getCompiledCalculationConfigurations(), compiledViewDefinition.getValidFrom(), compiledViewDefinition.getValidTo());
         }
       }
 

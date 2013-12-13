@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
 import com.opengamma.analytics.math.minimization.SingleRangeLimitTransform;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ShiftedLogNormalTailExtrapolationTest {
   private static final ShiftedLogNormalTailExtrapolationFitter FITTER = new ShiftedLogNormalTailExtrapolationFitter();
   private static final double FORWARD = 0.04;

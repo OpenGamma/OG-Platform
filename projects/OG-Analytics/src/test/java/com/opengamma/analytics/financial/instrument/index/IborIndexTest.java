@@ -12,20 +12,22 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class IborIndexTest {
   //Libor3m
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
@@ -88,9 +90,9 @@ public class IborIndexTest {
     assertFalse(INDEX.equals(indexModified));
     indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
     assertFalse(INDEX.equals(indexModified));
-    indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BUSINESS_DAY, IS_EOM, "Ibor");
+    indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DayCounts.ACT_365, BUSINESS_DAY, IS_EOM, "Ibor");
     assertFalse(INDEX.equals(indexModified));
-    indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), IS_EOM, "Ibor");
+    indexModified = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventions.FOLLOWING, IS_EOM, "Ibor");
     assertFalse(INDEX.equals(indexModified));
     final Currency otherCurrency = Currency.USD;
     indexModified = new IborIndex(otherCurrency, TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");

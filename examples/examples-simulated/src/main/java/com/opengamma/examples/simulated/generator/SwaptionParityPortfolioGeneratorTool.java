@@ -16,9 +16,9 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -49,17 +49,17 @@ public class SwaptionParityPortfolioGeneratorTool extends AbstractPortfolioGener
   /** The currency */
   private static final Currency CURRENCY = Currency.USD;
   /** Act/360 day-count */
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   /** Act/365 day-count */
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
   /** 30U/360 day-count */
-  private static final DayCount THIRTYU_360 = DayCountFactory.INSTANCE.getDayCount("30U/360");
+  private static final DayCount THIRTYU_360 = DayCounts.THIRTY_U_360;
   /** Quarterly frequency */
   private static final Frequency QUARTERLY = PeriodFrequency.QUARTERLY;
   /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = PeriodFrequency.SEMI_ANNUAL;
   /** Modified following business day convention */
-  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** The holiday region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
   /** The ibor ticker */

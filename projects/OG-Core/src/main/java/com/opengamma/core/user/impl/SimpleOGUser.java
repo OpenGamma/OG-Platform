@@ -239,9 +239,10 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   /**
    * Sets the entitlements for the user.
    * This is a set of entitlements that the user has, which enables access restriction.
-   * @param entitlements  the new value of the property
+   * @param entitlements  the new value of the property, not null
    */
   public void setEntitlements(Set<String> entitlements) {
+    JodaBeanUtils.notNull(entitlements, "entitlements");
     this._entitlements.clear();
     this._entitlements.addAll(entitlements);
   }

@@ -22,8 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.core.config.Config;
@@ -38,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
 @Config(description = "Bloomberg security type definition")
 @BeanDefinition
 public class BloombergSecurityTypeDefinition implements Bean, Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
-
+  
   /**
    * Serialization version.
    */
@@ -52,7 +52,7 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
    * The map of security types.
    */
   @PropertyDefinition(get = "manual", set = "manual")
-  private final SetMultimap<SecurityType, String> _securityTypes = HashMultimap.create();
+  private final SetMultimap<SecurityType, String> _securityTypes = LinkedHashMultimap.create();
   /**
    * The unique identifier.
    */
@@ -355,6 +355,11 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergSecurityTypeDefinition) bean)._securityTypes, "securityTypes");
     }
 
   }

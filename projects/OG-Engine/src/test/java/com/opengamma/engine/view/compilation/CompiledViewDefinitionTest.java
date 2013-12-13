@@ -118,7 +118,7 @@ public class CompiledViewDefinitionTest {
     final ViewCompilationContext context = mock(ViewCompilationContext.class);
     when(context.getActiveResolutions()).thenReturn(new ConcurrentHashMap<ComputationTargetReference, UniqueId>());
     when(context.getCompiledFunctionResolver()).thenReturn(compiledResolver);
-    when(context.getResolverVersionCorrection()).thenReturn(VersionCorrection.LATEST);
+    when(context.getResolverVersionCorrection()).thenReturn(VersionCorrection.of(_time0, _time0));
     when(context.getServices()).thenReturn(vcs);
     when(context.getViewDefinition()).thenReturn(mock(ViewDefinition.class));
     return CompiledViewDefinitionWithGraphsImpl.of(context, "", Arrays.asList(graphs), null);
@@ -165,9 +165,8 @@ public class CompiledViewDefinitionTest {
 
   @Test
   public void testStartEndTime() {
-    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2), graphOneEndTime(_time3),
-        graphTwoEndTimes(
-            _time4, _time5));
+    final CompiledViewDefinitionWithGraphsImpl model = buildCompiledViewDefinition(graphNoStartEndTimes(), graphOneStartTime(_time0), graphTwoStartTimes(_time1, _time2),
+        graphOneEndTime(_time3), graphTwoEndTimes(_time4, _time5));
     assertFalse(CompiledViewDefinitionWithGraphsImpl.isValidFor(model, _time1));
     assertTrue(CompiledViewDefinitionWithGraphsImpl.isValidFor(model, _time2));
     assertTrue(CompiledViewDefinitionWithGraphsImpl.isValidFor(model, _time3));

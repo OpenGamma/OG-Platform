@@ -10,9 +10,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.PriceFromYieldCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
@@ -37,10 +37,6 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
    * The amount paid at settlement date for the bill transaction. The amount is negative for a purchase (_quantity>0) and positive for a sell (_quantity<0).
    */
   private final double _settlementAmount;
-  /**
-   * The method used to create
-   */
-  private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
 
   /**
    * Constructor.
@@ -73,7 +69,7 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     ArgumentChecker.notNull(underlying, "Underlying");
     ArgumentChecker.notNull(settlementDate, "Settlement date");
     final double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate(), calendar);
-    final double settlementAmount = -quantity * underlying.getNotional() * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
+    final double settlementAmount = -quantity * underlying.getNotional() * PriceFromYieldCalculator.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
     return new BillTransactionDefinition(underlying, quantity, settlementDate, settlementAmount);
   }
 

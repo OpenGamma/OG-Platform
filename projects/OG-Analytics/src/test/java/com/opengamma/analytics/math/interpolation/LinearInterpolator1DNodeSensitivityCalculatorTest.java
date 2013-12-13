@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LinearInterpolator1DNodeSensitivityCalculatorTest {
   private static final double EPS = 1e-15;
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();

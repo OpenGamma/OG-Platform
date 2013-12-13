@@ -13,7 +13,12 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteCon
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
 
   private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();

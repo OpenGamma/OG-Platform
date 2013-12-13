@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GaussianCharacteristicExponentTest {
   private static final double MU = 0.4;
   private static final double SIGMA = 0.8;

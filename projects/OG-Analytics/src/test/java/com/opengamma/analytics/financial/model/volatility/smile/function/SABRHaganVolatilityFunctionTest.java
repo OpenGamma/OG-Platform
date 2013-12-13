@@ -27,6 +27,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests related to the Hagan et al. approximation of the SABR implied volatility.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
 
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
@@ -517,8 +518,9 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   /**
-   *Calculate the true SABR delta and gamma and compare with that found by finite difference
+   * Calculate the true SABR delta and gamma and compare with that found by finite difference
    */
+  @Test(enabled = false)
   public void testGreeks() {
     final double eps = 1e-3;
     final double f = 1.2;

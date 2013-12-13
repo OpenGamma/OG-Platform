@@ -233,7 +233,7 @@ public class ReferenceData extends DirectBean {
   /**
    * Gets the errors.
    * This includes errors related to the identifier and to a single field.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ReferenceDataError> getErrors() {
     return _errors;
@@ -242,9 +242,10 @@ public class ReferenceData extends DirectBean {
   /**
    * Sets the errors.
    * This includes errors related to the identifier and to a single field.
-   * @param errors  the new value of the property
+   * @param errors  the new value of the property, not null
    */
   public void setErrors(List<ReferenceDataError> errors) {
+    JodaBeanUtils.notNull(errors, "errors");
     this._errors.clear();
     this._errors.addAll(errors);
   }
@@ -445,6 +446,7 @@ public class ReferenceData extends DirectBean {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((ReferenceData) bean)._identifier, "identifier");
       JodaBeanUtils.notNull(((ReferenceData) bean)._fieldValues, "fieldValues");
+      JodaBeanUtils.notNull(((ReferenceData) bean)._errors, "errors");
     }
 
   }

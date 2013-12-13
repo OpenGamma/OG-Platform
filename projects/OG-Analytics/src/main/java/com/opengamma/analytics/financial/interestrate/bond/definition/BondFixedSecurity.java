@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 
@@ -38,7 +39,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   private final double _factorToNextCoupon;
 
   /**
-   * Fixed coupon bond constructor from the nominal and the coupons.
+   * Fixed coupon bond constructor from the nominal and the coupons. The legal entity contains only the issuer name.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
    * @param coupon The bond fixed coupons. The coupons notional should be in line with the bond nominal.
    * @param settlementTime The time (in years) to settlement date.
@@ -53,12 +54,47 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   @Deprecated
   public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final YieldConvention yieldConvention, final int couponPerYear, final String repoCurveName, final String issuer) {
+    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, yieldConvention, couponPerYear, repoCurveName, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Fixed coupon bond constructor from the nominal and the coupons.
+   * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
+   * @param coupon The bond fixed coupons. The coupons notional should be in line with the bond nominal.
+   * @param settlementTime The time (in years) to settlement date.
+   * @param accruedInterest The accrued interest at the settlement date. The accrued interest is an amount (in line with the nominal).
+   * @param factorToNextCoupon The factor from spot up to the next coupon.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param couponPerYear Number of coupon per year.
+   * @param repoCurveName The name of the curve used for settlement amount discounting.
+   * @param issuer The bond issuer name.
+   * @deprecated Use the constructor that does not take curve names
+   */
+  @Deprecated
+  public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, final int couponPerYear, final String repoCurveName, final LegalEntity issuer) {
     super(nominal, coupon, settlementTime, repoCurveName, issuer);
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
     _accruedInterest = accruedInterest;
     _couponPerYear = couponPerYear;
     _factorToNextCoupon = factorToNextCoupon;
+  }
+
+  /**
+   * Fixed coupon bond constructor from the nominal and the coupons. The legal entity contains only the issuer name.
+   * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
+   * @param coupon The bond fixed coupons. The coupons notional should be in line with the bond nominal.
+   * @param settlementTime The time (in years) to settlement date.
+   * @param accruedInterest The accrued interest at the settlement date. The accrued interest is an amount (in line with the nominal).
+   * @param factorToNextCoupon The factor from spot up to the next coupon.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param couponPerYear Number of coupon per year.
+   * @param issuer The bond issuer name.
+   */
+  public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
+      final YieldConvention yieldConvention, final int couponPerYear, final String issuer) {
+    this(nominal, coupon, settlementTime, accruedInterest, factorToNextCoupon, yieldConvention, couponPerYear, new LegalEntity(null, issuer, null, null, null));
   }
 
   /**
@@ -73,7 +109,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
    * @param issuer The bond issuer name.
    */
   public BondFixedSecurity(final AnnuityPaymentFixed nominal, final AnnuityCouponFixed coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
-      final YieldConvention yieldConvention, final int couponPerYear, final String issuer) {
+      final YieldConvention yieldConvention, final int couponPerYear, final LegalEntity issuer) {
     super(nominal, coupon, settlementTime, issuer);
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
     _yieldConvention = yieldConvention;
@@ -81,6 +117,7 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
     _couponPerYear = couponPerYear;
     _factorToNextCoupon = factorToNextCoupon;
   }
+
   /**
    * Gets the yield computation convention.
    * @return The yield convention.
@@ -106,10 +143,10 @@ public class BondFixedSecurity extends BondSecurity<PaymentFixed, CouponFixed> {
   }
 
   /**
-   * Gets the accrual factor to the first coupon.
-   * @return The accrual factor to the first coupon.
+   * Gets the factor to the next coupon.
+   * @return The factor to the next coupon.
    */
-  public double getAccrualFactorToNextCoupon() {
+  public double getFactorToNextCoupon() {
     return _factorToNextCoupon;
   }
 

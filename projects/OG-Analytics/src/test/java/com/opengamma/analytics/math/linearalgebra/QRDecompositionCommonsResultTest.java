@@ -21,10 +21,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class QRDecompositionCommonsResultTest {
   protected static final RealMatrix H = new Array2DRowRealMatrix(new double[][] {new double[] {11, 12}, new double[] {13, 14}});
   protected static final RealMatrix Q = new Array2DRowRealMatrix(new double[][] {new double[] {15, 16}, new double[] {17, 18}});

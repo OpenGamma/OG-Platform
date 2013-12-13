@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -189,7 +189,7 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     ArgumentChecker.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double lastTradingTime = actAct.getDayCountFraction(date, getTradingLastDate(), _calendar);
     final double firstNoticeTime = actAct.getDayCountFraction(date, getNoticeFirstDate(), _calendar);
     final double lastNoticeTime = actAct.getDayCountFraction(date, getNoticeLastDate(), _calendar);
@@ -207,7 +207,7 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
   public BondFuturesSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double lastTradingTime = actAct.getDayCountFraction(date, getTradingLastDate(), _calendar);
     final double firstNoticeTime = actAct.getDayCountFraction(date, getNoticeFirstDate(), _calendar);
     final double lastNoticeTime = actAct.getDayCountFraction(date, getNoticeLastDate(), _calendar);

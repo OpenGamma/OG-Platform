@@ -33,26 +33,28 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of bills transactions by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class BillTransactionDiscountingMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
 

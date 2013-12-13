@@ -23,22 +23,24 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the bond future figures computed by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFuturesSecurityDiscountingMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   // 5-Year U.S. Treasury Note Futures: FVU1
@@ -46,8 +48,8 @@ public class BondFuturesSecurityDiscountingMethodTest {
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String US_GOVT = ISSUER_NAMES[0];
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");

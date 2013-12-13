@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -9,7 +14,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveManipulatorBuilderTest {
 
   private YieldCurveManipulatorBuilder _builder;

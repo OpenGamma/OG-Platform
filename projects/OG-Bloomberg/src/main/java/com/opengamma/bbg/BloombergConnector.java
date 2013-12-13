@@ -5,6 +5,10 @@
  */
 package com.opengamma.bbg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bloomberglp.blpapi.AbstractSession.StopOption;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.OpenGammaRuntimeException;
@@ -17,12 +21,13 @@ import com.opengamma.util.Connector;
 /**
  * Connector used to access Bloomberg.
  * <p>
- * This class does not perform any connecting.
- * Instead it acts as a data holder for connectivity.
+ * This class does not perform any connecting. Instead it acts as a data holder for connectivity.
  * <p>
  * This class is usually configured using the associated factory bean.
  */
 public class BloombergConnector implements Connector {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergConnector.class);
 
   /**
    * The configuration name.
@@ -40,8 +45,8 @@ public class BloombergConnector implements Connector {
   /**
    * Creates an instance.
    * 
-   * @param name  the configuration name, not null
-   * @param sessionOptions  the Bloomberg session options, not null
+   * @param name the configuration name, not null
+   * @param sessionOptions the Bloomberg session options, not null
    */
   public BloombergConnector(String name, SessionOptions sessionOptions) {
     this(name, sessionOptions, NullBloombergReferenceDataStatistics.INSTANCE);
@@ -50,9 +55,9 @@ public class BloombergConnector implements Connector {
   /**
    * Creates an instance.
    * 
-   * @param name  the configuration name, not null
-   * @param sessionOptions  the Bloomberg session options, not null
-   * @param statistics  the Bloomberg statistics, not null
+   * @param name the configuration name, not null
+   * @param sessionOptions the Bloomberg session options, not null
+   * @param statistics the Bloomberg statistics, not null
    */
   public BloombergConnector(String name, SessionOptions sessionOptions, BloombergReferenceDataStatistics statistics) {
     ArgumentChecker.notNull(name, "name");
@@ -68,8 +73,8 @@ public class BloombergConnector implements Connector {
    * <p>
    * Subclasses must override the session options getter.
    * 
-   * @param name  the configuration name, not null
-   * @param statistics  the Bloomberg statistics, not null
+   * @param name the configuration name, not null
+   * @param statistics the Bloomberg statistics, not null
    */
   protected BloombergConnector(String name, BloombergReferenceDataStatistics statistics) {
     ArgumentChecker.notNull(name, "name");
@@ -117,9 +122,7 @@ public class BloombergConnector implements Connector {
   /**
    * Creates and starts a new Bloomberg {@code Session}.
    * <p>
-   * The session is started synchronously.
-   * The connector does not retain the state of the session, thus the caller
-   * is responsible for its lifecycle.
+   * The session is started synchronously. The connector does not retain the state of the session, thus the caller is responsible for its lifecycle.
    * 
    * @return the started Bloomberg session, not null
    * @throws RuntimeException if an error occurs
@@ -131,9 +134,23 @@ public class BloombergConnector implements Connector {
         throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()));
       }
     } catch (InterruptedException ex) {
+      // Interruption may mean that threads have still been created which must be killed. See PLAT-5309.
+      try {
+        s_logger.debug("Attempting to stop session which was created but not started");
+        session.stop(StopOption.ASYNC);
+      } catch (Exception e) {
+        s_logger.error("Can't stop session", e);
+      }
       Thread.interrupted();
       throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()), ex);
     } catch (Exception ex) {
+      // Failure from "start" to connect may mean that threads have still been created which must be killed. See PLAT-5309.
+      try {
+        s_logger.debug("Attempting to stop session which was created but not started");
+        session.stop(StopOption.ASYNC);
+      } catch (Exception e) {
+        s_logger.error("Can't stop session", e);
+      }
       throw new OpenGammaRuntimeException("Bloomberg session failed to start: " + SessionOptionsUtils.toString(getSessionOptions()), ex);
     }
     return session;

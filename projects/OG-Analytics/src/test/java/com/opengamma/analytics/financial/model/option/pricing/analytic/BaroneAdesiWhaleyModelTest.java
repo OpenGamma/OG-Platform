@@ -12,10 +12,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BaroneAdesiWhaleyModelTest {
 
   private static final double STRIKE = 100;

@@ -102,4 +102,37 @@ public class HedgeRatioCalculatorTest extends ISDABaseTest {
       assertTrue(change > 0 && change < 3e-7); //position has positive gamma, so change should always be positive 
     }
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void constHazardRateTest() {
+    final ISDACompliantCreditCurve flatCC = new ISDACompliantCreditCurve(5.0, 0.02);
+    final LocalDate accStart = FOLLOWING.adjustDate(DEFAULT_CALENDAR, getPrevIMMDate(TRADE_DATE));
+    final CDSAnalytic cds = CDS_FACTORY.makeCDS(TRADE_DATE, accStart, MATURITY);
+    final double cdsCoupon = 0.01;
+
+    final int n = HEDGE_CDS.length;
+    final double[] hedgeCoupons = new double[n];
+    Arrays.fill(hedgeCoupons, cdsCoupon);
+    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, HEDGE_CDS, hedgeCoupons, flatCC, YIELD_CURVE);
+    System.out.println(w);
+  }
+
+  @Test
+  public void lessCDStest() {
+    final LocalDate accStart = FOLLOWING.adjustDate(DEFAULT_CALENDAR, getPrevIMMDate(TRADE_DATE));
+    final CDSAnalytic cds = CDS_FACTORY.makeCDS(TRADE_DATE, accStart, MATURITY);
+    final double cdsCoupon = 0.01;
+
+    final CDSAnalytic[] hedgeCDS = CDS_FACTORY.makeIMMCDS(TRADE_DATE, new Period[] {Period.ofYears(1), Period.ofYears(5) });
+    final int n = hedgeCDS.length;
+    final double[] hedgeCoupons = new double[n];
+    Arrays.fill(hedgeCoupons, cdsCoupon);
+    final DoubleMatrix1D w = HEDGE_CAL.getHedgeRatios(cds, cdsCoupon, hedgeCDS, hedgeCoupons, CREDIT_CURVE, YIELD_CURVE);
+    //   System.out.println(w);
+    final double[] expected = new double[] {0.3877847710928422, 0.026594401620818442 };
+    for (int i = 0; i < n; i++) {
+      assertEquals("", expected[i], w.getEntry(i), 1e-15);
+    }
+  }
+
 }

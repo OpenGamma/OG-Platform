@@ -100,7 +100,7 @@ public class MarketDataSearchResult extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the values, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<MarketData> getMarketDatas() {
     return _marketDatas;
@@ -108,9 +108,10 @@ public class MarketDataSearchResult extends DirectBean {
 
   /**
    * Sets the values, not null.
-   * @param marketDatas  the new value of the property
+   * @param marketDatas  the new value of the property, not null
    */
   public void setMarketDatas(List<MarketData> marketDatas) {
+    JodaBeanUtils.notNull(marketDatas, "marketDatas");
     this._marketDatas.clear();
     this._marketDatas.addAll(marketDatas);
   }
@@ -280,6 +281,11 @@ public class MarketDataSearchResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((MarketDataSearchResult) bean)._marketDatas, "marketDatas");
     }
 
   }

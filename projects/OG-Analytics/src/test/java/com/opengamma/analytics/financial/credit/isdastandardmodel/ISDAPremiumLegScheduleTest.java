@@ -16,22 +16,23 @@ import org.threeten.bp.Period;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.JulianFields;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAPremiumLegSchedule;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDAPremiumLegScheduleTest {
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TestCalendar");
 
   // TODO all the null input tests. startDate after endDate etc

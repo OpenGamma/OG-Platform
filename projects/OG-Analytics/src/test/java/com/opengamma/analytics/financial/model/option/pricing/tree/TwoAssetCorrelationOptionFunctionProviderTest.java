@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwoAssetCorrelationOptionFunctionProviderTest {
   private static final BivariateNormalDistribution _bivariate = new BivariateNormalDistribution();
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();

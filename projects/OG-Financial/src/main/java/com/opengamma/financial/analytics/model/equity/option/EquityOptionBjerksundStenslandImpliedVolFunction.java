@@ -132,13 +132,13 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
         if (timeToExpiry < 7. / 365.) {
           impliedVol = BlackFormulaRepository.impliedVolatility(optionPrice / market.getDiscountCurve().getDiscountFactor(timeToExpiry), fCurve.getForward(timeToExpiry), strike, timeToExpiry, isCall);
         } else {
-          impliedVol = model.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.2));
+          impliedVol = model.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.15));
         }
       } catch (final IllegalArgumentException e) {
         if (inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE) == null) {
           impliedVol =  null;
         } else {
-          s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " undefined" + targetSpec);
+          s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " undefined " + targetSpec);
           impliedVol = 0.;
         }
       }

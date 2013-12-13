@@ -13,9 +13,12 @@ import static org.threeten.bp.Month.SEPTEMBER;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TYOCalendarTest {
 
   @Test

@@ -103,7 +103,7 @@ public final class EquityIndexOptionBlackMethod {
   public double rhoBlack(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
     final double ttm = derivative.getTimeToSettlement();
     final double pv = presentValue(derivative, marketData) / derivative.getUnitAmount();
-    return -ttm * pv;
+    return -ttm * pv / 100.;
   }
 
   /** 
@@ -125,7 +125,7 @@ public final class EquityIndexOptionBlackMethod {
     final double df = discountToSettlement(derivative, marketData);
     return strike * ttm * df * dualDelta * (isCall ? -1.0 : 1.0);
   }
-  
+
   /** 
    * @param derivative An EquityIndexOption, the OG-Analytics form of the derivative 
    * @param marketData A StaticReplicationDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
@@ -339,5 +339,5 @@ public final class EquityIndexOptionBlackMethod {
     final double theta = BlackFormulaRepository.driftlessTheta(forward, strike, expiry, blackVol);
     return -1 * theta; // *-1 as BlackFormulaRepository gives dV/dt, and we want dV/d(T-t)
   }
-  
+
 }

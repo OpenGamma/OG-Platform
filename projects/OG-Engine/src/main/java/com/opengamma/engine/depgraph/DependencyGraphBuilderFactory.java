@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public class DependencyGraphBuilderFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilderFactory.class);
 
-  private static final Executor s_executor = new MdcAwareThreadPoolExecutor(new ThreadFactory() {
+  private static final ThreadPoolExecutor s_executor = new MdcAwareThreadPoolExecutor(new ThreadFactory() {
 
     private final AtomicInteger _nextJobThreadId = new AtomicInteger();
 
@@ -43,6 +44,7 @@ public class DependencyGraphBuilderFactory {
       t.setName(DependencyGraphBuilder.class.getSimpleName() + "-" + _nextJobThreadId.incrementAndGet());
       return t;
     }
+
   });
 
   private int _maxAdditionalThreadsPerBuilder = DependencyGraphBuilder.getDefaultMaxAdditionalThreads();

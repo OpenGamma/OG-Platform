@@ -28,16 +28,18 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the present value and its sensitivities for zero-coupon with reference index interpolated between months.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
 
   private static final InflationIssuerProviderDiscount MARKET = MulticurveProviderDiscountDataSets.createMarket1();
@@ -48,7 +50,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final IborIndex USDLIBOR3M = IBOR_INDEXES[2];
   private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final Calendar CALENDAR_USD = MulticurveProviderDiscountDataSets.getUSDCalendar();
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR_EUR);

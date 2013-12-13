@@ -11,6 +11,8 @@ import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
@@ -21,6 +23,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
@@ -28,6 +31,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -45,7 +49,9 @@ import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.bloomberg.tool.ExampleConfigDatabaseCreator;
 import com.opengamma.examples.bloomberg.tool.ExampleDatabaseChecker;
 import com.opengamma.examples.bloomberg.tool.ExampleDatabaseCreator;
+import com.opengamma.examples.bloomberg.tool.ExampleEmptyDatabaseCreator;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.regression.DatabaseRestore;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.ResourceUtils;
@@ -107,7 +113,10 @@ public class ExampleDatabaseCreatorGui {
 
   private static Options createOptions() {
     Options options = new Options();
-    Option guiOption = new Option(CMD_GUI_OPTION, CMD_GUI_OPTION, false, "flag to indicate to run the tool in gui mode");
+    Option guiOption = new Option(CMD_GUI_OPTION,
+                                  CMD_GUI_OPTION,
+                                  false,
+                                  "flag to indicate to run the tool in gui mode");
     guiOption.setArgName(CMD_GUI_OPTION);
     guiOption.setRequired(false);
     options.addOption(guiOption);
@@ -126,7 +135,9 @@ public class ExampleDatabaseCreatorGui {
   }
 
   public static void showUI(boolean databaseExists, final String configFile) {
+
     final Dialog dialog = new Dialog((Frame) null);
+    final CheckboxGroup group = new CheckboxGroup();
 
     dialog.addWindowListener(new WindowAdapter() {
 
@@ -145,13 +156,14 @@ public class ExampleDatabaseCreatorGui {
         dialog.dispose();
         System.exit(-1);
       }
-
     });
 
+    dialog.setAlwaysOnTop(true);
+    dialog.setLocationByPlatform(true);
     dialog.setModal(true);
     dialog.setTitle("Database setup.");
     dialog.setResizable(false);
-    BorderLayout layout = new BorderLayout();
+    BorderLayout layout = new BorderLayout(30, 30);
     dialog.setLayout(layout);
 
     Panel p = new Panel();
@@ -162,18 +174,34 @@ public class ExampleDatabaseCreatorGui {
 
     p.add(label);
 
-    final Button confiramtionButton = new Button("select an option ...");
+    final Button cancellationButton = new Button("Exit");
+    final Button confiramtionButton = new Button("OK");
+
     confiramtionButton.setEnabled(false);
 
     ItemListener radiobuttonChangeListener = new ItemListener() {
       @Override
       public void itemStateChanged(ItemEvent e) {
-        confiramtionButton.setEnabled(true);
-        confiramtionButton.setLabel("execute");
+        if (group.getSelectedCheckbox() != null) {
+          confiramtionButton.setEnabled(true);
+        } else {
+          confiramtionButton.setEnabled(false);
+        }
       }
     };
 
-    final CheckboxGroup group = new CheckboxGroup();
+    cancellationButton.addActionListener(new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        System.exit(0);
+      }
+    });
+
+    //
+    final JFileChooser fileDialog = new JFileChooser("Choose the location of db restore directory.");
+    fileDialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    fileDialog.setApproveButtonText("Select");
+    //
 
     confiramtionButton.addActionListener(new AbstractAction() {
       @Override
@@ -187,14 +215,25 @@ public class ExampleDatabaseCreatorGui {
               upgradeDatabase(configFile);
               break;
             case 2:
-              s_logger.debug("Creating blank database");
+              s_logger.debug("Creating blank database with config data");
               dialog.dispose();
-              createBlankDatabase(configFile);
+              createBlankDatabaseWithConfigData(configFile);
               break;
             case 3:
               s_logger.debug("Creating complete database");
               dialog.dispose();
               createCompleteDatabase(configFile);
+              break;
+            case 4:
+              s_logger.debug("Creating complete database without any data");
+              dialog.dispose();
+              createBlankDatabaseWithoutAnyData(configFile);
+              break;
+            case 5:
+              s_logger.debug("Creating complete database without any data");
+              dialog.dispose();
+              createBlankDatabaseWithoutAnyData(configFile);
+              restoreDatabaseFromFiles(fileDialog.getSelectedFile(), configFile);
               break;
           }
         } catch (Exception ex) {
@@ -205,18 +244,85 @@ public class ExampleDatabaseCreatorGui {
       }
     });
 
+    p.add(new Panel());
+
     if (databaseExists) {
       p.add(new Checkbox2(1, "Leave the current database as it is.", group, radiobuttonChangeListener));
     }
+
+    p.add(new Checkbox2(4, "Create blank database, schema only without data.", group, radiobuttonChangeListener));
     p.add(new Checkbox2(2, "Create blank database, populated only with configuration data.", group, radiobuttonChangeListener));
     p.add(new Checkbox2(3, "Create database, populated with configuration and with example portfolio.", group, radiobuttonChangeListener));
 
-    p.add(confiramtionButton);
 
-    dialog.add(new Panel(), BorderLayout.NORTH);
-    dialog.add(new Panel(), BorderLayout.SOUTH);
-    dialog.add(new Panel(), BorderLayout.EAST);
-    dialog.add(new Panel(), BorderLayout.WEST);
+    Panel dBRestorePannel = new Panel(new BorderLayout());
+    p.add(dBRestorePannel);
+
+
+    final Checkbox2 dbRestoreOption = new Checkbox2(5,
+                                                    "Restore database from files.",
+                                                    group,
+                                                    radiobuttonChangeListener);
+
+
+    final Button restoreDbButton = new Button("Restore DB location");
+    dBRestorePannel.add(restoreDbButton, BorderLayout.EAST);
+    dBRestorePannel.add(dbRestoreOption, BorderLayout.CENTER);
+
+    restoreDbButton.addActionListener(new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        int returnVal = fileDialog.showOpenDialog(dialog);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+          File directory = fileDialog.getSelectedFile();
+          if (!directory.exists()) {
+            group.setSelectedCheckbox(null);
+            confiramtionButton.setEnabled(false);
+          } else {
+            group.setSelectedCheckbox(dbRestoreOption);
+            confiramtionButton.setEnabled(true);
+          }
+        } else {
+          group.setSelectedCheckbox(null);
+          confiramtionButton.setEnabled(false);
+        }
+      }
+    });
+
+    dbRestoreOption.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent e) {
+        int returnVal = fileDialog.showOpenDialog(dialog);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+          File directory = fileDialog.getSelectedFile();
+          if (!directory.exists()) {
+            group.setSelectedCheckbox(null);
+            confiramtionButton.setEnabled(false);
+          } else {
+            group.setSelectedCheckbox(dbRestoreOption);
+            confiramtionButton.setEnabled(true);
+          }
+        } else {
+          group.setSelectedCheckbox(null);
+          confiramtionButton.setEnabled(false);
+        }
+      }
+    });
+
+    p.add(new Panel());
+
+
+    Panel buttonPannel = new Panel(new BorderLayout());
+    p.add(buttonPannel, BorderLayout.CENTER);
+
+    buttonPannel.add(confiramtionButton, BorderLayout.EAST);
+    buttonPannel.add(cancellationButton, BorderLayout.WEST);
+
+
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.NORTH);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.SOUTH);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.EAST);
+    dialog.add(new Panel() { { setSize(new Dimension(100, 100)); } }, BorderLayout.WEST);
     dialog.add(p, BorderLayout.CENTER);
 
     dialog.setSize(800, 600);
@@ -257,12 +363,32 @@ public class ExampleDatabaseCreatorGui {
     }
   }
 
-  private static void createBlankDatabase(String configFile) throws Exception {
+  private static void createBlankDatabaseWithConfigData(String configFile) throws Exception {
     new ExampleConfigDatabaseCreator().run(configFile);
+  }
+
+  private static void createBlankDatabaseWithoutAnyData(String configFile) throws Exception {
+    new ExampleEmptyDatabaseCreator().run(configFile);
   }
 
   private static void createCompleteDatabase(String configFile) throws Exception {
     new ExampleDatabaseCreator().run(configFile);
+  }
+
+  private static void restoreDatabaseFromFiles(File dataDir, String configFile) throws Exception {
+
+    ToolContext toolContext = ToolContextUtils.getToolContext(configFile, IntegrationToolContext.class);
+    DatabaseRestore databaseRestore = new DatabaseRestore(dataDir,
+                                                          toolContext.getSecurityMaster(),
+                                                          toolContext.getPositionMaster(),
+                                                          toolContext.getPortfolioMaster(),
+                                                          toolContext.getConfigMaster(),
+                                                          toolContext.getHistoricalTimeSeriesMaster(),
+                                                          toolContext.getHolidayMaster(),
+                                                          toolContext.getExchangeMaster(),
+                                                          toolContext.getMarketDataSnapshotMaster(),
+                                                          toolContext.getOrganizationMaster());
+    databaseRestore.restoreDatabase();
   }
 
   static class Checkbox2 extends Checkbox {

@@ -35,11 +35,13 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests on the Hull-White one factor method to price Cap/Floor on Ibor.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

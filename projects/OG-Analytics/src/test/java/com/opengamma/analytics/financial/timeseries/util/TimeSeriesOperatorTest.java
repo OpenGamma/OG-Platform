@@ -10,10 +10,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeSeriesOperatorTest {
 
   @Test

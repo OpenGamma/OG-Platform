@@ -5,8 +5,9 @@
  */
 package com.opengamma.engine.view.client.merging;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,9 +22,9 @@ public class RateLimitingMergingViewProcessListener extends MergingViewProcessLi
 
   private static final long MIN_PERIOD = 50;
 
-  private final Timer _timer;
+  private final ScheduledExecutorService _timer;
   private ReentrantLock _taskSetupLock = new ReentrantLock();
-  private TimerTask _asyncUpdateCheckerTask;
+  private Future<?> _asyncUpdateCheckerTask;
 
   private boolean _isPaused;
 
@@ -34,7 +35,7 @@ public class RateLimitingMergingViewProcessListener extends MergingViewProcessLi
    */
   private AtomicLong _lastUpdateTimeMillis = new AtomicLong();
 
-  public RateLimitingMergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager, Timer timer) {
+  public RateLimitingMergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager, ScheduledExecutorService timer) {
     super(underlying, cycleManager);
     ArgumentChecker.notNull(timer, "timer");
     _timer = timer;
@@ -140,20 +141,20 @@ public class RateLimitingMergingViewProcessListener extends MergingViewProcessLi
     cancelTimerTask();
     final Call<?> drain = setPassThrough(minimumUpdatePeriodMillis == 0 && !isPaused());
     if (!isPaused() && !isPassThrough()) {
-      _asyncUpdateCheckerTask = new TimerTask() {
+      final Runnable task = new Runnable() {
         @Override
         public void run() {
           drainIfRequired();
         }
       };
-      _timer.schedule(_asyncUpdateCheckerTask, minimumUpdatePeriodMillis, minimumUpdatePeriodMillis);
+      _asyncUpdateCheckerTask = _timer.scheduleWithFixedDelay(task, minimumUpdatePeriodMillis, minimumUpdatePeriodMillis, TimeUnit.MILLISECONDS);
     }
     return drain;
   }
 
   private void cancelTimerTask() {
     if (_asyncUpdateCheckerTask != null) {
-      _asyncUpdateCheckerTask.cancel();
+      _asyncUpdateCheckerTask.cancel(true);
       _asyncUpdateCheckerTask = null;
     }
   }

@@ -11,12 +11,14 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatorNDDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

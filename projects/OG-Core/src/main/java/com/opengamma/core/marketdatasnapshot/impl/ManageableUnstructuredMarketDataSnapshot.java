@@ -451,6 +451,11 @@ public class ManageableUnstructuredMarketDataSnapshot implements Bean, Unstructu
       super.propertySet(bean, propertyName, newValue, quiet);
     }
 
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableUnstructuredMarketDataSnapshot) bean)._values, "values");
+    }
+
   }
 
   ///CLOVER:ON

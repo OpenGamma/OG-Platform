@@ -26,6 +26,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
@@ -63,7 +64,7 @@ public class DataFinancialSecuritySourceResourceTest {
   public void testSearchBonds() {
     BondSecurity target = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
         YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC)), "", 200,
-        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
+        SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCounts.ACT_ACT_ISDA,
         zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC), zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC),
         zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC), 100d, 100000000, 5000, 1000, 100, 100);
     target.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B")));

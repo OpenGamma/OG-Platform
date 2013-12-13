@@ -71,7 +71,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
   /**
    * Creates an instance.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param bloombergConnector the Bloomberg connector, not null
    * @param serviceName The Bloomberg service to start
    */
   public AbstractBloombergStaticDataProvider(BloombergConnector bloombergConnector, String serviceName) {
@@ -117,61 +117,104 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
     return _sessionProvider.getService();
   }
 
+  private synchronized void releaseBlockedRequests() {
+    // Notify all threads waiting on their correlation IDs. Any that were from the previous session
+    // will spot the session object change and abort themselves. Any that were from the current
+    // session (eg got a new session handle between the old session becoming invalid and this being called)
+    // will see that the session has not changed and carry on waiting for a real notification.
+    Collection<CorrelationID> cids = _correlationIDMap.values();
+    for (CorrelationID correlationID : cids) {
+      synchronized (correlationID) {
+        correlationID.notifyAll();
+      }
+    }
+  }
+
+  /**
+   * Shuts down the Bloomberg session and service, releasing any resources.
+   */
+  private void invalidateSession() {
+    _sessionProvider.invalidateSession();
+    releaseBlockedRequests();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sends a request to Bloomberg, waiting for the response.
    * 
-   * @param request  the request to send, not null
+   * @param request the request to send, not null
    * @return the correlation identifier, not null
    */
-  protected CorrelationID submitBloombergRequest(Request request) {
+  protected BlockingQueue<Element> submitBloombergRequest(Request request) {
     getLogger().debug("Sending Request={}", request);
-    CorrelationID cid = new CorrelationID(generateCorrelationID());
-    synchronized (cid) {
-      _correlationIDMap.put(cid, cid);
-      try {
-        getSession().sendRequest(request, cid);
-      } catch (Exception ex) {
-        _correlationIDMap.remove(cid);
-        throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
+    final Session session = getSession();
+    final BlockingQueue<Element> result;
+    final CorrelationID cid = new CorrelationID(generateCorrelationID());
+    try {
+      synchronized (cid) {
+        _correlationIDMap.put(cid, cid);
+        try {
+          getSession().sendRequest(request, cid);
+          // Wait until either the request is handled (and the dispatcher removes it from the map), or
+          // the data provider changes which means the original request is lost.
+          do {
+            cid.wait();
+          } while (_correlationIDMap.containsKey(cid) && (getSession() == session));
+        } catch (Exception ex) {
+          throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
+        } finally {
+          _correlationIDMap.remove(cid);
+        }
       }
-      try {
-        cid.wait();
-      } catch (InterruptedException ex) {
-        Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to process request " + request, ex);
-      }
+    } finally {
+      // Either return the data if populated by the dispatch thread, or just discard it from the map for housekeeping
+      // purposes.
+      result = _correlationIDElementMap.remove(cid);
     }
-    return cid;
+    if (result == null) {
+      throw new OpenGammaRuntimeException("Did not receive response for request " + request);
+    }
+    return result;
   }
 
   /**
    * Sends an authorization request to Bloomberg, waiting for the response.
    * 
-   * @param request  the request to send, not null
-   * @param userHandle  the user handle, not null
-   * @return the correlation identifier, not null
+   * @param request the request to send, not null
+   * @param userHandle the user handle, not null
+   * @return the collection of results, not null
    */
   @SuppressWarnings("deprecation")
-  protected CorrelationID submitBloombergAuthorizationRequest(Request request, UserHandle userHandle) {
+  protected BlockingQueue<Element> submitBloombergAuthorizationRequest(Request request, UserHandle userHandle) {
     getLogger().debug("Sending Request={}", request);
-    CorrelationID cid = new CorrelationID(generateCorrelationID());
-    synchronized (cid) {
-      _correlationIDMap.put(cid, cid);
-      try {
-        getSession().sendAuthorizationRequest(request, userHandle, cid);
-      } catch (Exception ex) {
-        _correlationIDMap.remove(cid);
-        throw new OpenGammaRuntimeException("Unable to send request " + request, ex);
+    final Session session = getSession();
+    final BlockingQueue<Element> result;
+    final CorrelationID cid = new CorrelationID(generateCorrelationID());
+    try {
+      synchronized (cid) {
+        _correlationIDMap.put(cid, cid);
+        try {
+          session.sendAuthorizationRequest(request, userHandle, cid);
+          // Wait until either the request is handled (and the dispatcher removes it from the map), or
+          // the data provider changes which means the original request is lost.
+          do {
+            cid.wait();
+          } while (_correlationIDMap.containsKey(cid) && (getSession() == session));
+        } catch (Exception ex) {
+          throw new OpenGammaRuntimeException("Unable to send/process request " + request, ex);
+        } finally {
+          _correlationIDMap.remove(cid);
+        }
       }
-      try {
-        cid.wait();
-      } catch (InterruptedException ex) {
-        Thread.interrupted();
-        throw new OpenGammaRuntimeException("Unable to process request " + request, ex);
-      }
+    } finally {
+      // Either return the data if populated by the dispatch thread, or just discard it from the map for housekeeping
+      // purposes.
+      result = _correlationIDElementMap.remove(cid);
     }
-    return cid;
+    if (result == null) {
+      throw new OpenGammaRuntimeException("Did not receive response for request " + request);
+    }
+    return result;
   }
 
   /**
@@ -181,19 +224,6 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    */
   protected long generateCorrelationID() {
     return _nextCorrelationId.getAndIncrement();
-  }
-
-  /**
-   * Gets the result given a correlation identifier.
-   * 
-   * @param cid  the correlation identifier, not null
-   * @return the collection of results, not null
-   */
-  protected BlockingQueue<Element> getResultElement(CorrelationID cid) {
-    BlockingQueue<Element> resultElements = _correlationIDElementMap.remove(cid);
-    // clear correlation maps
-    _correlationIDMap.remove(cid);
-    return resultElements;
   }
 
   //-------------------------------------------------------------------------
@@ -207,6 +237,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       return;
     }
     getLogger().info("Bloomberg event processor being started...");
+    _sessionProvider.start();
     _eventProcessor = new BloombergSessionEventProcessor();
     _thread = new Thread(_eventProcessor, "BSM Event Processor");
     _thread.setDaemon(true);
@@ -233,9 +264,7 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
    * Ensures that the Bloomberg session has been started.
    */
   protected void ensureStarted() {
-    if (getSession() == null) {
-      throw new IllegalStateException("Session not set; has start() been called?");
-    }
+    getSession();
     if (_thread == null || _thread.isAlive() == false) {
       throw new IllegalStateException("Event polling thread not alive; has start() been called?");
     }
@@ -251,17 +280,18 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       getLogger().info("Bloomberg already stopped");
       return;
     }
-    
     getLogger().info("Bloomberg event processor being stopped...");
+    _sessionProvider.stop();
     _eventProcessor.terminate();
+    _eventProcessor = null;
     try {
       _thread.join();
     } catch (InterruptedException e) {
       Thread.interrupted();
     }
     _thread = null;
+    releaseBlockedRequests();
     getLogger().info("Bloomberg event processor stopped");
-    _sessionProvider.invalidateSession();
   }
 
   //-------------------------------------------------------------------------
@@ -306,11 +336,12 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
         if (event.eventType() == Event.EventType.SESSION_STATUS) {
           if (msg.messageType().toString().equals("SessionTerminated")) {
             getLogger().error("Session terminated");
-            terminate();
+            // Invalidate the session (which will release any blocked threads)
+            invalidateSession();
             return;
           }
         }
-        
+
         CorrelationID bbgCID = msg.correlationID();
         Element element = msg.asElement();
         getLogger().debug("got msg with cid={} msg.asElement={}", bbgCID, msg.asElement());
@@ -328,25 +359,15 @@ public abstract class AbstractBloombergStaticDataProvider implements Lifecycle {
       }
       // wake up waiting client thread if response is completed and there is a thread waiting on the cid
       if (event.eventType() == Event.EventType.RESPONSE && realCID != null) {
-        //cid is removed from the map by the request thread after it has  been notified
-        synchronized (realCID) {
-          realCID.notify();
+        //Remove the CID from the map so the caller knows this isn't a spurious wakeup
+        if (_correlationIDMap.remove(realCID) != null) {
+          synchronized (realCID) {
+            realCID.notify();
+          }
         }
       }
     }
 
-    @Override
-    public void terminate() {
-      super.terminate();
-      
-      // notify all threads waiting on cid
-      Collection<CorrelationID> cids = _correlationIDMap.values();
-      for (CorrelationID correlationID : cids) {
-        synchronized (correlationID) {
-          correlationID.notifyAll();
-        }
-      }
-    }
   }
 
 }

@@ -5,12 +5,15 @@
  */
 package com.opengamma.analytics.util.time;
 
+import java.util.ResourceBundle;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,7 +24,20 @@ public final class TimeCalculator {
   /**
    * The day count used to convert to time.
    */
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount MODEL_DAYCOUNT;
+  
+  static {
+    /*
+     * Initialise MODEL_DAYCOUNT to what is set in TimeCalculator.properties, otherwise default to Actual/Actual ISDA
+     */
+    ResourceBundle conventions = ResourceBundle.getBundle(TimeCalculator.class.getName());
+    String modelDayCount = conventions.getString("MODEL_DAYCOUNT");
+    if (modelDayCount != null && DayCountFactory.of(modelDayCount) != null) {
+      MODEL_DAYCOUNT = DayCountFactory.of(modelDayCount);
+    } else {
+      MODEL_DAYCOUNT = DayCounts.ACT_ACT_ISDA;
+    }
+  }
 
   private TimeCalculator() {
   }
@@ -56,7 +72,7 @@ public final class TimeCalculator {
    * @return The time.
    */
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-    return getTimeBetween(date1, date2, ACT_ACT);
+    return getTimeBetween(date1, date2, MODEL_DAYCOUNT);
   }
 
   /**

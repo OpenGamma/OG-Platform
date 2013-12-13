@@ -14,11 +14,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantCurveCalibratorTest {
   private static final ISDACompliantPresentValueCreditDefaultSwap PRICER = new ISDACompliantPresentValueCreditDefaultSwap();
 
@@ -31,7 +33,7 @@ public class ISDACompliantCurveCalibratorTest {
   private static final double[] DISCOUNT_FACT;
   private static final double[] YC_TIMES;
   private static final ISDACompliantDateYieldCurve YIELD_CURVE;
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT365 = DayCounts.ACT_365;
 
   static {
     final int ycPoints = YC_DATES.length;

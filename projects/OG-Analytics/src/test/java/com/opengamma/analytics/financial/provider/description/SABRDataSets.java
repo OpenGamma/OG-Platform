@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 
 /**
  * Sets of market data used in tests.
@@ -31,7 +31,7 @@ public class SABRDataSets {
   /**
    * The standard day count 30/360 used in the data set.
    */
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount DAY_COUNT = DayCounts.THIRTY_U_360;
 
   /**
    * Create a set of SABR parameter surface (linearly interpolated) with a given SABR function. Expiry is between 0 and 10 years, maturity between 0 and 10 years.

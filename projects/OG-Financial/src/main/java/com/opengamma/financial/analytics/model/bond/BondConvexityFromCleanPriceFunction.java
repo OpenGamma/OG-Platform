@@ -12,6 +12,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 /**
  * Calculates the convexity from bond clean price.
  * @deprecated The parent of this class is deprecated.
+ * Use {@link com.opengamma.financial.analytics.model.bondcleanprice.BondConvexityFromCleanPriceFunction}
  */
 @Deprecated
 public class BondConvexityFromCleanPriceFunction extends BondFromCleanPriceFunction {
@@ -26,8 +27,4 @@ public class BondConvexityFromCleanPriceFunction extends BondFromCleanPriceFunct
     return ValueRequirementNames.CONVEXITY;
   }
 
-  @Override
-  protected double getScaleFactor() {
-    return 0.01;
-  }
 }

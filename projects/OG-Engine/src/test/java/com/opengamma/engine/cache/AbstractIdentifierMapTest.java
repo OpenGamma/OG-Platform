@@ -28,10 +28,12 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * A generic suite of tests for any implementation of {@link IdentifierMap}.
  */
+@Test(groups = TestGroup.INTEGRATION)
 public abstract class AbstractIdentifierMapTest {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractIdentifierMapTest.class);
 

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.depgraph.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -26,7 +31,12 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperti
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class RemoteDependencyGraphTraceProviderTest {
 
   private RemoteDependencyGraphTraceProvider _provider;

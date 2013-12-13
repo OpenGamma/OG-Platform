@@ -38,6 +38,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedCS01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 
 /**
@@ -60,11 +61,12 @@ public class ISDACDXAsSingleNameBucketedCS01Function extends ISDACDXAsSingleName
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic,
+                                                Tenor[] tenors) {
 
     //TODO: bump type
     Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
-    final LocalDateLabelledMatrix1D cs01Matrix = StandardVanillaBucketedCS01CDSFunction.getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4);
+    final LocalDateLabelledMatrix1D cs01Matrix = StandardVanillaBucketedCS01CDSFunction.getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4, valuationDate, tenors);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));
   }

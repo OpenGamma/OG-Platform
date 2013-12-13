@@ -57,7 +57,7 @@ import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRa
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -74,7 +74,7 @@ import com.opengamma.util.time.Tenor;
  */
 //TODO rename to make clear that these functions use the ISDA methodology (specifically, for effective dates)
 public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private final String[] _valueRequirements;
   private static final Logger s_logger = LoggerFactory.getLogger(StandardVanillaCDSFunction.class);
 
@@ -90,21 +90,21 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
     Object recoveryRateObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
     if (recoveryRateObject == null) {
-      throw new OpenGammaRuntimeException("Could not get recovery rate");
+      throw new OpenGammaRuntimeException("Could not get recovery rate for " + security.getExternalIdBundle());
       //s_logger.warn("Could not get recovery rate, defaulting to 0.4: " + recoveryRateIdentifier);
       //recoveryRateObject = 0.4;
     }
     final double recoveryRate = (Double) recoveryRateObject;
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    definition = definition.withRecoveryRate(recoveryRate);
+    //definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    //definition = definition.withRecoveryRate(recoveryRate);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -130,11 +130,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getEffectiveDate().toLocalDate(), definition.getStartDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS, tenors);
   }
 
   @Override
@@ -144,6 +144,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+
     final ValueProperties properties = ValueProperties.all();
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirements) {
@@ -243,7 +244,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
                                                          ComputationTarget target,
                                                          ValueProperties properties,
                                                          FunctionInputs inputs,
-                                                         ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic);
+                                                         ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic,
+                                                         Tenor[] tenors);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 

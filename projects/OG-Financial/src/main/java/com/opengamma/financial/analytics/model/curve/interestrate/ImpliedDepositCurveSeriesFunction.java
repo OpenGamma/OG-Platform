@@ -100,10 +100,10 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -129,7 +129,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
   /** Calculates the sensitivity of the par rate to the curves */
   private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   /** The business day convention used for FX forward dates computation **/
-  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ImpliedDepositCurveSeriesFunction.class);
   /** The curve name */
@@ -279,7 +279,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
         final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
         final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
-        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
+        final DayCount dayCount = DayCounts.ACT_365; //TODO
         final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
         final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
             _rightExtrapolatorName);

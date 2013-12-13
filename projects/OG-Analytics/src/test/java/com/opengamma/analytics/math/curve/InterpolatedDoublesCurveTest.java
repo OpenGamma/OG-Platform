@@ -15,10 +15,12 @@ import com.opengamma.analytics.math.interpolation.ExponentialInterpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedDoublesCurveTest extends DoublesCurveTestCase {
   private static final Interpolator1D LINEAR = new LinearInterpolator1D();
   private static final Interpolator1D STEP = new StepInterpolator1D();

@@ -52,7 +52,7 @@ import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -64,7 +64,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
   /** ISDA fixes yield curve daycout to Act/365 */
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
 
   /** the curve configuration name */
   private final String _curveName;

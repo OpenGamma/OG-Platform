@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.cash.DepositCounterpartDefin
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteIssuerDiscountingCalculator;
@@ -36,13 +37,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the pricing of cash deposits by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class DepositCounterpartDiscountingMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -58,7 +59,7 @@ public class DepositCounterpartDiscountingMethodTest {
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final DepositCounterpartDefinition DEPOSIT_CPTY_DEFINITION = DepositCounterpartDefinition.fromStart(SPOT_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR, ISSUER_NAME);
-  private static final Pair<String, Currency> ISSUER_CCY = Pairs.of(ISSUER_NAME, EUR);
+  private static final LegalEntity ISSUER = new LegalEntity(null, ISSUER_NAME, null, null, null);
 
   private static final IssuerProviderDiscount PROVIDER_ISSUER = MulticurveProviderDiscountDataSets.createIssuerProvider();
   private static final DepositCounterpartDiscountingMethod METHOD_DEPOSIT = DepositCounterpartDiscountingMethod.getInstance();
@@ -89,8 +90,8 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_ISSUER);
-    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getEndTime());
-    final double dfStart = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getStartTime());
+    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getEndTime());
+    final double dfStart = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getStartTime());
     final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
@@ -115,8 +116,8 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_ISSUER);
-    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getEndTime());
-    final double dfStart = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getStartTime());
+    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getEndTime());
+    final double dfStart = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getStartTime());
     final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
@@ -129,8 +130,8 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = SPOT_DATE;
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_ISSUER);
-    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getEndTime());
-    final double dfStart = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getStartTime());
+    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getEndTime());
+    final double dfStart = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getStartTime());
     final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd - NOTIONAL * dfStart;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
@@ -143,7 +144,7 @@ public class DepositCounterpartDiscountingMethodTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
     final DepositCounterpart deposit = DEPOSIT_CPTY_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER_ISSUER);
-    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER_CCY, deposit.getEndTime());
+    final double dfEnd = PROVIDER_ISSUER.getDiscountFactor(ISSUER, deposit.getEndTime());
     final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd;
     assertEquals("DepositCounterpartDiscountingMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }

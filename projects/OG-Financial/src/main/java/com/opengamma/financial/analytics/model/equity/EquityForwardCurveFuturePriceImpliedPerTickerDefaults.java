@@ -23,8 +23,6 @@ import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
-import com.opengamma.financial.property.DefaultPropertyFunction.PropertyDefaults;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.util.ArgumentChecker;
@@ -86,6 +84,7 @@ public class EquityForwardCurveFuturePriceImpliedPerTickerDefaults extends Defau
     }  
     // Properties specific to FORWARD_CURVE
     defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.SNAP_TIME);    
     //  Properties specific to STANDARD_VOLATILITY_SURFACE_DATA
     defaults.addValuePropertyName(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ValuePropertyNames.FORWARD_CURVE_NAME);
     defaults.addValuePropertyName(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ValuePropertyNames.CURVE_CURRENCY);
@@ -104,6 +103,8 @@ public class EquityForwardCurveFuturePriceImpliedPerTickerDefaults extends Defau
     }
     final String[] config = _perTickerConfig.get(tickerId);
     switch (propertyName) {
+      case ValuePropertyNames.SNAP_TIME:
+        return Collections.singleton(ValuePropertyNames.SNAP_TIME_LIVE);
       case ValuePropertyNames.CURVE:
         return Collections.singleton(config[0]);
       case ValuePropertyNames.FORWARD_CURVE_NAME:

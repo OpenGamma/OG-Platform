@@ -37,14 +37,16 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of physical delivery swaption in G2++ model.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborG2ppMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
@@ -57,7 +59,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   private static final int SWAP_TENOR_YEAR = 5;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final IndexSwap SWAP_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR, CALENDAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final boolean IS_LONG = true;

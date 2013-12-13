@@ -28,10 +28,12 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParVsQuotedSpreadTest extends ISDABaseTest {
   private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();
   protected static final double NOTIONAL = 1e6;

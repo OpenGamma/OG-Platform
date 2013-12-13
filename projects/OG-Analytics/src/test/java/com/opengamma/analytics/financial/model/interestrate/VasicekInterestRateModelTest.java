@@ -14,11 +14,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.VasicekDataBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VasicekInterestRateModelTest {
   private static final int YEARS = 10;
   private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2010, 7, 1);

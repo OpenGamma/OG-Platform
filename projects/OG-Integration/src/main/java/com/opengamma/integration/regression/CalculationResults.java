@@ -22,7 +22,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -240,7 +240,6 @@ public final class CalculationResults implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static CalculationResults.Builder builder() {
@@ -428,7 +427,7 @@ public final class CalculationResults implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -537,7 +536,7 @@ public final class CalculationResults implements ImmutableBean {
   /**
    * The bean-builder for {@code CalculationResults}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CalculationResults> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CalculationResults> {
 
     private Map<CalculationResultKey, CalculatedValue> _values = new HashMap<CalculationResultKey, CalculatedValue>();
     private String _viewDefinitionName;
@@ -549,7 +548,6 @@ public final class CalculationResults implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(CalculationResults.Meta.INSTANCE);
     }
 
     /**
@@ -557,7 +555,6 @@ public final class CalculationResults implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CalculationResults beanToCopy) {
-      super(CalculationResults.Meta.INSTANCE);
       this._values = new HashMap<CalculationResultKey, CalculatedValue>(beanToCopy.getValues());
       this._viewDefinitionName = beanToCopy.getViewDefinitionName();
       this._snapshotName = beanToCopy.getSnapshotName();
@@ -588,6 +585,30 @@ public final class CalculationResults implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -661,11 +682,11 @@ public final class CalculationResults implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("CalculationResults.Builder{");
-      buf.append("values").append('=').append(_values).append(',').append(' ');
-      buf.append("viewDefinitionName").append('=').append(_viewDefinitionName).append(',').append(' ');
-      buf.append("snapshotName").append('=').append(_snapshotName).append(',').append(' ');
-      buf.append("valuationTime").append('=').append(_valuationTime).append(',').append(' ');
-      buf.append("version").append('=').append(_version);
+      buf.append("values").append('=').append(JodaBeanUtils.toString(_values)).append(',').append(' ');
+      buf.append("viewDefinitionName").append('=').append(JodaBeanUtils.toString(_viewDefinitionName)).append(',').append(' ');
+      buf.append("snapshotName").append('=').append(JodaBeanUtils.toString(_snapshotName)).append(',').append(' ');
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
+      buf.append("version").append('=').append(JodaBeanUtils.toString(_version));
       buf.append('}');
       return buf.toString();
     }

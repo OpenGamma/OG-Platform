@@ -17,6 +17,9 @@ import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
+import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -31,7 +34,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -163,7 +166,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final PriceIndexCurve PRICE_INDEX_CURVE_USD = new PriceIndexCurve(CURVE_USD);
   private static final int MONTH_LAG_US = 3;
   private static final int SPOT_LAG_US = 1;
-  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventions.FOLLOWING;
 
   private static final String NAME_AUD_PRICE_INDEX = "AUD CPI";
   private static final IndexPrice PRICE_INDEX_AUD = new IndexPrice(NAME_AUD_PRICE_INDEX, Currency.AUD);
@@ -172,9 +175,10 @@ public class MulticurveProviderDiscountDataSets {
   private static final InterpolatedDoublesCurve CURVE_AUD = InterpolatedDoublesCurve.from(TIME_VALUE_AUD, INDEX_VALUE_AUD, new LinearInterpolator1D(), NAME_AUD_PRICE_INDEX);
   private static final PriceIndexCurve PRICE_INDEX_CURVE_AUD = new PriceIndexCurve(CURVE_AUD);
 
-  private static final String ISSUER_UK_GOVT = "UK GOVT";
-  private static final String ISSUER_US_GOVT = "US GOVT";
-  private static final String ISSUER_AUD_GOVT = "AUD GOVT";
+  private static final LegalEntityFilter<LegalEntity> META = new LegalEntityShortName();
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_UK_GOVT = Pairs.of((Object) "UK GOVT", META);
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_US_GOVT = Pairs.of((Object) "US GOVT", META);
+  private static final Pair<Object, LegalEntityFilter<LegalEntity>> ISSUER_AUD_GOVT = Pairs.of((Object) "AUD GOVT", META);
 
   private static final InflationIssuerProviderDiscount MARKET_1 = new InflationIssuerProviderDiscount();
   static {
@@ -192,9 +196,9 @@ public class MulticurveProviderDiscountDataSets {
     MARKET_1.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
     MARKET_1.setCurve(PRICE_INDEX_USD, PRICE_INDEX_CURVE_USD);
     MARKET_1.setCurve(PRICE_INDEX_AUD, PRICE_INDEX_CURVE_AUD);
-    MARKET_1.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
-    MARKET_1.setCurve(ISSUER_US_GOVT, Currency.EUR, CURVE_USD_30);
-    MARKET_1.setCurve(ISSUER_AUD_GOVT, Currency.AUD, CURVE_AUD_30);
+    MARKET_1.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
+    MARKET_1.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
+    MARKET_1.setCurve(ISSUER_AUD_GOVT, CURVE_AUD_30);
   }
 
   private static final MulticurveProviderDiscount MULTICURVES_EUR_USD = new MulticurveProviderDiscount();
@@ -217,9 +221,9 @@ public class MulticurveProviderDiscountDataSets {
     MULTICURVES_CAD.setCurve(CADCDOR3M, CAD_FWD3);
   }
 
-  private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
   static {
-    ISSUER_CURVES.put(Pairs.of(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
+    ISSUER_CURVES.put(Pairs.of((Object) ISSUER_NAME, META), EUR_ISSUER);
   }
   private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(MULTICURVES_EUR_USD, ISSUER_CURVES);
 
@@ -380,8 +384,8 @@ public class MulticurveProviderDiscountDataSets {
     market.setCurve(AUDBB6M, AUD_FWD6);
     market.setCurve(PRICE_INDEX_EUR, PRICE_INDEX_CURVE_EUR);
     market.setCurve(PRICE_INDEX_GBP, PRICE_INDEX_CURVE_GBP);
-    market.setCurve(ISSUER_UK_GOVT, Currency.GBP, CURVE_GBP_30);
-    market.setCurve(ISSUER_US_GOVT, Currency.GBP, CURVE_USD_30);
+    market.setCurve(ISSUER_UK_GOVT, CURVE_GBP_30);
+    market.setCurve(ISSUER_US_GOVT, CURVE_USD_30);
     final ZonedDateTime spotUs = ScheduleCalculator.getAdjustedDate(pricingDate, SPOT_LAG_US, CALENDAR_USD);
     final ZonedDateTime referenceInterpolatedDate = spotUs.minusMonths(MONTH_LAG_US);
     final ZonedDateTime[] referenceDate = new ZonedDateTime[2];
@@ -503,7 +507,7 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   public static String[] getIssuerNames() {
-    return new String[] {ISSUER_US_GOVT, ISSUER_UK_GOVT, ISSUER_NAME, ISSUER_AUD_GOVT };
+    return new String[] {(String) ISSUER_US_GOVT.getKey(), (String) ISSUER_UK_GOVT.getKey(), ISSUER_NAME, (String) ISSUER_AUD_GOVT.getKey() };
   }
 
   public static Calendar getCADCalendar() {

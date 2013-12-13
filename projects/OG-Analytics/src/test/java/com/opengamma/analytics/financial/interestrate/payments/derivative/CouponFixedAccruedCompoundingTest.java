@@ -19,12 +19,14 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test of fixed accrued compounding coupon class.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedAccruedCompoundingTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -34,7 +36,7 @@ public class CouponFixedAccruedCompoundingTest {
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final double NOTIONAL = 123454321;
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Business/252");
+  private static final DayCount DAY_COUNT = DayCounts.BUSINESS_252;
 
   private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, TENOR_3M, NYC);
 

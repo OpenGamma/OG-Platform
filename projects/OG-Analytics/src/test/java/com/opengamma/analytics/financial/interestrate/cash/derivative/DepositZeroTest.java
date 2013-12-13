@@ -22,13 +22,15 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of DepositZero.
  */
+@Test(groups = TestGroup.UNIT)
 public class DepositZeroTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -43,7 +45,7 @@ public class DepositZeroTest {
   private static final InterestRate RATE = new ContinuousInterestRate(RATE_FIGURE);
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_365;
   private static final double START_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, SPOT_DATE);
   private static final double END_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, END_DATE);
   private static final double DEPOSIT_AF = DAY_COUNT.getDayCountFraction(SPOT_DATE, END_DATE);

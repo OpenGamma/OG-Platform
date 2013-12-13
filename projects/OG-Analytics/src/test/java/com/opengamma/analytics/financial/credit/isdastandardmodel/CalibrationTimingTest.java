@@ -24,10 +24,12 @@ import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * This tests the time to calibrate the yield and credit curves. By default the tests are disabled.  
  */
+@Test(groups = TestGroup.UNIT)
 public class CalibrationTimingTest extends ISDABaseTest {
 
   private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister(MersenneTwister.DEFAULT_SEED));

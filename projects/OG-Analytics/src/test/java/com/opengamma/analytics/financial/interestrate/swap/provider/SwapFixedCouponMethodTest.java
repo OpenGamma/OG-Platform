@@ -25,8 +25,13 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimplePa
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwapFixedCouponMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 11, 5);

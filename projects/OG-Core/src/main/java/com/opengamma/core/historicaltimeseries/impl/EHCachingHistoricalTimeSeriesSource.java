@@ -92,7 +92,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       }
 
       @Override
-      Object extractKey(Object _, HistoricalTimeSeries value) {
+      Object extractKey(Object ignored, HistoricalTimeSeries value) {
         return value.getUniqueId().getObjectId();
       }
     };
@@ -418,7 +418,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     final SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
     ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = ObjectsPair.of(seriesKey, subseriesKey);
 
-    Function0 fetchHts = new Function0<HistoricalTimeSeries>() {
+    Function0<HistoricalTimeSeries> fetchHts = new Function0<HistoricalTimeSeries>() {
       @Override
       public HistoricalTimeSeries execute() {
         if (maxPoints == null) {
@@ -711,7 +711,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     final SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
     ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = ObjectsPair.of(seriesKey, subseriesKey);
 
-    Function0 fetchHts = new Function0<HistoricalTimeSeries>() {
+    Function0<HistoricalTimeSeries> fetchHts = new Function0<HistoricalTimeSeries>() {
       @Override
       public HistoricalTimeSeries execute() {
         if (maxPoints == null) {

@@ -10,10 +10,13 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BlackFormulaTest {
   private static final double FORWARD = 134.5;
   private static final double T = 4.5;

@@ -18,12 +18,12 @@ public interface CurveNodeVisitor<T> {
    */
   T visitBondNode(BondNode node);
 
-//  /**
-//   * Visits a {@link CalendarSwapNode}.
-//   * @param node A calendar swap node
-//   * @return The return value
-//   */
-//  T visitCalendarSwapNode(CalendarSwapNode node);
+  /**
+   * Visits a {@link CalendarSwapNode}.
+   * @param node A calendar swap node
+   * @return The return value
+   */
+  T visitCalendarSwapNode(CalendarSwapNode node);
 
   /**
    * Visits a {@link CashNode}.

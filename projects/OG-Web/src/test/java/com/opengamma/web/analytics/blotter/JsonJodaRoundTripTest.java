@@ -24,8 +24,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -89,18 +89,18 @@ public class JsonJodaRoundTripTest {
     ZonedDateTime effectiveDate = zdt(2013, 1, 21, 11, 0, 0, 0, ZoneOffset.UTC);
     ZonedDateTime maturityDate = zdt(2013, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
     SwapLeg payLeg = new FixedInterestRateLeg(
-        DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        DayCounts.ACT_360,
         SimpleFrequency.MONTHLY,
         ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        BusinessDayConventions.FOLLOWING,
         new InterestRateNotional(Currency.GBP, 123),
         false,
         0.01);
     SwapLeg receiveLeg = new FloatingInterestRateLeg(
-        DayCountFactory.INSTANCE.getDayCount("Act/Act"),
+        DayCounts.ACT_ACT_ISDA,
         SimpleFrequency.QUARTERLY,
         ExternalId.of(ExternalSchemes.FINANCIAL, "123"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        BusinessDayConventions.MODIFIED_FOLLOWING,
         new InterestRateNotional(Currency.GBP, 234),
         false,
         ExternalId.of("Rate", "asdf"),

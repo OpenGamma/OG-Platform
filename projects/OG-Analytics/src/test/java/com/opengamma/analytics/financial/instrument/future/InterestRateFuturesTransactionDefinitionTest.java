@@ -19,11 +19,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the interest rate future security description.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFuturesTransactionDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");

@@ -35,10 +35,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LogPayoffWithDividendsTest {
 
   private static final PDE1DCoefficientsProvider PDE_PROVIDER = new PDE1DCoefficientsProvider();

@@ -421,7 +421,7 @@ public class BatchDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the paged list of main batch data, may be empty, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ViewResultEntry> getData() {
     return _data;
@@ -429,9 +429,10 @@ public class BatchDocument extends DirectBean {
 
   /**
    * Sets the paged list of main batch data, may be empty, not null.
-   * @param data  the new value of the property
+   * @param data  the new value of the property, not null
    */
   public void setData(List<ViewResultEntry> data) {
+    JodaBeanUtils.notNull(data, "data");
     this._data.clear();
     this._data.addAll(data);
   }
@@ -472,7 +473,7 @@ public class BatchDocument extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the paged list of errors, may be empty, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<BatchError> getErrors() {
     return _errors;
@@ -480,9 +481,10 @@ public class BatchDocument extends DirectBean {
 
   /**
    * Sets the paged list of errors, may be empty, not null.
-   * @param errors  the new value of the property
+   * @param errors  the new value of the property, not null
    */
   public void setErrors(List<BatchError> errors) {
+    JodaBeanUtils.notNull(errors, "errors");
     this._errors.clear();
     this._errors.addAll(errors);
   }
@@ -917,6 +919,12 @@ public class BatchDocument extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BatchDocument) bean)._data, "data");
+      JodaBeanUtils.notNull(((BatchDocument) bean)._errors, "errors");
     }
 
   }

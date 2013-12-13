@@ -35,22 +35,27 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondTransactionDiscountingMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   private static final Currency CUR = Currency.EUR;
@@ -59,8 +64,8 @@ public class BondTransactionDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   //Fixed Coupon Semi-annual 5Y
   private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
-  private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_FIXED = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(5);
   private static final int SETTLEMENT_DAYS_FIXED = 3;
@@ -103,13 +108,13 @@ public class BondTransactionDiscountingMethodTest {
       * QUANTITY_FIXED);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_3 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE);
   // Ibor coupon Quarterly 2Y
-  private static final DayCount DAY_COUNT_FRN = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_FRN = DayCounts.ACT_ACT_ISDA;
+  private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FRN = false;
   private static final Period IBOR_TENOR = Period.ofMonths(3);
-  private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
   private static final int IBOR_SPOT_LAG = 2;
-  private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IBOR_IS_EOM = false;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM, "Ibor");
   private static final Period BOND_TENOR_FRN = Period.ofYears(2);
@@ -145,7 +150,7 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettlePast() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_1, ISSUER_MULTICURVES);
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyAmount pvNominal = NOMINAL_TR_FIXED_1.accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCoupon = COUPON_TR_FIXED_1.accept(PVDC, multicurvesDecorated);
     assertEquals("Fixed bond present value", (pvNominal.getAmount(CUR) + pvCoupon.getAmount(CUR)) * QUANTITY_FIXED, pv.getAmount(CUR));
@@ -154,7 +159,7 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettleToday() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_2, ISSUER_MULTICURVES);
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyAmount pvNominal = NOMINAL_TR_FIXED_2.accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCoupon = COUPON_TR_FIXED_2.accept(PVDC, multicurvesDecorated);
     final double pvSettlement = BOND_SETTLEMENT_FIXED_2.getAmount();
@@ -164,7 +169,7 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettleFuture() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyAmount pvNominal = NOMINAL_TR_FIXED_3.accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCoupon = COUPON_TR_FIXED_3.accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvSettlement = BOND_SETTLEMENT_FIXED_3.accept(PVDC, ISSUER_MULTICURVES.getMulticurveProvider());
@@ -174,7 +179,7 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVSFixedBond() {
     final MultipleCurrencyMulticurveSensitivity pvs = METHOD_BOND_TR.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyMulticurveSensitivity pvsNominal = NOMINAL_TR_FIXED_3.accept(PVCSDC, multicurvesDecorated);
     final MultipleCurrencyMulticurveSensitivity pvsCoupon = COUPON_TR_FIXED_3.accept(PVCSDC, multicurvesDecorated);
     final MultipleCurrencyMulticurveSensitivity pvsSettlement = BOND_SETTLEMENT_FIXED_3.accept(PVCSDC, ISSUER_MULTICURVES.getMulticurveProvider());
@@ -197,7 +202,7 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testPVIborBond() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FRN, ISSUER_MULTICURVES);
-    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuer());
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyAmount pvNominal = NOMINAL_TR_1_FRN.accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCoupon = COUPON_TR_1_FRN.accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvSettlement = BOND_SETTLEMENT_FRN.accept(PVDC, multicurvesDecorated);

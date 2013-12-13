@@ -15,15 +15,20 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CouponONArithmeticAverageSpreadSimplifiedDefinitionTest {
   private static final int US_SETTLEMENT_DAYS = 2;
-  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");

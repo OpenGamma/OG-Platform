@@ -18,9 +18,12 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class IMMDateLogicTest {
 
   private static final Period[] TENORS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(10) };

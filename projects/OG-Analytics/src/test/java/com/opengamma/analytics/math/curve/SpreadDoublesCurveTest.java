@@ -16,18 +16,20 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SpreadDoublesCurveTest {
   private static final double[] X = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
   private static final double[] Y1 = new double[] {2, 4, 6, 8, 10, 12, 14, 16, 18};
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
   private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.from(X, Y1, new LinearInterpolator1D(), "a");
   private static final InterpolatedDoublesCurve INTERPOLATED2 = InterpolatedDoublesCurve.from(X, Y2, new LinearInterpolator1D(), "b");
-  private static final CurveSpreadFunction ADD = new AddCurveSpreadFunction();
-  private static final CurveSpreadFunction SUBTRACT = new SubtractCurveSpreadFunction();
+  private static final CurveSpreadFunction ADD = CurveSpreadFunctionFactory.of("+");
+  private static final CurveSpreadFunction SUBTRACT = CurveSpreadFunctionFactory.of("-");
   private static final String NAME1 = "X";
   private static final String NAME2 = "Y";
   private static final String NAME3 = "Z";

@@ -20,10 +20,12 @@ import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.model.BumpType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class IndexCDSTest extends ISDABaseTest {
 
   private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();

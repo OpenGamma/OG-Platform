@@ -207,33 +207,44 @@ public class RemoteNodeClient extends SimpleCalculationNodeInvocationContainer i
   }
 
   @Override
-  public synchronized boolean isRunning() {
-    return _started;
-  }
-
-  @Override
-  public synchronized void start() {
-    if (!_started) {
-      s_logger.info("Client starting");
-      sendCapabilities();
-      sendStaleCacheQuery();
-      _started = true;
-      s_logger.info("Client started for {}", _connection);
-      _connection.setConnectionStateListener(this);
-    } else {
-      s_logger.warn("Client already started");
+  public boolean isRunning() {
+    if (!super.isRunning()) {
+      return false;
+    }
+    synchronized (this) {
+      return _started;
     }
   }
 
   @Override
-  public synchronized void stop() {
-    if (_started) {
-      s_logger.info("Client stopped");
-      _connection.setConnectionStateListener(null);
-      _started = false;
-    } else {
-      s_logger.warn("Client already stopped");
+  public void start() {
+    super.start();
+    synchronized (this) {
+      if (!_started) {
+        s_logger.info("Client starting");
+        sendCapabilities();
+        sendStaleCacheQuery();
+        _started = true;
+        s_logger.info("Client started for {}", _connection);
+        _connection.setConnectionStateListener(this);
+      } else {
+        s_logger.warn("Client already started");
+      }
     }
+  }
+
+  @Override
+  public void stop() {
+    synchronized (this) {
+      if (_started) {
+        s_logger.info("Client stopped");
+        _connection.setConnectionStateListener(null);
+        _started = false;
+      } else {
+        s_logger.warn("Client already stopped");
+      }
+    }
+    super.stop();
   }
 
   @Override

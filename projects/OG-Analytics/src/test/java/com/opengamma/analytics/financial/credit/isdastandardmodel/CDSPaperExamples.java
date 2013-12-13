@@ -26,10 +26,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CDSPaperExamples extends ISDABaseTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final DateTimeFormatter DATE_FORMATT = DateTimeFormatter.ofPattern("dd-MMM-yy");

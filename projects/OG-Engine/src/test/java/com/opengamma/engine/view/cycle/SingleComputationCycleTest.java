@@ -34,6 +34,7 @@ import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -45,32 +46,37 @@ public class SingleComputationCycleTest {
   private static final long TIMEOUT = Timeout.standardTimeoutMillis();
 
   public void testInterruptCycle() throws InterruptedException {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    BlockingDependencyGraphExecutorFactory dgef = new BlockingDependencyGraphExecutorFactory(TIMEOUT);
-    env.setDependencyGraphExecutorFactory(dgef);
-    env.init();
+    TestLifecycle.begin();
+    try {
+      ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      BlockingDependencyGraphExecutorFactory dgef = new BlockingDependencyGraphExecutorFactory(TIMEOUT);
+      env.setDependencyGraphExecutorFactory(dgef);
+      env.init();
 
-    ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+      ViewClient client = vp.createViewClient(UserPrincipal.getTestUser());
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
 
-    BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
-    assertTrue(executor.awaitFirstRun(TIMEOUT));
+      BlockingDependencyGraphExecutor executor = dgef.getExecutorInstance();
+      assertTrue(executor.awaitFirstRun(TIMEOUT));
 
-    // We're now blocked in the execution of the initial cycle
-    assertFalse(executor.wasInterrupted());
+      // We're now blocked in the execution of the initial cycle
+      assertFalse(executor.wasInterrupted());
 
-    // Interrupting should cause everything to terminate gracefully
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
-    worker.terminate();
-    worker.join(TIMEOUT);
-    for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted(); i++) {
-      Thread.sleep(10);
+      // Interrupting should cause everything to terminate gracefully
+      ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
+      worker.terminate();
+      worker.join(TIMEOUT);
+      for (int i = 0; (i < TIMEOUT / 10) && !executor.wasInterrupted(); i++) {
+        Thread.sleep(10);
+      }
+      assertTrue(executor.wasInterrupted());
+    } finally {
+      TestLifecycle.end();
     }
-    assertTrue(executor.wasInterrupted());
   }
 
   private class BlockingDependencyGraphExecutorFactory implements DependencyGraphExecutorFactory {

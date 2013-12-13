@@ -80,7 +80,7 @@ public class DbToolContext extends DirectBean implements Closeable {
       throw new OpenGammaRuntimeException("JDBC URL must contain a slash separating the server host and the database name");
     }
     String dbServerHost = jdbcUrl.substring(0, lastSlash);
-    String catalog = jdbcUrl.substring(lastSlashIdx + 1);
+    // String catalog = jdbcUrl.substring(lastSlashIdx + 1);
 
     dbManagement.initialise(dbServerHost, user, password);
     DbToolContext dbToolContext = new DbToolContext();

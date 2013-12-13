@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MarkovChainApproxTest {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final double T = 5.0;

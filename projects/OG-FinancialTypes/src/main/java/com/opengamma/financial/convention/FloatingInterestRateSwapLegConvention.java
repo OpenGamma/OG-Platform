@@ -290,7 +290,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
   //-----------------------------------------------------------------------
   /**
    * Gets the fixing calendar.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalId> getFixingCalendars() {
     return _fixingCalendars;
@@ -298,9 +298,10 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
 
   /**
    * Sets the fixing calendar.
-   * @param fixingCalendars  the new value of the property
+   * @param fixingCalendars  the new value of the property, not null
    */
   public void setFixingCalendars(Set<ExternalId> fixingCalendars) {
+    JodaBeanUtils.notNull(fixingCalendars, "fixingCalendars");
     this._fixingCalendars.clear();
     this._fixingCalendars.addAll(fixingCalendars);
   }
@@ -394,7 +395,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
   //-----------------------------------------------------------------------
   /**
    * Gets the reset calendar.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalId> getResetCalendars() {
     return _resetCalendars;
@@ -402,9 +403,10 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
 
   /**
    * Sets the reset calendar.
-   * @param resetCalendars  the new value of the property
+   * @param resetCalendars  the new value of the property, not null
    */
   public void setResetCalendars(Set<ExternalId> resetCalendars) {
+    JodaBeanUtils.notNull(resetCalendars, "resetCalendars");
     this._resetCalendars.clear();
     this._resetCalendars.addAll(resetCalendars);
   }
@@ -769,9 +771,11 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._rateType, "rateType");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._fixingCalendars, "fixingCalendars");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._fixingBusinessDayConvention, "fixingBusinessDayConvention");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._settlementDayType, "settlementDayType");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetFrequency, "resetFrequency");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetCalendars, "resetCalendars");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetBusinessDayConvention, "resetBusinessDayConvention");
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLegConvention) bean)._resetRelativeTo, "resetRelativeTo");
       super.validate(bean);

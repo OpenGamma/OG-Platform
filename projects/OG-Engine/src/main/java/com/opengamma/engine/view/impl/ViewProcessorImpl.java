@@ -11,15 +11,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
+
+import net.sf.ehcache.util.NamedThreadFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +89,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final AtomicLong _processIdSource = new AtomicLong();
   private final AtomicLong _clientIdSource = new AtomicLong();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
-  private final Timer _clientResultTimer = new Timer("Shared ViewClient result timer");
+  private ScheduledExecutorService _clientResultTimer;
 
   private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager = new EngineResourceManagerImpl<>();
 
@@ -627,8 +630,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   private ViewProcessContext createViewProcessContext(UniqueId processId, Supplier<UniqueId> cycleIds) {
     return new ViewProcessContext(processId, _configSource, _viewPermissionProvider, _viewPortfolioPermissionProvider, _marketDataProviderFactoryResolver, _functionCompilationService,
-        _functionResolver, _computationCacheSource, _computationJobDispatcher, _viewProcessWorkerFactory, _dependencyGraphBuilderFactory, _dependencyGraphExecutorFactory, _graphExecutionStatistics,
-        _overrideOperationCompiler, _cycleManager, cycleIds, _executionCache);
+        _functionResolver, _computationCacheSource, _computationJobDispatcher, _viewProcessWorkerFactory, _dependencyGraphBuilderFactory, _dependencyGraphExecutorFactory,
+        _graphExecutionStatistics, _overrideOperationCompiler, _cycleManager, cycleIds, _executionCache);
   }
 
   private String generateIdValue(final AtomicLong source) {
@@ -658,7 +661,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return;
       }
       s_logger.info("Starting on lifecycle call.");
-
+      _clientResultTimer = Executors.newScheduledThreadPool(1, new NamedThreadFactory("Shared ViewClient result timer"));
       _viewAutoStartManager.initialize();
       for (Map.Entry<String, AutoStartViewDefinition> entry : _viewAutoStartManager.getAutoStartViews().entrySet()) {
         autoStartView(entry.getKey(), entry.getValue());
@@ -746,6 +749,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   @Override
   public void stop() {
+    final ScheduledExecutorService clientResultTimer;
     _processLock.lock();
     _lifecycleLock.lock();
     try {
@@ -763,7 +767,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         viewClient.shutdown();
       }
       _allClientsById.clear();
-
+      clientResultTimer = _clientResultTimer;
+      _clientResultTimer = null;
       _isStarted = false;
 
       // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
@@ -771,6 +776,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     } finally {
       _lifecycleLock.unlock();
       _processLock.unlock();
+    }
+    if (clientResultTimer != null) {
+      clientResultTimer.shutdown();
     }
   }
 

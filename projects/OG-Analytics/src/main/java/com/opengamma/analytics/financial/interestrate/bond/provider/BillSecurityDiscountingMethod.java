@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
@@ -55,7 +55,7 @@ public final class BillSecurityDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerEntity(), bill.getEndTime());
     return MultipleCurrencyAmount.of(bill.getCurrency(), pvBill);
   }
 
@@ -155,7 +155,7 @@ public final class BillSecurityDiscountingMethod {
   public double priceFromCurves(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerEntity(), bill.getEndTime());
     final double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
     return price;
   }
@@ -169,7 +169,7 @@ public final class BillSecurityDiscountingMethod {
   public double yieldFromCurves(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerEntity(), bill.getEndTime());
     final double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
     return yieldFromCleanPrice(bill, price);
   }
@@ -183,14 +183,14 @@ public final class BillSecurityDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    final double dfEnd = issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double dfEnd = issuer.getDiscountFactor(bill.getIssuerEntity(), bill.getEndTime());
     // Backward sweep
     final double pvBar = 1.0;
     final double dfEndBar = bill.getNotional() * pvBar;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(DoublesPair.of(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
-    resultMapCredit.put(issuer.getName(bill.getIssuerCcy()), listDiscounting);
+    resultMapCredit.put(issuer.getName(bill.getIssuerEntity()), listDiscounting);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
     return MultipleCurrencyMulticurveSensitivity.of(bill.getCurrency(), result);
   }

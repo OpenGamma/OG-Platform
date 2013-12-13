@@ -70,7 +70,8 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
     }
     final Double cleanPrice = (Double) cleanPriceObject;
     final String creditCurveName = riskFreeCurveName;
-    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName);
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, currency);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties.get());
     final YieldAndDiscountCurve riskFreeCurve = (YieldAndDiscountCurve) riskFreeCurveObject;
     final YieldCurveBundle data = new YieldCurveBundle(new String[] {riskFreeCurveName, riskFreeCurveName }, new YieldAndDiscountCurve[] {riskFreeCurve, riskFreeCurve });
@@ -79,7 +80,7 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = getResultProperties();
+    final ValueProperties.Builder properties = getResultProperties(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()));
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties.get()));
   }
 
@@ -108,7 +109,8 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
     assert curveName != null;
     final String riskFreeCurveName = curveName;
     final String creditCurveName = riskFreeCurveName;
-    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName);
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, currency);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties.get()));
   }
 
@@ -143,9 +145,14 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
 
   @Override
   protected ValueProperties.Builder getResultProperties() {
+    throw new UnsupportedOperationException();
+  }
+
+  protected ValueProperties.Builder getResultProperties(final Currency currency) {
     return createValueProperties()
         .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
         .withAny(BondFunction.PROPERTY_CREDIT_CURVE)
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
   }
 
@@ -154,15 +161,17 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
     throw new UnsupportedOperationException();
   }
 
-  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName) {
+  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final Currency currency) {
     return createValueProperties()
         .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
         .with(BondFunction.PROPERTY_CREDIT_CURVE, creditCurveName)
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
   }
 
   @Override
-  protected double getValue(final FunctionExecutionContext context, final ZonedDateTime date, final String riskFreeCurveName, final String creditCurveName, final ComputationTarget target, final YieldCurveBundle data, final double price) {
+  protected double getValue(final FunctionExecutionContext context, final ZonedDateTime date, final String riskFreeCurveName, final String creditCurveName, final ComputationTarget target,
+      final YieldCurveBundle data, final double price) {
     final Trade trade = target.getTrade();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);

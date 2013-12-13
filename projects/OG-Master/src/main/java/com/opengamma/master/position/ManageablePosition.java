@@ -416,7 +416,7 @@ public class ManageablePosition extends DirectBean
   /**
    * Gets the trades that the make up the position, not null.
    * An empty list usually means that trade data is unavailable.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ManageableTrade> getTrades() {
     return _trades;
@@ -425,9 +425,10 @@ public class ManageablePosition extends DirectBean
   /**
    * Sets the trades that the make up the position, not null.
    * An empty list usually means that trade data is unavailable.
-   * @param trades  the new value of the property
+   * @param trades  the new value of the property, not null
    */
   public void setTrades(List<ManageableTrade> trades) {
+    JodaBeanUtils.notNull(trades, "trades");
     this._trades.clear();
     this._trades.addAll(trades);
   }
@@ -456,9 +457,10 @@ public class ManageablePosition extends DirectBean
    * Sets the general purpose position attributes.
    * These can be used to add arbitrary additional information to the object
    * and for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -799,6 +801,7 @@ public class ManageablePosition extends DirectBean
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((ManageablePosition) bean)._securityLink, "securityLink");
+      JodaBeanUtils.notNull(((ManageablePosition) bean)._trades, "trades");
       JodaBeanUtils.notNull(((ManageablePosition) bean)._attributes, "attributes");
     }
 

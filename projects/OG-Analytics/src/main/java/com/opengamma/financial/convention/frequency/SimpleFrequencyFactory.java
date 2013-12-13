@@ -62,7 +62,7 @@ public final class SimpleFrequencyFactory
     addInstance(SimpleFrequency.TWENTY_EIGHT_DAYS, "28d");
     addInstance(SimpleFrequency.BIWEEKLY, "2w");
     addInstance(SimpleFrequency.WEEKLY, "1w");
-    addInstance(SimpleFrequency.DAILY);
+    addInstance(SimpleFrequency.DAILY, "1d");
     addInstance(SimpleFrequency.CONTINUOUS);
     addInstance(SimpleFrequency.FOUR_MONTHS);
     addInstance(SimpleFrequency.FIVE_MONTHS);

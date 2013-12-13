@@ -14,9 +14,9 @@ import org.threeten.bp.LocalTime;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.util.money.Currency;
@@ -29,8 +29,8 @@ public class CHConventions extends ConventionMasterInitializer {
   /** Singleton. */
   public static final ConventionMasterInitializer INSTANCE = new CHConventions();
 
-  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   private static final ExternalId CH = ExternalSchemes.financialRegionId("CH");
   private static final ExternalId CHGB = ExternalSchemes.financialRegionId("CH+GB");
 

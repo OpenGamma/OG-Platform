@@ -11,11 +11,13 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test FlatDayCount.
  */
+@Test(groups = TestGroup.UNIT)
 public class FlatDayCountTest {
 
   private static final FlatDayCount DC = new FlatDayCount();

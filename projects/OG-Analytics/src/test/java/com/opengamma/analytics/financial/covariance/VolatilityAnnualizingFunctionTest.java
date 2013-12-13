@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilityAnnualizingFunctionTest {
   private static final double DAYS_PER_YEAR = 360;
   private static final double WORKING_DAYS_PER_YEAR = 250;

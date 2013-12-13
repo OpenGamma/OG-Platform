@@ -45,13 +45,18 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborSABRMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -152,12 +157,12 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   @Test
   public void testPresentValueConventionArbitrage() {
     final double rate360 = 0.0360;
-    final IndexSwap index360 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/360"), EURIBOR6M, ANNUITY_TENOR, CALENDAR);
+    final IndexSwap index360 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCounts.ACT_360, EURIBOR6M, ANNUITY_TENOR, CALENDAR);
     final SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, true, CALENDAR);
     final SwaptionPhysicalFixedIborDefinition swaption360Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap360, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption360 = swaption360Definition.toDerivative(REFERENCE_DATE);
     final double rate365 = 0.0365;
-    final IndexSwap index365 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/365"), EURIBOR6M, ANNUITY_TENOR, CALENDAR);
+    final IndexSwap index365 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCounts.ACT_365, EURIBOR6M, ANNUITY_TENOR, CALENDAR);
     final SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, true, CALENDAR);
     final SwaptionPhysicalFixedIborDefinition swaption365Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap365, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption365 = swaption365Definition.toDerivative(REFERENCE_DATE);

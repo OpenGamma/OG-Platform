@@ -69,7 +69,7 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
   /**
    * Gets the list if valid holiday types.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<HolidayType> getHolidayTypes() {
     return _holidayTypes;
@@ -78,9 +78,10 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
   /**
    * Sets the list if valid holiday types.
    * This is only populated if requested.
-   * @param holidayTypes  the new value of the property
+   * @param holidayTypes  the new value of the property, not null
    */
   public void setHolidayTypes(List<HolidayType> holidayTypes) {
+    JodaBeanUtils.notNull(holidayTypes, "holidayTypes");
     this._holidayTypes.clear();
     this._holidayTypes.addAll(holidayTypes);
   }
@@ -220,6 +221,12 @@ public class HolidayMetaDataResult extends AbstractMetaDataResult {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HolidayMetaDataResult) bean)._holidayTypes, "holidayTypes");
+      super.validate(bean);
     }
 
   }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve;
 
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -53,6 +54,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
 
   @Override
   public T visitBondNode(final BondNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
+  public T visitCalendarSwapNode(CalendarSwapNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 

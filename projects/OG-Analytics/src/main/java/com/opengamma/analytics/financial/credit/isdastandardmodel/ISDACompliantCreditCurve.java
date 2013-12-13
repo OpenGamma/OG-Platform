@@ -22,11 +22,15 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class ISDACompliantCreditCurve extends ISDACompliantCurve {
 
-  public static ISDACompliantCreditCurve makeFromRT(final double[] t, final double[] rt) {
+  public static ISDACompliantCreditCurve makeFromForwardRates(final double[] t, final double[] fwd) {
+    return new ISDACompliantCreditCurve(ISDACompliantCurve.makeFromForwardRates(t, fwd));
+  }
+
+  public static ISDACompliantCreditCurve makeFromRT(final double[] t, final double[] ht) {
     ArgumentChecker.notEmpty(t, "t");
-    ArgumentChecker.notEmpty(rt, "rt");
-    ArgumentChecker.isTrue(t.length == rt.length, "length of t not equal to length of rt");
-    return new ISDACompliantCreditCurve(new ISDACompliantCurve(new double[][] {t, rt }));
+    ArgumentChecker.notEmpty(ht, "ht");
+    ArgumentChecker.isTrue(t.length == ht.length, "length of t not equal to length of rt");
+    return new ISDACompliantCreditCurve(new ISDACompliantCurve(new double[][] {t, ht }));
   }
 
   /**

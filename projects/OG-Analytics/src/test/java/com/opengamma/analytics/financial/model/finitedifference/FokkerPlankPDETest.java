@@ -21,10 +21,12 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Project forward the density for a stock price using the Fokker-Plank equation and use the result to price a call option
  */
+@Test(groups = TestGroup.UNIT)
 public class FokkerPlankPDETest {
 
   private static final PDE1DCoefficientsProvider PDE_DATA_PROVIDER = new PDE1DCoefficientsProvider();

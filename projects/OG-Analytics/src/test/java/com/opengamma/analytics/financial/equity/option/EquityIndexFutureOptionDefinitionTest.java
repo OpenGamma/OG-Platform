@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDef
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EquityIndexFutureOptionDefinitionTest {
   private static final boolean IS_CALL = false;
   private static final double STRIKE = 100;

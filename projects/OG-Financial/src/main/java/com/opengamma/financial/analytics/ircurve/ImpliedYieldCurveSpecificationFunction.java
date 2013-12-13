@@ -40,7 +40,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -56,7 +56,7 @@ public class ImpliedYieldCurveSpecificationFunction extends AbstractFunction {
   private final ComputationTargetSpecification _targetSpec;
   private ValueSpecification _resultSpec;
   private static final LocalTime CASH_EXPIRY_TIME = LocalTime.of(11, 00);
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Act/Act");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
 
   public ImpliedYieldCurveSpecificationFunction(final String currency, final String curveDefinitionName) {
     this(Currency.of(currency), curveDefinitionName);

@@ -22,11 +22,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Federal Funds Futures transactions.
  */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureTransactionDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

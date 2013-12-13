@@ -19,10 +19,12 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   //TODO test start date = holiday
   private static final LocalDate START = LocalDate.of(2009, 1, 1);

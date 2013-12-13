@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedGammaCS01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -59,13 +60,14 @@ public class ISDACDXAsSingleNameBucketedGammaCS01Function extends ISDACDXAsSingl
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic,
+                                                Tenor[] tenors) {
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
     final double[] gammaCS01 = new double[times.length];
     final LocalDate[] dates = new LocalDate[times.length];
-    StandardVanillaBucketedGammaCS01CDSFunction.bucketedGammaCS01(definition, yieldCurve, times, marketSpreads, hazardCurve, analytic, spreadCurveBump, spreadBumpType, gammaCS01, dates);
+    StandardVanillaBucketedGammaCS01CDSFunction.bucketedGammaCS01(definition, yieldCurve, times, marketSpreads, hazardCurve, analytic, spreadCurveBump, spreadBumpType, gammaCS01, dates, tenors);
     final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, gammaCS01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_GAMMA_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));

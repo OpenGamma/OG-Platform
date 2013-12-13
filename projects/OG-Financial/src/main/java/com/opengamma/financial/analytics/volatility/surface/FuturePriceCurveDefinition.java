@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -87,7 +87,6 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @param <X>  the type
    * @return the builder, not null
    */
@@ -237,7 +236,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -323,7 +322,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
   /**
    * The bean-builder for {@code FuturePriceCurveDefinition}.
    */
-  public static final class Builder<X> extends BasicImmutableBeanBuilder<FuturePriceCurveDefinition<X>> {
+  public static final class Builder<X> extends DirectFieldsBeanBuilder<FuturePriceCurveDefinition<X>> {
 
     private String _name;
     private UniqueIdentifiable _target;
@@ -333,7 +332,6 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(FuturePriceCurveDefinition.Meta.INSTANCE);
     }
 
     /**
@@ -341,7 +339,6 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(FuturePriceCurveDefinition<X> beanToCopy) {
-      super(FuturePriceCurveDefinition.Meta.INSTANCE);
       this._name = beanToCopy.getName();
       this._target = beanToCopy.getTarget();
       this._xs = new ArrayList<X>(beanToCopy.getXs());
@@ -364,6 +361,30 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder<X> set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder<X> setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder<X> setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder<X> setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -414,9 +435,9 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("FuturePriceCurveDefinition.Builder{");
-      buf.append("name").append('=').append(_name).append(',').append(' ');
-      buf.append("target").append('=').append(_target).append(',').append(' ');
-      buf.append("xs").append('=').append(_xs);
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
+      buf.append("target").append('=').append(JodaBeanUtils.toString(_target)).append(',').append(' ');
+      buf.append("xs").append('=').append(JodaBeanUtils.toString(_xs));
       buf.append('}');
       return buf.toString();
     }

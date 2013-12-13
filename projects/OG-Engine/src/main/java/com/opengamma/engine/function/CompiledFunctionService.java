@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
@@ -28,7 +29,7 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * Combines a function repository and compiler to give access to compiled functions.
  */
-public class CompiledFunctionService {
+public class CompiledFunctionService implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CompiledFunctionService.class);
 
@@ -38,7 +39,12 @@ public class CompiledFunctionService {
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<FunctionDefinition> _reinitializingFunctionDefinitions;
   private Set<ObjectId> _reinitializingFunctionRequirements;
-  private PoolExecutor _executorService;
+  /**
+   * A pool executor for general use by the engine. This should be used for tasks that should saturate the available processors.
+   * <p>
+   * This is not null unless the service has been shutdown.
+   */
+  private volatile PoolExecutor _executorService;
   private final FunctionReinitializer _reinitializer = new FunctionReinitializer() {
 
     @Override
@@ -57,15 +63,27 @@ public class CompiledFunctionService {
 
   };
 
-  public CompiledFunctionService(final FunctionRepository functionRepository,
-      final FunctionRepositoryCompiler functionRepositoryCompiler, final FunctionCompilationContext functionCompilationContext) {
+  private static PoolExecutor createExecutorService() {
+    return new PoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 1), "CFS");
+  }
+
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext) {
+    this(functionRepository, functionRepositoryCompiler, functionCompilationContext, createExecutorService());
+   
+  }
+  
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, 
+      final FunctionCompilationContext functionCompilationContext, PoolExecutor executorService) {
     ArgumentChecker.notNull(functionRepository, "functionRepository");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
+    ArgumentChecker.notNull(executorService, "executorService");
+    
     _rawFunctionRepository = functionRepository;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
-    _executorService = new PoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 1), "CFS");
+    _executorService = executorService;
   }
 
   private static final class StaticFunctionRepository implements FunctionRepository {
@@ -272,14 +290,35 @@ public class CompiledFunctionService {
     return _executorService;
   }
 
-  public void setExecutorService(PoolExecutor executor) {
-    ArgumentChecker.notNull(executor, "executor");
-    _executorService = executor;
-  }
-
   @Override
   public CompiledFunctionService clone() {
     return new CompiledFunctionService(getFunctionRepository(), getFunctionRepositoryCompiler(), getFunctionCompilationContext().clone());
+  }
+
+  // Lifecycle
+
+  @Override
+  public synchronized void start() {
+    if (_executorService == null) {
+      _executorService = createExecutorService();
+    }
+  }
+
+  @Override
+  public void stop() {
+    final PoolExecutor executor;
+    synchronized (this) {
+      executor = _executorService;
+      _executorService = null;
+    }
+    if (executor != null) {
+      executor.stop();
+    }
+  }
+
+  @Override
+  public boolean isRunning() {
+    return _executorService != null;
   }
 
 }

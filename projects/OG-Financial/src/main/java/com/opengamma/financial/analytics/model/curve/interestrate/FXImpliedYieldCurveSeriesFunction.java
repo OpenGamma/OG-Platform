@@ -39,7 +39,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -106,7 +105,7 @@ import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
@@ -134,7 +133,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
   /** Calculates the sensitivity of the par rate to the curves */
   private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   /** The business day convention used for FX forward dates computation **/
-  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   @Override
   public void init(final FunctionCompilationContext context) {

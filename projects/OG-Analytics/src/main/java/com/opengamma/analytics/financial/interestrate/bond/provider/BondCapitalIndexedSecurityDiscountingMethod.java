@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
@@ -23,7 +23,6 @@ import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * Pricing method for inflation bond. The price is computed by index estimation and discounting.
@@ -54,7 +53,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), Pairs.of(bond.getIssuer(), bond.getCurrency()));
+    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), bond.getIssuerEntity());
     final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, creditDiscounting);
     final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, creditDiscounting);
     return pvNominal.plus(pvCoupon);
@@ -167,7 +166,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public MultipleCurrencyInflationSensitivity presentValueCurveSensitivity(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), Pairs.of(bond.getIssuer(), bond.getCurrency()));
+    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), bond.getIssuerEntity());
     final MultipleCurrencyInflationSensitivity sensitivityNominal = bond.getNominal().accept(PVCSIC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity sensitivityCoupon = bond.getCoupon().accept(PVCSIC, creditDiscounting);
     return sensitivityNominal.plus(sensitivityCoupon);

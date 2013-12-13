@@ -14,7 +14,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
-import com.opengamma.analytics.financial.obligor.ObligorWithREDCode;
+import com.opengamma.analytics.financial.legalentity.LegalEntityWithREDCode;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.test.TestGroup;
 
@@ -239,13 +239,14 @@ public class ObligorTest {
   @Test
   public void testDelegate() {
     final Obligor obligor = new Obligor(TICKER, SHORT_NAME, RED_CODE, COMPOSITE_RATING, IMPLIED_RATING, MOODYS, SANDP, FITCH, DEFAULTED, SECTOR, REGION, COUNTRY);
-    final Set<com.opengamma.analytics.financial.obligor.CreditRating> creditRatings = new HashSet<>();
+    final Set<com.opengamma.analytics.financial.legalentity.CreditRating> creditRatings = new HashSet<>();
     creditRatings.add(COMPOSITE_RATING.toCreditRating());
     creditRatings.add(IMPLIED_RATING.toCreditRating());
     creditRatings.add(MOODYS.toCreditRating());
     creditRatings.add(SANDP.toCreditRating());
     creditRatings.add(FITCH.toCreditRating());
-    final com.opengamma.analytics.financial.obligor.ObligorWithREDCode expected = new ObligorWithREDCode(TICKER, SHORT_NAME, creditRatings, SECTOR.toSector(), REGION.toRegion(), Country.of(COUNTRY), RED_CODE);
+    final com.opengamma.analytics.financial.legalentity.LegalEntityWithREDCode expected = new LegalEntityWithREDCode(TICKER, SHORT_NAME, creditRatings, SECTOR.toSector(),
+        com.opengamma.analytics.financial.legalentity.Region.of(Region.NORTHAMERICA.name(), Country.of(COUNTRY), null), RED_CODE);
     assertEquals(expected, obligor.toObligor());
   }
 }

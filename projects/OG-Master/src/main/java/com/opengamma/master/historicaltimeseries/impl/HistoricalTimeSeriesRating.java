@@ -20,7 +20,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -138,7 +138,6 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static HistoricalTimeSeriesRating.Builder builder() {
@@ -237,7 +236,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -298,7 +297,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
   /**
    * The bean-builder for {@code HistoricalTimeSeriesRating}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<HistoricalTimeSeriesRating> {
+  public static final class Builder extends DirectFieldsBeanBuilder<HistoricalTimeSeriesRating> {
 
     private Set<HistoricalTimeSeriesRatingRule> _rules = new HashSet<HistoricalTimeSeriesRatingRule>();
 
@@ -306,7 +305,6 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(HistoricalTimeSeriesRating.Meta.INSTANCE);
     }
 
     /**
@@ -314,7 +312,6 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(HistoricalTimeSeriesRating beanToCopy) {
-      super(HistoricalTimeSeriesRating.Meta.INSTANCE);
       this._rules = new HashSet<HistoricalTimeSeriesRatingRule>(beanToCopy.getRules());
     }
 
@@ -329,6 +326,30 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -355,7 +376,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("HistoricalTimeSeriesRating.Builder{");
-      buf.append("rules").append('=').append(_rules);
+      buf.append("rules").append('=').append(JodaBeanUtils.toString(_rules));
       buf.append('}');
       return buf.toString();
     }

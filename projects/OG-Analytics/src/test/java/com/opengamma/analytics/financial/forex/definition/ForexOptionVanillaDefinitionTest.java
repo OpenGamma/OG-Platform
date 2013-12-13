@@ -16,13 +16,15 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of vanilla Forex options (definition version).
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;
@@ -111,7 +113,7 @@ public class ForexOptionVanillaDefinitionTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
     final InstrumentDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate, curves_name);
     final Forex fx = FX_DEFINITION.toDerivative(referenceDate, curves_name);
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);
     final ForexOptionVanilla optionConstructed = new ForexOptionVanilla(fx, expirationTime, IS_CALL, IS_LONG);
     assertEquals("Convertion to derivative", optionConstructed, optionConverted);
@@ -125,7 +127,7 @@ public class ForexOptionVanillaDefinitionTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
     final InstrumentDerivative optionConverted = FX_OPTION_DEFINITION.toDerivative(referenceDate);
     final Forex fx = FX_DEFINITION.toDerivative(referenceDate);
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double expirationTime = actAct.getDayCountFraction(referenceDate, EXPIRATION_DATE);
     final ForexOptionVanilla optionConstructed = new ForexOptionVanilla(fx, expirationTime, IS_CALL, IS_LONG);
     assertEquals("Convertion to derivative", optionConstructed, optionConverted);

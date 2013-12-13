@@ -115,7 +115,7 @@ public abstract class UidsResult extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the documents, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<UniqueId> getUids() {
     return _uids;
@@ -123,9 +123,10 @@ public abstract class UidsResult extends DirectBean {
 
   /**
    * Sets the documents, not null.
-   * @param uids  the new value of the property
+   * @param uids  the new value of the property, not null
    */
   public void setUids(List<UniqueId> uids) {
+    JodaBeanUtils.notNull(uids, "uids");
     this._uids.clear();
     this._uids.addAll(uids);
   }
@@ -295,6 +296,11 @@ public abstract class UidsResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((UidsResult) bean)._uids, "uids");
     }
 
   }

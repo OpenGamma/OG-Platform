@@ -17,10 +17,12 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ZeroValueDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ZeroValueDoubleTimeSeriesFilter SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter();

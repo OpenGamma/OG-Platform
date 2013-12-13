@@ -40,6 +40,7 @@ public class EquityFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(EquityForwardCurveFunction.class));
     functions.add(functionConfiguration(EquityForwardCurveFromFutureCurveFunction.class));
     functions.add(functionConfiguration(SecurityMarketPriceFunction.class));
+    functions.add(functionConfiguration(SecurityMarkCurrentFunction.class));
     functions.add(functionConfiguration(UnderlyingMarketPriceFunction.class));
     functions.add(functionConfiguration(EquitySecurityDeltaFunction.class));
     functions.add(functionConfiguration(EquitySecurityValueDeltaFunction.class));

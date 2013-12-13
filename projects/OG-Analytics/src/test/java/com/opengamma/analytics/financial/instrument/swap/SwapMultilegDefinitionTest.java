@@ -29,11 +29,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the swaps with multiple legs constructor and to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapMultilegDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TRAGET");

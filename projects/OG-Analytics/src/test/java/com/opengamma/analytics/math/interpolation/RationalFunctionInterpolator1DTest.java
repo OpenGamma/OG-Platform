@@ -15,10 +15,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
   private static final Function1D<Double, Double> F = new RealPolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});

@@ -11,9 +11,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MatlabTest extends ISDABaseTest {
 
   private static final CDSAnalyticFactory FACTORY = new CDSAnalyticFactory();

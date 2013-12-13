@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class LeastSquareSmileFitterTestCase {
   //  static final double VARIANCE = 0.3;
   static final double T = 1.3;

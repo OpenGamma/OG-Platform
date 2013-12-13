@@ -38,13 +38,15 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final OrganizationSource _orgSource;
+  private final ZonedDateTime _vaulationTime;
 
   public CreditDefaultIndexSwapSecurityToProxyConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource,
-                                                        final SecuritySource securitySource) {
+                                                        final SecuritySource securitySource, final ZonedDateTime valuationTime) {
     _securitySource = securitySource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _orgSource = organizationSource;
+    _vaulationTime = valuationTime;
 
   }
 
@@ -59,7 +61,7 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
       throw new OpenGammaRuntimeException("Underlying index definition not found: " + referenceEntity);
     }
     final double recoveryRate = indexDef.getRecoveryRate();
-    CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(_holidaySource, _regionSource, _orgSource, recoveryRate);
+    CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(_holidaySource, _regionSource, _orgSource, recoveryRate, _vaulationTime);
     final DebtSeniority debtSeniority = DebtSeniority.NONE;
     final RestructuringClause restructuringClause = RestructuringClause.NONE;
     final ZonedDateTime startDate = security.getStartDate();

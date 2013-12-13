@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -27,6 +28,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 @Deprecated
 @SuppressWarnings("unused")
+@Test(groups = TestGroup.UNIT)
 public class CoupledFokkerPlankPDEtest {
 
   private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();

@@ -34,6 +34,8 @@ public class RedisConnector implements Connector {
   
   private final JedisPoolConfig _jedisPoolConfig;
   
+  private final int _timeOut;
+  
   /**
    * Creates an instance.
    *  
@@ -54,7 +56,7 @@ public class RedisConnector implements Connector {
    * @param password the redis server password, may be null
    */
   public RedisConnector(final String name, final String host, final int port, String password) {
-    this(name, host, port, password, new JedisPoolConfig());
+    this(name, host, port, password, new JedisPoolConfig(), Protocol.DEFAULT_TIMEOUT);
   }
 
   /**
@@ -66,7 +68,7 @@ public class RedisConnector implements Connector {
    * @param config the redis pool config, not null
    */
   public RedisConnector(final String name, final String host, final int port, final JedisPoolConfig config) {
-    this(name, host, port, null, config);
+    this(name, host, port, null, config, Protocol.DEFAULT_TIMEOUT);
   }
 
   /**
@@ -77,22 +79,27 @@ public class RedisConnector implements Connector {
    * @param port  the redis server port, not null
    * @param password the redis server password. may be null
    * @param config the redis pool config, not null
+   * @param timeOut the time out in millisecond, not null
    */
-  public RedisConnector(final String name, final String host, final int port, final String password, final JedisPoolConfig config) {
+  public RedisConnector(final String name, final String host, final int port, final String password, final JedisPoolConfig config, final int timeOut) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(host, "redisServer");
     ArgumentChecker.notNull(port, "port");
     ArgumentChecker.notNull(config, "jedis pool config");
+    ArgumentChecker.notNull(timeOut, "timeOut");
+    
     _name = name;
     _host = host;
     _port = port;
     _password = password;
     _jedisPoolConfig = config;
+    _timeOut = timeOut;
+    
     JedisPool pool = null;
     if (password == null) {
-      pool = new JedisPool(config, _host, _port);
+      pool = new JedisPool(config, _host, _port, _timeOut);
     } else {
-      pool = new JedisPool(config, _host, _port, Protocol.DEFAULT_TIMEOUT, _password);
+      pool = new JedisPool(config, _host, _port, _timeOut, _password);
     }
     _jedisPool = pool;
   }
@@ -135,6 +142,14 @@ public class RedisConnector implements Connector {
     return _jedisPool;
   }
   
+  /**
+   * Gets the timeOut.
+   * @return the timeOut
+   */
+  public int getTimeOut() {
+    return _timeOut;
+  }
+
   /**
    * Gets the jedisPoolConfig.
    * @return the jedisPoolConfig

@@ -8,11 +8,14 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRConjugateGradientLeastSquareFitterTest extends LeastSquareSmileFitterTestCase {
+
   private static final SABRConjugateGradientLeastSquareFitter FITTER = new SABRConjugateGradientLeastSquareFitter(new SABRHaganVolatilityFunction());
   private static final double[] INITIAL_VALUES = new double[] {0.5, 1, 0.2, 0};
 

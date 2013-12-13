@@ -38,7 +38,9 @@ public enum InterestRateInstrumentType {
   SWAP_FIXED_CMS,
   /** A swap, one ibor leg, one CMS leg */
   SWAP_IBOR_CMS,
-  /** A swap, two CMS legs */
+  /** A swap, one ibor leg, one CMS leg */
+  SWAP_IBOR_OIS,
+  /** A swap, one ibor leg, one OIS leg */
   SWAP_CMS_CMS,
   /** A swap, one fixed leg, one OIS leg */
   SWAP_FIXED_OIS,

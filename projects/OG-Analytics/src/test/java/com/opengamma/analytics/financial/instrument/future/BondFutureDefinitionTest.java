@@ -18,27 +18,29 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to bond futures security Definition construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFutureDefinitionTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.EUR;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -162,7 +164,7 @@ public class BondFutureDefinitionTest {
     final ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double lastTradingTime = actAct.getDayCountFraction(referenceDate, LAST_TRADING_DATE);
     final double firstNoticeTime = actAct.getDayCountFraction(referenceDate, FIRST_NOTICE_DATE);
     final double lastNoticeTime = actAct.getDayCountFraction(referenceDate, LAST_NOTICE_DATE);
@@ -189,7 +191,7 @@ public class BondFutureDefinitionTest {
     final ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final double lastTradingTime = actAct.getDayCountFraction(referenceDate, LAST_TRADING_DATE);
     final double firstNoticeTime = actAct.getDayCountFraction(referenceDate, FIRST_NOTICE_DATE);
     final double lastNoticeTime = actAct.getDayCountFraction(referenceDate, LAST_NOTICE_DATE);

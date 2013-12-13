@@ -23,10 +23,12 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantC
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.PremiumLegElement;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.ProtectionLegElement;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ProtectionLegElementTest extends ISDABaseTest {
 
   @Test

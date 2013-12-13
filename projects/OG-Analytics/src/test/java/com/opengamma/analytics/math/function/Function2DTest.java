@@ -7,9 +7,12 @@ package com.opengamma.analytics.math.function;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Function2DTest {
   private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
 

@@ -41,6 +41,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public CompiledViewDefinitionImpl(final VersionCorrection versionCorrection, final String identifier, final ViewDefinition viewDefinition, final Portfolio portfolio,
       final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations, final Instant earliestValidity, final Instant latestValidity) {
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    assert !versionCorrection.containsLatest();
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(viewDefinition, "viewDefinition");
     ArgumentChecker.notNull(compiledCalculationConfigurations, "compiledCalculationConfigurations");

@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.test;
 
-import java.util.concurrent.Executors;
-
 import org.fudgemsg.FudgeContext;
 import org.threeten.bp.Instant;
 
@@ -60,6 +58,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.LogBridge;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Provides access to a ready-made and customisable view processing environment for testing.
@@ -112,6 +111,7 @@ public class ViewProcessorTestEnvironment {
 
     final FunctionRepository functionRepository = getFunctionRepository() != null ? getFunctionRepository() : generateFunctionRepository();
     final CompiledFunctionService compiledFunctions = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), functionCompilationContext);
+    TestLifecycle.register(compiledFunctions);
     compiledFunctions.initialize();
     vpFactBean.setFunctionCompilationService(compiledFunctions);
 
@@ -128,24 +128,24 @@ public class ViewProcessorTestEnvironment {
 
     final ThreadLocalLogEventListener threadLocalLogListener = new ThreadLocalLogEventListener();
     LogBridge.getInstance().addListener(threadLocalLogListener);
-    final SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, "node", Executors.newCachedThreadPool(),
+    final SimpleCalculationNode localCalcNode = new SimpleCalculationNode(cacheSource, compiledFunctions, functionExecutionContext, "node", null,
         new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(threadLocalLogListener));
     final LocalNodeJobInvoker jobInvoker = new LocalNodeJobInvoker(localCalcNode);
+    TestLifecycle.register(jobInvoker);
     vpFactBean.setComputationJobDispatcher(new JobDispatcher(jobInvoker));
     vpFactBean.setFunctionResolver(generateFunctionResolver(compiledFunctions));
     vpFactBean.setViewResultListenerFactory(_viewResultListenerFactory);
     _viewProcessor = (ViewProcessorImpl) vpFactBean.createObject();
+    _viewProcessor.start();
+    TestLifecycle.register(_viewProcessor);
   }
 
   public CompiledViewDefinitionWithGraphsImpl compileViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
     if (getViewProcessor() == null) {
       throw new IllegalStateException(ViewProcessorTestEnvironment.class.getName() + " has not been initialised");
     }
-    final ViewCompilationServices compilationServices = new ViewCompilationServices(
-        getMarketDataProvider().getAvailabilityProvider(MarketData.live()),
-        getFunctionResolver(),
-        getFunctionCompilationContext(),
-        getViewProcessor().getFunctionCompilationService().getExecutorService(),
+    final ViewCompilationServices compilationServices = new ViewCompilationServices(getMarketDataProvider().getAvailabilityProvider(MarketData.live()), getFunctionResolver(),
+        getFunctionCompilationContext(), getViewProcessor().getFunctionCompilationService().getExecutorService(),
         (getDependencyGraphBuilderFactory() != null) ? getDependencyGraphBuilderFactory() : generateDependencyGraphBuilderFactory());
     return ViewDefinitionCompiler.compile(getViewDefinition(), compilationServices, valuationTime, versionCorrection);
   }

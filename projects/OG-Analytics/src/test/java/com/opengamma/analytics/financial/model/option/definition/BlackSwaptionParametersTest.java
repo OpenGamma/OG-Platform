@@ -21,7 +21,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BlackSwaptionParametersTest {
 
   /**

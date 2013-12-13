@@ -129,7 +129,7 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   //-----------------------------------------------------------------------
   /**
    * Gets the documents, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<D> getDocuments() {
     return _documents;
@@ -137,9 +137,10 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
 
   /**
    * Sets the documents, not null.
-   * @param documents  the new value of the property
+   * @param documents  the new value of the property, not null
    */
   public void setDocuments(List<D> documents) {
+    JodaBeanUtils.notNull(documents, "documents");
     this._documents.clear();
     this._documents.addAll(documents);
   }
@@ -312,6 +313,11 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractDocumentsResult<?>) bean)._documents, "documents");
     }
 
   }

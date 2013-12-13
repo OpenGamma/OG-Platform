@@ -13,7 +13,7 @@ import java.util.List;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ISDACompliantScheduleGenerator {
 
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT365 = DayCounts.ACT_365;
 
   /**
    * This mimics JpmcdsRiskyTimeLine from the ISDA model in c

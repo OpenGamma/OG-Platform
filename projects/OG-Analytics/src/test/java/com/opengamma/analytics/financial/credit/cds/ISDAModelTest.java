@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -24,10 +25,12 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests of the RiskCare implementation of the ISDA CDS model
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDAModelTest {
 
   // -----------------------------------------------------------------------------------------------------------
@@ -77,7 +80,7 @@ public class ISDAModelTest {
 
   // -----------------------------------------------------------------------------------------------------------
 
-  //@Test
+  @Test(enabled = false)
   @SuppressWarnings("deprecation")
   public void testISDAModel() {
 

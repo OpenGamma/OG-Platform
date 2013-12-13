@@ -16,7 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -75,7 +75,6 @@ public final class YieldCurvePointShift implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static YieldCurvePointShift.Builder builder() {
@@ -218,7 +217,7 @@ public final class YieldCurvePointShift implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -303,7 +302,7 @@ public final class YieldCurvePointShift implements ImmutableBean {
   /**
    * The bean-builder for {@code YieldCurvePointShift}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<YieldCurvePointShift> {
+  public static final class Builder extends DirectFieldsBeanBuilder<YieldCurvePointShift> {
 
     private double _year;
     private double _shift;
@@ -313,7 +312,6 @@ public final class YieldCurvePointShift implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(YieldCurvePointShift.Meta.INSTANCE);
     }
 
     /**
@@ -321,7 +319,6 @@ public final class YieldCurvePointShift implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(YieldCurvePointShift beanToCopy) {
-      super(YieldCurvePointShift.Meta.INSTANCE);
       this._year = beanToCopy.getYear();
       this._shift = beanToCopy.getShift();
       this._shiftType = beanToCopy.getShiftType();
@@ -343,6 +340,30 @@ public final class YieldCurvePointShift implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -390,9 +411,9 @@ public final class YieldCurvePointShift implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("YieldCurvePointShift.Builder{");
-      buf.append("year").append('=').append(_year).append(',').append(' ');
-      buf.append("shift").append('=').append(_shift).append(',').append(' ');
-      buf.append("shiftType").append('=').append(_shiftType);
+      buf.append("year").append('=').append(JodaBeanUtils.toString(_year)).append(',').append(' ');
+      buf.append("shift").append('=').append(JodaBeanUtils.toString(_shift)).append(',').append(' ');
+      buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType));
       buf.append('}');
       return buf.toString();
     }

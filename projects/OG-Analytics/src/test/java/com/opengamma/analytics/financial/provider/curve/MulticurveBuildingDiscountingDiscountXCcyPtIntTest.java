@@ -76,6 +76,7 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -83,6 +84,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Multi-currency curve calibration process. Tests the difference between forward points interpolation and yield curve interpolation.
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountXCcyPtIntTest {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,

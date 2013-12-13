@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -67,11 +67,11 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   /**
    * The preceding business day convention.
    */
-  private static final BusinessDayConvention BUSINESS_DAY_PRECEDING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  private static final BusinessDayConvention BUSINESS_DAY_PRECEDING = BusinessDayConventions.PRECEDING;
   /**
    * The following business day convention.
    */
-  private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventions.FOLLOWING;
 
   /** Constructor from all details.
    * @param lastTradingDate The future last trading date. Usually the last business day of the month.

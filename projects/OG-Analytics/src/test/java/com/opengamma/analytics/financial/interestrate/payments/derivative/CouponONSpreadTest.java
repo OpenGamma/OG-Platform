@@ -18,19 +18,21 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimpli
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the coupon overnight-indexed with spread derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONSpreadTest {
 
   private static final int EUR_SETTLEMENT_DAYS = 2;
-  private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean EUR_IS_EOM = true;
 
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");

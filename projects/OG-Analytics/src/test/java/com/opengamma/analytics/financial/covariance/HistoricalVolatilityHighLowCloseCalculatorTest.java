@@ -14,10 +14,12 @@ import com.opengamma.analytics.financial.timeseries.returns.SimpleNetRelativeTim
 import com.opengamma.analytics.financial.timeseries.returns.SimpleNetTimeSeriesReturnCalculator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HistoricalVolatilityHighLowCloseCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
   private static final HistoricalVolatilityCalculator CALCULATOR = new HistoricalVolatilityHighLowCloseCalculator(RETURN_CALCULATOR, RELATIVE_RETURN_CALCULATOR);
 

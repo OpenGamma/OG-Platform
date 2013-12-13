@@ -19,11 +19,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultiAnalyticPricerTest extends ISDABaseTest {
 
   private static final MultiAnalyticCDSPricer MULTI_PRICER_ISDA = new MultiAnalyticCDSPricer();

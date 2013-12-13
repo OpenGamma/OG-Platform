@@ -5,10 +5,22 @@
  */
 package com.opengamma.financial.currency;
 
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -19,17 +31,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * An ordered pair of currencies for quoting rates in FX deals.
@@ -301,7 +302,7 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -374,7 +375,7 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
   /**
    * The bean-builder for {@code CurrencyPair}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<CurrencyPair> {
+  private static final class Builder extends DirectFieldsBeanBuilder<CurrencyPair> {
 
     private Currency _base;
     private Currency _counter;
@@ -383,7 +384,6 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
      * Restricted constructor.
      */
     private Builder() {
-      super(CurrencyPair.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -403,6 +403,30 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public CurrencyPair build() {
       return new CurrencyPair(
           _base,
@@ -414,8 +438,8 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("CurrencyPair.Builder{");
-      buf.append("base").append('=').append(_base).append(',').append(' ');
-      buf.append("counter").append('=').append(_counter);
+      buf.append("base").append('=').append(JodaBeanUtils.toString(_base)).append(',').append(' ');
+      buf.append("counter").append('=').append(JodaBeanUtils.toString(_counter));
       buf.append('}');
       return buf.toString();
     }

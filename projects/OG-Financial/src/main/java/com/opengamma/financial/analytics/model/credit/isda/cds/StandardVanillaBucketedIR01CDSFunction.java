@@ -25,6 +25,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaIR01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
 
     final LocalDate[] dates = new LocalDate[yieldCurve.getNumberOfKnots()];
 

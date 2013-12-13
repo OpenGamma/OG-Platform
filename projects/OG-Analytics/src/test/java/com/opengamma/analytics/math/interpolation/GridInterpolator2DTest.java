@@ -19,11 +19,13 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GridInterpolator2DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Map<DoublesPair, Double> FLAT_DATA = new HashMap<>();

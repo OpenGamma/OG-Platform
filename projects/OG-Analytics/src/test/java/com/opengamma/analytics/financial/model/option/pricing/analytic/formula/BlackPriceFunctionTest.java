@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackPriceFunctionTest {
   private static final double T = 4.5;
   private static final double F = 104;

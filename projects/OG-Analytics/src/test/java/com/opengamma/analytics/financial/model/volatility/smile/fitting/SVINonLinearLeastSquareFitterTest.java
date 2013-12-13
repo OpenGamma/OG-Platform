@@ -17,11 +17,13 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTestCase {
   private static final BlackFunctionData[] SMILE_DATA;
   private static final SVIVolatilityFunction SVI_VOL_FUNCTION = new SVIVolatilityFunction();

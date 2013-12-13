@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRFormulaDataTest {
   private static final double NU = 0.8;
   private static final double RHO = -0.65;

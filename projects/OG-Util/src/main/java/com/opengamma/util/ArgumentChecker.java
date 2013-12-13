@@ -5,6 +5,7 @@
  */
 package com.opengamma.util;
 
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.helpers.MessageFormatter;
@@ -134,7 +135,7 @@ public final class ArgumentChecker {
   public static String notEmpty(String parameter, String name) {
     notNull(parameter, name);
     if (parameter.length() == 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -151,7 +152,7 @@ public final class ArgumentChecker {
   public static <T> T[] notEmpty(T[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -167,7 +168,7 @@ public final class ArgumentChecker {
   public static int[] notEmpty(int[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -183,7 +184,7 @@ public final class ArgumentChecker {
   public static long[] notEmpty(long[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -199,13 +200,13 @@ public final class ArgumentChecker {
   public static double[] notEmpty(double[] parameter, String name) {
     notNull(parameter, name);
     if (parameter.length == 0) {
-      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be empty");
     }
     return parameter;
   }
 
   /**
-   * Checks that the specified parameter collection is non-null and not empty.
+   * Checks that the specified parameter iterable is non-null and not empty.
    * 
    * @param <T>  the type of the input iterable reflected in the result
    * @param parameter  the parameter to check, may be null
@@ -216,7 +217,24 @@ public final class ArgumentChecker {
   public static <T> Iterable<T> notEmpty(Iterable<T> parameter, String name) {
     notNull(parameter, name);
     if (!parameter.iterator().hasNext()) {
-      throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not be zero length");
+      throw new IllegalArgumentException("Input parameter iterable '" + name + "' must not be empty");
+    }
+    return parameter;
+  }
+
+  /**
+   * Checks that the specified parameter list is non-null and not empty.
+   *
+   * @param <T>  the type of the input iterable reflected in the result
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is null or empty
+   * @return the input {@code parameter}, not null
+   */
+  public static <T> List<T> notEmpty(List<T> parameter, String name) {
+    notNull(parameter, name);
+    if (parameter.isEmpty()) {
+      throw new IllegalArgumentException("Input parameter list '" + name + "' must not be empty");
     }
     return parameter;
   }
@@ -233,8 +251,8 @@ public final class ArgumentChecker {
    */
   public static <K, V> Map<K, V> notEmpty(Map<K, V> parameter, String name) {
     notNull(parameter, name);
-    if (parameter.size() == 0) {
-      throw new IllegalArgumentException("Input parameter map '" + name + "' must not be zero length");
+    if (parameter.isEmpty()) {
+      throw new IllegalArgumentException("Input parameter map '" + name + "' must not be empty");
     }
     return parameter;
   }

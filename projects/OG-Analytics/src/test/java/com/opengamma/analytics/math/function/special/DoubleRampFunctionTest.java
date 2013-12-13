@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the DoubleRampFunction.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoubleRampFunctionTest {
 
   private static final double X1 = 0.5;

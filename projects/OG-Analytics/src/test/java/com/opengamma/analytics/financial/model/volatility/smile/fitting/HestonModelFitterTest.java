@@ -9,6 +9,7 @@ import java.util.BitSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
@@ -16,10 +17,12 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.analytics.financial.model.volatility.smile.function.HestonModelData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.HestonVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HestonModelFitterTest extends SmileModelFitterTest<HestonModelData> {
 
   private static final double KAPPA = 0.1;

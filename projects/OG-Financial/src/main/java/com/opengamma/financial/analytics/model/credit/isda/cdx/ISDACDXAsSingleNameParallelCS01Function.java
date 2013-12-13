@@ -23,6 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelCS01CDSFunction;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -43,11 +44,12 @@ public class ISDACDXAsSingleNameParallelCS01Function extends ISDACDXAsSingleName
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic,
+                                                Tenor[] tenors) {
 
     //TODO: bump type
     Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
-    double cs01 = StandardVanillaParallelCS01CDSFunction.parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4, definition.getBuySellProtection());
+    double cs01 = StandardVanillaParallelCS01CDSFunction.parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4, definition.getBuySellProtection(), tenors);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01));
   }

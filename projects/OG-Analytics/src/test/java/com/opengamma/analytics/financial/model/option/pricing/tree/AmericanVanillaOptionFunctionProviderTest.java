@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AmericanVanillaOptionFunctionProviderTest {
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
@@ -256,7 +258,9 @@ public class AmericanVanillaOptionFunctionProviderTest {
                  * If the spot is close to the exercise boundary, c_{20} = c_{21} = c_{22} sometimes occurs in some lattice specification leading to vanishing gamma
                  * In this case, the gamma value is not accurate and we need to try other lattice specifications in order to to check if this is an artifact or not
                  */
-                assertEquals(resNew.get(Greek.GAMMA), deltaGamma[2], Math.max(Math.abs(deltaGamma[2]), 0.1));
+                if (Math.abs(resNew.get(Greek.GAMMA)) > 1.e-5) {
+                  assertEquals(resNew.get(Greek.GAMMA), deltaGamma[2], Math.max(Math.abs(deltaGamma[2]), 0.1));
+                }
                 /*
                  * Bjerksund-Stensland Model produces a negative "theta" by some reason
                  */

@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
@@ -30,6 +31,7 @@ import com.opengamma.analytics.math.surface.Surface;
  * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read straight off
  * the backwards PDE.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForwardPDETest {
 
   private static final PDE1DCoefficientsProvider PDE_DATA_PROVIDER = new PDE1DCoefficientsProvider();

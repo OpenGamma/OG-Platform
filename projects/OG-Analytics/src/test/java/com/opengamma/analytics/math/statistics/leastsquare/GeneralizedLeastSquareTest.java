@@ -30,10 +30,12 @@ import com.opengamma.analytics.math.interpolation.PSplineFitter;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneralizedLeastSquareTest {
   private static boolean PRINT = false;
 

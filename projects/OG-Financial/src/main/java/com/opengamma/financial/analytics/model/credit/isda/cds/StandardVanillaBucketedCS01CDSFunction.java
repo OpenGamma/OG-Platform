@@ -42,7 +42,9 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -63,10 +65,10 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
     //TODO: bump type
     Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
-    final LocalDateLabelledMatrix1D cs01Matrix = getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4);
+    final LocalDateLabelledMatrix1D cs01Matrix = getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4, valuationDate, tenors);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));
   }
@@ -74,24 +76,23 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
   public static LocalDateLabelledMatrix1D getBucketedCS01(CreditDefaultSwapDefinition definition,
                                                     ISDACompliantYieldCurve yieldCurve,
                                                     ZonedDateTime[] times,
-                                                    ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, double bump) {
+                                                    ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, double bump,
+                                                    ZonedDateTime valuationDate, Tenor[] tenors) {
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
 
-    Period[] tenors = new Period[times.length];
-    for (int i = 0; i < times.length; i++) {
-      tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
+    Period[] periods = new Period[tenors.length];
+    for (int i = 0; i < tenors.length; i++) {
+      periods[i] = tenors[i].getPeriod();
     }
-    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
+    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), periods);
 
     double[] cs01Values;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
       cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, getCoupon(definition), buckets, yieldCurve, hazardCurve, bump);
     } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      LegacyCreditDefaultSwapDefinition cds = (LegacyCreditDefaultSwapDefinition) definition;
       cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, getCoupon(definition), buckets, yieldCurve, hazardCurve, bump);
     } else {
       throw new OpenGammaRuntimeException("Unknown cds type " + definition.getClass().getSimpleName());

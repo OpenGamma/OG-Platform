@@ -16,7 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -97,7 +97,6 @@ public final class StubCalculationMethod implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static StubCalculationMethod.Builder builder() {
@@ -341,7 +340,7 @@ public final class StubCalculationMethod implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -486,7 +485,7 @@ public final class StubCalculationMethod implements ImmutableBean {
   /**
    * The bean-builder for {@code StubCalculationMethod}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<StubCalculationMethod> {
+  public static final class Builder extends DirectFieldsBeanBuilder<StubCalculationMethod> {
 
     private StubType _type;
     private Interpolator _stubInterpolation;
@@ -501,7 +500,6 @@ public final class StubCalculationMethod implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(StubCalculationMethod.Meta.INSTANCE);
     }
 
     /**
@@ -509,7 +507,6 @@ public final class StubCalculationMethod implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(StubCalculationMethod beanToCopy) {
-      super(StubCalculationMethod.Meta.INSTANCE);
       this._type = beanToCopy.getType();
       this._stubInterpolation = beanToCopy.getStubInterpolation();
       this._firstStubRate = beanToCopy.getFirstStubRate();
@@ -551,6 +548,30 @@ public final class StubCalculationMethod implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -654,14 +675,14 @@ public final class StubCalculationMethod implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(288);
       buf.append("StubCalculationMethod.Builder{");
-      buf.append("type").append('=').append(_type).append(',').append(' ');
-      buf.append("stubInterpolation").append('=').append(_stubInterpolation).append(',').append(' ');
-      buf.append("firstStubRate").append('=').append(_firstStubRate).append(',').append(' ');
-      buf.append("firstStubEndDate").append('=').append(_firstStubEndDate).append(',').append(' ');
-      buf.append("firstStubStartIndex").append('=').append(_firstStubStartIndex).append(',').append(' ');
-      buf.append("firstStubEndIndex").append('=').append(_firstStubEndIndex).append(',').append(' ');
-      buf.append("finalStubStartIndex").append('=').append(_finalStubStartIndex).append(',').append(' ');
-      buf.append("finalStubEndIndex").append('=').append(_finalStubEndIndex);
+      buf.append("type").append('=').append(JodaBeanUtils.toString(_type)).append(',').append(' ');
+      buf.append("stubInterpolation").append('=').append(JodaBeanUtils.toString(_stubInterpolation)).append(',').append(' ');
+      buf.append("firstStubRate").append('=').append(JodaBeanUtils.toString(_firstStubRate)).append(',').append(' ');
+      buf.append("firstStubEndDate").append('=').append(JodaBeanUtils.toString(_firstStubEndDate)).append(',').append(' ');
+      buf.append("firstStubStartIndex").append('=').append(JodaBeanUtils.toString(_firstStubStartIndex)).append(',').append(' ');
+      buf.append("firstStubEndIndex").append('=').append(JodaBeanUtils.toString(_firstStubEndIndex)).append(',').append(' ');
+      buf.append("finalStubStartIndex").append('=').append(JodaBeanUtils.toString(_finalStubStartIndex)).append(',').append(' ');
+      buf.append("finalStubEndIndex").append('=').append(JodaBeanUtils.toString(_finalStubEndIndex));
       buf.append('}');
       return buf.toString();
     }

@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test of fixed coupon class.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedTest {
   private static final double PAYMENT_TIME = 0.67;
   private static final double YEAR_FRACTION = 0.253;

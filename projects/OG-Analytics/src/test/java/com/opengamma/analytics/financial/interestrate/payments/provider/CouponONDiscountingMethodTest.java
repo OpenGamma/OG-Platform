@@ -33,11 +33,13 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing methods for OIS coupon in the discounting method with data in MarketBundle.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

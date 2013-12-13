@@ -15,10 +15,12 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedCurveShiftFunction;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VolatilityCurveTest {
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(new double[] {1, 2, 3}, new double[] {4, 5, 6}, new LinearInterpolator1D());
 

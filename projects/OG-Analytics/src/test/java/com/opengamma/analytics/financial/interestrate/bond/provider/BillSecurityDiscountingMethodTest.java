@@ -27,22 +27,22 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the pricing of bills security by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class BillSecurityDiscountingMethodTest {
 
-  private final static IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.createIssuerProvider();
+  private final static IssuerProviderDiscount ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
 
   private final static Currency EUR = Currency.EUR;
@@ -50,7 +50,7 @@ public class BillSecurityDiscountingMethodTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_IAM = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
   private static final YieldConvention YIELD_DSC = YieldConventionFactory.INSTANCE.getYieldConvention("DISCOUNT");
@@ -63,7 +63,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   // ISIN: BE0312677462
   private final static BillSecurityDefinition BILL_BEL_IAM_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_IAM, ACT360, ISSUER_NAMES[1]);
-  private static final Pair<String, Currency> BEL_EUR = Pairs.of(ISSUER_NAMES[1], EUR);
+  private static final String BEL_NAME = ISSUER_NAMES[1];
   private final static BillSecurityDefinition BILL_US_DSC_SEC_DEFINITION = new BillSecurityDefinition(USD, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_DSC, ACT360, ISSUER_NAMES[0]);
   private final static BillSecurity BILL_BEL_IAM_SEC = BILL_BEL_IAM_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
   private final static BillSecurity BILL_US_DSC_SEC = BILL_US_DSC_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
@@ -92,7 +92,7 @@ public class BillSecurityDiscountingMethodTest {
    */
   public void presentValue() {
     final MultipleCurrencyAmount pvComputed = METHOD_SECURITY.presentValue(BILL_BEL_IAM_SEC, ISSUER_MULTICURVE);
-    final double pvExpected = NOTIONAL * ISSUER_MULTICURVE.getDiscountFactor(BEL_EUR, BILL_BEL_IAM_SEC.getEndTime());
+    final double pvExpected = NOTIONAL * ISSUER_MULTICURVE.getDiscountFactor(BILL_BEL_IAM_SEC.getIssuerEntity(), BILL_BEL_IAM_SEC.getEndTime());
     assertEquals("Bill Security: discounting method - present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 

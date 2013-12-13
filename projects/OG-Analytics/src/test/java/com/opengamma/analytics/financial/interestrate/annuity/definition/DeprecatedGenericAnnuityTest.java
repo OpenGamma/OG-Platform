@@ -21,11 +21,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedGenericAnnuityTest {
   private static final CouponFixed[] PAYMENTS;
   private static final List<CouponFixed> LIST_PAYMENTS;

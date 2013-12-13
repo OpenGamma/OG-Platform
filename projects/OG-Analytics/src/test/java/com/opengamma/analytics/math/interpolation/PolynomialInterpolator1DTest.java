@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PolynomialInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(3);
   private static final Interpolator1D INTERPOLATOR_WITH_OFFSET = new PolynomialInterpolator1D(3, 2);

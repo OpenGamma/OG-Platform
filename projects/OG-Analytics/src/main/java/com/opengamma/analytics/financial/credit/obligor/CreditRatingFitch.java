@@ -12,7 +12,7 @@ package com.opengamma.analytics.financial.credit.obligor;
  * This is an incomplete list of the long-term Fitch ratings classifications, but this enum is
  * deprecated and will not be completed. Some of the enum values have been remapped to their approximate
  * equivalents (e.g. CC &rarr CCC).
- * @deprecated Credit ratings have been promoted to objects. See {@link com.opengamma.analytics.financial.obligor.CreditRating}
+ * @deprecated Credit ratings have been promoted to objects. See {@link com.opengamma.analytics.financial.legalentity.CreditRating}
  */
 @Deprecated
 public enum CreditRatingFitch {
@@ -85,12 +85,12 @@ public enum CreditRatingFitch {
     return _description;
   }
   /**
-   * Delegates to {@link com.opengamma.analytics.financial.obligor.CreditRating}, with
+   * Delegates to {@link com.opengamma.analytics.financial.legalentity.CreditRating}, with
    * the agency name set to Fitch and the rating assumed to be long-term.
    * @return A credit rating object
    */
-  public com.opengamma.analytics.financial.obligor.CreditRating toCreditRating() {
-    return com.opengamma.analytics.financial.obligor.CreditRating.of(_rating, _description, AGENCY, true);
+  public com.opengamma.analytics.financial.legalentity.CreditRating toCreditRating() {
+    return com.opengamma.analytics.financial.legalentity.CreditRating.of(_rating, _description, AGENCY, true);
   }
 
   @Override

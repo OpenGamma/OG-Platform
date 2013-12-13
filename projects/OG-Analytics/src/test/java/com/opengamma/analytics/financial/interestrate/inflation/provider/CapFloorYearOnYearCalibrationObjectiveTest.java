@@ -30,21 +30,23 @@ import com.opengamma.analytics.financial.provider.method.SuccessiveRootFinderInf
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  *  Tests related to the calibration engine for inflation year on year cap/floor calibration.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorYearOnYearCalibrationObjectiveTest {
 
   //Cap/floor description
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 9);

@@ -385,7 +385,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   /**
    * Gets the extensible data store for additional information, not null.
    * Applications may store additional region based information here.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public FlexiBean getData() {
     return _data;
@@ -394,9 +394,10 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   /**
    * Sets the extensible data store for additional information, not null.
    * Applications may store additional region based information here.
-   * @param data  the new value of the property
+   * @param data  the new value of the property, not null
    */
   public void setData(FlexiBean data) {
+    JodaBeanUtils.notNull(data, "data");
     this._data.clear();
     this._data.putAll(data);
   }
@@ -687,6 +688,11 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableRegion) bean)._data, "data");
     }
 
   }

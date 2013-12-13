@@ -25,7 +25,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -51,10 +50,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.VersionCorrection;
-
-//TODO: Take account of holidays
-//TODO: Modify parent class to handle most of this logic
-//TODO: Take expiry rules from instrument provider
 
 /**
  * Function providing an equity future curve.
@@ -94,14 +89,23 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   @SuppressWarnings("unchecked")
   public static Set<ValueRequirement> buildRequirements(final FuturePriceCurveSpecification futurePriceCurveSpecification, final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
-      final ZonedDateTime atInstant) {
+      final ValueRequirement desiredValue, final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<>();
-    final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
+    final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) futurePriceCurveSpecification.getCurveInstrumentProvider();
+    final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
     for (final Object x : futurePriceCurveDefinition.getXs()) {
-      final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
-      result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier)); // !!! TargetType should be SECURITY
+      final ExternalId identifier = futurePriceCurveProvider.getInstrument((Number) x, atInstant.toLocalDate());
+      result.add(new ValueRequirement(dataFieldName, ComputationTargetType.PRIMITIVE, identifier));
     }
     return result;
+  }
+  
+  private static String getDataFieldName(FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider, ValueRequirement desiredValue) {
+    final String snapTime = desiredValue.getConstraint(ValuePropertyNames.SNAP_TIME);
+    if (snapTime != null && snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_CLOSE)) {
+      return ValueRequirementNames.MARK_PREVIOUS;
+    }
+    return futurePriceCurveProvider.getDataFieldName();
   }
 
   @Override
@@ -110,8 +114,8 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
   }
 
   /* Spot value of the equity index or name */
-  private ValueRequirement getSpotRequirement(final ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, target.getUniqueId());
+  private ValueRequirement getSpotRequirement(final ComputationTarget target, final String dataFieldName) {
+    return new ValueRequirement(dataFieldName, ComputationTargetType.PRIMITIVE, target.getUniqueId());
   }
 
   @Override
@@ -131,6 +135,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
         final ValueProperties curveProperties = createValueProperties()
+            .withAny(ValuePropertyNames.SNAP_TIME)
             .withAny(ValuePropertyNames.CURVE)
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get();
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
@@ -139,7 +144,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         return Collections.singleton(futurePriceCurveResult);
       }
 
-      @SuppressWarnings("synthetic-access")
+      @SuppressWarnings({"synthetic-access", "unchecked" })
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
@@ -160,10 +165,12 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
           s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType() });
           return null;
         }
-
+        final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
+        final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
+        
         Set<ValueRequirement> requirements = Sets.newHashSet();
-        requirements.add(getSpotRequirement(target));
-        requirements.addAll(buildRequirements(priceCurveSpecification, priceCurveDefinition, atZDT));
+        requirements.add(getSpotRequirement(target, dataFieldName));
+        requirements.addAll(buildRequirements(priceCurveSpecification, priceCurveDefinition, desiredValue, atZDT));
         return requirements;
       }
 
@@ -177,7 +184,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         return true;
       }
 
-      @SuppressWarnings({"synthetic-access" })
+      @SuppressWarnings({"synthetic-access", "unchecked" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
@@ -193,13 +200,14 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final DoubleArrayList xList = new DoubleArrayList();
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
+        final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
         final FutureOptionExpiries expiryCalc = (FutureOptionExpiries) futurePriceCurveProvider.getExpiryRuleCalculator();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
         }
         // Add spot
-        final Object spotUnderlying = inputs.getValue(getSpotRequirement(target));
+        final Object spotUnderlying = inputs.getValue(getSpotRequirement(target, dataFieldName));
         if (spotUnderlying != null) {
           xList.add(0.0);
           prices.add((Double) spotUnderlying);
@@ -208,7 +216,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         for (final Object x : priceCurveDefinition.getXs()) {
           final Number xNum = (Number) x;
           final ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
-          final ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
+          final ValueRequirement requirement = new ValueRequirement(dataFieldName, ComputationTargetType.PRIMITIVE, identifier);
           Double futurePrice = null;
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
@@ -224,13 +232,12 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
             target.toSpecification(),
             createValueProperties()
                 .with(ValuePropertyNames.CURVE, curveName)
+                .with(ValuePropertyNames.SNAP_TIME, desiredValue.getConstraint(ValuePropertyNames.SNAP_TIME))
                 .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get());
         final NodalDoublesCurve curve = NodalDoublesCurve.from(xList.toDoubleArray(), prices.toDoubleArray());
         final ComputedValue futurePriceCurveResultValue = new ComputedValue(futurePriceCurveResult, curve);
         return Sets.newHashSet(futurePriceCurveResultValue);
       }
-
     };
   }
-
 }

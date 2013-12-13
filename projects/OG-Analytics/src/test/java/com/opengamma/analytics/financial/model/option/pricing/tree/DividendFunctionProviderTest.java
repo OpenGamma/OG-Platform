@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Test class for {@link DividendFunctionProvider} and its subclasses, {@link CashDividendFunctionProvider} and {@link ProportionalDividendFunctionProvider}
  */
+@Test(groups = TestGroup.UNIT)
 public class DividendFunctionProviderTest {
   private static final double[] _times = new double[] {1., 2., 3. };
   private static final double[] _dividends = new double[] {0.2, 0.1, 0.2 };

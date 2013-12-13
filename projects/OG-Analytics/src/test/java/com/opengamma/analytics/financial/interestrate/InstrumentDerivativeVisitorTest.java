@@ -125,11 +125,13 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.util.test.TestGroup;
 
 /**
  *
  */
 @SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class InstrumentDerivativeVisitorTest {
   private static final Set<InstrumentDerivative> ALL_DERIVATIVES = TestInstrumentDefinitionsAndDerivatives.getAllDerivatives();
   private static final MyVisitor<Object> VISITOR = new MyVisitor<>();

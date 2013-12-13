@@ -10,10 +10,13 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class FixedIncomeCalculatorFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

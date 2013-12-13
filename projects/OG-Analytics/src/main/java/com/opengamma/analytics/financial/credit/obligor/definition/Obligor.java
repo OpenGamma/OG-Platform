@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.i18n.Country;
+import com.opengamma.util.money.Currency;
 
 /**
  * Class for defining the characteristics of an obligor in a derivative contract.
@@ -27,7 +28,7 @@ import com.opengamma.util.i18n.Country;
  * <p>
  * @deprecated The concept of an obligor is useful for more than credit products
  * and so this version has been deprected. The newer equivalent is in
- * {@link com.opengamma.analytics.financial.obligor.ObligorWithREDCode}
+ * {@link com.opengamma.analytics.financial.legalentity.LegalEntityWithREDCode}
  */
 @Deprecated
 public class Obligor {
@@ -115,17 +116,18 @@ public class Obligor {
    * Constructs an equivalent non-deprecated object. The internal delegates for the
    * {@link CreditRating}, {@link CreditRatingMoodys}, {@link CreditRatingStandardAndPoors},
    * {@link CreditRatingFitch}, {@link Sector} and {@link Region} enums are used.
-   * @return A {@link com.opengamma.analytics.financial.obligor.ObligorWithREDCode}
+   * @return A {@link com.opengamma.analytics.financial.legalentity.LegalEntityWithREDCode}
    */
-  public com.opengamma.analytics.financial.obligor.Obligor toObligor() {
-    final Set<com.opengamma.analytics.financial.obligor.CreditRating> creditRatings = new HashSet<>();
+  public com.opengamma.analytics.financial.legalentity.LegalEntity toObligor() {
+    final Set<com.opengamma.analytics.financial.legalentity.CreditRating> creditRatings = new HashSet<>();
     creditRatings.add(_compositeRating.toCreditRating());
     creditRatings.add(_impliedRating.toCreditRating());
     creditRatings.add(_moodysCreditRating.toCreditRating());
     creditRatings.add(_standardAndPoorsCreditRating.toCreditRating());
     creditRatings.add(_fitchCreditRating.toCreditRating());
-    return new com.opengamma.analytics.financial.obligor.ObligorWithREDCode(_obligorTicker, _obligorShortName, creditRatings,
-        _sector.toSector(), _region.toRegion(), Country.of(_country), _obligorREDCode);
+    final com.opengamma.analytics.financial.legalentity.Region region = com.opengamma.analytics.financial.legalentity.Region.of(_region.name(), Country.of(_country), (Currency) null);
+    return new com.opengamma.analytics.financial.legalentity.LegalEntityWithREDCode(_obligorTicker, _obligorShortName, creditRatings,
+        _sector.toSector(), region, _obligorREDCode);
   }
 
   /**

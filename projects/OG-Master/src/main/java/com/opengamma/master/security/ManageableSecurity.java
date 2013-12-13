@@ -264,7 +264,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   //-----------------------------------------------------------------------
   /**
    * Gets the general purpose trade attributes, which can be used for aggregating in portfolios.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -272,9 +272,10 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   /**
    * Sets the general purpose trade attributes, which can be used for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -523,6 +524,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._externalIdBundle, "externalIdBundle");
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._name, "name");
       JodaBeanUtils.notNull(((ManageableSecurity) bean)._securityType, "securityType");
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._attributes, "attributes");
     }
 
   }

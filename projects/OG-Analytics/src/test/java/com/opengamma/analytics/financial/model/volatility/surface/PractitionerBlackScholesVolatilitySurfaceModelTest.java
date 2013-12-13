@@ -24,13 +24,15 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticO
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final PractitionerBlackScholesVolatilitySurfaceModel MODEL = new PractitionerBlackScholesVolatilitySurfaceModel();

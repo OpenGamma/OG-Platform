@@ -254,9 +254,10 @@ public class SimpleSecurity extends DirectBean
   /**
    * Sets the general purpose security attributes.
    * These can be used to add arbitrary additional information to the object.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }

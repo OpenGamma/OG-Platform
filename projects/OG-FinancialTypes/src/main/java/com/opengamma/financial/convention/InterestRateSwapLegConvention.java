@@ -214,7 +214,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets the payment calendar.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalId> getPaymentCalendars() {
     return _paymentCalendars;
@@ -222,9 +222,10 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets the payment calendar.
-   * @param paymentCalendars  the new value of the property
+   * @param paymentCalendars  the new value of the property, not null
    */
   public void setPaymentCalendars(Set<ExternalId> paymentCalendars) {
+    JodaBeanUtils.notNull(paymentCalendars, "paymentCalendars");
     this._paymentCalendars.clear();
     this._paymentCalendars.addAll(paymentCalendars);
   }
@@ -240,7 +241,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
   //-----------------------------------------------------------------------
   /**
    * Gets the calculation calendar.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalId> getCalculationCalendars() {
     return _calculationCalendars;
@@ -248,9 +249,10 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
   /**
    * Sets the calculation calendar.
-   * @param calculationCalendars  the new value of the property
+   * @param calculationCalendars  the new value of the property, not null
    */
   public void setCalculationCalendars(Set<ExternalId> calculationCalendars) {
+    JodaBeanUtils.notNull(calculationCalendars, "calculationCalendars");
     this._calculationCalendars.clear();
     this._calculationCalendars.addAll(calculationCalendars);
   }
@@ -1011,6 +1013,8 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentCalendars, "paymentCalendars");
+      JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._calculationCalendars, "calculationCalendars");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._paymentDayConvention, "paymentDayConvention");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._calculationBusinessDayConvention, "calculationBusinessDayConvention");
       JodaBeanUtils.notNull(((InterestRateSwapLegConvention) bean)._maturityBusinessDayConvention, "maturityBusinessDayConvention");

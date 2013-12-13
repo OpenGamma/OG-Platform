@@ -74,7 +74,7 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   /**
    * Gets the list of valid security types.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<String> getSecurityTypes() {
     return _securityTypes;
@@ -83,9 +83,10 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   /**
    * Sets the list of valid security types.
    * This is only populated if requested.
-   * @param securityTypes  the new value of the property
+   * @param securityTypes  the new value of the property, not null
    */
   public void setSecurityTypes(List<String> securityTypes) {
+    JodaBeanUtils.notNull(securityTypes, "securityTypes");
     this._securityTypes.clear();
     this._securityTypes.addAll(securityTypes);
   }
@@ -277,6 +278,12 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityMetaDataResult) bean)._securityTypes, "securityTypes");
+      super.validate(bean);
     }
 
   }

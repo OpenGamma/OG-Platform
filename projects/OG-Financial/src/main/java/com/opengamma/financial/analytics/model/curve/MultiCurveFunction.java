@@ -45,6 +45,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -111,7 +112,6 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
-    //final Instant versionTime = atZDT.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS).toInstant();
     //TODO work out a way to use dependency graph to get curve information for this config
     final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName, VersionCorrection.LATEST);
     if (curveConstructionConfiguration == null) {
@@ -211,12 +211,8 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       ValueProperties bundleProperties = null;
       for (final ValueRequirement desiredValue : desiredValues) {
-        if (desiredValue.getValueName().equals(CURVE_BUNDLE)) {
+        if (desiredValue.getValueName().equals(CURVE_BUNDLE) || desiredValue.getValueName().equals(_curveRequirement)) {
           bundleProperties = desiredValue.getConstraints();
-          break;
-        } else if (desiredValue.getValueName().equals(_curveRequirement)) {
-          bundleProperties = desiredValue.getConstraints()
-              .withoutAny(CURVE);
           break;
         }
       }
@@ -230,7 +226,9 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource, fxMatrix);
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource,
+          securitySource, fxMatrix);
       final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       return getResults(bundleSpec, jacobianSpec, bundleProperties, pair);
@@ -297,7 +295,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     /**
-     * Gets the known data from the FX matrix. 
+     * Gets the known data from the FX matrix.
      * @param inputs The inputs
      * @return The known data
      */
@@ -343,11 +341,12 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param conventionSource The convention source
      * @param holidaySource The holiday source
      * @param regionSource The region source
+     * @param securitySource The security source
      * @param fx The FX matrix.
      * @return The curve provider and associated results
      */
     protected abstract Pair<T, CurveBuildingBlockBundle> getCurves(FunctionInputs inputs, ZonedDateTime now, U builder, T knownData,
-        ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource, FXMatrix fx);
+        ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource, SecuritySource securitySource, FXMatrix fx);
 
     /**
      * @param bundleSpec The value specification for the curve bundle

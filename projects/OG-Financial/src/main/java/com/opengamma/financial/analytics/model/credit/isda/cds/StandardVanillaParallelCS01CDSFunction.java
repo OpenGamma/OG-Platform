@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -51,10 +52,10 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
     //TODO: bump type
     Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
-    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4, definition.getBuySellProtection());
+    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4, definition.getBuySellProtection(), tenors);
 
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01));
@@ -63,7 +64,7 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
   public static double parallelCS01(CreditDefaultSwapDefinition definition,
                              ISDACompliantYieldCurve yieldCurve,
                              ZonedDateTime[] times, double[] marketSpreads, CDSAnalytic analytic, double fracBump, final
-                             BuySellProtection buySellProtection) {
+                             BuySellProtection buySellProtection, Tenor[] tenors) {
     double cs01;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
@@ -73,11 +74,11 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
           .with(definition.getBusinessDayAdjustmentConvention())
           .with(definition.getCalendar()).with(definition.getStubType())
           .withAccrualDCC(definition.getDayCountFractionConvention());
-      Period[] tenors = new Period[times.length];
+      Period[] periods = new Period[times.length];
       for (int i = 0; i < times.length; i++) {
-        tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
+        periods[i] = tenors[i].getPeriod();
       }
-      CDSAnalytic[] pillars = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
+      CDSAnalytic[] pillars = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), periods);
       cs01 = CALCULATOR.parallelCS01FromParSpreads(analytic,
                                                    ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4,
                                                    yieldCurve,

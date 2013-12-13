@@ -15,10 +15,12 @@ import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDAFixTest extends ISDABaseTest {
 
   private static final LocalDate TODAY = LocalDate.of(2011, Month.JUNE, 13);

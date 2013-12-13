@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LeastSquareResultsTest {
   private static final DoubleMatrix1D PARAMS = new DoubleMatrix1D(new double[] {1.0, 2.0 });
   private static final DoubleMatrix2D COVAR = new DoubleMatrix2D(new double[][] { {0.1, 0.2 }, {0.2, 0.3 } });

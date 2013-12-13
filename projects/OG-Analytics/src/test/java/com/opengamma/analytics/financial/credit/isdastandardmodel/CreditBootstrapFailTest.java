@@ -8,7 +8,12 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CreditBootstrapFailTest extends ISDABaseTest {
 
   protected static final double NOTIONAL = 1e6;

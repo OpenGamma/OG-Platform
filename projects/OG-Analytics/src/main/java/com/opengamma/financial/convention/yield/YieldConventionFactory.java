@@ -26,14 +26,20 @@ public final class YieldConventionFactory
   //-------------------------------------------------------------------------
   /**
    * Finds a convention by name, ignoring case.
-   * 
+   *
    * @param name  the name of the instance to find, not null
    * @return the convention, not null
    * @throws IllegalArgumentException if the name is not found
    */
   @FromString
   public static YieldConvention of(final String name) {
-    return INSTANCE.instance(name);
+    try {
+      return INSTANCE.instance(name);
+    } catch (final IllegalArgumentException ex) {
+      ArgumentChecker.notNull(name, "name");
+      final YieldConvention yc = new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH));
+      return INSTANCE.addInstance(yc);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -89,9 +95,9 @@ public final class YieldConventionFactory
   public YieldConvention getYieldConvention(final String name) {
     try {
       return instance(name);
-    } catch (IllegalArgumentException ex) {
+    } catch (final IllegalArgumentException ex) {
       ArgumentChecker.notNull(name, "name");
-      YieldConvention yc = new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH));
+      final YieldConvention yc = new SimpleYieldConvention(name.toLowerCase(Locale.ENGLISH));
       return addInstance(yc);
     }
   }

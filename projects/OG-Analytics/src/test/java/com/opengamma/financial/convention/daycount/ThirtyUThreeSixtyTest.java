@@ -10,10 +10,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
+
 
 /**
  * Test ThirtyUThreeSixty.
  */
+@Test(groups = TestGroup.UNIT)
 public class ThirtyUThreeSixtyTest extends DayCountTestCase {
 
   private static final ThirtyUThreeSixty DC = new ThirtyUThreeSixty();

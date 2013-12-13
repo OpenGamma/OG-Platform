@@ -14,13 +14,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Digital Forex options (derivative version).
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionDigitalTest {
   // FX Option: EUR call/USD put; 1m EUR @ 1.4177
   private static final Currency CUR_1 = Currency.EUR;
@@ -34,7 +36,7 @@ public class ForexOptionDigitalTest {
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   // Derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 8);
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final ForexOptionDigital FX_OPTION = new ForexOptionDigital(FX, EXPIRATION_TIME, IS_CALL, IS_LONG, true);

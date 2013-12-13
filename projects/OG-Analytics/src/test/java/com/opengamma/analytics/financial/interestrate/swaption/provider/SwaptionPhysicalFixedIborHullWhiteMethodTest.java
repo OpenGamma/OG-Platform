@@ -55,11 +55,13 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of physical delivery swaption in Hull-White one factor model.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

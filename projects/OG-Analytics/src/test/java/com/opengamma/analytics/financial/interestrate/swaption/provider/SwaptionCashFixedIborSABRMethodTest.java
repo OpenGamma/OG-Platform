@@ -47,15 +47,17 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR model.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborSABRMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -79,7 +81,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final double RATE = 0.0175;
   private static final boolean FIXED_IS_PAYER = true;
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY_PAYER = AnnuityCouponFixedDefinition.from(EUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,

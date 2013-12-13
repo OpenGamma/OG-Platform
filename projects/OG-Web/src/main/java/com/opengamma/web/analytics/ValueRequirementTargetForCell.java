@@ -17,7 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -76,7 +76,6 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static ValueRequirementTargetForCell.Builder builder() {
@@ -192,7 +191,7 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -265,7 +264,7 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
   /**
    * The bean-builder for {@code ValueRequirementTargetForCell}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ValueRequirementTargetForCell> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ValueRequirementTargetForCell> {
 
     private String _columnSet;
     private ValueRequirement _valueRequirement;
@@ -274,7 +273,6 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(ValueRequirementTargetForCell.Meta.INSTANCE);
     }
 
     /**
@@ -282,7 +280,6 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ValueRequirementTargetForCell beanToCopy) {
-      super(ValueRequirementTargetForCell.Meta.INSTANCE);
       this._columnSet = beanToCopy.getColumnSet();
       this._valueRequirement = beanToCopy.getValueRequirement();
     }
@@ -300,6 +297,30 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -336,8 +357,8 @@ public final class ValueRequirementTargetForCell implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ValueRequirementTargetForCell.Builder{");
-      buf.append("columnSet").append('=').append(_columnSet).append(',').append(' ');
-      buf.append("valueRequirement").append('=').append(_valueRequirement);
+      buf.append("columnSet").append('=').append(JodaBeanUtils.toString(_columnSet)).append(',').append(' ');
+      buf.append("valueRequirement").append('=').append(JodaBeanUtils.toString(_valueRequirement));
       buf.append('}');
       return buf.toString();
     }

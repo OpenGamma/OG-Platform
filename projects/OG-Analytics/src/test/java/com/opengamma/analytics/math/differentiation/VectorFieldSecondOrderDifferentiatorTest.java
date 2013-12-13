@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VectorFieldSecondOrderDifferentiatorTest {
 
   private static Function1D<DoubleMatrix1D, DoubleMatrix1D> FUNC = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {

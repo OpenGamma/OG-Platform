@@ -24,7 +24,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -118,7 +118,7 @@ public class BondSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final ZonedDateTime maturityDate = ZonedDateTime.of(security.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
     final double rate = security.getCouponRate() / 100;
     final DayCount dayCount = security.getDayCount();
-    final BusinessDayConvention businessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING;
     if (convention.isEOMConvention() == null) {
       throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
     }

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 
@@ -41,11 +42,13 @@ public final class YieldFromCleanPriceCalculator extends InstrumentDerivativeVis
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
-  /**
-   * Yield from clean price.
-   */
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double cleanPrice) {
     return METHOD_BOND_SECURITY.yieldFromCleanPrice(bond, cleanPrice);
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double cleanPrice) {
+    return METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondTransaction(), cleanPrice);
   }
 
   @Override

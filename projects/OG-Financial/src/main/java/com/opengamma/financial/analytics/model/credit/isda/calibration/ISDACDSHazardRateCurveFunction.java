@@ -53,7 +53,7 @@ import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRa
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -68,7 +68,7 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction {
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   //  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
   private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
 
@@ -79,19 +79,20 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
-    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
     Object recoveryRateObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
     if (recoveryRateObject == null) {
       //throw new OpenGammaRuntimeException("Could not get recovery rate");
       recoveryRateObject = 0.4;
     }
-    cds = cds.withRecoveryRate((Double) recoveryRateObject);
+    final double recoveryRate = (Double) recoveryRateObject;
+    final CreditDefaultSwapSecurityConverter converter = new CreditDefaultSwapSecurityConverter(holidaySource, regionSource, organizationSource, recoveryRate, valuationTime);
+    LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
+    //cds = cds.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    //cds = cds.withRecoveryRate((Double) recoveryRateObject);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");

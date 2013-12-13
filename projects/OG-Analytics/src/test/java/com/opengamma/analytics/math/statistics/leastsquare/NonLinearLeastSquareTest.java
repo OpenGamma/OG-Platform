@@ -30,7 +30,12 @@ import com.opengamma.analytics.math.minimization.BrentMinimizer1D;
 import com.opengamma.analytics.math.minimization.ConjugateGradientVectorMinimizer;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class NonLinearLeastSquareTest {
   private static final Logger s_logger = LoggerFactory.getLogger(NonLinearLeastSquareTest.class);
   private static final int HOTSPOT_WARMUP_CYCLES = 0;

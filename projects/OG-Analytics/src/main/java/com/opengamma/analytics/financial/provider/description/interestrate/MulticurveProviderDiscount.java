@@ -239,14 +239,32 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _allCurves.get(name);
   }
 
+  /**
+   * Gets the currency of a named discounting curve. If there is no curve with
+   * this name in this provider, returns null.
+   * @param name The name of a curve
+   * @return The currency, null if not found
+   */
   public Currency getCurrencyForName(final String name) {
     return _namesToCurrency.get(name);
   }
 
+  /**
+   * Gets the ibor index of a named forward ibor index curve. If there is no
+   * curve with this name in this provider, returns null.
+   * @param name The name of a curve
+   * @return The ibor index, null if not found
+   */
   public IborIndex getIborIndexForName(final String name) {
     return _namesToIborIndex.get(name);
   }
 
+  /**
+   * Gets the overnight index of a named overnight index curve. If there is
+   * no curve with this name in this provider, returns null.
+   * @param name The name of a curve
+   * @return The overnight index, null if not found
+   */
   public IndexON getOvernightIndexForName(final String name) {
     return _namesToONIndex.get(name);
   }
@@ -282,11 +300,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
 
   @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime) {
-    ArgumentChecker.isFalse(startTime == endTime, "sart time should be different from end time");
-    if (_forwardIborCurves.containsKey(index)) {
-      return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / (endTime - startTime);
-    }
-    throw new IllegalArgumentException("Forward curve not found: " + index);
+    ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
+    double accrualFactor = endTime - startTime;
+    return getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -312,11 +328,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
 
   @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime) {
-    ArgumentChecker.isFalse(startTime == endTime, "sart time should be different from end time");
-    if (_forwardIborCurves.containsKey(index)) {
-      return (_forwardIborCurves.get(index).getDiscountFactor(startTime) / _forwardIborCurves.get(index).getDiscountFactor(endTime) - 1) / (endTime - startTime);
-    }
-    throw new IllegalArgumentException("Forward curve not found: " + index);
+    ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
+    double accrualFactor = endTime - startTime;
+    return getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
@@ -385,11 +399,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(ccy, "currency");
     ArgumentChecker.notNull(curve, "curve");
-    if (_discountingCurves.containsKey(ccy)) {
+    if (!_discountingCurves.containsKey(ccy)) {
+      _discountingCurves.put(ccy, curve);
+      setAllCurves();
+    } else if (!_discountingCurves.get(ccy).equals(curve)) {
       throw new IllegalArgumentException("Currency discounting curve already set: " + ccy.toString());
     }
-    _discountingCurves.put(ccy, curve);
-    setAllCurves();
   }
 
   /**
@@ -400,11 +415,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(curve, "curve");
-    if (_forwardIborCurves.containsKey(index)) {
+    if (!_forwardIborCurves.containsKey(index)) {
+      _forwardIborCurves.put(index, curve);
+      setAllCurves();
+    } else if (!_forwardIborCurves.get(index).equals(curve)) {
       throw new IllegalArgumentException("Ibor index forward curve already set: " + index.toString());
     }
-    _forwardIborCurves.put(index, curve);
-    setAllCurves();
   }
 
   /**
@@ -415,11 +431,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(curve, "curve");
-    if (_forwardONCurves.containsKey(index)) {
+    if (!_forwardONCurves.containsKey(index)) {
+      _forwardONCurves.put(index, curve);
+      setAllCurves();
+    } else if (!_forwardONCurves.get(index).equals(curve)) {
       throw new IllegalArgumentException("ON index forward curve already set: " + index.toString());
     }
-    _forwardONCurves.put(index, curve);
-    setAllCurves();
   }
 
   /**

@@ -21,7 +21,12 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class NamedVariableLeastSquaresRegressionResultTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister.DEFAULT_SEED);
   private static final double EPS = 1e-2;

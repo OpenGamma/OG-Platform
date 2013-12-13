@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.payment;
 import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -360,7 +361,7 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
       }
     }
     if (dayConversion.isAfter(dayFixing)) { // The fixing is required
-      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().withHour(0)); // TODO: remove time from fixing date.
+      final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().truncatedTo(ChronoUnit.DAYS)); // TODO: remove time from fixing date.
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + dayFixing);
       }

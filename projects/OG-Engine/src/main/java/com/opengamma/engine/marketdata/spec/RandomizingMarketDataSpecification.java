@@ -16,7 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -94,7 +94,6 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static RandomizingMarketDataSpecification.Builder builder() {
@@ -261,7 +260,7 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -358,7 +357,7 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
   /**
    * The bean-builder for {@code RandomizingMarketDataSpecification}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<RandomizingMarketDataSpecification> {
+  public static final class Builder extends DirectFieldsBeanBuilder<RandomizingMarketDataSpecification> {
 
     private MarketDataSpecification _underlying;
     private Double _updateProbability;
@@ -369,7 +368,6 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
      * Restricted constructor.
      */
     private Builder() {
-      super(RandomizingMarketDataSpecification.Meta.INSTANCE);
     }
 
     /**
@@ -377,7 +375,6 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(RandomizingMarketDataSpecification beanToCopy) {
-      super(RandomizingMarketDataSpecification.Meta.INSTANCE);
       this._underlying = beanToCopy.getUnderlying();
       this._updateProbability = beanToCopy.getUpdateProbability();
       this._maxPercentageChange = beanToCopy.getMaxPercentageChange();
@@ -403,6 +400,30 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -465,10 +486,10 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("RandomizingMarketDataSpecification.Builder{");
-      buf.append("underlying").append('=').append(_underlying).append(',').append(' ');
-      buf.append("updateProbability").append('=').append(_updateProbability).append(',').append(' ');
-      buf.append("maxPercentageChange").append('=').append(_maxPercentageChange).append(',').append(' ');
-      buf.append("averageCycleInterval").append('=').append(_averageCycleInterval);
+      buf.append("underlying").append('=').append(JodaBeanUtils.toString(_underlying)).append(',').append(' ');
+      buf.append("updateProbability").append('=').append(JodaBeanUtils.toString(_updateProbability)).append(',').append(' ');
+      buf.append("maxPercentageChange").append('=').append(JodaBeanUtils.toString(_maxPercentageChange)).append(',').append(' ');
+      buf.append("averageCycleInterval").append('=').append(JodaBeanUtils.toString(_averageCycleInterval));
       buf.append('}');
       return buf.toString();
     }

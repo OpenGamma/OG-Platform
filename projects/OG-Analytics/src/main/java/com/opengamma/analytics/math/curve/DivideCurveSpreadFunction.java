@@ -21,7 +21,24 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DivideCurveSpreadFunction implements CurveSpreadFunction {
   /** The operation name */
-  private static final String NAME = "/";
+  public static final String NAME = "/";
+  /** An instance of this function */
+  private static final DivideCurveSpreadFunction INSTANCE = new DivideCurveSpreadFunction();
+
+  /**
+   * Gets an instance of this function
+   * @return The instance
+   */
+  public static CurveSpreadFunction getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * @deprecated Use {@link #getInstance()}
+   */
+  @Deprecated
+  public DivideCurveSpreadFunction() {
+  }
 
   /**
    * @param curves An array of curves, not null or empty
@@ -49,11 +66,13 @@ public class DivideCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getOperationName() {
+    return NAME;
+  }
+
+  @Override
+  public String getName() {
     return NAME;
   }
 }

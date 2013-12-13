@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -24,6 +25,7 @@ import com.opengamma.util.tuple.Pairs;
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();

@@ -13,9 +13,12 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 @SuppressWarnings("synthetic-access")
 public class GreekVisitorTest {
   private static final String STRING = "X";

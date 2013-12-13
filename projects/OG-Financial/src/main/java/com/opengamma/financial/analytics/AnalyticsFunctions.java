@@ -63,7 +63,8 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
    */
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
-    functions.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
+    
   }
 
   public static void addUnitScalingAndSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
@@ -230,6 +231,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_MODEL_PRICE);
+    addUnitScalingFunction(functions, ValueRequirementNames.MARK_CURRENT);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED_P);
     addUnitScalingFunction(functions, ValueRequirementNames.SPOT);
@@ -304,6 +306,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
     addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
+    addUnitScalingAndSummingFunction(functions, ValueRequirementNames.HEDGE_NOTIONAL);
 
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.BUCKETED_PV01);
 

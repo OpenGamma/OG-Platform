@@ -7,9 +7,11 @@ package com.opengamma.util.csv;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -103,7 +105,11 @@ public final class CSVDocumentReader implements Iterable<FudgeMsg> {
     
     public FudgeMsgCSVIterator() {
       try {
-        _csvReader = new CSVReader(new BufferedReader(new InputStreamReader(_docUrl.openStream())), _separator, _quotechar, _escape);
+        InputStream is = _docUrl.openStream();
+        if (_docUrl.getFile().endsWith(".gz")) {
+          is = new GZIPInputStream(is);
+        }
+        _csvReader = new CSVReader(new BufferedReader(new InputStreamReader(is)), _separator, _quotechar, _escape);
         _header = _csvReader.readNext();
         if (_header == null) {
           throw new OpenGammaRuntimeException("Column headers is missing, can not create iterator");

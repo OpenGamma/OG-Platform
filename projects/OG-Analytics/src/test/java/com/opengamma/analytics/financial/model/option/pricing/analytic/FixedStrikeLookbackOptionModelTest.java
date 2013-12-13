@@ -19,12 +19,14 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FixedStrikeLookbackOptionModelTest {
   private static final double S = 100;
   private static final DoubleTimeSeries<?> STATIC = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5, 6, 7}, new double[] {S, S, S, S, S, S, S});

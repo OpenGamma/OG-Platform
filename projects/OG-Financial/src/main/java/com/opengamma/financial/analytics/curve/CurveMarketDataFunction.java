@@ -36,6 +36,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
@@ -84,17 +85,29 @@ public class CurveMarketDataFunction extends AbstractFunction {
         .get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
-    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), specification, spec);
+    try {
+      final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
+      return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), specification, spec);
+    } catch (final Exception e) {
+      throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveDefinition called " + _curveName);
+    }
   }
 
   /**
    * Function that gets market data for a curve.
    */
   protected class MyCompiledFunction extends AbstractInvokingCompiledFunction {
+    /** The curve specification */
     private final CurveSpecification _specification;
+    /** The result specification */
     private final ValueSpecification _spec;
 
+    /**
+     * @param earliestInvocation The earliest time at which this function can be invoked
+     * @param latestInvocation The latest time at which this function can be invoked
+     * @param specification The curve specification
+     * @param spec The result specification
+     */
     public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final CurveSpecification specification,
         final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
@@ -102,6 +115,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
       _spec = spec;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
@@ -109,7 +123,12 @@ public class CurveMarketDataFunction extends AbstractFunction {
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(executionContext.getComputationTargetResolver());
       for (final CurveNodeWithIdentifier id : _specification.getNodes()) {
         if (id.getDataField() != null) {
-          final ComputedValue value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          final ComputedValue value;
+          if (id.getCurveNode() instanceof BondNode) {
+            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+          } else {
+            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          }
           if (value != null) {
             final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
             if (id instanceof PointsCurveNodeWithIdentifier) {
@@ -154,16 +173,21 @@ public class CurveMarketDataFunction extends AbstractFunction {
       return Collections.singleton(_spec);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<ValueRequirement> requirements = new HashSet<>();
       for (final CurveNodeWithIdentifier id : _specification.getNodes()) {
         try {
           if (id.getDataField() != null) {
-            requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
-            if (id instanceof PointsCurveNodeWithIdentifier) {
-              final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-              requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+            if (id.getCurveNode() instanceof BondNode) {
+              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+            } else {
+              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+              if (id instanceof PointsCurveNodeWithIdentifier) {
+                final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+                requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+              }
             }
           } else {
             requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));

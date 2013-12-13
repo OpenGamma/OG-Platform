@@ -49,6 +49,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -152,7 +153,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     @Override
     protected Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderInterface knownData, final ConventionSource conventionSource,
-        final HolidaySource holidaySource, final RegionSource regionSource, final FXMatrix fx) {
+        final HolidaySource holidaySource, final RegionSource regionSource, final SecuritySource securitySource, final FXMatrix fx) {
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();

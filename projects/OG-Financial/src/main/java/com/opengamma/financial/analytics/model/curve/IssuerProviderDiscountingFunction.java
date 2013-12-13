@@ -29,6 +29,8 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -46,6 +48,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionInputs;
@@ -146,7 +149,8 @@ public class IssuerProviderDiscountingFunction extends
     @SuppressWarnings("unchecked")
     @Override
     protected Pair<IssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final IssuerDiscountBuildingRepository builder,
-        final IssuerProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource, final FXMatrix fx) {
+        final IssuerProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+        final SecuritySource securitySource, final FXMatrix fx) {
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -158,7 +162,7 @@ public class IssuerProviderDiscountingFunction extends
       final LinkedHashMap<String, Currency> discountingMap = new LinkedHashMap<>();
       final LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
       final LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();
-      final LinkedHashMap<String, Pair<String, Currency>> issuerMap = new LinkedHashMap<>();
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap = new LinkedHashMap<>();
       //TODO comparator to sort groups by order
       int i = 0; // Implementation Note: loop on the groups
       for (final CurveGroupConfiguration group : _curveConstructionConfiguration.getCurveGroups()) { // Group - start
@@ -212,9 +216,7 @@ public class IssuerProviderDiscountingFunction extends
               overnightIndex.add(new IndexON(overnightConvention.getName(), overnightConvention.getCurrency(), overnightConvention.getDayCount(), overnightConvention.getPublicationLag()));
             } else if (type instanceof IssuerCurveTypeConfiguration) {
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
-              final String issuerName = issuer.getIssuerName();
-              final Currency currency = Currency.of(issuer.getUnderlyingReference());
-              issuerMap.put(curveName, Pairs.of(issuerName, currency));
+              issuerMap.put(curveName, Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuer.getKeys(), issuer.getFilters()));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -303,3 +305,4 @@ public class IssuerProviderDiscountingFunction extends
     }
   }
 }
+

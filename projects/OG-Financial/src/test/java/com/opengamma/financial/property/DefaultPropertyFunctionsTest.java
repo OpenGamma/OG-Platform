@@ -67,8 +67,8 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.PositionOrTradeScalingFunction;
 import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
@@ -81,6 +81,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the functions used to inject default constraints into the dependency graph.
@@ -206,8 +207,8 @@ public class DefaultPropertyFunctionsTest {
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      return Collections.singleton(new ValueSpecification("Present Value", target.toSpecification(), createValueProperties().withAny("ForwardCurve").withAny("FundingCurve").with("Currency", "USD")
-          .get()));
+      return Collections.singleton(new ValueSpecification("Present Value", target.toSpecification(), createValueProperties().withAny("ForwardCurve").withAny("FundingCurve")
+          .with("Currency", "USD").get()));
     }
 
   }
@@ -234,8 +235,8 @@ public class DefaultPropertyFunctionsTest {
   private SecuritySource createSecuritySource() {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     final ZonedDateTime zdt = ZonedDateTime.now();
-    final SwapLeg leg = new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("ACT/365"), SimpleFrequency.ANNUAL, ExternalId.of("Test", "Region"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new InterestRateNotional(Currency.USD, 0d), false, 0d);
+    final SwapLeg leg = new FixedInterestRateLeg(DayCounts.ACT_365, SimpleFrequency.ANNUAL, ExternalId.of("Test", "Region"), BusinessDayConventions.FOLLOWING,
+        new InterestRateNotional(Currency.USD, 0d), false, 0d);
     final SwapSecurity security = new SwapSecurity(zdt, zdt, zdt, "Counterparty", leg, leg);
     security.addExternalId(ExternalId.of("Security", "Swap"));
     securities.addSecurity(security);
@@ -350,6 +351,7 @@ public class DefaultPropertyFunctionsTest {
 
   private CompiledFunctionResolver createFunctionResolver(final FunctionCompilationContext ctx) {
     final CompiledFunctionService cfs = new CompiledFunctionService(createFunctionRepository(), new CachingFunctionRepositoryCompiler(), ctx);
+    TestLifecycle.register(cfs);
     cfs.initialize();
     final FunctionResolver resolver = new DefaultFunctionResolver(cfs, createPrioritizer());
     return resolver.compile(Instant.now());
@@ -376,361 +378,461 @@ public class DefaultPropertyFunctionsTest {
   }
 
   public void testPortfolioNodeDefault() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "DefaultForward");
-    assertEquals(res1.getProperty("FundingCurve"), "DefaultFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "DefaultForward");
+      assertEquals(res1.getProperty("FundingCurve"), "DefaultFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPortfolioNodeOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")),
-        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "PositionAttr")),
-        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.with("ForwardCurve", "BarForward")
+          .with("FundingCurve", "BarFunding").get());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "PositionAttr")), ValueProperties.with("ForwardCurve", "BarForward")
+          .with("FundingCurve", "BarFunding").get());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPositionDefault() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "DefaultForward");
-    assertEquals(res1.getProperty("FundingCurve"), "DefaultFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "DefaultForward");
+      assertEquals(res1.getProperty("FundingCurve"), "DefaultFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPositionOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")),
-        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")),
-        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")),
+          ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.with("ForwardCurve", "BarForward")
+          .with("FundingCurve", "BarFunding").get());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTradeDefault() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "DefaultForward");
-    assertEquals(res1.getProperty("FundingCurve"), "DefaultFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "DefaultForward");
+      assertEquals(res1.getProperty("FundingCurve"), "DefaultFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTradeOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")),
-        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")),
-        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")),
+          ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")),
+          ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPortfolioNodeGeneric() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "BarFunding").get());
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "PositionAttr")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "BarFunding").get());
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "PositionAttr")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPortfolioNodeSpecific() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
-    config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
-        .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(node1), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "DefaultForward");
-    assertEquals(res2.getProperty("FundingCurve"), "DefaultFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
+      config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
+          .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(node1), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "DefaultForward");
+      assertEquals(res2.getProperty("FundingCurve"), "DefaultFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPortfolioNodeSpecificOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
-    config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
-        .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").with("PORTFOLIO_NODE.*.DEFAULT_ForwardCurve", "GenericForward")
-        .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "GenericFunding").get());
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(node1), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "GenericForward");
-    assertEquals(res2.getProperty("FundingCurve"), "GenericFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
+      config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
+          .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").with("PORTFOLIO_NODE.*.DEFAULT_ForwardCurve", "GenericForward")
+          .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "GenericFunding").get());
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(node1), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "GenericForward");
+      assertEquals(res2.getProperty("FundingCurve"), "GenericFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPositionGeneric() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("POSITION.*.DEFAULT_ForwardCurve", "BarForward").with("POSITION.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      config.setDefaultProperties(ValueProperties.with("POSITION.*.DEFAULT_ForwardCurve", "BarForward").with("POSITION.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPositionSpecific() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final Position position1 = getPosition(positions, "PositionAttr");
-    config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
-        .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(position1), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "DefaultForward");
-    assertEquals(res2.getProperty("FundingCurve"), "DefaultFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final Position position1 = getPosition(positions, "PositionAttr");
+      config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
+          .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(position1), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "DefaultForward");
+      assertEquals(res2.getProperty("FundingCurve"), "DefaultFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPositionSpecificOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final Position position1 = getPosition(positions, "PositionAttr");
-    config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
-        .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").with("POSITION.*.DEFAULT_ForwardCurve", "GenericForward")
-        .with("POSITION.Present Value.DEFAULT_FundingCurve", "GenericFunding").get());
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(position1), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "GenericForward");
-    assertEquals(res2.getProperty("FundingCurve"), "GenericFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final Position position1 = getPosition(positions, "PositionAttr");
+      config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
+          .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").with("POSITION.*.DEFAULT_ForwardCurve", "GenericForward")
+          .with("POSITION.Present Value.DEFAULT_FundingCurve", "GenericFunding").get());
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(position1), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "GenericForward");
+      assertEquals(res2.getProperty("FundingCurve"), "GenericFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testPositionAttribute() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "FooForward");
-    assertEquals(res1.getProperty("FundingCurve"), "FooFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "FooForward");
+      assertEquals(res1.getProperty("FundingCurve"), "FooFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testSecurityGeneric() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.*.DEFAULT_FundingCurve", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(
-        ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.*.DEFAULT_FundingCurve", "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(
+          ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testSecuritySpecific() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward")
-        .with("SECURITY.*.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(
-        ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward")
+          .with("SECURITY.*.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(
+          ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testSecuritySpecificOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("SECURITY.*.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.*.DEFAULT_FundingCurve", "GenericFunding")
-        .with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(
-        ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      config.setDefaultProperties(ValueProperties.with("SECURITY.*.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.*.DEFAULT_FundingCurve", "GenericFunding")
+          .with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(
+          ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTradeGeneric() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("TRADE.*.DEFAULT_FundingCurve", "BarFunding").get());
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("TRADE.*.DEFAULT_FundingCurve", "BarFunding").get());
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res2.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTradeSpecific() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final Trade trade1 = getTrade(positions, "TradeAttr");
-    config.setDefaultProperties(ValueProperties.with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward")
-        .with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(trade1), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "DefaultForward");
-    assertEquals(res2.getProperty("FundingCurve"), "DefaultFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final Trade trade1 = getTrade(positions, "TradeAttr");
+      config.setDefaultProperties(ValueProperties.with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward")
+          .with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(trade1), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "DefaultForward");
+      assertEquals(res2.getProperty("FundingCurve"), "DefaultFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTradeSpecificOverride() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final Trade trade1 = getTrade(positions, "TradeAttr");
-    config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "GenericForward").with("TRADE.*.DEFAULT_FundingCurve", "GenericFunding")
-        .with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward").with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(trade1), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.addTarget(req2);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
-    assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
-    assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
-    assertEquals(res2.getProperty("ForwardCurve"), "GenericForward");
-    assertEquals(res2.getProperty("FundingCurve"), "GenericFunding");
-    assertEquals(res2.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final Trade trade1 = getTrade(positions, "TradeAttr");
+      config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "GenericForward").with("TRADE.*.DEFAULT_FundingCurve", "GenericFunding")
+          .with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward").with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(trade1), ValueProperties.none());
+      final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.addTarget(req2);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      final ValueSpecification res2 = builder.getValueRequirementMapping().get(req2);
+      assertEquals(res1.getProperty("ForwardCurve"), "BarForward");
+      assertEquals(res1.getProperty("FundingCurve"), "BarFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+      assertEquals(res2.getProperty("ForwardCurve"), "GenericForward");
+      assertEquals(res2.getProperty("FundingCurve"), "GenericFunding");
+      assertEquals(res2.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTradeAttribute() {
-    final DependencyGraphBuilder builder = createBuilder();
-    final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")), ValueProperties.none());
-    builder.addTarget(req1);
-    builder.getDependencyGraph();
-    final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
-    assertEquals(res1.getProperty("ForwardCurve"), "FooForward");
-    assertEquals(res1.getProperty("FundingCurve"), "FooFunding");
-    assertEquals(res1.getProperty("Currency"), "USD");
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = createBuilder();
+      final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
+      final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")), ValueProperties.none());
+      builder.addTarget(req1);
+      builder.getDependencyGraph();
+      final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
+      assertEquals(res1.getProperty("ForwardCurve"), "FooForward");
+      assertEquals(res1.getProperty("FundingCurve"), "FooFunding");
+      assertEquals(res1.getProperty("Currency"), "USD");
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
 }

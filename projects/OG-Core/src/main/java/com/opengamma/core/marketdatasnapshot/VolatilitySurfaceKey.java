@@ -22,7 +22,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -159,7 +159,6 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static VolatilitySurfaceKey.Builder builder() {
@@ -343,7 +342,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -452,7 +451,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
   /**
    * The bean-builder for {@code VolatilitySurfaceKey}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<VolatilitySurfaceKey> {
+  public static final class Builder extends DirectFieldsBeanBuilder<VolatilitySurfaceKey> {
 
     private UniqueId _target;
     private String _name;
@@ -464,7 +463,6 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
      * Restricted constructor.
      */
     private Builder() {
-      super(VolatilitySurfaceKey.Meta.INSTANCE);
     }
 
     /**
@@ -472,7 +470,6 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(VolatilitySurfaceKey beanToCopy) {
-      super(VolatilitySurfaceKey.Meta.INSTANCE);
       this._target = beanToCopy.getTarget();
       this._name = beanToCopy.getName();
       this._instrumentType = beanToCopy.getInstrumentType();
@@ -502,6 +499,30 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -572,11 +593,11 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
     public String toString() {
       StringBuilder buf = new StringBuilder(192);
       buf.append("VolatilitySurfaceKey.Builder{");
-      buf.append("target").append('=').append(_target).append(',').append(' ');
-      buf.append("name").append('=').append(_name).append(',').append(' ');
-      buf.append("instrumentType").append('=').append(_instrumentType).append(',').append(' ');
-      buf.append("quoteType").append('=').append(_quoteType).append(',').append(' ');
-      buf.append("quoteUnits").append('=').append(_quoteUnits);
+      buf.append("target").append('=').append(JodaBeanUtils.toString(_target)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
+      buf.append("instrumentType").append('=').append(JodaBeanUtils.toString(_instrumentType)).append(',').append(' ');
+      buf.append("quoteType").append('=').append(JodaBeanUtils.toString(_quoteType)).append(',').append(' ');
+      buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(_quoteUnits));
       buf.append('}');
       return buf.toString();
     }

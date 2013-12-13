@@ -20,8 +20,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DepositIborDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
