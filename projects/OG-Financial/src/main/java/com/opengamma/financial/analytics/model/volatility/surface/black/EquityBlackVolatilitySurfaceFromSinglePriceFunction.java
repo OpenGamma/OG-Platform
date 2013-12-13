@@ -56,7 +56,9 @@ import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
 * Produces a {@link ValueRequirementNames#BLACK_VOLATILITY_SURFACE} 
-* from Forward and Discounting Curves, and the Option's {@link MarketDataRequirementNames#MARKET_VALUE} or {@link ValueRequirementNames#MARK_PREVIOUS}
+* from Forward and Discounting Curves, and the Option's {@link MarketDataRequirementNames#MARKET_VALUE} or {@link ValueRequirementNames#MARK_PREVIOUS}.<p>
+* TODO: REFACTOR after prototyping and testing. eg Remove SnapTime? OTM fall-back?
+* 
 */
 public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -87,6 +89,10 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
   private ValueProperties getResultProperties(Set<ValueRequirement> desiredValues) {
     return desiredValues.iterator().next().getConstraints();
   }
+  
+  protected Set<ValueRequirement> getAddlRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+    return Collections.emptySet();
+  }
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
@@ -106,7 +112,6 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
       requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification()));
     }
 
-    
     // 2. Discounting Curve Requirements
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency ccy = FinancialSecurityUtils.getCurrency(security);
@@ -163,6 +168,11 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
       requirements.add(new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, underlyingId, forwardCurveProperties));
     }
     
+    // 4. Add any additional requirements, and return
+    Set<ValueRequirement> addlRequirements = getAddlRequirements(context, target, desiredValue);
+    if (addlRequirements != null) {
+      requirements.addAll(addlRequirements);
+    }
     return requirements;
   }
   
@@ -236,20 +246,30 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
     final double discountFactor = getDiscountingCurve(inputs).getDiscountFactor(timeToExpiry);
 
     // From the option value, we invert the Black formula
-    final double forwardOptionPrice = spotOptionPrice / discountFactor;
-    final double impliedVol;
+    double forwardOptionPrice = spotOptionPrice / discountFactor;
+    final Double impliedVol;
     final double intrinsic = Math.max(0.0, (forward - strike) * (isCall ? 1.0 : -1.0));
     if (intrinsic >= forwardOptionPrice) {
-      s_logger.info("Option with intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")! Setting implied volatility to zero, " + security);
-      impliedVol = 0.0;
+      s_logger.info("Implied Vol Error: " + security.getName() + " - Intrinsic value (" + intrinsic + ") > price (" + forwardOptionPrice + ")!");
+      impliedVol = getImpliedVolIfPriceBelowPayoff(inputs, target, discountFactor, forward, strike, timeToExpiry, isCall);
     } else {
       impliedVol = BlackFormulaRepository.impliedVolatility(forwardOptionPrice, forward, strike, timeToExpiry, isCall);
     }
-
+    if (impliedVol == null) {
+      s_logger.error("Unable to compute implied vol");
+      return null;
+    }
     final Surface<Double, Double, Double> surface = ConstantDoublesSurface.from(impliedVol);
     final BlackVolatilitySurfaceMoneyness impliedVolatilitySurface = new BlackVolatilitySurfaceMoneyness(surface, forwardCurve);
     return impliedVolatilitySurface;
   }
+  
+  protected Double getImpliedVolIfPriceBelowPayoff(final FunctionInputs inputs, final ComputationTarget target, 
+      final double discountFactor, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
+    s_logger.info("Setting implied volatility to zero");
+    return 0.0;
+  }
+  
   
   protected YieldCurve getDiscountingCurve(final FunctionInputs inputs) {
     final Object discountingObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
