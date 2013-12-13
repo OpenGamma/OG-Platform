@@ -286,7 +286,7 @@ public class MarketDataSnapshotToolUtils {
     return Pairs.of(firstElement, secondElement);
   }
 
-  public static Pair<String, String> ordinatesAsString(Pair<Object, Object> rawOrdinates) {
+  public static Pair<String, String> ordinalsAsString(Pair<Object, Object> rawOrdinates) {
     String surfaceX;
     if (rawOrdinates.getFirst() instanceof Tenor) {
       surfaceX = ((Tenor) rawOrdinates.getFirst()).toFormattedString();

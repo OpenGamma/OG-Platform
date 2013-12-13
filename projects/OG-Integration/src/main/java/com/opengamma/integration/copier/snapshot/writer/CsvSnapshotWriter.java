@@ -28,7 +28,6 @@ import com.opengamma.integration.copier.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
 import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
-import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -57,7 +56,7 @@ public class CsvSnapshotWriter implements SnapshotWriter {
       ValueSnapshot valueSnapshot = entry.getValue();
       tempRow.putAll(prefixes);
 
-      Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinatesAsString(entry.getKey());
+      Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinalsAsString(entry.getKey());
       String surfaceX  = ordinals.getFirst();
       String surfaceY  = ordinals.getFirst();
 

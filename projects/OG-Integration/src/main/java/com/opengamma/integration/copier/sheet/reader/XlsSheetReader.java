@@ -24,8 +24,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A class for importing portfolio data from XLS (pre-Excel 2007) worksheets
- * TODO XLS reader is incomplete, and does not really work yet!!!
+ * A class for importing portfolio data from XLS worksheets
  */
 public class XlsSheetReader extends SheetReader {
 
@@ -125,8 +124,7 @@ public class XlsSheetReader extends SheetReader {
     if (rawRow == null || rawRow.getFirstCellNum() == -1) {
       return null; // new HashMap<String, String>();
     } 
-      
-   
+
     // Map read-in row onto expected columns
     Map<String, String> result = new HashMap<String, String>();
     for (int i = 0; i < getColumns().length; i++) {
@@ -178,11 +176,11 @@ public class XlsSheetReader extends SheetReader {
   @Override
   public void close() {
     try {
-      if (_inputStream != null) {
+      if (_inputStream != null) { //if sheet is multi sheeted, the first call with close input stream
         _inputStream.close();
       }
     } catch (IOException ex) {
-      // TODO Auto-generated catch block
+      throw new OpenGammaRuntimeException("Error closing Excel workbook: " + ex.getMessage());
     }
   }
 
@@ -190,6 +188,11 @@ public class XlsSheetReader extends SheetReader {
     return _currentRowIndex++;
   }
 
+  /**
+   * @param startRow, int to specify starting point, _currentRowIndex is set to startRow
+   * @param startCol, int to specify starting point
+   * @return Map<String, String> of all key/values until and empty row is reached.
+   */
   public Map<String, String> readKeyValueBlock(int startRow, int startCol) {
     Map<String, String> keyValueMap = new HashMap<>();
     _currentRowIndex = startRow;
@@ -201,10 +204,15 @@ public class XlsSheetReader extends SheetReader {
       _currentRowIndex++;
       row = _sheet.getRow(_currentRowIndex);
     }
-    _currentRowIndex++;
+    _currentRowIndex++;//increment to prepare for next read method
     return keyValueMap;
   }
 
+  /**
+   * @param startRow, int to specify starting point, _currentRowIndex is set to startRow
+   * @param startCol, int to specify starting point
+   * @return Map<String, ObjectsPair<String, String>> of all key/value-pair until and empty row is reached.
+   */
   public Map<String, ObjectsPair<String, String>> readKeyPairBlock(int startRow, int startCol) {
     Map<String, ObjectsPair<String, String>> keyPairMap = new HashMap<>();
     _currentRowIndex = startRow;
@@ -218,13 +226,16 @@ public class XlsSheetReader extends SheetReader {
       _currentRowIndex++;
       row = _sheet.getRow(_currentRowIndex);
     }
-    _currentRowIndex++;
+    _currentRowIndex++;//increment to prepare for next read method
     return keyPairMap;
   }
 
-
+  /**
+   * @param startRow, int to specify starting point, _currentRowIndex is set to startRow
+   * @param startCol, int to specify starting point
+   * @return Map<Pair<String, String>, String> of all ordinal-pair/value until and empty row is reached.
+   */
   public Map<Pair<String, String>, String> readMatrix(int startRow, int startCol) {
-
     Map<Pair<String, String>, String> valueMap = new HashMap<>();
     _currentRowIndex = startRow;
     int tempRowIndex = _currentRowIndex + 1; // Ignore top left cell
@@ -267,7 +278,7 @@ public class XlsSheetReader extends SheetReader {
       }
       _currentRowIndex++;
     }
-    _currentRowIndex++;
+    _currentRowIndex++;//increment to prepare for next read method
 
     return valueMap;
   }

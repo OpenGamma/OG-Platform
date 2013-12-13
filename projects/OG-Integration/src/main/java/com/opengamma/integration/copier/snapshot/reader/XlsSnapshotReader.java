@@ -76,9 +76,14 @@ public class XlsSnapshotReader implements SnapshotReader{
     buildSurfaceData();
   }
 
+  /**
+   * Build surface data from xls data, made up of a key/value block of details, a matrix block of market values and
+   * a matrix block of override values, each block separated by a empty row
+   */
   private void buildSurfaceData() {
     _surfaceSheet = new XlsSheetReader(_workbook, SnapshotType.VOL_SURFACE.get());
 
+    //continue reading in each surface object until current row incrementing returns no data
     while(true) {
       Map<String, String> details = _surfaceSheet.readKeyValueBlock(_surfaceSheet.getCurrentRowIndex(), 0);
       if (details.isEmpty() || details == null) {
@@ -95,6 +100,7 @@ public class XlsSnapshotReader implements SnapshotReader{
                                                          details.get(SnapshotColumns.SURFACE_QUOTE_UNITS.get()));
       HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<>();
 
+      // use the market value map to add the value and 'lookup' the corresponding override value
       for (Map.Entry<Pair<String, String>, String> entry : marketValues.entrySet()) {
         Pair rawOrdinals = entry.getKey();
         Pair ordinals = MarketDataSnapshotToolUtils.createOrdinatePair(rawOrdinals.getFirst().toString(),
@@ -122,6 +128,10 @@ public class XlsSnapshotReader implements SnapshotReader{
     return ExternalIdBundle.parse(iterable);
   }
 
+  /**
+   * Build yield curve data from xls data, made up of a key/value block of details and a key/value-pair block of values
+   * built by getManageableUnstructuredMarketDataSnapshot, each block separated by a empty row
+   */
   private void buildYieldCurveData() {
     _yieldCurveSheet = new XlsSheetReader(_workbook, SnapshotType.YIELD_CURVE.get());
     while (true) {
@@ -137,7 +147,10 @@ public class XlsSnapshotReader implements SnapshotReader{
       _yieldCurve.put(key, curve);
     }
   }
-
+  /**
+   * Build curve data from xls data, made up of a key/value block of details and a key/value-pair block of values
+   * built by getManageableUnstructuredMarketDataSnapshot, each block separated by a empty row
+   */
   private void buildCurveData() {
     _curveSheet = new XlsSheetReader(_workbook, SnapshotType.CURVE.get());
     while (true) {
@@ -166,12 +179,19 @@ public class XlsSnapshotReader implements SnapshotReader{
     }
     return builder;
   }
-
+  /**
+   * Build global data from xls data, made up of a key/value-pair block of values
+   * built by getManageableUnstructuredMarketDataSnapshot, should only consist of one block
+   */
   private void buildGlobalData() {
     _globalsSheet = new XlsSheetReader(_workbook, SnapshotType.GLOBAL_VALUES.get());
     _global = getManageableUnstructuredMarketDataSnapshot(_globalsSheet);
   }
 
+  /**
+   * Name data is made up of two separate blocks (name and basis name) which are special cased on writing the data
+   * so that they can be read in as on key value block
+   */
   private void buildNameData() {
     _nameSheet = new XlsSheetReader(_workbook, SnapshotType.NAME.get());
     Map<String, String> nameMap = _nameSheet.readKeyValueBlock(_nameSheet.getCurrentRowIndex(), 0);
@@ -187,7 +207,6 @@ public class XlsSnapshotReader implements SnapshotReader{
     } catch (FileNotFoundException ex) {
       throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading, exiting immediately.");
     }
-
     return fileInputStream;
   }
 
@@ -213,7 +232,7 @@ public class XlsSnapshotReader implements SnapshotReader{
 
   @Override
   public void close() {
-    //TODO
+    //XlsSheetReader takes care of closing the input stream
   }
 
   @Override

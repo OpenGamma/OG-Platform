@@ -113,7 +113,7 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       Set<String> yMap = new HashSet<>();
 
       for (Map.Entry<Pair<Object, Object>, ValueSnapshot> value : surface.getValues().entrySet()) {
-        Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinatesAsString(value.getKey());
+        Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinalsAsString(value.getKey());
 
         xMap.add(ordinals.getFirst());
         yMap.add(ordinals.getSecond());
