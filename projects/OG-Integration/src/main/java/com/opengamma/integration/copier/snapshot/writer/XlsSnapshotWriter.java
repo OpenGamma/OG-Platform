@@ -30,6 +30,7 @@ import com.opengamma.integration.copier.sheet.writer.XlsSheetWriter;
 import com.opengamma.integration.copier.sheet.writer.XlsWriter;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
+import com.opengamma.integration.tool.marketdata.MarketDataSnapshotToolUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -108,22 +109,21 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       Map<Pair<String, String>, String> marketValueMap = new LinkedHashMap<>();
       Map<Pair<String, String>, String> overrideValueMap = new LinkedHashMap<>();
 
-
       Set<String> xMap = new HashSet<>();
       Set<String> yMap = new HashSet<>();
 
       for (Map.Entry<Pair<Object, Object>, ValueSnapshot> value : surface.getValues().entrySet()) {
-        Pair<String, String> ordinal = ObjectsPair.of(value.getKey().getFirst().toString(), value.getKey().getSecond().toString());
+        Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinatesAsString(value.getKey());
 
-        xMap.add(ordinal.getFirst());
-        yMap.add(ordinal.getSecond());
+        xMap.add(ordinals.getFirst());
+        yMap.add(ordinals.getSecond());
 
         ValueSnapshot valueSnapshot = value.getValue();
         String market = (valueSnapshot.getMarketValue() == null) ? "" : valueSnapshot.getMarketValue().toString();
         String override = (valueSnapshot.getOverrideValue() == null) ? "" : valueSnapshot.getOverrideValue().toString();
 
-        marketValueMap.put(ordinal, market);
-        overrideValueMap.put(ordinal, override);
+        marketValueMap.put(ordinals, market);
+        overrideValueMap.put(ordinals, override);
       }
 
       _surfaceSheet.writeKeyValueBlock(details);
@@ -161,7 +161,6 @@ public class XlsSnapshotWriter implements SnapshotWriter {
       _yieldCurveSheet.writeKeyValueBlock(details);
       _yieldCurveSheet.writeKeyPairBlock(buildUnstructuredMarketDataSnapshotMap(curve.getValues()));
     }
-
   }
 
   @Override

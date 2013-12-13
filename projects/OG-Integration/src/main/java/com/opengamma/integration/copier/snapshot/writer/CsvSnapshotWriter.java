@@ -57,9 +57,9 @@ public class CsvSnapshotWriter implements SnapshotWriter {
       ValueSnapshot valueSnapshot = entry.getValue();
       tempRow.putAll(prefixes);
 
-      Pair<String, String> ordinates = MarketDataSnapshotToolUtils.ordinatesAsString(entry.getKey());
-      String surfaceX  = ordinates.getFirst();
-      String surfaceY  = ordinates.getFirst();
+      Pair<String, String> ordinals = MarketDataSnapshotToolUtils.ordinatesAsString(entry.getKey());
+      String surfaceX  = ordinals.getFirst();
+      String surfaceY  = ordinals.getFirst();
 
       tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
       tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
