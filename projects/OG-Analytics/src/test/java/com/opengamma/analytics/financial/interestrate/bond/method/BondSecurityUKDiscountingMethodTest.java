@@ -265,6 +265,6 @@ public class BondSecurityUKDiscountingMethodTest {
     assertEquals("bond Security: discounting method - clean price", method, calculator, 1e-9);
     method = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_G2, 0.05);
     calculator = BOND_FIXED_SECURITY_G2.accept(CPFY, 0.05);
-    assertEquals("bond Security: discounting method - clean price", method, calculator, 1e-9);
+    assertEquals("bond Security: discounting method - clean price", method, calculator / 100, 1e-9);
   }
 }
