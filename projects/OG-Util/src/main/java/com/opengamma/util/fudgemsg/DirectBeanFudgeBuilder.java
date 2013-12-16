@@ -32,6 +32,9 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBean;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 
 /**
@@ -101,8 +104,20 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
               value = deserializer.fieldValueToObject(field);
               if (!mp.propertyType().isAssignableFrom(value.getClass())) {
                 // the automatically resolved type is not compatible with the bean expected property type.
-                // Now we try to deserialise the filed using type hinting.
-                value = deserializer.fieldValueToObject(mp.propertyType(), field);
+                // let's see if we can convert the value to desired type
+                if (mp.propertyType().equals(ImmutableSet.class) && value instanceof Set) {
+                  value = ImmutableSet.copyOf((Set) value);
+                } else if (mp.propertyType().equals(ImmutableList.class) && value instanceof List) {
+                  value = ImmutableList.copyOf((List) value);
+                } else if (mp.propertyType().equals(ImmutableMap.class) && value instanceof Map) {
+                  value = ImmutableMap.copyOf((Map) value);
+                }
+
+                if (!mp.propertyType().isAssignableFrom(value.getClass())) {
+                  // second check of type compatibility
+                  // Now we try to deserialise the filed using type hinting.
+                  value = deserializer.fieldValueToObject(mp.propertyType(), field);
+                }
               }
             } catch (IllegalArgumentException ex) {
               if (field.getValue() instanceof String == false) {
