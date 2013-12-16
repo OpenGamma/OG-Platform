@@ -764,14 +764,14 @@ public class BondSecurityDiscountingMethodTest {
   public void convexityMethodVsCalculator() {
     final double method = METHOD_BOND_SECURITY.convexityFromCurves(BOND_FIXED_SECURITY_G2, ISSUER_SPECIFIC_MULTICURVES);
     final double calculator = BOND_FIXED_SECURITY_G2.accept(CFC, ISSUER_SPECIFIC_MULTICURVES);
-    assertEquals("bond Security: discounting method - convexity", method, calculator, 1e-9);
+    assertEquals("bond Security: discounting method - convexity", method, calculator * 100, 1e-9);
   }
 
   @Test
   public void cleanPriceMethodVsCalculator() {
     double method = METHOD_BOND_SECURITY.cleanPriceFromCurves(BOND_FIXED_SECURITY_G2, ISSUER_SPECIFIC_MULTICURVES);
     double calculator = BOND_FIXED_SECURITY_G2.accept(CPFC, ISSUER_SPECIFIC_MULTICURVES);
-    assertEquals("bond Security: discounting method - clean price", method, calculator, 1e-9);
+    assertEquals("bond Security: discounting method - clean price", method, calculator / 100, 1e-9);
     method = METHOD_BOND_SECURITY.cleanPriceFromYield(BOND_FIXED_SECURITY_G2, 0.05);
     calculator = BOND_FIXED_SECURITY_G2.accept(CPFY, 0.05);
     assertEquals("bond Security: discounting method - clean price", method, calculator / 100, 1e-9);
