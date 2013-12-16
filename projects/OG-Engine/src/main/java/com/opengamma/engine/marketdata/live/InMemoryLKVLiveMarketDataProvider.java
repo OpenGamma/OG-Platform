@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -63,7 +64,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVLiveMarketDataProvider.class);
-  private static int s_clientCount;
+  private static final AtomicInteger s_nextObjectName = new AtomicInteger();
 
   private static final class Subscription {
 
@@ -169,15 +170,11 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   private final ConcurrentMap<LiveDataSpecification, Subscription> _liveDataSpecToSubscriptions = new ConcurrentHashMap<>();
   private final UserPrincipal _marketDataUser;
 
-  public InMemoryLKVLiveMarketDataProvider(final LiveDataClient liveDataClient,
-      final MarketDataAvailabilityFilter availabilityFilter,
-      final UserPrincipal marketDataUser) {
+  public InMemoryLKVLiveMarketDataProvider(final LiveDataClient liveDataClient, final MarketDataAvailabilityFilter availabilityFilter, final UserPrincipal marketDataUser) {
     this(liveDataClient, availabilityFilter, new LiveMarketDataPermissionProvider(liveDataClient), marketDataUser);
   }
 
-  public InMemoryLKVLiveMarketDataProvider(final LiveDataClient liveDataClient,
-      final MarketDataAvailabilityFilter availabilityFilter,
-      final MarketDataPermissionProvider permissionProvider,
+  public InMemoryLKVLiveMarketDataProvider(final LiveDataClient liveDataClient, final MarketDataAvailabilityFilter availabilityFilter, final MarketDataPermissionProvider permissionProvider,
       final UserPrincipal marketDataUser) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     ArgumentChecker.notNull(availabilityFilter, "availabilityFilter");
@@ -207,7 +204,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   public String getMarketDataUser() {
     return _marketDataUser.toString();
   }
-  
+
   @Override
   public int getSpecificationCount() {
     return _valueSpecToSubscriptions.size();
@@ -231,8 +228,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
           Subscription subscription = _valueSpecToSubscriptions.get(specification);
           int subscriberCount = subscription.getSubscriberCount();
-          String state = subscription.getRequestedLiveData() == null ? "FAILED" :
-              subscription.getFullyQualifiedLiveData() == null ? "PENDING" : "ACTIVE";
+          String state = subscription.getRequestedLiveData() == null ? "FAILED" : subscription.getFullyQualifiedLiveData() == null ? "PENDING" : "ACTIVE";
           Object currentValue = _underlyingProvider.getCurrentValue(specification);
           results.put(fullSpec, new SubscriptionInfo(subscriberCount, state, currentValue));
         }
@@ -243,7 +239,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   private ObjectName createObjectName() {
     try {
-      return new ObjectName("com.opengamma:type=InMemoryLKVLiveMarketDataProvider,name=InMemoryLKVLiveMarketDataProvider " + s_clientCount++);
+      return new ObjectName("com.opengamma:type=InMemoryLKVLiveMarketDataProvider,name=InMemoryLKVLiveMarketDataProvider " + s_nextObjectName.getAndIncrement());
     } catch (MalformedObjectNameException e) {
       s_logger.warn("Invalid object name - unable to setup JMX bean", e);
       return null;
@@ -284,7 +280,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
             final LiveDataSpecification liveDataSpecification = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
             subscription.retry(liveDataSpecification);
             toSubscribe.add(liveDataSpecification);
-          } else /*if (subscription.getFullyQualifiedLiveData() != null)*/ {
+          } else { // if (subscription.getFullyQualifiedLiveData() != null) {
             alreadySubscribed.add(valueSpecification);
           }
         }
@@ -316,9 +312,9 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
           if (subscription != null) {
             if (subscription.decrementCount(valueSpecification)) {
               _valueSpecToSubscriptions.remove(valueSpecification);
-              
+
               s_logger.warn("Unsubscribed from " + valueSpecification + " at:\n" + StringUtils.join(Thread.currentThread().getStackTrace(), "\n"));
-              
+
               if (subscription.isUnsubscribed()) {
                 s_logger.warn("Now fully unsubscribed from " + valueSpecification);
                 final LiveDataSpecification requestedLiveData = subscription.getRequestedLiveData();
@@ -442,7 +438,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     s_logger.debug("Subscribed values are {}", subscriptions);
     final FudgeMsg msg = valueUpdate.getFields();
     for (final ValueSpecification subscription : subscriptions) {
-      
+
       String valueName = subscription.getValueName();
       Object value;
       if (MarketDataRequirementNames.ALL.equals(valueName)) {
@@ -499,12 +495,12 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   }
 
   /**
-   * Reattempts subscriptions for any data identified by the specified schemes. If a data provider becomes available
-   * this method will be invoked with the schemes handled by the provider. This gives this class the opportunity
-   * to reattempt previously failed subscriptions.
+   * Reattempts subscriptions for any data identified by the specified schemes. If a data provider becomes available this method will be invoked with the schemes handled by the provider. This gives
+   * this class the opportunity to reattempt previously failed subscriptions.
+   * 
    * @param schemes The schemes for which market data subscriptions should be reattempted.
    */
-  /* package */ void resubscribe(Set<ExternalScheme> schemes) {
+  /* package */void resubscribe(Set<ExternalScheme> schemes) {
     Set<ValueSpecification> valueSpecs = Sets.newHashSet();
     for (ValueSpecification valueSpec : _valueSpecToSubscriptions.keySet()) {
       LiveDataSpecification liveDataSpec = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpec);
