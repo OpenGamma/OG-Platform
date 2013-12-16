@@ -163,11 +163,9 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
       throw new OpenGammaRuntimeException("Could not get foreign yield curve");
     }
     final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
-    double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
-    absoluteTolerance = 1.0e-12;
+    final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final String relativeToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
-    double relativeTolerance = Double.parseDouble(relativeToleranceName);
-    relativeTolerance = 1.0e-12;
+    final double relativeTolerance = Double.parseDouble(relativeToleranceName);
     final String iterationsName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
     final int iterations = Integer.parseInt(iterationsName);
     final String decompositionName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
