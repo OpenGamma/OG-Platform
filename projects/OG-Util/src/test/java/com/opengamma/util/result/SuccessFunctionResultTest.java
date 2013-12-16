@@ -24,7 +24,7 @@ public class SuccessFunctionResultTest extends AbstractFudgeBuilderTestCase {
     assertEncodeDecodeCycle(ResultContainer.class, ResultContainer.of(success));
   }
 
-  @Test
+  @Test(enabled=false)
   public void serializeResultWithMapStringString() {
     Map<String, String> map = ImmutableMap.of("one", "1", "two", "2");
     FunctionResult<Map<String, String>> success = FunctionResultGenerator.success(map);
