@@ -124,6 +124,10 @@ To 2.1.15
 ---------
     [PLAT-5331] YieldCurveNodeReturnSeriesFunction qualifies result using user-specified tenors, not resolved ones.
 
+To 2.1.16
+---------
+    [PLAT-5345] Remove hard coded tolerance in FXImpliedYieldCurveSeriesFunction
+
 
 OpenGamma Platform 2.1
 ---------------------------------
