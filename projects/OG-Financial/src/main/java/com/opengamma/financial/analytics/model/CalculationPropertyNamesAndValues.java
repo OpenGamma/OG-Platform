@@ -58,6 +58,8 @@ public final class CalculationPropertyNamesAndValues {
   public static final String CLEAN_PRICE_METHOD = "CleanPrice";
   /** The property value indicating that bond analytics are produced from the yield */
   public static final String YIELD_METHOD = "Yield";
+  /** The property value indicating that bond analytics are produced from curves */
+  public static final String CURVES_METHOD = "Curves";
 
   /**
    * Private constructor.

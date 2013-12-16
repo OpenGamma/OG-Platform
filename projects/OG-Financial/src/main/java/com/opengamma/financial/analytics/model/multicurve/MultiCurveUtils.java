@@ -12,13 +12,24 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Utilities for results calculated using multi-curves.
  */
 public class MultiCurveUtils {
 
+  /**
+   * Converts a {@link DoubleMatrix1D} of yield curve node sensitivities to a {@link DoubleLabelledMatrix1D},
+   * where the labels are the names of the {@link CurveNode} or the node class name and maturity tenor if
+   * this value is null
+   * @param sensitivities The matrix of sensitivities, not null
+   * @param definition The curve definition, not null
+   * @return A labelled matrix
+   */
   public static DoubleLabelledMatrix1D getLabelledMatrix(final DoubleMatrix1D sensitivities, final CurveDefinition definition) {
+    ArgumentChecker.notNull(sensitivities, "sensitivities");
+    ArgumentChecker.notNull(definition, "definition");
     final int n = sensitivities.getNumberOfElements();
     if (n != definition.getNodes().size()) {
       throw new OpenGammaRuntimeException("Did not have a sensitivity for each curve node");

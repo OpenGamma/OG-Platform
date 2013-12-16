@@ -51,15 +51,19 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
     super(new IssuerProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
-  /**
-   * Pricing methods.
-   */
+  /** Method for counterparty deposits */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
+  /** Method for bill securities */
   private static final BillSecurityDiscountingMethod METHOD_BILL_SEC = BillSecurityDiscountingMethod.getInstance();
+  /** Method for bill transactions */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  /** Method for bond securities */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
+  /** Method for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
+  /** Method for bond future securities */
   private static final BondFutureDiscountingMethod METHOD_BNDFUT_DSC = BondFutureDiscountingMethod.getInstance();
+  /** Method for bond future transactions */
   private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----

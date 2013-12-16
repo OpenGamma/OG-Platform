@@ -20,7 +20,6 @@ import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.InterpolatedForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFuturePriceImpliedPerTickerDefaults;
-import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
@@ -31,7 +30,6 @@ import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpo
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerExchangeDefaults;
-import com.opengamma.financial.analytics.model.equity.option.ListedEquityOptionPerSecurityTypeDefaults;
 import com.opengamma.financial.analytics.model.equity.option.ListedEquityOptionPerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
@@ -51,9 +49,6 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixLookupFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
-import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 
 /**
@@ -263,11 +258,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
 
   @Override
   protected CurrencyPairInfo audKrwCurrencyPairInfo() {
-    CurrencyPairInfo i = super.audKrwCurrencyPairInfo();
+    final CurrencyPairInfo i = super.audKrwCurrencyPairInfo();
     i.setSurfaceName("model/forex", "DEFAULT");
     return i;
   }
-  
+
   @Override
   protected CurrencyPairInfo eurChfCurrencyPairInfo() {
     final CurrencyPairInfo i = super.eurChfCurrencyPairInfo();
@@ -288,7 +283,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setSurfaceName(null, "DEFAULT");
     return i;
   }
-  
+
   @Override
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdAudCurrencyPairInfo();
@@ -404,8 +399,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
 
   protected void addEquityForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
     // Interpolation Defaults
-    functionConfigs.add(functionConfiguration(InterpolatedForwardCurveDefaults.class, 
-        Interpolator1DFactory.DOUBLE_QUADRATIC, 
+    functionConfigs.add(functionConfiguration(InterpolatedForwardCurveDefaults.class,
+        Interpolator1DFactory.DOUBLE_QUADRATIC,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.FLAT_EXTRAPOLATOR));
     // EquityForward PerEquityDefaults
@@ -418,7 +413,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityForwardPerEquityDefaults.add(PriorityClass.ABOVE_NORMAL.name());
     equityForwardPerEquityDefaults.addAll(equityForwardDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardPerEquityDefaults.class.getName(), equityForwardPerEquityDefaults));
-    
+
     // EquityForwardCurve PerTickerDefaults (like above but for a curve requirement)
     final EquityInstrumentDefaultValues.Builder equityForwardCurveEquityAndExchangeDefaults = EquityInstrumentDefaultValues.builder()
         .useIdName()
@@ -431,7 +426,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityForwardCurvePerTickerDefaults.addAll(equityForwardCurveEquityAndExchangeDefaults.createPerEquityDefaults());
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerTickerDefaults.class.getName(), equityForwardCurvePerTickerDefaults));
 
-    // EquityForwardCurve PerCurrencyDefaults 
+    // EquityForwardCurve PerCurrencyDefaults
     final EquityInstrumentDefaultValues.Builder equityForwardCurveCurrencyDefaults = EquityInstrumentDefaultValues.builder()
         .useDiscountingCurveCurrency()
         .useDiscountingCurveNames()
@@ -441,22 +436,22 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityForwardCurvePerCurrencyDefaults.add(PriorityClass.BELOW_NORMAL.name());
     equityForwardCurvePerCurrencyDefaults.addAll(equityForwardCurveCurrencyDefaults.createPerCurrencyDefaults());
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults.class.getName(), equityForwardCurvePerCurrencyDefaults));
-    
+
     // EquityForwardCurve (from Futures) PerTickerDefaults
-    EquityInstrumentDefaultValues.Builder equityForwardCurveFromFuturesDefaults = EquityInstrumentDefaultValues.builder()
+    final EquityInstrumentDefaultValues.Builder equityForwardCurveFromFuturesDefaults = EquityInstrumentDefaultValues.builder()
         .useIdName()
         .useForwardCurveNames()
         .useDiscountingCurveCurrency()
         .useDiscountingCurveNames()
         .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames();
-    List<String> equityForwardCurveFromFuturesPerTickerDefaults = new ArrayList<>();
+    final List<String> equityForwardCurveFromFuturesPerTickerDefaults = new ArrayList<>();
     equityForwardCurveFromFuturesPerTickerDefaults.add(PriorityClass.ABOVE_NORMAL.name());
     equityForwardCurveFromFuturesPerTickerDefaults.addAll(equityForwardCurveFromFuturesDefaults.createPerTickerDefaults());
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveFuturePriceImpliedPerTickerDefaults.class.getName(), equityForwardCurveFromFuturesPerTickerDefaults));
-    
+
   }
-  
+
   protected void addEquityFuturePricingDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> defaults = Arrays.asList(PriorityClass.NORMAL.name(), CalculationPropertyNamesAndValues.MARK_TO_MARKET_METHOD);
     functionConfigs.add(new ParameterizedFunctionConfiguration(FuturesPricingDefaults.class.getName(), defaults));
@@ -480,7 +475,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   protected void addEquityFutureOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
-    List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), "USD", "BBG", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG");
+    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), "USD", "BBG", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG");
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFutureBlackVolatilitySurfacePerCurrencyDefaults.class.getName(), defaults));
   }
 
@@ -514,7 +509,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalPerEquityDefaults.class.getName(), equityOptionPerEquityDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalPerExchangeDefaults.class.getName(), equityOptionPerExchangeDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults.class.getName(), equityOptionPerCurrencyDefaults));
-    
+
     // Defaults added for Listed Equity Options
     // 1. EquityOptionCalculationMethodDefaultFunction added elsewhere in addEquityOptionCalculationMethodDefaults
     // 2. ListedEquityOptionFunction defaults
@@ -581,9 +576,9 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
   }
-  
+
   protected void addEquityOptionCalculationMethodDefaults(final List<FunctionConfiguration> functionConfigs) {
-    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(), 
+    final List<String> defaults = Arrays.asList(PriorityClass.ABOVE_NORMAL.name(),
         CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD, // (American) Equity Options
         CalculationPropertyNamesAndValues.BLACK_LISTED_METHOD, // (European) EquityIndexOptions
         CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_LISTED_METHOD); // (American) EquityIndexFutureOptions
@@ -592,6 +587,6 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
 
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions());
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions(), multicurvePricingFunctions());
   }
 }

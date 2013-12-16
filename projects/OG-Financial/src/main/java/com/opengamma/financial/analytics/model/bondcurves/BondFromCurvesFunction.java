@@ -3,14 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.bondyield;
+package com.opengamma.financial.analytics.model.bondcurves;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
-import static com.opengamma.engine.value.ValueRequirementNames.MARKET_YTM;
-import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.YIELD_METHOD;
+import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.CURVES_METHOD;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
+import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
+import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,8 +25,10 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -46,20 +51,25 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- *
+ * Base class for bond analytic calculations from yield curves.
+ * @param <T> The type of the result
  */
-public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class BondFromCurvesFunction<T> extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BondFromYieldAndCurvesFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BondFromCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
+  /** The calculator */
+  private final InstrumentDerivativeVisitor<IssuerProviderInterface, T> _calculator;
 
   /**
    * @param valueRequirementName The value requirement name, not null
+   * @param calculator The calculator
    */
-  public BondFromYieldAndCurvesFunction(final String valueRequirementName) {
+  public BondFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<IssuerProviderInterface, T> calculator) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
+    _calculator = calculator;
   }
 
   @Override
@@ -68,12 +78,12 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-    final Double yield = (Double) inputs.getValue(MARKET_YTM);
     final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
     final BondFixedTransaction bond = (BondFixedTransaction) derivative;
     final IssuerProvider issuerCurves = (IssuerProvider) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    return getResult(inputs, bond, issuerCurves, yield, spec);
+    final T result = bond.accept(_calculator, issuerCurves);
+    return Collections.singleton(new ComputedValue(spec, result));
   }
 
   @Override
@@ -99,9 +109,16 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
     if (curveExposureConfigs == null || curveExposureConfigs.size() != 1) {
       return null;
     }
+    final Set<String> absoluteTolerances = constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+    if (absoluteTolerances == null || absoluteTolerances.size() != 1) {
+      return null;
+    }
+    final Set<String> curveTypes = constraints.getValues(PROPERTY_CURVE_TYPE);
+    if (curveTypes == null || curveTypes.size() != 1) {
+      return null;
+    }
     final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<>();
-    requirements.add(new ValueRequirement(MARKET_YTM, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
     try {
       final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
       final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
@@ -110,7 +127,12 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
         final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
           final ValueProperties properties = ValueProperties.builder()
-              .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
+              .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
+              .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
+              .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
+              .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS))
+              .with(PROPERTY_CURVE_TYPE, curveTypes)
+              .get();
           requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
         }
       }
@@ -120,7 +142,6 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
       return null;
     }
   }
-
   /**
    * Gets the value properties of the result
    * @param target The computation target
@@ -128,20 +149,12 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
    */
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(CALCULATION_METHOD, YIELD_METHOD)
-        .withAny(CURVE_EXPOSURES);
+        .with(CALCULATION_METHOD, CURVES_METHOD)
+        .withAny(CURVE_EXPOSURES)
+        .withAny(PROPERTY_CURVE_TYPE)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
   }
-
-  /**
-   * Calculates the result.
-   * @param inputs The function inputs
-   * @param bond The bond transaction
-   * @param issuerCurves The issuer and discounting curves
-   * @param yield The yield of the bond
-   * @param spec The result specification
-   * @return The set of results
-   */
-  protected abstract Set<ComputedValue> getResult(FunctionInputs inputs, BondFixedTransaction bond, IssuerProvider issuerCurves,
-      double yield, ValueSpecification spec);
 
 }

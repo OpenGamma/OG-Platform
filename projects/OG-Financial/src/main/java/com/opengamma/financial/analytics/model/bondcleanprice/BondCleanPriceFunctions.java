@@ -14,7 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class CleanPriceFunctions extends AbstractFunctionConfigurationBean {
+public class BondCleanPriceFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from
@@ -22,7 +22,7 @@ public class CleanPriceFunctions extends AbstractFunctionConfigurationBean {
    * @return The configuration source exposing functions from this package
    */
   public static FunctionConfigurationSource instance() {
-    return new CleanPriceFunctions().getObjectCreating();
+    return new BondCleanPriceFunctions().getObjectCreating();
   }
 
   @Override

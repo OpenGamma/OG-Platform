@@ -124,6 +124,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         //TODO deal with arbitrary depth
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, name)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
             .get();
         exogenousRequirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }

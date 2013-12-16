@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.provider.calculator.issuer.ConvexityFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ConvexityFromYieldCalculator;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**

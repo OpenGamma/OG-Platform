@@ -16,9 +16,10 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.SimpleFunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingPricingFunctions;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
-import com.opengamma.financial.analytics.model.bondcleanprice.CleanPriceFunctions;
+import com.opengamma.financial.analytics.model.bondcleanprice.BondCleanPriceFunctions;
+import com.opengamma.financial.analytics.model.bondcurves.BondCurveFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
-import com.opengamma.financial.analytics.model.bondyield.YieldFunctions;
+import com.opengamma.financial.analytics.model.bondyield.BondYieldFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
@@ -88,7 +89,15 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
    * @return A configuration source containing bond functions
    */
   protected FunctionConfigurationSource bondCleanPriceFunctionConfiguration() {
-    return CleanPriceFunctions.instance();
+    return BondCleanPriceFunctions.instance();
+  }
+
+  /**
+   * Adds functions that produce bond analytics from yield curves.
+   * @return A configuration source containing bond functions
+   */
+  protected FunctionConfigurationSource bondCurveFunctionConfiguration() {
+    return BondCurveFunctions.instance();
   }
 
   /**
@@ -96,7 +105,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
    * @return A configuration source containing bond functions
    */
   protected FunctionConfigurationSource bondYieldFunctionConfiguration() {
-    return YieldFunctions.instance();
+    return BondYieldFunctions.instance();
   }
 
   /**
@@ -285,6 +294,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
         bondFunctionConfiguration(),
         bondFutureOptionFunctionConfiguration(),
         bondCleanPriceFunctionConfiguration(),
+        bondCurveFunctionConfiguration(),
         bondYieldFunctionConfiguration(),
         cdsFunctionConfiguration(),
         creditFunctionConfiguration(),

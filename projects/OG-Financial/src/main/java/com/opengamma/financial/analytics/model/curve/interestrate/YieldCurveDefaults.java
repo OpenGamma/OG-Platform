@@ -26,8 +26,12 @@ import com.opengamma.util.ArgumentChecker;
 @Deprecated
 public class YieldCurveDefaults extends DefaultPropertyFunction {
   /** The value requirement names to which these defaults apply */
-  private static final String[] VALUE_REQUIREMENTS = new String[] {ValueRequirementNames.YIELD_CURVE, ValueRequirementNames.YIELD_CURVE_JACOBIAN, ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
-      ValueRequirementNames.YIELD_CURVE_SERIES, ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES };
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.YIELD_CURVE,
+    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+    ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
+    ValueRequirementNames.YIELD_CURVE_SERIES,
+    ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES};
   /** The absolute tolerance */
   private final Set<String> _absoluteTolerance;
   /** The relative tolerance */

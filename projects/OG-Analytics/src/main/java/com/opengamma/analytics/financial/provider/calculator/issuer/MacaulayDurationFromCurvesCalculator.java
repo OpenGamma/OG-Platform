@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -43,5 +44,12 @@ public final class MacaulayDurationFromCurvesCalculator extends InstrumentDeriva
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
     return METHOD_BOND_SECURITY.macaulayDurationFromCurves(bond, issuer);
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuer) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(issuer, "Issuer provider");
+    return METHOD_BOND_SECURITY.macaulayDurationFromCurves(bond.getBondTransaction(), issuer);
   }
 }

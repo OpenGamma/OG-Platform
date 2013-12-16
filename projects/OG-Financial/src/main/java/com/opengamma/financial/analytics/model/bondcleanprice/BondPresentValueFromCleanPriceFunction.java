@@ -25,7 +25,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present of a bond from the clean price and a curve bundle.
+ * Calculates the present value of a bond from the clean price and a curve bundle.
  */
 public class BondPresentValueFromCleanPriceFunction extends BondFromCleanPriceAndCurvesFunction {
   /** The present value calculator */

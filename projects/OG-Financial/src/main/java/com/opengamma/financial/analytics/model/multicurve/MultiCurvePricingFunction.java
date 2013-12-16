@@ -87,6 +87,7 @@ import com.opengamma.util.money.Currency;
 public abstract class MultiCurvePricingFunction extends AbstractFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(MultiCurvePricingFunction.class);
+  /** The value requirements produced by this function */
   private final String[] _valueRequirements;
 
   /**
@@ -203,6 +204,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
           security instanceof InterestRateFutureSecurity;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       final ValueProperties properties = getResultProperties(context, target).get();
@@ -213,6 +215,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       return results;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final ValueProperties constraints = desiredValue.getConstraints();
@@ -331,6 +334,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      * Gets the value requirement names that this function can produce
      * @return The value requirement names
      */
+    @SuppressWarnings("synthetic-access")
     protected String[] getValueRequirementNames() {
       return _valueRequirements;
     }

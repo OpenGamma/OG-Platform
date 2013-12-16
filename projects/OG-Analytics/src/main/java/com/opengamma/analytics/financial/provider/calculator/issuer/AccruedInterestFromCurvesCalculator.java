@@ -9,46 +9,47 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculate convexity from the yield.
+ * Calculates the accrued interest from the curves.
  */
-public final class AccruedInterestFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
+public final class AccruedInterestFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<IssuerProviderInterface, Double> {
 
   /**
    * The calculator instance.
    */
-  private static final AccruedInterestFromYieldCalculator s_instance = new AccruedInterestFromYieldCalculator();
+  private static final AccruedInterestFromCurvesCalculator s_instance = new AccruedInterestFromCurvesCalculator();
 
   /**
    * Return the calculator instance.
    * @return The instance.
    */
-  public static AccruedInterestFromYieldCalculator getInstance() {
+  public static AccruedInterestFromCurvesCalculator getInstance() {
     return s_instance;
   }
 
   /**
    * Private constructor.
    */
-  private AccruedInterestFromYieldCalculator() {
+  private AccruedInterestFromCurvesCalculator() {
   }
 
   /** The method used for bonds */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override
-  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double yield) {
+  public Double visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
-    ArgumentChecker.notNull(yield, "yield");
-    return METHOD_BOND_SECURITY.accruedInterestFromYield(bond, yield);
+    ArgumentChecker.notNull(issuer, "Issuer provider");
+    return METHOD_BOND_SECURITY.accruedInterestFromCurves(bond, issuer);
   }
 
   @Override
-  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double yield) {
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
-    ArgumentChecker.notNull(yield, "yield");
-    return METHOD_BOND_SECURITY.accruedInterestFromYield(bond.getBondTransaction(), yield);
+    ArgumentChecker.notNull(issuer, "Issuer provider");
+    return METHOD_BOND_SECURITY.accruedInterestFromCurves(bond.getBondTransaction(), issuer);
   }
 }

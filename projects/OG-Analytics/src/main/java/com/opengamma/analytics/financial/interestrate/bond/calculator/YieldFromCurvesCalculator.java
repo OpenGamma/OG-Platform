@@ -38,10 +38,9 @@ public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitor
   private YieldFromCurvesCalculator() {
   }
 
-  /**
-   * The method used for different instruments.
-   */
+  /** Bill calculator */
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
+  /** Bond calculator */
   private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
 
   @Override

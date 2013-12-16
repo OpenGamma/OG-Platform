@@ -13,7 +13,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculate accrued interest for bonds.
- * @deprecated {@link YieldCurveBundle} is deprecated.
+ * @deprecated {@link YieldCurveBundle} is deprecated. Use
+ * {@link com.opengamma.analytics.financial.provider.calculator.issuer.AccruedInterestFromCurvesCalculator}.
  */
 @Deprecated
 public final class AccruedInterestFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {

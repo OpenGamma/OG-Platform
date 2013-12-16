@@ -309,5 +309,6 @@ public class MultiCurveDiscountingFunction extends
       }
       return result;
     }
+
   }
 }
