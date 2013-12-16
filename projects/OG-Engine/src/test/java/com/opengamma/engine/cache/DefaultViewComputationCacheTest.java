@@ -133,7 +133,7 @@ public class DefaultViewComputationCacheTest {
     bean.setFoo(42.0);
     bean.setBar(-1.0);
     list.add(bean);
-    assertPutGetCycle(list, 120, CacheSelectHint.allPrivate());
+    assertPutGetCycle(list, 99, CacheSelectHint.allPrivate());
   }
 
   private void assertPutValues(int type, final CacheSelectHint correctHint, final CacheSelectHint incorrectHint) {
