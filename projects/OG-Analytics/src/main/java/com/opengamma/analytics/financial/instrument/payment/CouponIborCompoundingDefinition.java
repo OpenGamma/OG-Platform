@@ -264,13 +264,13 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    * @return The compounded coupon.
    */
   public static CouponIborCompoundingDefinition from(final double notional, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final IborIndex index,
-                                                     final StubType stub, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, RollDateAdjuster adjuster) {
+      final StubType stub, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final Calendar calendar, RollDateAdjuster adjuster) {
     ArgumentChecker.notNull(accrualStartDate, "Accrual start date");
     ArgumentChecker.notNull(accrualEndDate, "Accrual end date");
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(calendar, "Calendar");
     final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, accrualEndDate, index.getTenor(), stub,
-                                                                                       businessDayConvention, calendar, endOfMonth, adjuster);
+        businessDayConvention, calendar, endOfMonth, adjuster);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;

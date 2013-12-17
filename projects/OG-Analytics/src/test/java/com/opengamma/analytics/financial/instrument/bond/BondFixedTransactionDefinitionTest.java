@@ -13,6 +13,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -37,7 +38,7 @@ public class BondFixedTransactionDefinitionTest {
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final String ISSUER_NAME = "Issuer";
-  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;//("Actual/Actual ICMA");("Actual/Actual ISDA")
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ICMA;
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final Period BOND_TENOR = Period.ofYears(2);
@@ -49,30 +50,44 @@ public class BondFixedTransactionDefinitionTest {
   private static final BondFixedSecurityDefinition BOND_SECURITY_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR,
       RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, ISSUER_NAME);
   // Transaction
-  private static final double PRICE = 0.90;
+  private static final double PRICE_DIRTY = 0.90;
+  private static final double YIELD = 0.05;
+  private static final double PRICE_CLEAN = 0.95;
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final double QUANTITY = 100000000; //100m
   private static final BondFixedTransactionDefinition BOND_TRANSACTION_DEFINITION = new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY,
-      SETTLEMENT_DATE, PRICE);
+      SETTLEMENT_DATE, PRICE_DIRTY);
   // to derivatives: common
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 17);
+  private static final BondSecurityDiscountingMethod METHOD_BOND_FIXED = BondSecurityDiscountingMethod.getInstance();
+  private static final double TOLERANCE_PRICE = 1.0E-8;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
-    new BondFixedTransactionDefinition(null, QUANTITY, SETTLEMENT_DATE, PRICE);
+    new BondFixedTransactionDefinition(null, QUANTITY, SETTLEMENT_DATE, PRICE_DIRTY);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullUnderlyingYield() {
+    BondFixedTransactionDefinition.ofYield(null, QUANTITY, SETTLEMENT_DATE, PRICE_DIRTY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettle() {
-    new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY, null, PRICE);
+    new BondFixedTransactionDefinition(BOND_SECURITY_DEFINITION, QUANTITY, null, PRICE_DIRTY);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSettleYield() {
+    BondFixedTransactionDefinition.ofYield(BOND_SECURITY_DEFINITION, QUANTITY, null, YIELD);
   }
 
   @Test
   public void testGetters() {
-    assertEquals(PRICE, BOND_TRANSACTION_DEFINITION.getPrice());
+    assertEquals(PRICE_DIRTY, BOND_TRANSACTION_DEFINITION.getPrice());
     assertEquals(QUANTITY, BOND_TRANSACTION_DEFINITION.getQuantity());
     assertEquals(SETTLEMENT_DATE, BOND_TRANSACTION_DEFINITION.getSettlementDate());
     assertEquals(BOND_SECURITY_DEFINITION, BOND_TRANSACTION_DEFINITION.getUnderlyingBond());
@@ -80,6 +95,23 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals(expectedAccrued, BOND_TRANSACTION_DEFINITION.getAccruedInterestAtSettlement(), 1E-6);
     assertEquals(DateUtils.getUTCDate(2011, 7, 13), BOND_TRANSACTION_DEFINITION.getPreviousAccrualDate());
     assertEquals(DateUtils.getUTCDate(2012, 1, 13), BOND_TRANSACTION_DEFINITION.getNextAccrualDate());
+  }
+
+  @Test
+  public void ofYield() {
+    BondFixedTransactionDefinition bondOfYieldTransactionDefinition = BondFixedTransactionDefinition.ofYield(BOND_SECURITY_DEFINITION, QUANTITY, SETTLEMENT_DATE, YIELD);
+    BondFixedSecurity bondOfYieldSecurity = bondOfYieldTransactionDefinition.getUnderlyingBond().toDerivative(REFERENCE_DATE_1, SETTLEMENT_DATE);
+    double dirtyPrice = METHOD_BOND_FIXED.dirtyPriceFromYield(bondOfYieldSecurity, YIELD);
+    assertEquals("Bond transaction: ofYield", dirtyPrice, bondOfYieldTransactionDefinition.getPrice(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  public void ofCleanPrice() {
+    BondFixedTransactionDefinition bondOfCleanPriceTransactionDefinition = BondFixedTransactionDefinition.ofCleanPrice(BOND_MON_SECURITY_DEFINITION, QUANTITY,
+        SETTLEMENT_DATE, PRICE_CLEAN);
+    double dirtyPrice = bondOfCleanPriceTransactionDefinition.getPrice();
+    double accruedAtSettle = bondOfCleanPriceTransactionDefinition.getAccruedInterestAtSettlement();
+    assertEquals("Bond transaction: ofYield", PRICE_CLEAN + accruedAtSettle, dirtyPrice, TOLERANCE_PRICE);
   }
 
   @SuppressWarnings("deprecation")

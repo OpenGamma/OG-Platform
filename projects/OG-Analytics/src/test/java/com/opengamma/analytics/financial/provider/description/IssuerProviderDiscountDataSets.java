@@ -44,7 +44,6 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * Sets of market data used in tests. With issuers.
  */
-@SuppressWarnings("unchecked")
 public class IssuerProviderDiscountDataSets {
   /** A linear interpolator with flat extrapolation */
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -60,13 +59,17 @@ public class IssuerProviderDiscountDataSets {
   private static final String UK_NAME = "UK GOVT";
 
   /** US government legal entity */
-  private static final LegalEntity US_GOVT = new LegalEntity(US_NAME, US_NAME, Sets.newHashSet(CreditRating.of("AA", "S&P", true)), Sector.of("Government"), Region.of("United States", Country.US, Currency.USD));
+  private static final LegalEntity US_GOVT = new LegalEntity(US_NAME, US_NAME, Sets.newHashSet(CreditRating.of("AA", "S&P", true)), Sector.of("Government"), Region.of("United States", Country.US,
+      Currency.USD));
   /** Belgian government legal entity */
-  private static final LegalEntity BEL_GOVT = new LegalEntity(BEL_NAME, BEL_NAME, Sets.newHashSet(CreditRating.of("A", "S&P", true)), Sector.of("Government"), Region.of("Belgium", Country.BE, Currency.EUR));
+  private static final LegalEntity BEL_GOVT = new LegalEntity(BEL_NAME, BEL_NAME, Sets.newHashSet(CreditRating.of("A", "S&P", true)), Sector.of("Government"), Region.of("Belgium", Country.BE,
+      Currency.EUR));
   /** German government legal entity */
-  private static final LegalEntity GER_GOVT = new LegalEntity(GER_NAME, GER_NAME, Sets.newHashSet(CreditRating.of("AAA", "S&P", true)), Sector.of("Government"), Region.of("Germany", Country.DE, Currency.EUR));
+  private static final LegalEntity GER_GOVT = new LegalEntity(GER_NAME, GER_NAME, Sets.newHashSet(CreditRating.of("AAA", "S&P", true)), Sector.of("Government"), Region.of("Germany", Country.DE,
+      Currency.EUR));
   /** UK government legal entity */
-  private static final LegalEntity UK_GOVT = new LegalEntity(UK_NAME, UK_NAME, Sets.newHashSet(CreditRating.of("B", "S&P", true)), Sector.of("Government"), Region.of("Great Britain", Country.GB, Currency.GBP));
+  private static final LegalEntity UK_GOVT = new LegalEntity(UK_NAME, UK_NAME, Sets.newHashSet(CreditRating.of("B", "S&P", true)), Sector.of("Government"), Region.of("Great Britain", Country.GB,
+      Currency.GBP));
 
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
@@ -176,9 +179,9 @@ public class IssuerProviderDiscountDataSets {
     gb.add(Country.GB);
     gb.add(Pairs.of("S&P", "B"));
     COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) us, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), US_USD_CURVE);
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) be, (LegalEntityFilter<LegalEntity>)COUNTRY_RATING_FILTER), BEL_EUR_CURVE);
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) de, (LegalEntityFilter<LegalEntity>)COUNTRY_RATING_FILTER), GER_EUR_CURVE);
-    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) gb, (LegalEntityFilter<LegalEntity>)COUNTRY_RATING_FILTER), UK_GBP_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) be, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), BEL_EUR_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) de, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), GER_EUR_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) gb, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), UK_GBP_CURVE);
   }
 
   /** US GOVT curve with constant 6% rate */
@@ -251,6 +254,6 @@ public class IssuerProviderDiscountDataSets {
    * @return The issuers
    */
   public static LegalEntity[] getIssuers() {
-    return new LegalEntity[] {US_GOVT, BEL_GOVT, GER_GOVT, UK_GOVT};
+    return new LegalEntity[] {US_GOVT, BEL_GOVT, GER_GOVT, UK_GOVT };
   }
 }

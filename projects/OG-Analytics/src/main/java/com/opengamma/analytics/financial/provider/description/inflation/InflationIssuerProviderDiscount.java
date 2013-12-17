@@ -65,8 +65,8 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
    * @param fxMatrix The FXMatrix.
    */
   public InflationIssuerProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
-      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves,
-      final FXMatrix fxMatrix) {
+      final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves,
+      final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves, final FXMatrix fxMatrix) {
     _inflationProvider = new InflationProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, priceIndexCurves, fxMatrix);
     _issuerCurves = issuerCurves;
   }
@@ -102,9 +102,9 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     _issuerCurves.put(issuerCcy, curve);
   }
 
-//  public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
-//    setCurve(Pairs.of(issuer, ccy), curve);
-//  }
+  //  public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
+  //    setCurve(Pairs.of(issuer, ccy), curve);
+  //  }
 
   @Override
   public double getDiscountFactor(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final Double time) {
