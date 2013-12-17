@@ -101,10 +101,6 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
   }
   
   private static String getDataFieldName(FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider, ValueRequirement desiredValue) {
-    final String snapTime = desiredValue.getConstraint(ValuePropertyNames.SNAP_TIME);
-    if (snapTime != null && snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_CLOSE)) {
-      return ValueRequirementNames.MARK_PREVIOUS;
-    }
     return futurePriceCurveProvider.getDataFieldName();
   }
 
@@ -135,7 +131,6 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
         final ValueProperties curveProperties = createValueProperties()
-            .withAny(ValuePropertyNames.SNAP_TIME)
             .withAny(ValuePropertyNames.CURVE)
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get();
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
@@ -232,7 +227,6 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
             target.toSpecification(),
             createValueProperties()
                 .with(ValuePropertyNames.CURVE, curveName)
-                .with(ValuePropertyNames.SNAP_TIME, desiredValue.getConstraint(ValuePropertyNames.SNAP_TIME))
                 .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get());
         final NodalDoublesCurve curve = NodalDoublesCurve.from(xList.toDoubleArray(), prices.toDoubleArray());
         final ComputedValue futurePriceCurveResultValue = new ComputedValue(futurePriceCurveResult, curve);

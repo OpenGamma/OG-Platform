@@ -124,7 +124,8 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     final InstrumentDefinition<?> defn = security.accept(_converter);
     final InstrumentDerivative derivative = defn.toDerivative(now);
     if (derivative.accept(LastTimeCalculator.getInstance()) < 0.0) {
-      throw new OpenGammaRuntimeException("Equity option has already settled; " + security.toString());
+      s_logger.error("Option has already settled - {}", security.toString());
+      return null;
     }
 
     // 2. Build up the market data bundle
@@ -220,7 +221,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     String discountingCurveConfig = null;
     String forwardCurveName = null;
     String forwardCurveCalculationMethod = null;
-    String volSnapTime = null;
     ValueProperties.Builder additionalConstraintsBuilder = null;
     if ((constraints.getProperties() == null) || constraints.getProperties().isEmpty()) {
       return null;
@@ -248,9 +248,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
         case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
           forwardCurveCalculationMethod = constraints.getStrictValue(property);
           break;
-        case ValuePropertyNames.SNAP_TIME_VOL:
-          volSnapTime = constraints.getStrictValue(property);
-          break;
         default:
           if (additionalConstraintsBuilder == null) {
             additionalConstraintsBuilder = ValueProperties.builder();
@@ -265,7 +262,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       }
     }
     if ((discountingCurveName == null) || (discountingCurveConfig == null) ||
-        (volSnapTime == null) ||
         (forwardCurveName == null) || (forwardCurveCalculationMethod == null)) {
       return null;
     }
@@ -302,7 +298,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     }
     // Volatility
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SNAP_TIME, volSnapTime) 
         .with(ValuePropertyNames.DISCOUNTING_CURVE_NAME, discountingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, discountingCurveConfig)
          .with(ValuePropertyNames.FORWARD_CURVE_NAME, forwardCurveName)
@@ -322,7 +317,6 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     String forwardCurveName = null;
     String discountingCurveName = null;
     String discountingCurveConfig = null;
-    String volSnapTime = null;
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
         .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, getModelType())
@@ -346,9 +340,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
         final ValueProperties surfaceProperties = value.getProperties().copy()
             .withoutAny(ValuePropertyNames.FUNCTION)
             .withoutAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
-            .withoutAny(ValuePropertyNames.SNAP_TIME)
             .get();
-        volSnapTime = value.getProperty(ValuePropertyNames.SNAP_TIME);
         for (final String property : surfaceProperties.getProperties()) {
           properties.with(property, surfaceProperties.getValues(property));
         }
@@ -375,8 +367,7 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
     properties
         .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
         .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
-        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME, forwardCurveName)
-        .with(ValuePropertyNames.SNAP_TIME_VOL, volSnapTime);
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));

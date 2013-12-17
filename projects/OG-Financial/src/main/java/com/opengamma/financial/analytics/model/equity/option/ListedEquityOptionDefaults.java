@@ -123,8 +123,6 @@ public abstract class ListedEquityOptionDefaults extends DefaultPropertyFunction
   @Override
   protected void getDefaults(PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.SNAP_TIME_VOL);
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.SNAP_TIME);
       defaults.addValuePropertyName(valueName, EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG);
       defaults.addValuePropertyName(valueName, EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME);
       defaults.addValuePropertyName(valueName, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME);
@@ -153,10 +151,6 @@ public abstract class ListedEquityOptionDefaults extends DefaultPropertyFunction
         return _idToForwardCurveName.get(id);
       case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
         return _idToForwardCurveCalculationMethodName.get(id);
-      case ValuePropertyNames.SNAP_TIME_VOL:
-        return Collections.singleton(ValuePropertyNames.SNAP_TIME_LIVE);
-      case ValuePropertyNames.SNAP_TIME:
-        return Collections.singleton(ValuePropertyNames.SNAP_TIME_LIVE);
       default:
         s_logger.error("Cannot get a default value for {}", propertyName);
         return null;
