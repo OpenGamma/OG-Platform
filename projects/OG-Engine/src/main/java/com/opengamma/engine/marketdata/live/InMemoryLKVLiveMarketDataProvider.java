@@ -253,8 +253,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
-    final Collection<LiveDataSpecification> toSubscribe = new ArrayList<>(valueSpecifications.size());
-    final Collection<ValueSpecification> alreadySubscribed = new ArrayList<>(valueSpecifications.size());
+    final Collection<LiveDataSpecification> toSubscribe = new HashSet<>(valueSpecifications.size());
     // Serialize all subscribes/unsubscribes
     synchronized (_liveDataClient) {
       synchronized (_liveDataSpecToSubscriptions) {
@@ -275,13 +274,11 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
           }
           // Increment the count on an open subscription
           subscription.incrementCount(valueSpecification);
+          final LiveDataSpecification liveDataSpecification = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
+          toSubscribe.add(liveDataSpecification);
           // If the subscription previously failed, try again -- is this the behavior we want; or should we be a bit less eager to retry?
           if (subscription.getRequestedLiveData() == null) {
-            final LiveDataSpecification liveDataSpecification = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
             subscription.retry(liveDataSpecification);
-            toSubscribe.add(liveDataSpecification);
-          } else { // if (subscription.getFullyQualifiedLiveData() != null) {
-            alreadySubscribed.add(valueSpecification);
           }
         }
       }
@@ -289,10 +286,6 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
         s_logger.info("Subscribing {} to {} live data specifications", _marketDataUser, toSubscribe.size());
         _liveDataClient.subscribe(_marketDataUser, toSubscribe, this);
       }
-    }
-    if (!alreadySubscribed.isEmpty()) {
-      s_logger.info("Already subscribed {} to {} live data specifications", _marketDataUser, alreadySubscribed.size());
-      subscriptionsSucceeded(alreadySubscribed);
     }
   }
 
@@ -386,7 +379,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
           continue;
         }
         if (subscription.getFullyQualifiedLiveData() != null) {
-          s_logger.warn("Received duplicate subscription result: {}", subscriptionResult);
+          s_logger.debug("Received another subscription result for existing subscription: {}", subscriptionResult);
           _liveDataSpecToSubscriptions.remove(subscription.getFullyQualifiedLiveData());
         }
         if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
