@@ -63,7 +63,22 @@ import com.opengamma.util.time.ExpiryAccuracy;
 public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionFunction.class);
-  
+
+  /**
+   * Property name for what to do if Implied Vol is undefined <p>
+   * <p>
+   * Property used to select method of dealing with rare case in which option and forward prices are such
+   * that the implied volatility is not defined.<p>
+   * This occurs when the discounted payoff is worth more than the option price.<p>
+   * See child classes of this one.
+   */
+  public static final String PROPERTY_IMPLIED_VOL_BACKUP = "ImpliedVolBackup";
+  /**
+   * Selection of {@link PROPERTY_IMPLIED_VOL_BACKUP} which will throw an error
+   * if implied vol is undefined
+   */
+  public static final String NO_VOL_BACKUP = "None";
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY; 
@@ -75,7 +90,7 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, target.toSpecification(), properties));
   }
 
-  private ValueProperties getResultProperties() {
+  public ValueProperties getResultProperties() {
     ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.SNAP_TIME)
         .withAny(ValuePropertyNames.DISCOUNTING_CURVE_NAME)
@@ -194,9 +209,9 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
     // First, get the market value at the snap time
     final ComputedValue optionPriceValue;
     if (snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_LIVE)) {
-      optionPriceValue = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
+      optionPriceValue = inputs.getComputedValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification()));
     } else if (snapTime.equalsIgnoreCase(ValuePropertyNames.SNAP_TIME_CLOSE)) {
-      optionPriceValue = inputs.getComputedValue(ValueRequirementNames.MARK_PREVIOUS);
+      optionPriceValue = inputs.getComputedValue(new ValueRequirement(ValueRequirementNames.MARK_PREVIOUS, target.toSpecification()));
     } else {
       s_logger.error("Invalid {} provided. Use {} or {}", ValuePropertyNames.SNAP_TIME, ValuePropertyNames.SNAP_TIME_LIVE, ValuePropertyNames.SNAP_TIME_CLOSE);
       return null;
@@ -266,10 +281,9 @@ public class EquityBlackVolatilitySurfaceFromSinglePriceFunction extends Abstrac
   
   protected Double getImpliedVolIfPriceBelowPayoff(final FunctionInputs inputs, final ComputationTarget target, 
       final double discountFactor, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
-    s_logger.info("Setting implied volatility to zero");
-    return 0.0;
+    s_logger.error("Setting implied volatility to null");
+    return null;
   }
-  
   
   protected YieldCurve getDiscountingCurve(final FunctionInputs inputs) {
     final Object discountingObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
