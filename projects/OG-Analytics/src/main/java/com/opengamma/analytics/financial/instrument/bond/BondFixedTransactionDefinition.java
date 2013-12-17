@@ -12,6 +12,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -45,6 +46,21 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     } else {
       _accruedInterestAtSettlement = accruedInterest;
     }
+  }
+
+  /**
+   * Builder of a fixed coupon bond transaction from the underlying bond and the conventional yield at settlement date.
+   * @param underlyingBond The fixed coupon bond underlying the transaction.
+   * @param quantity The number of bonds purchased (can be negative or positive).
+   * @param settlementDate Transaction settlement date.
+   * @param yield The yield quoted in the underlying bond convention. The yield is in 
+   * @return
+   */
+  public BondFixedTransactionDefinition of(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double yield) {
+    BondFixedSecurity security = underlyingBond.toDerivative(settlementDate, settlementDate);
+    BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
+    double dirtyPrice = method.dirtyPriceFromYield(security, yield);
+    return new BondFixedTransactionDefinition(underlyingBond, quantity, settlementDate, dirtyPrice);
   }
 
   /**
