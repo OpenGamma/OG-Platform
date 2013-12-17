@@ -19,6 +19,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -115,6 +116,11 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
+    public InterestRateInstrumentType visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+      return FRA;
+    }
+
+    @Override
     public InterestRateInstrumentType visitBondFutureSecurity(final BondFutureSecurity security) {
       return BOND_FUTURE;
     }
@@ -140,6 +146,7 @@ public enum InterestRateInstrumentType {
    */
   public static final ComputationTargetType FIXED_INCOME_INSTRUMENT_TARGET_TYPE = FinancialSecurityTypes.CASH_SECURITY
       .or(FinancialSecurityTypes.FRA_SECURITY)
+      .or(FinancialSecurityTypes.FORWARD_RATE_AGREEMENT_SECURITY)
       .or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY)
       .or(FinancialSecurityTypes.SWAP_SECURITY)
       .or(FinancialSecurityTypes.INTEREST_RATE_SWAP_SECURITY);

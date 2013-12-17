@@ -42,6 +42,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -202,6 +203,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
         @Override
         public String visitFRASecurity(final FRASecurity security) {
+          return FRAS;
+        }
+
+        @Override
+        public String visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
           return FRAS;
         }
 

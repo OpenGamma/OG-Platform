@@ -23,6 +23,7 @@ import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -202,6 +203,11 @@ public class FinancialSecurityTypes {
    * The FRA security type.
    */
   public static final ObjectComputationTargetType<FRASecurity> FRA_SECURITY = ObjectComputationTargetType.of(FRASecurity.class);
+
+  /**
+   * The FRA security type.
+   */
+  public static final ObjectComputationTargetType<ForwardRateAgreementSecurity> FORWARD_RATE_AGREEMENT_SECURITY = ObjectComputationTargetType.of(ForwardRateAgreementSecurity.class);
 
   /**
    * The Future security type.
