@@ -36,7 +36,7 @@ public class DefaultSwaption {
 
     //front end protection is worth zero for an option to be the seller of protection 
     final double fep = isPayer && hasFrontEndProt ? cds.getLGD() * yieldCurve.getDiscountFactor(optionExpiry) * (1 - creditCurve.getSurvivalProbability(optionExpiry)) : 0.0;
-    final double rpv01 = _pricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double rpv01 = _pricer.annuity(cds, yieldCurve, creditCurve, PriceType.CLEAN);
     final double protLeg = _pricer.protectionLeg(cds, yieldCurve, creditCurve);
     final double fwdSpread = protLeg / rpv01;
     final double koVal = rpv01 * BlackFormulaRepository.price(fwdSpread, strike, optionExpiry, vol, isPayer);
@@ -46,7 +46,7 @@ public class DefaultSwaption {
   public double impliedVol(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double strike, final double optionExpiry,
       final double price, final boolean isPayer, final boolean hasFrontEndProt) {
     final double fep = isPayer && hasFrontEndProt ? cds.getLGD() * yieldCurve.getDiscountFactor(optionExpiry) * (1 - creditCurve.getSurvivalProbability(optionExpiry)) : 0.0;
-    final double rpv01 = _pricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, creditCurve, PriceType.CLEAN);
+    final double rpv01 = _pricer.annuity(cds, yieldCurve, creditCurve, PriceType.CLEAN);
     final double protLeg = _pricer.protectionLeg(cds, yieldCurve, creditCurve);
     final double fwdSpread = protLeg / rpv01;
     final double fwdPrice = (price - fep) / rpv01;

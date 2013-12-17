@@ -61,7 +61,7 @@ public class AnalyticSpreadSensitivityCalculator {
 
     final ISDACompliantCreditCurve cc = _curveBuilder.calibrateCreditCurve(cds, coupon, yieldCurve, puf);
     final double a = _pricer.protectionLeg(cds, yieldCurve, cc);
-    final double b = _pricer.pvPremiumLegPerUnitSpread(cds, yieldCurve, cc, PriceType.CLEAN);
+    final double b = _pricer.annuity(cds, yieldCurve, cc, PriceType.CLEAN);
     final double aPrime = _pricer.protectionLegCreditSensitivity(cds, yieldCurve, cc, 0);
     final double bPrime = _pricer.pvPremiumLegCreditSensitivity(cds, yieldCurve, cc, 0);
     final double s = a / b;

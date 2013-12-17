@@ -54,7 +54,7 @@ public class MatlabTest extends ISDABaseTest {
     }
 
     final double pv = PRICER.pv(cds, YIELD_CUVRE, CREDIT_CUVRE, 0.01);
-    final double rpv01 = PRICER.pvPremiumLegPerUnitSpread(cds, YIELD_CUVRE, CREDIT_CUVRE, PriceType.CLEAN);
+    final double rpv01 = PRICER.annuity(cds, YIELD_CUVRE, CREDIT_CUVRE, PriceType.CLEAN);
     final double protLeg = PRICER.protectionLeg(cds, YIELD_CUVRE, CREDIT_CUVRE);
     System.out.println("pv " + pv);
     System.out.println("rpv01 " + rpv01);

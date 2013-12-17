@@ -35,10 +35,11 @@ public class CDSAnalytic {
   private final boolean _payAccOnDefault;
   private final CDSCoupon[] _coupons;
 
-  private final double _accStart;
-  private final double _effectiveProtectionStart;
-  private final double _valuationTime;
-  private final double _protectionEnd;
+  //important time measures for the curve zero time ('now') using the curve DCC
+  private final double _accStart; //the start of the first accrual period (usually < 0) 
+  private final double _effectiveProtectionStart; //when protection starts (usually zero unless forward starting CDS)
+  private final double _cashSettlementTime; //Time when CDS is cash settled (valuation time defaults to this)
+  private final double _protectionEnd; //when the CDS ends 
 
   private final double _accrued;
   private final int _accruedDays;
@@ -147,7 +148,7 @@ public class CDSAnalytic {
     final LocalDate effectiveStartDate = isProtectStart ? startDate.minusDays(1) : startDate;
 
     _accStart = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
-    _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
+    _cashSettlementTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
     _effectiveProtectionStart = effectiveStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(effectiveStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate,
         effectiveStartDate);
     _protectionEnd = curveDayCount.getDayCountFraction(tradeDate, endDate);
@@ -197,7 +198,7 @@ public class CDSAnalytic {
    * @return the CashSettleTime
    */
   public double getCashSettleTime() {
-    return _valuationTime;
+    return _cashSettlementTime;
   }
 
   /**
@@ -275,7 +276,7 @@ public class CDSAnalytic {
     _accStart = start;
     _effectiveProtectionStart = effectiveProtectionStart;
     _protectionEnd = protectionEnd;
-    _valuationTime = valuationTime;
+    _cashSettlementTime = valuationTime;
 
     _lgd = lgd;
     _coupons = coupons;
@@ -291,6 +292,6 @@ public class CDSAnalytic {
    */
   public CDSAnalytic withRecoveryRate(final double recoveryRate) {
     ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
-    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, _protectionEnd, _valuationTime, _payAccOnDefault, _accrued, _accruedDays);
+    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, _protectionEnd, _cashSettlementTime, _payAccOnDefault, _accrued, _accruedDays);
   }
 }
