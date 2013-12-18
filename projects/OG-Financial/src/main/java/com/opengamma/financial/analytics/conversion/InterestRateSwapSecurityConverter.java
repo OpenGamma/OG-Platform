@@ -221,7 +221,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
                                                                               FixedInterestRateSwapLeg fixedLeg) {
     AnnuityDefinition<? extends PaymentDefinition> firstLeg = null;
 
-    final Frequency periodFreqFixed = fixedLeg.getConvention().getCalculationFrequency();
+    final Frequency payFreq = fixedLeg.getConvention().getPaymentFrequency();
     final Currency currency = fixedLeg.getNotional().getCurrency();
     final boolean isPay = fixedLeg.getPayReceiveType() == PayReceiveType.PAY;
     final double signFixed = (isPay ? -1.0 : 1.0);
@@ -236,7 +236,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     ZonedDateTime effectiveDateTime = getZonedDateTime(swapSecurity.getEffectiveDate());
     ZonedDateTime maturityDateTime = getZonedDateTime(swapSecurity.getUnadjustedMaturityDate());
 
-    if (Frequency.NEVER_NAME.equals(periodFreqFixed.getName())) {
+    if (Frequency.NEVER_NAME.equals(payFreq.getName())) {
       firstLeg = generateZCFixedAnnuity(swapSecurity, currency, signFixed, nbNotional, fixedLeg.getNotional().getInitialAmount(),
                                         fixedLegPaymentCalendar, effectiveDateTime, maturityDateTime);
     } else {
@@ -244,7 +244,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
         RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(fixedLeg.getConvention().getRollConvention());
         final StubType stub = fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START;
         firstLeg = AnnuityDefinitionBuilder.couponFixed(currency, effectiveDateTime, maturityDateTime,
-            getTenor(periodFreqFixed), // period and payment dates are generated from these
+            getTenor(payFreq), // period and payment dates are generated from these
             fixedLegPaymentCalendar, // period and payment dates are generated from these
             fixedLegDayCount, fixedLegFixingBusinessDayConvention, fixedIsEOM, getNotionalProvider(fixedLeg.getNotional(), fixedLeg.getConvention().getCalculationBusinessDayConvention(), fixCalcCalendar),
             fixedLeg.getRate().getInitialRate(), isPay,
