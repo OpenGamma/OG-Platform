@@ -37,7 +37,6 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBuildingRepository;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -51,12 +50,15 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.BondNodeConverter;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -79,6 +81,7 @@ import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
@@ -149,8 +152,8 @@ public class IssuerProviderDiscountingFunction extends
     @SuppressWarnings("unchecked")
     @Override
     protected Pair<IssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final IssuerDiscountBuildingRepository builder,
-        final IssuerProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SecuritySource securitySource, final FXMatrix fx) {
+        final IssuerProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -190,7 +193,7 @@ public class IssuerProviderDiscountingFunction extends
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
             parameterGuessForCurves[k] = 0.02; // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
-            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource,
+            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context,
                 snapshot, node.getIdentifier(), timeSeries, now, fx));
             derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
@@ -273,9 +276,16 @@ public class IssuerProviderDiscountingFunction extends
     }
 
     @Override
-    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime, final FXMatrix fx) {
+    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final FunctionExecutionContext context,
+        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
+        final ZonedDateTime valuationTime, final FXMatrix fx) {
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
+      final ConventionBundleSource conventionBundleSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+      final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+      final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
+          .bondNodeVisitor(new BondNodeConverter(conventionBundleSource, holidaySource, regionSource, securitySource, marketData, dataId, valuationTime))
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
@@ -291,7 +301,7 @@ public class IssuerProviderDiscountingFunction extends
     protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
         final ValueProperties bundleProperties, final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
-      final InflationProviderDiscount provider = (InflationProviderDiscount) pair.getFirst();
+      final IssuerProviderDiscount provider = (IssuerProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));
       result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
@@ -299,7 +309,7 @@ public class IssuerProviderDiscountingFunction extends
             .with(CURVE, curveName)
             .get();
         final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties);
-        result.add(new ComputedValue(curveSpec, provider.getCurve(curveName)));
+        result.add(new ComputedValue(curveSpec, provider.getIssuerCurve(curveName)));
       }
       return result;
     }

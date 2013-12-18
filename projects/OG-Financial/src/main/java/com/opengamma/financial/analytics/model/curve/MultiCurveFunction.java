@@ -42,10 +42,7 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -60,7 +57,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
@@ -228,12 +224,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
       final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
       final U builder = getBuilder(absoluteTolerance, relativeTolerance, maxIterations);
-      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-      final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-      final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource,
-          securitySource, fxMatrix);
+      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, executionContext, fxMatrix);
       final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       return getResults(bundleSpec, jacobianSpec, bundleProperties, pair);
@@ -324,9 +315,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     protected abstract V getGenerator(CurveDefinition definition, LocalDate valuationDate);
 
     /**
-     * @param conventionSource The convention source
-     * @param holidaySource The holiday source
-     * @param regionSource The region source
+     * @param context The execution context
      * @param marketData The market data snapshot
      * @param dataId The market data id for a node
      * @param historicalData The historical data
@@ -334,8 +323,8 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param fxMatrix The FX matrix
      * @return A visitor that converts curve nodes to instrument definitions
      */
-    protected abstract CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(ConventionSource conventionSource, HolidaySource holidaySource,
-        RegionSource regionSource, SnapshotDataBundle marketData, ExternalId dataId, HistoricalTimeSeriesBundle historicalData, ZonedDateTime valuationTime,
+    protected abstract CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(FunctionExecutionContext context,
+        SnapshotDataBundle marketData, ExternalId dataId, HistoricalTimeSeriesBundle historicalData, ZonedDateTime valuationTime,
         FXMatrix fxMatrix);
 
     /**
@@ -343,15 +332,12 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param now The valuation time
      * @param builder The builder
      * @param knownData The known data
-     * @param conventionSource The convention source
-     * @param holidaySource The holiday source
-     * @param regionSource The region source
-     * @param securitySource The security source
+     * @param context The function execution context
      * @param fx The FX matrix.
      * @return The curve provider and associated results
      */
     protected abstract Pair<T, CurveBuildingBlockBundle> getCurves(FunctionInputs inputs, ZonedDateTime now, U builder, T knownData,
-        ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource, SecuritySource securitySource, FXMatrix fx);
+        FunctionExecutionContext context, FXMatrix fx);
 
     /**
      * @param bundleSpec The value specification for the curve bundle

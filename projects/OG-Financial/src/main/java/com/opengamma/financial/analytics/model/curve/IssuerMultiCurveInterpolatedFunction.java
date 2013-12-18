@@ -42,22 +42,21 @@ import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolat
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.convention.ConventionSource;
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
 import com.opengamma.financial.analytics.curve.ConstantCurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
@@ -142,8 +141,8 @@ public class IssuerMultiCurveInterpolatedFunction extends
 
     @Override
     protected Pair<IssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final MulticurveDiscountBuildingRepository builder,
-        final IssuerProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SecuritySource securitySource, final FXMatrix fx) {
+        final IssuerProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
       final Object dataObject = inputs.getValue(ValueRequirementNames.CURVE_MARKET_DATA);
       if (dataObject == null) {
         throw new OpenGammaRuntimeException("Could not get yield curve data");
@@ -276,8 +275,7 @@ public class IssuerMultiCurveInterpolatedFunction extends
     }
 
     @Override
-    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource,
-        final RegionSource regionSource, final SnapshotDataBundle marketData,
+    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final FunctionExecutionContext context, final SnapshotDataBundle marketData,
         final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime, final FXMatrix fxMatrix) {
       // No need to convert to InstrumentDefinition if we are not fitting the curve.
       return null;

@@ -54,15 +54,16 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CashNodeConverter;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -152,8 +153,8 @@ public class InflationProviderDiscountingFunction extends
     @SuppressWarnings("unchecked")
     @Override
     protected Pair<InflationProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder,
-        final InflationProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SecuritySource securitySource, final FXMatrix fx) {
+        final InflationProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
           .get();
@@ -194,7 +195,7 @@ public class InflationProviderDiscountingFunction extends
             if (marketData == null) {
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
-            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource,
+            final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(context,
                 snapshot, node.getIdentifier(), timeSeries, now, fx));
             // Construction of the first guess for the root finder
             final SwapFixedInflationZeroCouponDefinition swap = (SwapFixedInflationZeroCouponDefinition) definitionForNode;
@@ -276,8 +277,12 @@ public class InflationProviderDiscountingFunction extends
     }
 
     @Override
-    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
-        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime, final FXMatrix fx) {
+    protected CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(final FunctionExecutionContext context,
+        final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData,
+        final ZonedDateTime valuationTime, final FXMatrix fx) {
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
+      final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+      final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
