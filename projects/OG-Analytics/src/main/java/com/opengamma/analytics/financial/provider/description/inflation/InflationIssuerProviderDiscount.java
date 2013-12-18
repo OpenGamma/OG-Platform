@@ -102,10 +102,6 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     _issuerCurves.put(issuerCcy, curve);
   }
 
-  //  public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
-  //    setCurve(Pairs.of(issuer, ccy), curve);
-  //  }
-
   @Override
   public double getDiscountFactor(final Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, final Double time) {
     return _issuerCurves.get(issuerCcy).getDiscountFactor(time);

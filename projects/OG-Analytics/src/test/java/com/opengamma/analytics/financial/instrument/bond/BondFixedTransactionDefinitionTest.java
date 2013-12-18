@@ -72,7 +72,7 @@ public class BondFixedTransactionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlyingYield() {
-    BondFixedTransactionDefinition.ofYield(null, QUANTITY, SETTLEMENT_DATE, PRICE_DIRTY);
+    BondFixedTransactionDefinition.fromYield(null, QUANTITY, SETTLEMENT_DATE, PRICE_DIRTY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -82,7 +82,7 @@ public class BondFixedTransactionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettleYield() {
-    BondFixedTransactionDefinition.ofYield(BOND_SECURITY_DEFINITION, QUANTITY, null, YIELD);
+    BondFixedTransactionDefinition.fromYield(BOND_SECURITY_DEFINITION, QUANTITY, null, YIELD);
   }
 
   @Test
@@ -99,7 +99,7 @@ public class BondFixedTransactionDefinitionTest {
 
   @Test
   public void ofYield() {
-    BondFixedTransactionDefinition bondOfYieldTransactionDefinition = BondFixedTransactionDefinition.ofYield(BOND_SECURITY_DEFINITION, QUANTITY, SETTLEMENT_DATE, YIELD);
+    BondFixedTransactionDefinition bondOfYieldTransactionDefinition = BondFixedTransactionDefinition.fromYield(BOND_SECURITY_DEFINITION, QUANTITY, SETTLEMENT_DATE, YIELD);
     BondFixedSecurity bondOfYieldSecurity = bondOfYieldTransactionDefinition.getUnderlyingBond().toDerivative(REFERENCE_DATE_1, SETTLEMENT_DATE);
     double dirtyPrice = METHOD_BOND_FIXED.dirtyPriceFromYield(bondOfYieldSecurity, YIELD);
     assertEquals("Bond transaction: ofYield", dirtyPrice, bondOfYieldTransactionDefinition.getPrice(), TOLERANCE_PRICE);
@@ -107,7 +107,7 @@ public class BondFixedTransactionDefinitionTest {
 
   @Test
   public void ofCleanPrice() {
-    BondFixedTransactionDefinition bondOfCleanPriceTransactionDefinition = BondFixedTransactionDefinition.ofCleanPrice(BOND_MON_SECURITY_DEFINITION, QUANTITY,
+    BondFixedTransactionDefinition bondOfCleanPriceTransactionDefinition = BondFixedTransactionDefinition.fromCleanPrice(BOND_MON_SECURITY_DEFINITION, QUANTITY,
         SETTLEMENT_DATE, PRICE_CLEAN);
     double dirtyPrice = bondOfCleanPriceTransactionDefinition.getPrice();
     double accruedAtSettle = bondOfCleanPriceTransactionDefinition.getAccruedInterestAtSettlement();

@@ -61,9 +61,9 @@ public class BondTradeWithEntityConverter {
   /** Rating agency strings */
   private static final String[] RATING_STRINGS = new String[] {"RatingMoody"};
   /** Sector name string */
-  private static final String SECTOR_STRING = "IndustrySector";
+  public static final String SECTOR_STRING = "IndustrySector";
   /** Market type string */
-  private static final String MARKET_STRING = "Market";
+  public static final String MARKET_STRING = "Market";
   /** The holiday source */
   private final HolidaySource _holidaySource;
   /** The convention bundle source */

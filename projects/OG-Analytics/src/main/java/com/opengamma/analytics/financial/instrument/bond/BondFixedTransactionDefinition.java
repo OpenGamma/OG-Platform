@@ -61,7 +61,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param yield The yield quoted in the underlying bond convention at settlement date. The yield is in decimal, i.e. 0.0525 for 5.25%.
    * @return The fixed coupon bond.
    */
-  public static BondFixedTransactionDefinition ofYield(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double yield) {
+  public static BondFixedTransactionDefinition fromYield(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double yield) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(underlyingBond, "underlying bond");
     BondFixedSecurity security = underlyingBond.toDerivative(settlementDate, settlementDate);
@@ -77,7 +77,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param cleanPrice The bond clean price at settlement date.
    * @return The fixed coupon bond.
    */
-  public static BondFixedTransactionDefinition ofCleanPrice(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate,
+  public static BondFixedTransactionDefinition fromCleanPrice(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate,
       final double cleanPrice) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(underlyingBond, "underlying bond");
