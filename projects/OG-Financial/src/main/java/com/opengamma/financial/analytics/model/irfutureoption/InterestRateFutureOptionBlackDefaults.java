@@ -39,6 +39,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueRequirements = new String[] {
+    ValueRequirementNames.PNL,
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.DELTA,
     ValueRequirementNames.GAMMA,
