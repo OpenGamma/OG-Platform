@@ -39,13 +39,14 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
+    ForwardCurve forwardCurve = data.getForwardCurve();
+    final double spot = forwardCurve.getSpot();
     final double strike = option.getStrike();
     final double time = option.getTimeToExpiry();
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 
@@ -81,13 +82,14 @@ public final class EqyOptBjerksundStenslandPresentValueCalculator extends Instru
   public Double visitEquityIndexFutureOption(final EquityIndexFutureOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final double spot = data.getForwardCurve().getSpot();
+    ForwardCurve forwardCurve = data.getForwardCurve();
+    final double spot = forwardCurve.getSpot();
     final double strike = option.getStrike();
     final double time = option.getExpiry();
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = interestRate; //TODO
+    final double costOfCarry = time > 0 ? Math.log(forwardCurve.getForward(time) / spot) / time : interestRate;
     return option.getPointValue() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 }
