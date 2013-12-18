@@ -6,6 +6,8 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 
 import java.util.HashSet;
@@ -41,8 +43,10 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -240,8 +244,21 @@ public class MultiCurveInterpolatedFunction extends
     }
 
     @Override
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+      final Set<ValueRequirement> requirements = super.getRequirements(compilationContext, target, desiredValue);
+      final Set<ValueRequirement> trimmed = new HashSet<>();
+      for (final ValueRequirement requirement : requirements) {
+        final String requirementName = requirement.getValueName();
+        if (!(requirementName.equals(CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES) || requirementName.equals(FX_MATRIX))) {
+          trimmed.add(requirement);
+        }
+      }
+      return requirements;
+    }
+
+    @Override
     protected MulticurveProviderInterface getKnownData(final FunctionInputs inputs) {
-      final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
+      final FXMatrix fxMatrix = new FXMatrix();
       MulticurveProviderDiscount knownData;
       if (getExogenousRequirements().isEmpty()) {
         knownData = new MulticurveProviderDiscount(fxMatrix);

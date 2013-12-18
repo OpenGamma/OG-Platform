@@ -37,13 +37,13 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * The first curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private AbstractCurveDefinition _firstCurve;
+  private String _firstCurve;
 
   /**
    * The second curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private AbstractCurveDefinition _secondCurve;
+  private String _secondCurve;
 
   /**
    * The operation name.
@@ -64,7 +64,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * @param secondCurve The second curve, not null
    * @param operationName The operation name, not null
    */
-  public SpreadCurveDefinition(final String name, final AbstractCurveDefinition firstCurve, final AbstractCurveDefinition secondCurve,
+  public SpreadCurveDefinition(final String name, final String firstCurve, final String secondCurve,
       final String operationName) {
     super(name);
     setFirstCurve(firstCurve);
@@ -96,7 +96,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Gets the first curve.
    * @return the value of the property, not null
    */
-  public AbstractCurveDefinition getFirstCurve() {
+  public String getFirstCurve() {
     return _firstCurve;
   }
 
@@ -104,7 +104,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the first curve.
    * @param firstCurve  the new value of the property, not null
    */
-  public void setFirstCurve(AbstractCurveDefinition firstCurve) {
+  public void setFirstCurve(String firstCurve) {
     JodaBeanUtils.notNull(firstCurve, "firstCurve");
     this._firstCurve = firstCurve;
   }
@@ -113,7 +113,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Gets the the {@code firstCurve} property.
    * @return the property, not null
    */
-  public final Property<AbstractCurveDefinition> firstCurve() {
+  public final Property<String> firstCurve() {
     return metaBean().firstCurve().createProperty(this);
   }
 
@@ -122,7 +122,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Gets the second curve.
    * @return the value of the property, not null
    */
-  public AbstractCurveDefinition getSecondCurve() {
+  public String getSecondCurve() {
     return _secondCurve;
   }
 
@@ -130,7 +130,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Sets the second curve.
    * @param secondCurve  the new value of the property, not null
    */
-  public void setSecondCurve(AbstractCurveDefinition secondCurve) {
+  public void setSecondCurve(String secondCurve) {
     JodaBeanUtils.notNull(secondCurve, "secondCurve");
     this._secondCurve = secondCurve;
   }
@@ -139,7 +139,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
    * Gets the the {@code secondCurve} property.
    * @return the property, not null
    */
-  public final Property<AbstractCurveDefinition> secondCurve() {
+  public final Property<String> secondCurve() {
     return metaBean().secondCurve().createProperty(this);
   }
 
@@ -233,13 +233,13 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
     /**
      * The meta-property for the {@code firstCurve} property.
      */
-    private final MetaProperty<AbstractCurveDefinition> _firstCurve = DirectMetaProperty.ofReadWrite(
-        this, "firstCurve", SpreadCurveDefinition.class, AbstractCurveDefinition.class);
+    private final MetaProperty<String> _firstCurve = DirectMetaProperty.ofReadWrite(
+        this, "firstCurve", SpreadCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code secondCurve} property.
      */
-    private final MetaProperty<AbstractCurveDefinition> _secondCurve = DirectMetaProperty.ofReadWrite(
-        this, "secondCurve", SpreadCurveDefinition.class, AbstractCurveDefinition.class);
+    private final MetaProperty<String> _secondCurve = DirectMetaProperty.ofReadWrite(
+        this, "secondCurve", SpreadCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code operationName} property.
      */
@@ -293,7 +293,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
      * The meta-property for the {@code firstCurve} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<AbstractCurveDefinition> firstCurve() {
+    public final MetaProperty<String> firstCurve() {
       return _firstCurve;
     }
 
@@ -301,7 +301,7 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
      * The meta-property for the {@code secondCurve} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<AbstractCurveDefinition> secondCurve() {
+    public final MetaProperty<String> secondCurve() {
       return _secondCurve;
     }
 
@@ -331,10 +331,10 @@ public class SpreadCurveDefinition extends AbstractCurveDefinition {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -186618849:  // firstCurve
-          ((SpreadCurveDefinition) bean).setFirstCurve((AbstractCurveDefinition) newValue);
+          ((SpreadCurveDefinition) bean).setFirstCurve((String) newValue);
           return;
         case 239629531:  // secondCurve
-          ((SpreadCurveDefinition) bean).setSecondCurve((AbstractCurveDefinition) newValue);
+          ((SpreadCurveDefinition) bean).setSecondCurve((String) newValue);
           return;
         case 91797650:  // operationName
           ((SpreadCurveDefinition) bean).setOperationName((String) newValue);

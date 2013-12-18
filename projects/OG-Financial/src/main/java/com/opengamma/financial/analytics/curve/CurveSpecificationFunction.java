@@ -60,13 +60,15 @@ public class CurveSpecificationFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
+    final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, _curveName)
         .get();
@@ -83,7 +85,13 @@ public class CurveSpecificationFunction extends AbstractFunction {
     /** The result */
     private final Set<ComputedValue> _result;
 
-    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final CurveSpecification specification,
+    /**
+     * @param earliestInvocation The earliest time at which this function is valid
+     * @param latestInvocation The latest time at which this function is valid
+     * @param specification The curve specification
+     * @param spec The result specification
+     */
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification,
         final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _spec = spec;

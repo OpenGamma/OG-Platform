@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -33,12 +32,6 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -115,8 +108,6 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price index time series with id " + priceIndexConvention.getPriceIndexId());
     }
-    final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
-    final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries = convertTimeSeries(zone, localDateTS);
     final int conventionalMonthLag = inflationLegConvention.getMonthLag();
     final int monthLag = inflationLegConvention.getMonthLag();
     final IndexPrice index = new IndexPrice(priceIndexConvention.getName(), currency);
@@ -138,14 +129,4 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     }
   }
 
-  private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {
-    // FIXME Converting a daily historical time series to an arbitrary time - should not happen
-    final ZonedDateTimeDoubleTimeSeriesBuilder bld = ImmutableZonedDateTimeDoubleTimeSeries.builder(timeZone);
-    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
-      final LocalDate date = it.nextTime();
-      final ZonedDateTime zdt = date.atStartOfDay(timeZone);
-      bld.put(zdt, it.currentValueFast());
-    }
-    return bld.build();
-  }
 }

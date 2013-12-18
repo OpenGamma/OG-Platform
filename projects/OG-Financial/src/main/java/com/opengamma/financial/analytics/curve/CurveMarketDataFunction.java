@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -75,6 +76,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
   public void init(final FunctionCompilationContext context) {
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
   }
 
   @Override
@@ -86,7 +89,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     try {
-      final CurveSpecification specification = CurveUtils.getCurveSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
+      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), specification, spec);
     } catch (final Exception e) {
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveDefinition called " + _curveName);
@@ -98,7 +101,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
    */
   protected class MyCompiledFunction extends AbstractInvokingCompiledFunction {
     /** The curve specification */
-    private final CurveSpecification _specification;
+    private final AbstractCurveSpecification _specification;
     /** The result specification */
     private final ValueSpecification _spec;
 
@@ -108,57 +111,26 @@ public class CurveMarketDataFunction extends AbstractFunction {
      * @param specification The curve specification
      * @param spec The result specification
      */
-    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final CurveSpecification specification,
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification,
         final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _specification = specification;
       _spec = spec;
     }
 
-    @SuppressWarnings("synthetic-access")
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-      final SnapshotDataBundle marketData = new SnapshotDataBundle();
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(executionContext.getComputationTargetResolver());
-      for (final CurveNodeWithIdentifier id : _specification.getNodes()) {
-        if (id.getDataField() != null) {
-          final ComputedValue value;
-          if (id.getCurveNode() instanceof BondNode) {
-            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
-          } else {
-            value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
-          }
-          if (value != null) {
-            final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
-            if (id instanceof PointsCurveNodeWithIdentifier) {
-              final PointsCurveNodeWithIdentifier pointsId = (PointsCurveNodeWithIdentifier) id;
-              final ComputedValue base = inputs.getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
-              if (base != null) {
-                final ExternalIdBundle spreadIdentifiers = value.getSpecification().getTargetSpecification().accept(resolver);
-                if (value.getValue() == null || base.getValue() == null) {
-                  marketData.setDataPoint(spreadIdentifiers, null);
-                } else {
-                  marketData.setDataPoint(spreadIdentifiers, (Double) value.getValue() + (Double) base.getValue());
-                }
-              } else {
-                s_logger.info("Could not get market data for {}", pointsId.getUnderlyingIdentifier());
-              }
-            } else {
-              marketData.setDataPoint(identifiers, (Double) value.getValue());
-            }
-          } else {
-            s_logger.info("Could not get market data for {}", id.getIdentifier());
-          }
-        } else {
-          final ComputedValue value = inputs.getComputedValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
-          if (value != null) {
-            final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
-            marketData.setDataPoint(identifiers, (Double) value.getValue());
-          } else {
-            s_logger.info("Could not get market data for {}", id.getIdentifier());
-          }
-        }
+      SnapshotDataBundle marketData;
+      if (_specification instanceof ConstantCurveSpecification) {
+        final ConstantCurveSpecification constantCurve = (ConstantCurveSpecification) _specification;
+        marketData = getDataForConstantCurve(constantCurve, inputs, resolver);
+      } else if (_specification instanceof CurveSpecification) {
+        final Collection<CurveNodeWithIdentifier> nodes = ((CurveSpecification) _specification).getNodes();
+        marketData = getDataForNodes(nodes, inputs, resolver);
+      } else {
+        throw new OpenGammaRuntimeException("Cannot handle specifications of type " + _specification.getClass());
       }
       return Collections.singleton(new ComputedValue(_spec, marketData));
     }
@@ -177,24 +149,30 @@ public class CurveMarketDataFunction extends AbstractFunction {
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<ValueRequirement> requirements = new HashSet<>();
-      for (final CurveNodeWithIdentifier id : _specification.getNodes()) {
-        try {
-          if (id.getDataField() != null) {
-            if (id.getCurveNode() instanceof BondNode) {
-              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
-            } else {
-              requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
-              if (id instanceof PointsCurveNodeWithIdentifier) {
-                final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
-                requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+      if (_specification instanceof ConstantCurveSpecification) {
+        final ConstantCurveSpecification constantCurve = (ConstantCurveSpecification) _specification;
+        requirements.add(new ValueRequirement(constantCurve.getDataField(), ComputationTargetType.PRIMITIVE, constantCurve.getIdentifier()));
+      } else if (_specification instanceof CurveSpecification) {
+        final Collection<CurveNodeWithIdentifier> nodes = ((CurveSpecification) _specification).getNodes();
+        for (final CurveNodeWithIdentifier id : nodes) {
+          try {
+            if (id.getDataField() != null) {
+              if (id.getCurveNode() instanceof BondNode) {
+                requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+              } else {
+                requirements.add(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+                if (id instanceof PointsCurveNodeWithIdentifier) {
+                  final PointsCurveNodeWithIdentifier node = (PointsCurveNodeWithIdentifier) id;
+                  requirements.add(new ValueRequirement(node.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, node.getUnderlyingIdentifier()));
+                }
               }
+            } else {
+              requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
             }
-          } else {
-            requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+          } catch (final OpenGammaRuntimeException e) {
+            s_logger.error(_curveName + " " + e.getMessage());
+            return null;
           }
-        } catch (final OpenGammaRuntimeException e) {
-          s_logger.error(_curveName + " " + e.getMessage());
-          return null;
         }
       }
       return requirements;
@@ -210,4 +188,87 @@ public class CurveMarketDataFunction extends AbstractFunction {
       return true;
     }
   }
+
+  /**
+   * Gets the single data point requirement for a constant curve.
+   * @param specification The curve specification
+   * @param inputs The function inputs
+   * @param resolver An id bundle resolver
+   * @return A market data bundle, empty if the data is not found.
+   */
+  /* package */ static SnapshotDataBundle getDataForConstantCurve(final ConstantCurveSpecification specification, final FunctionInputs inputs, final ExternalIdBundleResolver resolver) {
+    final SnapshotDataBundle marketData = new SnapshotDataBundle();
+    final ComputedValue value = inputs.getComputedValue(new ValueRequirement(specification.getDataField(), ComputationTargetType.PRIMITIVE, specification.getIdentifier()));
+    if (value != null) {
+      final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+      final Object valueObject = value.getValue();
+      if (!(valueObject instanceof Double)) {
+        throw new OpenGammaRuntimeException("Value for " + identifiers + " was not a number; have " + valueObject);
+      }
+      marketData.setDataPoint(identifiers, (Double) valueObject);
+    } else {
+      s_logger.info("Could not get market data for {} with field {}", specification.getIdentifier(), specification.getDataField());
+    }
+    return marketData;
+  }
+
+  /**
+   * Gets the market data for a collection of curve nodes.
+   * @param nodes The nodes
+   * @param inputs The function inputs
+   * @param resolver An id bundle resolver
+   * @return A market data bundle, empty if the data are not found.
+   */
+  /* package */ static SnapshotDataBundle getDataForNodes(final Collection<CurveNodeWithIdentifier> nodes, final FunctionInputs inputs, final ExternalIdBundleResolver resolver) {
+    final SnapshotDataBundle marketData = new SnapshotDataBundle();
+    for (final CurveNodeWithIdentifier id : nodes) {
+      if (id.getDataField() != null) {
+        final ComputedValue value;
+        if (id.getCurveNode() instanceof BondNode) {
+          value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.SECURITY, id.getIdentifier()));
+        } else {
+          value = inputs.getComputedValue(new ValueRequirement(id.getDataField(), ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+        }
+        if (value != null) {
+          final Object valueObject = value.getValue();
+          if (!(valueObject instanceof Double)) {
+            throw new OpenGammaRuntimeException("Value for " + id.getIdentifier() + " was not a number; have " + valueObject);
+          }
+          final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+          if (id instanceof PointsCurveNodeWithIdentifier) {
+            final PointsCurveNodeWithIdentifier pointsId = (PointsCurveNodeWithIdentifier) id;
+            final ComputedValue base = inputs.getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
+            if (base != null) {
+              final Object baseObject = base.getValue();
+              if (!(baseObject instanceof Double)) {
+                throw new OpenGammaRuntimeException("Value for " + pointsId.getUnderlyingIdentifier() + " was not a number; have " + valueObject);
+              }
+              final ExternalIdBundle spreadIdentifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+              if (value.getValue() == null || base.getValue() == null) {
+                marketData.setDataPoint(spreadIdentifiers, null);
+              } else {
+                marketData.setDataPoint(spreadIdentifiers, (Double) valueObject + (Double) baseObject);
+              }
+            } else {
+              s_logger.info("Could not get market data for {}", pointsId.getUnderlyingIdentifier());
+            }
+          } else {
+            marketData.setDataPoint(identifiers, (Double) valueObject);
+          }
+        } else {
+          s_logger.info("Could not get market data for {}", id.getIdentifier());
+        }
+      } else {
+        final ComputedValue value = inputs.getComputedValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id.getIdentifier()));
+        if (value != null) {
+          final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
+          marketData.setDataPoint(identifiers, (Double) value.getValue());
+        } else {
+          s_logger.info("Could not get market data for {}", id.getIdentifier());
+        }
+      }
+    }
+    return marketData;
+  }
+
 }

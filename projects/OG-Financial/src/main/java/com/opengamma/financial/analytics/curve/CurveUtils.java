@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,14 +32,18 @@ import com.opengamma.util.money.Currency;
 public class CurveUtils {
 
   /**
-   * Gets a {@link CurveSpecification} from the configuration database that is valid at a particular time.
+   * Builds a {@link CurveSpecification} from a curve definition that is valid at a particular time. This
+   * method handles only {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
    * @param valuationTime The valuation time, not null
    * @param configSource The config source, not null
    * @param curveDate The curve date, not null
    * @param curveName The curve name, not null
    * @return The curve specification
    * @throws OpenGammaRuntimeException if the curve definition is not found.
+   * @deprecated This method does not handle definition types other than {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
+   * Use {@link #getSpecification(Instant, ConfigSource, LocalDate, String)}.
    */
+  @Deprecated
   public static CurveSpecification getCurveSpecification(final Instant valuationTime, final ConfigSource configSource, final LocalDate curveDate, final String curveName) {
     ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(configSource, "config source");
@@ -51,6 +56,30 @@ public class CurveUtils {
     }
     final CurveSpecificationBuilder curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
     return curveSpecificationBuilder.buildCurve(valuationTime, curveDate, curveDefinition);
+  }
+
+  /**
+   * Builds a {@link CurveSpecification} from a curve definition that is valid at a particular time. This
+   * method handles only {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
+   * @param valuationTime The valuation time, not null
+   * @param configSource The config source, not null
+   * @param curveDate The curve date, not null
+   * @param curveName The curve name, not null
+   * @return The curve specification
+   * @throws OpenGammaRuntimeException if the curve definition is not found.
+   */
+  public static AbstractCurveSpecification getSpecification(final Instant valuationTime, final ConfigSource configSource, final LocalDate curveDate, final String curveName) {
+    ArgumentChecker.notNull(valuationTime, "valuation time");
+    ArgumentChecker.notNull(configSource, "config source");
+    ArgumentChecker.notNull(curveDate, "curve date");
+    ArgumentChecker.notNull(curveName, "curve name");
+    final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
+    final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveName, VersionCorrection.LATEST);
+    if (curveDefinition == null) {
+      throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
+    }
+    final CurveSpecificationBuilder curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
+    return curveSpecificationBuilder.buildSpecification(valuationTime, curveDate, curveDefinition);
   }
 
   /**
@@ -89,12 +118,20 @@ public class CurveUtils {
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
       for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         final String curveName = entry.getKey();
-        final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName, versionCorrection);
+        final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveName, versionCorrection);
         if (curveDefinition == null) {
           throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
         }
-        for (final CurveNode node : curveDefinition.getNodes()) {
-          currencies.addAll(node.accept(curveNodeCurrencyVisitor));
+        if (curveDefinition instanceof InterpolatedCurveDefinition) {
+          for (final CurveNode node : ((InterpolatedCurveDefinition) curveDefinition).getNodes()) {
+            currencies.addAll(node.accept(curveNodeCurrencyVisitor));
+          }
+        } else if (curveDefinition instanceof CurveDefinition) {
+          for (final CurveNode node : ((InterpolatedCurveDefinition) curveDefinition).getNodes()) {
+            currencies.addAll(node.accept(curveNodeCurrencyVisitor));
+          }
+        } else {
+          return Collections.emptySet();
         }
       }
     }

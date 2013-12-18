@@ -39,11 +39,38 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   @Override
   public CurveSpecification buildCurve(final Instant valuationTime, final LocalDate curveDate, final CurveDefinition curveDefinition) {
+    ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(curveDefinition, "curve definition");
     if (curveDefinition instanceof InterpolatedCurveDefinition) {
       return getInterpolatedCurveSpecification(valuationTime, curveDate, (InterpolatedCurveDefinition) curveDefinition);
     }
+    return getCurveSpecification(valuationTime, curveDate, curveDefinition);
+  }
+
+  @Override
+  public AbstractCurveSpecification buildSpecification(final Instant valuationTime, final LocalDate curveDate, final AbstractCurveDefinition curveDefinition) {
+    ArgumentChecker.notNull(valuationTime, "valuation time");
+    ArgumentChecker.notNull(curveDate, "curve date");
+    ArgumentChecker.notNull(curveDefinition, "curve definition");
+    if (curveDefinition instanceof InterpolatedCurveDefinition) {
+      return getInterpolatedCurveSpecification(valuationTime, curveDate, (InterpolatedCurveDefinition) curveDefinition);
+    } else if (curveDefinition instanceof CurveDefinition) {
+      return getCurveSpecification(valuationTime, curveDate, (CurveDefinition) curveDefinition);
+    } else if (curveDefinition instanceof ConstantCurveDefinition) {
+      return getConstantCurveSpecification(valuationTime, curveDate, (ConstantCurveDefinition) curveDefinition);
+    }
+    throw new UnsupportedOperationException("Cannot handle curve definitions of type " + curveDefinition.getClass());
+  }
+
+  /**
+   * Creates a {@link CurveSpecification}.
+   * @param valuationTime The valuation time
+   * @param curveDate The curve date
+   * @param curveDefinition The curve definition
+   * @return The curve specification
+   */
+  private CurveSpecification getCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final CurveDefinition curveDefinition) {
     final Map<String, CurveNodeIdMapper> cache = new HashMap<>();
     final Collection<CurveNodeWithIdentifier> identifiers = new ArrayList<>();
     final String curveName = curveDefinition.getName();
@@ -59,6 +86,13 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     return new CurveSpecification(curveDate, curveName, identifiers);
   }
 
+  /**
+   * Creates a {@link InterpolatedCurveSpecification}.
+   * @param valuationTime The valuation time
+   * @param curveDate The curve date
+   * @param curveDefinition The curve definition
+   * @return The interpolated curve specification
+   */
   private InterpolatedCurveSpecification getInterpolatedCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final InterpolatedCurveDefinition curveDefinition) {
     final Map<String, CurveNodeIdMapper> cache = new HashMap<>();
     final Collection<CurveNodeWithIdentifier> identifiers = new ArrayList<>();
@@ -78,6 +112,25 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     return new InterpolatedCurveSpecification(curveDate, curveName, identifiers, interpolatorName, rightExtrapolatorName, leftExtrapolatorName);
   }
 
+  /**
+   * Creates a {@link ConstantCurveSpecification}.
+   * @param valuationTime The valuation time
+   * @param curveDate The curve date
+   * @param curveDefinition The curve definition
+   * @return The curve specification
+   */
+  private static AbstractCurveSpecification getConstantCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final ConstantCurveDefinition curveDefinition) {
+    final String curveName = curveDefinition.getName();
+    return new ConstantCurveSpecification(curveDate, curveName, curveDefinition.getExternalId(), curveDefinition.getDataField());
+  }
+
+  /**
+   * Gets a {@link CurveNodeIdMapper} from the config source.
+   * @param valuationTime The valuation time
+   * @param cache A cache of names to curve node id mappers
+   * @param curveSpecificationName The curve specification name
+   * @return The curve node id mapper
+   */
   private CurveNodeIdMapper getCurveNodeIdMapper(final Instant valuationTime, final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
     CurveNodeIdMapper builderSpecDoc = cache.get(curveSpecificationName);
     if (builderSpecDoc != null) {

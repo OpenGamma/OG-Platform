@@ -12,9 +12,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
@@ -91,5 +95,11 @@ public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
     assertEquals(fixedDateDefinition, cycleObject(FixedDateInterpolatedCurveDefinition.class, fixedDateDefinition));
     fixedDateDefinition = new FixedDateInterpolatedCurveDefinition(curveName, nodes, interpolatorName, rightExtrapolatorName, leftExtrapolatorName, fixedDates);
     assertEquals(fixedDateDefinition, cycleObject(FixedDateInterpolatedCurveDefinition.class, fixedDateDefinition));
+  }
+
+  @Test
+  public void test() {
+    final ConstantCurveDefinition temp = new ConstantCurveDefinition("Name", ExternalSchemes.bloombergTickerSecurityId("USSW1 Curncy"), MarketDataRequirementNames.MARKET_VALUE);
+    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(temp));
   }
 }

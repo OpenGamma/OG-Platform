@@ -6,6 +6,8 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
+import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 
 import java.util.HashSet;
@@ -33,6 +35,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -44,17 +48,22 @@ import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.curve.AbstractCurveSpecification;
+import com.opengamma.financial.analytics.curve.ConstantCurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
+import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveSpecification;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
@@ -103,13 +112,13 @@ public class IssuerMultiCurveInterpolatedFunction extends
   @Override
   public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames,
       final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
-    return new MultiCurveInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration);
+    return new IssuerMultiCurveInterpolatedCompiledFunctionDefinition(earliestInvocation, latestInvocation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
   /**
    * Compiled function implementation.
    */
-  protected class MultiCurveInterpolatedCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
+  protected class IssuerMultiCurveInterpolatedCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
     /** The curve construction configuration */
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
 
@@ -120,7 +129,7 @@ public class IssuerMultiCurveInterpolatedFunction extends
      * @param exogenousRequirements The exogenous requirements, not null
      * @param curveConstructionConfiguration The curve construction configuration, not null
      */
-    protected MultiCurveInterpolatedCompiledFunctionDefinition(
+    protected IssuerMultiCurveInterpolatedCompiledFunctionDefinition(
         final ZonedDateTime earliestInvocation,
         final ZonedDateTime latestInvocation,
         final String[] curveNames,
@@ -146,9 +155,13 @@ public class IssuerMultiCurveInterpolatedFunction extends
         for (final Map.Entry<String, List<CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
           final String curveName = entry.getKey();
           final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
-          final InterpolatedCurveSpecification specification =
-              (InterpolatedCurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, curveProperties));
-          n += specification.getNodes().size();
+          final AbstractCurveSpecification specification =
+              (AbstractCurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, curveProperties));
+          if (specification instanceof CurveSpecification) {
+            n += ((CurveSpecification) specification).getNodes().size();
+          } else if (specification instanceof ConstantCurveSpecification) {
+            n++;
+          }
         }
       }
       final IssuerProviderDiscount curveBundle = (IssuerProviderDiscount) getKnownData(inputs);
@@ -160,32 +173,50 @@ public class IssuerMultiCurveInterpolatedFunction extends
           final String curveName = entry.getKey();
           final List<CurveTypeConfiguration> types = entry.getValue();
           final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
-          final InterpolatedCurveSpecification specification =
-              (InterpolatedCurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, curveProperties));
-          final double[] times = new double[n];
-          final double[] yields = new double[n];
-          final double[][] jacobian = new double[n][n];
-          int i = 0;
-          final int nNodesForCurve = specification.getNodes().size();
-          for (final CurveNodeWithIdentifier node: specification.getNodes()) {
-            final CurveNode curveNode = node.getCurveNode();
-            if (!(curveNode instanceof BondNode)) {
-              throw new OpenGammaRuntimeException("Was expecting only bond nodes; have " + curveNode);
-            }
-            final Double marketValue = marketData.getDataPoint(node.getIdentifier());
+          final AbstractCurveSpecification specification =
+              (AbstractCurveSpecification) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, curveProperties));
+          final DoublesCurve curve;
+          int nNodesForCurve;
+          double[][] jacobian;
+          if (specification instanceof ConstantCurveSpecification) {
+            final ConstantCurveSpecification constantCurveSpecification = (ConstantCurveSpecification) specification;
+            final Double marketValue = marketData.getDataPoint(constantCurveSpecification.getIdentifier().toBundle());
             if (marketValue == null) {
-              throw new OpenGammaRuntimeException("Could not get market value for " + node);
+              throw new OpenGammaRuntimeException("Could not get market value for " + constantCurveSpecification.getIdentifier());
             }
-            times[i] = getTimeToMaturity(now, node, securitySource);
-            yields[i] = marketValue;
-            jacobian[i][i] = 1;
-            i++;
+            curve = ConstantDoublesCurve.from(marketValue, curveName);
+            nNodesForCurve = 1;
+            jacobian = new double[][]{new double[] {1}};
+            totalNodes++;
+          } else if (specification instanceof InterpolatedCurveSpecification) {
+            final InterpolatedCurveSpecification interpolatedSpecification = (InterpolatedCurveSpecification) specification;
+            final double[] times = new double[n];
+            final double[] yields = new double[n];
+            jacobian = new double[n][n];
+            int i = 0;
+            nNodesForCurve = interpolatedSpecification.getNodes().size();
+            for (final CurveNodeWithIdentifier node: interpolatedSpecification.getNodes()) {
+              final CurveNode curveNode = node.getCurveNode();
+              if (!(curveNode instanceof BondNode)) {
+                throw new OpenGammaRuntimeException("Was expecting only bond nodes; have " + curveNode);
+              }
+              final Double marketValue = marketData.getDataPoint(node.getIdentifier());
+              if (marketValue == null) {
+                throw new OpenGammaRuntimeException("Could not get market value for " + node);
+              }
+              times[i] = getTimeToMaturity(now, node, securitySource);
+              yields[i] = marketValue;
+              jacobian[i][i] = 1;
+              i++;
+            }
+            final String interpolatorName = interpolatedSpecification.getInterpolatorName();
+            final String rightExtrapolatorName = interpolatedSpecification.getRightExtrapolatorName();
+            final String leftExtrapolatorName = interpolatedSpecification.getLeftExtrapolatorName();
+            final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+            curve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
+          } else {
+            throw new OpenGammaRuntimeException("Cannot handle curves of type " + specification.getClass());
           }
-          final String interpolatorName = specification.getInterpolatorName();
-          final String rightExtrapolatorName = specification.getRightExtrapolatorName();
-          final String leftExtrapolatorName = specification.getLeftExtrapolatorName();
-          final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
-          final InterpolatedDoublesCurve curve = InterpolatedDoublesCurve.from(times, yields, interpolator, curveName);
           final YieldAndDiscountCurve yieldCurve = new YieldCurve(curveName, curve);
           for (final CurveTypeConfiguration type: types) {
             if (type instanceof IssuerCurveTypeConfiguration) {
@@ -204,8 +235,24 @@ public class IssuerMultiCurveInterpolatedFunction extends
     }
 
     @Override
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+      final Set<ValueRequirement> requirements = super.getRequirements(compilationContext, target, desiredValue);
+      if (requirements == null) {
+        return null;
+      }
+      final Set<ValueRequirement> trimmed = new HashSet<>();
+      for (final ValueRequirement requirement : requirements) {
+        final String requirementName = requirement.getValueName();
+        if (!(requirementName.equals(CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES) || requirementName.equals(FX_MATRIX))) {
+          trimmed.add(requirement);
+        }
+      }
+      return trimmed;
+    }
+
+    @Override
     protected IssuerProviderInterface getKnownData(final FunctionInputs inputs) {
-      final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
+      final FXMatrix fxMatrix = new FXMatrix();
       MulticurveProviderDiscount knownData;
       if (getExogenousRequirements().isEmpty()) {
         knownData = new MulticurveProviderDiscount(fxMatrix);
@@ -272,5 +319,6 @@ public class IssuerMultiCurveInterpolatedFunction extends
       }
       throw new OpenGammaRuntimeException("Cannot handle node type " + curveNode.getCurveNode());
     }
+
   }
 }

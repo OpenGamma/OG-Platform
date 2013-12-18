@@ -63,11 +63,13 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
@@ -105,6 +107,8 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
     ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
   }
 
   @Override
