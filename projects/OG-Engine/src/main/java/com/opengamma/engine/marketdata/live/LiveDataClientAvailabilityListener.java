@@ -8,7 +8,6 @@ package com.opengamma.engine.marketdata.live;
 import java.util.Set;
 
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.ResubscribingLiveDataClient;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
@@ -21,12 +20,13 @@ public class LiveDataClientAvailabilityListener extends AvailabilityNotification
   private final ResubscribingLiveDataClient _client;
 
   /**
+   * @param client the client to resubscribe when a notification occurs
    * @param topic The topic for {@link MarketDataAvailabilityNotification} messages
    * @param jmsConnector For receiving JMS messages
    */
-  public LiveDataClientAvailabilityListener(LiveDataClient client, String topic, JmsConnector jmsConnector) {
+  public LiveDataClientAvailabilityListener(ResubscribingLiveDataClient client, String topic, JmsConnector jmsConnector) {
     super(topic, jmsConnector);
-    _client = new ResubscribingLiveDataClient(ArgumentChecker.notNull(client, "client"));
+    _client = ArgumentChecker.notNull(client, "client");
   }
 
   @Override
