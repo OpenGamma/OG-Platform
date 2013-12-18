@@ -5,6 +5,9 @@
  */
 package com.opengamma.bbg;
 
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,13 +24,22 @@ import com.opengamma.util.Connector;
 /**
  * Connector used to access Bloomberg.
  * <p>
- * This class does not perform any connecting. Instead it acts as a data holder for connectivity.
+ * This class performs only minimal session connections; the caller must configure them and attach them to Bloomberg services. This is mainly a data holder for connectivity.
  * <p>
  * This class is usually configured using the associated factory bean.
  */
 public class BloombergConnector implements Connector {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergConnector.class);
+
+  /**
+   * Callback interface for listeners which wish to be notified when the Bloomberg connection is available.
+   */
+  public interface AvailabilityListener {
+
+    void bloombergAvailable();
+
+  }
 
   /**
    * The configuration name.
@@ -41,6 +53,10 @@ public class BloombergConnector implements Connector {
    * The Bloomberg statistics.
    */
   private final BloombergReferenceDataStatistics _referenceDataStatistics;
+  /**
+   * The listeners that wish to be notified whenever Bloomberg is available.
+   */
+  private final Collection<AvailabilityListener> _listeners = new CopyOnWriteArrayList<AvailabilityListener>();
 
   /**
    * Creates an instance.
@@ -182,6 +198,38 @@ public class BloombergConnector implements Connector {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + _name + "]";
+  }
+
+  /**
+   * Registers a callback to be notified when {@link #notifyAvailabilityListeners} gets called.
+   * 
+   * @param listener the callback to register, not null
+   */
+  public void addAvailabilityListener(final AvailabilityListener listener) {
+    ArgumentChecker.notNull(listener, "listener");
+    _listeners.add(listener);
+  }
+
+  /**
+   * Removes a callback previously registered with {@link #addAvailabilityListener}.
+   * 
+   * @param listener the listener to remove, not null
+   */
+  public void removeAvailabilityListener(final AvailabilityListener listener) {
+    _listeners.remove(listener);
+  }
+
+  /**
+   * Calls the {@link AvailabilityListener#bloombergAvailable()} method on all registered listeners.
+   * <p>
+   * These calls are made inline - callers should take care not to be holding locks that may cause potential deadlocks and be aware that they too will be called if they are also registered as a
+   * listener.
+   */
+  public void notifyAvailabilityListeners() {
+    for (AvailabilityListener listener : _listeners) {
+      s_logger.debug("Notifying availability to {}", listener);
+      listener.bloombergAvailable();
+    }
   }
 
 }

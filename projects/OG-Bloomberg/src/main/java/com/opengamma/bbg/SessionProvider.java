@@ -5,6 +5,8 @@
  */
 package com.opengamma.bbg;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -26,7 +28,7 @@ import com.opengamma.util.OpenGammaClock;
  * <p>
  * This class creates a session on demand but if connection fails it won't retry until a delay has elapsed to avoid overwhelming the Bloomberg API.
  */
-public class SessionProvider implements Lifecycle {
+public class SessionProvider implements Lifecycle, BloombergConnector.AvailabilityListener {
 
   /** The logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(SessionProvider.class);
@@ -45,7 +47,7 @@ public class SessionProvider implements Lifecycle {
   /** The session. */
   private Session _session;
   /** The time of the last connection attempt. Also used as a lifecycle indicator - being null if the provider is not running */
-  private Instant _lastRetry;
+  private final AtomicReference<Instant> _lastRetry = new AtomicReference<Instant>();
 
   /**
    * @param connector Bloomberg connection details
@@ -75,18 +77,20 @@ public class SessionProvider implements Lifecycle {
    * @throws ConnectionUnavailableException If no connection is available
    */
   public Session getSession() {
+    final Session newSession;
     synchronized (_lock) {
       if (_session != null) {
         return _session;
       } else {
-        if (_lastRetry == null) {
+        Instant lastRetry = _lastRetry.get();
+        if (lastRetry == null) {
           throw new ConnectionUnavailableException("Session provider has not been started");
         }
         Instant now = OpenGammaClock.getInstance().instant();
-        if (Duration.between(_lastRetry, now).compareTo(_retryDuration) < 0) {
+        if (Duration.between(lastRetry, now).compareTo(_retryDuration) < 0) {
           throw new ConnectionUnavailableException("No Bloomberg connection is available");
         }
-        _lastRetry = now;
+        _lastRetry.set(now);
         s_logger.info("Bloomberg session being opened...");
         Session session = null;
         try {
@@ -109,6 +113,7 @@ public class SessionProvider implements Lifecycle {
           }
           s_logger.info("Bloomberg service open: {}", _serviceName);
           _session = session;
+          newSession = session;
           session = null;
         } finally {
           if (session != null) {
@@ -122,9 +127,11 @@ public class SessionProvider implements Lifecycle {
             }
           }
         }
-        return _session;
       }
     }
+    // We've got a connection open; let any other components that Bloomberg is back up
+    _connector.notifyAvailabilityListeners();
+    return newSession;
   }
 
   /**
@@ -174,11 +181,9 @@ public class SessionProvider implements Lifecycle {
    */
   @Override
   public void start() {
-    synchronized (_lock) {
-      if (_lastRetry == null) {
-        _lastRetry = Instant.EPOCH;
-        // First call to {@link #getSession} will now attempt to connect
-      }
+    if (_lastRetry.compareAndSet(null, Instant.EPOCH)) {
+      // First call to {@link #getSession} will now attempt to connect
+      _connector.addAvailabilityListener(this);
     }
   }
 
@@ -190,9 +195,7 @@ public class SessionProvider implements Lifecycle {
    */
   @Override
   public boolean isRunning() {
-    synchronized (_lock) {
-      return _lastRetry != null;
-    }
+    return _lastRetry.get() != null;
   }
 
   /**
@@ -202,10 +205,26 @@ public class SessionProvider implements Lifecycle {
    */
   @Override
   public void stop() {
-    synchronized (_lock) {
-      invalidateSession();
-      _lastRetry = null;
-    }
+    _lastRetry.set(null);
+    invalidateSession();
+    _connector.removeAvailabilityListener(this);
+  }
+
+  // AvailabilityListener
+
+  @Override
+  public void bloombergAvailable() {
+    // If the session is already invalid the next call to {@link #getSession} will try and connect if we set the timestamp to the epoch.
+    // If the session is connected (for example we triggered the notify) then we'll be set for immediate reconnection - this recovers from temporary network problems
+    Instant lastRetry;
+    do {
+      lastRetry = _lastRetry.get();
+      if (lastRetry == null) {
+        // Already stopped
+        return;
+      }
+    } while (!_lastRetry.compareAndSet(lastRetry, Instant.EPOCH));
+    s_logger.info("Bloomberg connection available for {}", _serviceName);
   }
 
 }
