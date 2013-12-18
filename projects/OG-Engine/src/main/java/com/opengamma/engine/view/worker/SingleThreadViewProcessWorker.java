@@ -440,6 +440,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       try {
         cycleType = waitForNextCycle();
       } catch (final InterruptedException e) {
+        s_logger.debug("Interrupted during wait");
         return;
       }
       ViewCycleExecutionOptions executionOptions = null;
@@ -506,7 +507,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           } else {
             compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
             if (compiledViewDefinition == null) {
-              s_logger.warn("Job terminated during view compilation");
+              s_logger.info("Job terminated during view compilation");
               return;
             }
             if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
@@ -595,7 +596,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
               s_logger.info("View cycle execution interrupted for {}", getWorkerContext());
               return;
             } catch (final Exception e) {
-              // Execution failed
+              // Execution failed; might be a result of shutdown
               s_logger.error("View cycle execution failed for " + getWorkerContext(), e);
               cycleExecutionFailed(executionOptions, e);
               return;
@@ -1496,9 +1497,14 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         break;
       } while (true);
     } catch (final Exception e) {
-      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
-      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
-      throw new OpenGammaRuntimeException(message, e);
+      if (!getJob().isTerminated()) {
+        final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
+        viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
+        throw new OpenGammaRuntimeException(message, e);
+      } else {
+        s_logger.debug("Caught exception during termination", e);
+        return null;
+      }
     } finally {
       if (broadLock) {
         executionCacheLocks.getFirst().unlock();
