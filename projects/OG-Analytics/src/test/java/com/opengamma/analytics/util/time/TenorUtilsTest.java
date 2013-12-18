@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
@@ -130,6 +131,28 @@ public class TenorUtilsTest {
     assertEquals(LocalDate.of(2014, 1, 2), TenorUtils.adjustDateByTenor(LocalDate.of(2013, 12, 31), Tenor.ON, CALENDAR, spotDays));
     assertEquals(LocalDate.of(2014, 1, 3), TenorUtils.adjustDateByTenor(LocalDate.of(2013, 12, 31), Tenor.TN, CALENDAR, spotDays));
     assertEquals(LocalDate.of(2014, 1, 6), TenorUtils.adjustDateByTenor(LocalDate.of(2013, 12, 31), Tenor.SN, CALENDAR, spotDays));
+  }
+
+  @Test
+  public void plus() {
+    final Tenor d1 = Tenor.ONE_DAY;
+    final Tenor d2 = Tenor.TWO_DAYS;
+    final Tenor w1 = Tenor.ONE_WEEK;
+    final Tenor m1 = Tenor.ONE_MONTH;
+    final Tenor y3 = Tenor.THREE_YEARS;
+    final Tenor on = Tenor.ON;
+    final Tenor tn = Tenor.TN;
+    final Tenor pZ = Tenor.of(Period.ZERO);
+    final Tenor p0D = Tenor.of(Period.ofDays(0));
+    assertEquals("Tenor: plus", d2, TenorUtils.plus(d1, d1));
+    assertEquals("Tenor: plus", Tenor.of(Period.ofDays(8)), TenorUtils.plus(d1, w1));
+    assertEquals("Tenor: plus", Tenor.of(Period.of(3, 1, 0)), TenorUtils.plus(m1, y3));
+    assertEquals("Tenor: plus", Tenor.of(Period.of(3, 1, 0)), TenorUtils.plus(y3, m1));
+    assertEquals("Tenor: plus", tn, TenorUtils.plus(on, on));
+    assertEquals("Tenor: plus", pZ, p0D);
+    assertEquals("Tenor: plus", y3, TenorUtils.plus(pZ, y3));
+    assertEquals("Tenor: plus", y3, TenorUtils.plus(y3, pZ));
+    assertEquals("Tenor: plus", y3, TenorUtils.plus(y3, p0D));
   }
 
   /**

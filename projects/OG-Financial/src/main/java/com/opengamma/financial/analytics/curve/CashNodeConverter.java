@@ -29,6 +29,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Convert a cash node into an Instrument definition.
@@ -83,8 +84,8 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final Period startPeriod = cashNode.getStartTenor().getPeriod();
-    final Period maturityPeriod = cashNode.getMaturityTenor().getPeriod();
+    final Tenor startTenor = cashNode.getStartTenor();
+    final Tenor maturityTenor = cashNode.getMaturityTenor();
     if (convention instanceof DepositConvention) {
       final DepositConvention depositConvention = (DepositConvention) convention;
       final Currency currency = depositConvention.getCurrency();
@@ -94,11 +95,13 @@ public class CashNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       final DayCount dayCount = depositConvention.getDayCount();
       final int settlementDays = depositConvention.getSettlementDays();
       final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
-      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, isEOM);
-      final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityPeriod, businessDayConvention, calendar, isEOM);
+      final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startTenor, businessDayConvention, calendar, isEOM);
+      final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, maturityTenor, businessDayConvention, calendar, isEOM);
       final double accrualFactor = dayCount.getDayCountFraction(startDate, endDate);
       return new CashDefinition(currency, startDate, endDate, 1, rate, accrualFactor);
     } else if (convention instanceof IborIndexConvention) {
+      final Period startPeriod = startTenor.getPeriod();
+      final Period maturityPeriod = maturityTenor.getPeriod();
       final IborIndexConvention iborConvention = (IborIndexConvention) convention;
       final Currency currency = iborConvention.getCurrency();
       final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, iborConvention.getRegionCalendar());

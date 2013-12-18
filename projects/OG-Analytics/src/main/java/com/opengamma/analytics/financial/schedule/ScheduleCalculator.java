@@ -17,6 +17,7 @@ import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.util.time.TenorUtils;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
@@ -29,6 +30,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Utility to calculate schedules.
@@ -191,6 +193,36 @@ public final class ScheduleCalculator {
     // Adjusted to month-end: when start date is last business day of the month, the end date is the last business day of the month.
     final boolean isStartDateEOM = (startDate.getMonth() != getAdjustedDate(startDate, 1, calendar).getMonth());
     if ((tenor.getDays() == 0) & (endOfMonthRule) & (isStartDateEOM)) {
+      final BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
+      return preceding.adjustDate(calendar, endDate.with(TemporalAdjusters.lastDayOfMonth()));
+    }
+    return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
+  }
+
+  /**
+   * Compute the end date of a period from the start date, the tenor and the conventions.
+   * @param startDate The period start date.
+   * @param tenor The tenor.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param endOfMonthRule True if end-of-month rule applies, false if it does not.
+   * The rule applies when the start date is the last business day of the month and the period is a number of months or years, not days or business days (ON, TN).
+   * When the rule applies, the end date is the last business day of the month.
+   * @return The end date.
+   */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Tenor tenor, final BusinessDayConvention convention, final Calendar calendar,
+      final boolean endOfMonthRule) {
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(convention, "Convention");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    final ZonedDateTime endDate = TenorUtils.adjustDateByTenor(startDate, tenor, calendar, 0); // startDate.plus(tenor); // Unadjusted date.
+    if (tenor.isBusinessDayTenor()) { // This handles tenor of the type ON, TN
+      return endDate;
+    }
+    // Adjusted to month-end: when start date is last business day of the month, the end date is the last business day of the month.
+    final boolean isStartDateEOM = (startDate.getMonth() != getAdjustedDate(startDate, 1, calendar).getMonth());
+    if ((tenor.getPeriod().getDays() == 0) & (endOfMonthRule) & (isStartDateEOM)) {
       final BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
       return preceding.adjustDate(calendar, endDate.with(TemporalAdjusters.lastDayOfMonth()));
     }
@@ -364,7 +396,7 @@ public final class ScheduleCalculator {
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar,
-                                                        final boolean eomApply, RollDateAdjuster adjuster) {
+      final boolean eomApply, RollDateAdjuster adjuster) {
     final ZonedDateTime[] result = new ZonedDateTime[dates.length];
     if (eomApply) {
       final BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
@@ -405,7 +437,7 @@ public final class ScheduleCalculator {
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final boolean stubShort,
-                                                        final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule, RollDateAdjuster adjuster) {
+      final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule, RollDateAdjuster adjuster) {
     final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd);
     final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
@@ -430,7 +462,7 @@ public final class ScheduleCalculator {
   }
 
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final StubType stub,
-                                                        final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule, RollDateAdjuster adjuster) {
+      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule, RollDateAdjuster adjuster) {
     final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
     final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);

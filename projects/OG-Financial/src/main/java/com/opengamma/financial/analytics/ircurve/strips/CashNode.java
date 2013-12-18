@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.util.time.TenorUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
@@ -86,7 +87,8 @@ public class CashNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); // _maturityTenor;
+    return TenorUtils.plus(_startTenor, _maturityTenor);
+        // Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); // _maturityTenor;
   }
 
   @Override

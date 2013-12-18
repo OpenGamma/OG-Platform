@@ -202,4 +202,31 @@ public class TenorUtils {
     }
     return date.plus(tenor.getPeriod());
   }
+
+  /**
+   * Add two tenors when it make sense.
+   * When the two tenors are backed by period, create a tenor backed by adding the periods. 
+   * When one of the tenor is backed by a ZERO period, return the other tenor.
+   * When both tenors are ON, returns TN.
+   * In all other cases throw an exception.
+   * @param tenor1 The first tenor.
+   * @param tenor2 The second tenor.
+   * @return The sum tenor.
+   * @throws IllegalArgumentException as described above.
+   */
+  public static Tenor plus(final Tenor tenor1, final Tenor tenor2) {
+    if ((!tenor1.isBusinessDayTenor()) && (!tenor2.isBusinessDayTenor())) {
+      return Tenor.of(tenor1.getPeriod().plus(tenor2.getPeriod()));
+    }
+    if (tenor1.equals(Tenor.of(Period.ZERO))) {
+      return tenor2;
+    }
+    if (tenor2.equals(Tenor.of(Period.ZERO))) {
+      return tenor1;
+    }
+    if ((tenor1.equals(Tenor.ON)) && (tenor1.equals(Tenor.ON))) {
+      return Tenor.TN;
+    }
+    throw new IllegalArgumentException("Can not add " + tenor1 + " and " + tenor2);
+  }
 }

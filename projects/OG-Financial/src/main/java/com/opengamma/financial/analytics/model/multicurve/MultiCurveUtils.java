@@ -44,7 +44,7 @@ public class MultiCurveUtils {
       final CurveNode node = iter.next();
       String name = node.getName();
       if (name == null) {
-        name = node.getClass().getSimpleName() + " " + node.getResolvedMaturity().getPeriod();
+        name = node.getClass().getSimpleName() + " " + node.getResolvedMaturity().toFormattedString(); //.getPeriod(); // TODO: Clean
       }
       labels[i] = name;
     }

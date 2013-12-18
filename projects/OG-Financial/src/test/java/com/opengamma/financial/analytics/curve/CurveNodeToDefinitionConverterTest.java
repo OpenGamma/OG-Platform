@@ -556,13 +556,44 @@ public class CurveNodeToDefinitionConverterTest {
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     marketValues.setDataPoint(marketDataId, rate);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
-    final CurveNode cashNode = new CashNode(Tenor.of(Period.ZERO), Tenor.ONE_DAY, DEPOSIT_1D_ID, "Mapper");
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new CashNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    // P0D-P1D
+    final CurveNode cashNode = new CashNode(Tenor.of(Period.ZERO), Tenor.ONE_DAY, DEPOSIT_1D_ID, "Mapper");
     final InstrumentDefinition<?> definition = cashNode.accept(converter);
-    assertTrue(definition instanceof CashDefinition);
+    assertTrue("CashNode: converter with P0D-P1D", definition instanceof CashDefinition);
     final CashDefinition cash = (CashDefinition) definition;
     final CashDefinition expectedCash = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 5, 2), 1, rate, 1. / 360);
-    assertEquals(expectedCash, cash);
+    assertEquals("CashNode: converter with P0D-P1D", expectedCash, cash);
+    // P0D-ON
+    final CurveNode cashNodeON = new CashNode(Tenor.of(Period.ZERO), Tenor.OVERNIGHT, DEPOSIT_1D_ID, "Mapper");
+    final InstrumentDefinition<?> definitionON = cashNodeON.accept(converter);
+    assertTrue("CashNode: converter with P0D-ON", definitionON instanceof CashDefinition);
+    final CashDefinition cashON = (CashDefinition) definitionON;
+    final CashDefinition expectedCashON = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 1), DateUtils.getUTCDate(2013, 5, 2), 1, rate, 1. / 360);
+    assertEquals("CashNode: converter with P0D-ON", expectedCashON, cashON);
+    // P1D-ON
+    final CurveNode cashNode1DON = new CashNode(Tenor.ONE_DAY, Tenor.OVERNIGHT, DEPOSIT_1D_ID, "Mapper");
+    final InstrumentDefinition<?> definition1DON = cashNode1DON.accept(converter);
+    assertTrue("CashNode: converter with P1D-ON", definition1DON instanceof CashDefinition);
+    final CashDefinition cash1DON = (CashDefinition) definition1DON;
+    final CashDefinition expectedCash1DON = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 2), DateUtils.getUTCDate(2013, 5, 3), 1, rate, 1. / 360);
+    assertEquals("CashNode: converter with P1D-ON", expectedCash1DON, cash1DON);
+    // ON-ON
+    final CurveNode cashNodeONON = new CashNode(Tenor.ONE_DAY, Tenor.OVERNIGHT, DEPOSIT_1D_ID, "Mapper");
+    final InstrumentDefinition<?> definitionONON = cashNodeONON.accept(converter);
+    assertTrue("CashNode: converter with P1D-ON", definitionONON instanceof CashDefinition);
+    final CashDefinition cashONON = (CashDefinition) definitionONON;
+    final CashDefinition expectedCashONON = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 5, 2), DateUtils.getUTCDate(2013, 5, 3), 1, rate, 1. / 360);
+    assertEquals("CashNode: converter with P1D-ON", expectedCashONON, cashONON);
+    // POD-TN(WE)
+    final ZonedDateTime now2 = DateUtils.getUTCDate(2013, 12, 20);
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter2 = new CashNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now2);
+    final CurveNode cashNode0DTN = new CashNode(Tenor.of(Period.ZERO), Tenor.TN, DEPOSIT_1D_ID, "Mapper");
+    final InstrumentDefinition<?> definition0DTN = cashNode0DTN.accept(converter2);
+    assertTrue("CashNode: converter with P0D-TN", definition0DTN instanceof CashDefinition);
+    final CashDefinition cash0DTN = (CashDefinition) definition0DTN;
+    final CashDefinition expectedCash0DTN = new CashDefinition(Currency.USD, DateUtils.getUTCDate(2013, 12, 20), DateUtils.getUTCDate(2013, 12, 24), 1, rate, 4. / 360);
+    assertEquals("CashNode: converter with P0D-TN", expectedCash0DTN, cash0DTN);
   }
 
   @Test
