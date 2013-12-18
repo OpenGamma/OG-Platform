@@ -374,12 +374,15 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     _subscriptionsLock.lock();
     try {
       for (ValueSpecification specification : specifications) {
-        _pendingSubscriptions.remove(specification);
-        if (subscriptionSucceeded) {
+        boolean expected = _pendingSubscriptions.remove(specification) != null;
+        if (expected && subscriptionSucceeded) {
           _activeSubscriptions.put(specification, ZonedDateTime.now());
-        } else {
-          _activeSubscriptions.remove(specification);
-          _failedSubscriptions.put(specification, ZonedDateTime.now());
+        } else if (!subscriptionSucceeded) {
+          // Even it wasn't expected because something else triggered the subscription, use the information to mark any
+          // active subscription as failed
+          if (_activeSubscriptions.remove(specification) != null || expected) {
+            _failedSubscriptions.put(specification, ZonedDateTime.now());
+          }
         }
 
       }

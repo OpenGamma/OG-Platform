@@ -81,7 +81,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testMarketDataSubscriptionSucceeding() {
-
     ImmutableSet<ValueSpecification> valueSpecs = ImmutableSet.of(createValueSpecForMarketValue("AAPL."));
     _manager.requestMarketDataSubscriptions(valueSpecs);
     _manager.subscriptionsSucceeded(valueSpecs);
@@ -91,7 +90,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testMarketDataSubscriptionFailing() {
-
     ValueSpecification valueSpec = createValueSpecForMarketValue("AAPL.");
     _manager.requestMarketDataSubscriptions(ImmutableSet.of(valueSpec));
     _manager.subscriptionFailed(valueSpec, "Que?");
@@ -101,7 +99,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testMarketDataSubscriptionRemoval() {
-
     ImmutableSet<ValueSpecification> valueSpecs1 = ImmutableSet.of(createValueSpecForMarketValue("AAPL."));
     _manager.requestMarketDataSubscriptions(valueSpecs1);
     _manager.subscriptionsSucceeded(valueSpecs1);
@@ -116,7 +113,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testMarketDataLifecycle() {
-
     ValueSpecification spec = createValueSpecForMarketValue("AAPL.");
     ImmutableSet<ValueSpecification> valueSpecs = ImmutableSet.of(spec);
 
@@ -139,7 +135,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testAllMatchingTickersAreReturned() {
-
     Set<ValueSpecification> valueSpecs =
         createMarketDataValueSpecs("AAPL.", "AAPL/G4NHG.O", "AAPL/G4G3F.", "GOOG.", "GOOG/GsG~K.");
     _manager.requestMarketDataSubscriptions(valueSpecs);
@@ -152,7 +147,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testNullQueryResultsInAllMatchingTickersReturned() {
-
     Set<ValueSpecification> valueSpecs =
         createMarketDataValueSpecs("AAPL.", "AAPL/G4NHG.O", "AAPL/G4G3F.", "GOOG.", "GOOG/GsG~K.");
     _manager.requestMarketDataSubscriptions(valueSpecs);
@@ -162,7 +156,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testEmptyQueryResultsInAllMatchingTickersReturned() {
-
     Set<ValueSpecification> valueSpecs =
         createMarketDataValueSpecs("AAPL.", "AAPL/G4NHG.O", "AAPL/G4G3F.", "GOOG.", "GOOG/GsG~K.");
     _manager.requestMarketDataSubscriptions(valueSpecs);
@@ -172,7 +165,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testQueryByType() {
-
     Set<ValueSpecification> appleSpec = createMarketDataValueSpecs("AAPL.");
     Set<ValueSpecification> appleOptions = createMarketDataValueSpecs("AAPL/G4NHG.O", "AAPL/G4G3F.");
     Set <ValueSpecification> googleOptions = createMarketDataValueSpecs("GOOG.", "GOOG/GsG~K.");
@@ -203,7 +195,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testValueSpecsOnSameTickerAreDistinguishedByGet() {
-
     Set<ValueSpecification> specs = ImmutableSet.of(createValueSpecForMarketValue("AAPL."),
                                                     createValueSpecForDividendYield("AAPL."));
     _manager.requestMarketDataSubscriptions(specs);
@@ -216,7 +207,6 @@ public class MarketDataManagerTest {
 
   @Test
   public void testValueSpecsOnSameTickerAreDistinguishedByQuery() {
-
     Set<ValueSpecification> specs = ImmutableSet.of(createValueSpecForMarketValue("AAPL."), createValueSpecForDividendYield("AAPL."));
     _manager.requestMarketDataSubscriptions(specs);
     Set<String> keys = _manager.querySubscriptionState("").keySet();
@@ -225,6 +215,53 @@ public class MarketDataManagerTest {
     checkKeyMatches(keys);
   }
 
+  @Test
+  public void testUnexpectedSubscriptionNotificationsIgnored() {
+    Set<ValueSpecification> specs1 = ImmutableSet.of(createValueSpecForMarketValue("AAPL."));
+    _manager.subscriptionsSucceeded(specs1);
+    
+    assertThat(_manager.querySubscriptionState("AAPL.").size(), is(0));
+    assertThat(_manager.getFailedSubscriptionCount(), is(0));
+    assertThat(_manager.getPendingSubscriptionCount(), is(0));
+    assertThat(_manager.getRemovedSubscriptionCount(), is(0));
+    assertThat(_manager.getActiveSubscriptionCount(), is(0));
+    
+    ValueSpecification spec2 = createValueSpecForMarketValue("GOOG.");
+    _manager.subscriptionFailed(spec2, "Not authorized");
+    
+    assertThat(_manager.querySubscriptionState("GOOG.").size(), is(0));
+    assertThat(_manager.getFailedSubscriptionCount(), is(0));
+    assertThat(_manager.getPendingSubscriptionCount(), is(0));
+    assertThat(_manager.getRemovedSubscriptionCount(), is(0));
+    assertThat(_manager.getActiveSubscriptionCount(), is(0));
+  }
+  
+  @Test
+  public void testUnexpectedChangeOfSubscriptionState() {
+    ValueSpecification spec = createValueSpecForMarketValue("AAPL.");
+    Set<ValueSpecification> specs = ImmutableSet.of(spec);
+    _manager.requestMarketDataSubscriptions(specs);
+    
+    assertThat(_manager.getFailedSubscriptionCount(), is(0));
+    assertThat(_manager.getPendingSubscriptionCount(), is(1));
+    assertThat(_manager.getRemovedSubscriptionCount(), is(0));
+    assertThat(_manager.getActiveSubscriptionCount(), is(0));
+    
+    _manager.subscriptionsSucceeded(specs);
+    
+    assertThat(_manager.getFailedSubscriptionCount(), is(0));
+    assertThat(_manager.getPendingSubscriptionCount(), is(0));
+    assertThat(_manager.getRemovedSubscriptionCount(), is(0));
+    assertThat(_manager.getActiveSubscriptionCount(), is(1));
+    
+    _manager.subscriptionFailed(spec, "Not authorized");
+    
+    assertThat(_manager.getFailedSubscriptionCount(), is(1));
+    assertThat(_manager.getPendingSubscriptionCount(), is(0));
+    assertThat(_manager.getRemovedSubscriptionCount(), is(0));
+    assertThat(_manager.getActiveSubscriptionCount(), is(0));
+  }
+  
   private void checkKeyMatches(Set<String> keys) {
     boolean mvMatch = false;
     boolean dyMatch = false;
