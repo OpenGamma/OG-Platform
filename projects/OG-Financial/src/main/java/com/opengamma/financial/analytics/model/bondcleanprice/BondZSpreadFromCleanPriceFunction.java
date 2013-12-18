@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.bondcleanprice;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.Z_SPREAD;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -81,6 +82,7 @@ public class BondZSpreadFromCleanPriceFunction extends BondFromCleanPriceAndCurv
     final String curve = Iterables.getOnlyElement(curves);
     final ValueProperties curveProperties = ValueProperties.builder()
         .with(CURVE, curve)
+        .with(PROPERTY_CURVE_TYPE, constraints.getValues(PROPERTY_CURVE_TYPE))
         .get();
     requirements.add(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.NULL, curveProperties));
     return requirements;
