@@ -15,6 +15,8 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
@@ -25,9 +27,14 @@ import com.opengamma.util.ArgumentChecker;
  * Builds a curve specification from a curve definition and curve node id mapper
  * stored in a configuration source.
  */
+/**
+ *
+ */
 public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuilder {
   /** The config source */
   private final ConfigSource _configSource;
+  /** The curve definition source */
+  private final CurveDefinitionSource _definitionSource;
 
   /**
    * @param configSource The config source, not null
@@ -35,6 +42,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
   public ConfigDBCurveSpecificationBuilder(final ConfigSource configSource) {
     ArgumentChecker.notNull(configSource, "config source");
     _configSource = configSource;
+    _definitionSource = new ConfigDBCurveDefinitionSource(configSource);
   }
 
   @Override
@@ -59,6 +67,8 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       return getCurveSpecification(valuationTime, curveDate, (CurveDefinition) curveDefinition);
     } else if (curveDefinition instanceof ConstantCurveDefinition) {
       return getConstantCurveSpecification(valuationTime, curveDate, (ConstantCurveDefinition) curveDefinition);
+    } else if (curveDefinition instanceof SpreadCurveDefinition) {
+      return getSpreadCurveSpecification(valuationTime, curveDate, (SpreadCurveDefinition) curveDefinition);
     }
     throw new UnsupportedOperationException("Cannot handle curve definitions of type " + curveDefinition.getClass());
   }
@@ -122,6 +132,21 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
   private static AbstractCurveSpecification getConstantCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final ConstantCurveDefinition curveDefinition) {
     final String curveName = curveDefinition.getName();
     return new ConstantCurveSpecification(curveDate, curveName, curveDefinition.getExternalId(), curveDefinition.getDataField());
+  }
+
+  /**
+   * Creates a {@link SpreadCurveSpecification}
+   * @param valuationTime The valuation time
+   * @param curveDate The curve date
+   * @param curveDefinition The curve definition
+   * @return The curve specification
+   */
+  private AbstractCurveSpecification getSpreadCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final SpreadCurveDefinition curveDefinition) {
+    final AbstractCurveDefinition firstDefinition = _definitionSource.getDefinition(curveDefinition.getFirstCurve(), VersionCorrection.LATEST);
+    final AbstractCurveDefinition secondDefinition = _definitionSource.getDefinition(curveDefinition.getSecondCurve(), VersionCorrection.LATEST);
+    final AbstractCurveSpecification firstSpecification = buildSpecification(valuationTime, curveDate, firstDefinition);
+    final AbstractCurveSpecification secondSpecification = buildSpecification(valuationTime, curveDate, secondDefinition);
+    return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), firstSpecification, secondSpecification, curveDefinition.getOperationName());
   }
 
   /**

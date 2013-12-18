@@ -16,12 +16,10 @@ import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -99,7 +97,7 @@ public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void test() {
-    final ConstantCurveDefinition temp = new ConstantCurveDefinition("Name", ExternalSchemes.bloombergTickerSecurityId("USSW1 Curncy"), MarketDataRequirementNames.MARKET_VALUE);
+    final SpreadCurveDefinition temp = new SpreadCurveDefinition("Name", "Test1", "Test2", "+");
     System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(temp));
   }
 }

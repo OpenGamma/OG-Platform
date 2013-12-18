@@ -10,6 +10,7 @@ import com.opengamma.financial.analytics.curve.AbstractCurveDefinition;
 import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,6 +61,10 @@ public class ConfigDBCurveDefinitionSource implements CurveDefinitionSource {
     if (result != null) {
       return result;
     }
+    result = _configSource.getLatestByName(SpreadCurveDefinition.class, name);
+    if (result != null) {
+      return result;
+    }
     return _configSource.getLatestByName(CurveDefinition.class, name);
   }
 
@@ -72,6 +77,10 @@ public class ConfigDBCurveDefinitionSource implements CurveDefinitionSource {
       return result;
     }
     result = _configSource.getSingle(ConstantCurveDefinition.class, name, versionCorrection);
+    if (result != null) {
+      return result;
+    }
+    result = _configSource.getSingle(SpreadCurveDefinition.class, name, versionCorrection);
     if (result != null) {
       return result;
     }
