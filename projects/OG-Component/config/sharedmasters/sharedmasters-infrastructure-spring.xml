@@ -107,6 +107,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardCacheManager" alias="snpCacheManager"/>
   <alias name="standardCacheManager" alias="secCacheManager"/>
   <alias name="standardCacheManager" alias="cnvCacheManager"/>
+  <alias name="standardCacheManager" alias="lenCacheManager"/>
   <alias name="standardCacheManager" alias="posCacheManager"/>
   <alias name="standardCacheManager" alias="prtCacheManager"/>
   <alias name="standardCacheManager" alias="orgCacheManager"/>

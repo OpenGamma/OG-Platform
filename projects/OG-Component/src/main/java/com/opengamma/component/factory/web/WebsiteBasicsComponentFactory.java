@@ -41,6 +41,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -56,6 +57,7 @@ import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.function.WebFunctionsResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
+import com.opengamma.web.legalentity.WebLegalEntitiesResource;
 import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotsResource;
 import com.opengamma.web.orgs.WebOrganizationsResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
@@ -112,6 +114,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private ConventionMaster _conventionMaster;
+  /**
+   * The legal entity master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private LegalEntityMaster _legalEntityMaster;
   /**
    * The position master.
    */
@@ -220,6 +227,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     resource = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebConventionsResource.class, getConventionMaster());
+    repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getOrganizationMaster());
     repo.getRestComponents().publishResource(resource);
@@ -482,6 +491,32 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<ConventionMaster> conventionMaster() {
     return metaBean().conventionMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the legal entity master.
+   * @return the value of the property, not null
+   */
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
+  }
+
+  /**
+   * Sets the legal entity master.
+   * @param legalEntityMaster  the new value of the property, not null
+   */
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    JodaBeanUtils.notNull(legalEntityMaster, "legalEntityMaster");
+    this._legalEntityMaster = legalEntityMaster;
+  }
+
+  /**
+   * Gets the the {@code legalEntityMaster} property.
+   * @return the property, not null
+   */
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -927,6 +962,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
@@ -959,6 +995,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
@@ -980,7 +1017,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(800);
+    StringBuilder buf = new StringBuilder(832);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1002,6 +1039,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
     buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
     buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
@@ -1070,6 +1108,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
         this, "conventionMaster", WebsiteBasicsComponentFactory.class, ConventionMaster.class);
+    /**
+     * The meta-property for the {@code legalEntityMaster} property.
+     */
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", WebsiteBasicsComponentFactory.class, LegalEntityMaster.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
@@ -1163,6 +1206,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "securitySource",
         "securityLoader",
         "conventionMaster",
+        "legalEntityMaster",
         "positionMaster",
         "portfolioMaster",
         "historicalTimeSeriesMaster",
@@ -1205,6 +1249,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _securityLoader;
         case 41113907:  // conventionMaster
           return _conventionMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
         case -1840419605:  // positionMaster
           return _positionMaster;
         case -772274742:  // portfolioMaster
@@ -1319,6 +1365,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConventionMaster> conventionMaster() {
       return _conventionMaster;
+    }
+
+    /**
+     * The meta-property for the {@code legalEntityMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
     }
 
     /**
@@ -1471,6 +1525,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getSecurityLoader();
         case 41113907:  // conventionMaster
           return ((WebsiteBasicsComponentFactory) bean).getConventionMaster();
+        case -1944474242:  // legalEntityMaster
+          return ((WebsiteBasicsComponentFactory) bean).getLegalEntityMaster();
         case -1840419605:  // positionMaster
           return ((WebsiteBasicsComponentFactory) bean).getPositionMaster();
         case -772274742:  // portfolioMaster
@@ -1534,6 +1590,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         case 41113907:  // conventionMaster
           ((WebsiteBasicsComponentFactory) bean).setConventionMaster((ConventionMaster) newValue);
           return;
+        case -1944474242:  // legalEntityMaster
+          ((WebsiteBasicsComponentFactory) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
+          return;
         case -1840419605:  // positionMaster
           ((WebsiteBasicsComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
           return;
@@ -1596,6 +1655,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securitySource, "securitySource");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityLoader, "securityLoader");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._conventionMaster, "conventionMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._legalEntityMaster, "legalEntityMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._positionMaster, "positionMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._portfolioMaster, "portfolioMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");

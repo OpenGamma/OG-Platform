@@ -42,6 +42,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -99,6 +100,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition
   private ConventionMaster _conventionMaster;
+  /**
+   * The legal entity master.
+   */
+  @PropertyDefinition
+  private LegalEntityMaster _legalEntityMaster;
   /**
    * The position master.
    */
@@ -446,6 +452,31 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
    */
   public final Property<ConventionMaster> conventionMaster() {
     return metaBean().conventionMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the legal entity master.
+   * @return the value of the property
+   */
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
+  }
+
+  /**
+   * Sets the legal entity master.
+   * @param legalEntityMaster  the new value of the property
+   */
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    this._legalEntityMaster = legalEntityMaster;
+  }
+
+  /**
+   * Gets the the {@code legalEntityMaster} property.
+   * @return the property, not null
+   */
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -994,6 +1025,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
@@ -1031,6 +1063,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
@@ -1057,7 +1090,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(960);
+    StringBuilder buf = new StringBuilder(992);
     buf.append("ToolContextComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1079,6 +1112,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     buf.append("regionMaster").append('=').append(JodaBeanUtils.toString(getRegionMaster())).append(',').append(' ');
     buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
     buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
@@ -1152,6 +1186,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
         this, "conventionMaster", ToolContextComponentFactory.class, ConventionMaster.class);
+    /**
+     * The meta-property for the {@code legalEntityMaster} property.
+     */
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", ToolContextComponentFactory.class, LegalEntityMaster.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
@@ -1270,6 +1309,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
         "regionMaster",
         "securityMaster",
         "conventionMaster",
+        "legalEntityMaster",
         "positionMaster",
         "portfolioMaster",
         "organizationMaster",
@@ -1317,6 +1357,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return _securityMaster;
         case 41113907:  // conventionMaster
           return _conventionMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
         case -1840419605:  // positionMaster
           return _positionMaster;
         case -772274742:  // portfolioMaster
@@ -1441,6 +1483,14 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConventionMaster> conventionMaster() {
       return _conventionMaster;
+    }
+
+    /**
+     * The meta-property for the {@code legalEntityMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
     }
 
     /**
@@ -1631,6 +1681,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return ((ToolContextComponentFactory) bean).getSecurityMaster();
         case 41113907:  // conventionMaster
           return ((ToolContextComponentFactory) bean).getConventionMaster();
+        case -1944474242:  // legalEntityMaster
+          return ((ToolContextComponentFactory) bean).getLegalEntityMaster();
         case -1840419605:  // positionMaster
           return ((ToolContextComponentFactory) bean).getPositionMaster();
         case -772274742:  // portfolioMaster
@@ -1703,6 +1755,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
           return;
         case 41113907:  // conventionMaster
           ((ToolContextComponentFactory) bean).setConventionMaster((ConventionMaster) newValue);
+          return;
+        case -1944474242:  // legalEntityMaster
+          ((ToolContextComponentFactory) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
           return;
         case -1840419605:  // positionMaster
           ((ToolContextComponentFactory) bean).setPositionMaster((PositionMaster) newValue);

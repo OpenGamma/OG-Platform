@@ -42,6 +42,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="finDbConnector" alias="holDbConnector"/>
   <alias name="finDbConnector" alias="snpDbConnector"/>
   <alias name="finDbConnector" alias="cnvDbConnector"/>
+  <alias name="finDbConnector" alias="lenDbConnector"/>
   <alias name="finDbConnector" alias="posDbConnector"/>
   <alias name="finDbConnector" alias="prtDbConnector"/>
   <alias name="finDbConnector" alias="engDbConnector"/>
@@ -154,6 +155,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardJmsConnector" alias="snpJmsConnector"/>
   <alias name="standardJmsConnector" alias="secJmsConnector"/>
   <alias name="standardJmsConnector" alias="cnvJmsConnector"/>
+  <alias name="standardJmsConnector" alias="lenJmsConnector"/>
   <alias name="standardJmsConnector" alias="posJmsConnector"/>
   <alias name="standardJmsConnector" alias="prtJmsConnector"/>
   <alias name="standardJmsConnector" alias="orgJmsConnector"/>
@@ -169,6 +171,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <alias name="standardCacheManager" alias="snpCacheManager"/>
   <alias name="standardCacheManager" alias="secCacheManager"/>
   <alias name="standardCacheManager" alias="cnvCacheManager"/>
+  <alias name="standardCacheManager" alias="lenCacheManager"/>
   <alias name="standardCacheManager" alias="posCacheManager"/>
   <alias name="standardCacheManager" alias="prtCacheManager"/>
   <alias name="standardCacheManager" alias="engCacheManager"/>
