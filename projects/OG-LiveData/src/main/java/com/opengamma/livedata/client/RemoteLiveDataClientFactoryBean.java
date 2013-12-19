@@ -92,7 +92,8 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<Distri
   @Override
   protected DistributedLiveDataClient createObject() {
     final JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
-    final ThreadPoolExecutor executor = new ThreadPoolExecutor(0, getMaxConcurrentRequests(), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadPoolFactory(
+    final int maxConcurrent = getMaxConcurrentRequests();
+    final ThreadPoolExecutor executor = new ThreadPoolExecutor(maxConcurrent, maxConcurrent, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadPoolFactory(
         "RemoteLiveDataClient"));
     final JmsByteArrayRequestSender jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(getSubscriptionTopic(), jmsTemplate, executor);
     final ByteArrayFudgeRequestSender fudgeSubscriptionRequestSender = new ByteArrayFudgeRequestSender(jmsSubscriptionRequestSender);
