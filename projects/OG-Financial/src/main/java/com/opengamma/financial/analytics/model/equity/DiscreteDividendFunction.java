@@ -151,7 +151,12 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
   public boolean canHandleMissingInputs() {
     return true;
   }
-
+  
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
+  
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.AFFINE_DIVIDENDS, target.toSpecification(), getValuePropertiesBuilder().get()));
