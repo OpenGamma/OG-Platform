@@ -216,7 +216,7 @@ public final class ScheduleCalculator {
     ArgumentChecker.notNull(convention, "Convention");
     ArgumentChecker.notNull(calendar, "Calendar");
     ArgumentChecker.notNull(tenor, "Tenor");
-    final ZonedDateTime endDate = TenorUtils.adjustDateByTenor(startDate, tenor, calendar, 0); // startDate.plus(tenor); // Unadjusted date.
+    final ZonedDateTime endDate = TenorUtils.adjustDateByTenor(startDate, tenor, calendar, 0);
     if (tenor.isBusinessDayTenor()) { // This handles tenor of the type ON, TN
       return endDate;
     }

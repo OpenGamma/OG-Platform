@@ -161,6 +161,11 @@ public class TenorUtilsTest {
   private static class MyCalendar extends ExceptionCalendar {
 
     /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
      * Default constructor
      */
     protected MyCalendar() {

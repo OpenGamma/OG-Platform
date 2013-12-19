@@ -88,7 +88,6 @@ public class CashNode extends CurveNode {
   @Override
   public Tenor getResolvedMaturity() {
     return TenorUtils.plus(_startTenor, _maturityTenor);
-        // Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); // _maturityTenor;
   }
 
   @Override
