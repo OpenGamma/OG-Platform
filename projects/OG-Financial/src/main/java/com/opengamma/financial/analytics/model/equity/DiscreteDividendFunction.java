@@ -68,10 +68,10 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     
     // The frequency sets up an interval 
-    Integer nDividendsPerYear = (Integer) inputs.getValue(MarketDataRequirementNames.DIVIDEND_FREQUENCY);
+    Double nDividendsPerYear = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_FREQUENCY);
     if (nDividendsPerYear == null) {
       s_logger.warn("No dividend frequency - defaulting to 4 per year");
-      nDividendsPerYear = 4;
+      nDividendsPerYear = 4.0;
     }
     final double dividendInterval = 1.0 / nDividendsPerYear;
     final int nDividends = (int) Math.ceil(getDividendHorizon() * nDividendsPerYear);
