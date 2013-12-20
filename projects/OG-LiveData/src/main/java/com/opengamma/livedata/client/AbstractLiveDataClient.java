@@ -10,8 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.Timer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -39,6 +39,7 @@ import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.metric.MetricProducer;
@@ -152,9 +153,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   }
 
   @Override
-  public void subscribe(UserPrincipal user,
-      Collection<LiveDataSpecification> requestedSpecifications,
-      LiveDataListener listener) {
+  public void subscribe(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications, LiveDataListener listener) {
 
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
@@ -168,38 +167,37 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   }
 
   @Override
-  public void subscribe(UserPrincipal user, LiveDataSpecification requestedSpecification,
-      LiveDataListener listener) {
+  public void subscribe(UserPrincipal user, LiveDataSpecification requestedSpecification, LiveDataListener listener) {
     subscribe(user, Collections.singleton(requestedSpecification), listener);
   }
 
-  private class SnapshotListener implements LiveDataListener {
+  private abstract class SnapshotListener implements LiveDataListener {
 
     private final Collection<LiveDataSubscriptionResponse> _responses = new ArrayList<LiveDataSubscriptionResponse>();
-    private final CountDownLatch _responsesReceived;
+    private final AtomicInteger _responsesOutstanding;
 
     public SnapshotListener(int expectedNumberOfResponses) {
-      _responsesReceived = new CountDownLatch(expectedNumberOfResponses);
+      _responsesOutstanding = new AtomicInteger(expectedNumberOfResponses);
     }
 
     @Override
-    public void subscriptionResultReceived(
-        LiveDataSubscriptionResponse subscriptionResult) {
+    public void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult) {
       _responses.add(subscriptionResult);
-      _responsesReceived.countDown();
+      if (_responsesOutstanding.decrementAndGet() <= 0) {
+        notifyResponses();
+      }
     }
 
     @Override
     public void subscriptionResultsReceived(Collection<LiveDataSubscriptionResponse> subscriptionResults) {
       _responses.addAll(subscriptionResults);
-      for (int i = 0; i < subscriptionResults.size(); i++) {
-        _responsesReceived.countDown();
+      if (_responsesOutstanding.addAndGet(-subscriptionResults.size()) <= 0) {
+        notifyResponses();
       }
     }
 
     @Override
-    public void subscriptionStopped(
-        LiveDataSpecification fullyQualifiedSpecification) {
+    public void subscriptionStopped(LiveDataSpecification fullyQualifiedSpecification) {
       // should never go here      
       throw new UnsupportedOperationException();
     }
@@ -209,53 +207,158 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
       // should never go here
       throw new UnsupportedOperationException();
     }
+
+    protected boolean responsesOutstanding() {
+      return _responsesOutstanding.get() > 0;
+    }
+
+    protected abstract void notifyResponses();
+
+    public Collection<LiveDataSubscriptionResponse> getResponses() {
+      return _responses;
+    }
+
+  }
+
+  private final class SynchronousSnapshotListener extends SnapshotListener {
+
+    public SynchronousSnapshotListener(final int expectedNumberOfResponses) {
+      super(expectedNumberOfResponses);
+    }
+
+    @Override
+    protected synchronized void notifyResponses() {
+      notifyAll();
+    }
+
+    public synchronized boolean waitForResponses(final long timeout) throws InterruptedException {
+      final long delayUntil = System.nanoTime() + timeout * 1_000_000L;
+      while (responsesOutstanding()) {
+        final long delay = delayUntil - System.nanoTime();
+        if (delay < 1_000_000L) {
+          return !responsesOutstanding();
+        }
+        wait(delay / 1_000_000L);
+      }
+      return true;
+    }
+
+  }
+
+  private final class AsynchronousSnapshotListener extends SnapshotListener {
+
+    private PoolExecutor.CompletionListener<Collection<LiveDataSubscriptionResponse>> _callback;
+
+    public AsynchronousSnapshotListener(final int expectedNumberOfResponses, final PoolExecutor.CompletionListener<Collection<LiveDataSubscriptionResponse>> callback) {
+      super(expectedNumberOfResponses);
+      _callback = callback;
+    }
+
+    @Override
+    protected synchronized void notifyResponses() {
+      final PoolExecutor.CompletionListener<Collection<LiveDataSubscriptionResponse>> callback;
+      synchronized (this) {
+        callback = _callback;
+        _callback = null;
+      }
+      if (callback != null) {
+        callback.success(getResponses());
+      }
+    }
+
+    public void waitForResponses(final long timeout) {
+      _timer.schedule(new TimerTask() {
+        @Override
+        public void run() {
+          final PoolExecutor.CompletionListener<Collection<LiveDataSubscriptionResponse>> callback;
+          synchronized (this) {
+            callback = _callback;
+            _callback = null;
+          }
+          if (callback != null) {
+            callback.success(null);
+          }
+        }
+      }, timeout);
+    }
+
   }
 
   @Override
-  public Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user,
-      Collection<LiveDataSpecification> requestedSpecifications,
-      long timeout) {
-
+  public Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications, long timeout) {
     ArgumentChecker.notNull(user, "User");
     ArgumentChecker.notNull(requestedSpecifications, "Live Data specifications");
-
     if (requestedSpecifications.isEmpty()) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     }
-
-    SnapshotListener listener = new SnapshotListener(requestedSpecifications.size());
-
+    final SynchronousSnapshotListener listener = new SynchronousSnapshotListener(requestedSpecifications.size());
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
       SubscriptionHandle subHandle = new SubscriptionHandle(user, SubscriptionType.SNAPSHOT, requestedSpecification, listener);
       subscriptionHandles.add(subHandle);
     }
-
     handleSubscriptionRequest(subscriptionHandles);
-
     boolean success;
     try {
-      success = listener._responsesReceived.await(timeout, TimeUnit.MILLISECONDS);
+      success = listener.waitForResponses(timeout);
     } catch (InterruptedException e) {
       Thread.interrupted();
       throw new OpenGammaRuntimeException("Thread interrupted when obtaining snapshot");
     }
-
     if (success) {
-      return listener._responses;
+      return listener.getResponses();
     } else {
-      throw new OpenGammaRuntimeException("Timeout " + timeout + "ms reached when obtaining snapshot of " + subscriptionHandles.size() + " handles");
+      throw new OpenGammaRuntimeException("Timeout " + timeout + "ms reached when obtaining snapshot of " + requestedSpecifications.size() + " handles");
     }
   }
 
-  @Override
-  public LiveDataSubscriptionResponse snapshot(UserPrincipal user,
-      LiveDataSpecification requestedSpecification,
-      long timeout) {
+  /**
+   * Asynchronous form of {@link #snapshot(UserPrincipal, Collection<LiveDataSpecification>, long)}.
+   * 
+   * @param user see {@link #snapshot(UserPrincipal, Collection<LiveDataSpecification>, long)}
+   * @param requestedSpecifications see {@link #snapshot(UserPrincipal, Collection<LiveDataSpecification>, long)}
+   * @param timeout see {@link #snapshot(UserPrincipal, Collection<LiveDataSpecification>, long)}
+   * @param callback receives the result of execution
+   */
+  protected void snapshot(final UserPrincipal user, final Collection<LiveDataSpecification> requestedSpecifications, final long timeout,
+      final PoolExecutor.CompletionListener<Collection<LiveDataSubscriptionResponse>> callback) {
+    ArgumentChecker.notNull(user, "User");
+    ArgumentChecker.notNull(requestedSpecifications, "Live Data specifications");
+    if (requestedSpecifications.isEmpty()) {
+      callback.success(Collections.<LiveDataSubscriptionResponse>emptySet());
+      return;
+    }
+    final AsynchronousSnapshotListener listener = new AsynchronousSnapshotListener(requestedSpecifications.size(),
+        new PoolExecutor.CompletionListener<Collection<LiveDataSubscriptionResponse>>() {
 
-    Collection<LiveDataSubscriptionResponse> snapshots = snapshot(user,
-        Collections.singleton(requestedSpecification),
-        timeout);
+          @Override
+          public void success(final Collection<LiveDataSubscriptionResponse> result) {
+            if (result != null) {
+              callback.success(result);
+            } else {
+              callback.failure(new OpenGammaRuntimeException("Timeout " + timeout + "ms reached when obtaining snapshot of " + requestedSpecifications.size() + " handles"));
+            }
+          }
+
+          @Override
+          public void failure(final Throwable error) {
+            callback.failure(error);
+          }
+
+        });
+    ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();
+    for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
+      SubscriptionHandle subHandle = new SubscriptionHandle(user, SubscriptionType.SNAPSHOT, requestedSpecification, listener);
+      subscriptionHandles.add(subHandle);
+    }
+    handleSubscriptionRequest(subscriptionHandles);
+    listener.waitForResponses(timeout);
+  }
+
+  @Override
+  public LiveDataSubscriptionResponse snapshot(UserPrincipal user, LiveDataSpecification requestedSpecification, long timeout) {
+
+    Collection<LiveDataSubscriptionResponse> snapshots = snapshot(user, Collections.singleton(requestedSpecification), timeout);
 
     if (snapshots.size() != 1) {
       throw new OpenGammaRuntimeException("One snapshot request should return 1 snapshot, was " + snapshots.size());
@@ -315,12 +418,9 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user,
-      Collection<LiveDataSpecification> fullyQualifiedSpecifications,
-      LiveDataListener listener) {
+  public void unsubscribe(UserPrincipal user, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener) {
     for (LiveDataSpecification fullyQualifiedSpecification : fullyQualifiedSpecifications) {
-      s_logger.info("Unsubscribing by {} to {} delivered to {}",
-          new Object[] {user, fullyQualifiedSpecification, listener });
+      s_logger.info("Unsubscribing by {} to {} delivered to {}", new Object[] {user, fullyQualifiedSpecification, listener });
       boolean unsubscribeToSpec = false;
       _subscriptionLock.lock();
       try {
@@ -342,9 +442,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient, MetricPr
   }
 
   @Override
-  public void unsubscribe(UserPrincipal user,
-      LiveDataSpecification fullyQualifiedSpecification,
-      LiveDataListener listener) {
+  public void unsubscribe(UserPrincipal user, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     unsubscribe(user, Collections.singleton(fullyQualifiedSpecification), listener);
   }
 

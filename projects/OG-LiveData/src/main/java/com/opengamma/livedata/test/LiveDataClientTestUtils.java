@@ -125,7 +125,11 @@ public class LiveDataClientTestUtils {
           executor.execute(new Runnable() {
             @Override
             public void run() {
-              sender.sendRequest(request, responseReceiver);
+              try {
+                sender.sendRequest(request, responseReceiver);
+              } catch (Throwable t) {
+                t.printStackTrace();
+              }
             }
           });
         }
