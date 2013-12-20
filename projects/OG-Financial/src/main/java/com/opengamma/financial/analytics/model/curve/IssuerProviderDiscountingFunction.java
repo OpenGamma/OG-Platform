@@ -77,7 +77,6 @@ import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.RollDateFRANodeConverter;
 import com.opengamma.financial.analytics.curve.RollDateSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
-import com.opengamma.financial.analytics.curve.ZeroCouponInflationNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -293,7 +292,6 @@ public class IssuerProviderDiscountingFunction extends
           .immSwapNode(new RollDateSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, fx))
-          .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))
           .create();
     }
 
