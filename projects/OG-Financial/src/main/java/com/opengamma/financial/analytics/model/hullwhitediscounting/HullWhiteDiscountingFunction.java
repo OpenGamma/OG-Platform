@@ -137,7 +137,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
           || security instanceof DeliverableSwapFutureSecurity
           || security instanceof FederalFundsFutureSecurity;
     }
-
+    
     @Override
     protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties =  createValueProperties()
