@@ -5,8 +5,10 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.GenericImpliedVolatiltySolver;
+import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
@@ -34,6 +36,117 @@ public class RollGeskeWhaleyModel {
    * @param interestRate The interest rate
    * @param timeToExpiry The time to expiry 
    * @param volatility The volatility 
+   * @param dividends The cash dividend amount
+   * @param dividendTimes The time when the dividend is paid
+   * @return The call option price
+   */
+  public double price(final double spot, final double strike, final double interestRate, final double timeToExpiry, final double volatility, final double[] dividends, final double[] dividendTimes) {
+    ArgumentChecker.isTrue(spot > 0., "spot is not positive");
+    ArgumentChecker.isTrue(strike > 0., "strike is not positive");
+    ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
+    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry is not positive");
+    ArgumentChecker.isTrue(volatility >= -0., "volatility is negative");
+
+    ArgumentChecker.notNull(dividends, "dividends");
+    ArgumentChecker.notNull(dividendTimes, "dividendTimes");
+    final int nDivs = dividends.length;
+    ArgumentChecker.isTrue(nDivs == dividendTimes.length, "dividends and dividendTimes should be the same length");
+    for (int i = 0; i < nDivs; ++i) {
+      ArgumentChecker.isTrue(Doubles.isFinite(dividends[i]), "dividends contains infinity or NaN");
+      ArgumentChecker.isTrue(Doubles.isFinite(dividendTimes[i]), "dividendTimes contains infinity or NaN");
+    }
+
+    ArgumentChecker.isTrue(dividendTimes[0] <= timeToExpiry, "All dividends paid after expiry");
+    final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
+    double modSpot = spot;
+    for (int i = 0; i < position; ++i) {
+      modSpot -= (dividends[i] * Math.exp(-interestRate * dividendTimes[i]));
+    }
+
+    return price(modSpot, strike, interestRate, timeToExpiry, volatility, dividends[position], dividendTimes[position]);
+  }
+
+  /**
+   * @param spot The spot price of underlying
+   * @param strike The strike price
+   * @param interestRate The interest rate
+   * @param timeToExpiry The time to expiry 
+   * @param volatility The volatility 
+   * @param dividends The cash dividend amount
+   * @param dividendTimes The time when the dividend is paid
+   * @return The call option price and Greeks as an array {price, delta, dual delta, rho, theta, vega, gamma}
+   */
+  public double[] getPriceAdjoint(final double spot, final double strike, final double interestRate, final double timeToExpiry, final double volatility, final double[] dividends,
+      final double[] dividendTimes) {
+    ArgumentChecker.isTrue(spot > 0., "spot is not positive");
+    ArgumentChecker.isTrue(strike > 0., "strike is not positive");
+    ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
+    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry is not positive");
+    ArgumentChecker.isTrue(volatility >= -0., "volatility is negative");
+
+    ArgumentChecker.notNull(dividends, "dividends");
+    ArgumentChecker.notNull(dividendTimes, "dividendTimes");
+    final int nDivs = dividends.length;
+    ArgumentChecker.isTrue(nDivs == dividendTimes.length, "dividends and dividendTimes should be the same length");
+    for (int i = 0; i < nDivs; ++i) {
+      ArgumentChecker.isTrue(Doubles.isFinite(dividends[i]), "dividends contains infinity or NaN");
+      ArgumentChecker.isTrue(Doubles.isFinite(dividendTimes[i]), "dividendTimes contains infinity or NaN");
+    }
+
+    ArgumentChecker.isTrue(dividendTimes[0] <= timeToExpiry, "All dividends paid after expiry");
+    final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
+    double modSpot = spot;
+    double diffSum = 0.;
+    for (int i = 0; i < position; ++i) {
+      modSpot -= (dividends[i] * Math.exp(-interestRate * dividendTimes[i]));
+      diffSum += (dividends[i] * dividendTimes[i] * Math.exp(-interestRate * dividendTimes[i]));
+    }
+
+    final double[] res = getPriceAdjoint(modSpot, strike, interestRate, timeToExpiry, volatility, dividends[position], dividendTimes[position]);
+    res[3] += (res[1] * diffSum);
+
+    return res;
+  }
+
+  /**
+   * @param price The call option price
+   * @param spot The spot price of underlying
+   * @param strike The strike price
+   * @param interestRate The interest rate
+   * @param timeToExpiry The time to expiry
+   * @param dividends The cash dividend amount
+   * @param dividendTimes The time when the dividend is paid
+   * @return Implied volatility
+   */
+  public double impliedVolatility(final double price, final double spot, final double strike, final double interestRate, final double timeToExpiry, final double[] dividends,
+      final double[] dividendTimes) {
+
+    ArgumentChecker.notNull(dividends, "dividends");
+    ArgumentChecker.notNull(dividendTimes, "dividendTimes");
+    final int nDivs = dividends.length;
+    ArgumentChecker.isTrue(nDivs == dividendTimes.length, "dividends and dividendTimes should be the same length");
+    for (int i = 0; i < nDivs; ++i) {
+      ArgumentChecker.isTrue(Doubles.isFinite(dividends[i]), "dividends contains infinity or NaN");
+      ArgumentChecker.isTrue(Doubles.isFinite(dividendTimes[i]), "dividendTimes contains infinity or NaN");
+    }
+
+    ArgumentChecker.isTrue(dividendTimes[0] <= timeToExpiry, "All dividends paid after expiry");
+    final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
+    double modSpot = spot;
+    for (int i = 0; i < position; ++i) {
+      modSpot -= dividends[i] * Math.exp(-interestRate * dividendTimes[i]);
+    }
+
+    final Function1D<Double, double[]> func = getPriceAndVegaFunction(modSpot, strike, interestRate, timeToExpiry, dividends[position], dividendTimes[position]);
+    return GenericImpliedVolatiltySolver.impliedVolatility(price, func, 0.15);
+  }
+
+  /**
+   * @param spot The spot price of underlying
+   * @param strike The strike price
+   * @param interestRate The interest rate
+   * @param timeToExpiry The time to expiry 
+   * @param volatility The volatility 
    * @param dividendAmount The cash dividend amount
    * @param dividendTime The time when the dividend is paid
    * @return The call option price
@@ -48,7 +161,9 @@ public class RollGeskeWhaleyModel {
     ArgumentChecker.isTrue(dividendTime > 0. && dividendTime < timeToExpiry, "0. < dividendTime < timeToExpiry should be true");
 
     final double discountFactor = Math.exp(-interestRate * timeToExpiry);
-    ArgumentChecker.isTrue(dividendAmount > (1. - discountFactor) * strike, "dividendAmount > (1.-discountFactor) * strike should be true");
+    final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
+    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
+    ArgumentChecker.isTrue(dividendAmount > (1. - 1. / factor) * strike, "dividendAmount > ( 1.-exp(-interestRate * (timeToExpiry - dividendTime)) ) * strike should be true");
 
     final double sStar = sStarFinder(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
 
@@ -61,8 +176,6 @@ public class RollGeskeWhaleyModel {
     final double d21 = (Math.log((spot - pVal) / strike) + interestRate * timeToExpiry) / sigRootT2 + 0.5 * sigRootT2;
     final double d22 = d21 - sigRootT2;
 
-    final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
-    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
     return (spot - pVal) * getNormalAndBinormal(d11, d21, corr, 1.) - strike * discountFactor * getNormalAndBinormal(d12, d22, corr, factor) + pVal *
         NORMAL.getCDF(d12);
   }
@@ -88,7 +201,9 @@ public class RollGeskeWhaleyModel {
     ArgumentChecker.isTrue(dividendTime > 0. && dividendTime < timeToExpiry, "0. < dividendTime < timeToExpiry should be true");
 
     final double discountFactor = Math.exp(-interestRate * timeToExpiry);
-    ArgumentChecker.isTrue(dividendAmount > (1. - discountFactor) * strike, "dividendAmount > (1.-discountFactor) * strike should be true");
+    final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
+    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
+    ArgumentChecker.isTrue(dividendAmount > (1. - 1. / factor) * strike, "dividendAmount > ( 1.-exp(-interestRate * (timeToExpiry - dividendTime)) ) * strike should be true");
 
     final double[] res = new double[7];
 
@@ -100,9 +215,7 @@ public class RollGeskeWhaleyModel {
     final double[][] d1Adjoint = getD1Adjoint(interestRate, volatility, dividendTime, pVal, modSpot, sStarAdjoint);
     final double[][] d2Adjoint = getD2Adjoint(strike, interestRate, timeToExpiry, volatility, dividendTime, pVal, modSpot);
 
-    final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
     final double[] factorAdjoint = new double[] {factor, 0., 0., factor * (timeToExpiry - dividendTime), factor * interestRate, 0., 0. };
-    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
     final double[] corrAdjoint = new double[] {corr, 0., 0., 0., -0.5 * corr / timeToExpiry, 0., 0. };
     final double[] cdf1Adjoint = getCdfAdjoint(d1Adjoint[0], d2Adjoint[0], corrAdjoint, new double[] {1., 0., 0., 0., 0., 0., 0. });
     final double[] cdf2Adjoint = getCdfAdjoint(d1Adjoint[1], d2Adjoint[1], corrAdjoint, factorAdjoint);
