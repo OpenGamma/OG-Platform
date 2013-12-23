@@ -17,7 +17,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.engine.ComputationTarget;
@@ -52,10 +51,9 @@ public class BondPresentValueFromCurvesFunction extends BondFromCurvesFunction<M
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
-    final BondFixedTransaction bond = (BondFixedTransaction) derivative;
     final IssuerProvider issuerCurves = (IssuerProvider) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
-    final MultipleCurrencyAmount pv = bond.accept(PresentValueIssuerCalculator.getInstance(), issuerCurves);
+    final MultipleCurrencyAmount pv = derivative.accept(PresentValueIssuerCalculator.getInstance(), issuerCurves);
     final String expectedCurrency = spec.getProperty(CURRENCY);
     if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
       throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);

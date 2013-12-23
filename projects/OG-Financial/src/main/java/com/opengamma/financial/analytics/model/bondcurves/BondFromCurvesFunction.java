@@ -26,10 +26,10 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -47,6 +47,7 @@ import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposu
 import com.opengamma.financial.analytics.model.BondFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -79,10 +80,9 @@ public abstract class BondFromCurvesFunction<T> extends AbstractFunction.NonComp
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
-    final BondFixedTransaction bond = (BondFixedTransaction) derivative;
     final IssuerProvider issuerCurves = (IssuerProvider) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-    final T result = bond.accept(_calculator, issuerCurves);
+    final T result = derivative.accept(_calculator, issuerCurves);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 
@@ -93,7 +93,9 @@ public abstract class BondFromCurvesFunction<T> extends AbstractFunction.NonComp
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getTrade().getSecurity() instanceof BondSecurity;
+    final Security security = target.getTrade().getSecurity();
+    return security instanceof BondSecurity ||
+        security instanceof BondFutureSecurity;
   }
 
   @Override

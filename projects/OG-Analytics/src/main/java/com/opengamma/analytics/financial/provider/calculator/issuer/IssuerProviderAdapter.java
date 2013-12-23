@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
@@ -10,15 +10,23 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- * @param <RESULT_TYPE> The result-type for the provider.
+ * This class adapts a {@link InstrumentDerivativeVisitor} that is expecting data of type {@link MulticurveProviderInterface}
+ * to one that will accept data for type {@link IssuerProviderInterface}.
+
+ * @param <RESULT_TYPE> The result type for the provider.
  */
 public class IssuerProviderAdapter<RESULT_TYPE> extends InstrumentDerivativeVisitorSameMethodAdapter<IssuerProviderInterface, RESULT_TYPE> {
+  /** The underlying visitor */
   private final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> _visitor;
 
+  /**
+   * @param visitor The underlying visitor, not null
+   */
   public IssuerProviderAdapter(final InstrumentDerivativeVisitor<MulticurveProviderInterface, RESULT_TYPE> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     _visitor = visitor;
   }
 

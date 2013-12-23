@@ -17,7 +17,10 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
- * Calculates the present value of an ...
+ * Calculates the sensitivity of the par spread (to the market quote) of issuer-specific
+ * instruments to the curves used in pricing by discounting. This calculator requires the
+ * transaction version of instruments like bonds and bills, as the purchase price
+ * information is necessary to calculate a meaningful par spread.
  */
 public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MulticurveSensitivity> {
 
@@ -35,17 +38,17 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
   }
 
   /**
-   * Constructor.
+   * Private constructor.
    */
   private ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator() {
     super(new IssuerProviderAdapter<>(ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
-  /**
-   * Pricing methods.
-   */
+  /** Calculator for deposits */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
+  /** Calculator for bill transactions */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  /** Calculator for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----

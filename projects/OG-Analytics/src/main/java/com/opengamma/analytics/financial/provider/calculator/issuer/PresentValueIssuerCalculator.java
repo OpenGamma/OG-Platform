@@ -27,7 +27,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of an instruments using issuer-specific curves.
+ * Calculates the present value of instruments using issuer-specific curves.
  */
 public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyAmount> {
 

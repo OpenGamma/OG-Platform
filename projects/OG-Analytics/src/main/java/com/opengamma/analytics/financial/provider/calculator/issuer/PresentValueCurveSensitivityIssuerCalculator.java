@@ -9,11 +9,17 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+<<<<<<< HEAD
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
+=======
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+>>>>>>> [PLAT-5398] Adding a converter for bond futures that uses legal entity information
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
@@ -23,7 +29,8 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Issue
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
- * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
+ * Calculates the sensitivity of the present value of issuer-specific instruments to curves
+ * used in pricing by discounting.
  */
 public final class PresentValueCurveSensitivityIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
@@ -41,7 +48,7 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   }
 
   /**
-   * Constructor.
+   * Private constructor.
    */
   private PresentValueCurveSensitivityIssuerCalculator() {
     super(new IssuerProviderAdapter<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance()));

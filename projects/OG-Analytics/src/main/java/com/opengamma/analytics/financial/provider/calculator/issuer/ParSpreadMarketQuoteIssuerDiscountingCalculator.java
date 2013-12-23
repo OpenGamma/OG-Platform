@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpre
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 
 /**
- * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
+ * Calculates the par spread (to the market quote) of issuer-specific instruments by discounting.
+ * This calculator requires the transaction version of instruments like bonds and bills, as the
+ * purchase price information is necessary to calculate a meaningful par spread.
  */
 public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, Double> {
 
@@ -34,17 +36,17 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
   }
 
   /**
-   * Constructor.
+   * Private constructor.
    */
   private ParSpreadMarketQuoteIssuerDiscountingCalculator() {
     super(new IssuerProviderAdapter<>(ParSpreadMarketQuoteDiscountingCalculator.getInstance()));
   }
 
-  /**
-   * Pricing methods.
-   */
+  /** Calculator for deposits */
   private static final DepositCounterpartDiscountingMethod METHOD_DEPO_CTPY = DepositCounterpartDiscountingMethod.getInstance();
+  /** Calculator for bill transactions */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TR = BillTransactionDiscountingMethod.getInstance();
+  /** Calculator for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----

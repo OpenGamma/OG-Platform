@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +23,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
@@ -30,6 +36,8 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -41,11 +49,12 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -57,7 +66,9 @@ import com.opengamma.util.money.Currency;
  */
 public class BondTradeWithEntityConverter {
   /** Excluded coupon types */
-  private static final Set<String> EXCLUDED_TYPES = Sets.newHashSet("FLOAT RATE NOTE", "TOGGLE PIK NOTES");
+  private static final Set<String> EXCLUDED_TYPES = Sets.newHashSet("TOGGLE PIK NOTES");
+  /** Floating rate note coupon type strings */
+  private static final Set<String> FLOATING_RATE_STRINGS = Sets.newHashSet("FLOAT RATE NOTE");
   /** Rating agency strings */
   private static final String[] RATING_STRINGS = new String[] {"RatingMoody"};
   /** Sector name string */
@@ -70,19 +81,24 @@ public class BondTradeWithEntityConverter {
   private final ConventionBundleSource _conventionSource;
   /** The region source */
   private final RegionSource _regionSource;
+  /** The security source */
+  private final SecuritySource _securitySource;
 
   /**
    * @param holidaySource The holiday source, not null
    * @param conventionSource The convention source, not null
    * @param regionSource The region source, not null
+   * @param securitySource The security source, not null
    */
-  public BondTradeWithEntityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
+  public BondTradeWithEntityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
+      final SecuritySource securitySource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(regionSource, "region source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
     _regionSource = regionSource;
+    _securitySource = securitySource;
   }
 
   /**
@@ -90,12 +106,18 @@ public class BondTradeWithEntityConverter {
    * @param trade The trade, not null. Must be a {@link BondSecurity}
    * @return The transaction definition
    */
-  public BondFixedTransactionDefinition convert(final Trade trade) {
+  public InstrumentDefinition<?> convert(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");
-    ArgumentChecker.isTrue(trade.getSecurity() instanceof BondSecurity, "Can only handle trades with security type BondSecurity");
+    final Security security = trade.getSecurity();
+    ArgumentChecker.isTrue(security instanceof BondSecurity || security instanceof BondFutureSecurity,
+        "Can only handle trades with security type BondSecurity or BondFutureSecurity; have {}" + security);
     final LocalDate tradeDate = trade.getTradeDate();
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
+    }
+    if (security instanceof BondFutureSecurity) {
+      final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
+      return getBondFuture(bondFutureSecurity);
     }
     if (trade.getTradeTime() == null) {
       throw new OpenGammaRuntimeException("Trade time should not be null");
@@ -103,13 +125,38 @@ public class BondTradeWithEntityConverter {
     if (trade.getPremium() == null) {
       throw new OpenGammaRuntimeException("Trade premium should not be null.");
     }
-    final BondSecurity security = (BondSecurity) trade.getSecurity();
+    final BondSecurity bondSecurity = (BondSecurity) security;
+    final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
+    if (FLOATING_RATE_STRINGS.contains(bondSecurity.getCouponType())) {
+      final BondIborSecurityDefinition bond = (BondIborSecurityDefinition) getIborBond(bondSecurity, legalEntity);
+      final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
+      final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+      final double price = trade.getPremium().doubleValue();
+      return new BondIborTransactionDefinition(bond, quantity, settlementDate, price);
+    }
+    final InstrumentDefinition<?> underlying = getFixedCouponBond(bondSecurity, legalEntity);
+    if (!(underlying instanceof BondFixedSecurityDefinition)) {
+      return underlying;
+    }
+    final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
+    final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
+    final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+    final double price = trade.getPremium().doubleValue();
+    return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
+  }
+
+  /**
+   * Constructs a legal entity for a {@link BondSecurity}
+   * @param attributes The trade attributes
+   * @param security The bond security
+   * @return A legal entity
+   */
+  private static LegalEntity getLegalEntityForBond(final Map<String, String> attributes, final BondSecurity security) {
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
     final String isin = identifiers.getValue(ExternalSchemes.ISIN);
     final String ticker = isin == null ? null : isin;
     final String shortName = security.getIssuerName();
     Set<CreditRating> creditRatings = null;
-    final Map<String, String> attributes = trade.getAttributes();
     for (final String ratingString : RATING_STRINGS) {
       if (attributes.containsKey(ratingString)) {
         if (creditRatings == null) {
@@ -127,25 +174,17 @@ public class BondTradeWithEntityConverter {
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());
     final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
-    final InstrumentDefinition<?> underlying = getUnderlyingBond(security, legalEntity);
-    if (!(underlying instanceof BondFixedSecurityDefinition)) {
-      throw new OpenGammaRuntimeException("Can only handle fixed coupon bonds");
-    }
-    final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
-    final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
-    final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
-    final double price = trade.getPremium().doubleValue();
-    return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
+    return legalEntity;
   }
 
   /**
-   * Creates the underlying bond using the full legal entity information available.
+   * Creates a fixed coupon bond using the full legal entity information available.
    * @param security The bond security
    * @param legalEntity The legal entity
-   * @return The underlying bond definition
+   * @return The fixed coupon bond security definition
    */
   @SuppressWarnings("synthetic-access")
-  private InstrumentDefinition<?> getUnderlyingBond(final FinancialSecurity security, final LegalEntity legalEntity) {
+  private InstrumentDefinition<?> getFixedCouponBond(final BondSecurity security, final LegalEntity legalEntity) {
     return security.accept(new FinancialSecurityVisitorAdapter<InstrumentDefinition<?>>() {
 
       @Override
@@ -198,7 +237,7 @@ public class BondTradeWithEntityConverter {
         final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
         final double rate = bond.getCouponRate() / 100;
         final DayCount dayCount = bond.getDayCount();
-        final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING;
+        final BusinessDayConvention businessDay = BusinessDayConventions.FOLLOWING; //bond.getBusinessDayConvention();
         if (convention.isEOMConvention() == null) {
           throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
         }
@@ -218,6 +257,114 @@ public class BondTradeWithEntityConverter {
       }
 
     });
+  }
+
+  /**
+   * Creates an ibor bond using the full legal entity information available.
+   * @param security The bond security
+   * @param legalEntity The legal entity
+   * @return The ibor bond security definition
+   */
+  @SuppressWarnings("synthetic-access")
+  private InstrumentDefinition<?> getIborBond(final BondSecurity security, final LegalEntity legalEntity) {
+    final Currency currency = security.getCurrency();
+    final ConventionBundle iborConvention = null; //_conventionSource.getConventionBundle(null);
+//    if (iborConvention == null) {
+//      throw new OpenGammaRuntimeException("Could not get convention for " + security.getUnderlyingId());
+//    }
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency));
+    final IborIndex index = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), iborConvention.getDayCount(),
+        iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention(), iborConvention.getName());
+    return security.accept(new FinancialSecurityVisitorAdapter<InstrumentDefinition<?>>() {
+
+      @Override
+      public InstrumentDefinition<?> visitCorporateBondSecurity(final CorporateBondSecurity bond) {
+        final String domicile = bond.getIssuerDomicile();
+        ArgumentChecker.notNull(domicile, "bond security domicile cannot be null");
+        final String conventionName = domicile + "_CORPORATE_BOND_CONVENTION";
+        final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("No corporate bond convention found for domicile " + domicile);
+        }
+        return visitBondSecurity(bond, convention, conventionName);
+      }
+
+      @Override
+      public InstrumentDefinition<?> visitGovernmentBondSecurity(final GovernmentBondSecurity bond) {
+        final String domicile = bond.getIssuerDomicile();
+        if (domicile == null) {
+          throw new OpenGammaRuntimeException("bond security domicile cannot be null");
+        }
+        final String conventionName = domicile + "_TREASURY_BOND_CONVENTION";
+        final ConventionBundle convention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, conventionName));
+        if (convention == null) {
+          throw new OpenGammaRuntimeException("Convention called " + conventionName + " was null");
+        }
+        return visitBondSecurity(bond, convention, conventionName);
+      }
+
+      /**
+       * Creates {@link BondIborSecurityDefinition} for floating rate bonds.
+       * @param bond The security
+       * @param convention The convention
+       * @param conventionName The convention name
+       * @param index The reference index
+       * @return The definition
+       */
+      private InstrumentDefinition<?> visitBondSecurity(final BondSecurity bond, final ConventionBundle convention,
+          final String conventionName) {
+        if (EXCLUDED_TYPES.contains(bond.getCouponType())) {
+          throw new UnsupportedOperationException("Cannot support bonds with coupon of type " + bond.getCouponType());
+        }
+        final ExternalId regionId = ExternalSchemes.financialRegionId(bond.getIssuerDomicile());
+        if (regionId == null) {
+          throw new OpenGammaRuntimeException("Could not find region for " + bond.getIssuerDomicile());
+        }
+        final ZoneId zone = bond.getInterestAccrualDate().getZone();
+        final ZonedDateTime firstAccrualDate = ZonedDateTime.of(bond.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
+        final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
+        final DayCount dayCount = bond.getDayCount();
+        final BusinessDayConvention businessDay = bond.getBusinessDayConvention();
+        if (convention.isEOMConvention() == null) {
+          throw new OpenGammaRuntimeException("Could not get EOM convention information from " + conventionName);
+        }
+        final boolean isEOM = convention.isEOMConvention();
+        if (convention.getBondSettlementDays(firstAccrualDate, maturityDate) == null) {
+          throw new OpenGammaRuntimeException("Could not get bond settlement days from " + conventionName);
+        }
+        final int settlementDays = convention.getBondSettlementDays(firstAccrualDate, maturityDate);
+        return BondIborSecurityDefinition.from(maturityDate, firstAccrualDate, index, settlementDays, dayCount, businessDay, isEOM, legalEntity, calendar);
+      }
+
+    });
+  }
+
+  /**
+   * Constructs a {@link BondFutureDefinition} from a {@link BondFutureSecurity}
+   * @param bondFuture The bond future security
+   * @return The bond future definition
+   */
+  private BondFutureDefinition getBondFuture(final BondFutureSecurity bondFuture) {
+    final ZonedDateTime lastTradeDate = bondFuture.getExpiry().getExpiry();
+    final ZonedDateTime firstNoticeDate = bondFuture.getFirstDeliveryDate();
+    final ZonedDateTime lastNoticeDate = bondFuture.getLastDeliveryDate();
+    final double notional = bondFuture.getUnitAmount();
+    final List<BondFutureDeliverable> basket = bondFuture.getBasket();
+    final int n = basket.size();
+    final BondFixedSecurityDefinition[] deliveryBasket = new BondFixedSecurityDefinition[n];
+    final double[] conversionFactor = new double[n];
+    for (int i = 0; i < n; i++) {
+      final BondFutureDeliverable deliverable = basket.get(i);
+      final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSingle(deliverable.getIdentifiers());
+      final LegalEntity issuer = getLegalEntityForBond(new HashMap<String, String>(), bondSecurity);
+      final InstrumentDefinition<?> definition = getFixedCouponBond(bondSecurity, issuer);
+      if (!(definition instanceof BondFixedSecurityDefinition)) {
+        throw new OpenGammaRuntimeException("Could not construct fixed coupon bond from " + bondSecurity);
+      }
+      deliveryBasket[i] = (BondFixedSecurityDefinition) definition;
+      conversionFactor[i] = deliverable.getConversionFactor();
+    }
+    return new BondFutureDefinition(lastTradeDate, firstNoticeDate, lastNoticeDate, notional, deliveryBasket, conversionFactor);
   }
 
   /**

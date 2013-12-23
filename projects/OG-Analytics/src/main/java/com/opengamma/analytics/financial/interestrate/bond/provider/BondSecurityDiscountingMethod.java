@@ -67,11 +67,11 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * The present value calculator (for the different parts of the bond transaction).
+   * The present value calculator (for the different parts of the bond security).
    */
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   /**
-   * The present value curve sensitivity calculator (for the different parts of the bond transaction).
+   * The present value curve sensitivity calculator (for the different parts of the bond security).
    */
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   /**

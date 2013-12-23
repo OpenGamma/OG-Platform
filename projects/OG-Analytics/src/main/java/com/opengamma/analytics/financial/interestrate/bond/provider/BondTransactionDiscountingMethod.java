@@ -30,7 +30,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Class with methods related to bond transaction valued by discounting.
  */
 public final class BondTransactionDiscountingMethod {
-
+  /** The logger */
   private static final Logger LOGGER = LoggerFactory.getLogger(BondTransactionDiscountingMethod.class);
   /**
    * The unique instance of the class.
@@ -60,6 +60,11 @@ public final class BondTransactionDiscountingMethod {
    * The present value calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueCurveSensitivityDiscountingCalculator PVSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  /**
+   * The present value curve sensitivity calculator (for the different parts of the bond transaction).
+   */
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+
 
   /**
    * Compute the present value of a fixed coupon bond transaction.
@@ -93,7 +98,7 @@ public final class BondTransactionDiscountingMethod {
     final MultipleCurrencyAmount pvNominal = bond.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
     final MultipleCurrencyAmount pvCoupon = bond.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
     final double settlementAmount = bond.getTransactionPrice() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional(); //FIXME: add accrued.
-    LOGGER.error("The FRN settlement amount does not include the accrued interests.");
+    LOGGER.error("The FRN settlement amount does not include the accrued interest.");
     final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount);
     final MultipleCurrencyAmount pvSettlement = settlement.accept(PVDC, issuerMulticurves.getMulticurveProvider());
     return pvNominal.plus(pvCoupon).multipliedBy(bond.getQuantity()).plus(pvSettlement);
