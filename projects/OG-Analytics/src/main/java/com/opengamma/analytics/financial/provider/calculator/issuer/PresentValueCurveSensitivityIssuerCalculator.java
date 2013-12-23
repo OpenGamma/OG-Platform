@@ -9,17 +9,11 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-<<<<<<< HEAD
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
-=======
-import com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
->>>>>>> [PLAT-5398] Adding a converter for bond futures that uses legal entity information
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
