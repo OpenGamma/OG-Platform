@@ -23,7 +23,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Description of a bond future (definition version).
+ * @deprecated Use the {@link BondFuturesSecurityDefinition} and {@link BondFuturesTransactionDefinition}.
  */
+@Deprecated
 public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFuture, Double> {
 
   /**

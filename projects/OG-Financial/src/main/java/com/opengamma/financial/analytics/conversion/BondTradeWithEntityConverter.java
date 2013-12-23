@@ -25,7 +25,8 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondIborTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.legalentity.CreditRating;
@@ -117,7 +118,11 @@ public class BondTradeWithEntityConverter {
     }
     if (security instanceof BondFutureSecurity) {
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
-      return getBondFuture(bondFutureSecurity);
+      final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
+      final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
+      final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+      final double price = trade.getPremium().doubleValue();
+      return new BondFuturesTransactionDefinition(bondFuture, quantity, settlementDate, price);
     }
     if (trade.getTradeTime() == null) {
       throw new OpenGammaRuntimeException("Trade time should not be null");
@@ -340,11 +345,11 @@ public class BondTradeWithEntityConverter {
   }
 
   /**
-   * Constructs a {@link BondFutureDefinition} from a {@link BondFutureSecurity}
+   * Constructs a {@link BondFuturesSecurityDefinition} from a {@link BondFutureSecurity}
    * @param bondFuture The bond future security
    * @return The bond future definition
    */
-  private BondFutureDefinition getBondFuture(final BondFutureSecurity bondFuture) {
+  private BondFuturesSecurityDefinition getBondFuture(final BondFutureSecurity bondFuture) {
     final ZonedDateTime lastTradeDate = bondFuture.getExpiry().getExpiry();
     final ZonedDateTime firstNoticeDate = bondFuture.getFirstDeliveryDate();
     final ZonedDateTime lastNoticeDate = bondFuture.getLastDeliveryDate();
@@ -364,7 +369,7 @@ public class BondTradeWithEntityConverter {
       deliveryBasket[i] = (BondFixedSecurityDefinition) definition;
       conversionFactor[i] = deliverable.getConversionFactor();
     }
-    return new BondFutureDefinition(lastTradeDate, firstNoticeDate, lastNoticeDate, notional, deliveryBasket, conversionFactor);
+    return new BondFuturesSecurityDefinition(lastTradeDate, firstNoticeDate, lastNoticeDate, notional, deliveryBasket, conversionFactor);
   }
 
   /**
