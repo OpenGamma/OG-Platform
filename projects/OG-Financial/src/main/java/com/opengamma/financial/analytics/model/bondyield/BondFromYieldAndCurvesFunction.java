@@ -11,6 +11,10 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.MARKET_YTM;
 import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.YIELD_METHOD;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
+import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
+import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -99,6 +103,14 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
     if (curveExposureConfigs == null || curveExposureConfigs.size() != 1) {
       return null;
     }
+    final Set<String> absoluteTolerances = constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+    if (absoluteTolerances == null || absoluteTolerances.size() != 1) {
+      return null;
+    }
+    final Set<String> curveTypes = constraints.getValues(PROPERTY_CURVE_TYPE);
+    if (curveTypes == null || curveTypes.size() != 1) {
+      return null;
+    }
     final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(new ValueRequirement(MARKET_YTM, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
@@ -110,7 +122,12 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
         final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
           final ValueProperties properties = ValueProperties.builder()
-              .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
+              .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
+              .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
+              .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
+              .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS))
+              .with(PROPERTY_CURVE_TYPE, curveTypes)
+              .get();
           requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
         }
       }
@@ -129,7 +146,11 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
         .with(CALCULATION_METHOD, YIELD_METHOD)
-        .withAny(CURVE_EXPOSURES);
+        .withAny(CURVE_EXPOSURES)
+        .withAny(PROPERTY_CURVE_TYPE)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
   }
 
   /**
