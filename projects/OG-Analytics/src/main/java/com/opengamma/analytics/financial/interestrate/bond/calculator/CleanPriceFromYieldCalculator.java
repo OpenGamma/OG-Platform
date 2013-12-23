@@ -32,17 +32,21 @@ public final class CleanPriceFromYieldCalculator extends InstrumentDerivativeVis
   private CleanPriceFromYieldCalculator() {
   }
 
+  /** Calculator from bonds */
+  private static final BondSecurityDiscountingMethod METHOD_BOND_SECURITY = BondSecurityDiscountingMethod.getInstance();
+
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double yield) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(yield, "yield");
-    return BondSecurityDiscountingMethod.getInstance().cleanPriceFromYield(bond, yield) * 100;
+    return METHOD_BOND_SECURITY.cleanPriceFromYield(bond, yield) * 100;
   }
 
   @Override
   public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double yield) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(yield, "yield");
-    return BondSecurityDiscountingMethod.getInstance().cleanPriceFromYield(bond.getBondTransaction(), yield) * 100;
+    return METHOD_BOND_SECURITY.cleanPriceFromYield(bond.getBondStandard(), yield) * 100;
   }
+
 }

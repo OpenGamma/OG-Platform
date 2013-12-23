@@ -57,6 +57,8 @@ public class IssuerProviderDiscountDataSets {
   private static final String GER_NAME = "GERMANY GOVT";
   /** UK government issuer name */
   private static final String UK_NAME = "UK GOVT";
+  /** ITALY government issuer name */
+  private static final String IT_NAME = "IT GOVT";
 
   /** US government legal entity */
   private static final LegalEntity US_GOVT = new LegalEntity(US_NAME, US_NAME, Sets.newHashSet(CreditRating.of("AA", "S&P", true)), Sector.of("Government"), Region.of("United States", Country.US,
@@ -70,6 +72,9 @@ public class IssuerProviderDiscountDataSets {
   /** UK government legal entity */
   private static final LegalEntity UK_GOVT = new LegalEntity(UK_NAME, UK_NAME, Sets.newHashSet(CreditRating.of("B", "S&P", true)), Sector.of("Government"), Region.of("Great Britain", Country.GB,
       Currency.GBP));
+  /** Italy government legal entity */
+  private static final LegalEntity IT_GOVT = new LegalEntity(IT_NAME, IT_NAME, Sets.newHashSet(CreditRating.of("B", "S&P", true)), Sector.of("Government"), Region.of("Italy", Country.IT,
+      Currency.EUR));
 
   private static final IndexIborMaster MASTER_IBOR_INDEX = IndexIborMaster.getInstance();
   private static final IborIndex EURIBOR3M = MASTER_IBOR_INDEX.getIndex("EURIBOR3M");
@@ -130,6 +135,7 @@ public class IssuerProviderDiscountDataSets {
     ISSUER_SPECIFIC.put(Pairs.of((Object) BEL_NAME, SHORT_NAME_FILTER), BEL_EUR_CURVE);
     ISSUER_SPECIFIC.put(Pairs.of((Object) GER_NAME, SHORT_NAME_FILTER), GER_EUR_CURVE);
     ISSUER_SPECIFIC.put(Pairs.of((Object) UK_NAME, SHORT_NAME_FILTER), UK_GBP_CURVE);
+    ISSUER_SPECIFIC.put(Pairs.of((Object) IT_NAME, SHORT_NAME_FILTER), BEL_EUR_CURVE);
   }
   /** Extracts the country from a legal entity */
   private static final LegalEntityRegion COUNTRY_FILTER;
@@ -142,6 +148,7 @@ public class IssuerProviderDiscountDataSets {
     COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.BE), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), BEL_EUR_CURVE);
     COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.DE), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), GER_EUR_CURVE);
     COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.GB), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), UK_GBP_CURVE);
+    COUNTRY_SPECIFIC.put(Pairs.of((Object) Collections.singleton(Country.IT), (LegalEntityFilter<LegalEntity>) COUNTRY_FILTER), BEL_EUR_CURVE);
   }
   /** Extracts the currency from a legal entity */
   private static final LegalEntityRegion CURRENCY_FILTER;
@@ -178,10 +185,14 @@ public class IssuerProviderDiscountDataSets {
     final Set<Object> gb = new HashSet<>();
     gb.add(Country.GB);
     gb.add(Pairs.of("S&P", "B"));
+    final Set<Object> it = new HashSet<>();
+    gb.add(Country.IT);
+    gb.add(Pairs.of("S&P", "B"));
     COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) us, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), US_USD_CURVE);
     COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) be, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), BEL_EUR_CURVE);
     COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) de, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), GER_EUR_CURVE);
     COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) gb, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), UK_GBP_CURVE);
+    COUNTRY_RATING_SPECIFIC.put(Pairs.of((Object) it, (LegalEntityFilter<LegalEntity>) COUNTRY_RATING_FILTER), BEL_EUR_CURVE);
   }
 
   /** US GOVT curve with constant 6% rate */
@@ -199,8 +210,8 @@ public class IssuerProviderDiscountDataSets {
   private static final IssuerProviderDiscount COUNTRY_RATING_SPECIFIC_MULTICURVE = new IssuerProviderDiscount(DISCOUNTING_CURVES, COUNTRY_RATING_SPECIFIC);
 
   /**
-   * Returns a multi-curves provider with three discounting currencies (USD, EUR, GBP), one Ibor (EURIBOR3M) and four issuers
-   * (US GOVT, BELGIUM GOVT, GERMAN GOVT, UK GOVT).
+   * Returns a multi-curves provider with three discounting currencies (USD, EUR, GBP), one Ibor (EURIBOR3M) and five issuers
+   * (US GOVT, BELGIUM GOVT, GERMAN GOVT, UK GOVT, ITALY GOVT).
    * @return The provider.
    */
   public static IssuerProviderDiscount getIssuerSpecificProvider() {
@@ -209,7 +220,7 @@ public class IssuerProviderDiscountDataSets {
 
   /**
    * Returns a multi-curves provider with three discounting currencies (USD, EUR, GBP), one Ibor (EURIBOR3M) and four countries
-   * (US, BE, DE, UK)
+   * (US, BE, DE, UK, IT)
    * @return The provider
    */
   public static IssuerProviderDiscount getCountrySpecificProvider() {
@@ -246,7 +257,7 @@ public class IssuerProviderDiscountDataSets {
    * @return The issuer names
    */
   public static String[] getIssuerNames() {
-    return new String[] {US_NAME, BEL_NAME, GER_NAME, UK_NAME };
+    return new String[] {US_NAME, BEL_NAME, GER_NAME, UK_NAME, IT_NAME };
   }
 
   /**
@@ -254,6 +265,6 @@ public class IssuerProviderDiscountDataSets {
    * @return The issuers
    */
   public static LegalEntity[] getIssuers() {
-    return new LegalEntity[] {US_GOVT, BEL_GOVT, GER_GOVT, UK_GOVT };
+    return new LegalEntity[] {US_GOVT, BEL_GOVT, GER_GOVT, UK_GOVT, IT_GOVT };
   }
 }

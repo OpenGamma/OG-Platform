@@ -48,7 +48,7 @@ public final class YieldFromCleanPriceCalculator extends InstrumentDerivativeVis
 
   @Override
   public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double cleanPrice) {
-    return METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondTransaction(), cleanPrice);
+    return METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), cleanPrice);
   }
 
   @Override

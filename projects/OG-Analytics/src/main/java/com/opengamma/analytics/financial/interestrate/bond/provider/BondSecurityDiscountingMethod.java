@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.bond.provider;
 
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.FRANCE_COMPOUND_METHOD;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.GERMAN_BOND;
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.ITALY_TREASURY_BONDS;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.UK_BUMP_DMO_METHOD;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.US_STREET;
 
@@ -199,7 +200,7 @@ public final class BondSecurityDiscountingMethod {
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
-      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND)) {
+      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)) {
         return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
       } else if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
         return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / nominal * Math.pow(1.0 + yield / bond.getCouponPerYear(), -bond.getFactorToNextCoupon());
@@ -208,6 +209,10 @@ public final class BondSecurityDiscountingMethod {
     if ((yieldConvention.equals(SimpleYieldConvention.US_STREET)) || (yieldConvention.equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
         (yieldConvention.equals(SimpleYieldConvention.GERMAN_BOND)) || (yieldConvention.equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
       return dirtyPriceFromYieldStandard(bond, yield);
+    }
+    if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {
+      final double yieldSemiAnnual = (Math.sqrt(1 + yield) - 1) * 2;
+      return dirtyPriceFromYieldStandard(bond, yieldSemiAnnual);
     }
     throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported.");
   }
@@ -343,10 +348,10 @@ public final class BondSecurityDiscountingMethod {
    */
   public double modifiedDurationFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
+    //    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
-      if (yieldConvention.equals(US_STREET)) {
+      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)) {
         return bond.getFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
       }
       if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
@@ -354,20 +359,39 @@ public final class BondSecurityDiscountingMethod {
       }
     }
     if (yieldConvention.equals(US_STREET) || yieldConvention.equals(UK_BUMP_DMO_METHOD) || yieldConvention.equals(GERMAN_BOND) || (yieldConvention.equals(FRANCE_COMPOUND_METHOD))) {
-      final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-      double mdAtFirstCoupon = 0;
-      double pvAtFirstCoupon = 0;
-      for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-        mdAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 1) * (loopcpn + bond.getFactorToNextCoupon()) / bond.getCouponPerYear();
-        pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
-      }
-      mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getFactorToNextCoupon()) / bond.getCouponPerYear();
-      pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon());
-      final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / pv;
-      return md;
+      return modifiedDurationFromYieldStandard(bond, yield);
     }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported.");
+    if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {
+      final double yieldSemiAnnual = (Math.sqrt(1 + yield) - 1) * 2;
+      final double modifiedDurationSemiAnnual = modifiedDurationFromYieldStandard(bond, yieldSemiAnnual);
+      final double modifiedDuration = modifiedDurationSemiAnnual / Math.sqrt(1 + yield);
+      return modifiedDuration;
+    }
+    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported for modified duration computation.");
+  }
+
+  /**
+   * Calculates the modified duration from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The modified duration
+   */
+  private double modifiedDurationFromYieldStandard(final BondFixedSecurity bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double nominal = bond.getNominal().getNthPayment(0).getAmount();
+    final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+    double mdAtFirstCoupon = 0;
+    double pvAtFirstCoupon = 0;
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      mdAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 1) * (loopcpn + bond.getFactorToNextCoupon()) / bond.getCouponPerYear();
+      pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
+    }
+    mdAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon) * (nbCoupon - 1 + bond.getFactorToNextCoupon()) / bond.getCouponPerYear();
+    pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
+    final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon());
+    final double md = mdAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / pv;
+    return md;
   }
 
   /**
@@ -462,7 +486,6 @@ public final class BondSecurityDiscountingMethod {
    */
   public double convexityFromYield(final BondFixedSecurity bond, final double yield) {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
-    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
       if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND)) {
@@ -475,22 +498,44 @@ public final class BondSecurityDiscountingMethod {
       }
     }
     if ((yieldConvention.equals(US_STREET)) || (yieldConvention.equals(UK_BUMP_DMO_METHOD)) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
-      final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
-      double cvAtFirstCoupon = 0;
-      double pvAtFirstCoupon = 0;
-      for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-        cvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 2) * (loopcpn + bond.getFactorToNextCoupon())
-            * (loopcpn + bond.getFactorToNextCoupon() + 1) / (bond.getCouponPerYear() * bond.getCouponPerYear());
-        pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
-      }
-      cvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon + 1) * (nbCoupon - 1 + bond.getFactorToNextCoupon()) * (nbCoupon + bond.getFactorToNextCoupon())
-          / (bond.getCouponPerYear() * bond.getCouponPerYear());
-      pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
-      final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon());
-      final double cv = cvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / pv;
-      return cv;
+      return convexityFromYieldStandard(bond, yield);
     }
-    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported.");
+    if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {
+      final double yieldSemiAnnual = (Math.sqrt(1 + yield) - 1) * 2;
+      final double modifiedDurationSemiAnnual = modifiedDurationFromYieldStandard(bond, yieldSemiAnnual);
+      final double convexitySemiAnnual = convexityFromYieldStandard(bond, yieldSemiAnnual);
+      final double ySp2 = 1.0d / (1 + yield);
+      final double ySpp = -0.5 * Math.pow(ySp2, 1.5d);
+      final double convexity = (convexitySemiAnnual * ySp2) - (modifiedDurationSemiAnnual * ySpp);
+      return convexity;
+    }
+    throw new UnsupportedOperationException("The convention " + yieldConvention.getName() + " is not supported for convexity computation.");
+  }
+
+  /**
+   * Calculates the convexity from a standard yield.
+   * @param bond The bond
+   * @param yield The yield
+   * @return The convexity
+   */
+  private double convexityFromYieldStandard(final BondFixedSecurity bond, final double yield) {
+    ArgumentChecker.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
+    final int nbCoupon = bond.getCoupon().getNumberOfPayments();
+    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
+    final double factorOnPeriod = 1 + yield / bond.getCouponPerYear();
+    double cvAtFirstCoupon = 0;
+    double pvAtFirstCoupon = 0;
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      cvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn + 2) * (loopcpn + bond.getFactorToNextCoupon())
+          * (loopcpn + bond.getFactorToNextCoupon() + 1) / (bond.getCouponPerYear() * bond.getCouponPerYear());
+      pvAtFirstCoupon += bond.getCoupon().getNthPayment(loopcpn).getAmount() / Math.pow(factorOnPeriod, loopcpn);
+    }
+    cvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon + 1) * (nbCoupon - 1 + bond.getFactorToNextCoupon()) * (nbCoupon + bond.getFactorToNextCoupon())
+        / (bond.getCouponPerYear() * bond.getCouponPerYear());
+    pvAtFirstCoupon += nominal / Math.pow(factorOnPeriod, nbCoupon - 1);
+    final double pv = pvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon());
+    final double cv = cvAtFirstCoupon * Math.pow(factorOnPeriod, -bond.getFactorToNextCoupon()) / pv;
+    return cv;
   }
 
   /**

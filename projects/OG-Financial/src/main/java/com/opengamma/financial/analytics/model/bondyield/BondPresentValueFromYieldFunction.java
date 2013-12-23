@@ -13,7 +13,7 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
-import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
@@ -28,8 +28,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Calculates the present of a bond from the clean price and a curve bundle.
  */
 public class BondPresentValueFromYieldFunction extends BondFromYieldAndCurvesFunction {
+  
   /** The present value calculator */
-  private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
+  private static final BondTransactionDiscountingMethod CALCULATOR = BondTransactionDiscountingMethod.getInstance();
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#PRESENT_VALUE}.
@@ -39,9 +40,9 @@ public class BondPresentValueFromYieldFunction extends BondFromYieldAndCurvesFun
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final FunctionInputs inputs, final BondFixedTransaction bond, final IssuerProvider issuerCurves, final double cleanPrice, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final FunctionInputs inputs, final BondFixedTransaction bond, final IssuerProvider issuerCurves, final double yield, final ValueSpecification spec) {
     final String expectedCurrency = spec.getProperty(CURRENCY);
-    final MultipleCurrencyAmount pv = CALCULATOR.presentValueFromYield(bond.getBondTransaction(), issuerCurves.getMulticurveProvider(), cleanPrice);
+    final MultipleCurrencyAmount pv = CALCULATOR.presentValueFromYield(bond, issuerCurves, yield);
     if (pv.size() != 1 || !(expectedCurrency.equals(pv.getCurrencyAmounts()[0].getCurrency().getCode()))) {
       throw new OpenGammaRuntimeException("Expecting a single result in " + expectedCurrency);
     }
@@ -54,4 +55,5 @@ public class BondPresentValueFromYieldFunction extends BondFromYieldAndCurvesFun
     return super.getResultProperties(target)
         .with(CURRENCY, currency);
   }
+  
 }

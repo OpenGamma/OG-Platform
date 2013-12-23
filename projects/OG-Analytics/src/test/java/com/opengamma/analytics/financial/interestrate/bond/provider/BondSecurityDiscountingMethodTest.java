@@ -100,7 +100,8 @@ public class BondSecurityDiscountingMethodTest {
   private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_NO_ENTITY = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE_FIXED, START_ACCRUAL_DATE_FIXED, PAYMENT_TENOR_FIXED,
       RATE_FIXED, SETTLEMENT_DAYS, NOTIONAL, CALENDAR, DAY_COUNT_FIXED, BUSINESS_DAY_FIXED, YIELD_CONVENTION_FIXED, IS_EOM_FIXED, ISSUER_NAME, "RepoType");
   /** Bond security definition with a full legal entity */
-  private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_FULL_ENTITY = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE_FIXED, START_ACCRUAL_DATE_FIXED, PAYMENT_TENOR_FIXED,
+  private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_FULL_ENTITY = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE_FIXED, START_ACCRUAL_DATE_FIXED,
+      PAYMENT_TENOR_FIXED,
       RATE_FIXED, SETTLEMENT_DAYS, NOTIONAL, CALENDAR, DAY_COUNT_FIXED, BUSINESS_DAY_FIXED, YIELD_CONVENTION_FIXED, IS_EOM_FIXED, ISSUER, "RepoType");
   // To derivatives
 
@@ -141,6 +142,8 @@ public class BondSecurityDiscountingMethodTest {
   private static final double TOLERANCE_PV_DELTA = 1.0E-4;
   private static final double TOLERANCE_PRICE = 1.0E-8;
   private static final double TOLERANCE_YIELD = 1.0E-8;
+  private static final double TOLERANCE_CONV = 1.0E-8;
+  private static final double TOLERANCE_CONV_FD = 1.0E-5;
 
   /**
    * Tests the present value of a bond at a time in between coupons. The legal entity contains only the short name
@@ -349,7 +352,8 @@ public class BondSecurityDiscountingMethodTest {
   public void cleanPriceFixed() {
     final double dirty = METHOD_BOND_SECURITY.dirtyPriceFromCurves(BOND_FIXED_SECURITY_NO_ENTITY_1, ISSUER_SPECIFIC_MULTICURVES);
     final double clean = METHOD_BOND_SECURITY.cleanPriceFromCurves(BOND_FIXED_SECURITY_NO_ENTITY_1, ISSUER_SPECIFIC_MULTICURVES);
-    assertEquals("Fixed coupon bond security: clean price from curves", dirty - BOND_FIXED_SECURITY_NO_ENTITY_1.getAccruedInterest() / BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getNotional(), clean);
+    assertEquals("Fixed coupon bond security: clean price from curves", dirty - BOND_FIXED_SECURITY_NO_ENTITY_1.getAccruedInterest() /
+        BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getNotional(), clean);
   }
 
   @Test
@@ -504,12 +508,12 @@ public class BondSecurityDiscountingMethodTest {
     final double cv = METHOD_BOND_SECURITY.convexityFromYield(BOND_FIXED_SECURITY_NO_ENTITY_1, yield);
     final double dirty = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_NO_ENTITY_1, yield);
     final double cvExpected = 25.75957016 / dirty;
-    assertEquals("Fixed coupon bond security: Macauley duration from yield US Street: harcoded value", cvExpected, cv, 1E-8);
-    final double shift = 1.0E-6;
+    assertEquals("Fixed coupon bond security: Macauley duration from yield US Street: harcoded value", cvExpected, cv, TOLERANCE_CONV);
+    final double shift = 1.0E-5;
     final double dirtyP = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_NO_ENTITY_1, yield + shift);
     final double dirtyM = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_NO_ENTITY_1, yield - shift);
     final double cvFD = (dirtyP + dirtyM - 2 * dirty) / (shift * shift) / dirty;
-    assertEquals("Fixed coupon bond security: modified duration from yield US Street - finite difference", cvFD, cv, 1E-2);
+    assertEquals("Fixed coupon bond security: modified duration from yield US Street - finite difference", cvFD, cv, TOLERANCE_CONV_FD);
   }
 
   @Test
@@ -543,15 +547,19 @@ public class BondSecurityDiscountingMethodTest {
     final double dfSettle = ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getDiscountFactor(CUR, BOND_FIXED_SECURITY_NO_ENTITY_1.getSettlementTime());
     final String DSC_CURVE_NAME = ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getName(CUR);
     final String ISS_CURVE_NAME = ISSUER_SPECIFIC_MULTICURVES.getName(BOND_FIXED_SECURITY_NO_ENTITY_1.getIssuerEntity());
-    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_NO_ENTITY_1.getSettlementTime(), sensi.getYieldDiscountingSensitivities().get(DSC_CURVE_NAME)
-        .get(0).first, TOLERANCE_PV_DELTA);
+    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_NO_ENTITY_1.getSettlementTime(),
+        sensi.getYieldDiscountingSensitivities().get(DSC_CURVE_NAME)
+            .get(0).first, TOLERANCE_PV_DELTA);
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: risk-less curve", BOND_FIXED_SECURITY_NO_ENTITY_1.getSettlementTime() / dfSettle * pv.getAmount(CUR) / NOTIONAL, sensi
         .getYieldDiscountingSensitivities().get(DSC_CURVE_NAME).get(0).second, TOLERANCE_PV_DELTA);
-    final double dfCpn0 = ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getDiscountFactor(BOND_FIXED_SECURITY_NO_ENTITY_1.getCurrency(), BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getPaymentTime());
-    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getPaymentTime(), sensi.getYieldDiscountingSensitivities()
+    final double dfCpn0 = ISSUER_SPECIFIC_MULTICURVES.getMulticurveProvider().getDiscountFactor(BOND_FIXED_SECURITY_NO_ENTITY_1.getCurrency(),
+        BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getPaymentTime());
+    assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getPaymentTime(), sensi
+        .getYieldDiscountingSensitivities()
         .get(ISS_CURVE_NAME).get(0).first, TOLERANCE_PV_DELTA);
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", -BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getPaymentTime()
-        * BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensi.getYieldDiscountingSensitivities().get(ISS_CURVE_NAME).get(0).second, TOLERANCE_PV_DELTA);
+        * BOND_FIXED_SECURITY_NO_ENTITY_1.getCoupon().getNthPayment(0).getAmount() * dfCpn0 / dfSettle / NOTIONAL, sensi.getYieldDiscountingSensitivities().get(ISS_CURVE_NAME).get(0).second,
+        TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -776,4 +784,80 @@ public class BondSecurityDiscountingMethodTest {
     calculator = BOND_FIXED_SECURITY_G2.accept(CPFY, 0.05);
     assertEquals("bond Security: discounting method - clean price", method, calculator / 100, 1e-9);
   }
+
+  // BTPS 1-Sep-2002
+  private static final String ISSUER_IT_NAME = ISSUER_NAMES[4];
+  private static final Period PAYMENT_TENOR_IT = Period.ofMonths(6);
+  private static final Calendar CALENDAR_IT = new MondayToFridayCalendar("A");
+  private static final DayCount DAY_COUNT_IT = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY_IT = BusinessDayConventions.FOLLOWING;
+  private static final boolean IS_EOM_IT = false;
+  private static final Period BOND_TENOR_IT = Period.ofYears(3);
+  private static final int SETTLEMENT_DAYS_IT = 3;
+  private static final int EX_DIVIDEND_DAYS_IT = 0;
+  private static final ZonedDateTime START_ACCRUAL_DATE_IT = DateUtils.getUTCDate(1999, 9, 1);
+  private static final ZonedDateTime MATURITY_DATE_IT = START_ACCRUAL_DATE_IT.plus(BOND_TENOR_IT);
+  private static final double RATE_IT = 0.0375;
+  private static final double NOTIONAL_IT = 100;
+  private static final YieldConvention YIELD_CONVENTION_IT = YieldConventionFactory.INSTANCE.getYieldConvention("ITALY:TRSY BONDS");
+  private static final BondFixedSecurityDefinition BOND_FIXED_SECURITY_DEFINITION_IT = BondFixedSecurityDefinition.from(Currency.EUR, MATURITY_DATE_IT,
+      START_ACCRUAL_DATE_IT, PAYMENT_TENOR_IT, RATE_IT, SETTLEMENT_DAYS_IT, NOTIONAL_IT, EX_DIVIDEND_DAYS_IT, CALENDAR_IT, DAY_COUNT_IT, BUSINESS_DAY_IT,
+      YIELD_CONVENTION_IT, IS_EOM_IT, ISSUER_IT_NAME, "RepoType");
+  private static final ZonedDateTime REFERENCE_DATE_IT = DateUtils.getUTCDate(2000, 9, 5);
+  private static final BondFixedSecurity BOND_FIXED_SECURITY_IT = BOND_FIXED_SECURITY_DEFINITION_IT.toDerivative(REFERENCE_DATE_IT);
+
+  private static final double TOLERANCE_PRICE_IT = 1.0E-7;
+  private static final double TOLERANCE_YIELD_IT = 1.0E-7;
+
+  @Test
+  public void dirtyPriceFromYieldIT() {
+    final double yieldAnnual = 0.05;
+    final double dirtyPrice = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yieldAnnual);
+    final double cleanPriceExpected = 0.977816013;
+    final double accruedExpected = 0.0007251;
+    assertEquals("Fixed coupon bond security: dirty price from yield IT", accruedExpected, BOND_FIXED_SECURITY_IT.getAccruedInterest() / NOTIONAL, TOLERANCE_PRICE_IT);
+    final double dirtyPriceExpected = cleanPriceExpected + accruedExpected;
+    assertEquals("Fixed coupon bond security: dirty price from yield IT", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE_IT);
+  }
+
+  @Test
+  public void yieldPriceFromCleanPriceIT() {
+    final double cleanPriceExpected = 0.977816013;
+    final double accruedExpected = 0.0007251;
+    final double dirtyPriceExpected = cleanPriceExpected + accruedExpected;
+    final double yieldAnnual = 0.05;
+    final double yieldComputedClean = METHOD_BOND_SECURITY.yieldFromCleanPrice(BOND_FIXED_SECURITY_IT, cleanPriceExpected);
+    assertEquals("Fixed coupon bond security: dirty price from clean price IT", yieldAnnual, yieldComputedClean, TOLERANCE_YIELD_IT);
+    final double yieldComputedDirty = METHOD_BOND_SECURITY.yieldFromDirtyPrice(BOND_FIXED_SECURITY_IT, dirtyPriceExpected);
+    assertEquals("Fixed coupon bond security: dirty price from clean price IT", yieldAnnual, yieldComputedDirty, TOLERANCE_YIELD_IT);
+  }
+
+  @Test
+  public void modifiedDurationFromYieldIT() {
+    final double yield = 0.04;
+    final double modifiedDuration = METHOD_BOND_SECURITY.modifiedDurationFromYield(BOND_FIXED_SECURITY_IT, yield);
+    final double modifiedDurationExpected = 1.8519196700216516; // To be check with another source.
+    assertEquals("Fixed coupon bond security: modified duration from yield US Street - hard coded value", modifiedDurationExpected, modifiedDuration, TOLERANCE_PRICE);
+    final double shift = 1.0E-6;
+    final double dirty = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yield);
+    final double dirtyP = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yield + shift);
+    final double dirtyM = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yield - shift);
+    final double modifiedDurationFD = -(dirtyP - dirtyM) / (2 * shift) / dirty;
+    assertEquals("Fixed coupon bond security: modified duration from yield IT - finite difference", modifiedDurationFD, modifiedDuration, TOLERANCE_PRICE);
+  }
+
+  @Test
+  public void convexityFromYieldIT() {
+    final double yield = 0.04;
+    final double convexity = METHOD_BOND_SECURITY.convexityFromYield(BOND_FIXED_SECURITY_IT, yield);
+    final double convexityExpected = 5.266775524453431; // To be check with another source.
+    assertEquals("Fixed coupon bond security: convexity from yield IT - hard coded value", convexityExpected, convexity, TOLERANCE_CONV);
+    final double shift = 1.0E-5;
+    final double dirty = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yield);
+    final double dirtyP = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yield + shift);
+    final double dirtyM = METHOD_BOND_SECURITY.dirtyPriceFromYield(BOND_FIXED_SECURITY_IT, yield - shift);
+    final double cvFD = (dirtyP + dirtyM - 2 * dirty) / (shift * shift) / dirty;
+    assertEquals("Fixed coupon bond security: convexity from yield IT - finite difference", cvFD, convexity, TOLERANCE_CONV_FD);
+  }
+
 }

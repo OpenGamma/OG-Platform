@@ -176,6 +176,16 @@ public class BondTransactionDiscountingMethodTest {
   }
 
   @Test
+  public void testPVYieldFixedBondSettlePast() {
+    final double yield = 0.05;
+    final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValueFromYield(BOND_TRANSACTION_FIXED_1, ISSUER_MULTICURVES, yield);
+    final double dirtyPrice = METHOD_BOND_SEC.dirtyPriceFromYield(BOND_TRANSACTION_FIXED_1.getBondStandard(), yield);
+    final double df = ISSUER_MULTICURVES.getMulticurveProvider().getDiscountFactor(CUR, BOND_TRANSACTION_FIXED_1.getBondStandard().getSettlementTime());
+    final double pvExpected = (dirtyPrice) * df * QUANTITY_FIXED;
+    assertEquals("Fixed bond present value", pvExpected, pv.getAmount(CUR), TOLERANCE_PV_DELTA);
+  }
+
+  @Test
   public void testPVFixedBondSettleToday() {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValue(BOND_TRANSACTION_FIXED_2, ISSUER_MULTICURVES);
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR, BOND_TRANSACTION_FIXED_1.getBondTransaction().getIssuerEntity());
@@ -203,6 +213,29 @@ public class BondTransactionDiscountingMethodTest {
     final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValueFromCleanPrice(BOND_TRANSACTION_FIXED_4, ISSUER_MULTICURVES, PRICE_CLEAN_FIXED);
     final MultipleCurrencyAmount pvSec = METHOD_BOND_SEC.presentValueFromCleanPrice(BOND_TRANSACTION_FIXED_4.getBondStandard(),
         ISSUER_MULTICURVES.getMulticurveProvider(), PRICE_CLEAN_FIXED);
+    final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR,
+        BOND_TRANSACTION_FIXED_4.getBondTransaction().getIssuerEntity());
+    final MultipleCurrencyAmount pvNominalStandard = BOND_TRANSACTION_FIXED_4.getBondStandard().getNominal().accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCouponStandard = BOND_TRANSACTION_FIXED_4.getBondStandard().getCoupon().accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvDiscountingStandard = pvNominalStandard.plus(pvCouponStandard);
+    final MultipleCurrencyAmount pvNominalTransaction = BOND_TRANSACTION_FIXED_4.getBondTransaction().getNominal().accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvCouponTransaction = BOND_TRANSACTION_FIXED_4.getBondTransaction().getCoupon().accept(PVDC, multicurvesDecorated);
+    final MultipleCurrencyAmount pvDiscountingTransaction = pvNominalTransaction.plus(pvCouponTransaction);
+    final double pvExpected = (pvDiscountingTransaction.getAmount(CUR) - pvDiscountingStandard.getAmount(CUR) + pvSec.getAmount(CUR)) * QUANTITY_FIXED;
+    assertEquals("Fixed coupon bond present value", pvExpected, pv.getAmount(CUR), TOLERANCE_PV_DELTA);
+    assertFalse("Fixed coupon bond present value", Math.abs(pvSec.getAmount(CUR) * QUANTITY_FIXED - pv.getAmount(CUR)) < TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  /**
+   * Test the PV when a coupon payment is between today and standard settlement date and pv is computed from conventional yield.
+   */
+  public void testPVYieldFixedBondCouponBeforeSettle() {
+    final double yield = 0.05;
+    final MultipleCurrencyAmount pv = METHOD_BOND_TR.presentValueFromYield(BOND_TRANSACTION_FIXED_4, ISSUER_MULTICURVES, yield);
+    final double dirtyPrice = METHOD_BOND_SEC.dirtyPriceFromYield(BOND_TRANSACTION_FIXED_4.getBondStandard(), yield);
+    final double df = ISSUER_MULTICURVES.getMulticurveProvider().getDiscountFactor(CUR, BOND_TRANSACTION_FIXED_4.getBondStandard().getSettlementTime());
+    final MultipleCurrencyAmount pvSec = MultipleCurrencyAmount.of(CUR, dirtyPrice * df);
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(ISSUER_MULTICURVES, CUR,
         BOND_TRANSACTION_FIXED_4.getBondTransaction().getIssuerEntity());
     final MultipleCurrencyAmount pvNominalStandard = BOND_TRANSACTION_FIXED_4.getBondStandard().getNominal().accept(PVDC, multicurvesDecorated);
