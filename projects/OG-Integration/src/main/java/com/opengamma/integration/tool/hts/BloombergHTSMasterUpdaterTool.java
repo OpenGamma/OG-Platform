@@ -163,6 +163,10 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
           _feedback.workRequired(documents.size());
         }
         super.checkForUpdates(documents, metaDataKeyMap, bbgTSRequest);
+        if (_feedback != null) {
+          GUIFeedback.say("Updating " + _toUpdate + " time series");
+          _lastNotify = System.nanoTime();
+        }
       }
 
       @Override

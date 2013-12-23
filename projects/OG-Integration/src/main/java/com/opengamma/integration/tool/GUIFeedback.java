@@ -210,7 +210,8 @@ public class GUIFeedback implements AutoCloseable {
   private boolean _closed;
 
   public GUIFeedback(final String message) {
-    s_logger.debug("Creating feedback instance - {}", message);
+    s_logger.debug("Creating instance");
+    s_logger.info("{}", message);
     if (ENABLED) {
       _impl = new Impl();
       synchronized (LOCK) {
@@ -306,6 +307,7 @@ public class GUIFeedback implements AutoCloseable {
    * @param message the message to display, not null
    */
   public void done(final String message) {
+    s_logger.info("{}", message);
     if (ENABLED) {
       if (!_closed) {
         _closed = true;
