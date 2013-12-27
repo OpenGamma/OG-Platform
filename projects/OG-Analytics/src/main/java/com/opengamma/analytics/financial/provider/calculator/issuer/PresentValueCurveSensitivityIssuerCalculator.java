@@ -19,14 +19,14 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCount
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
  * Calculates the sensitivity of the present value of issuer-specific instruments to curves
  * used in pricing by discounting.
  */
-public final class PresentValueCurveSensitivityIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class PresentValueCurveSensitivityIssuerCalculator extends InstrumentDerivativeVisitorDelegate<ParameterIssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -64,37 +64,37 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
   //     -----     Deposit     -----
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
-    return METHOD_DEPO_CTPY.presentValueCurveSensitivity(deposit, issuercurves);
+  public MultipleCurrencyMulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_DEPO_CTPY.presentValueCurveSensitivity(deposit, issuercurves.getIssuerProvider());
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitBillSecurity(final BillSecurity bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_SEC.presentValueCurveSensitivity(bill, issuercurves);
+  public MultipleCurrencyMulticurveSensitivity visitBillSecurity(final BillSecurity bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_SEC.presentValueCurveSensitivity(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves);
+  public MultipleCurrencyMulticurveSensitivity visitBillTransaction(final BillTransaction bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.presentValueCurveSensitivity(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_SEC.presentValueCurveSensitivity(bond, issuercurves);
+  public MultipleCurrencyMulticurveSensitivity visitBondFixedSecurity(final BondFixedSecurity bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_SEC.presentValueCurveSensitivity(bond, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_TR.presentValueCurveSensitivity(bond, issuercurves);
+  public MultipleCurrencyMulticurveSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.presentValueCurveSensitivity(bond, issuercurves.getIssuerProvider());
   }
 
   //     -----     Futures     -----
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitBondFuturesTransaction(final BondFuturesTransaction futures, final IssuerProviderInterface issuercurves) {
-    return METHOD_BNDFUT_TRA.presentValueCurveSensitivity(futures, issuercurves);
+  public MultipleCurrencyMulticurveSensitivity visitBondFuturesTransaction(final BondFuturesTransaction futures, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BNDFUT_TRA.presentValueCurveSensitivity(futures, issuercurves.getIssuerProvider());
   }
 
 }

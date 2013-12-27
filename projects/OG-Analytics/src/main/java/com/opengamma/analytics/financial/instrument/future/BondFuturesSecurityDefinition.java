@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Description of a bond future security (definition version).
@@ -179,6 +180,14 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
   }
 
   /**
+   * Returns the futures' currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _deliveryBasket[0].getCurrency();
+  }
+
+  /**
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
@@ -201,7 +210,6 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
     }
     return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket, _conversionFactor);
   }
-
 
   @Override
   public BondFuturesSecurity toDerivative(final ZonedDateTime date) {

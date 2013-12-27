@@ -13,14 +13,14 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransact
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 
 /**
  * Calculates the par spread (to the market quote) of issuer-specific instruments by discounting.
  * This calculator requires the transaction version of instruments like bonds and bills, as the
  * purchase price information is necessary to calculate a meaningful par spread.
  */
-public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, Double> {
+public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<ParameterIssuerProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -52,20 +52,20 @@ public final class ParSpreadMarketQuoteIssuerDiscountingCalculator extends Instr
   //     -----     Deposit     -----
 
   @Override
-  public Double visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
-    return METHOD_DEPO_CTPY.parSpread(deposit, issuercurves);
+  public Double visitDepositCounterpart(final DepositCounterpart deposit, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_DEPO_CTPY.parSpread(deposit, issuercurves.getIssuerProvider());
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public Double visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_TR.parSpread(bill, issuercurves);
+  public Double visitBillTransaction(final BillTransaction bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.parSpread(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_TR.parSpread(bond, issuercurves);
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.parSpread(bond, issuercurves.getIssuerProvider());
   }
 
 }

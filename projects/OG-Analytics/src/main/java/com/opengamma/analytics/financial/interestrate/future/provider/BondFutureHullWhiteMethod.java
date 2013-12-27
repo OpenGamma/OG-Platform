@@ -37,7 +37,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price of bond future using the Hull-White one factor model to estimate the delivery option.
  * <P> Reference: Henrard, M. Bonds futures and their options: more than the cheapest-to-deliver; quality option and margining. Journal of Fixed Income, 2006, 16, 62-75
+ * @deprecated Use the {@link BondFuturesTransactionHullWhiteMethod}.
  */
+@Deprecated
 public final class BondFutureHullWhiteMethod extends BondFutureMethod {
 
   /**

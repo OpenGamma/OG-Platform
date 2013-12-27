@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransact
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
  * transaction version of instruments like bonds and bills, as the purchase price
  * information is necessary to calculate a meaningful par spread.
  */
-public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MulticurveSensitivity> {
+public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator extends InstrumentDerivativeVisitorDelegate<ParameterIssuerProviderInterface, MulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -54,20 +54,20 @@ public final class ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculat
   //     -----     Deposit     -----
 
   @Override
-  public MulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
-    return METHOD_DEPO_CTPY.parSpreadCurveSensitivity(deposit, issuercurves);
+  public MulticurveSensitivity visitDepositCounterpart(final DepositCounterpart deposit, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_DEPO_CTPY.parSpreadCurveSensitivity(deposit, issuercurves.getIssuerProvider());
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public MulticurveSensitivity visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves);
+  public MulticurveSensitivity visitBillTransaction(final BillTransaction bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.parSpreadCurveSensitivity(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MulticurveSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_TR.parSpreadCurveSensitivity(bond, issuercurves);
+  public MulticurveSensitivity visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.parSpreadCurveSensitivity(bond, issuercurves.getIssuerProvider());
   }
 
 }

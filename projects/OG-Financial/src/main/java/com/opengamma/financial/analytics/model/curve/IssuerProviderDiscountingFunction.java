@@ -40,6 +40,7 @@ import com.opengamma.analytics.financial.provider.curve.issuer.IssuerDiscountBui
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -93,7 +94,7 @@ import com.opengamma.util.tuple.Pairs;
  * Produces price index curves using the discounting method.
  */
 public class IssuerProviderDiscountingFunction extends
-  MultiCurveFunction<IssuerProviderInterface, IssuerDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
+  MultiCurveFunction<ParameterIssuerProviderInterface, IssuerDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
   /** The calculator */
   private static final ParSpreadMarketQuoteIssuerDiscountingCalculator PSMQIC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
@@ -113,12 +114,12 @@ public class IssuerProviderDiscountingFunction extends
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> getCalculator() {
     return PSMQIC;
   }
 
   @Override
-  protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+  protected InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
     return PSMQCSIC;
   }
 
@@ -150,8 +151,8 @@ public class IssuerProviderDiscountingFunction extends
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Pair<IssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final IssuerDiscountBuildingRepository builder,
-        final IssuerProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
+    protected Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final IssuerDiscountBuildingRepository builder,
+        final ParameterIssuerProviderInterface knownData, final FunctionExecutionContext context, final FXMatrix fx) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(context);
       final ValueProperties curveConstructionProperties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _curveConstructionConfiguration.getName())
@@ -238,7 +239,7 @@ public class IssuerProviderDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
-      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((ParameterIssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
@@ -297,7 +298,7 @@ public class IssuerProviderDiscountingFunction extends
 
     @Override
     protected Set<ComputedValue> getResults(final ValueSpecification bundleSpec, final ValueSpecification jacobianSpec,
-        final ValueProperties bundleProperties, final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> pair) {
+        final ValueProperties bundleProperties, final Pair<ParameterIssuerProviderInterface, CurveBuildingBlockBundle> pair) {
       final Set<ComputedValue> result = new HashSet<>();
       final IssuerProviderDiscount provider = (IssuerProviderDiscount) pair.getFirst();
       result.add(new ComputedValue(bundleSpec, provider));

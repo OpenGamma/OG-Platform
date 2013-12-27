@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -15,7 +17,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Description of a bond future (derivative version).
+ * @deprecated Use the {@link BondFuturesSecurityDefinition} and {@link BondFuturesTransactionDefinition}.
  */
+@Deprecated
 public class BondFuture implements InstrumentDerivative {
 
   /**

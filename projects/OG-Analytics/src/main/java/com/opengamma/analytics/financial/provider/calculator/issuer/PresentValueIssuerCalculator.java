@@ -23,13 +23,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of instruments using issuer-specific curves.
  */
-public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorDelegate<IssuerProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisitorDelegate<ParameterIssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -69,52 +69,58 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   //     -----     Deposit     -----
 
   @Override
-  public MultipleCurrencyAmount visitDepositCounterpart(final DepositCounterpart deposit, final IssuerProviderInterface issuercurves) {
-    return METHOD_DEPO_CTPY.presentValue(deposit, issuercurves);
+  public MultipleCurrencyAmount visitDepositCounterpart(final DepositCounterpart deposit, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_DEPO_CTPY.presentValue(deposit, issuercurves.getIssuerProvider());
   }
 
   //     -----     Bond/Bill     -----
 
   @Override
-  public MultipleCurrencyAmount visitBillSecurity(final BillSecurity bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_SEC.presentValue(bill, issuercurves);
+  public MultipleCurrencyAmount visitBillSecurity(final BillSecurity bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_SEC.presentValue(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitBillTransaction(final BillTransaction bill, final IssuerProviderInterface issuercurves) {
-    return METHOD_BILL_TR.presentValue(bill, issuercurves);
+  public MultipleCurrencyAmount visitBillTransaction(final BillTransaction bill, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BILL_TR.presentValue(bill, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_SEC.presentValue(bond, issuercurves);
+  public MultipleCurrencyAmount visitBondFixedSecurity(final BondFixedSecurity bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_SEC.presentValue(bond, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitBondIborSecurity(final BondIborSecurity bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_SEC.presentValue(bond, issuercurves);
+  public MultipleCurrencyAmount visitBondIborSecurity(final BondIborSecurity bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_SEC.presentValue(bond, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_TR.presentValue(bond, issuercurves);
+  public MultipleCurrencyAmount visitBondFixedTransaction(final BondFixedTransaction bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.presentValue(bond, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitBondIborTransaction(final BondIborTransaction bond, final IssuerProviderInterface issuercurves) {
-    return METHOD_BOND_TR.presentValue(bond, issuercurves);
+  public MultipleCurrencyAmount visitBondIborTransaction(final BondIborTransaction bond, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BOND_TR.presentValue(bond, issuercurves.getIssuerProvider());
   }
 
   //     -----     Futures     -----
 
+  /**
+   * @param futures The bondfutures.
+   * @param issuercurves The curves including the issuer specific curves.
+   * @return The present value.
+   * @deprecated Use visitBondFuturesTransaction.
+   */
+  @Deprecated
   @Override
-  // TODO: Remove
-  public MultipleCurrencyAmount visitBondFuture(final BondFuture futures, final IssuerProviderInterface issuercurves) {
-    return METHOD_BNDFUT_DSC.presentValue(futures, issuercurves);
+  public MultipleCurrencyAmount visitBondFuture(final BondFuture futures, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BNDFUT_DSC.presentValue(futures, issuercurves.getIssuerProvider());
   }
 
   @Override
-  public MultipleCurrencyAmount visitBondFuturesTransaction(final BondFuturesTransaction futures, final IssuerProviderInterface issuercurves) {
-    return METHOD_BNDFUT_TRA.presentValue(futures, issuercurves);
+  public MultipleCurrencyAmount visitBondFuturesTransaction(final BondFuturesTransaction futures, final ParameterIssuerProviderInterface issuercurves) {
+    return METHOD_BNDFUT_TRA.presentValue(futures, issuercurves.getIssuerProvider());
   }
 }
