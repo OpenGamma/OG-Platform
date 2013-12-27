@@ -23,6 +23,7 @@ public class RollGeskeWhaleyModel {
 
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final double EPS = 1.e-10;
 
   /**
    * Default constructor
@@ -160,23 +161,27 @@ public class RollGeskeWhaleyModel {
     ArgumentChecker.isTrue(dividendAmount > 0. && dividendAmount < spot, "0. < dividendAmount < spot should be true");
     ArgumentChecker.isTrue(dividendTime > 0. && dividendTime < timeToExpiry, "0. < dividendTime < timeToExpiry should be true");
 
-    final double discountFactor = Math.exp(-interestRate * timeToExpiry);
     final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
-    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
-    ArgumentChecker.isTrue(dividendAmount > (1. - 1. / factor) * strike, "dividendAmount > ( 1.-exp(-interestRate * (timeToExpiry - dividendTime)) ) * strike should be true");
+    final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
+    final double modSpot = spot - pVal;
 
+    if (dividendAmount < (1. - 1. / factor) * strike + EPS) {
+      return BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+    }
+
+    final double discountFactor = Math.exp(-interestRate * timeToExpiry);
+    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
     final double sStar = sStarFinder(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
 
     final double sigRootT1 = volatility * Math.sqrt(dividendTime);
     final double sigRootT2 = volatility * Math.sqrt(timeToExpiry);
-    final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
 
     final double d11 = (Math.log((spot - pVal) / sStar) + interestRate * dividendTime) / sigRootT1 + 0.5 * sigRootT1;
     final double d12 = d11 - sigRootT1;
     final double d21 = (Math.log((spot - pVal) / strike) + interestRate * timeToExpiry) / sigRootT2 + 0.5 * sigRootT2;
     final double d22 = d21 - sigRootT2;
 
-    return (spot - pVal) * getNormalAndBinormal(d11, d21, corr, 1.) - strike * discountFactor * getNormalAndBinormal(d12, d22, corr, factor) + pVal *
+    return modSpot * getNormalAndBinormal(d11, d21, corr, 1.) - strike * discountFactor * getNormalAndBinormal(d12, d22, corr, factor) + pVal *
         NORMAL.getCDF(d12);
   }
 
@@ -200,15 +205,26 @@ public class RollGeskeWhaleyModel {
     ArgumentChecker.isTrue(dividendAmount > 0. && dividendAmount < spot, "0. < dividendAmount < spot should be true");
     ArgumentChecker.isTrue(dividendTime > 0. && dividendTime < timeToExpiry, "0. < dividendTime < timeToExpiry should be true");
 
-    final double discountFactor = Math.exp(-interestRate * timeToExpiry);
     final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
-    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
-    ArgumentChecker.isTrue(dividendAmount > (1. - 1. / factor) * strike, "dividendAmount > ( 1.-exp(-interestRate * (timeToExpiry - dividendTime)) ) * strike should be true");
+    final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
+    final double modSpot = spot - pVal;
 
     final double[] res = new double[7];
 
-    final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
-    final double modSpot = spot - pVal;
+    if (dividendAmount < (1. - 1. / factor) * strike + EPS) {
+      res[0] = BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[1] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[2] = BlackScholesFormulaRepository.dualDelta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[3] = BlackScholesFormulaRepository.rho(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) +
+          BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * dividendTime;
+      res[4] = -BlackScholesFormulaRepository.theta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[5] = BlackScholesFormulaRepository.vega(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      res[6] = BlackScholesFormulaRepository.gamma(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      return res;
+    }
+
+    final double discountFactor = Math.exp(-interestRate * timeToExpiry);
+    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
     final double dscStrike = strike * discountFactor;
     final double[] sStarAdjoint = getSStarAdjoint(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
 
@@ -359,11 +375,12 @@ public class RollGeskeWhaleyModel {
     };
   }
 
+  //TODO The rootfinder needs to be improved especially for large sStar
   private double sStarFinder(final double spot, final double strike, final double interestRate, final double timeToExpiry, final double volatility, final double dividendAmount,
       final double dividendTime) {
     final Function1D<Double, Double> func = getPriceBsFunction(strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
     final BisectionSingleRootFinder rtFinder = new BisectionSingleRootFinder(1.e-12);
-    final double sStar = rtFinder.getRoot(func, strike - 1.05 * dividendAmount, 30. * spot);
+    final double sStar = rtFinder.getRoot(func, strike - 1.05 * dividendAmount, 100. * spot);
 
     return sStar;
   }
