@@ -30,8 +30,8 @@ public class ImmutableLocalDateDoubleTimeSeriesFudgeEncodingTest extends Abstrac
 
   @BeforeMethod
   public void setUp() {
-    dates = new LocalDate[] {LocalDate.of(2012, 6, 30), LocalDate.of(2012, 7, 1)};
-    values = new double[] {1.1d, 2.2d};
+    dates = new LocalDate[] {LocalDate.of(2012, 6, 30), LocalDate.of(2012, 7, 1) };
+    values = new double[] {1.1d, 2.2d };
     ts = ImmutableLocalDateDoubleTimeSeries.of(dates, values);
   }
 
@@ -39,24 +39,32 @@ public class ImmutableLocalDateDoubleTimeSeriesFudgeEncodingTest extends Abstrac
     DoubleTimeSeries<?> cycleObject = cycleObject(DoubleTimeSeries.class, ts);
     assertEquals(ImmutableLocalDateDoubleTimeSeries.class, cycleObject.getClass());
     assertEquals(ts, cycleObject);
+    cycleObject = cycleObject(DoubleTimeSeries.class, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, cycleObject);
   }
 
   public void testCycle2() {
     DateDoubleTimeSeries<?> cycleObject = cycleObject(DateDoubleTimeSeries.class, ts);
     assertEquals(ImmutableLocalDateDoubleTimeSeries.class, cycleObject.getClass());
     assertEquals(ts, cycleObject);
+    cycleObject = cycleObject(DateDoubleTimeSeries.class, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, cycleObject);
   }
 
   public void testCycle3() {
     LocalDateDoubleTimeSeries cycleObject = cycleObject(LocalDateDoubleTimeSeries.class, ts);
     assertEquals(ImmutableLocalDateDoubleTimeSeries.class, cycleObject.getClass());
     assertEquals(ts, cycleObject);
+    cycleObject = cycleObject(LocalDateDoubleTimeSeries.class, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, cycleObject);
   }
 
   public void testCycle4() {
     ImmutableLocalDateDoubleTimeSeries cycleObject = cycleObject(ImmutableLocalDateDoubleTimeSeries.class, ts);
     assertEquals(ImmutableLocalDateDoubleTimeSeries.class, cycleObject.getClass());
     assertEquals(ts, cycleObject);
+    cycleObject = cycleObject(ImmutableLocalDateDoubleTimeSeries.class, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, cycleObject);
   }
 
 }
