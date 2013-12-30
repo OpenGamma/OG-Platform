@@ -225,7 +225,9 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     }
     sb.append(LocalDateDoubleTimeSeries.class.getSimpleName());
     sb.append(':');
-    sb.append(uniqueId);
+    sb.append(uniqueId.getScheme());
+    sb.append('~');
+    sb.append(uniqueId.getValue());
     if (simulationExecutionDate != null) {
       sb.append(':');
       sb.append(simulationExecutionDate.toString());
