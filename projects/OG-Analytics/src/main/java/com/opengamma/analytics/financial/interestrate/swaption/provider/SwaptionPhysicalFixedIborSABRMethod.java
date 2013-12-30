@@ -185,7 +185,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
     pvss.addBeta(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[4]);
     pvss.addRho(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[5]);
     pvss.addNu(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[6]);
-    return new Triple<>(pv, pvcs, pvss);
+    return Triple.of(pv, pvcs, pvss);
   }
 
 }
