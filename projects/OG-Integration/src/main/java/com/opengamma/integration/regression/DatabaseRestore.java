@@ -5,19 +5,13 @@
  */
 package com.opengamma.integration.regression;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.wire.FudgeMsgReader;
-import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +54,11 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Loads the data required to run views from Fudge XML files into an empty database. TODO split this up to allow a subset of data to be dumped and restored?
+ * Loads the data required to run views from Fudge XML files into an empty database.
+ * <p>
+ * TODO split this up to allow a subset of data to be dumped and restored?
  */
 public class DatabaseRestore {
 
@@ -72,7 +67,7 @@ public class DatabaseRestore {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DatabaseRestore.class);
 
-  private final File _dataDir;
+  private final RegressionIO _io;
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
   private final PortfolioMaster _portfolioMaster;
@@ -82,52 +77,21 @@ public class DatabaseRestore {
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
-  private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
-  private final FudgeDeserializer _deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
 
-  public DatabaseRestore(File dataDir,
-                         SecurityMaster securityMaster,
-                         PositionMaster positionMaster,
-                         PortfolioMaster portfolioMaster,
-                         ConfigMaster configMaster,
-                         HistoricalTimeSeriesMaster timeSeriesMaster,
-                         HolidayMaster holidayMaster,
-                         ExchangeMaster exchangeMaster,
-                         MarketDataSnapshotMaster snapshotMaster,
-                         OrganizationMaster organizationMaster) {
-    ArgumentChecker.notNull(dataDir, "dataDir");
-    ArgumentChecker.notNull(securityMaster, "securityMaster");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
-    ArgumentChecker.notNull(configMaster, "configMaster");
-    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    ArgumentChecker.notNull(holidayMaster, "holidayMaster");
-    ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
-    _securityMaster = securityMaster;
-    _positionMaster = positionMaster;
-    _portfolioMaster = portfolioMaster;
-    _configMaster = configMaster;
-    _timeSeriesMaster = timeSeriesMaster;
-    _holidayMaster = holidayMaster;
-    _exchangeMaster = exchangeMaster;
-    _snapshotMaster = snapshotMaster;
-    _organizationMaster = organizationMaster;
-    _dataDir = dataDir;
+  public DatabaseRestore(String dataDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    this(new File(dataDir), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster, snapshotMaster, organizationMaster);
   }
 
-  public DatabaseRestore(String dataDir,
-      SecurityMaster securityMaster,
-      PositionMaster positionMaster,
-      PortfolioMaster portfolioMaster,
-      ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster,
-      HolidayMaster holidayMaster,
-      ExchangeMaster exchangeMaster,
-      MarketDataSnapshotMaster snapshotMaster,
-      OrganizationMaster organizationMaster) {
-    ArgumentChecker.notEmpty(dataDir, "dataDir");
+  public DatabaseRestore(File dataDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    this(new SubdirsRegressionIO(dataDir, new FudgeXMLFormat(), false), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster,
+        snapshotMaster, organizationMaster);
+  }
+
+  public DatabaseRestore(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -137,6 +101,7 @@ public class DatabaseRestore {
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    _io = io;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -146,8 +111,6 @@ public class DatabaseRestore {
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
     _organizationMaster = organizationMaster;
-    _dataDir = new File(dataDir);
-    // TODO check data dir is an existing directory
   }
 
   public static void main(String[] args) throws IOException {
@@ -158,25 +121,25 @@ public class DatabaseRestore {
     String dataDir = args[0];
     String serverUrl = args[1];
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
-      DatabaseRestore databaseRestore = new DatabaseRestore(dataDir,
-                                                            server.getSecurityMaster(),
-                                                            server.getPositionMaster(),
-                                                            server.getPortfolioMaster(),
-                                                            server.getConfigMaster(),
-                                                            server.getHistoricalTimeSeriesMaster(),
-                                                            server.getHolidayMaster(),
-                                                            server.getExchangeMaster(),
-                                                            server.getMarketDataSnapshotMaster(),
-                                                            server.getOrganizationMaster());
+      DatabaseRestore databaseRestore = new DatabaseRestore(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
       databaseRestore.restoreDatabase();
+    }
+  }
+
+  private IdMappings loadIdMappings() throws IOException {
+    try {
+      return (IdMappings) _io.read(null, RegressionUtils.ID_MAPPINGS_IDENTIFIER);
+    } catch (FileNotFoundException e) {
+      return null;
     }
   }
 
   public void restoreDatabase() {
     try {
-      File idMappingsFile = new File(_dataDir, RegressionUtils.ID_MAPPINGS_FILE);
-      if (idMappingsFile.exists()) {
-        IdMappings idMappings = (IdMappings) readFromFudge(idMappingsFile);
+      _io.beginRead();
+      final IdMappings idMappings = loadIdMappings();
+      if (idMappings != null) {
         ConfigItem<IdMappings> mappingsItem = RegressionUtils.loadIdMappings(_configMaster);
         if (mappingsItem == null) {
           _configMaster.add(new ConfigDocument(ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS)));
@@ -195,6 +158,7 @@ public class DatabaseRestore {
       loadExchanges();
       loadSnapshots();
       loadOrganizations();
+      _io.endRead();
       s_logger.info("Successfully restored database");
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Failed to restore database", e);
@@ -202,7 +166,7 @@ public class DatabaseRestore {
   }
 
   private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
-    List<?> securities = readFromDirectory("securities");
+    List<?> securities = readAll(RegressionUtils.SECURITY_MASTER_DATA);
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(securities.size());
     for (Object o : securities) {
       ManageableSecurity security = (ManageableSecurity) o;
@@ -215,7 +179,7 @@ public class DatabaseRestore {
   }
 
   private Map<ObjectId, ObjectId> loadPositions(Map<ObjectId, ObjectId> securityIdMappings) throws IOException {
-    List<?> positions = readFromDirectory("positions");
+    List<?> positions = readAll(RegressionUtils.POSITION_MASTER_DATA);
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(positions.size());
     for (Object o : positions) {
       ManageablePosition position = (ManageablePosition) o;
@@ -245,7 +209,7 @@ public class DatabaseRestore {
   }
 
   private Map<ObjectId, ObjectId> loadPortfolios(Map<ObjectId, ObjectId> positionIdMappings) throws IOException {
-    List<?> portfolios = readFromDirectory("portfolios");
+    List<?> portfolios = readAll(RegressionUtils.PORTFOLIO_MASTER_DATA);
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMapWithExpectedSize(portfolios.size());
     for (Object o : portfolios) {
       ManageablePortfolio portfolio = (ManageablePortfolio) o;
@@ -260,7 +224,7 @@ public class DatabaseRestore {
   }
 
   private void loadConfigs(Map<ObjectId, ObjectId> portfolioIdMappings) throws IOException {
-    List<?> configs = readFromDirectory("configs");
+    List<?> configs = readAll(RegressionUtils.CONFIG_MASTER_DATA);
     List<ViewDefinition> viewDefs = Lists.newArrayList();
     // view definitions refer to other config items by unique ID
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMap();
@@ -314,7 +278,7 @@ public class DatabaseRestore {
   }
 
   private void loadTimeSeries() throws IOException {
-    List<?> objects = readFromDirectory("timeseries");
+    List<?> objects = readAll(RegressionUtils.HISTORICAL_TIME_SERIES_MASTER_DATA);
     for (Object o : objects) {
       TimeSeriesWithInfo timeSeriesWithInfo = (TimeSeriesWithInfo) o;
       ManageableHistoricalTimeSeriesInfo info = timeSeriesWithInfo.getInfo();
@@ -327,7 +291,7 @@ public class DatabaseRestore {
   }
 
   private void loadHolidays() throws IOException {
-    List<?> holidays = readFromDirectory("holidays");
+    List<?> holidays = readAll(RegressionUtils.HOLIDAY_MASTER_DATA);
     for (Object o : holidays) {
       ManageableHoliday holiday = (ManageableHoliday) o;
       holiday.setUniqueId(null);
@@ -336,7 +300,7 @@ public class DatabaseRestore {
   }
 
   private void loadExchanges() throws IOException {
-    List<?> exchanges = readFromDirectory("exchanges");
+    List<?> exchanges = readAll(RegressionUtils.EXCHANGE_MASTER_DATA);
     for (Object o : exchanges) {
       ManageableExchange exchange = (ManageableExchange) o;
       exchange.setUniqueId(null);
@@ -345,7 +309,7 @@ public class DatabaseRestore {
   }
 
   private void loadSnapshots() throws IOException {
-    List<?> snapshots = readFromDirectory("snapshots");
+    List<?> snapshots = readAll(RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA);
     for (Object o : snapshots) {
       ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) o;
       snapshot.setUniqueId(null);
@@ -354,7 +318,7 @@ public class DatabaseRestore {
   }
 
   private void loadOrganizations() throws IOException {
-    List<?> organizations = readFromDirectory("organizations");
+    List<?> organizations = readAll(RegressionUtils.ORGANIZATION_MASTER_DATA);
     for (Object o : organizations) {
       ManageableOrganization organization = (ManageableOrganization) o;
       organization.setUniqueId(null);
@@ -382,34 +346,10 @@ public class DatabaseRestore {
     }
   }
 
-  private List<?> readFromDirectory(String subDirName) throws IOException {
-    File subDir = new File(_dataDir, subDirName);
-    if (!subDir.exists()) {
-      s_logger.info("Directory {} doesn't exist", subDir);
-      return Collections.emptyList();
-    }
-    s_logger.info("Reading from {}", subDir.getAbsolutePath());
-    List<Object> objects = Lists.newArrayList();
-    File[] files = subDir.listFiles();
-    if (files == null) {
-      throw new OpenGammaRuntimeException("No files found in " + subDir);
-    }
-    for (File file : files) {
-      objects.add(readFromFudge(file));
-    }
-    s_logger.info("Read {} objects from {}", objects.size(), subDir.getAbsolutePath());
+  private List<?> readAll(final String type) throws IOException {
+    final List<?> objects = new ArrayList<Object>(_io.readAll(type).values());
+    s_logger.info("Read {} {}", objects.size(), type);
     return objects;
   }
 
-  private Object readFromFudge(File file) throws IOException {
-    Object object;
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-      FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(_ctx, reader);
-      FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
-      FudgeMsg msg = fudgeMsgReader.nextMessage();
-      object = _deserializer.fudgeMsgToObject(msg);
-      s_logger.debug("Read object {}", object);
-    }
-    return object;
-  }
 }
