@@ -9,9 +9,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +27,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -166,10 +170,9 @@ public class DatabaseRestore {
   }
 
   private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
-    List<?> securities = readAll(RegressionUtils.SECURITY_MASTER_DATA);
+    List<ManageableSecurity> securities = readAll(RegressionUtils.SECURITY_MASTER_DATA);
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(securities.size());
-    for (Object o : securities) {
-      ManageableSecurity security = (ManageableSecurity) o;
+    for (ManageableSecurity security : securities) {
       ObjectId oldId = security.getUniqueId().getObjectId();
       security.setUniqueId(null);
       SecurityDocument doc = _securityMaster.add(new SecurityDocument(security));
@@ -179,10 +182,9 @@ public class DatabaseRestore {
   }
 
   private Map<ObjectId, ObjectId> loadPositions(Map<ObjectId, ObjectId> securityIdMappings) throws IOException {
-    List<?> positions = readAll(RegressionUtils.POSITION_MASTER_DATA);
+    List<ManageablePosition> positions = readAll(RegressionUtils.POSITION_MASTER_DATA);
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(positions.size());
-    for (Object o : positions) {
-      ManageablePosition position = (ManageablePosition) o;
+    for (ManageablePosition position : positions) {
       ObjectId oldId = position.getUniqueId().getObjectId();
       position.setUniqueId(null);
       ObjectId securityObjectId = position.getSecurityLink().getObjectId();
@@ -209,10 +211,9 @@ public class DatabaseRestore {
   }
 
   private Map<ObjectId, ObjectId> loadPortfolios(Map<ObjectId, ObjectId> positionIdMappings) throws IOException {
-    List<?> portfolios = readAll(RegressionUtils.PORTFOLIO_MASTER_DATA);
+    List<ManageablePortfolio> portfolios = readAll(RegressionUtils.PORTFOLIO_MASTER_DATA);
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMapWithExpectedSize(portfolios.size());
-    for (Object o : portfolios) {
-      ManageablePortfolio portfolio = (ManageablePortfolio) o;
+    for (ManageablePortfolio portfolio : portfolios) {
       UniqueId oldId = portfolio.getUniqueId();
       portfolio.setUniqueId(null);
       replacePositionIds(portfolio.getRootNode(), positionIdMappings);
@@ -224,12 +225,11 @@ public class DatabaseRestore {
   }
 
   private void loadConfigs(Map<ObjectId, ObjectId> portfolioIdMappings) throws IOException {
-    List<?> configs = readAll(RegressionUtils.CONFIG_MASTER_DATA);
+    List<ConfigItem<?>> configs = readAll(RegressionUtils.CONFIG_MASTER_DATA);
     List<ViewDefinition> viewDefs = Lists.newArrayList();
     // view definitions refer to other config items by unique ID
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMap();
-    for (Object o : configs) {
-      ConfigItem<?> config = (ConfigItem<?>) o;
+    for (ConfigItem<?> config : configs) {
       Object configValue = config.getValue();
       if (configValue instanceof ViewDefinition) {
         viewDefs.add((ViewDefinition) configValue);
@@ -278,9 +278,8 @@ public class DatabaseRestore {
   }
 
   private void loadTimeSeries() throws IOException {
-    List<?> objects = readAll(RegressionUtils.HISTORICAL_TIME_SERIES_MASTER_DATA);
-    for (Object o : objects) {
-      TimeSeriesWithInfo timeSeriesWithInfo = (TimeSeriesWithInfo) o;
+    List<TimeSeriesWithInfo> objects = readAll(RegressionUtils.HISTORICAL_TIME_SERIES_MASTER_DATA);
+    for (TimeSeriesWithInfo timeSeriesWithInfo : objects) {
       ManageableHistoricalTimeSeriesInfo info = timeSeriesWithInfo.getInfo();
       ManageableHistoricalTimeSeries timeSeries = timeSeriesWithInfo.getTimeSeries();
       info.setUniqueId(null);
@@ -291,36 +290,32 @@ public class DatabaseRestore {
   }
 
   private void loadHolidays() throws IOException {
-    List<?> holidays = readAll(RegressionUtils.HOLIDAY_MASTER_DATA);
-    for (Object o : holidays) {
-      ManageableHoliday holiday = (ManageableHoliday) o;
+    List<ManageableHoliday> holidays = readAll(RegressionUtils.HOLIDAY_MASTER_DATA);
+    for (ManageableHoliday holiday : holidays) {
       holiday.setUniqueId(null);
       _holidayMaster.add(new HolidayDocument(holiday));
     }
   }
 
   private void loadExchanges() throws IOException {
-    List<?> exchanges = readAll(RegressionUtils.EXCHANGE_MASTER_DATA);
-    for (Object o : exchanges) {
-      ManageableExchange exchange = (ManageableExchange) o;
+    List<ManageableExchange> exchanges = readAll(RegressionUtils.EXCHANGE_MASTER_DATA);
+    for (ManageableExchange exchange : exchanges) {
       exchange.setUniqueId(null);
       _exchangeMaster.add(new ExchangeDocument(exchange));
     }
   }
 
   private void loadSnapshots() throws IOException {
-    List<?> snapshots = readAll(RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA);
-    for (Object o : snapshots) {
-      ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) o;
+    List<ManageableMarketDataSnapshot> snapshots = readAll(RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA);
+    for (ManageableMarketDataSnapshot snapshot : snapshots) {
       snapshot.setUniqueId(null);
       _snapshotMaster.add(new MarketDataSnapshotDocument(snapshot));
     }
   }
 
   private void loadOrganizations() throws IOException {
-    List<?> organizations = readAll(RegressionUtils.ORGANIZATION_MASTER_DATA);
-    for (Object o : organizations) {
-      ManageableOrganization organization = (ManageableOrganization) o;
+    List<ManageableOrganization> organizations = readAll(RegressionUtils.ORGANIZATION_MASTER_DATA);
+    for (ManageableOrganization organization : organizations) {
       organization.setUniqueId(null);
       _organizationMaster.add(new OrganizationDocument(organization));
     }
@@ -346,8 +341,18 @@ public class DatabaseRestore {
     }
   }
 
-  private List<?> readAll(final String type) throws IOException {
-    final List<?> objects = new ArrayList<Object>(_io.readAll(type).values());
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  private <T extends UniqueIdentifiable> List<T> readAll(final String type) throws IOException {
+    final List objects = new ArrayList(_io.readAll(type).values());
+    // [PLAT-5410] The objects are sorted by unique ID to give a consistent load; this is probably hiding other faults
+    Collections.sort(objects, new Comparator() {
+      @Override
+      public int compare(final Object o1, final Object o2) {
+        final UniqueId id1 = ((T) o1).getUniqueId();
+        final UniqueId id2 = ((T) o2).getUniqueId();
+        return ObjectUtils.compare(id1, id2);
+      }
+    });
     s_logger.info("Read {} {}", objects.size(), type);
     return objects;
   }
