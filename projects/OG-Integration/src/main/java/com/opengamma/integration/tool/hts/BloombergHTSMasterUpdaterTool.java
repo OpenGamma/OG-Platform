@@ -129,7 +129,7 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
       private int _toUpdate;
 
       @Override
-      protected boolean checkForUpdates(final HistoricalTimeSeriesInfoDocument doc, final Map<MetaDataKey, ObjectId> metaDataKeyMap,
+      protected boolean checkForUpdates(final HistoricalTimeSeriesInfoDocument doc, final Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap,
           final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
         boolean result = super.checkForUpdates(doc, metaDataKeyMap, bbgTSRequest);
         if (result) {
@@ -157,7 +157,7 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
       }
 
       @Override
-      protected void checkForUpdates(final Collection<HistoricalTimeSeriesInfoDocument> documents, final Map<MetaDataKey, ObjectId> metaDataKeyMap,
+      protected void checkForUpdates(final Collection<HistoricalTimeSeriesInfoDocument> documents, final Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap,
           final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
         if (_feedback != null) {
           _feedback.workRequired(documents.size());
