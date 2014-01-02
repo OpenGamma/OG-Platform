@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
@@ -46,8 +46,8 @@ public class BondFunctionUtils {
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
     final BondTradeWithEntityConverter converter = new BondTradeWithEntityConverter(holidaySource, conventionSource, regionSource, securitySource);
     final InstrumentDefinition<?> definition = converter.convert(trade);
-    if (definition instanceof BondFutureDefinition) {
-      return ((BondFutureDefinition) definition).toDerivative(date, 0.0);
+    if (definition instanceof BondFuturesTransactionDefinition) {
+      return ((BondFuturesTransactionDefinition) definition).toDerivative(date, 0.0);
     }
     return definition.toDerivative(date);
   }

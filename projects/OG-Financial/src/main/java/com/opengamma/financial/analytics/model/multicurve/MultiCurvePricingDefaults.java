@@ -6,11 +6,15 @@
 package com.opengamma.financial.analytics.model.multicurve;
 
 import static com.opengamma.engine.value.ValueRequirementNames.ACCRUED_INTEREST;
+import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
+import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.CONVEXITY;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
+import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 import static com.opengamma.engine.value.ValueRequirementNames.Z_SPREAD;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
@@ -39,8 +43,12 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
     MACAULAY_DURATION,
     MODIFIED_DURATION,
     PRESENT_VALUE,
+    PV01,
     YTM,
-    Z_SPREAD
+    Z_SPREAD,
+    BLOCK_CURVE_SENSITIVITIES,
+    YIELD_CURVE_NODE_SENSITIVITIES,
+    BUCKETED_PV01
   };
   /** The absolute tolerance */
   private final Set<String> _absoluteTolerance;

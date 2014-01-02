@@ -8,12 +8,13 @@ package com.opengamma.financial.analytics.model.bondcurves;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 
 import com.opengamma.analytics.financial.provider.calculator.issuer.YieldFromCurvesCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  * Calculates the yield of a bond from yield curves.
  */
-public class BondYieldFromCurvesFunction extends BondFromCurvesFunction<Double> {
+public class BondYieldFromCurvesFunction extends BondFromCurvesFunction<IssuerProviderInterface, Double> {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#YTM} and

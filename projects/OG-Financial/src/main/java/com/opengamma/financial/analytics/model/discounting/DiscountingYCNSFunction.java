@@ -66,14 +66,15 @@ public class DiscountingYCNSFunction extends DiscountingFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
-      
+
       @Override
-      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final Security security = target.getTrade().getSecurity();
-        return super.canApplyTo(context, target) ||
+        return super.canApplyTo(compilationContext, target) ||
             security instanceof FederalFundsFutureSecurity;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
@@ -63,7 +64,9 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Converts {@link BondSecurity} and {@link BondFutureSecurity} trades into the appropriate
+ * classes in analytics library. The legal entity of the bond(s) is populated with as much
+ * information as is currently available from the securities.
  */
 public class BondTradeWithEntityConverter {
   /** Excluded coupon types */
@@ -103,8 +106,8 @@ public class BondTradeWithEntityConverter {
   }
 
   /**
-   * Converts a fixed coupon bond trade into a {@link BondFixedTransactionDefinition}.
-   * @param trade The trade, not null. Must be a {@link BondSecurity}
+   * Converts a bond or bond future trade into a {@link InstrumentDefinition}.
+   * @param trade The trade, not null. Must be a {@link BondSecurity} or {@link BondFutureSecurity}
    * @return The transaction definition
    */
   public InstrumentDefinition<?> convert(final Trade trade) {
@@ -116,26 +119,27 @@ public class BondTradeWithEntityConverter {
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    if (security instanceof BondFutureSecurity) {
-      final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
-      final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
-      final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
-      final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
-      final double price = trade.getPremium().doubleValue();
-      return new BondFuturesTransactionDefinition(bondFuture, quantity, settlementDate, price);
-    }
-    if (trade.getTradeTime() == null) {
+    final OffsetTime tradeTime = trade.getTradeTime();
+    if (tradeTime == null) {
       throw new OpenGammaRuntimeException("Trade time should not be null");
     }
     if (trade.getPremium() == null) {
       throw new OpenGammaRuntimeException("Trade premium should not be null.");
+    }
+    if (security instanceof BondFutureSecurity) {
+      final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
+      final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
+      final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
+      final ZonedDateTime settlementDate = trade.getTradeDate().atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+      final double price = trade.getPremium().doubleValue();
+      return new BondFuturesTransactionDefinition(bondFuture, quantity, settlementDate, price);
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
     final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
     if (FLOATING_RATE_STRINGS.contains(bondSecurity.getCouponType())) {
       final BondIborSecurityDefinition bond = (BondIborSecurityDefinition) getIborBond(bondSecurity, legalEntity);
       final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
-      final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+      final ZonedDateTime settlementDate = trade.getTradeDate().atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
       final double price = trade.getPremium().doubleValue();
       return new BondIborTransactionDefinition(bond, quantity, settlementDate, price);
     }
@@ -145,7 +149,7 @@ public class BondTradeWithEntityConverter {
     }
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
     final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // REVIEW: The quantity mechanism should be reviewed.
-    final ZonedDateTime settlementDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
+    final ZonedDateTime settlementDate = trade.getTradeDate().atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
     final double price = trade.getPremium().doubleValue();
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }

@@ -8,12 +8,13 @@ package com.opengamma.financial.analytics.model.bondcurves;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 
 import com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  * Calculates the clean price of a bond from yield curves.
  */
-public class BondCleanPriceFromCurvesFunction extends BondFromCurvesFunction<Double> {
+public class BondCleanPriceFromCurvesFunction extends BondFromCurvesFunction<IssuerProviderInterface, Double> {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#CLEAN_PRICE} and

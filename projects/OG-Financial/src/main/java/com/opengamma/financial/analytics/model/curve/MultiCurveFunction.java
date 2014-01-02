@@ -127,6 +127,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
             .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
             .get();
         exogenousRequirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+        exogenousRequirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
     }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);

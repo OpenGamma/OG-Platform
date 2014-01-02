@@ -19,6 +19,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -35,7 +36,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the modified duration of a bond from yield curves.
  */
-public class BondPresentValueFromCurvesFunction extends BondFromCurvesFunction<MultipleCurrencyAmount> {
+public class BondPresentValueFromCurvesFunction extends BondFromCurvesFunction<IssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#PRESENT_VALUE}.

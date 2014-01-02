@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.curve;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_MATRIX;
+import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 
 import java.util.HashSet;
@@ -165,7 +166,17 @@ public class IssuerMultiCurveInterpolatedFunction extends
       }
       final IssuerProviderDiscount curveBundle = (IssuerProviderDiscount) getKnownData(inputs);
       final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
+      final CurveBuildingBlockBundle exogenousJacobians = new CurveBuildingBlockBundle();
+      for (final ComputedValue input : inputs.getAllValues()) {
+        final String valueName = input.getSpecification().getValueName();
+        if (valueName.equals(JACOBIAN_BUNDLE)) {
+          exogenousJacobians.addAll((CurveBuildingBlockBundle) input.getValue());
+        }
+      }
       final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundles = new LinkedHashMap<>();
+      for (final Map.Entry<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> entry : exogenousJacobians.getData().entrySet()) {
+        unitBundles.put(entry.getKey(), entry.getValue());
+      }
       int totalNodes = 0;
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
         for (final Map.Entry<String, List<CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
@@ -225,7 +236,7 @@ public class IssuerMultiCurveInterpolatedFunction extends
               throw new OpenGammaRuntimeException("Can only handle configurations of type IssuerCurveTypeConfiguration");
             }
           }
-          unitMap.put(curveName, Pairs.of(totalNodes + nNodesForCurve, nNodesForCurve));
+          unitMap.put(curveName, Pairs.of(totalNodes, totalNodes + nNodesForCurve));
           unitBundles.put(curveName, Pairs.of(new CurveBuildingBlock(unitMap), new DoubleMatrix2D(jacobian)));
           totalNodes += nNodesForCurve;
         }

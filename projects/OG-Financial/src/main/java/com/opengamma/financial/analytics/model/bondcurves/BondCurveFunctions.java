@@ -28,11 +28,14 @@ public class BondCurveFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondAccruedInterestFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondBCSFunction.class));
     functions.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class));
     functions.add(functionConfiguration(BondConvexityFromCurvesFunction.class));
     functions.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondPresentValueFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondPV01Function.class));
+    functions.add(functionConfiguration(BondYCNSFunction.class));
     functions.add(functionConfiguration(BondYieldFromCurvesFunction.class));
   }
 }

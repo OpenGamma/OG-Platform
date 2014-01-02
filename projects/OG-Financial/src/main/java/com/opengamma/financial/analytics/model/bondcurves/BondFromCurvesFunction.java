@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
+import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues.CURVES_METHOD;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
@@ -26,8 +27,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -52,22 +52,23 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Base class for bond analytic calculations from yield curves.
+ * Base class for bond and bond future analytic calculations from yield curves.
+ * @param <S> The type of the curves required by the calculator
  * @param <T> The type of the result
  */
-public abstract class BondFromCurvesFunction<T> extends AbstractFunction.NonCompiledInvoker {
+public abstract class BondFromCurvesFunction<S extends ParameterIssuerProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(BondFromCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
   /** The calculator */
-  private final InstrumentDerivativeVisitor<IssuerProviderInterface, T> _calculator;
+  private final InstrumentDerivativeVisitor<S, T> _calculator;
 
   /**
    * @param valueRequirementName The value requirement name, not null
    * @param calculator The calculator
    */
-  public BondFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<IssuerProviderInterface, T> calculator) {
+  public BondFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<S, T> calculator) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
     _calculator = calculator;
@@ -80,7 +81,7 @@ public abstract class BondFromCurvesFunction<T> extends AbstractFunction.NonComp
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
-    final IssuerProvider issuerCurves = (IssuerProvider) inputs.getValue(CURVE_BUNDLE);
+    final S issuerCurves = (S) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final T result = derivative.accept(_calculator, issuerCurves);
     return Collections.singleton(new ComputedValue(spec, result));
@@ -136,6 +137,7 @@ public abstract class BondFromCurvesFunction<T> extends AbstractFunction.NonComp
               .with(PROPERTY_CURVE_TYPE, curveTypes)
               .get();
           requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+          requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
         }
       }
       return requirements;

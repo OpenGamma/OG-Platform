@@ -8,12 +8,13 @@ package com.opengamma.financial.analytics.model.bondcurves;
 import static com.opengamma.engine.value.ValueRequirementNames.ACCRUED_INTEREST;
 
 import com.opengamma.analytics.financial.provider.calculator.issuer.AccruedInterestFromCurvesCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  * Calculates the accrued interest of a bond from yield curves.
  */
-public class BondAccruedInterestFromCurvesFunction extends BondFromCurvesFunction<Double> {
+public class BondAccruedInterestFromCurvesFunction extends BondFromCurvesFunction<IssuerProviderInterface, Double> {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#ACCRUED_INTEREST} and
