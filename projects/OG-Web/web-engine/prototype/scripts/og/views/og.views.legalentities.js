@@ -26,6 +26,7 @@ $.register_module({
                     .then(function (result, template) {
                         if (result.error) return view.notify(null), view.error(result.message);
                         var json = result.data, $html = $.tmpl(template, json);
+                        var legalentity_functions = details.legalentity_functions;
                         history.put({
                             name: json.template_data.obligorShortName,
                             item: 'history.' + page_name + '.recent',
@@ -34,6 +35,12 @@ $.register_module({
                         $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
                         $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                         view.layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
+                        legalentity_functions.render_ratings('.OG-details-content .og-js-ratings', json.ratings);
+                        legalentity_functions.render_accounts('.OG-details-content .og-js-accounts', json.accounts);
+                        legalentity_functions.render_obligations('.OG-details-content .og-js-obligations', json.obligations);
+                        legalentity_functions.render_capabilities('.OG-details-content .og-js-capabilities', json.capabilities);
+                        legalentity_functions.render_issued_securities('.OG-details-content .og-js-issued_securities', json.issued_securities);
+                        legalentity_functions.render_portfolios('.OG-details-content .og-js-portfolios', json.portfolios);
                         if (show_loading) view.notify(null);
                         ui.toolbar(view.options.toolbar.active);
                         setTimeout(view.layout.inner.resizeAll);
@@ -50,18 +57,6 @@ $.register_module({
                             width: 300, cssClass: 'og-link',
                             name: '<input type="text" placeholder="Name" '
                                 + 'class="og-js-name-filter" style="width: 288px;">'
-                        },
-                        {
-                            id: 'obligor_red_code', toolTip: 'Obligor RED Code', field: 'obligor_red_code',
-                            width: 100, cssClass: 'og-link',
-                            name: '<input type="text" placeholder="Obligor RED Code" '
-                                + 'class="og-js-obligor_red_code-filter" style="width: 88px;">'
-                        },
-                        {
-                            id: 'obligor_ticker', toolTip: 'Obligor Ticker', field: 'obligor_ticker',
-                            width: 100, cssClass: 'og-link',
-                            name: '<input type="text" placeholder="Obligor Ticker" '
-                                + 'class="og-js-obligor_ticker-filter" style="width: 88px;">'
                         }
                     ]
                 },
@@ -88,7 +83,7 @@ $.register_module({
                     }
                 }
             },
-            rules: view.rules(['name', 'obligor_red_code', 'obligor_ticker'])
+            rules: view.rules(['name'])
         });
     }
 });

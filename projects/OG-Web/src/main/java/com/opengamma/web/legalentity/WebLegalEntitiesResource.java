@@ -27,6 +27,10 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.legalentity.Account;
+import com.opengamma.core.legalentity.Capability;
+import com.opengamma.core.legalentity.Obligation;
+import com.opengamma.core.legalentity.Rating;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.legalentity.LegalEntityDocument;
@@ -49,7 +53,7 @@ import com.sun.jersey.api.client.ClientResponse.Status;
  * <p/>
  * The legalEntity documents resource represents all the data for one element type in the legalEntity master.
  */
-@Path("/legalEntities")
+@Path("/legalentities")
 public class WebLegalEntitiesResource extends AbstractWebLegalEntityResource {
 
   /**

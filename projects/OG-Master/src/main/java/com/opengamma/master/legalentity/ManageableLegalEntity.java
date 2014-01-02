@@ -89,9 +89,6 @@ public class ManageableLegalEntity
   private Collection<Obligation> _obligations = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<Account> _sccounts = new ArrayList<>();
-
-  @PropertyDefinition(validate = "notNull")
   private Collection<Object> _portfolios = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
@@ -398,32 +395,6 @@ public class ManageableLegalEntity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sccounts.
-   * @return the value of the property, not null
-   */
-  public Collection<Account> getSccounts() {
-    return _sccounts;
-  }
-
-  /**
-   * Sets the sccounts.
-   * @param sccounts  the new value of the property, not null
-   */
-  public void setSccounts(Collection<Account> sccounts) {
-    JodaBeanUtils.notNull(sccounts, "sccounts");
-    this._sccounts = sccounts;
-  }
-
-  /**
-   * Gets the the {@code sccounts} property.
-   * @return the property, not null
-   */
-  public final Property<Collection<Account>> sccounts() {
-    return metaBean().sccounts().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the portfolios.
    * @return the value of the property, not null
    */
@@ -505,7 +476,6 @@ public class ManageableLegalEntity
           JodaBeanUtils.equal(getCapabilities(), other.getCapabilities()) &&
           JodaBeanUtils.equal(getIssuedSecurities(), other.getIssuedSecurities()) &&
           JodaBeanUtils.equal(getObligations(), other.getObligations()) &&
-          JodaBeanUtils.equal(getSccounts(), other.getSccounts()) &&
           JodaBeanUtils.equal(getPortfolios(), other.getPortfolios()) &&
           JodaBeanUtils.equal(getAccounts(), other.getAccounts());
     }
@@ -523,7 +493,6 @@ public class ManageableLegalEntity
     hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIssuedSecurities());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObligations());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSccounts());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolios());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccounts());
     return hash;
@@ -531,7 +500,7 @@ public class ManageableLegalEntity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(384);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("ManageableLegalEntity{");
     int len = buf.length();
     toString(buf);
@@ -551,7 +520,6 @@ public class ManageableLegalEntity
     buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
     buf.append("issuedSecurities").append('=').append(JodaBeanUtils.toString(getIssuedSecurities())).append(',').append(' ');
     buf.append("obligations").append('=').append(JodaBeanUtils.toString(getObligations())).append(',').append(' ');
-    buf.append("sccounts").append('=').append(JodaBeanUtils.toString(getSccounts())).append(',').append(' ');
     buf.append("portfolios").append('=').append(JodaBeanUtils.toString(getPortfolios())).append(',').append(' ');
     buf.append("accounts").append('=').append(JodaBeanUtils.toString(getAccounts())).append(',').append(' ');
   }
@@ -612,12 +580,6 @@ public class ManageableLegalEntity
     private final MetaProperty<Collection<Obligation>> _obligations = DirectMetaProperty.ofReadWrite(
         this, "obligations", ManageableLegalEntity.class, (Class) Collection.class);
     /**
-     * The meta-property for the {@code sccounts} property.
-     */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Account>> _sccounts = DirectMetaProperty.ofReadWrite(
-        this, "sccounts", ManageableLegalEntity.class, (Class) Collection.class);
-    /**
      * The meta-property for the {@code portfolios} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -642,7 +604,6 @@ public class ManageableLegalEntity
         "capabilities",
         "issuedSecurities",
         "obligations",
-        "sccounts",
         "portfolios",
         "accounts");
 
@@ -671,8 +632,6 @@ public class ManageableLegalEntity
           return _issuedSecurities;
         case 809305781:  // obligations
           return _obligations;
-        case -831331436:  // sccounts
-          return _sccounts;
         case 415474731:  // portfolios
           return _portfolios;
         case -2137146394:  // accounts
@@ -762,14 +721,6 @@ public class ManageableLegalEntity
     }
 
     /**
-     * The meta-property for the {@code sccounts} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Collection<Account>> sccounts() {
-      return _sccounts;
-    }
-
-    /**
      * The meta-property for the {@code portfolios} property.
      * @return the meta-property, not null
      */
@@ -805,8 +756,6 @@ public class ManageableLegalEntity
           return ((ManageableLegalEntity) bean).getIssuedSecurities();
         case 809305781:  // obligations
           return ((ManageableLegalEntity) bean).getObligations();
-        case -831331436:  // sccounts
-          return ((ManageableLegalEntity) bean).getSccounts();
         case 415474731:  // portfolios
           return ((ManageableLegalEntity) bean).getPortfolios();
         case -2137146394:  // accounts
@@ -843,9 +792,6 @@ public class ManageableLegalEntity
         case 809305781:  // obligations
           ((ManageableLegalEntity) bean).setObligations((Collection<Obligation>) newValue);
           return;
-        case -831331436:  // sccounts
-          ((ManageableLegalEntity) bean).setSccounts((Collection<Account>) newValue);
-          return;
         case 415474731:  // portfolios
           ((ManageableLegalEntity) bean).setPortfolios((Collection<Object>) newValue);
           return;
@@ -865,7 +811,6 @@ public class ManageableLegalEntity
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._capabilities, "capabilities");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._issuedSecurities, "issuedSecurities");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._obligations, "obligations");
-      JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._sccounts, "sccounts");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._portfolios, "portfolios");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._accounts, "accounts");
     }

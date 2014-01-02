@@ -25,7 +25,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 
 /** RESTful resource for a version of a legalEntity. */
-@Path("/legalEntities/{legalEntityId}/versions/{versionId}")
+@Path("/legalentities/{legalEntityId}/versions/{versionId}")
 @Produces(MediaType.TEXT_HTML)
 public class WebLegalEntityVersionResource extends AbstractWebLegalEntityResource {
 

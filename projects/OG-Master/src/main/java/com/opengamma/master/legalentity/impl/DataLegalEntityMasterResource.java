@@ -69,7 +69,7 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
   }
 
   @HEAD
-  @Path("legalEntities")
+  @Path("legalentities")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return responseOk();
@@ -84,14 +84,14 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
   }
 
   @POST
-  @Path("legalEntitiesearches")
+  @Path("legalentitiesearches")
   public Response search(LegalEntitySearchRequest request) {
     LegalEntitySearchResult result = getLegalEntityMaster().search(request);
     return responseOkFudge(result);
   }
 
   @POST
-  @Path("legalEntities")
+  @Path("legalentities")
   public Response add(@Context UriInfo uriInfo, LegalEntityDocument request) {
     LegalEntityDocument result = getLegalEntityMaster().add(request);
     URI createdUri = (new com.opengamma.master.legalentity.impl.DataLegalEntityResource()).uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
@@ -99,7 +99,7 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
-  @Path("legalEntities/{legalEntityId}")
+  @Path("legalentities/{legalEntityId}")
   public com.opengamma.master.legalentity.impl.DataLegalEntityResource findLegalEntity(@PathParam("legalEntityId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
     return new DataLegalEntityResource(this, id);
@@ -129,7 +129,7 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("legalEntitiesearches");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("legalentitiesearches");
     return bld.build();
   }
 
@@ -140,7 +140,7 @@ public class DataLegalEntityMasterResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriAdd(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("legalEntities");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("legalentities");
     return bld.build();
   }
 

@@ -31,7 +31,7 @@ import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
 
 /** RESTful resource for a legalEntity document. */
-@Path("/legalEntities/{legalEntityId}")
+@Path("/legalentities/{legalEntityId}")
 public class WebLegalEntityResource extends AbstractWebLegalEntityResource {
 
   /**
