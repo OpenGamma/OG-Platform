@@ -171,7 +171,19 @@ public interface InflationIssuerProviderInterface {
 
   //     =====     Convenience methods     =====
 
+  /**
+   * Replaces the identifier / issuer pair for a particular currency.
+   * @param ccy The currency
+   * @param replacement The replacement identifier / issuer pair
+   * @return A new provider with the appropriate pair replaced
+   */
   InflationProviderInterface withDiscountFactor(Currency ccy, Pair<Object, LegalEntityFilter<LegalEntity>> replacement);
 
+  /**
+   * Replaces an issuer for a particular currency.
+   * @param ccy The currency The currency
+   * @param replacement The replacement issuer
+   * @return A new provider with the appropriate issuer replaced
+   */
   InflationProviderInterface withDiscountFactor(Currency ccy, LegalEntity replacement);
 }

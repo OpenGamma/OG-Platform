@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -122,10 +124,20 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     return _inflationProvider;
   }
 
+  /**
+   * Gets the curve for an identifier / filter pair.
+   * @param issuer The issuer
+   * @return The curve, null if not found
+   */
   public YieldAndDiscountCurve getCurve(final Pair<Object, LegalEntityFilter<LegalEntity>> issuer) {
     return _issuerCurves.get(issuer);
   }
 
+  /**
+   * Gets the curve for an issuer.
+   * @param issuer The issuer
+   * @return The curve, null if not found
+   */
   public YieldAndDiscountCurve getCurve(final LegalEntity issuer) {
     for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
       if (entry.getKey().getFirst().equals(entry.getKey().getSecond().getFilteredData(issuer))) {
@@ -358,4 +370,35 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
     }
     throw new IllegalArgumentException("Issuer discounting curve not found: " + replacement);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _inflationProvider.hashCode();
+    result = prime * result + _issuerCurves.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof InflationIssuerProviderDiscount)) {
+      return false;
+    }
+    final InflationIssuerProviderDiscount other = (InflationIssuerProviderDiscount) obj;
+    if (!ObjectUtils.equals(_inflationProvider, other._inflationProvider)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_issuerCurves, other._issuerCurves)) {
+      return false;
+    }
+    return true;
+  }
+
 }

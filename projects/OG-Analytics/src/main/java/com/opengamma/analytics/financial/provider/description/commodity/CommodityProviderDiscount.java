@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.curve.CommodityForwardCurve;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -19,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -49,7 +52,7 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
   public CommodityProviderDiscount() {
     _multicurveProvider = new MulticurveProviderDiscount();
     _commodityForwardCurves = new LinkedHashMap<>();
-    setCommdodityForwardCurves();
+    setCommodityForwardCurves();
   }
 
   /**
@@ -59,7 +62,7 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
   public CommodityProviderDiscount(final FXMatrix fxMatrix) {
     _multicurveProvider = new MulticurveProviderDiscount(fxMatrix);
     _commodityForwardCurves = new LinkedHashMap<>();
-    setCommdodityForwardCurves();
+    setCommodityForwardCurves();
   }
 
   /**
@@ -72,9 +75,10 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
    */
   public CommodityProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<CommodityUnderlying, CommodityForwardCurve> commodityForwardCurves, final FXMatrix fxMatrix) {
+    ArgumentChecker.notNull(commodityForwardCurves, "commodityForwardCurves");
     _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _commodityForwardCurves = commodityForwardCurves;
-    setCommdodityForwardCurves();
+    setCommodityForwardCurves();
   }
 
   /**
@@ -85,10 +89,13 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
   public CommodityProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<CommodityUnderlying, CommodityForwardCurve> commodityForwardCurves) {
     _multicurveProvider = multicurve;
     _commodityForwardCurves = commodityForwardCurves;
-    setCommdodityForwardCurves();
+    setCommodityForwardCurves();
   }
 
-  private void setCommdodityForwardCurves() {
+  /**
+   * Adds all commodity forward curves to a single map.
+   */
+  private void setCommodityForwardCurves() {
     _allCurves = new LinkedHashMap<>();
 
     final Set<CommodityUnderlying> indexSet = _commodityForwardCurves.keySet();
@@ -379,6 +386,43 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
   @Override
   public CommodityProviderInterface getCommodityProvider() {
     return this;
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _commodityForwardCurves.hashCode();
+    result = prime * result + _multicurveProvider.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof CommodityProviderDiscount)) {
+      return false;
+    }
+    final CommodityProviderDiscount other = (CommodityProviderDiscount) obj;
+    if (!ObjectUtils.equals(_commodityForwardCurves, other._commodityForwardCurves)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_multicurveProvider, other._multicurveProvider)) {
+      return false;
+    }
+    return true;
   }
 
 }

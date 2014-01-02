@@ -32,8 +32,8 @@ public class BlackSmileCapParameters implements VolatilityModel<double[]> {
    * @param index The Ibor index for which the volatility is valid.
    */
   public BlackSmileCapParameters(final Surface<Double, Double, Double> volatility, final IborIndex index) {
-    ArgumentChecker.notNull(volatility, "volatility curve");
-    ArgumentChecker.notNull(index, "Ibor index");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(index, "index");
     _volatility = volatility;
     _index = index;
   }
@@ -82,10 +82,7 @@ public class BlackSmileCapParameters implements VolatilityModel<double[]> {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof BlackSmileCapParameters)) {
       return false;
     }
     final BlackSmileCapParameters other = (BlackSmileCapParameters) obj;

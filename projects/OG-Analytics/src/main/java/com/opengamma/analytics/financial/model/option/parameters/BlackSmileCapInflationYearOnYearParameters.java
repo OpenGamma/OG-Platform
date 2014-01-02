@@ -39,8 +39,8 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
    * @param index The index price for which the volatility is valid.
    */
   public BlackSmileCapInflationYearOnYearParameters(final InterpolatedDoublesSurface volatility, final IndexPrice index) {
-    ArgumentChecker.notNull(volatility, "volatility curve");
-    ArgumentChecker.notNull(index, "index price");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(index, "index");
     _volatility = volatility;
     _index = index;
   }
@@ -54,10 +54,10 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
    * @param index The index price for which the volatility is valid.
    */
   public BlackSmileCapInflationYearOnYearParameters(final double[] expiryTimes, final double[] strikes, final double[][] volatility, final Interpolator2D interpolator, final IndexPrice index) {
-    ArgumentChecker.notNull(volatility, "volatility curve");
-    ArgumentChecker.notNull(expiryTimes, "expiry times");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(expiryTimes, "expiryTimes");
     ArgumentChecker.notNull(strikes, "strikes");
-    ArgumentChecker.notNull(index, "index price");
+    ArgumentChecker.notNull(index, "index");
     ArgumentChecker.isTrue(expiryTimes.length == volatility.length, null);
     ArgumentChecker.isTrue(strikes.length == volatility[0].length, null);
 
@@ -177,10 +177,7 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof BlackSmileCapInflationYearOnYearParameters)) {
       return false;
     }
     final BlackSmileCapInflationYearOnYearParameters other = (BlackSmileCapInflationYearOnYearParameters) obj;

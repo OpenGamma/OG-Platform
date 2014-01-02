@@ -25,10 +25,4 @@ public interface HullWhiteIssuerProviderInterface extends ParameterIssuerProvide
    */
   HullWhiteOneFactorPiecewiseConstantParameters getHullWhiteParameters();
 
-  /**
-   * Returns the issuer/currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
-   * @return The issuer/currency.
-   */
-//  Pair<String, Currency> getHullWhiteIssuerCurrency();
-
 }

@@ -24,7 +24,7 @@ import com.opengamma.util.money.Currency;
  * have been refactored.
  */
 public class ProviderUtils {
-
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ProviderUtils.class);
 
   /**

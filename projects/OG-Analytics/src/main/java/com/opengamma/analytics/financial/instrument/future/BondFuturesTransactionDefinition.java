@@ -128,7 +128,7 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
     ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
     ArgumentChecker.isTrue(!date.isBefore(_tradeDate), "Date is before trade date");
     final BondFuturesSecurity underlyingFuture = _underlyingFuture.toDerivative(date);
-    double referencePrice;
+    final double referencePrice;
     if (_tradeDate.isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today

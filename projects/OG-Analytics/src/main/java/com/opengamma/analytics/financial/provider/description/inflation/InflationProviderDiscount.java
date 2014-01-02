@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -102,7 +103,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   //TODO there is no guarantee that the map is a LinkedHashMap, which could lead to unexpected behaviour
   public InflationProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
     ArgumentChecker.notNull(multicurve, "multicurve");
-    ArgumentChecker.notNull(priceIndexCurves, "price index curves");
+    ArgumentChecker.notNull(priceIndexCurves, "priceIndexCurves");
     _multicurveProvider = multicurve;
     _priceIndexCurves = priceIndexCurves;
     setInflationCurves();
@@ -456,6 +457,16 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -481,6 +492,5 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     }
     return true;
   }
-
 
 }

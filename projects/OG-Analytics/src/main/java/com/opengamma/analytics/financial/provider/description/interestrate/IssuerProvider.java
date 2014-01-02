@@ -193,7 +193,6 @@ public class IssuerProvider implements IssuerProviderInterface {
     if (_multicurvesNames.contains(name)) {
       return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
     }
-    // TODO: re-factor the code below (to store it in YieldAndDiscountCurve?)
     final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];

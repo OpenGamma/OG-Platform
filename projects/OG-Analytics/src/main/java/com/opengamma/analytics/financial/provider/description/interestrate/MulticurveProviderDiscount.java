@@ -180,6 +180,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   @Override
   public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
     final YieldAndDiscountCurve curve = _allCurves.get(name);
+    if (curve == null) {
+      throw new UnsupportedOperationException("Cannot get sensitivities for curve called " + name);
+    }
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
@@ -196,6 +199,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     final YieldAndDiscountCurve curve = _allCurves.get(name);
+    if (curve == null) {
+      throw new UnsupportedOperationException("Cannot get sensitivities for curve called " + name);
+    }
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && pointSensitivity.size() > 0) {
@@ -301,7 +307,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   @Override
   public double getForwardRate(final IborIndex index, final double startTime, final double endTime) {
     ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
-    double accrualFactor = endTime - startTime;
+    final double accrualFactor = endTime - startTime;
     return getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
@@ -329,7 +335,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   @Override
   public double getForwardRate(final IndexON index, final double startTime, final double endTime) {
     ArgumentChecker.isFalse(startTime == endTime, "Start time should be different from end time");
-    double accrualFactor = endTime - startTime;
+    final double accrualFactor = endTime - startTime;
     return getForwardRate(index, startTime, endTime, accrualFactor);
   }
 

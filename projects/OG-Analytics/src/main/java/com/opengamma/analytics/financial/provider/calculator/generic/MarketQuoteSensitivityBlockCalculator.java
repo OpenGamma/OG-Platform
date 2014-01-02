@@ -61,7 +61,7 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
       final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> oneCurveSensiMap = new LinkedHashMap<>();
       final Pair<CurveBuildingBlock, DoubleMatrix2D> unitPair = units.getBlock(nameCcy.getFirst());
       ArgumentChecker.notNull(parameterSensitivity.getSensitivity(nameCcy), "sensitivity for " + nameCcy);
-      ArgumentChecker.notNull(unitPair, "curve building block / Jacobian pair for " + nameCcy);
+      ArgumentChecker.notNull(unitPair, "curve building block / Jacobian pair for " + nameCcy.getFirst());
       ArgumentChecker.notNull(unitPair.getSecond(), "Jacobian");
       final DoubleMatrix1D matrix = (DoubleMatrix1D) MATRIX_ALGEBRA.multiply(parameterSensitivity.getSensitivity(nameCcy), unitPair.getSecond());
       if (matrix != null) {
@@ -91,7 +91,7 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(units, "units");
-    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, provider, provider.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, provider);
     return fromParameterSensitivity(parameterSensitivity, units);
   }
 

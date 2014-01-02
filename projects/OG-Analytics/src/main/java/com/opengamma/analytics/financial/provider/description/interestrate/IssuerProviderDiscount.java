@@ -132,7 +132,7 @@ public class IssuerProviderDiscount extends IssuerProvider {
    * @param other The other provider.
    */
   public void setAll(final IssuerProviderDiscount other) {
-    ArgumentChecker.notNull(other, "Market bundle");
+    ArgumentChecker.notNull(other, "other");
     getMulticurveProvider().setAll(other.getMulticurveProvider());
     getIssuerCurves().putAll(other.getIssuerCurves());
     setAllCurves();

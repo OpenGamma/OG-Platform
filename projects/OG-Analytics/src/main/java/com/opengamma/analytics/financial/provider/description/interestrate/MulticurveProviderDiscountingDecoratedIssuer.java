@@ -8,11 +8,14 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -33,24 +36,21 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   /**
    * The issuer for which the associated discounting curve will replace the currency discounting curve.
    */
-//  private final String _decoratingIssuer;
   private final LegalEntity _decoratingIssuer;
-  /**
-   * The issuer/currency pair.
-   */
-  //private final Pair<Object, Currency> _decoratingIssuerCcy;
 
   /**
    * Constructor.
-   * @param issuerProvider The underlying Issuer provider on which the multi-curves provider is based.
-   * @param decoratedCurrency The currency for which the discounting curve will be replaced (decorated).
-   * @param decoratingIssuer The issuer for which the associated discounting curve will replace the currency discounting curve.
+   * @param issuerProvider The underlying issuer provider on which the multi-curves provider is based, not null
+   * @param decoratedCurrency The currency for which the discounting curve will be replaced (decorated), not null
+   * @param decoratingIssuer The issuer for which the associated discounting curve will replace the currency discounting curve, not null
    */
   public MulticurveProviderDiscountingDecoratedIssuer(final IssuerProviderInterface issuerProvider, final Currency decoratedCurrency, final LegalEntity decoratingIssuer) {
+    ArgumentChecker.notNull(issuerProvider, "issuerProvider");
+    ArgumentChecker.notNull(decoratedCurrency, "decoratedCurrency");
+    ArgumentChecker.notNull(decoratingIssuer, "decoratingIssuer");
     _issuerProvider = issuerProvider;
     _decoratedCurrency = decoratedCurrency;
     _decoratingIssuer = decoratingIssuer;
-//    _decoratingIssuerCcy = Pairs.of(_decoratingIssuer, _decoratedCurrency);
   }
 
   @Override
@@ -157,6 +157,37 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   @Override
   public Set<String> getAllNames() {
     return _issuerProvider.getAllNames();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _decoratedCurrency.hashCode();
+    result = prime * result + _decoratingIssuer.hashCode();
+    result = prime * result + _issuerProvider.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof MulticurveProviderDiscountingDecoratedIssuer)) {
+      return false;
+    }
+    final MulticurveProviderDiscountingDecoratedIssuer other = (MulticurveProviderDiscountingDecoratedIssuer) obj;
+    if (!ObjectUtils.equals(_decoratedCurrency, other._decoratedCurrency)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_decoratingIssuer, other._decoratingIssuer)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_issuerProvider, other._issuerProvider)) {
+      return false;
+    }
+    return true;
   }
 
 }

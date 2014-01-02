@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -26,6 +27,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
  * The forward rate is computed directly.
+ */
+/**
+ *
  */
 public class InflationProviderForward implements InflationProviderInterface {
 
@@ -72,6 +76,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    */
   public InflationProviderForward(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, DoublesCurve> forwardIborCurves,
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final FXMatrix fxMatrix) {
+    ArgumentChecker.notNull(priceIndexCurves, "priceIndexCurves");
     _multicurveProvider = new MulticurveProviderForward(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _priceIndexCurves = priceIndexCurves;
     setInflationCurves();
@@ -88,9 +93,11 @@ public class InflationProviderForward implements InflationProviderInterface {
     setInflationCurves();
   }
 
+  /**
+   * Adds all inflation curves to a single map.
+   */
   private void setInflationCurves() {
     _allCurves = new LinkedHashMap<>();
-
     final Set<IndexPrice> indexSet = _priceIndexCurves.keySet();
     for (final IndexPrice index : indexSet) {
       final String name = _priceIndexCurves.get(index).getName();
@@ -379,6 +386,16 @@ public class InflationProviderForward implements InflationProviderInterface {
   @Override
   public InflationProviderInterface getInflationProvider() {
     return this;
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
   }
 
 }

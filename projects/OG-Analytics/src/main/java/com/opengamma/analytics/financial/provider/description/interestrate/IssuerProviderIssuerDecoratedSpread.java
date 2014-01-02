@@ -8,9 +8,12 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
@@ -21,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
 public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterface {
 
   /**
-   * The underlying Issuer provider on which the multi-curves provider is based.
+   * The underlying issuer provider on which the multi-curves provider is based.
    */
   private final IssuerProviderInterface _issuerProvider;
   /**
@@ -35,11 +38,13 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
 
   /**
    * Constructor.
-   * @param issuerProvider The underlying Issuer provider on which the multi-curves provider is based.
-   * @param issuerCcy The issuer/provider pair.
-   * @param spread The spread.
+   * @param issuerProvider The underlying issuer provider on which the multi-curves provider is based, not null
+   * @param issuer The issuer, not null
+   * @param spread The spread
    */
   public IssuerProviderIssuerDecoratedSpread(final IssuerProviderInterface issuerProvider, final LegalEntity issuer, final double spread) {
+    ArgumentChecker.notNull(issuerProvider, "issuerProvider");
+    ArgumentChecker.notNull(issuer, "issuer");
     _issuerProvider = issuerProvider;
     _issuer = issuer;
     _spread = spread;
@@ -79,11 +84,6 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
     return _issuerProvider.getName(issuerCcy);
   }
 
-  //  @Override
-//  public String getName(final Pair<String, Currency> issuerCcy) {
-//    return _issuerProvider.getName(issuerCcy);
-//  }
-
   @Override
   public Set<String> getAllNames() {
     return _issuerProvider.getAllNames();
@@ -114,9 +114,37 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
     return _issuerProvider.getIssuers();
   }
 
-//  @Override
-//  public Set<Pair<String, Currency>> getIssuersCurrencies() {
-//    return _issuerProvider.getIssuersCurrencies();
-//  }
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _issuer.hashCode();
+    result = prime * result + _issuerProvider.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof IssuerProviderIssuerDecoratedSpread)) {
+      return false;
+    }
+    final IssuerProviderIssuerDecoratedSpread other = (IssuerProviderIssuerDecoratedSpread) obj;
+    if (Double.compare(_spread, other._spread) != 0) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_issuer, other._issuer)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_issuerProvider, other._issuerProvider)) {
+      return false;
+    }
+    return true;
+  }
 
 }

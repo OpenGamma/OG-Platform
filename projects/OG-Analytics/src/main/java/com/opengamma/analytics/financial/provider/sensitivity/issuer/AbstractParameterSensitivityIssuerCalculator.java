@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.issuer;
 
 import java.util.Set;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -48,16 +46,16 @@ public abstract class AbstractParameterSensitivityIssuerCalculator<DATA_TYPE ext
    * @return The sensitivity (as a ParameterSensitivity).
    */
   public MultipleCurrencyParameterSensitivity calculateSensitivity(final InstrumentDerivative instrument, final DATA_TYPE multicurves, final Set<String> curvesSet) {
-    Validate.notNull(instrument, "null InterestRateDerivative");
-    Validate.notNull(multicurves, "null multicurve");
-    Validate.notNull(curvesSet, "null curves set");
+    ArgumentChecker.notNull(instrument, "null InterestRateDerivative");
+    ArgumentChecker.notNull(multicurves, "null multicurve");
+    ArgumentChecker.notNull(curvesSet, "null curves set");
     MultipleCurrencyMulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, multicurves);
     sensitivity = sensitivity.cleaned(); // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, multicurves, curvesSet);
   }
 
   /**
-   * Computes the sensitivity with respect to the parameters from the point sensitivities.
+   * Computes the sensitivity with respect to the parameters from the point sensitivities for the supplied curve names.
    * @param sensitivity The point sensitivity.
    * @param multicurves The multi-curve provider. Not null.
    * @param curvesSet The set of curves for which the sensitivity will be computed. Not null.
@@ -66,4 +64,11 @@ public abstract class AbstractParameterSensitivityIssuerCalculator<DATA_TYPE ext
   public abstract MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final DATA_TYPE multicurves,
       final Set<String> curvesSet);
 
+  /**
+   * Computes the sensitivity with respect to the parameters from the point sensitivities for all curves.
+   * @param sensitivity The point sensitivity.
+   * @param multicurves The multi-curve provider. Not null.
+   * @return The sensitivity (as a ParameterSensitivity).
+   */
+  public abstract MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final DATA_TYPE multicurves);
 }

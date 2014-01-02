@@ -17,10 +17,9 @@ public class HullWhiteIssuerProviderDiscount extends HullWhiteIssuerProvider {
    * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
    * @param issuer The issuer provider.
    * @param parameters The Hull-White one factor parameters.
-   * @param issuerCcyHW The issuer/currency for which the Hull-White parameters are valid (Hull-White on the issuer discounting curve).
    */
-  public HullWhiteIssuerProviderDiscount(final IssuerProviderDiscount issuer, final HullWhiteOneFactorPiecewiseConstantParameters parameters/*, final Pair<String, Currency> issuerCcyHW*/) {
-    super(issuer, parameters/*, issuerCcyHW*/);
+  public HullWhiteIssuerProviderDiscount(final IssuerProviderDiscount issuer, final HullWhiteOneFactorPiecewiseConstantParameters parameters) {
+    super(issuer, parameters);
   }
 
   /**
