@@ -135,7 +135,7 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     }
     final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
     double price;
-    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
+    if (getSettlementDate().toLocalDate().isBefore(date.toLocalDate())) { //Implementation note: If settlement already took place (in day terms), the price is set to 0.
       price = 0.0;
     } else {
       price = getPrice();
