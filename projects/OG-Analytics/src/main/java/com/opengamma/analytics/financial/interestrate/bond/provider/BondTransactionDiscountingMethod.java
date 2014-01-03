@@ -180,7 +180,8 @@ public final class BondTransactionDiscountingMethod {
   }
 
   /**
-   * The par spread for which the present value of the bond transaction is 0. If that spread was added to the transaction yield, the new transaction would have a present value of 0.
+   * The par spread with respect to the trade price for which the present value of the bond transaction is 0. 
+   * If that spread was added to the transaction price, the new transaction would have a present value of 0.
    * @param bond The bond transaction.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The spread.
@@ -190,10 +191,9 @@ public final class BondTransactionDiscountingMethod {
     ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
     final Currency ccy = bond.getBondTransaction().getCurrency();
     final PaymentFixed nominalAtSettlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), bond.getBondTransaction().getCoupon()
-        .getNthPayment(0).getNotional() *
-        bond.getQuantity());
+        .getNthPayment(0).getNotional() * bond.getQuantity());
     final double pvNominalAtSettlement = nominalAtSettlement.accept(PVDC, issuerMulticurves.getMulticurveProvider()).getAmount(ccy);
-    return -presentValue(bond, issuerMulticurves).getAmount(ccy) / pvNominalAtSettlement;
+    return presentValue(bond, issuerMulticurves).getAmount(ccy) / pvNominalAtSettlement;
   }
 
   public double parSpread(final BondIborTransaction bond, final IssuerProviderInterface issuerMulticurves) {
@@ -208,7 +208,21 @@ public final class BondTransactionDiscountingMethod {
   }
 
   /**
-   * The par spread curve sensitivity.
+   * The par spread with respect to the trade yield for which the present value of the bond transaction is 0. 
+   * If that spread was added to the transaction yield, the new transaction would have a present value of 0.
+   * @param bond The bond transaction.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The spread.
+   */
+  public double parSpreadYield(final BondFixedTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+    final double parSpreadPrice = parSpread(bond, issuerMulticurves);
+    final double yieldAtTrade = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice());
+    final double yieldAtPar = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
+    return yieldAtPar - yieldAtTrade;
+  }
+
+  /**
+   * The par spread with respect to price curve sensitivity.
    * @param bond The bond transaction.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @return The curve sensitivity.
@@ -224,7 +238,7 @@ public final class BondTransactionDiscountingMethod {
     final MulticurveSensitivity pvcsNominalAtSettlement = nominalAtSettlement.accept(PVCSDC, issuerMulticurves.getMulticurveProvider()).getSensitivity(ccy);
     final MulticurveSensitivity pvcsBond = presentValueCurveSensitivity(bond, issuerMulticurves).getSensitivity(ccy);
     final double pvBond = presentValue(bond, issuerMulticurves).getAmount(ccy);
-    return pvcsBond.multipliedBy(-1 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
+    return pvcsBond.multipliedBy(1.0 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
   }
 
   public MulticurveSensitivity parSpreadCurveSensitivity(final BondIborTransaction bond, final IssuerProviderInterface issuerMulticurves) {
@@ -239,6 +253,28 @@ public final class BondTransactionDiscountingMethod {
     final MulticurveSensitivity pvcsBond = presentValueCurveSensitivity(bond, issuerMulticurves).getSensitivity(ccy);
     final double pvBond = presentValue(bond, issuerMulticurves).getAmount(ccy);
     return pvcsBond.multipliedBy(-1 / pvNominalAtSettlement).plus(pvcsNominalAtSettlement.multipliedBy(pvBond / (pvNominalAtSettlement * pvNominalAtSettlement)));
+  }
+
+  /**
+   * The par spread with respect to yield curve sensitivity.
+   * @param bond The bond transaction.
+   * @param issuerMulticurves The issuer and multi-curves provider.
+   * @return The curve sensitivity.
+   */
+  public MulticurveSensitivity parSpreadYieldCurveSensitivity(final BondFixedTransaction bond, final IssuerProviderInterface issuerMulticurves) {
+    final double parSpreadPrice = parSpread(bond, issuerMulticurves);
+    //    final double yieldAtTrade = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice());
+    //    final double yieldAtPar = METHOD_BOND_SECURITY.yieldFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
+    //    final double parSpreadYield = yieldAtPar - yieldAtTrade;
+    //Backward sweep
+    final double parSpreadYieldBar = 1.0d;
+    final double yieldAtParBar = parSpreadYieldBar;
+    final double dirtyPriceAtPar = bond.getTransactionPrice() + parSpreadPrice + bond.getBondStandard().getAccruedInterest();
+    final double modifiedDurationAtPar = METHOD_BOND_SECURITY.modifiedDurationFromCleanPrice(bond.getBondStandard(), bond.getTransactionPrice() + parSpreadPrice);
+    final double dYielddCleanAtPar = -1.0d / (modifiedDurationAtPar * dirtyPriceAtPar);
+    final double parSpreadPriceBar = dYielddCleanAtPar * yieldAtParBar;
+    final MulticurveSensitivity parSpreadPriceCurveSensitivity = parSpreadCurveSensitivity(bond, issuerMulticurves);
+    return parSpreadPriceCurveSensitivity.multipliedBy(parSpreadPriceBar);
   }
 
 }

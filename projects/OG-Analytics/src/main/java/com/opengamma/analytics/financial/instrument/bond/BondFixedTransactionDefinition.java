@@ -37,10 +37,10 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param underlyingBond The fixed coupon bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementDate Transaction settlement date.
-   * @param dirtyPrice The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * @param cleanPrice The (clean) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double dirtyPrice) {
-    super(underlyingBond, quantity, settlementDate, dirtyPrice);
+  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double cleanPrice) {
+    super(underlyingBond, quantity, settlementDate, cleanPrice);
     _accruedInterestAtSettlement = 0;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getUnderlyingBond().getDayCount(), getCouponIndex(), nbCoupon, getPreviousAccrualDate(),
@@ -65,25 +65,8 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(underlyingBond, "underlying bond");
     BondFixedSecurity security = underlyingBond.toDerivative(settlementDate, settlementDate);
-    double dirtyPrice = METHOD_BOND.dirtyPriceFromYield(security, yield);
-    return new BondFixedTransactionDefinition(underlyingBond, quantity, settlementDate, dirtyPrice);
-  }
-
-  /**
-   * Builder of a fixed coupon bond transaction from the underlying bond and the conventional yield at settlement date.
-   * @param underlyingBond The fixed coupon bond underlying the transaction.
-   * @param quantity The number of bonds purchased (can be negative or positive).
-   * @param settlementDate Transaction settlement date.
-   * @param cleanPrice The bond clean price at settlement date.
-   * @return The fixed coupon bond.
-   */
-  public static BondFixedTransactionDefinition fromCleanPrice(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate,
-      final double cleanPrice) {
-    ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(underlyingBond, "underlying bond");
-    BondFixedTransactionDefinition bondZeroPrice = new BondFixedTransactionDefinition(underlyingBond, quantity, settlementDate, 0.0d);
-    double accruedInterestAtSettlement = bondZeroPrice.getAccruedInterestAtSettlement();
-    return new BondFixedTransactionDefinition(underlyingBond, quantity, settlementDate, cleanPrice + accruedInterestAtSettlement);
+    double cleanPrice = METHOD_BOND.cleanPriceFromYield(security, yield);
+    return new BondFixedTransactionDefinition(underlyingBond, quantity, settlementDate, cleanPrice);
   }
 
   /**

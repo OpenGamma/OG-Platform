@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefiniti
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadMarketQuoteIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadRateIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
@@ -80,6 +81,7 @@ public class BillTransactionDiscountingMethodTest {
   private static final ParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_PVI_FDC = new ParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
   private final static ParSpreadMarketQuoteIssuerDiscountingCalculator PSMQIDC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
+  private final static ParSpreadRateIssuerDiscountingCalculator PSRIDC = ParSpreadRateIssuerDiscountingCalculator.getInstance();
   private final static ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSMQCSIDC = ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
   private static final SimpleParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityIssuerCalculator<>(PSMQCSIDC);
   private static final SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_PSMQ_FDC = new SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PSMQIDC, SHIFT_FD);
@@ -148,6 +150,16 @@ public class BillTransactionDiscountingMethodTest {
     final double spreadMethod = METHOD_TRANSACTION.parSpread(BILL_TRA, ISSUER_MULTICURVE);
     final double spreadCalculator = BILL_TRA.accept(PSMQIDC, ISSUER_MULTICURVE);
     assertEquals("Bill Security: discounting method - par spread", spreadMethod, spreadCalculator, TOLERANCE_SPREAD);
+  }
+
+  @Test
+  /**
+   * Tests the par spread (Method vs Calculator).
+   */
+  public void parSpreadCalculatorVsCalculator2() {
+    final double spreadCalculator = BILL_TRA.accept(PSMQIDC, ISSUER_MULTICURVE);
+    final double spreadCalculator2 = BILL_TRA.accept(PSRIDC, ISSUER_MULTICURVE);
+    assertEquals("Bill Security: discounting method - par spread", spreadCalculator, spreadCalculator2, TOLERANCE_SPREAD);
   }
 
   @Test

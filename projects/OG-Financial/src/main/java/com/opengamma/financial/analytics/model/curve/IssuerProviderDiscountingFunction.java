@@ -99,9 +99,11 @@ import com.opengamma.util.tuple.Pairs;
 public class IssuerProviderDiscountingFunction extends
   MultiCurveFunction<ParameterIssuerProviderInterface, IssuerDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
   /** The calculator */
-  private static final ParSpreadMarketQuoteIssuerDiscountingCalculator PSMQIC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
+//  private static final ParSpreadRateIssuerDiscountingCalculator PSXIC = ParSpreadRateIssuerDiscountingCalculator.getInstance(); // TODO: should be flexible
+  private static final ParSpreadMarketQuoteIssuerDiscountingCalculator PSXIC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance(); // TODO: should be flexible
   /** The sensitivity calculator */
-  private static final ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSMQCSIC = ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
+//  private static final ParSpreadRateCurveSensitivityIssuerDiscountingCalculator PSXCSIC = ParSpreadRateCurveSensitivityIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSXCSIC = ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
 
   /**
    * @param configurationName The configuration name, not null
@@ -118,12 +120,12 @@ public class IssuerProviderDiscountingFunction extends
 
   @Override
   protected InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> getCalculator() {
-    return PSMQIC;
+    return PSXIC;
   }
 
   @Override
   protected InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-    return PSMQCSIC;
+    return PSXCSIC;
   }
 
   @Override

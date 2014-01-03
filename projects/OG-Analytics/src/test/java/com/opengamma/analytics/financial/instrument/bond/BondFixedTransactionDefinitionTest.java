@@ -101,17 +101,8 @@ public class BondFixedTransactionDefinitionTest {
   public void ofYield() {
     BondFixedTransactionDefinition bondOfYieldTransactionDefinition = BondFixedTransactionDefinition.fromYield(BOND_SECURITY_DEFINITION, QUANTITY, SETTLEMENT_DATE, YIELD);
     BondFixedSecurity bondOfYieldSecurity = bondOfYieldTransactionDefinition.getUnderlyingBond().toDerivative(REFERENCE_DATE_1, SETTLEMENT_DATE);
-    double dirtyPrice = METHOD_BOND_FIXED.dirtyPriceFromYield(bondOfYieldSecurity, YIELD);
-    assertEquals("Bond transaction: ofYield", dirtyPrice, bondOfYieldTransactionDefinition.getPrice(), TOLERANCE_PRICE);
-  }
-
-  @Test
-  public void ofCleanPrice() {
-    BondFixedTransactionDefinition bondOfCleanPriceTransactionDefinition = BondFixedTransactionDefinition.fromCleanPrice(BOND_MON_SECURITY_DEFINITION, QUANTITY,
-        SETTLEMENT_DATE, PRICE_CLEAN);
-    double dirtyPrice = bondOfCleanPriceTransactionDefinition.getPrice();
-    double accruedAtSettle = bondOfCleanPriceTransactionDefinition.getAccruedInterestAtSettlement();
-    assertEquals("Bond transaction: ofYield", PRICE_CLEAN + accruedAtSettle, dirtyPrice, TOLERANCE_PRICE);
+    double cleanPrice = METHOD_BOND_FIXED.cleanPriceFromYield(bondOfYieldSecurity, YIELD);
+    assertEquals("Bond transaction: ofYield", cleanPrice, bondOfYieldTransactionDefinition.getPrice(), TOLERANCE_PRICE);
   }
 
   @SuppressWarnings("deprecation")

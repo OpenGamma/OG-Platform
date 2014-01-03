@@ -26,13 +26,21 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadRateCurveSensitivityIssuerDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.issuer.ParSpreadRateIssuerDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.issuer.SimpleParameterSensitivityIssuerCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.issuer.SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -112,6 +120,12 @@ public class BondTransactionDiscountingMethodTest {
           * QUANTITY_FIXED);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_3 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE);
   private static final BondFixedTransaction BOND_TRANSACTION_FIXED_4 = BOND_TRANSACTION_DEFINITION_FIXED_3.toDerivative(REFERENCE_DATE_2);
+
+  private static final ZonedDateTime SETTLE_DATE_STD = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BOND_DESCRIPTION_DEFINITION_FIXED.getSettlementDays(), CALENDAR);
+  private static final BondFixedTransactionDefinition BOND_FIXED_STD_DEFINITION = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED, SETTLE_DATE_STD,
+      PRICE_CLEAN_FIXED);
+  private static final BondFixedTransaction BOND_FIXED_STD = BOND_FIXED_STD_DEFINITION.toDerivative(REFERENCE_DATE);
+
   // Ibor coupon Quarterly 2Y
   private static final DayCount DAY_COUNT_FRN = DayCounts.ACT_ACT_ISDA;
   private static final BusinessDayConvention BUSINESS_DAY_FRN = BusinessDayConventions.FOLLOWING;
@@ -147,12 +161,24 @@ public class BondTransactionDiscountingMethodTest {
   // Calculators
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
-  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityIssuerCalculator PVCSIC = PresentValueCurveSensitivityIssuerCalculator.getInstance();
+  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
+  private static final ParSpreadRateIssuerDiscountingCalculator PSRIDC = ParSpreadRateIssuerDiscountingCalculator.getInstance();
+  private static final ParSpreadRateCurveSensitivityIssuerDiscountingCalculator PSRCSIDC = ParSpreadRateCurveSensitivityIssuerDiscountingCalculator.getInstance();
+
+  private static final double SHIFT_FD = 1.0E-6;
+
+  private static final SimpleParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface> PS_I_AD =
+      new SimpleParameterSensitivityIssuerCalculator<ParameterIssuerProviderInterface>(PSRCSIDC);
+  private static final SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator PS_I_FD = new SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator(PSRIDC, SHIFT_FD);
+
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
 
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
+  private static final double TOLERANCE_PV = 1.0E-2;
+  private static final double TOLERANCE_PRICE = 1.0E-8;
+  private static final double TOLERANCE_PRICE_DELTA = 1.0E-8;
 
   @Test
   public void testPVFixedBondSettlePast() {
@@ -268,6 +294,48 @@ public class BondTransactionDiscountingMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvsMethod = METHOD_BOND_TR.presentValueCurveSensitivity(BOND_TRANSACTION_FIXED_3, ISSUER_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvsCalculator = BOND_TRANSACTION_FIXED_3.accept(PVCSIC, ISSUER_MULTICURVES);
     AssertSensivityObjects.assertEquals("Fixed bond present value sensitivity: Method vs Calculator", pvsMethod, pvsCalculator, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void parSpreadMarketQuote() {
+    final double parSpreadMarketQuote = METHOD_BOND_TR.parSpread(BOND_FIXED_STD, ISSUER_MULTICURVES);
+    final BondFixedTransaction bond0 = new BondFixedTransaction(BOND_FIXED_STD.getBondTransaction(), QUANTITY_FIXED, PRICE_CLEAN_FIXED + parSpreadMarketQuote,
+        BOND_FIXED_STD.getBondStandard(), BOND_FIXED_STD.getNotionalStandard());
+    final MultipleCurrencyAmount pv0 = METHOD_BOND_TR.presentValue(bond0, ISSUER_MULTICURVES);
+    assertEquals("Fixed bond: par spread market quote", pv0.getAmount(CUR), 0, TOLERANCE_PV);
+  }
+
+  @Test
+  public void parSpreadYield() {
+    final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, BOND_DESCRIPTION_DEFINITION_FIXED.getSettlementDays(), CALENDAR);
+    final BondFixedTransactionDefinition bondTrDefinition = new BondFixedTransactionDefinition(BOND_DESCRIPTION_DEFINITION_FIXED, QUANTITY_FIXED, settleDate, PRICE_CLEAN_FIXED);
+    final BondFixedTransaction bondTr = bondTrDefinition.toDerivative(REFERENCE_DATE);
+    final double parSpreadYield = METHOD_BOND_TR.parSpreadYield(bondTr, ISSUER_MULTICURVES);
+    final double yield = METHOD_BOND_SEC.yieldFromCleanPrice(bondTr.getBondStandard(), PRICE_CLEAN_FIXED);
+    final BondFixedTransactionDefinition bond0Definition = BondFixedTransactionDefinition.fromYield(BOND_DESCRIPTION_DEFINITION_FIXED,
+        QUANTITY_FIXED, settleDate, yield + parSpreadYield);
+    final BondFixedTransaction bond0 = bond0Definition.toDerivative(REFERENCE_DATE);
+    final MultipleCurrencyAmount pv0 = METHOD_BOND_TR.presentValue(bond0, ISSUER_MULTICURVES);
+    assertEquals("Fixed bond: par spread yield", pv0.getAmount(CUR), 0, TOLERANCE_PV);
+    final Double parSpreadYieldCalculator = bondTr.accept(PSRIDC, ISSUER_MULTICURVES);
+    assertEquals("Fixed bond: par spread yield", parSpreadYieldCalculator, parSpreadYield, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests parSpreadYield curve sensitivity: explicit formula versus finite difference.
+   */
+  public void parSpreadYieldCurveSensitivityMethodVsCalculator() {
+    final SimpleParameterSensitivity pspsDepositExact = PS_I_AD.calculateSensitivity(BOND_FIXED_STD, ISSUER_MULTICURVES, ISSUER_MULTICURVES.getAllNames());
+    final SimpleParameterSensitivity pspsDepositFD = PS_I_FD.calculateSensitivity(BOND_FIXED_STD, ISSUER_MULTICURVES);
+    AssertSensivityObjects.assertEquals("BondTransactionDiscountingMethod: parSpreadYield curve sensitivity", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  public void parSpreadYieldCurveSensitivity() {
+    final MulticurveSensitivity pscsyCalculator = BOND_FIXED_STD.accept(PSRCSIDC, ISSUER_MULTICURVES);
+    final MulticurveSensitivity psycsMethod = METHOD_BOND_TR.parSpreadYieldCurveSensitivity(BOND_FIXED_STD, ISSUER_MULTICURVES);
+    AssertSensivityObjects.assertEquals("BondTransactionDiscountingMethod: parSpreadYield curve sensitivity", psycsMethod, pscsyCalculator, TOLERANCE_PRICE_DELTA);
   }
 
   @Test(enabled = false)
