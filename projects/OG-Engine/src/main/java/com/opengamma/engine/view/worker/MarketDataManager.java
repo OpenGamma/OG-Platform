@@ -329,7 +329,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   @Override
   public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
     removePendingSubscriptions(ImmutableSet.of(valueSpecification), false);
-    s_logger.info("Market data subscription to {} failed. This market data may be missing from computation cycles.", valueSpecification);
+    s_logger.info("Market data subscription to {} failed. This market data may be missing from computation cycles. Reason: {}", valueSpecification, msg);
     s_logger.info("{} pending subscriptions remaining", _pendingSubscriptions.size());
   }
 
