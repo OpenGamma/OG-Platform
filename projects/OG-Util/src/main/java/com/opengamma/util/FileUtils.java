@@ -19,7 +19,10 @@ import com.opengamma.OpenGammaRuntimeException;
  * A collection of utility methods for working with files.
  */
 public final class FileUtils {
-  private static final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
+  /**
+   * A convenience reference to the java.io.tmpdir location.
+   */
+  public static final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
   
   private FileUtils() {
   }
