@@ -57,9 +57,15 @@ public class RollGeskeWhaleyModelTest {
 
           //            System.out.println(i + "\t" + j + "\t" + k);
           final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], dividend, dividendTimes);
+          final double priceZeroDiv = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], 0., dividendTimes);
+          final double priceZeroTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], dividend, 0.);
+
           final double bs = BlackScholesFormulaRepository.price(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
+          final double bsMod = BlackScholesFormulaRepository.price(SPOT - dividend, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
 
           assertEquals(bs, price, Math.max(eps, Math.abs(bs) * eps));
+          assertEquals(bs, priceZeroDiv, 1.e-14);
+          assertEquals(bsMod, priceZeroTime, 1.e-14);
         }
       }
     }
@@ -141,11 +147,14 @@ public class RollGeskeWhaleyModelTest {
    */
   @Test
   public void greeksFiniteDiffTest() {
+    final double[][] divLocal = new double[][] { {5., 5., 5., 5. }, {5., 8., 11., 12. }, {0., 0., 0., 0. } };
+    final double[][] divTimeLocal = new double[][] { {0.1, 0.35, 0.6, 0.85 }, {0.4, 0.7, 0.95, 1.2 }, {0., 0., 0., 0. } };
+
     final int nStrikes = STRIKES_INPUT.length;
     final int nVols = VOLS.length;
     final int nInt = INTEREST_RATES.length;
-    final int nDiv = DIVIDENDS.length;
-    final int nDivT = DIVIDEND_TIMES.length;
+    final int nDiv = divLocal.length;
+    final int nDivT = divTimeLocal.length;
 
     final double[] upStrikes = new double[nStrikes];
     final double[] dwStrikes = new double[nStrikes];
@@ -180,21 +189,21 @@ public class RollGeskeWhaleyModelTest {
 
               //              if (DIVIDENDS[l] > (1. - Math.exp(-INTEREST_RATES[k] * TIME_TO_EXPIRY)) * STRIKES_INPUT[i]) {
 
-              final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double[] greeks = MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
+              final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double[] greeks = MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
 
-              final double[] greeksUp = MODEL.getPriceAdjoint(upSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double[] greeksDw = MODEL.getPriceAdjoint(dwSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceSpotUp = MODEL.price(upSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceSpotDw = MODEL.price(dwSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceStrikeUp = MODEL.price(SPOT, upStrikes[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceStrikeDw = MODEL.price(SPOT, dwStrikes[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceRateUp = MODEL.price(SPOT, STRIKES_INPUT[i], upInt[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceRateDw = MODEL.price(SPOT, STRIKES_INPUT[i], dwInt[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceTimeUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], upTime, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceTimeDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], dwTime, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceVolUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, upVOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              final double priceVolDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, dwVOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
+              final double[] greeksUp = MODEL.getPriceAdjoint(upSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double[] greeksDw = MODEL.getPriceAdjoint(dwSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceSpotUp = MODEL.price(upSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceSpotDw = MODEL.price(dwSpot, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceStrikeUp = MODEL.price(SPOT, upStrikes[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceStrikeDw = MODEL.price(SPOT, dwStrikes[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceRateUp = MODEL.price(SPOT, STRIKES_INPUT[i], upInt[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceRateDw = MODEL.price(SPOT, STRIKES_INPUT[i], dwInt[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceTimeUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], upTime, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceTimeDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], dwTime, VOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceVolUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, upVOLS[j], divLocal[l], divTimeLocal[m]);
+              final double priceVolDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, dwVOLS[j], divLocal[l], divTimeLocal[m]);
 
               final double deltaFin = 0.5 * (priceSpotUp - priceSpotDw) / SPOT / DELTA;
               final double dualDeltaFin = 0.5 * (priceStrikeUp - priceStrikeDw) / STRIKES_INPUT[i] / DELTA;
@@ -376,14 +385,16 @@ public class RollGeskeWhaleyModelTest {
             for (int m = 0; m < nDivT - 1; ++m) {
               //              System.out.println(i + "\t" + j + "\t" + k + "\t" + l + "\t" + m);
 
-              final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l][2], MULTI_DIVIDEND_TIMES[m][2]);
+              if (MULTI_DIVIDENDS[l][2] != 0.) {
+                final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l][2], MULTI_DIVIDEND_TIMES[m][2]);
 
-              final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES_INPUT[i], TIME_TO_EXPIRY, steps, true);
-              final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(new double[] {MULTI_DIVIDEND_TIMES[m][2] }, new double[] {MULTI_DIVIDENDS[l][2] });
-              final BinomialTreeOptionPricingModel model = new BinomialTreeOptionPricingModel();
-              final double priceTree = model.getPrice(lattice, function, SPOT, VOLS[j], INTEREST_RATES[k], cashDividend);
-              assertEquals(priceTree, price, Math.max(2.e-2, priceTree * 5.e-2));
-              //                System.out.println(price + "\t" + priceTree);
+                final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES_INPUT[i], TIME_TO_EXPIRY, steps, true);
+                final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(new double[] {MULTI_DIVIDEND_TIMES[m][2] }, new double[] {MULTI_DIVIDENDS[l][2] });
+                final BinomialTreeOptionPricingModel model = new BinomialTreeOptionPricingModel();
+                final double priceTree = model.getPrice(lattice, function, SPOT, VOLS[j], INTEREST_RATES[k], cashDividend);
+                assertEquals(priceTree, price, Math.max(2.e-2, priceTree * 5.e-2));
+                //                System.out.println(price + "\t" + priceTree);
+              }
             }
           }
         }
@@ -396,6 +407,9 @@ public class RollGeskeWhaleyModelTest {
    */
   @Test
   public void impliedVolMultiTest() {
+    final double[] localTimeSet = new double[] {TIME_TO_EXPIRY, MULTI_DIVIDEND_TIMES[1][0] - 1.e-4 };
+    final int nTimeSet = localTimeSet.length;
+
     final int nStrikes = STRIKES_INPUT.length;
     final int nVols = VOLS.length;
     final int nInt = INTEREST_RATES.length;
@@ -407,18 +421,20 @@ public class RollGeskeWhaleyModelTest {
         for (int k = 0; k < nInt; ++k) {
           for (int l = 0; l < nDiv; ++l) {
             for (int m = 0; m < nDivT; ++m) {
-              //              System.out.println(i + "\t" + j + "\t" + k + "\t" + l + "\t" + m);
+              for (int n = 0; n < nTimeSet; ++n) {
+                //              System.out.println(i + "\t" + j + "\t" + k + "\t" + l + "\t" + m);
 
-              final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
-              final double impliedVol = MODEL.impliedVolatility(price, SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
-              final double priceRe = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, impliedVol, MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
+                final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], localTimeSet[n], VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
+                final double impliedVol = MODEL.impliedVolatility(price, SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], localTimeSet[n], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
+                final double priceRe = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], localTimeSet[n], impliedVol, MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
 
-              /*
-               * Due to zero vega for small vols, as found in other American option models, comparing vol sometimes fails.
-               * Instead the resulting option price is tested.
-               */
-              //                assertEquals(VOLS[j], impliedVol, Math.max(DELTA, Math.abs(VOLS[j]) * DELTA));
-              assertEquals(price, priceRe, Math.max(price, Math.abs(price) * DELTA));
+                /*
+                 * Due to zero vega for small vols, as found in other American option models, comparing vol sometimes fails.
+                 * Instead the resulting option price is tested.
+                 */
+                //                assertEquals(VOLS[j], impliedVol, Math.max(DELTA, Math.abs(VOLS[j]) * DELTA));
+                assertEquals(price, priceRe, Math.max(price, Math.abs(price) * DELTA));
+              }
             }
           }
         }

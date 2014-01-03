@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
 import com.google.common.primitives.Doubles;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.GenericImpliedVolatiltySolver;
 import com.opengamma.analytics.math.FunctionUtils;
@@ -57,7 +58,9 @@ public class RollGeskeWhaleyModel {
       ArgumentChecker.isTrue(Doubles.isFinite(dividendTimes[i]), "dividendTimes contains infinity or NaN");
     }
 
-    ArgumentChecker.isTrue(dividendTimes[0] <= timeToExpiry, "All dividends paid after expiry");
+    if (dividendTimes[0] > timeToExpiry) {
+      return BlackScholesFormulaRepository.price(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+    }
     final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
     double modSpot = spot;
     for (int i = 0; i < position; ++i) {
@@ -94,7 +97,19 @@ public class RollGeskeWhaleyModel {
       ArgumentChecker.isTrue(Doubles.isFinite(dividendTimes[i]), "dividendTimes contains infinity or NaN");
     }
 
-    ArgumentChecker.isTrue(dividendTimes[0] <= timeToExpiry, "All dividends paid after expiry");
+    double[] res = null;
+    if (dividendTimes[0] > timeToExpiry) {
+      res = new double[7];
+      res[0] = BlackScholesFormulaRepository.price(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[1] = BlackScholesFormulaRepository.delta(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[2] = BlackScholesFormulaRepository.dualDelta(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[3] = BlackScholesFormulaRepository.rho(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[4] = -BlackScholesFormulaRepository.theta(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      res[5] = BlackScholesFormulaRepository.vega(spot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      res[6] = BlackScholesFormulaRepository.gamma(spot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      return res;
+    }
+
     final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
     double modSpot = spot;
     double diffSum = 0.;
@@ -103,7 +118,7 @@ public class RollGeskeWhaleyModel {
       diffSum += (dividends[i] * dividendTimes[i] * Math.exp(-interestRate * dividendTimes[i]));
     }
 
-    final double[] res = getPriceAdjoint(modSpot, strike, interestRate, timeToExpiry, volatility, dividends[position], dividendTimes[position]);
+    res = getPriceAdjoint(modSpot, strike, interestRate, timeToExpiry, volatility, dividends[position], dividendTimes[position]);
     res[3] += (res[1] * diffSum);
 
     return res;
@@ -131,7 +146,13 @@ public class RollGeskeWhaleyModel {
       ArgumentChecker.isTrue(Doubles.isFinite(dividendTimes[i]), "dividendTimes contains infinity or NaN");
     }
 
-    ArgumentChecker.isTrue(dividendTimes[0] <= timeToExpiry, "All dividends paid after expiry");
+    if (dividendTimes[0] > timeToExpiry) {
+      final double dfInv = Math.exp(interestRate * timeToExpiry);
+      final double fwd = spot * dfInv;
+      final double fwdPrice = price * dfInv;
+      return BlackFormulaRepository.impliedVolatility(fwdPrice, fwd, strike, timeToExpiry, true);
+    }
+
     final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
     double modSpot = spot;
     for (int i = 0; i < position; ++i) {
@@ -158,14 +179,14 @@ public class RollGeskeWhaleyModel {
     ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
     ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry is not positive");
     ArgumentChecker.isTrue(volatility >= -0., "volatility is negative");
-    ArgumentChecker.isTrue(dividendAmount > 0. && dividendAmount < spot, "0. < dividendAmount < spot should be true");
-    ArgumentChecker.isTrue(dividendTime > 0. && dividendTime < timeToExpiry, "0. < dividendTime < timeToExpiry should be true");
+    ArgumentChecker.isTrue(dividendAmount >= 0. && dividendAmount < spot, "0. <= dividendAmount < spot should be true");
+    ArgumentChecker.isTrue(dividendTime >= 0. && dividendTime < timeToExpiry, "0. <= dividendTime < timeToExpiry should be true");
 
     final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
     final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
     final double modSpot = spot - pVal;
 
-    if (dividendAmount < (1. - 1. / factor) * strike + EPS) {
+    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount == 0. || dividendTime == 0.) {
       return BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
     }
 
@@ -202,8 +223,8 @@ public class RollGeskeWhaleyModel {
     ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
     ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry is not positive");
     ArgumentChecker.isTrue(volatility >= -0., "volatility is negative");
-    ArgumentChecker.isTrue(dividendAmount > 0. && dividendAmount < spot, "0. < dividendAmount < spot should be true");
-    ArgumentChecker.isTrue(dividendTime > 0. && dividendTime < timeToExpiry, "0. < dividendTime < timeToExpiry should be true");
+    ArgumentChecker.isTrue(dividendAmount >= 0. && dividendAmount < spot, "0. <= dividendAmount < spot should be true");
+    ArgumentChecker.isTrue(dividendTime >= 0. && dividendTime < timeToExpiry, "0. <= dividendTime < timeToExpiry should be true");
 
     final double factor = Math.exp(interestRate * (timeToExpiry - dividendTime));
     final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
@@ -211,7 +232,7 @@ public class RollGeskeWhaleyModel {
 
     final double[] res = new double[7];
 
-    if (dividendAmount < (1. - 1. / factor) * strike + EPS) {
+    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount == 0. || dividendTime == 0.) {
       res[0] = BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[1] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[2] = BlackScholesFormulaRepository.dualDelta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
