@@ -23,11 +23,13 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
@@ -80,12 +82,13 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataRepositoryConfigurationSourceResource(source));
+      // TODO: The REST resource will be incorrect; we should publish a facade of the ViewProcessor form so that calc nodes see the same version of the repository as the one last queried here
     }
   }
 
   /**
    * Debug utility to sort a repository. This allows two to be compared more easily.
-   *
+   * 
    * @param source the raw repository configuration source
    * @return a source that return a sorted list of functions
    */
@@ -93,8 +96,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return new FunctionConfigurationSource() {
 
       @Override
-      public FunctionConfigurationBundle getFunctionConfiguration() {
-        final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getFunctionConfiguration().getFunctions());
+      public FunctionConfigurationBundle getFunctionConfiguration(final Instant version) {
+        final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getFunctionConfiguration(version).getFunctions());
         Collections.sort(functions, new Comparator<FunctionConfiguration>() {
 
           @Override
@@ -143,6 +146,11 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
         return new FunctionConfigurationBundle(functions);
       }
 
+      @Override
+      public ChangeManager changeManager() {
+        return source.changeManager();
+      }
+
     };
   }
 
@@ -150,7 +158,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Initializes the source.
    * <p>
    * Calls {@link #initSources()} and combines the result using {@link CombiningFunctionConfigurationSource}.
-   *
+   * 
    * @return the list of base sources to be combined, not null
    */
   protected FunctionConfigurationSource initSource() {
@@ -182,18 +190,18 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource curveParameterConfigurations() {
     return CurveFunctions.parameterProviders(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource timeSeriesConfigurations() {
     return TimeSeriesFunctions.providers(getConfigMaster());
   }
 
   /**
    * Initializes the list of sources to be combined.
-   *
+   * 
    * @return the list of base sources to be combined, not null
    */
   protected List<FunctionConfigurationSource> initSources() {
@@ -204,14 +212,14 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     sources.addAll(curveAndSurfaceSources());
     return sources;
   }
-  
+
   /**
    * Gets the list of curve and surface function configuration sources.
    * 
    * @return the curve and surface function configuration sources, not null
    */
   protected List<FunctionConfigurationSource> curveAndSurfaceSources() {
-    final List<FunctionConfigurationSource> sources = new LinkedList<>();    
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(yieldCurveConfigurations());
     sources.add(curveConfigurations());
     sources.add(curveParameterConfigurations());
@@ -224,6 +232,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code FunctionConfigurationSourceComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static FunctionConfigurationSourceComponentFactory.Meta meta() {
@@ -242,6 +251,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
+   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -250,7 +260,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
+   * 
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -259,6 +270,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   /**
    * Gets the the {@code classifier} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -268,6 +280,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   /**
    * Gets the flag determining whether the component should be published by REST (default true).
+   * 
    * @return the value of the property
    */
   public boolean isPublishRest() {
@@ -276,7 +289,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   /**
    * Sets the flag determining whether the component should be published by REST (default true).
-   * @param publishRest  the new value of the property
+   * 
+   * @param publishRest the new value of the property
    */
   public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
@@ -284,6 +298,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   /**
    * Gets the the {@code publishRest} property.
+   * 
    * @return the property, not null
    */
   public final Property<Boolean> publishRest() {
@@ -293,6 +308,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   //-----------------------------------------------------------------------
   /**
    * Gets the config master.
+   * 
    * @return the value of the property, not null
    */
   public ConfigMaster getConfigMaster() {
@@ -301,7 +317,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   /**
    * Sets the config master.
-   * @param configMaster  the new value of the property, not null
+   * 
+   * @param configMaster the new value of the property, not null
    */
   public void setConfigMaster(ConfigMaster configMaster) {
     JodaBeanUtils.notNull(configMaster, "configMaster");
@@ -310,6 +327,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
   /**
    * Gets the the {@code configMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigMaster> configMaster() {
@@ -329,9 +347,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FunctionConfigurationSourceComponentFactory other = (FunctionConfigurationSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          (isPublishRest() == other.isPublishRest()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) && (isPublishRest() == other.isPublishRest()) && JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           super.equals(obj);
     }
     return false;
@@ -380,25 +396,19 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     /**
      * The meta-property for the {@code classifier} property.
      */
-    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", FunctionConfigurationSourceComponentFactory.class, String.class);
+    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(this, "classifier", FunctionConfigurationSourceComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code publishRest} property.
      */
-    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
-        this, "publishRest", FunctionConfigurationSourceComponentFactory.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(this, "publishRest", FunctionConfigurationSourceComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code configMaster} property.
      */
-    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
-        this, "configMaster", FunctionConfigurationSourceComponentFactory.class, ConfigMaster.class);
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(this, "configMaster", FunctionConfigurationSourceComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "classifier",
-        "publishRest",
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "classifier", "publishRest",
         "configMaster");
 
     /**
@@ -410,11 +420,11 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return _classifier;
-        case -614707837:  // publishRest
+        case -614707837: // publishRest
           return _publishRest;
-        case 10395716:  // configMaster
+        case 10395716: // configMaster
           return _configMaster;
       }
       return super.metaPropertyGet(propertyName);
@@ -438,6 +448,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -446,6 +457,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     /**
      * The meta-property for the {@code publishRest} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> publishRest() {
@@ -454,6 +466,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     /**
      * The meta-property for the {@code configMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigMaster> configMaster() {
@@ -464,11 +477,11 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return ((FunctionConfigurationSourceComponentFactory) bean).getClassifier();
-        case -614707837:  // publishRest
+        case -614707837: // publishRest
           return ((FunctionConfigurationSourceComponentFactory) bean).isPublishRest();
-        case 10395716:  // configMaster
+        case 10395716: // configMaster
           return ((FunctionConfigurationSourceComponentFactory) bean).getConfigMaster();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -477,13 +490,13 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           ((FunctionConfigurationSourceComponentFactory) bean).setClassifier((String) newValue);
           return;
-        case -614707837:  // publishRest
+        case -614707837: // publishRest
           ((FunctionConfigurationSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
           return;
-        case 10395716:  // configMaster
+        case 10395716: // configMaster
           ((FunctionConfigurationSourceComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
           return;
       }

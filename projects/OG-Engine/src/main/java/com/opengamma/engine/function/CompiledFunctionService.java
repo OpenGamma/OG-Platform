@@ -19,6 +19,8 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -33,18 +35,21 @@ public class CompiledFunctionService implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CompiledFunctionService.class);
 
-  private final FunctionRepository _rawFunctionRepository;
+  private final FunctionRepositoryFactory _functionRepositoryFactory;
+  private FunctionRepository _rawFunctionRepository;
   private FunctionRepository _initializedFunctionRepository;
   private final FunctionRepositoryCompiler _functionRepositoryCompiler;
   private final FunctionCompilationContext _functionCompilationContext;
-  private Set<FunctionDefinition> _reinitializingFunctionDefinitions;
-  private Set<ObjectId> _reinitializingFunctionRequirements;
+  private final Set<FunctionDefinition> _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
+  private final Set<ObjectId> _reinitializingFunctionRequirements = new HashSet<ObjectId>();
+
   /**
    * A pool executor for general use by the engine. This should be used for tasks that should saturate the available processors.
    * <p>
    * This is not null unless the service has been shutdown.
    */
   private volatile PoolExecutor _executorService;
+
   private final FunctionReinitializer _reinitializer = new FunctionReinitializer() {
 
     @Override
@@ -67,20 +72,93 @@ public class CompiledFunctionService implements Lifecycle {
     return new PoolExecutor(Math.max(Runtime.getRuntime().availableProcessors(), 1), "CFS");
   }
 
+  /**
+   * Creates a new instance.
+   * <p>
+   * This method will use a static function repository - it will reinitialize functions, but cannot respond to addition or removal of functions. Use a constructor that takes
+   * {@link FunctionConfigurationSource} instead.
+   * 
+   * @param functionRepository the static function repository, not null
+   * @param functionRepositoryCompiler the repository compiler service, not null
+   * @param functionCompilationContext the function context, not null
+   * @deprecated Use {@link #CompiledFunctionService(FunctionConfigurationSource,FunctionRepositoryCompiler,FunctionCompilationContext)} instead
+   */
+  @Deprecated
   public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
       final FunctionCompilationContext functionCompilationContext) {
     this(functionRepository, functionRepositoryCompiler, functionCompilationContext, createExecutorService());
-   
   }
-  
-  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler, 
+
+  /**
+   * Creates a new instance.
+   * <p>
+   * This method will use a static function repository - it will reinitialize functions, but cannot respond to addition or removal of functions. Use a constructor that takes
+   * {@link FunctionConfigurationSource} instead.
+   * 
+   * @param functionRepository the static function repository, not null
+   * @param functionRepositoryCompiler the repository compiler service, not null
+   * @param functionCompilationContext the function context, not null
+   * @param executorService the executor service for general processor heavy operations, not null
+   * @deprecated Use {@link #CompiledFunctionService(FunctionConfigurationSource,FunctionRepositoryCompiler,FunctionCompilationContext,PoolExecutor)} instead
+   */
+  @Deprecated
+  public CompiledFunctionService(final FunctionRepository functionRepository, final FunctionRepositoryCompiler functionRepositoryCompiler,
       final FunctionCompilationContext functionCompilationContext, PoolExecutor executorService) {
-    ArgumentChecker.notNull(functionRepository, "functionRepository");
+    this(FunctionRepositoryFactory.constructRepositoryFactory(functionRepository), functionRepositoryCompiler, functionCompilationContext, executorService);
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param functions the source of function configuration, not null
+   * @param functionRepositoryCompiler the repository compiler service, not null
+   * @param functionCompilationContext the function context, not null
+   */
+  public CompiledFunctionService(final FunctionConfigurationSource functions, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext) {
+    this(functions, functionRepositoryCompiler, functionCompilationContext, createExecutorService());
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param functions the source of function configuration, not null
+   * @param functionRepositoryCompiler the repository compiler service, not null
+   * @param functionCompilationContext the function context, not null
+   * @param executorService the executor service for general processor heavy operations, not null
+   */
+  public CompiledFunctionService(final FunctionConfigurationSource functions, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext, PoolExecutor executorService) {
+    this(FunctionRepositoryFactory.constructRepositoryFactory(functions), functionRepositoryCompiler, functionCompilationContext, executorService);
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param functions the source of function repository to use, not null
+   * @param functionRepositoryCompiler the repository compiler service, not null
+   * @param functionCompilationContext the function context, not null
+   */
+  public CompiledFunctionService(final FunctionRepositoryFactory functions, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext) {
+    this(functions, functionRepositoryCompiler, functionCompilationContext, createExecutorService());
+  }
+
+  /**
+   * Creates a new instance.
+   * 
+   * @param functions the source of function repository to use, not null
+   * @param functionRepositoryCompiler the repository compiler service, not null
+   * @param functionCompilationContext the function context, not null
+   * @param executorService the executor service for general processor heavy operations, not null
+   */
+  public CompiledFunctionService(final FunctionRepositoryFactory functions, final FunctionRepositoryCompiler functionRepositoryCompiler,
+      final FunctionCompilationContext functionCompilationContext, PoolExecutor executorService) {
+    ArgumentChecker.notNull(functions, "functions");
     ArgumentChecker.notNull(functionRepositoryCompiler, "functionRepositoryCompiler");
     ArgumentChecker.notNull(functionCompilationContext, "functionCompilationContext");
     ArgumentChecker.notNull(executorService, "executorService");
-    
-    _rawFunctionRepository = functionRepository;
+    _functionRepositoryFactory = functions;
     _functionRepositoryCompiler = functionRepositoryCompiler;
     _functionCompilationContext = functionCompilationContext;
     _executorService = executorService;
@@ -124,6 +202,8 @@ public class CompiledFunctionService implements Lifecycle {
 
   protected void initializeImpl(final long initId, final Collection<FunctionDefinition> functions) {
     final OperationTimer timer = new OperationTimer(s_logger, "Initializing {} function definitions", functions.size());
+    _reinitializingFunctionDefinitions.clear();
+    _reinitializingFunctionRequirements.clear();
     final StaticFunctionRepository initialized = new StaticFunctionRepository(_initializedFunctionRepository);
     final PoolExecutor.Service<FunctionDefinition> jobs = getExecutorService().createService(new CompletionListener<FunctionDefinition>() {
 
@@ -186,15 +266,8 @@ public class CompiledFunctionService implements Lifecycle {
    * @return the set of object identifiers that should trigger re-initialization
    */
   public Set<ObjectId> initialize() {
-    // If the view processor node has restarted, remote nodes might have old values knocking around. We need a value
-    // that won't "accidentally" be the same as theirs. As we increment the ID by 1 each time, the clock is possibly
-    // a good choice unless we're clocking config changes at sub-millisecond speeds.
     return initialize(System.currentTimeMillis());
   }
-
-  // NOTE: re-initialization is a bit overzealous at the moment, but is none-the-less an improvement to reinitializing
-  // all of the definitions. The reinitialize called by a view processor manager can supply identifiers and only do
-  // the required functions, but propagating only the modified identifiers to remote calculation nodes is non-trivial.
 
   /**
    * Initializes all functions.
@@ -204,24 +277,35 @@ public class CompiledFunctionService implements Lifecycle {
    */
   public synchronized Set<ObjectId> initialize(final long initId) {
     s_logger.info("Initializing all function definitions to {}", initId);
-    _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-    _reinitializingFunctionRequirements = new HashSet<ObjectId>();
-    initializeImpl(initId, getFunctionRepository().getAllFunctions());
+    _rawFunctionRepository = getFunctionRepositoryFactory().constructRepository(Instant.ofEpochMilli(initId));
+    _initializedFunctionRepository = null;
+    initializeImpl(initId, _rawFunctionRepository.getAllFunctions());
     return _reinitializingFunctionRequirements;
   }
 
-  public synchronized void reinitializeIfNeeded(final long initId) {
-    if (getFunctionCompilationContext().getFunctionInitId() != initId) {
-      s_logger.info("Re-initializing function definitions - was {} required {}", getFunctionCompilationContext().getFunctionInitId(), initId);
+  private void reinitializeImpl(final long initId) {
+    final FunctionRepository newFunctionRepository = getFunctionRepositoryFactory().constructRepository(Instant.ofEpochMilli(initId));
+    if (newFunctionRepository == _rawFunctionRepository) {
+      // Same repository; just reinitialization of some functions
       final Set<FunctionDefinition> reinitialize = _reinitializingFunctionDefinitions;
       if (reinitialize.isEmpty()) {
         s_logger.warn("No functions registered for re-initialization");
         getFunctionCompilationContext().setFunctionInitId(initId);
       } else {
-        _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-        _reinitializingFunctionRequirements = new HashSet<ObjectId>();
         initializeImpl(initId, reinitialize);
       }
+    } else {
+      // Different repository; full initialization
+      _rawFunctionRepository = newFunctionRepository;
+      _initializedFunctionRepository = null;
+      initializeImpl(initId, newFunctionRepository.getAllFunctions());
+    }
+  }
+
+  public synchronized void reinitializeIfNeeded(final long initId) {
+    if (getFunctionCompilationContext().getFunctionInitId() != initId) {
+      s_logger.info("Re-initializing function definitions - was {} required {}", getFunctionCompilationContext().getFunctionInitId(), initId);
+      reinitializeImpl(initId);
     }
   }
 
@@ -231,18 +315,28 @@ public class CompiledFunctionService implements Lifecycle {
    * @return the set of unique identifiers requested by any initialized functions that should trigger re-initialization
    */
   public synchronized Set<ObjectId> reinitialize() {
-    final long initId = getFunctionCompilationContext().getFunctionInitId() + 1;
-    s_logger.info("Re-initializing all function definitions to {}", initId);
-    final Set<FunctionDefinition> reinitialize = _reinitializingFunctionDefinitions;
-    if (reinitialize.isEmpty()) {
-      s_logger.warn("No functions registered for re-initialization");
-      getFunctionCompilationContext().setFunctionInitId(initId);
-    } else {
-      _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-      _reinitializingFunctionRequirements = new HashSet<ObjectId>();
-      initializeImpl(initId, reinitialize);
+    long initId = System.currentTimeMillis();
+    while (getFunctionCompilationContext().getFunctionInitId() == initId) {
+      try {
+        Thread.sleep(1);
+      } catch (InterruptedException e) {
+        throw new OpenGammaRuntimeException("Interrupted", e);
+      }
+      initId = System.currentTimeMillis();
     }
+    s_logger.info("Re-initializing all function definitions to {}", initId);
+    reinitializeImpl(initId);
     return _reinitializingFunctionRequirements;
+  }
+
+  /**
+   * Returns the source of the underlying (raw) function repository. The repository sourced from here will be used during initialization operations to populate the {@link #getFunctionRepository} and
+   * {@link #getInitializedFunctionRepository} values.
+   * 
+   * @return the source of the underlying function repository, not null
+   */
+  public FunctionRepositoryFactory getFunctionRepositoryFactory() {
+    return _functionRepositoryFactory;
   }
 
   /**
@@ -251,7 +345,7 @@ public class CompiledFunctionService implements Lifecycle {
    * 
    * @return the function repository, not null
    */
-  public FunctionRepository getFunctionRepository() {
+  public synchronized FunctionRepository getFunctionRepository() {
     return _rawFunctionRepository;
   }
 
@@ -292,7 +386,7 @@ public class CompiledFunctionService implements Lifecycle {
 
   @Override
   public CompiledFunctionService clone() {
-    return new CompiledFunctionService(getFunctionRepository(), getFunctionRepositoryCompiler(), getFunctionCompilationContext().clone());
+    return new CompiledFunctionService(getFunctionRepositoryFactory(), getFunctionRepositoryCompiler(), getFunctionCompilationContext().clone());
   }
 
   // Lifecycle

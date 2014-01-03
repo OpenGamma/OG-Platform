@@ -45,13 +45,8 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @param targetResolver For looking up calculation targets given their specification
    * @param cycle The most recent view cycle
    */
-  /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-                                               ValueRequirement rootValueRequirement,
-                                               String calcConfigName,
-                                               ComputationTargetResolver targetResolver,
-                                               FunctionRepository functions,
-                                               ViewCycle cycle,
-                                               ValueMappings valueMappings) {
+  /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef, ValueRequirement rootValueRequirement, String calcConfigName,
+      ComputationTargetResolver targetResolver, FunctionRepository functions, ViewCycle cycle, ValueMappings valueMappings) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -86,8 +81,8 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   }
 
   /**
-   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the nodes
-   * it depends on. Recursively builds up the node structure representing whole the dependency graph.
+   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the nodes it depends on. Recursively builds up the node structure representing whole the
+   * dependency graph.
    * 
    * @param valueSpecification The value specification of the target that is the current root
    * @param targetNode The node producing {@code valueSpec}, not null

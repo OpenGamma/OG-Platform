@@ -38,7 +38,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionRepositoryFactory;
@@ -212,8 +211,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
-   * Indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
@@ -229,8 +227,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
     MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(), getUserConfigMaster(),
-        getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(),
+        getUserConfigMaster(), getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
@@ -274,15 +272,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     });
   }
 
-  protected FunctionRepository getFunctionRepository() {
+  protected FunctionRepositoryFactory getFunctionRepository() {
     // TODO: This is slightly wasteful if the view processor is in the same process and has created its own repository. Ideally we
     // should be able to inject either the constructed repository or a configuration source depending on what's available
     final FunctionConfigurationSource functions = getFunctions();
     if (functions == null) {
       // Supply an empty repo if the configuration is omitted
-      return new InMemoryFunctionRepository();
+      return FunctionRepositoryFactory.constructRepositoryFactory(new InMemoryFunctionRepository());
     }
-    return FunctionRepositoryFactory.constructRepository(functions.getFunctionConfiguration());
+    return FunctionRepositoryFactory.constructRepositoryFactory(functions);
   }
 
   protected LongPollingConnectionManager buildLongPolling() {
@@ -316,6 +314,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code WebsiteViewportsComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static WebsiteViewportsComponentFactory.Meta meta() {
@@ -334,6 +333,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration master.
+   * 
    * @return the value of the property, not null
    */
   public ConfigMaster getConfigMaster() {
@@ -342,7 +342,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the configuration master.
-   * @param configMaster  the new value of the property, not null
+   * 
+   * @param configMaster the new value of the property, not null
    */
   public void setConfigMaster(ConfigMaster configMaster) {
     JodaBeanUtils.notNull(configMaster, "configMaster");
@@ -351,6 +352,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code configMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigMaster> configMaster() {
@@ -360,6 +362,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the security master.
+   * 
    * @return the value of the property, not null
    */
   public SecurityMaster getSecurityMaster() {
@@ -368,7 +371,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the security master.
-   * @param securityMaster  the new value of the property, not null
+   * 
+   * @param securityMaster the new value of the property, not null
    */
   public void setSecurityMaster(SecurityMaster securityMaster) {
     JodaBeanUtils.notNull(securityMaster, "securityMaster");
@@ -377,6 +381,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code securityMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<SecurityMaster> securityMaster() {
@@ -386,6 +391,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the security source.
+   * 
    * @return the value of the property, not null
    */
   public SecuritySource getSecuritySource() {
@@ -394,7 +400,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the security source.
-   * @param securitySource  the new value of the property, not null
+   * 
+   * @param securitySource the new value of the property, not null
    */
   public void setSecuritySource(SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
@@ -403,6 +410,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code securitySource} property.
+   * 
    * @return the property, not null
    */
   public final Property<SecuritySource> securitySource() {
@@ -412,6 +420,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the position master.
+   * 
    * @return the value of the property, not null
    */
   public PositionMaster getPositionMaster() {
@@ -420,7 +429,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the position master.
-   * @param positionMaster  the new value of the property, not null
+   * 
+   * @param positionMaster the new value of the property, not null
    */
   public void setPositionMaster(PositionMaster positionMaster) {
     JodaBeanUtils.notNull(positionMaster, "positionMaster");
@@ -429,6 +439,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code positionMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<PositionMaster> positionMaster() {
@@ -438,6 +449,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio master.
+   * 
    * @return the value of the property, not null
    */
   public PortfolioMaster getPortfolioMaster() {
@@ -446,7 +458,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the portfolio master.
-   * @param portfolioMaster  the new value of the property, not null
+   * 
+   * @param portfolioMaster the new value of the property, not null
    */
   public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
     JodaBeanUtils.notNull(portfolioMaster, "portfolioMaster");
@@ -455,6 +468,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code portfolioMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<PortfolioMaster> portfolioMaster() {
@@ -464,6 +478,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the position source.
+   * 
    * @return the value of the property, not null
    */
   public PositionSource getPositionSource() {
@@ -472,7 +487,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the position source.
-   * @param positionSource  the new value of the property, not null
+   * 
+   * @param positionSource the new value of the property, not null
    */
   public void setPositionSource(PositionSource positionSource) {
     JodaBeanUtils.notNull(positionSource, "positionSource");
@@ -481,6 +497,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code positionSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<PositionSource> positionSource() {
@@ -490,6 +507,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the computation target resolver.
+   * 
    * @return the value of the property, not null
    */
   public ComputationTargetResolver getComputationTargetResolver() {
@@ -498,7 +516,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the computation target resolver.
-   * @param computationTargetResolver  the new value of the property, not null
+   * 
+   * @param computationTargetResolver the new value of the property, not null
    */
   public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
     JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
@@ -507,6 +526,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code computationTargetResolver} property.
+   * 
    * @return the property, not null
    */
   public final Property<ComputationTargetResolver> computationTargetResolver() {
@@ -516,6 +536,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the function repository, null to not have additional function metadata available to the UI components.
+   * 
    * @return the value of the property
    */
   public FunctionConfigurationSource getFunctions() {
@@ -524,7 +545,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the function repository, null to not have additional function metadata available to the UI components.
-   * @param functions  the new value of the property
+   * 
+   * @param functions the new value of the property
    */
   public void setFunctions(FunctionConfigurationSource functions) {
     this._functions = functions;
@@ -532,6 +554,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code functions} property.
+   * 
    * @return the property, not null
    */
   public final Property<FunctionConfigurationSource> functions() {
@@ -541,6 +564,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the time-series master.
+   * 
    * @return the value of the property, not null
    */
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
@@ -549,7 +573,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the time-series master.
-   * @param historicalTimeSeriesMaster  the new value of the property, not null
+   * 
+   * @param historicalTimeSeriesMaster the new value of the property, not null
    */
   public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
     JodaBeanUtils.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
@@ -558,6 +583,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code historicalTimeSeriesMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
@@ -567,6 +593,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the organization master.
+   * 
    * @return the value of the property, not null
    */
   public OrganizationMaster getOrganizationMaster() {
@@ -575,7 +602,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the organization master.
-   * @param organizationMaster  the new value of the property, not null
+   * 
+   * @param organizationMaster the new value of the property, not null
    */
   public void setOrganizationMaster(OrganizationMaster organizationMaster) {
     JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
@@ -584,6 +612,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code organizationMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<OrganizationMaster> organizationMaster() {
@@ -593,6 +622,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the user master.
+   * 
    * @return the value of the property, not null
    */
   public PositionMaster getUserPositionMaster() {
@@ -601,7 +631,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the user master.
-   * @param userPositionMaster  the new value of the property, not null
+   * 
+   * @param userPositionMaster the new value of the property, not null
    */
   public void setUserPositionMaster(PositionMaster userPositionMaster) {
     JodaBeanUtils.notNull(userPositionMaster, "userPositionMaster");
@@ -610,6 +641,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code userPositionMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<PositionMaster> userPositionMaster() {
@@ -619,6 +651,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the user master.
+   * 
    * @return the value of the property, not null
    */
   public PortfolioMaster getUserPortfolioMaster() {
@@ -627,7 +660,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the user master.
-   * @param userPortfolioMaster  the new value of the property, not null
+   * 
+   * @param userPortfolioMaster the new value of the property, not null
    */
   public void setUserPortfolioMaster(PortfolioMaster userPortfolioMaster) {
     JodaBeanUtils.notNull(userPortfolioMaster, "userPortfolioMaster");
@@ -636,6 +670,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code userPortfolioMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<PortfolioMaster> userPortfolioMaster() {
@@ -645,6 +680,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the user view definition repository.
+   * 
    * @return the value of the property, not null
    */
   public ConfigMaster getUserConfigMaster() {
@@ -653,7 +689,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the user view definition repository.
-   * @param userConfigMaster  the new value of the property, not null
+   * 
+   * @param userConfigMaster the new value of the property, not null
    */
   public void setUserConfigMaster(ConfigMaster userConfigMaster) {
     JodaBeanUtils.notNull(userConfigMaster, "userConfigMaster");
@@ -662,6 +699,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code userConfigMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigMaster> userConfigMaster() {
@@ -671,6 +709,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the combined config source.
+   * 
    * @return the value of the property, not null
    */
   public ConfigSource getCombinedConfigSource() {
@@ -679,7 +718,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the combined config source.
-   * @param combinedConfigSource  the new value of the property, not null
+   * 
+   * @param combinedConfigSource the new value of the property, not null
    */
   public void setCombinedConfigSource(ConfigSource combinedConfigSource) {
     JodaBeanUtils.notNull(combinedConfigSource, "combinedConfigSource");
@@ -688,6 +728,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code combinedConfigSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigSource> combinedConfigSource() {
@@ -697,6 +738,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the view processor.
+   * 
    * @return the value of the property, not null
    */
   public ViewProcessor getViewProcessor() {
@@ -705,7 +747,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the view processor.
-   * @param viewProcessor  the new value of the property, not null
+   * 
+   * @param viewProcessor the new value of the property, not null
    */
   public void setViewProcessor(ViewProcessor viewProcessor) {
     JodaBeanUtils.notNull(viewProcessor, "viewProcessor");
@@ -714,6 +757,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code viewProcessor} property.
+   * 
    * @return the property, not null
    */
   public final Property<ViewProcessor> viewProcessor() {
@@ -723,6 +767,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the parallel view recompilation mode flag.
+   * 
    * @return the value of the property
    */
   public ExecutionFlags.ParallelRecompilationMode getParallelViewRecompilation() {
@@ -731,7 +776,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the parallel view recompilation mode flag.
-   * @param parallelViewRecompilation  the new value of the property
+   * 
+   * @param parallelViewRecompilation the new value of the property
    */
   public void setParallelViewRecompilation(ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation) {
     this._parallelViewRecompilation = parallelViewRecompilation;
@@ -739,6 +785,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code parallelViewRecompilation} property.
+   * 
    * @return the property, not null
    */
   public final Property<ExecutionFlags.ParallelRecompilationMode> parallelViewRecompilation() {
@@ -748,6 +795,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the portfolio aggregation functions.
+   * 
    * @return the value of the property, not null
    */
   public PortfolioAggregationFunctions getPortfolioAggregationFunctions() {
@@ -756,7 +804,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the portfolio aggregation functions.
-   * @param portfolioAggregationFunctions  the new value of the property, not null
+   * 
+   * @param portfolioAggregationFunctions the new value of the property, not null
    */
   public void setPortfolioAggregationFunctions(PortfolioAggregationFunctions portfolioAggregationFunctions) {
     JodaBeanUtils.notNull(portfolioAggregationFunctions, "portfolioAggregationFunctions");
@@ -765,6 +814,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code portfolioAggregationFunctions} property.
+   * 
    * @return the property, not null
    */
   public final Property<PortfolioAggregationFunctions> portfolioAggregationFunctions() {
@@ -774,6 +824,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the market data snapshot master.
+   * 
    * @return the value of the property, not null
    */
   public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
@@ -782,7 +833,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the market data snapshot master.
-   * @param marketDataSnapshotMaster  the new value of the property, not null
+   * 
+   * @param marketDataSnapshotMaster the new value of the property, not null
    */
   public void setMarketDataSnapshotMaster(MarketDataSnapshotMaster marketDataSnapshotMaster) {
     JodaBeanUtils.notNull(marketDataSnapshotMaster, "marketDataSnapshotMaster");
@@ -791,6 +843,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code marketDataSnapshotMaster} property.
+   * 
    * @return the property, not null
    */
   public final Property<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
@@ -800,6 +853,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the user.
+   * 
    * @return the value of the property, not null
    */
   public UserPrincipal getUser() {
@@ -808,7 +862,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the user.
-   * @param user  the new value of the property, not null
+   * 
+   * @param user the new value of the property, not null
    */
   public void setUser(UserPrincipal user) {
     JodaBeanUtils.notNull(user, "user");
@@ -817,6 +872,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code user} property.
+   * 
    * @return the property, not null
    */
   public final Property<UserPrincipal> user() {
@@ -826,6 +882,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the fudge context.
+   * 
    * @return the value of the property, not null
    */
   public FudgeContext getFudgeContext() {
@@ -834,7 +891,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the fudge context.
-   * @param fudgeContext  the new value of the property, not null
+   * 
+   * @param fudgeContext the new value of the property, not null
    */
   public void setFudgeContext(FudgeContext fudgeContext) {
     JodaBeanUtils.notNull(fudgeContext, "fudgeContext");
@@ -843,6 +901,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code fudgeContext} property.
+   * 
    * @return the property, not null
    */
   public final Property<FudgeContext> fudgeContext() {
@@ -852,6 +911,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * 
    * @return the value of the property
    */
   public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
@@ -860,7 +920,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
-   * @param liveMarketDataProviderFactory  the new value of the property
+   * 
+   * @param liveMarketDataProviderFactory the new value of the property
    */
   public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
     this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
@@ -868,6 +929,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code liveMarketDataProviderFactory} property.
+   * 
    * @return the property, not null
    */
   public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
@@ -890,7 +952,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated use liveMarketDataProviderFactory
-   * @param marketDataSpecificationRepository  the new value of the property
+   * @param marketDataSpecificationRepository the new value of the property
    */
   @Deprecated
   public void setMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
@@ -910,9 +972,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
-   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will
+   * always be in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
+   * 
    * @return the value of the property
    */
   public boolean isSuppressCurrencyDisplay() {
@@ -920,19 +982,19 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
-   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
-   * @param suppressCurrencyDisplay  the new value of the property
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will
+   * always be in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
+   * 
+   * @param suppressCurrencyDisplay the new value of the property
    */
   public void setSuppressCurrencyDisplay(boolean suppressCurrencyDisplay) {
     this._suppressCurrencyDisplay = suppressCurrencyDisplay;
   }
 
   /**
-   * Gets the the {@code suppressCurrencyDisplay} property.
-   * Note that this will affect all views and should only be used where all results for all views will always be
-   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
+   * Gets the the {@code suppressCurrencyDisplay} property. Note that this will affect all views and should only be used where all results for all views will always be in a single, well-known
+   * currency. Default value is false, indicating that currencies will be displayed by default.
+   * 
    * @return the property, not null
    */
   public final Property<Boolean> suppressCurrencyDisplay() {
@@ -952,29 +1014,18 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       WebsiteViewportsComponentFactory other = (WebsiteViewportsComponentFactory) obj;
-      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
-          JodaBeanUtils.equal(getFunctions(), other.getFunctions()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
-          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
-          JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
-          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
-          JodaBeanUtils.equal(getCombinedConfigSource(), other.getCombinedConfigSource()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getParallelViewRecompilation(), other.getParallelViewRecompilation()) &&
+      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) && JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) && JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) && JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) && JodaBeanUtils.equal(getFunctions(), other.getFunctions()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) && JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) && JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
+          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) && JodaBeanUtils.equal(getCombinedConfigSource(), other.getCombinedConfigSource()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) && JodaBeanUtils.equal(getParallelViewRecompilation(), other.getParallelViewRecompilation()) &&
           JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
-          JodaBeanUtils.equal(getUser(), other.getUser()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
-          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
-          (isSuppressCurrencyDisplay() == other.isSuppressCurrencyDisplay()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) && JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) && JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
+          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) && (isSuppressCurrencyDisplay() == other.isSuppressCurrencyDisplay()) &&
           super.equals(obj);
     }
     return false;
@@ -1063,146 +1114,112 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     /**
      * The meta-property for the {@code configMaster} property.
      */
-    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
-        this, "configMaster", WebsiteViewportsComponentFactory.class, ConfigMaster.class);
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(this, "configMaster", WebsiteViewportsComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code securityMaster} property.
      */
-    private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
-        this, "securityMaster", WebsiteViewportsComponentFactory.class, SecurityMaster.class);
+    private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(this, "securityMaster", WebsiteViewportsComponentFactory.class, SecurityMaster.class);
     /**
      * The meta-property for the {@code securitySource} property.
      */
-    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
-        this, "securitySource", WebsiteViewportsComponentFactory.class, SecuritySource.class);
+    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(this, "securitySource", WebsiteViewportsComponentFactory.class, SecuritySource.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
-    private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(
-        this, "positionMaster", WebsiteViewportsComponentFactory.class, PositionMaster.class);
+    private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(this, "positionMaster", WebsiteViewportsComponentFactory.class, PositionMaster.class);
     /**
      * The meta-property for the {@code portfolioMaster} property.
      */
-    private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
-        this, "portfolioMaster", WebsiteViewportsComponentFactory.class, PortfolioMaster.class);
+    private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(this, "portfolioMaster", WebsiteViewportsComponentFactory.class, PortfolioMaster.class);
     /**
      * The meta-property for the {@code positionSource} property.
      */
-    private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
-        this, "positionSource", WebsiteViewportsComponentFactory.class, PositionSource.class);
+    private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(this, "positionSource", WebsiteViewportsComponentFactory.class, PositionSource.class);
     /**
      * The meta-property for the {@code computationTargetResolver} property.
      */
-    private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
-        this, "computationTargetResolver", WebsiteViewportsComponentFactory.class, ComputationTargetResolver.class);
+    private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(this, "computationTargetResolver",
+        WebsiteViewportsComponentFactory.class, ComputationTargetResolver.class);
     /**
      * The meta-property for the {@code functions} property.
      */
-    private final MetaProperty<FunctionConfigurationSource> _functions = DirectMetaProperty.ofReadWrite(
-        this, "functions", WebsiteViewportsComponentFactory.class, FunctionConfigurationSource.class);
+    private final MetaProperty<FunctionConfigurationSource> _functions = DirectMetaProperty.ofReadWrite(this, "functions", WebsiteViewportsComponentFactory.class,
+        FunctionConfigurationSource.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
-    private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
-        this, "historicalTimeSeriesMaster", WebsiteViewportsComponentFactory.class, HistoricalTimeSeriesMaster.class);
+    private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(this, "historicalTimeSeriesMaster",
+        WebsiteViewportsComponentFactory.class, HistoricalTimeSeriesMaster.class);
     /**
      * The meta-property for the {@code organizationMaster} property.
      */
-    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebsiteViewportsComponentFactory.class, OrganizationMaster.class);
+    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(this, "organizationMaster", WebsiteViewportsComponentFactory.class,
+        OrganizationMaster.class);
     /**
      * The meta-property for the {@code userPositionMaster} property.
      */
-    private final MetaProperty<PositionMaster> _userPositionMaster = DirectMetaProperty.ofReadWrite(
-        this, "userPositionMaster", WebsiteViewportsComponentFactory.class, PositionMaster.class);
+    private final MetaProperty<PositionMaster> _userPositionMaster = DirectMetaProperty.ofReadWrite(this, "userPositionMaster", WebsiteViewportsComponentFactory.class, PositionMaster.class);
     /**
      * The meta-property for the {@code userPortfolioMaster} property.
      */
-    private final MetaProperty<PortfolioMaster> _userPortfolioMaster = DirectMetaProperty.ofReadWrite(
-        this, "userPortfolioMaster", WebsiteViewportsComponentFactory.class, PortfolioMaster.class);
+    private final MetaProperty<PortfolioMaster> _userPortfolioMaster = DirectMetaProperty.ofReadWrite(this, "userPortfolioMaster", WebsiteViewportsComponentFactory.class,
+        PortfolioMaster.class);
     /**
      * The meta-property for the {@code userConfigMaster} property.
      */
-    private final MetaProperty<ConfigMaster> _userConfigMaster = DirectMetaProperty.ofReadWrite(
-        this, "userConfigMaster", WebsiteViewportsComponentFactory.class, ConfigMaster.class);
+    private final MetaProperty<ConfigMaster> _userConfigMaster = DirectMetaProperty.ofReadWrite(this, "userConfigMaster", WebsiteViewportsComponentFactory.class, ConfigMaster.class);
     /**
      * The meta-property for the {@code combinedConfigSource} property.
      */
-    private final MetaProperty<ConfigSource> _combinedConfigSource = DirectMetaProperty.ofReadWrite(
-        this, "combinedConfigSource", WebsiteViewportsComponentFactory.class, ConfigSource.class);
+    private final MetaProperty<ConfigSource> _combinedConfigSource = DirectMetaProperty.ofReadWrite(this, "combinedConfigSource", WebsiteViewportsComponentFactory.class, ConfigSource.class);
     /**
      * The meta-property for the {@code viewProcessor} property.
      */
-    private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
-        this, "viewProcessor", WebsiteViewportsComponentFactory.class, ViewProcessor.class);
+    private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(this, "viewProcessor", WebsiteViewportsComponentFactory.class, ViewProcessor.class);
     /**
      * The meta-property for the {@code parallelViewRecompilation} property.
      */
-    private final MetaProperty<ExecutionFlags.ParallelRecompilationMode> _parallelViewRecompilation = DirectMetaProperty.ofReadWrite(
-        this, "parallelViewRecompilation", WebsiteViewportsComponentFactory.class, ExecutionFlags.ParallelRecompilationMode.class);
+    private final MetaProperty<ExecutionFlags.ParallelRecompilationMode> _parallelViewRecompilation = DirectMetaProperty.ofReadWrite(this, "parallelViewRecompilation",
+        WebsiteViewportsComponentFactory.class, ExecutionFlags.ParallelRecompilationMode.class);
     /**
      * The meta-property for the {@code portfolioAggregationFunctions} property.
      */
-    private final MetaProperty<PortfolioAggregationFunctions> _portfolioAggregationFunctions = DirectMetaProperty.ofReadWrite(
-        this, "portfolioAggregationFunctions", WebsiteViewportsComponentFactory.class, PortfolioAggregationFunctions.class);
+    private final MetaProperty<PortfolioAggregationFunctions> _portfolioAggregationFunctions = DirectMetaProperty.ofReadWrite(this, "portfolioAggregationFunctions",
+        WebsiteViewportsComponentFactory.class, PortfolioAggregationFunctions.class);
     /**
      * The meta-property for the {@code marketDataSnapshotMaster} property.
      */
-    private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
-        this, "marketDataSnapshotMaster", WebsiteViewportsComponentFactory.class, MarketDataSnapshotMaster.class);
+    private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(this, "marketDataSnapshotMaster", WebsiteViewportsComponentFactory.class,
+        MarketDataSnapshotMaster.class);
     /**
      * The meta-property for the {@code user} property.
      */
-    private final MetaProperty<UserPrincipal> _user = DirectMetaProperty.ofReadWrite(
-        this, "user", WebsiteViewportsComponentFactory.class, UserPrincipal.class);
+    private final MetaProperty<UserPrincipal> _user = DirectMetaProperty.ofReadWrite(this, "user", WebsiteViewportsComponentFactory.class, UserPrincipal.class);
     /**
      * The meta-property for the {@code fudgeContext} property.
      */
-    private final MetaProperty<FudgeContext> _fudgeContext = DirectMetaProperty.ofReadWrite(
-        this, "fudgeContext", WebsiteViewportsComponentFactory.class, FudgeContext.class);
+    private final MetaProperty<FudgeContext> _fudgeContext = DirectMetaProperty.ofReadWrite(this, "fudgeContext", WebsiteViewportsComponentFactory.class, FudgeContext.class);
     /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
      */
-    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
-        this, "liveMarketDataProviderFactory", WebsiteViewportsComponentFactory.class, LiveMarketDataProviderFactory.class);
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(this, "liveMarketDataProviderFactory",
+        WebsiteViewportsComponentFactory.class, LiveMarketDataProviderFactory.class);
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
-    private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
-        this, "marketDataSpecificationRepository", WebsiteViewportsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
+    private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(this, "marketDataSpecificationRepository",
+        WebsiteViewportsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
     /**
      * The meta-property for the {@code suppressCurrencyDisplay} property.
      */
-    private final MetaProperty<Boolean> _suppressCurrencyDisplay = DirectMetaProperty.ofReadWrite(
-        this, "suppressCurrencyDisplay", WebsiteViewportsComponentFactory.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> _suppressCurrencyDisplay = DirectMetaProperty.ofReadWrite(this, "suppressCurrencyDisplay", WebsiteViewportsComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "configMaster",
-        "securityMaster",
-        "securitySource",
-        "positionMaster",
-        "portfolioMaster",
-        "positionSource",
-        "computationTargetResolver",
-        "functions",
-        "historicalTimeSeriesMaster",
-        "organizationMaster",
-        "userPositionMaster",
-        "userPortfolioMaster",
-        "userConfigMaster",
-        "combinedConfigSource",
-        "viewProcessor",
-        "parallelViewRecompilation",
-        "portfolioAggregationFunctions",
-        "marketDataSnapshotMaster",
-        "user",
-        "fudgeContext",
-        "liveMarketDataProviderFactory",
-        "marketDataSpecificationRepository",
-        "suppressCurrencyDisplay");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "configMaster", "securityMaster",
+        "securitySource", "positionMaster", "portfolioMaster", "positionSource", "computationTargetResolver", "functions", "historicalTimeSeriesMaster", "organizationMaster",
+        "userPositionMaster", "userPortfolioMaster", "userConfigMaster", "combinedConfigSource", "viewProcessor", "parallelViewRecompilation", "portfolioAggregationFunctions",
+        "marketDataSnapshotMaster", "user", "fudgeContext", "liveMarketDataProviderFactory", "marketDataSpecificationRepository", "suppressCurrencyDisplay");
 
     /**
      * Restricted constructor.
@@ -1213,51 +1230,51 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 10395716:  // configMaster
+        case 10395716: // configMaster
           return _configMaster;
-        case -887218750:  // securityMaster
+        case -887218750: // securityMaster
           return _securityMaster;
-        case -702456965:  // securitySource
+        case -702456965: // securitySource
           return _securitySource;
-        case -1840419605:  // positionMaster
+        case -1840419605: // positionMaster
           return _positionMaster;
-        case -772274742:  // portfolioMaster
+        case -772274742: // portfolioMaster
           return _portfolioMaster;
-        case -1655657820:  // positionSource
+        case -1655657820: // positionSource
           return _positionSource;
-        case 1562222174:  // computationTargetResolver
+        case 1562222174: // computationTargetResolver
           return _computationTargetResolver;
-        case -140572773:  // functions
+        case -140572773: // functions
           return _functions;
-        case 173967376:  // historicalTimeSeriesMaster
+        case 173967376: // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case -1158737547:  // organizationMaster
+        case -1158737547: // organizationMaster
           return _organizationMaster;
-        case 1808868758:  // userPositionMaster
+        case 1808868758: // userPositionMaster
           return _userPositionMaster;
-        case 686514815:  // userPortfolioMaster
+        case 686514815: // userPortfolioMaster
           return _userPortfolioMaster;
-        case -763459665:  // userConfigMaster
+        case -763459665: // userConfigMaster
           return _userConfigMaster;
-        case -774734430:  // combinedConfigSource
+        case -774734430: // combinedConfigSource
           return _combinedConfigSource;
-        case -1697555603:  // viewProcessor
+        case -1697555603: // viewProcessor
           return _viewProcessor;
-        case 1910524868:  // parallelViewRecompilation
+        case 1910524868: // parallelViewRecompilation
           return _parallelViewRecompilation;
-        case 940303425:  // portfolioAggregationFunctions
+        case 940303425: // portfolioAggregationFunctions
           return _portfolioAggregationFunctions;
-        case 2090650860:  // marketDataSnapshotMaster
+        case 2090650860: // marketDataSnapshotMaster
           return _marketDataSnapshotMaster;
-        case 3599307:  // user
+        case 3599307: // user
           return _user;
-        case -917704420:  // fudgeContext
+        case -917704420: // fudgeContext
           return _fudgeContext;
-        case -301472921:  // liveMarketDataProviderFactory
+        case -301472921: // liveMarketDataProviderFactory
           return _liveMarketDataProviderFactory;
-        case 1743800263:  // marketDataSpecificationRepository
+        case 1743800263: // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
-        case -1406342148:  // suppressCurrencyDisplay
+        case -1406342148: // suppressCurrencyDisplay
           return _suppressCurrencyDisplay;
       }
       return super.metaPropertyGet(propertyName);
@@ -1281,6 +1298,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code configMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigMaster> configMaster() {
@@ -1289,6 +1307,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code securityMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<SecurityMaster> securityMaster() {
@@ -1297,6 +1316,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code securitySource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<SecuritySource> securitySource() {
@@ -1305,6 +1325,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code positionMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PositionMaster> positionMaster() {
@@ -1313,6 +1334,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code portfolioMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PortfolioMaster> portfolioMaster() {
@@ -1321,6 +1343,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code positionSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PositionSource> positionSource() {
@@ -1329,6 +1352,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code computationTargetResolver} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
@@ -1337,6 +1361,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code functions} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<FunctionConfigurationSource> functions() {
@@ -1345,6 +1370,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
@@ -1353,6 +1379,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code organizationMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<OrganizationMaster> organizationMaster() {
@@ -1361,6 +1388,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code userPositionMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PositionMaster> userPositionMaster() {
@@ -1369,6 +1397,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code userPortfolioMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PortfolioMaster> userPortfolioMaster() {
@@ -1377,6 +1406,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code userConfigMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigMaster> userConfigMaster() {
@@ -1385,6 +1415,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code combinedConfigSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigSource> combinedConfigSource() {
@@ -1393,6 +1424,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code viewProcessor} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ViewProcessor> viewProcessor() {
@@ -1401,6 +1433,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code parallelViewRecompilation} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ExecutionFlags.ParallelRecompilationMode> parallelViewRecompilation() {
@@ -1409,6 +1442,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code portfolioAggregationFunctions} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PortfolioAggregationFunctions> portfolioAggregationFunctions() {
@@ -1417,6 +1451,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code marketDataSnapshotMaster} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
@@ -1425,6 +1460,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code user} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<UserPrincipal> user() {
@@ -1433,6 +1469,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code fudgeContext} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<FudgeContext> fudgeContext() {
@@ -1441,6 +1478,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
@@ -1449,6 +1487,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
+     * 
      * @deprecated use liveMarketDataProviderFactory
      * @return the meta-property, not null
      */
@@ -1459,6 +1498,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code suppressCurrencyDisplay} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Boolean> suppressCurrencyDisplay() {
@@ -1469,51 +1509,51 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 10395716:  // configMaster
+        case 10395716: // configMaster
           return ((WebsiteViewportsComponentFactory) bean).getConfigMaster();
-        case -887218750:  // securityMaster
+        case -887218750: // securityMaster
           return ((WebsiteViewportsComponentFactory) bean).getSecurityMaster();
-        case -702456965:  // securitySource
+        case -702456965: // securitySource
           return ((WebsiteViewportsComponentFactory) bean).getSecuritySource();
-        case -1840419605:  // positionMaster
+        case -1840419605: // positionMaster
           return ((WebsiteViewportsComponentFactory) bean).getPositionMaster();
-        case -772274742:  // portfolioMaster
+        case -772274742: // portfolioMaster
           return ((WebsiteViewportsComponentFactory) bean).getPortfolioMaster();
-        case -1655657820:  // positionSource
+        case -1655657820: // positionSource
           return ((WebsiteViewportsComponentFactory) bean).getPositionSource();
-        case 1562222174:  // computationTargetResolver
+        case 1562222174: // computationTargetResolver
           return ((WebsiteViewportsComponentFactory) bean).getComputationTargetResolver();
-        case -140572773:  // functions
+        case -140572773: // functions
           return ((WebsiteViewportsComponentFactory) bean).getFunctions();
-        case 173967376:  // historicalTimeSeriesMaster
+        case 173967376: // historicalTimeSeriesMaster
           return ((WebsiteViewportsComponentFactory) bean).getHistoricalTimeSeriesMaster();
-        case -1158737547:  // organizationMaster
+        case -1158737547: // organizationMaster
           return ((WebsiteViewportsComponentFactory) bean).getOrganizationMaster();
-        case 1808868758:  // userPositionMaster
+        case 1808868758: // userPositionMaster
           return ((WebsiteViewportsComponentFactory) bean).getUserPositionMaster();
-        case 686514815:  // userPortfolioMaster
+        case 686514815: // userPortfolioMaster
           return ((WebsiteViewportsComponentFactory) bean).getUserPortfolioMaster();
-        case -763459665:  // userConfigMaster
+        case -763459665: // userConfigMaster
           return ((WebsiteViewportsComponentFactory) bean).getUserConfigMaster();
-        case -774734430:  // combinedConfigSource
+        case -774734430: // combinedConfigSource
           return ((WebsiteViewportsComponentFactory) bean).getCombinedConfigSource();
-        case -1697555603:  // viewProcessor
+        case -1697555603: // viewProcessor
           return ((WebsiteViewportsComponentFactory) bean).getViewProcessor();
-        case 1910524868:  // parallelViewRecompilation
+        case 1910524868: // parallelViewRecompilation
           return ((WebsiteViewportsComponentFactory) bean).getParallelViewRecompilation();
-        case 940303425:  // portfolioAggregationFunctions
+        case 940303425: // portfolioAggregationFunctions
           return ((WebsiteViewportsComponentFactory) bean).getPortfolioAggregationFunctions();
-        case 2090650860:  // marketDataSnapshotMaster
+        case 2090650860: // marketDataSnapshotMaster
           return ((WebsiteViewportsComponentFactory) bean).getMarketDataSnapshotMaster();
-        case 3599307:  // user
+        case 3599307: // user
           return ((WebsiteViewportsComponentFactory) bean).getUser();
-        case -917704420:  // fudgeContext
+        case -917704420: // fudgeContext
           return ((WebsiteViewportsComponentFactory) bean).getFudgeContext();
-        case -301472921:  // liveMarketDataProviderFactory
+        case -301472921: // liveMarketDataProviderFactory
           return ((WebsiteViewportsComponentFactory) bean).getLiveMarketDataProviderFactory();
-        case 1743800263:  // marketDataSpecificationRepository
+        case 1743800263: // marketDataSpecificationRepository
           return ((WebsiteViewportsComponentFactory) bean).getMarketDataSpecificationRepository();
-        case -1406342148:  // suppressCurrencyDisplay
+        case -1406342148: // suppressCurrencyDisplay
           return ((WebsiteViewportsComponentFactory) bean).isSuppressCurrencyDisplay();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -1522,73 +1562,73 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 10395716:  // configMaster
+        case 10395716: // configMaster
           ((WebsiteViewportsComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
           return;
-        case -887218750:  // securityMaster
+        case -887218750: // securityMaster
           ((WebsiteViewportsComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
           return;
-        case -702456965:  // securitySource
+        case -702456965: // securitySource
           ((WebsiteViewportsComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
           return;
-        case -1840419605:  // positionMaster
+        case -1840419605: // positionMaster
           ((WebsiteViewportsComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
           return;
-        case -772274742:  // portfolioMaster
+        case -772274742: // portfolioMaster
           ((WebsiteViewportsComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
           return;
-        case -1655657820:  // positionSource
+        case -1655657820: // positionSource
           ((WebsiteViewportsComponentFactory) bean).setPositionSource((PositionSource) newValue);
           return;
-        case 1562222174:  // computationTargetResolver
+        case 1562222174: // computationTargetResolver
           ((WebsiteViewportsComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
           return;
-        case -140572773:  // functions
+        case -140572773: // functions
           ((WebsiteViewportsComponentFactory) bean).setFunctions((FunctionConfigurationSource) newValue);
           return;
-        case 173967376:  // historicalTimeSeriesMaster
+        case 173967376: // historicalTimeSeriesMaster
           ((WebsiteViewportsComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
           return;
-        case -1158737547:  // organizationMaster
+        case -1158737547: // organizationMaster
           ((WebsiteViewportsComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
           return;
-        case 1808868758:  // userPositionMaster
+        case 1808868758: // userPositionMaster
           ((WebsiteViewportsComponentFactory) bean).setUserPositionMaster((PositionMaster) newValue);
           return;
-        case 686514815:  // userPortfolioMaster
+        case 686514815: // userPortfolioMaster
           ((WebsiteViewportsComponentFactory) bean).setUserPortfolioMaster((PortfolioMaster) newValue);
           return;
-        case -763459665:  // userConfigMaster
+        case -763459665: // userConfigMaster
           ((WebsiteViewportsComponentFactory) bean).setUserConfigMaster((ConfigMaster) newValue);
           return;
-        case -774734430:  // combinedConfigSource
+        case -774734430: // combinedConfigSource
           ((WebsiteViewportsComponentFactory) bean).setCombinedConfigSource((ConfigSource) newValue);
           return;
-        case -1697555603:  // viewProcessor
+        case -1697555603: // viewProcessor
           ((WebsiteViewportsComponentFactory) bean).setViewProcessor((ViewProcessor) newValue);
           return;
-        case 1910524868:  // parallelViewRecompilation
+        case 1910524868: // parallelViewRecompilation
           ((WebsiteViewportsComponentFactory) bean).setParallelViewRecompilation((ExecutionFlags.ParallelRecompilationMode) newValue);
           return;
-        case 940303425:  // portfolioAggregationFunctions
+        case 940303425: // portfolioAggregationFunctions
           ((WebsiteViewportsComponentFactory) bean).setPortfolioAggregationFunctions((PortfolioAggregationFunctions) newValue);
           return;
-        case 2090650860:  // marketDataSnapshotMaster
+        case 2090650860: // marketDataSnapshotMaster
           ((WebsiteViewportsComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
           return;
-        case 3599307:  // user
+        case 3599307: // user
           ((WebsiteViewportsComponentFactory) bean).setUser((UserPrincipal) newValue);
           return;
-        case -917704420:  // fudgeContext
+        case -917704420: // fudgeContext
           ((WebsiteViewportsComponentFactory) bean).setFudgeContext((FudgeContext) newValue);
           return;
-        case -301472921:  // liveMarketDataProviderFactory
+        case -301472921: // liveMarketDataProviderFactory
           ((WebsiteViewportsComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
           return;
-        case 1743800263:  // marketDataSpecificationRepository
+        case 1743800263: // marketDataSpecificationRepository
           ((WebsiteViewportsComponentFactory) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
           return;
-        case -1406342148:  // suppressCurrencyDisplay
+        case -1406342148: // suppressCurrencyDisplay
           ((WebsiteViewportsComponentFactory) bean).setSuppressCurrencyDisplay((Boolean) newValue);
           return;
       }

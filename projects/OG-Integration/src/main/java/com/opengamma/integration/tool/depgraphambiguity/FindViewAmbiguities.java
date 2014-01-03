@@ -38,10 +38,7 @@ import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.function.config.FunctionConfigurationBundle;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
@@ -148,9 +145,7 @@ public class FindViewAmbiguities extends AbstractTool<ToolContext> {
         }
         s_logger.debug("Fetching remote functions from {}", functionsUri);
         final FunctionConfigurationSource functions = new RemoteFunctionConfigurationSource(functionsUri);
-        final FunctionConfigurationBundle functionConfiguration = functions.getFunctionConfiguration();
-        final FunctionRepository functionRepository = FunctionRepositoryFactory.constructRepository(functionConfiguration);
-        final CompiledFunctionService compiledFunctionService = new CompiledFunctionService(functionRepository, new CachingFunctionRepositoryCompiler(), context);
+        final CompiledFunctionService compiledFunctionService = new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), context);
         compiledFunctionService.initialize();
         _functionResolver = new DefaultFunctionResolver(compiledFunctionService, createFunctionPrioritizer());
       }

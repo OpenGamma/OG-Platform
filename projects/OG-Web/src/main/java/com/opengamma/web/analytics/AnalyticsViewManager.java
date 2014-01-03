@@ -22,7 +22,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
@@ -59,7 +59,7 @@ public class AnalyticsViewManager {
   private final AggregatedViewDefinitionManager _aggregatedViewDefManager;
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<>();
   private final ComputationTargetResolver _targetResolver;
-  private final FunctionRepository _functions;
+  private final FunctionRepositoryFactory _functions;
   private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   private final SecurityAttributeMapper _blotterColumnMapper;
   private final PositionSource _positionSource;
@@ -70,8 +70,9 @@ public class AnalyticsViewManager {
   private final ExecutorService _portfolioResolutionExecutor;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor, ExecutionFlags.ParallelRecompilationMode parallelViewRecompilation, AggregatedViewDefinitionManager aggregatedViewDefManager,
-      ComputationTargetResolver targetResolver, FunctionRepository functions, NamedMarketDataSpecificationRepository marketDataSpecificationRepository, SecurityAttributeMapper blotterColumnMapper,
-      PositionSource positionSource, ConfigSource configSource, SecuritySource securitySource, SecurityMaster securityMaster, PositionMaster positionMaster) {
+      ComputationTargetResolver targetResolver, FunctionRepositoryFactory functions, NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
+      SecurityAttributeMapper blotterColumnMapper, PositionSource positionSource, ConfigSource configSource, SecuritySource securitySource, SecurityMaster securityMaster,
+      PositionMaster positionMaster) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(targetResolver, "targetResolver");

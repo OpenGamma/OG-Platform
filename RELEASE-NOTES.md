@@ -7,6 +7,19 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M6
+-----------
+
+API compatibility
+- [PLAT-3807] Regenerate curve/surface functions when new config objects added
+  The method signature in FunctionConfigurationSource has changed - see Javadoc for detailed guidance.
+
+Configuration compatibility
+- [PLAT-3807] Regenerate curve/surface functions when new config objects added
+  The CompiledFunctionService instance used throughout should be constructed with a FunctionConfigurationSource,
+  not a FunctionRepository in order to handle updates. Existing code will work, but adding config entries will
+  still require a restart.
+
 To 2.2.0-M5
 -----------
 * Bug

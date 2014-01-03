@@ -126,7 +126,7 @@ public class RepositoryFactoryTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void nullConfiguration() {
-    FunctionRepositoryFactory.constructRepository(null);
+    FunctionRepositoryFactory.constructRepository((FunctionConfigurationBundle) null);
   }
 
   public void emptyConfiguration() {

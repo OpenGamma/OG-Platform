@@ -8,6 +8,7 @@ package com.opengamma.engine.test;
 import java.util.concurrent.Executors;
 
 import org.springframework.context.Lifecycle;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.impl.test.MockSecuritySource;
@@ -20,7 +21,9 @@ import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
@@ -35,7 +38,13 @@ public class TestCalculationNode extends SimpleCalculationNode implements Lifecy
   }
 
   private static CompiledFunctionService initializedCFS() {
-    final CompiledFunctionService cfs = new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), compilationContext());
+    final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
+    final CompiledFunctionService cfs = new CompiledFunctionService(new FunctionRepositoryFactory() {
+      @Override
+      public FunctionRepository constructRepository(final Instant configurationVersion) {
+        return repository;
+      }
+    }, new CachingFunctionRepositoryCompiler(), compilationContext());
     cfs.initialize();
     return cfs;
   }
