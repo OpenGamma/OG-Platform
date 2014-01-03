@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -31,6 +32,8 @@ public abstract class RowParser {
   // CSOFF
   /** Standard date-time formatter for the input. */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
+  /** More Excel compatible back-up formatter. */
+  protected DateTimeFormatter SECONDARY_CSV_DATE_FORMATTER;
   /** Standard date-time formatter for the output. */
   protected DateTimeFormatter OUTPUT_DATE_FORMATTER;
   /** Standard rate formatter. */
@@ -38,11 +41,15 @@ public abstract class RowParser {
   /** Standard notional formatter. */
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
   // CSON
+
   
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
     CSV_DATE_FORMATTER = builder.toFormatter();
+    DateTimeFormatterBuilder builder2 = new DateTimeFormatterBuilder();
+    builder2.appendPattern("MM/dd/yyyy");
+    SECONDARY_CSV_DATE_FORMATTER = builder2.toFormatter();
     builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
@@ -159,11 +166,15 @@ public abstract class RowParser {
   }
 
   public LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
-    return getDateWithException(fieldValueMap, fieldName, CSV_DATE_FORMATTER);
+    return getDateWithException(fieldValueMap, fieldName, CSV_DATE_FORMATTER, SECONDARY_CSV_DATE_FORMATTER);
   }
 
-  public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName, DateTimeFormatter formatter) {
-    return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
+  public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName, DateTimeFormatter formatter, DateTimeFormatter alternativeFormatter) {
+    try {
+      return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
+    } catch (DateTimeParseException ex) {
+      return LocalDate.parse(getWithException(fieldValueMap, fieldName), alternativeFormatter);
+    }
   }
 
 
