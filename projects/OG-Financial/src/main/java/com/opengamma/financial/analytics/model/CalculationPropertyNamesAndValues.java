@@ -26,6 +26,8 @@ public final class CalculationPropertyNamesAndValues {
   public static final String BJERKSUND_STENSLAND_METHOD = "BjerksundStenslandMethod";
   /** The Bjerksund-Stensland approximation for American options, when option's market price is available */
   public static final String BJERKSUND_STENSLAND_LISTED_METHOD = "BjerksundStenslandListedMethod";
+  /** The Roll-Geske-Whaley model for American call options with discrete dividends, when option's market price is available */
+  public static final String ROLL_GESKE_WHALEY_LISTED_METHOD = "RollGeskeWhaleyListedMethod";
   /** The so-called PDE method computes prices for American and European options under the BlackScholesMerton model*/
   public static final String PDE_METHOD = "PDE";
   /** Pricing from marked / listed price */
