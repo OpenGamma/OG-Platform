@@ -99,8 +99,9 @@ import com.opengamma.util.tuple.Pairs;
 public class IssuerProviderDiscountingFunction extends
   MultiCurveFunction<ParameterIssuerProviderInterface, IssuerDiscountBuildingRepository, GeneratorYDCurve, MulticurveSensitivity> {
   /** The calculator */
-//  private static final ParSpreadRateIssuerDiscountingCalculator PSXIC = ParSpreadRateIssuerDiscountingCalculator.getInstance(); // TODO: should be flexible
-  private static final ParSpreadMarketQuoteIssuerDiscountingCalculator PSXIC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance(); // TODO: should be flexible
+//  private static final ParSpreadRateIssuerDiscountingCalculator PSXIC = ParSpreadRateIssuerDiscountingCalculator.getInstance(); 
+  // TODO: [PLAT-5430] A mechanism to change the calculator should be implemented.
+  private static final ParSpreadMarketQuoteIssuerDiscountingCalculator PSXIC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
 //  private static final ParSpreadRateCurveSensitivityIssuerDiscountingCalculator PSXCSIC = ParSpreadRateCurveSensitivityIssuerDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator PSXCSIC = ParSpreadMarketQuoteCurveSensitivityIssuerDiscountingCalculator.getInstance();
