@@ -31,10 +31,12 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -64,25 +66,23 @@ public class BondYCNSFunction extends BondFromCurvesFunction<ParameterIssuerProv
     final String desiredCurveName = desiredValue.getConstraint(CURVE);
     final Map<Pair<String, Currency>, DoubleMatrix1D> entries = sensitivities.getSensitivities();
     final Set<ComputedValue> results = new HashSet<>();
-    boolean curveNameFound = false;
-    final Builder noCurveProperties = properties.copy()
-        .withoutAny(CURVE);
     for (final Map.Entry<Pair<String, Currency>, DoubleMatrix1D> entry : entries.entrySet()) {
       final String curveName = entry.getKey().getFirst();
       if (desiredCurveName.equals(curveName)) {
-        curveNameFound = true;
+        final ValueProperties curveSpecificProperties = properties.copy()
+            .withoutAny(CURVE)
+            .with(CURVE, curveName)
+            .get();
+        final CurveDefinition curveDefinition = (CurveDefinition) inputs.getValue(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
+            ValueProperties.builder().with(CURVE, curveName).get()));
+        final DoubleLabelledMatrix1D ycns = MultiCurveUtils.getLabelledMatrix(entry.getValue(), curveDefinition);
+        final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), curveSpecificProperties);
+        results.add(new ComputedValue(spec, ycns));
+        return results;
       }
-      final ValueProperties curveSpecificProperties = noCurveProperties
-          .with(CURVE, curveName)
-          .get();
-      final ValueSpecification spec = new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), curveSpecificProperties);
-      results.add(new ComputedValue(spec, entry.getValue()));
     }
-    if (!curveNameFound) {
-      s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
-      return Collections.emptySet();
-    }
-    return results;
+    s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
+    return Collections.emptySet();
   }
 
   @Override

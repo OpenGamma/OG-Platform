@@ -65,7 +65,7 @@ public class BondPV01Function extends BondFromCurvesFunction<ParameterIssuerProv
     final ZonedDateTime now = ZonedDateTime.now(context.getValuationClock());
     final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(context, target, now);
     final ParameterIssuerProviderInterface issuerCurves = (ParameterIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
-    final String desiredCurveName = properties.getSingleValue(CURVE);
+    final String desiredCurveName = properties.getStrictValue(CURVE);
     final ReferenceAmount<Pair<String, Currency>> pv01 = derivative.accept(CALCULATOR, issuerCurves);
     final Set<ComputedValue> results = new HashSet<>();
     boolean curveNameFound = false;
