@@ -297,7 +297,7 @@ public class SpreadDoublesCurve
    * Sets the spread function.
    * @param spreadFunction  the new value of the property
    */
-  private void setSpreadFunction(final CurveSpreadFunction spreadFunction) {
+  private void setSpreadFunction(CurveSpreadFunction spreadFunction) {
     this._spreadFunction = spreadFunction;
   }
 
@@ -322,7 +322,7 @@ public class SpreadDoublesCurve
    * Sets the evaluated function.
    * @param f  the new value of the property
    */
-  private void setF(final Function<Double, Double> f) {
+  private void setF(Function<Double, Double> f) {
     this._f = f;
   }
 
@@ -347,7 +347,7 @@ public class SpreadDoublesCurve
    * Sets the curves.
    * @param curves  the new value of the property
    */
-  private void setCurves(final DoublesCurve[] curves) {
+  private void setCurves(DoublesCurve[] curves) {
     this._curves = curves;
   }
 
@@ -367,9 +367,9 @@ public class SpreadDoublesCurve
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("SpreadDoublesCurve{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -379,7 +379,7 @@ public class SpreadDoublesCurve
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("spreadFunction").append('=').append(JodaBeanUtils.toString(getSpreadFunction())).append(',').append(' ');
     buf.append("f").append('=').append(JodaBeanUtils.toString(getF())).append(',').append(' ');
@@ -428,7 +428,7 @@ public class SpreadDoublesCurve
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
           return _spreadFunction;
@@ -482,7 +482,7 @@ public class SpreadDoublesCurve
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
           return ((SpreadDoublesCurve) bean).getSpreadFunction();
@@ -496,7 +496,7 @@ public class SpreadDoublesCurve
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
           ((SpreadDoublesCurve) bean).setSpreadFunction((CurveSpreadFunction) newValue);
