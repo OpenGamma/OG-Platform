@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.forex;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
@@ -111,6 +112,11 @@ public class BlackForexVannaVolgaProvider implements BlackForexVannaVolgaProvide
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _multicurveProvider.getAllCurveNames();
   }
 
   @Override

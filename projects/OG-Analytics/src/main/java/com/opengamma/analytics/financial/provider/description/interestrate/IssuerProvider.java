@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,11 +182,13 @@ public class IssuerProvider implements IssuerProviderInterface {
   }
 
   @Override
-  /**
-   * Returns all curves names. The order is ???
-   */
   public Set<String> getAllNames() {
-    return _allNames;
+    return getAllCurveNames();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return Collections.unmodifiableSortedSet(new TreeSet<>(_allNames));
   }
 
   @Override
@@ -194,6 +197,9 @@ public class IssuerProvider implements IssuerProviderInterface {
       return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
     }
     final YieldAndDiscountCurve curve = _issuerCurvesNames.get(name);
+    if (curve == null) {
+      throw new IllegalArgumentException("Could not get curve called " + name);
+    }
     final int nbParameters = curve.getNumberOfParameters();
     final double[] result = new double[nbParameters];
     if (pointSensitivity != null && !pointSensitivity.isEmpty()) {

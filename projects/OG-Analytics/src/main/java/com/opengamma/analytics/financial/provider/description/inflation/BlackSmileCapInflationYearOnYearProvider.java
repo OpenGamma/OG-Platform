@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -76,6 +77,11 @@ public class BlackSmileCapInflationYearOnYearProvider implements BlackSmileCapIn
   @Override
   public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
     return _inflation.parameterInflationSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _inflation.getAllCurveNames();
   }
 
   @Override

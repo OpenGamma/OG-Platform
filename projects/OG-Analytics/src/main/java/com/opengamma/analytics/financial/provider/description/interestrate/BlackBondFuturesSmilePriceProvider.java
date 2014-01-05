@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -72,6 +73,11 @@ public class BlackBondFuturesSmilePriceProvider implements BlackBondFuturesSmile
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _blackProvider.getMulticurveProvider().parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _blackProvider.getAllCurveNames();
   }
 
   @Override

@@ -102,10 +102,10 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
    */
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
-  @Test
   /**
    * Tests the present value.
    */
+  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_CAP, BLACK_INFLATION);
     final double timeToMaturity = ZERO_COUPON_CAP.getReferenceEndTime()[1] - ZERO_COUPON_CAP.getLastKnownFixingTime();
@@ -122,24 +122,24 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(ZERO_COUPON_CAP.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the present value: Method vs Calculator.
    */
+  @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_CAP, BLACK_INFLATION);
     final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_CAP.accept(PVIC, BLACK_INFLATION);
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
    * Test the present value curves sensitivity.
    */
+  @Test
   public void presentValueCurveSensitivity() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION);
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION, MARKET.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_CAP, BLACK_INFLATION);
 
     AssertSensivityObjects.assertEquals("Zero-coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 

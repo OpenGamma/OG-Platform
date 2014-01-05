@@ -330,10 +330,12 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   //     =====     Methods related to All     =====
 
   @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
   public Set<String> getAllNames() {
+    return getAllCurveNames();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
     final Set<String> names = new TreeSet<>();
     names.addAll(_inflationProvider.getAllNames());
     final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerSet = _issuerCurves.keySet();
@@ -346,8 +348,8 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   /**
    * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other bundle.
-   * TODO: REVIEW: Should we check that the curve are already present?
    */
+//  * TODO: REVIEW: Should we check that the curve are already present?
   public void setAll(final InflationIssuerProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     _inflationProvider.setAll(other.getInflationProvider());

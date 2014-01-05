@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -46,7 +47,7 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    */
   private FXMatrix _fxMatrix;
   /**
-   * Map of all curves used in the provider. The order is ???
+   * Map of all curves used in the provider.
    */
   private Map<String, YieldAndDiscountCurve> _allCurves;
   /**
@@ -388,13 +389,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     throw new IllegalArgumentException("Forward curve not found: " + index);
   }
 
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   * @return The names.
-   */
   @Override
   public Set<String> getAllNames() {
-    return _allCurves.keySet();
+    return getAllCurveNames();
   }
 
   /**
@@ -565,6 +562,11 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    */
   public Map<IndexON, YieldAndDiscountCurve> getForwardONCurves() {
     return Collections.unmodifiableMap(_forwardONCurves);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
   }
 
   /**

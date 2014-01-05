@@ -145,4 +145,33 @@ public class IssuerProviderDiscount extends IssuerProvider {
     return new IssuerProviderDiscount(getMulticurveProvider(), newIssuerCurves);
   }
 
+  /**
+   * Replaces the discounting curve for a given currency.
+   * @param ccy The currency.
+   * @param curve The yield curve used for discounting.
+   * @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().replaceCurve(ccy, curve);
+  }
+
+  /**
+   * Replaces the forward curve for a given index.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   * @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().replaceCurve(index, curve);
+  }
+
+  /**
+   * Replaces the forward curve for a given ON index.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   * @throws IllegalArgumentException if curve name NOT already present
+   */
+  public void replaceCurve(final IndexON index, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().replaceCurve(index, curve);
+  }
 }

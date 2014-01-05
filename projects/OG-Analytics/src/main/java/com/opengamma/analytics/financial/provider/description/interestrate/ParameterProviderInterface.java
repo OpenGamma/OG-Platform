@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.tuple.DoublesPair;
@@ -46,4 +47,11 @@ public interface ParameterProviderInterface {
    * @return The forward sensitivities to the parameters
    */
   double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
+
+  /**
+   * Returns an unmodifiable sorted set of all curve names. If there are no curves in the provider,
+   * returns an empty set.
+   * @return An unmodifiable set of all curve names.
+   */
+  Set<String> getAllCurveNames();
 }

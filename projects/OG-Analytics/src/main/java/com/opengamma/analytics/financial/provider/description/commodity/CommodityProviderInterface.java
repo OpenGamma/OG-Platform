@@ -52,9 +52,12 @@ public interface CommodityProviderInterface extends ParameterCommodityProviderIn
   Set<CommodityUnderlying> getCommodityUnderlyings();
 
   /**
-   * Gets the names of all curves (discounting, forward, price index and issuers).
+   * Returns an unmodifiable sorted set of the names of all curves (discounting, forward, price index and issuers).
+   * If there are no curves, an empty set is returned.
    * @return The names.
+   * @deprecated Use {@link #getAllCurveNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
 
   /**

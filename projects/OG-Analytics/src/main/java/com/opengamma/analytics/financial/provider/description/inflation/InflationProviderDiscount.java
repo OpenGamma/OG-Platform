@@ -41,7 +41,7 @@ public class InflationProviderDiscount implements InflationProviderInterface {
    */
   private final Map<IndexPrice, PriceIndexCurve> _priceIndexCurves;
   /**
-   * Map of all curves used in the provider. The order is ???
+   * Map of all curves used in the provider.
    */
   private Map<String, PriceIndexCurve> _allCurves;
 
@@ -299,17 +299,8 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<>();
-    names.addAll(_multicurveProvider.getAllNames());
-    final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
-    for (final IndexPrice price : priceSet) {
-      names.add(_priceIndexCurves.get(price).getName());
-    }
-    return names;
+    return getAllCurveNames();
   }
 
   /**
@@ -464,6 +455,11 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
   }
 
   @Override

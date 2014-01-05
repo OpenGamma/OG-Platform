@@ -64,7 +64,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
-    
+
   }
 
   public static void addUnitScalingAndSummingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
@@ -164,6 +164,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_BLEED);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_P);
     addUnitScalingFunction(functions, ValueRequirementNames.GAMMA_P_BLEED);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.GAMMA_PV01);
     addUnitScalingFunction(functions, ValueRequirementNames.GRID_DUAL_DELTA);
     addUnitScalingFunction(functions, ValueRequirementNames.GRID_DUAL_GAMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.GRID_FORWARD_DELTA);

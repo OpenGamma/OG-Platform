@@ -5,11 +5,14 @@
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -251,17 +254,8 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<>();
-    names.addAll(_multicurveProvider.getAllNames());
-    final Set<IndexPrice> priceSet = _priceIndexCurves.keySet();
-    for (final IndexPrice price : priceSet) {
-      names.add(_priceIndexCurves.get(price).getName());
-    }
-    return names;
+    return getAllCurveNames();
   }
 
   /**
@@ -359,12 +353,17 @@ public class InflationProviderForward implements InflationProviderInterface {
 
   @Override
   public InflationProviderInterface withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public InflationProviderInterface withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    return null;
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
   }
 
   @Override

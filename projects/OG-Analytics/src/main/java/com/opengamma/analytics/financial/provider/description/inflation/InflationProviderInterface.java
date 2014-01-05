@@ -53,9 +53,11 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
   Set<IndexPrice> getPriceIndexes();
 
   /**
-   * Gets the names of all curves (discounting, forward, price index and issuers).
+   * Returns an unmodifiable sorted set containing the names of all curves (discounting, forward, price index and issuers).
    * @return The names.
+   * @deprecated Use {@link #getAllCurveNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
 
   /**

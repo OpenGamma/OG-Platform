@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -64,6 +65,11 @@ public class BlackSmileCapProvider implements BlackSmileCapProviderInterface {
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _multicurves.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _multicurves.getAllCurveNames();
   }
 
   @Override

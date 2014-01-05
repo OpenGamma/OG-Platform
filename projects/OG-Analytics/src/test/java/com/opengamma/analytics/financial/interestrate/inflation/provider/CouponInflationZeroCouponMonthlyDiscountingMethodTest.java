@@ -72,10 +72,10 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
   private static final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator(PVIC, SHIFT_FD);
 
-  @Test
   /**
    * Tests the present value.
    */
+  @Test
   public void presentValueNoNotional() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_NO, MARKET.getInflationProvider());
     final double df = MARKET.getCurve(ZERO_COUPON_NO.getCurrency()).getDiscountFactor(ZERO_COUPON_NO.getPaymentTime());
@@ -84,10 +84,10 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(ZERO_COUPON_NO.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the net amount.
    */
+  @Test
   public void netAmountNoNotional() {
     final MultipleCurrencyAmount pv = METHOD.netAmount(ZERO_COUPON_NO, MARKET.getInflationProvider());
     final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_NO.getReferenceEndTime());
@@ -95,20 +95,20 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
     assertEquals("Zero-coupon inflation DiscountingMethod: net amount", naExpected, pv.getAmount(ZERO_COUPON_NO.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the present value: Method vs Calculator.
    */
+  @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_NO, MARKET.getInflationProvider());
     final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_NO.accept(PVIC, MARKET.getInflationProvider());
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
    * Tests the present value.
    */
+  @Test
   public void presentValueWithNotional() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_WITH, MARKET.getInflationProvider());
     final double df = MARKET.getCurve(ZERO_COUPON_WITH.getCurrency()).getDiscountFactor(ZERO_COUPON_WITH.getPaymentTime());
@@ -117,10 +117,10 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
     assertEquals("Zero-coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(ZERO_COUPON_WITH.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the net amount.
    */
+  @Test
   public void netAmountWithNotional() {
     final MultipleCurrencyAmount pv = METHOD.netAmount(ZERO_COUPON_WITH, MARKET.getInflationProvider());
     final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
@@ -128,40 +128,37 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
     assertEquals("Zero-coupon inflation DiscountingMethod: net amount", pvExpected, pv.getAmount(ZERO_COUPON_WITH.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the net amount: Method vs Calculator.
    */
+  @Test
   public void netAmountMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.netAmount(ZERO_COUPON_NO, MARKET.getInflationProvider());
     final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_NO.accept(NAIC, MARKET.getInflationProvider());
     assertEquals("Zero-coupon inflation DiscountingMethod: Net amount", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
    * Test the present value curves sensitivity.
    */
+  @Test
   public void presentValueCurveSensitivityWithNotional() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(ZERO_COUPON_WITH, MARKET.getInflationProvider());
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_WITH, MARKET.getInflationProvider(), MARKET.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_WITH, MARKET.getInflationProvider());
 
     AssertSensivityObjects.assertEquals("Zero-coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 
   }
 
-  @Test
   /**
    * Test the present value curves sensitivity.
    */
+  @Test
   public void presentValueCurveSensitivityNoNotional() {
-
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(ZERO_COUPON_NO, MARKET.getInflationProvider());
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_NO, MARKET.getInflationProvider(), MARKET.getAllNames());
-
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(ZERO_COUPON_NO, MARKET.getInflationProvider());
     AssertSensivityObjects.assertEquals("Zero-coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
-
   }
 
   @Test

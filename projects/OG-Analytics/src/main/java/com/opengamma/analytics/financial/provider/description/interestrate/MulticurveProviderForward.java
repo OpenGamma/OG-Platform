@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -366,7 +367,12 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
 
   @Override
   public Set<String> getAllNames() {
-    return _allCurves.keySet();
+    return getAllCurveNames();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return Collections.unmodifiableSortedSet(new TreeSet<>(_allCurves.keySet()));
   }
 
   /**

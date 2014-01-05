@@ -5,12 +5,14 @@
  */
 package com.opengamma.analytics.financial.provider.description.commodity;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.curve.CommodityForwardCurve;
@@ -251,17 +253,8 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
   }
 
   @Override
-  /**
-   * Returns all curves names. The order is the natural order of String.
-   */
   public Set<String> getAllNames() {
-    final Set<String> names = new TreeSet<>();
-    names.addAll(_multicurveProvider.getAllNames());
-    final Set<CommodityUnderlying> priceSet = _commodityForwardCurves.keySet();
-    for (final CommodityUnderlying price : priceSet) {
-      names.add(_commodityForwardCurves.get(price).getName());
-    }
-    return names;
+    return getAllCurveNames();
   }
 
   /**
@@ -294,7 +287,6 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
   /**
    * Set all the curves contains in another bundle. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other bundle.
-   * TODO: REVIEW: Should we check that the curve are already present?
    */
   public void setAll(final CommodityProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
@@ -306,7 +298,7 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present
+   * @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(ccy, curve);
@@ -316,7 +308,7 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present
+   * @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(index, curve);
@@ -359,12 +351,23 @@ public class CommodityProviderDiscount implements CommodityProviderInterface {
 
   @Override
   public CommodityProviderInterface withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public CommodityProviderInterface withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    return null;
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    final Set<String> names = new TreeSet<>();
+    names.addAll(_multicurveProvider.getAllNames());
+    final Set<CommodityUnderlying> priceSet = _commodityForwardCurves.keySet();
+    for (final CommodityUnderlying price : priceSet) {
+      names.add(_commodityForwardCurves.get(price).getName());
+    }
+    return Collections.unmodifiableSet(names);
   }
 
   @Override

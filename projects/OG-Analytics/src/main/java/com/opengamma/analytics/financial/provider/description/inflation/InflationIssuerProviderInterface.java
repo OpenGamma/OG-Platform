@@ -69,8 +69,17 @@ public interface InflationIssuerProviderInterface {
   /**
    * Gets the names of all curves (discounting, forward, price index and issuers).
    * @return The names.
+   * @deprecated Use {@link #getAllNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
+
+  /**
+   * Gets an unmodifiable sorted set of the names of all curves. An empty set of is returned
+   * if there are no curves in this provider.
+   * @return The names.
+   */
+  Set<String> getAllCurveNames();
 
   /**
    * Returns the MulticurveProvider from which the InflationProvider is composed.

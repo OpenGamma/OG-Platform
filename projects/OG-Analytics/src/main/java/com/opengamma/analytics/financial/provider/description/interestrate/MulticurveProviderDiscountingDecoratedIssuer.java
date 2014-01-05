@@ -156,7 +156,12 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
 
   @Override
   public Set<String> getAllNames() {
-    return _issuerProvider.getAllNames();
+    return _issuerProvider.getAllCurveNames();
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _issuerProvider.getAllCurveNames();
   }
 
   @Override

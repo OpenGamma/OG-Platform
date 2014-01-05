@@ -115,6 +115,11 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
   }
 
   @Override
+  public Set<String> getAllCurveNames() {
+    return _issuerProvider.getAllCurveNames();
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

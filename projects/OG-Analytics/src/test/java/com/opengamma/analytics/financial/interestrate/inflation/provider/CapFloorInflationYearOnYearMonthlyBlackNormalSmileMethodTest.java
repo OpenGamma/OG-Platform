@@ -89,10 +89,10 @@ public class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethodTest {
   */
   private static final NormalPriceFunction NORMAL_FUNCTION = new NormalPriceFunction();
 
-  @Test
   /**
    * Tests the present value.
    */
+  @Test
   public void presentValue() {
     final MultipleCurrencyAmount pv = METHOD.presentValue(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
     final double df = MARKET.getCurve(YEAR_ON_YEAR_CAP.getCurrency()).getDiscountFactor(YEAR_ON_YEAR_CAP.getPaymentTime());
@@ -108,24 +108,24 @@ public class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethodTest {
     assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_CAP.getCurrency()), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the present value: Method vs Calculator.
    */
+  @Test
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD.presentValue(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
     final MultipleCurrencyAmount pvCalculator = YEAR_ON_YEAR_CAP.accept(PVIC, BLACK_INFLATION);
     assertEquals("Year on year coupon inflation DiscountingMethod: Present value", pvMethod, pvCalculator);
   }
 
-  @Test
   /**
    * Test the present value curves sensitivity.
    */
+  @Test
   public void presentValueCurveSensitivity() {
 
     final MultipleCurrencyParameterSensitivity pvicsFD = PS_PV_FDC.calculateSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
-    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION, MARKET.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvicsExact = PSC.calculateSensitivity(YEAR_ON_YEAR_CAP, BLACK_INFLATION);
 
     AssertSensivityObjects.assertEquals("Year on year coupon inflation DiscountingMethod: presentValueCurveSensitivity ", pvicsExact, pvicsFD, TOLERANCE_PV_DELTA);
 

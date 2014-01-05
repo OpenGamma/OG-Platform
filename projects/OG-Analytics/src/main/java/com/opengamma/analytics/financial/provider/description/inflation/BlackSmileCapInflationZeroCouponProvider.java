@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -75,6 +76,11 @@ public class BlackSmileCapInflationZeroCouponProvider implements BlackSmileCapIn
   @Override
   public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _inflation.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _inflation.getAllCurveNames();
   }
 
   @Override

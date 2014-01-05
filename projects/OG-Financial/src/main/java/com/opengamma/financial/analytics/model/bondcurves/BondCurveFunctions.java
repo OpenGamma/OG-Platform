@@ -31,6 +31,7 @@ public class BondCurveFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(BondBCSFunction.class));
     functions.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class));
     functions.add(functionConfiguration(BondConvexityFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondGammaPV01FromCurvesFunction.class));
     functions.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondPresentValueFromCurvesFunction.class));

@@ -45,7 +45,7 @@ public interface BlackForexProviderInterface<VOLATILITY_TYPE> extends ParameterP
   boolean checkCurrencies(final Currency ccy1, final Currency ccy2);
 
   /**
-   * Returns the MulticurveProvider from which the InflationProvider is composed.
+   * Returns the underlying multi-curves provider.
    * @return The multi-curves provider.
    */
   @Override
