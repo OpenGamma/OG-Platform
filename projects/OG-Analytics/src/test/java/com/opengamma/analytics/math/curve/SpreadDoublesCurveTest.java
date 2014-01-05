@@ -15,6 +15,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.test.TestGroup;
 
@@ -28,6 +29,15 @@ public class SpreadDoublesCurveTest {
   private static final double[] Y2 = new double[] {1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1};
   private static final InterpolatedDoublesCurve INTERPOLATED1 = InterpolatedDoublesCurve.from(X, Y1, new LinearInterpolator1D(), "a");
   private static final InterpolatedDoublesCurve INTERPOLATED2 = InterpolatedDoublesCurve.from(X, Y2, new LinearInterpolator1D(), "b");
+  private static final FunctionalDoublesCurve FUNCTIONAL1 = FunctionalDoublesCurve.from(new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      return x * 2;
+    }
+
+  });
+  private static final ConstantDoublesCurve CONSTANT1 = ConstantDoublesCurve.from(0.02);
   private static final CurveSpreadFunction ADD = CurveSpreadFunctionFactory.of("+");
   private static final CurveSpreadFunction SUBTRACT = CurveSpreadFunctionFactory.of("-");
   private static final String NAME1 = "X";
@@ -108,7 +118,7 @@ public class SpreadDoublesCurveTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testGetSize() {
-    SPREAD1.size();
+    SpreadDoublesCurve.from(ADD, new DoublesCurve[] {FUNCTIONAL1, CONSTANT1}).size();
   }
 
   @Test
@@ -141,6 +151,17 @@ public class SpreadDoublesCurveTest {
     for (final String s : expected) {
       assertTrue(actual.contains(s));
     }
+  }
+
+  /**
+   * Tests that size() can be called for spread curves consisting combinations of interpolated and constant doubles curves.
+   */
+  @Test
+  public void testSize() {
+    assertEquals(INTERPOLATED1.size() + INTERPOLATED2.size(), SPREAD1.size());
+    assertEquals(INTERPOLATED1.size() + 2 * INTERPOLATED2.size(), SpreadDoublesCurve.from(ADD, new DoublesCurve[] {INTERPOLATED1, SPREAD1}).size());
+    assertEquals(INTERPOLATED1.size() + INTERPOLATED2.size(), SpreadDoublesCurve.from(ADD, new DoublesCurve[] {CONSTANT1, SPREAD1}).size());
+    assertEquals(INTERPOLATED1.size() + INTERPOLATED2.size(), SpreadDoublesCurve.from(ADD, new DoublesCurve[] {CONSTANT1, SPREAD1}).size());
   }
 
   @Test

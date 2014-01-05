@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.curve;
@@ -19,12 +19,12 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
 
 /**
  * Class defining a spread curve, i.e. a curve that is the result of a mathematical operation
@@ -57,7 +57,7 @@ public class SpreadDoublesCurve
   /**
    * Takes an array of curves that are to be operated on by the spread function.
    * The name of the spread curve is automatically generated.
-   * 
+   *
    * @param spreadFunction  the spread function, not null
    * @param curves  the curves, not null
    * @return the spread curve, not null
@@ -68,7 +68,7 @@ public class SpreadDoublesCurve
 
   /**
    * Takes an array of curves that are to be operated on by the spread function.
-   * 
+   *
    * @param spreadFunction  the spread function, not null
    * @param name  the name of the curve, not null
    * @param curves  the curves, not null
@@ -87,7 +87,7 @@ public class SpreadDoublesCurve
 
   /**
    * Creates a spread curve.
-   * 
+   *
    * @param spreadFunction  the spread function, not null
    * @param curves  the curves, not null, contains more than one curve, not null
    */
@@ -103,7 +103,7 @@ public class SpreadDoublesCurve
 
   /**
    * Creates a spread curve.
-   * 
+   *
    * @param spreadFunction  the spread function, not null
    * @param name  the name of the curve, not null
    * @param curves  the curves, not null, contains more than one curve, not null
@@ -122,7 +122,7 @@ public class SpreadDoublesCurve
   /**
    * Returns a set of the <b>unique</b> names of the curves that were used to construct this curve.
    * If a constituent curve is a spread curve, then all of its underlyings are included.
-   * 
+   *
    * @return the set of underlying names, not null
    */
   public Set<String> getUnderlyingNames() {
@@ -140,7 +140,7 @@ public class SpreadDoublesCurve
   /**
    * Returns a string that represents the mathematical form of this curve.
    * For example, <i>D = (A + (B / C))</i>.
-   * 
+   *
    * @return the long name of this curve, not null
    */
   public String getLongName() {
@@ -165,7 +165,7 @@ public class SpreadDoublesCurve
 
   /**
    * Gets the underlying curves.
-   * 
+   *
    * @return the underlying curves, not null
    */
   public DoublesCurve[] getUnderlyingCurves() {
@@ -174,7 +174,7 @@ public class SpreadDoublesCurve
 
   /**
    * Throws an exception as there is no <i>x</i> data.
-   * 
+   *
    * @return throws UnsupportedOperationException
    * @throws UnsupportedOperationException always
    */
@@ -185,7 +185,7 @@ public class SpreadDoublesCurve
 
   /**
    * Throws an exception as there is no <i>y</i> data.
-   * 
+   *
    * @return throws UnsupportedOperationException
    * @throws UnsupportedOperationException always
    */
@@ -202,6 +202,13 @@ public class SpreadDoublesCurve
 
   @Override
   public Double[] getYValueParameterSensitivity(final Double x) {
+    if (_curves.length == 2) {
+      if (_curves[0] instanceof InterpolatedDoublesCurve && _curves[1] instanceof ConstantDoublesCurve) {
+        return _curves[0].getYValueParameterSensitivity(x);
+      } else if (_curves[1] instanceof InterpolatedDoublesCurve && _curves[0] instanceof ConstantDoublesCurve) {
+        return _curves[1].getYValueParameterSensitivity(x);
+      }
+    }
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for SpreadDoublesCurve");
   }
 
@@ -212,13 +219,22 @@ public class SpreadDoublesCurve
 
   /**
    * Throws an exception as there is no <i>x</i> or <i>y</i> data.
-   * 
+   *
    * @return throws UnsupportedOperationException
    * @throws UnsupportedOperationException always
    */
   @Override
   public int size() {
-    throw new UnsupportedOperationException("Size not supported yet for SpreadDoublesCurve");
+    int size = 0;
+    for (final DoublesCurve underlying : _curves) {
+      if (underlying instanceof InterpolatedDoublesCurve || underlying instanceof NodalDoublesCurve || underlying instanceof SpreadDoublesCurve) {
+        size += underlying.size();
+      }
+    }
+    if (size != 0) {
+      return size;
+    }
+    throw new UnsupportedOperationException("Size not supported for SpreadDoublesCurve " + getLongName());
   }
 
   //-------------------------------------------------------------------------
@@ -281,7 +297,7 @@ public class SpreadDoublesCurve
    * Sets the spread function.
    * @param spreadFunction  the new value of the property
    */
-  private void setSpreadFunction(CurveSpreadFunction spreadFunction) {
+  private void setSpreadFunction(final CurveSpreadFunction spreadFunction) {
     this._spreadFunction = spreadFunction;
   }
 
@@ -306,7 +322,7 @@ public class SpreadDoublesCurve
    * Sets the evaluated function.
    * @param f  the new value of the property
    */
-  private void setF(Function<Double, Double> f) {
+  private void setF(final Function<Double, Double> f) {
     this._f = f;
   }
 
@@ -331,7 +347,7 @@ public class SpreadDoublesCurve
    * Sets the curves.
    * @param curves  the new value of the property
    */
-  private void setCurves(DoublesCurve[] curves) {
+  private void setCurves(final DoublesCurve[] curves) {
     this._curves = curves;
   }
 
@@ -351,9 +367,9 @@ public class SpreadDoublesCurve
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    final StringBuilder buf = new StringBuilder(128);
     buf.append("SpreadDoublesCurve{");
-    int len = buf.length();
+    final int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -363,7 +379,7 @@ public class SpreadDoublesCurve
   }
 
   @Override
-  protected void toString(StringBuilder buf) {
+  protected void toString(final StringBuilder buf) {
     super.toString(buf);
     buf.append("spreadFunction").append('=').append(JodaBeanUtils.toString(getSpreadFunction())).append(',').append(' ');
     buf.append("f").append('=').append(JodaBeanUtils.toString(getF())).append(',').append(' ');
@@ -412,7 +428,7 @@ public class SpreadDoublesCurve
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
           return _spreadFunction;
@@ -466,7 +482,7 @@ public class SpreadDoublesCurve
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
           return ((SpreadDoublesCurve) bean).getSpreadFunction();
@@ -480,7 +496,7 @@ public class SpreadDoublesCurve
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
       switch (propertyName.hashCode()) {
         case -872176021:  // spreadFunction
           ((SpreadDoublesCurve) bean).setSpreadFunction((CurveSpreadFunction) newValue);
