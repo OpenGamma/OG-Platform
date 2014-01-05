@@ -11,8 +11,10 @@ import static com.opengamma.engine.value.ValueRequirementNames.BUCKETED_PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.CLEAN_PRICE;
 import static com.opengamma.engine.value.ValueRequirementNames.CONVEXITY;
 import static com.opengamma.engine.value.ValueRequirementNames.GAMMA_PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.GROSS_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
+import static com.opengamma.engine.value.ValueRequirementNames.NET_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
@@ -50,7 +52,9 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
     BLOCK_CURVE_SENSITIVITIES,
     YIELD_CURVE_NODE_SENSITIVITIES,
     BUCKETED_PV01,
-    GAMMA_PV01
+    GAMMA_PV01,
+    GROSS_BASIS,
+    NET_BASIS
   };
   /** The absolute tolerance */
   private final Set<String> _absoluteTolerance;

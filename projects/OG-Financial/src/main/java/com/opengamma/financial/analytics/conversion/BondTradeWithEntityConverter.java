@@ -131,6 +131,9 @@ public class BondTradeWithEntityConverter {
     if (trade.getPremium() == null) {
       throw new OpenGammaRuntimeException("Trade premium should not be null.");
     }
+    if (trade.getPremiumDate() == null) {
+      throw new OpenGammaRuntimeException("Trade premium date should not be null");
+    }
     final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
     final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
     final double price = trade.getPremium().doubleValue();

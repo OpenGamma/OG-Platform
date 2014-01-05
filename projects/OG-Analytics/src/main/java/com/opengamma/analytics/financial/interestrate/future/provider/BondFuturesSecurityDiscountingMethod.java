@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -93,7 +93,7 @@ public final class BondFuturesSecurityDiscountingMethod {
         indexCTD = loopbasket;
       }
     }
-    MulticurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(futures.getDeliveryBasket()[indexCTD], issuerMulticurves);
+    final MulticurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(futures.getDeliveryBasket()[indexCTD], issuerMulticurves);
     return result.multipliedBy(1.0 / futures.getConversionFactor()[indexCTD]);
   }
 
@@ -105,7 +105,8 @@ public final class BondFuturesSecurityDiscountingMethod {
    * @return The gross basis for each bond in the basket.
    */
   public double[] grossBasisFromPrices(final BondFuturesSecurity futures, final double[] cleanPrices, final double futurePrice) {
-    ArgumentChecker.notNull(futures, "Future");
+    ArgumentChecker.notNull(futures, "futures");
+    ArgumentChecker.notNull(cleanPrices, "cleanPrices");
     final int nbBasket = futures.getDeliveryBasket().length;
     ArgumentChecker.isTrue(cleanPrices.length == nbBasket, "Number of clean prices");
     final double[] grossBasis = new double[nbBasket];
@@ -123,14 +124,13 @@ public final class BondFuturesSecurityDiscountingMethod {
    * @return The gross basis for each bond in the basket.
    */
   public double[] grossBasisFromCurves(final BondFuturesSecurity futures, final IssuerProviderInterface issuerMulticurves, final double futurePrice) {
-    ArgumentChecker.notNull(futures, "Future");
-    ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
+    ArgumentChecker.notNull(futures, "future");
+    ArgumentChecker.notNull(issuerMulticurves, "issuerMulticurves");
     final int nbBasket = futures.getDeliveryBasket().length;
     final double[] grossBasis = new double[nbBasket];
-    final double[] cleanPrices = new double[nbBasket];
     for (int loopbasket = 0; loopbasket < futures.getDeliveryBasket().length; loopbasket++) {
-      cleanPrices[loopbasket] = BOND_METHOD.cleanPriceFromCurves(futures.getDeliveryBasket()[loopbasket], issuerMulticurves);
-      grossBasis[loopbasket] = cleanPrices[loopbasket] - futurePrice * futures.getConversionFactor()[loopbasket];
+      final double cleanPrice = BOND_METHOD.cleanPriceFromCurves(futures.getDeliveryBasket()[loopbasket], issuerMulticurves);
+      grossBasis[loopbasket] = cleanPrice - futurePrice * futures.getConversionFactor()[loopbasket];
     }
     return grossBasis;
   }
@@ -148,7 +148,8 @@ public final class BondFuturesSecurityDiscountingMethod {
     final int nbBasket = futures.getDeliveryBasket().length;
     final double[] netBasis = new double[nbBasket];
     for (int loopbasket = 0; loopbasket < futures.getDeliveryBasket().length; loopbasket++) {
-      netBasis[loopbasket] = BOND_METHOD.cleanPriceFromCurves(futures.getDeliveryBasket()[loopbasket], issuerMulticurves) - futurePrice * futures.getConversionFactor()[loopbasket];
+      final double cleanPrice = BOND_METHOD.cleanPriceFromCurves(futures.getDeliveryBasket()[loopbasket], issuerMulticurves);
+      netBasis[loopbasket] = cleanPrice - futurePrice * futures.getConversionFactor()[loopbasket];
     }
     return netBasis;
   }
