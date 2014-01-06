@@ -10,6 +10,7 @@ import java.util.Collection;
 import com.opengamma.core.Attributable;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
 
@@ -59,12 +60,12 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
    */
   Collection<Capability> getCapabilities();
 
-  Collection<Object> getIssuedSecurities(); //TODO refactor <Object> to <SecurityLink> when SecurityLink is ready.
+  Collection<ObjectId> getIssuedSecurities(); //TODO refactor <ObjectId> to <SecurityLink> when SecurityLink is ready.
 
   Collection<Obligation> getObligations();
 
   Collection<Account> getAccounts();
 
-  Collection<Object> getPortfolios(); //TODO refactor <Object> to <PortfolioLink> when PortfolioLink is ready.
+  RootPortfolio getRootPortfolio();
 
 }

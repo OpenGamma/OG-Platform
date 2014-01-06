@@ -26,6 +26,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.legalentity.Account;
+import com.opengamma.core.legalentity.RootPortfolio;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.ManageableLegalEntity;

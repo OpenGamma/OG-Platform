@@ -28,19 +28,21 @@ $.register_module({
                         var json = result.data, $html = $.tmpl(template, json);
                         var legalentity_functions = details.legalentity_functions;
                         history.put({
-                            name: json.template_data.obligorShortName,
+                            name: json.template_data.name,
                             item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
                         $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                         view.layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
+
+                        legalentity_functions.render_info('.OG-details-content .og-js-info', json);
                         legalentity_functions.render_ratings('.OG-details-content .og-js-ratings', json.ratings);
                         legalentity_functions.render_accounts('.OG-details-content .og-js-accounts', json.accounts);
                         legalentity_functions.render_obligations('.OG-details-content .og-js-obligations', json.obligations);
                         legalentity_functions.render_capabilities('.OG-details-content .og-js-capabilities', json.capabilities);
                         legalentity_functions.render_issued_securities('.OG-details-content .og-js-issued_securities', json.issued_securities);
-                        legalentity_functions.render_portfolios('.OG-details-content .og-js-portfolios', json.portfolios);
+                        legalentity_functions.render_root_portfolio('.OG-details-content .og-js-root_portfolio', json.root_portfolio);
                         if (show_loading) view.notify(null);
                         ui.toolbar(view.options.toolbar.active);
                         setTimeout(view.layout.inner.resizeAll);

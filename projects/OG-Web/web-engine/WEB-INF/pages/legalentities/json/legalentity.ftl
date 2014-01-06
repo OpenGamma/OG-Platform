@@ -17,6 +17,7 @@
       <#list legalEntity.ratings as item>
       {
       "rater": "${item.rater}",
+      "seniority": "${item.seniorityLevel}",
       "score": "${item.score}"
       }<#if item_has_next>,</#if>
       </#list>
@@ -49,12 +50,14 @@
       }<#if item_has_next>,</#if>
       </#list>
     ],
-    "portfolios": [
-      <#list legalEntity.portfolios as item>
+    "attributes": [
+      <#list legalEntity.attributes?keys as prop>
       {
-      "link": "${item}"
-      }<#if item_has_next>,</#if>
+        "name": "${prop}",
+        "value": "${legalEntity.attributes[prop]}"
+      }<#if prop_has_next>,</#if>
       </#list>
-    ]
+    ],
+    "root_portfolio": <#if legalEntity.rootPortfolio?has_content> "${legalEntity.rootPortfolio.portfolio}"  <#else> null </#if>
 }
 </#escape>

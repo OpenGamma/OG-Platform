@@ -29,9 +29,11 @@ import com.opengamma.core.legalentity.Capability;
 import com.opengamma.core.legalentity.LegalEntity;
 import com.opengamma.core.legalentity.Obligation;
 import com.opengamma.core.legalentity.Rating;
+import com.opengamma.core.legalentity.RootPortfolio;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
@@ -75,7 +77,6 @@ public class ManageableLegalEntity
   @PropertyDefinition(validate = "notNull")
   private String _name = "";
 
-
   @PropertyDefinition(validate = "notNull")
   private Collection<Rating> _ratings = new ArrayList<>();
 
@@ -83,13 +84,13 @@ public class ManageableLegalEntity
   private Collection<Capability> _capabilities = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
-  private Collection<Object> _issuedSecurities = new ArrayList<>();
+  private Collection<ObjectId> _issuedSecurities = new ArrayList<>();
 
   @PropertyDefinition(validate = "notNull")
   private Collection<Obligation> _obligations = new ArrayList<>();
 
-  @PropertyDefinition(validate = "notNull")
-  private Collection<Object> _portfolios = new ArrayList<>();
+  @PropertyDefinition()
+  private RootPortfolio _rootPortfolio;
 
   @PropertyDefinition(validate = "notNull")
   private Collection<Account> _accounts = new ArrayList<>();
@@ -106,7 +107,7 @@ public class ManageableLegalEntity
    * @param name             the name of the legal entity, not null
    * @param externalIdBundle the bundle of identifiers that define the legal entity, not null
    */
-  protected ManageableLegalEntity(String name, ExternalIdBundle externalIdBundle) {
+  public ManageableLegalEntity(String name, ExternalIdBundle externalIdBundle) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(externalIdBundle, "externalIdBundle");
     setName(name);
@@ -346,7 +347,7 @@ public class ManageableLegalEntity
    * Gets the issuedSecurities.
    * @return the value of the property, not null
    */
-  public Collection<Object> getIssuedSecurities() {
+  public Collection<ObjectId> getIssuedSecurities() {
     return _issuedSecurities;
   }
 
@@ -354,7 +355,7 @@ public class ManageableLegalEntity
    * Sets the issuedSecurities.
    * @param issuedSecurities  the new value of the property, not null
    */
-  public void setIssuedSecurities(Collection<Object> issuedSecurities) {
+  public void setIssuedSecurities(Collection<ObjectId> issuedSecurities) {
     JodaBeanUtils.notNull(issuedSecurities, "issuedSecurities");
     this._issuedSecurities = issuedSecurities;
   }
@@ -363,7 +364,7 @@ public class ManageableLegalEntity
    * Gets the the {@code issuedSecurities} property.
    * @return the property, not null
    */
-  public final Property<Collection<Object>> issuedSecurities() {
+  public final Property<Collection<ObjectId>> issuedSecurities() {
     return metaBean().issuedSecurities().createProperty(this);
   }
 
@@ -395,28 +396,27 @@ public class ManageableLegalEntity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the portfolios.
-   * @return the value of the property, not null
+   * Gets the rootPortfolio.
+   * @return the value of the property
    */
-  public Collection<Object> getPortfolios() {
-    return _portfolios;
+  public RootPortfolio getRootPortfolio() {
+    return _rootPortfolio;
   }
 
   /**
-   * Sets the portfolios.
-   * @param portfolios  the new value of the property, not null
+   * Sets the rootPortfolio.
+   * @param rootPortfolio  the new value of the property
    */
-  public void setPortfolios(Collection<Object> portfolios) {
-    JodaBeanUtils.notNull(portfolios, "portfolios");
-    this._portfolios = portfolios;
+  public void setRootPortfolio(RootPortfolio rootPortfolio) {
+    this._rootPortfolio = rootPortfolio;
   }
 
   /**
-   * Gets the the {@code portfolios} property.
+   * Gets the the {@code rootPortfolio} property.
    * @return the property, not null
    */
-  public final Property<Collection<Object>> portfolios() {
-    return metaBean().portfolios().createProperty(this);
+  public final Property<RootPortfolio> rootPortfolio() {
+    return metaBean().rootPortfolio().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -476,7 +476,7 @@ public class ManageableLegalEntity
           JodaBeanUtils.equal(getCapabilities(), other.getCapabilities()) &&
           JodaBeanUtils.equal(getIssuedSecurities(), other.getIssuedSecurities()) &&
           JodaBeanUtils.equal(getObligations(), other.getObligations()) &&
-          JodaBeanUtils.equal(getPortfolios(), other.getPortfolios()) &&
+          JodaBeanUtils.equal(getRootPortfolio(), other.getRootPortfolio()) &&
           JodaBeanUtils.equal(getAccounts(), other.getAccounts());
     }
     return false;
@@ -493,7 +493,7 @@ public class ManageableLegalEntity
     hash += hash * 31 + JodaBeanUtils.hashCode(getCapabilities());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIssuedSecurities());
     hash += hash * 31 + JodaBeanUtils.hashCode(getObligations());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolios());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRootPortfolio());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAccounts());
     return hash;
   }
@@ -520,7 +520,7 @@ public class ManageableLegalEntity
     buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
     buf.append("issuedSecurities").append('=').append(JodaBeanUtils.toString(getIssuedSecurities())).append(',').append(' ');
     buf.append("obligations").append('=').append(JodaBeanUtils.toString(getObligations())).append(',').append(' ');
-    buf.append("portfolios").append('=').append(JodaBeanUtils.toString(getPortfolios())).append(',').append(' ');
+    buf.append("rootPortfolio").append('=').append(JodaBeanUtils.toString(getRootPortfolio())).append(',').append(' ');
     buf.append("accounts").append('=').append(JodaBeanUtils.toString(getAccounts())).append(',').append(' ');
   }
 
@@ -571,7 +571,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code issuedSecurities} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Object>> _issuedSecurities = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Collection<ObjectId>> _issuedSecurities = DirectMetaProperty.ofReadWrite(
         this, "issuedSecurities", ManageableLegalEntity.class, (Class) Collection.class);
     /**
      * The meta-property for the {@code obligations} property.
@@ -580,11 +580,10 @@ public class ManageableLegalEntity
     private final MetaProperty<Collection<Obligation>> _obligations = DirectMetaProperty.ofReadWrite(
         this, "obligations", ManageableLegalEntity.class, (Class) Collection.class);
     /**
-     * The meta-property for the {@code portfolios} property.
+     * The meta-property for the {@code rootPortfolio} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<Object>> _portfolios = DirectMetaProperty.ofReadWrite(
-        this, "portfolios", ManageableLegalEntity.class, (Class) Collection.class);
+    private final MetaProperty<RootPortfolio> _rootPortfolio = DirectMetaProperty.ofReadWrite(
+        this, "rootPortfolio", ManageableLegalEntity.class, RootPortfolio.class);
     /**
      * The meta-property for the {@code accounts} property.
      */
@@ -604,7 +603,7 @@ public class ManageableLegalEntity
         "capabilities",
         "issuedSecurities",
         "obligations",
-        "portfolios",
+        "rootPortfolio",
         "accounts");
 
     /**
@@ -632,8 +631,8 @@ public class ManageableLegalEntity
           return _issuedSecurities;
         case 809305781:  // obligations
           return _obligations;
-        case 415474731:  // portfolios
-          return _portfolios;
+        case -2027978106:  // rootPortfolio
+          return _rootPortfolio;
         case -2137146394:  // accounts
           return _accounts;
       }
@@ -708,7 +707,7 @@ public class ManageableLegalEntity
      * The meta-property for the {@code issuedSecurities} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Object>> issuedSecurities() {
+    public final MetaProperty<Collection<ObjectId>> issuedSecurities() {
       return _issuedSecurities;
     }
 
@@ -721,11 +720,11 @@ public class ManageableLegalEntity
     }
 
     /**
-     * The meta-property for the {@code portfolios} property.
+     * The meta-property for the {@code rootPortfolio} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Collection<Object>> portfolios() {
-      return _portfolios;
+    public final MetaProperty<RootPortfolio> rootPortfolio() {
+      return _rootPortfolio;
     }
 
     /**
@@ -756,8 +755,8 @@ public class ManageableLegalEntity
           return ((ManageableLegalEntity) bean).getIssuedSecurities();
         case 809305781:  // obligations
           return ((ManageableLegalEntity) bean).getObligations();
-        case 415474731:  // portfolios
-          return ((ManageableLegalEntity) bean).getPortfolios();
+        case -2027978106:  // rootPortfolio
+          return ((ManageableLegalEntity) bean).getRootPortfolio();
         case -2137146394:  // accounts
           return ((ManageableLegalEntity) bean).getAccounts();
       }
@@ -787,13 +786,13 @@ public class ManageableLegalEntity
           ((ManageableLegalEntity) bean).setCapabilities((Collection<Capability>) newValue);
           return;
         case 1643621609:  // issuedSecurities
-          ((ManageableLegalEntity) bean).setIssuedSecurities((Collection<Object>) newValue);
+          ((ManageableLegalEntity) bean).setIssuedSecurities((Collection<ObjectId>) newValue);
           return;
         case 809305781:  // obligations
           ((ManageableLegalEntity) bean).setObligations((Collection<Obligation>) newValue);
           return;
-        case 415474731:  // portfolios
-          ((ManageableLegalEntity) bean).setPortfolios((Collection<Object>) newValue);
+        case -2027978106:  // rootPortfolio
+          ((ManageableLegalEntity) bean).setRootPortfolio((RootPortfolio) newValue);
           return;
         case -2137146394:  // accounts
           ((ManageableLegalEntity) bean).setAccounts((Collection<Account>) newValue);
@@ -811,7 +810,6 @@ public class ManageableLegalEntity
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._capabilities, "capabilities");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._issuedSecurities, "issuedSecurities");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._obligations, "obligations");
-      JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._portfolios, "portfolios");
       JodaBeanUtils.notNull(((ManageableLegalEntity) bean)._accounts, "accounts");
     }
 

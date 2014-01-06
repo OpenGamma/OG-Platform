@@ -42,6 +42,7 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -112,6 +113,11 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private OrganizationMaster _organizationMaster;
+  /**
+   * The legal entity master.
+   */
+  @PropertyDefinition
+  private LegalEntityMaster _legalEntityMaster;
   /**
    * The historical time-series master.
    */
@@ -513,6 +519,31 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   public final Property<OrganizationMaster> organizationMaster() {
     return metaBean().organizationMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the legal entity master.
+   * @return the value of the property
+   */
+  public LegalEntityMaster getLegalEntityMaster() {
+    return _legalEntityMaster;
+  }
+
+  /**
+   * Sets the legal entity master.
+   * @param legalEntityMaster  the new value of the property
+   */
+  public void setLegalEntityMaster(LegalEntityMaster legalEntityMaster) {
+    this._legalEntityMaster = legalEntityMaster;
+  }
+
+  /**
+   * Gets the the {@code legalEntityMaster} property.
+   * @return the property, not null
+   */
+  public final Property<LegalEntityMaster> legalEntityMaster() {
+    return metaBean().legalEntityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1073,6 +1104,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
@@ -1111,6 +1143,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
@@ -1137,7 +1170,7 @@ public class ToolContext extends DirectBean implements Closeable {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(1024);
+    StringBuilder buf = new StringBuilder(1056);
     buf.append("ToolContext{");
     int len = buf.length();
     toString(buf);
@@ -1159,6 +1192,7 @@ public class ToolContext extends DirectBean implements Closeable {
     buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
     buf.append("conventionMaster").append('=').append(JodaBeanUtils.toString(getConventionMaster())).append(',').append(' ');
@@ -1242,6 +1276,11 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
         this, "organizationMaster", ToolContext.class, OrganizationMaster.class);
+    /**
+     * The meta-property for the {@code legalEntityMaster} property.
+     */
+    private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
+        this, "legalEntityMaster", ToolContext.class, LegalEntityMaster.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
@@ -1362,6 +1401,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "positionMaster",
         "portfolioMaster",
         "organizationMaster",
+        "legalEntityMaster",
         "historicalTimeSeriesMaster",
         "marketDataSnapshotMaster",
         "conventionMaster",
@@ -1413,6 +1453,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _portfolioMaster;
         case -1158737547:  // organizationMaster
           return _organizationMaster;
+        case -1944474242:  // legalEntityMaster
+          return _legalEntityMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case 2090650860:  // marketDataSnapshotMaster
@@ -1553,6 +1595,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<OrganizationMaster> organizationMaster() {
       return _organizationMaster;
+    }
+
+    /**
+     * The meta-property for the {@code legalEntityMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
+      return _legalEntityMaster;
     }
 
     /**
@@ -1747,6 +1797,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return ((ToolContext) bean).getPortfolioMaster();
         case -1158737547:  // organizationMaster
           return ((ToolContext) bean).getOrganizationMaster();
+        case -1944474242:  // legalEntityMaster
+          return ((ToolContext) bean).getLegalEntityMaster();
         case 173967376:  // historicalTimeSeriesMaster
           return ((ToolContext) bean).getHistoricalTimeSeriesMaster();
         case 2090650860:  // marketDataSnapshotMaster
@@ -1825,6 +1877,9 @@ public class ToolContext extends DirectBean implements Closeable {
           return;
         case -1158737547:  // organizationMaster
           ((ToolContext) bean).setOrganizationMaster((OrganizationMaster) newValue);
+          return;
+        case -1944474242:  // legalEntityMaster
+          ((ToolContext) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
           return;
         case 173967376:  // historicalTimeSeriesMaster
           ((ToolContext) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
