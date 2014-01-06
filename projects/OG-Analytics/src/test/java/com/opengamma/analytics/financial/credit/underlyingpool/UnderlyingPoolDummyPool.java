@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.underlyingpool;
-
-import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -19,17 +17,15 @@ import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.test.TestGroup;
 
 /**
  * Dummy pool of obligors used for testing purposes
  */
-@Test(groups = TestGroup.UNIT)
 public class UnderlyingPoolDummyPool {
 
   //--------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : 
+  // TODO :
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -139,7 +135,7 @@ public class UnderlyingPoolDummyPool {
   // Assign the credit spread tenors
   public static final CreditSpreadTenors[] assignCreditSpreadTenors() {
 
-    CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
+    final CreditSpreadTenors[] creditSpreadTenors = new CreditSpreadTenors[numberOfTenors];
 
     for (int m = 0; m < numberOfTenors; m++) {
       creditSpreadTenors[m] = obligorCreditSpreadTenors[m];
@@ -153,7 +149,7 @@ public class UnderlyingPoolDummyPool {
   // Assign the credit spread term structures for each obligor in the underlying pool
   public static final double[][] assignCreditSpreadTermStructures() {
 
-    double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
+    final double[][] spreadTermStructures = new double[numberOfObligors][numberOfTenors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       for (int j = 0; j < numberOfTenors; j++) {

@@ -19,7 +19,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class FXConstantSpreadHorizonCalculator implements HorizonCalculator<ForexDefinition, YieldCurveBundle, Void> {
+public class FXConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<ForexDefinition, YieldCurveBundle, Void> {
   /** Rolls down a yield curve */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
   /** The present value calculator */

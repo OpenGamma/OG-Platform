@@ -46,8 +46,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * That is, the market moves in such a way that the discount rates or implied volatility requested
  * for the same maturity DATE will be equal on both dates. <p>
  *
- * Note that the time to maturity will differ by the daysForward provided in the constructor
- * @deprecated This class tests deprecated functionality
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
 //TODO Rethink daysForward as it is only safely handles 1/-1.
 @Deprecated

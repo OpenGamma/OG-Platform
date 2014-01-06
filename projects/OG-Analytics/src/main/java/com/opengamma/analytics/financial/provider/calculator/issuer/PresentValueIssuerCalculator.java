@@ -18,9 +18,7 @@ import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurity
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCounterpartDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFuturesTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
@@ -61,8 +59,6 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   private static final BondSecurityDiscountingMethod METHOD_BOND_SEC = BondSecurityDiscountingMethod.getInstance();
   /** Method for bond transactions */
   private static final BondTransactionDiscountingMethod METHOD_BOND_TR = BondTransactionDiscountingMethod.getInstance();
-  /** Method for bond future securities */
-  private static final BondFutureDiscountingMethod METHOD_BNDFUT_DSC = BondFutureDiscountingMethod.getInstance();
   /** Method for bond future transactions */
   private static final BondFuturesTransactionDiscountingMethod METHOD_BNDFUT_TRA = BondFuturesTransactionDiscountingMethod.getInstance();
 
@@ -106,18 +102,6 @@ public final class PresentValueIssuerCalculator extends InstrumentDerivativeVisi
   }
 
   //     -----     Futures     -----
-
-  /**
-   * @param futures The bondfutures.
-   * @param issuercurves The curves including the issuer specific curves.
-   * @return The present value.
-   * @deprecated Use visitBondFuturesTransaction.
-   */
-  @Deprecated
-  @Override
-  public MultipleCurrencyAmount visitBondFuture(final BondFuture futures, final ParameterIssuerProviderInterface issuercurves) {
-    return METHOD_BNDFUT_DSC.presentValue(futures, issuercurves.getIssuerProvider());
-  }
 
   @Override
   public MultipleCurrencyAmount visitBondFuturesTransaction(final BondFuturesTransaction futures, final ParameterIssuerProviderInterface issuercurves) {

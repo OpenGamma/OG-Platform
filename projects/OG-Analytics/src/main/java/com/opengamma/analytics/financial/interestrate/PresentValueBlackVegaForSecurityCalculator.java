@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * InstrumentDerivativeVisitor that calculates vega, the first derivative of the price with respect to the implied vol of the underlying future.
  * <p>
- * See also {@link PresentValueBlackVegaForTransactionCalculator}
+ * See also {@link PresentValueBlackVegaCalculator}
  * @deprecated {@link YieldCurveBundle} is deprecated
  */
 @Deprecated

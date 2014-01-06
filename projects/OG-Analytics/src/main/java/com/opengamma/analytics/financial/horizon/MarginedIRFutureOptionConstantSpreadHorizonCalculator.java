@@ -21,18 +21,20 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class MarginedIRFutureOptionConstantSpreadHorizonCalculator implements HorizonCalculator<InterestRateFutureOptionMarginTransactionDefinition, YieldCurveWithBlackCubeBundle, Double> {
+public class MarginedIRFutureOptionConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<InterestRateFutureOptionMarginTransactionDefinition, YieldCurveWithBlackCubeBundle, Double> {
   /** Rolls down interest rate future option data (curves and surface) */
   private static final ConstantSpreadInterestRateFutureOptionBlackDataRolldown IR_FUTURE_OPTION_ROLLDOWN = ConstantSpreadInterestRateFutureOptionBlackDataRolldown.getInstance();
 
   @Override
-  public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveWithBlackCubeBundle data, final int daysForward,
+  public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date,
+      final String[] yieldCurveNames, final YieldCurveWithBlackCubeBundle data, final int daysForward,
       final Calendar calendar) {
     throw new UnsupportedOperationException("Need to supply a last margin value");
   }
 
   @Override
-  public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveWithBlackCubeBundle data, final int daysForward,
+  public MultipleCurrencyAmount getTheta(final InterestRateFutureOptionMarginTransactionDefinition definition, final ZonedDateTime date,
+      final String[] yieldCurveNames, final YieldCurveWithBlackCubeBundle data, final int daysForward,
       final Calendar calendar, final Double lastMarginPrice) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(date, "date");
@@ -63,6 +65,6 @@ public class MarginedIRFutureOptionConstantSpreadHorizonCalculator implements Ho
     }
 
     final double result = valueHorizon - valueToday;
-    return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));  }
-
+    return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
+  }
 }

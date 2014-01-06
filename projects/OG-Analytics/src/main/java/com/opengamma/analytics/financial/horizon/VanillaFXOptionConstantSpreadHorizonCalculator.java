@@ -19,7 +19,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class VanillaFXOptionConstantSpreadHorizonCalculator implements HorizonCalculator<ForexOptionVanillaDefinition, SmileDeltaTermStructureDataBundle, Void> {
+public class VanillaFXOptionConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<ForexOptionVanillaDefinition, SmileDeltaTermStructureDataBundle, Void> {
   /** Rolls down FX option data (surfaces and surface) */
   private static final ConstantSpreadFXOptionBlackRolldown FX_OPTION_ROLLDOWN = ConstantSpreadFXOptionBlackRolldown.getInstance();
 

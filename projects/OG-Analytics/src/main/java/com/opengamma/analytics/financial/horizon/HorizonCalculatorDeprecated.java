@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.horizon;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -19,43 +19,35 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * @param <U> The type of instrument
  * @param <V> The type of the market data
  * @param <W> The type of any additional market data required to calculate the horizon.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
-public abstract class HorizonCalculator<U extends InstrumentDefinition<?>, V extends ParameterProviderInterface, W> {
+@Deprecated
+public interface HorizonCalculatorDeprecated<U extends InstrumentDefinition<?>, V extends YieldCurveBundle, W> {
 
   /**
    * Calculates the theta for an instrument.
    * @param definition The swap definition, not null
    * @param date The calculation date, not null
+   * @param yieldCurveNames The yield curve names, not null
    * @param data The initial yield curve data, not null
-   * @param daysForward The number of days to roll, must be +/-1
+   * @param daysForward The number of days to roll forward, must be +/-1
    * @param calendar The holiday calendar, not null
    * @return The theta
    */
-  public abstract MultipleCurrencyAmount getTheta(U definition, ZonedDateTime date, V data, int daysForward, Calendar calendar);
+  MultipleCurrencyAmount getTheta(U definition, ZonedDateTime date, String[] yieldCurveNames, V data,
+      int daysForward, Calendar calendar);
 
   /**
    * Calculates the theta for an instrument.
    * @param definition The swap definition, not null
    * @param date The calculation date, not null
+   * @param yieldCurveNames The yield curve names, not null
    * @param data The initial yield curve data, not null
-   * @param daysForward The number of days to roll, must be +/-1
+   * @param daysForward The number of days to roll forward, must be +/-1
    * @param calendar The holiday calendar, not null
    * @param additionalData Any additional data that are needed for pricing (e.g. fixing series for swaps).
    * @return The theta
    */
-  public MultipleCurrencyAmount getTheta(final U definition, final ZonedDateTime date, final V data, final int daysForward, final Calendar calendar,
-      final W additionalData) {
-    return getTheta(definition, date, data, daysForward, calendar);
-  }
-
-  /**
-   * Convenience method that subtracts two multiple currency amounts.
-   * @param a The first currency amount
-   * @param b The second currency amount
-   * @return a - b
-   */
-  protected static MultipleCurrencyAmount subtract(final MultipleCurrencyAmount a, final MultipleCurrencyAmount b) {
-    return a.plus(b.multipliedBy(-1));
-  }
-
+  MultipleCurrencyAmount getTheta(U definition, ZonedDateTime date, String[] yieldCurveNames, V data,
+      int daysForward, Calendar calendar, W additionalData);
 }

@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
@@ -96,7 +95,6 @@ public class BondFutureDiscountingMethodTest {
       REF_PRICE);
   private static final BondFutureDiscountingMethod METHOD_FUT_DSC = BondFutureDiscountingMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
-  private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
 
   private static final Min MIN_FUNCTION = new Min();
   private static final double TOLERANCE_PRICE = 1.0E-8;
@@ -118,10 +116,10 @@ public class BondFutureDiscountingMethodTest {
     assertEquals("Bond future security Discounting Method: price from curves", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 
-  @Test
   /**
    * Tests the computation of the price curve sensitivity.
    */
+  @Test
   public void priceCurveSensitivity() {
     MulticurveSensitivity sensiFuture = METHOD_FUT_DSC.priceCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES);
     final double[] bondForwardPrice = new double[NB_BOND];
@@ -163,10 +161,10 @@ public class BondFutureDiscountingMethodTest {
   //      assertEquals("Bond future security Discounting: Method vs calculator", priceMethod, priceCalculator, 1.0E-10);
   //    }
 
-  @Test
   /**
    * Tests the net basis of all bonds computed from the curves.
    */
+  @Test
   public void netBasisAllBonds() {
     //final double priceFuture = 1.0320;
     final double priceFuture = METHOD_FUT_DSC.price(BOND_FUTURE, ISSUER_MULTICURVES);
@@ -183,10 +181,10 @@ public class BondFutureDiscountingMethodTest {
     assertEquals("Bond future security Discounting Method: netBasis", priceFuture, priceFutureFromNetBasis, 1.0E-10);
   }
 
-  @Test
   /**
    * Tests the net basis of the cheapest to deliver computed from the curves.
    */
+  @Test
   public void netBasisCheapest() {
     final double netBasisInput = 0.0001;
     final double priceFuture = METHOD_FUT_DSC.price(BOND_FUTURE, ISSUER_MULTICURVES) + netBasisInput;
@@ -195,10 +193,10 @@ public class BondFutureDiscountingMethodTest {
     assertEquals("Bond future security Discounting Method: netBasis", MIN_FUNCTION.evaluate(netBasisAll), netBasisCheapest, TOLERANCE_PRICE);
   }
 
-  @Test
   /**
    * Tests the cheapest to deliver figures: yield, modified duration and gross basis.
    */
+  @Test
   public void cheapestToDeliver() {
     final double yieldTest = 0.01345;
     final double priceTest = 1.03414063;
@@ -220,10 +218,10 @@ public class BondFutureDiscountingMethodTest {
     assertEquals("Bond future security: CTD - gross basis from price", grossBasisTest / 100.0 / 32.0, grossBasis[ctdIndex], 1.0E-7);
   }
 
-  @Test
   /**
    * Tests the gross basis computed from clean prices
    */
+  @Test
   public void grossBasis() {
     final double futurePriceTest = 1.19984375;
     final double[] pricesTest = new double[] {0.86, 0.885, 0.88, 0.8825, 0.885, 0.8725, 0.86};
@@ -243,10 +241,10 @@ public class BondFutureDiscountingMethodTest {
     }
   }
 
-  @Test
   /**
    * Tests the present value method for bond futures.
    */
+  @Test
   public void presentValueFromPrice() {
     final double quotedPrice = 1.05;
     final MultipleCurrencyAmount presentValueMethod = METHOD_FUT_DSC.presentValueFromPrice(BOND_FUTURE, quotedPrice);
@@ -256,23 +254,10 @@ public class BondFutureDiscountingMethodTest {
     //    assertEquals("Bond future Method: present value from price", presentValueMethod.getAmount(), presentValueCalculator);
   }
 
-  @Test
-  /**
-   * Tests the present value method for bond futures.
-   */
-  public void presentValue() {
-    final MultipleCurrencyAmount pvComputed = METHOD_FUT_DSC.presentValue(BOND_FUTURE, ISSUER_MULTICURVES);
-    final double priceFuture = METHOD_FUT_DSC.price(BOND_FUTURE, ISSUER_MULTICURVES);
-    final double pvExpected = (priceFuture - REF_PRICE) * NOTIONAL;
-    assertEquals("Bond future Discounting Method: present value amount", pvExpected, pvComputed.getAmount(USD), TOLERANCE_PV);
-    final MultipleCurrencyAmount presentValueCalculator = BOND_FUTURE.accept(PVIC, ISSUER_MULTICURVES);
-    assertEquals("Bond future Discounting Method: present value from price", pvComputed.getAmount(USD), presentValueCalculator.getAmount(USD), TOLERANCE_PV);
-  }
-
-  @Test
   /**
    * Tests the present value method with net basis for bond futures.
    */
+  @Test
   public void presentValueFromNetBasis() {
     final double netBasisInput = 0.0001;
     final MultipleCurrencyAmount pvComputed = METHOD_FUT_DSC.presentValueFromNetBasis(BOND_FUTURE, ISSUER_MULTICURVES, netBasisInput);
@@ -281,10 +266,10 @@ public class BondFutureDiscountingMethodTest {
     assertEquals("Bond future Discounting Method: present value from net basis", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
-  @Test
   /**
    * Tests the present value  curve sensitivity method for bond futures.
    */
+  @Test
   public void presentValueCurveSensitivity() {
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_FUT_DSC.presentValueCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES).cleaned();
     final MulticurveSensitivity pcs = METHOD_FUT_DSC.priceCurveSensitivity(BOND_FUTURE, ISSUER_MULTICURVES);

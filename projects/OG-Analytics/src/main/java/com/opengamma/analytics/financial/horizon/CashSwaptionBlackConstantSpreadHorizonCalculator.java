@@ -25,7 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * @deprecated This class uses deprecated market data objects.
  */
 @Deprecated
-public class CashSwaptionBlackConstantSpreadHorizonCalculator implements HorizonCalculator<SwaptionCashFixedIborDefinition, YieldCurveWithBlackSwaptionBundle, Void> {
+public class CashSwaptionBlackConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<SwaptionCashFixedIborDefinition, YieldCurveWithBlackSwaptionBundle, Void> {
   /** Rolls down swaption data (curves and surface) */
   private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
   /** Present value calculator */

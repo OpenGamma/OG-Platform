@@ -59,7 +59,7 @@ public class CommoditySensitivity {
   /**
    * Constructor from a multicurveSensitivity and a sensitivityPriceCurve. The maps are used directly.
    * @param multicurveSensitivity The multicurveSensitivity.
-   * @param sensitivityPriceCurve The map.
+   * @param sensitivityCommodityForwardCurve The map.
    * @return The sensitivity.
    */
   public static CommoditySensitivity of(final MulticurveSensitivity multicurveSensitivity, final Map<String, List<DoublesPair>> sensitivityCommodityForwardCurve) {
