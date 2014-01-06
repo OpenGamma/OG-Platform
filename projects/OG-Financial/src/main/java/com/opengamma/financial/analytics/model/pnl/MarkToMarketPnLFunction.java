@@ -231,7 +231,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   protected Double calculateLivePrice(FunctionInputs inputs, ComputationTarget target) {  
     final ComputedValue valLivePrice = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
     if (valLivePrice == null) {
-      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target);
+      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target.getTrade().getSecurity().getName());
     }
     return (Double) valLivePrice.getValue();
   }
