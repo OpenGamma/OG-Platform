@@ -38,7 +38,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
@@ -47,6 +46,8 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefi
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -57,6 +58,8 @@ import com.opengamma.id.VersionCorrection;
 public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
+  
+  private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
 
   @Override
   protected String getInstrumentType() {
@@ -106,7 +109,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   @Override
   protected Double getTimeToMaturity(final int n, final LocalDate date, final Calendar calendar) {
-    return Double.valueOf(TimeCalculator.getTimeBetween(date, FutureOptionExpiries.EQUITY.getQuarterlyExpiry(n, date)));
+    throw new OpenGammaRuntimeException("Unexpected call");
   }
 
   /* Spot value of the equity index or name */
@@ -196,7 +199,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
         final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
-        final FutureOptionExpiries expiryCalc = (FutureOptionExpiries) futurePriceCurveProvider.getExpiryRuleCalculator();
+        final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
@@ -216,7 +219,7 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              LocalDate expiry = expiryCalc.getQuarterlyExpiry(xNum.intValue(), valDate);
+              LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, WEEKDAYS); // TODO Add true holiday calendar
               final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
               xList.add(ttm);
               prices.add(futurePrice);
