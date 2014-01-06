@@ -13,9 +13,9 @@ package com.opengamma.util.result;
 public interface ResultStatus {
 
   /**
-   * Indicates if a FunctionResult with this status has a return value populated.
+   * Indicates if a Result with this status has a return value populated.
    *
-   * @return true if the FunctionResult has its return value populated
+   * @return true if the Result has its return value populated
    */
   boolean isResultAvailable();
 }

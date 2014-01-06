@@ -11,24 +11,24 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 /**
- * Factory class for {@link FunctionResult} objects.
+ * Factory class for {@link Result} objects.
  *
  * <p/>
  * <h3>Typical usage pattern:</h3>
  * <pre>
  *
- * import static com.opengamma.util.result.FunctionResultGenerator.failure;
- * import static com.opengamma.util.result.FunctionResultGenerator.propagateFailure;
- * import static com.opengamma.util.result.FunctionResultGenerator.success;
+ * import static com.opengamma.util.result.ResultGenerator.failure;
+ * import static com.opengamma.util.result.ResultGenerator.propagateFailure;
+ * import static com.opengamma.util.result.ResultGenerator.success;
  * import static com.opengamma.util.result.FailureStatus.CALCULATION_FAILED;
  *
  * public class Calculations {
  *
- *   public FunctionResult<CalculatedValue> calculate() {
+ *   public Result<CalculatedValue> calculate() {
  *
- *     FunctionResult<InterimValue> interimResult = doInitialCalculation();
- *     if (interimResult.isResultAvailable()) {
- *       InterimValue value = interimResult.getResult();
+ *     Result<InterimValue> interimResult = doInitialCalculation();
+ *     if (interimResult.isValueAvailable()) {
+ *       InterimValue value = interimResult.getValue();
  *       Calculator calculator = getCalculator()
  *
  *       if (calculator.isCalculationPossible(value)) {
@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
  *
  * </pre>
  */
-public class FunctionResultGenerator {
+public class ResultGenerator {
 
   /**
    * Generate a result object indicating that a function completed successfully
@@ -55,8 +55,8 @@ public class FunctionResultGenerator {
    * @param <T> the type of the value to be returned
    * @return a result object wrapping the actual function invocation result
    */
-  public static <T> FunctionResult<T> success(T value) {
-    return new SuccessFunctionResult<>(value);
+  public static <T> Result<T> success(T value) {
+    return new SuccessResult<>(value);
   }
 
   /**
@@ -70,22 +70,22 @@ public class FunctionResultGenerator {
    * @param <T> the type of the value which would have been returned if successful
    * @return a result object wrapping the failure details
    */
-  public static <T> FunctionResult<T> failure(FailureStatus status, String message, Object... messageArgs) {
-    return new FailureFunctionResult<>(status, message, messageArgs);
+  public static <T> Result<T> failure(FailureStatus status, String message, Object... messageArgs) {
+    return new FailureResult<>(status, message, messageArgs);
   }
 
   /**
    * Propagate a failure result, ensuring that its generic type signature
    * matches the one required.
    *
-   * @param functionResult the failure to be propagated
+   * @param result the failure to be propagated
    * @param <T> the required type of the new result object
    * @return the new function result object
    */
-  public static <T> FunctionResult<T> propagateFailure(FunctionResult functionResult) {
+  public static <T> Result<T> propagateFailure(Result result) {
     // todo remove the cast
-    FailureFunctionResult failureFunctionResult = (FailureFunctionResult) functionResult;
-    return new FailureFunctionResult<>(failureFunctionResult.getStatus(), failureFunctionResult.getErrorMessage());
+    FailureResult failureFunctionResult = (FailureResult) result;
+    return new FailureResult<>(failureFunctionResult.getStatus(), failureFunctionResult.getErrorMessage());
   }
 
   /**
@@ -94,9 +94,9 @@ public class FunctionResultGenerator {
    * @param results the set of results to be checked
    * @return true if the set of results contains at least one failure
    */
-  public static boolean anyFailures(FunctionResult<?>... results) {
-    for (FunctionResult<?> result : results) {
-      if (!result.isResultAvailable()) {
+  public static boolean anyFailures(Result<?>... results) {
+    for (Result<?> result : results) {
+      if (!result.isValueAvailable()) {
         return true;
       }
     }
@@ -116,24 +116,24 @@ public class FunctionResultGenerator {
    * @throws IllegalArgumentException if there are no failures in the results set
    */
   // results can include successes which are ignored
-  public static <T> FunctionResult<T> propagateFailures(FunctionResult<?> result1,
-                                                        FunctionResult<?> result2,
-                                                        FunctionResult<?>... results) {
+  public static <T> Result<T> propagateFailures(Result<?> result1,
+                                                        Result<?> result2,
+                                                        Result<?>... results) {
 
-    // todo - what if one of the results was itself a MultipleFailureFunctionResult?
-    List<FunctionResult<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
+    // todo - what if one of the results was itself a MultipleFailureResult?
+    List<Result<?>> resultList = Lists.newArrayListWithCapacity(results.length + 2);
     resultList.add(result1);
     resultList.add(result2);
     resultList.addAll(Arrays.asList(results));
-    List<FunctionResult<?>> failures = Lists.newArrayList();
-    for (FunctionResult<?> result : resultList) {
-      if (result instanceof FailureFunctionResult) {
-        failures.add((FailureFunctionResult) result);
+    List<Result<?>> failures = Lists.newArrayList();
+    for (Result<?> result : resultList) {
+      if (result instanceof FailureResult) {
+        failures.add((FailureResult) result);
       }
     }
     if (failures.isEmpty()) {
       throw new IllegalArgumentException("No failures found in " + failures);
     }
-    return new MultipleFailureFunctionResult<>(failures);
+    return new MultipleFailureResult<>(failures);
   }
 }

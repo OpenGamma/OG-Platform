@@ -6,41 +6,41 @@
 package com.opengamma.util.result;
 
 /**
- * The immutable result from a function containing an indication
+ * The immutable result from a calculation containing an indication
  * of whether a value has been calculated. FunctionResults can be
- * generated using the methods on {@link FunctionResultGenerator}.
+ * generated using the methods on {@link ResultGenerator}.
  *
  * @param <T> the type of the underlying result for a successful invocation
  */
-public interface FunctionResult<T> {
+public interface Result<T> {
 
   /**
-   * Indicates if there is a result available from this instance. This
+   * Indicates if there is a result value available from this instance. This
    * generally means that any calculation has been successfully performed
    * but for calculation that may return partial results e.g. market data
    * requests this method will return true. To distinguish between these
    * cases, check the result status using {@link #getStatus()}.
    *
-   * @return true if a result is available
+   * @return true if a value is available
    */
-  boolean isResultAvailable();
+  boolean isValueAvailable();
 
   /**
-   * Return the actual result if calculated successfully. If it has not been
+   * Return the actual result value if calculated successfully. If it has not been
    * calculated then an IllegalStateException will be thrown. To avoid this,
-   * check the result status using {@link #isResultAvailable()} or
+   * check the result status using {@link #isValueAvailable()} or
    * {@link #getStatus()} first.
    *
-   * @return the result if calculated successfully, not null
+   * @return the value if calculated successfully, not null
    * @throws IllegalArgumentException if called when the result has not been
    * successfully calculated
    */
-  T getResult();
+  T getValue();
 
   /**
    * Indicates the status of this result. It is up to the client to decide
    * if it is able to handle the status or decline to handle. In general it
-   * is easier to call {@link #isResultAvailable()}.
+   * is easier to call {@link #isValueAvailable()}.
    *
    * @return the status of this function result
    */
@@ -49,11 +49,11 @@ public interface FunctionResult<T> {
   /**
    * Return the message associated with a failure event. If the calculation
    * was actually successful then an an IllegalStateException will be thrown.
-   * To avoid this, check the result status using {@link #isResultAvailable()}
+   * To avoid this, check the result status using {@link #isValueAvailable()}
    * or {@link #getStatus()} first.
    *
    * @return the failure message if calculation was unsuccessful, not null
-   * @throws IllegalArgumentException if called when the result has been
+   * @throws IllegalArgumentException if called when the result value has been
    * successfully calculated
    */
   String getFailureMessage();

@@ -16,18 +16,18 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
 @Test(groups = TestGroup.UNIT)
-public class SuccessFunctionResultTest extends AbstractFudgeBuilderTestCase {
+public class SuccessResultTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void serializeResultWithCurrencyAmount() {
-    FunctionResult<CurrencyAmount> success = FunctionResultGenerator.success(CurrencyAmount.of(Currency.AUD, 12345));
+    Result<CurrencyAmount> success = ResultGenerator.success(CurrencyAmount.of(Currency.AUD, 12345));
     assertEncodeDecodeCycle(ResultContainer.class, ResultContainer.of(success));
   }
 
   @Test(enabled=false)
   public void serializeResultWithMapStringString() {
     Map<String, String> map = ImmutableMap.of("one", "1", "two", "2");
-    FunctionResult<Map<String, String>> success = FunctionResultGenerator.success(map);
+    Result<Map<String, String>> success = ResultGenerator.success(map);
     assertEncodeDecodeCycle(ResultContainer.class, ResultContainer.of(success));
   }
 }

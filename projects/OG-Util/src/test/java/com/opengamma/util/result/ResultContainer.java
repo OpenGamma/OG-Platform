@@ -24,9 +24,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class ResultContainer implements ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final FunctionResult<?> _result;
+  private final Result<?> _result;
 
-  public static ResultContainer of(FunctionResult<?> result) {
+  public static ResultContainer of(Result<?> result) {
     return new ResultContainer(result);
   }
 
@@ -53,7 +53,7 @@ public final class ResultContainer implements ImmutableBean {
   }
 
   private ResultContainer(
-      FunctionResult<?> result) {
+      Result<?> result) {
     JodaBeanUtils.notNull(result, "result");
     this._result = result;
   }
@@ -78,7 +78,7 @@ public final class ResultContainer implements ImmutableBean {
    * Gets the result.
    * @return the value of the property, not null
    */
-  public FunctionResult<?> getResult() {
+  public Result<?> getResult() {
     return _result;
   }
 
@@ -138,8 +138,8 @@ public final class ResultContainer implements ImmutableBean {
      * The meta-property for the {@code result} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<FunctionResult<?>> _result = DirectMetaProperty.ofImmutable(
-        this, "result", ResultContainer.class, (Class) FunctionResult.class);
+    private final MetaProperty<Result<?>> _result = DirectMetaProperty.ofImmutable(
+        this, "result", ResultContainer.class, (Class) Result.class);
     /**
      * The meta-properties.
      */
@@ -182,7 +182,7 @@ public final class ResultContainer implements ImmutableBean {
      * The meta-property for the {@code result} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FunctionResult<?>> result() {
+    public MetaProperty<Result<?>> result() {
       return _result;
     }
 
@@ -213,7 +213,7 @@ public final class ResultContainer implements ImmutableBean {
    */
   public static final class Builder extends DirectFieldsBeanBuilder<ResultContainer> {
 
-    private FunctionResult<?> _result;
+    private Result<?> _result;
 
     /**
      * Restricted constructor.
@@ -234,7 +234,7 @@ public final class ResultContainer implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -934426595:  // result
-          this._result = (FunctionResult<?>) newValue;
+          this._result = (Result<?>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -278,7 +278,7 @@ public final class ResultContainer implements ImmutableBean {
      * @param result  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder result(FunctionResult<?> result) {
+    public Builder result(Result<?> result) {
       JodaBeanUtils.notNull(result, "result");
       this._result = result;
       return this;
