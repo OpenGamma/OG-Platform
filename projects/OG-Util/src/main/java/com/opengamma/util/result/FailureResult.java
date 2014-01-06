@@ -93,7 +93,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> FailureResult.Meta<R> metaFailureFunctionResult(Class<R> cls) {
+  public static <R> FailureResult.Meta<R> metaFailureResult(Class<R> cls) {
     return FailureResult.Meta.INSTANCE;
   }
 

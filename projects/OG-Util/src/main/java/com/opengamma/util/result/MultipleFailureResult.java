@@ -91,7 +91,7 @@ public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> MultipleFailureResult.Meta<R> metaMultipleFailureFunctionResult(Class<R> cls) {
+  public static <R> MultipleFailureResult.Meta<R> metaMultipleFailureResult(Class<R> cls) {
     return MultipleFailureResult.Meta.INSTANCE;
   }
 

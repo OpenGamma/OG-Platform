@@ -78,7 +78,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> SuccessResult.Meta<R> metaSuccessFunctionResult(Class<R> cls) {
+  public static <R> SuccessResult.Meta<R> metaSuccessResult(Class<R> cls) {
     return SuccessResult.Meta.INSTANCE;
   }
 
@@ -116,7 +116,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
    * Gets the result of the function invocation.
    * @return the value of the property, not null
    */
-  public T getValue() {
+  public T getResult() {
     return _result;
   }
 
@@ -141,7 +141,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SuccessResult<?> other = (SuccessResult<?>) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue());
+      return JodaBeanUtils.equal(getResult(), other.getResult());
     }
     return false;
   }
@@ -149,7 +149,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResult());
     return hash;
   }
 
@@ -222,7 +222,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -934426595:  // result
-          return ((SuccessResult<?>) bean).getValue();
+          return ((SuccessResult<?>) bean).getResult();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -257,7 +257,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SuccessResult<T> beanToCopy) {
-      this._result = beanToCopy.getValue();
+      this._result = beanToCopy.getResult();
     }
 
     //-----------------------------------------------------------------------
