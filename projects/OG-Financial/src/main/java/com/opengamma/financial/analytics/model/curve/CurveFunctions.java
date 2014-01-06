@@ -9,10 +9,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.DynamicFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.VersionedFunctionConfigurationBean;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -37,7 +41,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   *
+   * 
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static FunctionConfigurationSource instance() {
@@ -46,24 +50,62 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Returns a configuration populated with curve building functions.
+   * 
    * @param configMaster The config master
    * @return A populated configuration
    */
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    final Providers factory = new Providers();
-    factory.setConfigMaster(configMaster);
-    return factory.getObjectCreating();
+    return new DynamicFunctionConfigurationBean() {
+
+      @Override
+      public ChangeManager getUnderlyingChangeManager() {
+        return configMaster.changeManager();
+      }
+
+      @Override
+      protected VersionedFunctionConfigurationBean createConfiguration() {
+        final Providers providers = new Providers();
+        providers.setConfigMaster(configMaster);
+        return providers;
+      }
+
+      @Override
+      protected boolean isPropogateEvent(ChangeEvent event) {
+        // TODO: Filter the events
+        return true;
+      }
+
+    };
   }
 
   /**
    * Returns a configuration populated with functions that supply model parameters (e.g. G2++ parameters).
+   * 
    * @param configMaster The config master
    * @return A populated configuration
    */
   public static FunctionConfigurationSource parameterProviders(final ConfigMaster configMaster) {
-    final ParameterProviders factory = new ParameterProviders();
-    factory.setConfigMaster(configMaster);
-    return factory.getObjectCreating();
+    return new DynamicFunctionConfigurationBean() {
+
+      @Override
+      public ChangeManager getUnderlyingChangeManager() {
+        return configMaster.changeManager();
+      }
+
+      @Override
+      protected VersionedFunctionConfigurationBean createConfiguration() {
+        final ParameterProviders providers = new ParameterProviders();
+        providers.setConfigMaster(configMaster);
+        return providers;
+      }
+
+      @Override
+      protected boolean isPropogateEvent(ChangeEvent event) {
+        // TODO: Filter the events
+        return true;
+      }
+
+    };
   }
 
   /**
@@ -79,6 +121,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Gets the absolute tolerance.
+     * 
      * @return The absolute tolerance
      */
     public double getAbsoluteTolerance() {
@@ -87,6 +130,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Sets the absolute tolerance.
+     * 
      * @param absoluteTolerance The absolute tolerance
      */
     public void setAbsoluteTolerance(final double absoluteTolerance) {
@@ -95,6 +139,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Gets the relative tolerance.
+     * 
      * @return The relative tolerance
      */
     public double getRelativeTolerance() {
@@ -103,6 +148,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Sets the relative tolerance.
+     * 
      * @param relativeTolerance The relative tolerance.
      */
     public void setRelativeTolerance(final double relativeTolerance) {
@@ -111,6 +157,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Gets the maximum number of iterations.
+     * 
      * @return The maximum number of iterations
      */
     public int getMaximumIterations() {
@@ -119,6 +166,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Sets the maximum number of iterations
+     * 
      * @param maxIterations The maximum number of iterations
      */
     public void setMaximumIterations(final int maxIterations) {
@@ -139,8 +187,8 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     }
 
     /**
-     * Adds default values for absolute tolerance, relative tolerance and the maximum number of
-     * iterations for all curve building functions
+     * Adds default values for absolute tolerance, relative tolerance and the maximum number of iterations for all curve building functions
+     * 
      * @param functions The list of function configurations.
      */
     protected void addCurveDefaults(final List<FunctionConfiguration> functions) {
@@ -151,15 +199,17 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(CurveDefaults.class, args));
     }
   }
+
   /**
    * Function repository configuration source for curve functions based on the items defined in a {@link ConfigMaster}.
    */
-  public static class Providers extends AbstractFunctionConfigurationBean {
+  public static class Providers extends VersionedFunctionConfigurationBean {
     /** The configuration master */
     private ConfigMaster _configMaster;
 
     /**
      * Sets the config master.
+     * 
      * @param configMaster The config master, not null
      */
     public void setConfigMaster(final ConfigMaster configMaster) {
@@ -169,6 +219,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Gets the config master.
+     * 
      * @return The config master
      */
     public ConfigMaster getConfigMaster() {
@@ -177,13 +228,13 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Adds all interpolated curve building functions.
+     * 
      * @param functions The list of functions
      * @param curveTypeConfigClasses The type of curves in a construction configuration
      * @param curveConfigName The curve construction configuration name
      */
-    protected void addInterpolatedCurveBuildingFunctions(final List<FunctionConfiguration> functions,
-                                                         final Set<Class<? extends CurveTypeConfiguration>> curveTypeConfigClasses,
-                                                         final String curveConfigName) {
+    protected void addInterpolatedCurveBuildingFunctions(final List<FunctionConfiguration> functions, final Set<Class<? extends CurveTypeConfiguration>> curveTypeConfigClasses,
+        final String curveConfigName) {
       if (curveTypeConfigClasses.contains(InflationCurveTypeConfiguration.class)) {
         functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
       } else if (curveTypeConfigClasses.contains(IssuerCurveTypeConfiguration.class)) {
@@ -200,19 +251,19 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Adds a function that constructs yield curves using the ISDA methodology.
+     * 
      * @param functions The list of functions
      * @param curveConfigName The curve configuration name
      */
-    protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions,
-                                                         final String curveConfigName) {
+    protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions, final String curveConfigName) {
       functions.add(functionConfiguration(ISDACompliantCurveFunction.class, curveConfigName));
     }
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       final ConfigSearchRequest<CurveDefinition> searchRequest = new ConfigSearchRequest<>();
-      searchRequest.setType(CurveConstructionConfiguration.class);
-      final Class<?>[] curveConstructionConfigurationClasses = new Class[] {CurveConstructionConfiguration.class};
+      searchRequest.setVersionCorrection(getVersionCorrection());
+      final Class<?>[] curveConstructionConfigurationClasses = new Class[] {CurveConstructionConfiguration.class };
       for (final Class<?> klass : curveConstructionConfigurationClasses) {
         searchRequest.setType(klass);
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
@@ -230,6 +281,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       searchRequest.setType(CurveDefinition.class);
+      searchRequest.setVersionCorrection(getVersionCorrection());
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
         final String documentName = configDocument.getName();
         addCurveBuildingFunctions(functions, documentName);
@@ -240,15 +292,15 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
      * Extracts the CurveTypeConfiguration classes from a given CurveConstructionConfiguration.
      * <p>
      * This allows us to decide whether we want a function to be supported based on the contained CurveTypeConfigurations.
-     *
+     * 
      * @param config the CurveConstructionConfiguration to retrieve the curve types from.
      * @return a Set of CurveTypeConfigurations.
      */
     private static Set<Class<? extends CurveTypeConfiguration>> extractCurveTypeConfigurationClasses(final CurveConstructionConfiguration config) {
       final Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = new HashSet<>();
-      for (final CurveGroupConfiguration group: config.getCurveGroups()) {
-        for (final List<CurveTypeConfiguration> curveTypeConfigs: group.getTypesForCurves().values()) {
-          for (final CurveTypeConfiguration curveTypeConfig: curveTypeConfigs) {
+      for (final CurveGroupConfiguration group : config.getCurveGroups()) {
+        for (final List<CurveTypeConfiguration> curveTypeConfigs : group.getTypesForCurves().values()) {
+          for (final CurveTypeConfiguration curveTypeConfig : curveTypeConfigs) {
             allCurveTypeConfigs.add(curveTypeConfig.getClass());
           }
         }
@@ -260,12 +312,13 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Function repository configuration source for curve parameter functions based on the items in a {@link ConfigMaster}
    */
-  public static class ParameterProviders extends AbstractFunctionConfigurationBean {
+  public static class ParameterProviders extends VersionedFunctionConfigurationBean {
     /** The configuration master */
     private ConfigMaster _configMaster;
 
     /**
      * Sets the config master
+     * 
      * @param configMaster The config master, not null
      */
     public void setConfigMaster(final ConfigMaster configMaster) {
@@ -275,6 +328,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     /**
      * Gets the configuration master.
+     * 
      * @return The configuration master
      */
     public ConfigMaster getConfigMaster() {
@@ -285,6 +339,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       final ConfigSearchRequest<HullWhiteOneFactorParameters> hwSearchRequest = new ConfigSearchRequest<>();
       hwSearchRequest.setType(HullWhiteOneFactorParameters.class);
+      hwSearchRequest.setVersionCorrection(getVersionCorrection());
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), hwSearchRequest)) {
         final String configurationName = configDocument.getName();
         final HullWhiteOneFactorParameters hullWhiteParameters = ((ConfigItem<HullWhiteOneFactorParameters>) configDocument.getConfig()).getValue();
@@ -293,6 +348,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       }
       final ConfigSearchRequest<G2ppParameters> g2ppSearchRequest = new ConfigSearchRequest<>();
       g2ppSearchRequest.setType(G2ppParameters.class);
+      g2ppSearchRequest.setVersionCorrection(getVersionCorrection());
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), g2ppSearchRequest)) {
         final String configurationName = configDocument.getName();
         final G2ppParameters g2ppParameters = ((ConfigItem<G2ppParameters>) configDocument.getConfig()).getValue();

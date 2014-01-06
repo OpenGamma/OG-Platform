@@ -26,6 +26,7 @@ import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.engine.function.CompiledFunctionService;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
@@ -149,6 +150,9 @@ public class ViewProcessorManager implements Lifecycle {
           for (ChangeProvider master : _masters) {
             master.changeManager().addChangeListener(_masterListener);
           }
+          for (ViewProcessorInternal viewProcessor : _viewProcessors) {
+            viewProcessor.getFunctionCompilationService().getFunctionRepositoryFactory().changeManager().addChangeListener(_masterListener);
+          }
         } finally {
           _changeLock.unlock();
         }
@@ -162,6 +166,7 @@ public class ViewProcessorManager implements Lifecycle {
           _watchSet.addAll(watch);
           addAlternateWatchSet(watch);
         }
+        _watchSet.add(FunctionConfigurationSource.OBJECT_ID);
         s_logger.debug("WatchSet = {}", _watchSet);
         s_logger.info("Starting view processors");
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
@@ -181,6 +186,7 @@ public class ViewProcessorManager implements Lifecycle {
       if (_isRunning) {
         for (ViewProcessorInternal viewProcessor : _viewProcessors) {
           viewProcessor.stop();
+          viewProcessor.getFunctionCompilationService().getFunctionRepositoryFactory().changeManager().removeChangeListener(_masterListener);
         }
         for (ChangeProvider master : _masters) {
           master.changeManager().removeChangeListener(_masterListener);
@@ -203,7 +209,11 @@ public class ViewProcessorManager implements Lifecycle {
         _executor.submit(new Runnable() {
           @Override
           public void run() {
-            reinitializeFunctions();
+            try {
+              reinitializeFunctions();
+            } catch (Throwable t) {
+              s_logger.error("Error reinitializing", t);
+            }
           }
         });
       } else {
@@ -248,10 +258,15 @@ public class ViewProcessorManager implements Lifecycle {
       s_logger.debug("Re-initializing functions");
       _watchSet.clear();
       for (CompiledFunctionService functions : _functions) {
-        final Set<ObjectId> watch = functions.reinitialize();
-        _watchSet.addAll(watch);
-        addAlternateWatchSet(watch);
+        try {
+          final Set<ObjectId> watch = functions.reinitialize();
+          _watchSet.addAll(watch);
+          addAlternateWatchSet(watch);
+        } catch (Throwable t) {
+          s_logger.error("Error reinitializing functions", t);
+        }
       }
+      _watchSet.add(FunctionConfigurationSource.OBJECT_ID);
       s_logger.trace("WatchSet = {}", _watchSet);
       s_logger.debug("Resuming view processors");
       for (Runnable resume : resumes) {

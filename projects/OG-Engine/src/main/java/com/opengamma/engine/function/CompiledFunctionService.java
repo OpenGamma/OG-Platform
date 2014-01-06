@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +56,7 @@ public class CompiledFunctionService implements Lifecycle {
     @Override
     public synchronized void reinitializeFunction(final FunctionDefinition function, final ObjectId identifier) {
       s_logger.debug("Re-initialize function {} on change to {}", function, identifier);
+      ArgumentChecker.notNull(function, "function");
       _reinitializingFunctionDefinitions.add(function);
       _reinitializingFunctionRequirements.add(identifier);
     }
@@ -62,6 +64,7 @@ public class CompiledFunctionService implements Lifecycle {
     @Override
     public synchronized void reinitializeFunction(final FunctionDefinition function, final Collection<ObjectId> identifiers) {
       s_logger.debug("Re-initialize function {} on changes to {}", function, identifiers);
+      ArgumentChecker.notNull(function, "function");
       _reinitializingFunctionDefinitions.add(function);
       _reinitializingFunctionRequirements.addAll(identifiers);
     }
@@ -224,6 +227,7 @@ public class CompiledFunctionService implements Lifecycle {
 
     });
     getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
+    getFunctionCompilationContext().setFunctionInitId(initId);
     synchronized (initialized) {
       for (final FunctionDefinition definition : functions) {
         initialized.remove(definition);
@@ -256,7 +260,6 @@ public class CompiledFunctionService implements Lifecycle {
     }
     _initializedFunctionRepository = initialized;
     getFunctionCompilationContext().setFunctionReinitializer(null);
-    getFunctionCompilationContext().setFunctionInitId(initId);
     timer.finished();
   }
 
@@ -292,7 +295,7 @@ public class CompiledFunctionService implements Lifecycle {
         s_logger.warn("No functions registered for re-initialization");
         getFunctionCompilationContext().setFunctionInitId(initId);
       } else {
-        initializeImpl(initId, reinitialize);
+        initializeImpl(initId, new ArrayList<FunctionDefinition>(reinitialize));
       }
     } else {
       // Different repository; full initialization

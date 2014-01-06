@@ -16,6 +16,9 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
@@ -29,7 +32,7 @@ import com.opengamma.util.ReflectionUtils;
 /**
  * Constructs and bootstraps an {@link InMemoryFunctionRepository} based on configuration provided in a Fudge-encoded stream.
  */
-public abstract class FunctionRepositoryFactory {
+public abstract class FunctionRepositoryFactory implements ChangeProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionRepositoryFactory.class);
 
@@ -65,10 +68,17 @@ public abstract class FunctionRepositoryFactory {
   public static FunctionRepositoryFactory constructRepositoryFactory(final FunctionRepository staticFunctions) {
     ArgumentChecker.notNull(staticFunctions, "staticFunctions");
     return new FunctionRepositoryFactory() {
+
       @Override
       public FunctionRepository constructRepository(final Instant configurationVersion) {
         return staticFunctions;
       }
+
+      @Override
+      public ChangeManager changeManager() {
+        return DummyChangeManager.INSTANCE;
+      }
+
     };
   }
 
@@ -95,6 +105,11 @@ public abstract class FunctionRepositoryFactory {
           _previousRepository = constructRepository(repositoryConfiguration);
         }
         return _previousRepository;
+      }
+
+      @Override
+      public ChangeManager changeManager() {
+        return dynamicFunctions.changeManager();
       }
 
     };

@@ -9,6 +9,7 @@ package com.opengamma.engine.function.config;
 import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.id.ObjectId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -23,6 +24,11 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface FunctionConfigurationSource extends ChangeProvider {
+
+  /**
+   * The object identifier that this source will report changes to.
+   */
+  ObjectId OBJECT_ID = ObjectId.of("OpenGamma", "FunctionConfiguration");
 
   /**
    * Returns a function configuration bundle.

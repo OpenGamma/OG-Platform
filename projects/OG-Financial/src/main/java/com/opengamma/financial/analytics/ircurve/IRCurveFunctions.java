@@ -8,10 +8,14 @@ package com.opengamma.financial.analytics.ircurve;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
+import com.opengamma.engine.function.config.DynamicFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.VersionedFunctionConfigurationBean;
 import com.opengamma.financial.analytics.BucketedPV01Function;
 import com.opengamma.financial.analytics.ISINFunction;
 import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
@@ -36,7 +40,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   *
+   * 
    * @return the configuration source exposing functions from this package
    */
   public static FunctionConfigurationSource instance() {
@@ -44,15 +48,33 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
   }
 
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    final Providers factory = new Providers();
-    factory.setConfigMaster(configMaster);
-    return factory.getObjectCreating();
+    return new DynamicFunctionConfigurationBean() {
+
+      @Override
+      public ChangeManager getUnderlyingChangeManager() {
+        return configMaster.changeManager();
+      }
+
+      @Override
+      protected VersionedFunctionConfigurationBean createConfiguration() {
+        final Providers providers = new Providers();
+        providers.setConfigMaster(configMaster);
+        return providers;
+      }
+
+      @Override
+      protected boolean isPropogateEvent(ChangeEvent event) {
+        // TODO: Filter the events
+        return true;
+      }
+
+    };
   }
 
   /**
    * Function repository configuration source for yield curve functions based on the items defined in a Config Master.
    */
-  public static class Providers extends AbstractFunctionConfigurationBean {
+  public static class Providers extends VersionedFunctionConfigurationBean {
 
     private ConfigMaster _configMaster;
 
@@ -65,8 +87,6 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addYieldCurveFunctions(final List<FunctionConfiguration> functions, final String currency, final String curveName) {
-      functions.add(functionConfiguration(BucketedPV01Function.class));
-      functions.add(functionConfiguration(ISINFunction.class));
       functions.add(functionConfiguration(YieldCurveMarketDataFunction.class, currency, curveName));
       functions.add(functionConfiguration(YieldCurveInterpolatingFunction.class, currency, curveName));
       functions.add(functionConfiguration(YieldCurveSpecificationFunction.class, currency, curveName));
@@ -85,6 +105,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       final List<String> impliedDepositCurveNames = new ArrayList<>();
       final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<>();
       searchRequest.setType(MultiCurveCalculationConfig.class);
+      searchRequest.setVersionCorrection(getVersionCorrection());
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(_configMaster, searchRequest)) {
         final String documentName = configDocument.getName();
         final MultiCurveCalculationConfig config = ((ConfigItem<MultiCurveCalculationConfig>) configDocument.getConfig()).getValue();
@@ -101,6 +122,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       searchRequest.setType(YieldCurveDefinition.class);
+      searchRequest.setVersionCorrection(getVersionCorrection());
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
         final String documentName = configDocument.getName();
         final int underscore = documentName.lastIndexOf('_');
@@ -115,9 +137,10 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       // new curves
-      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class, ConstantCurveDefinition.class, SpreadCurveDefinition.class};
+      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class, ConstantCurveDefinition.class, SpreadCurveDefinition.class };
       for (final Class klass : curveClasses) {
         searchRequest.setType(klass);
+        searchRequest.setVersionCorrection(getVersionCorrection());
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
           final String documentName = configDocument.getName();
           addCurveFunctions(functions, documentName);
@@ -129,8 +152,10 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(BucketedPV01Function.class));
     functions.add(functionConfiguration(DefaultYieldCurveMarketDataShiftFunction.class));
     functions.add(functionConfiguration(DefaultYieldCurveShiftFunction.class));
+    functions.add(functionConfiguration(ISINFunction.class));
     functions.add(functionConfiguration(YieldCurveMarketDataShiftFunction.class));
     functions.add(functionConfiguration(YieldCurveShiftFunction.class));
   }

@@ -100,7 +100,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ExposureFunctions.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, ExposureFunctions.class);
   }
 
   /**
