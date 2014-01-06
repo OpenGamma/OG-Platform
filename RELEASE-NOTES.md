@@ -7,7 +7,12 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
-To 2.2.0-M4p04
+To 2.2.0-M4p06
+--------------
+* Bug
+  * [PLAT-5443] - Apply scenarios when not running in batch mode
+
+To 2.2.0-M4p05
 --------------
 * Bug
   * [PLAT-5314] Fix bug with headless timeseries updates
