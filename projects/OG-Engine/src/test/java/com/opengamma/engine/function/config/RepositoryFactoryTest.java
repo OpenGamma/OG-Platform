@@ -15,8 +15,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
@@ -30,6 +32,7 @@ import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.NoOpFunction;
@@ -206,6 +209,32 @@ public class RepositoryFactoryTest {
 
   private boolean isIntrinsicFunctionDefinition(FunctionDefinition definition) {
     return (definition instanceof NoOpFunction) || (definition instanceof MarketDataAliasingFunction) || (definition instanceof StructureManipulationFunction);
+  }
+
+  public void testStaticRepository() {
+    final FunctionRepository functionRepository = new InMemoryFunctionRepository();
+    final FunctionRepositoryFactory instance = FunctionRepositoryFactory.constructRepositoryFactory(functionRepository);
+    assertSame(instance.constructRepository(Instant.now()), functionRepository);
+  }
+
+  public void testDynamicRepository() {
+    final FunctionConfigurationSource configSource = Mockito.mock(FunctionConfigurationSource.class);
+    final FunctionRepositoryFactory instance = FunctionRepositoryFactory.constructRepositoryFactory(configSource);
+    final Instant t1 = Instant.ofEpochMilli(1L);
+    final Instant t2 = Instant.ofEpochMilli(2L);
+    final Instant t3 = Instant.ofEpochMilli(3L);
+    final FunctionConfigurationBundle configuration1 = new FunctionConfigurationBundle();
+    final FunctionConfigurationBundle configuration2 = new FunctionConfigurationBundle();
+    configuration2.addFunctions(new ParameterizedFunctionConfiguration(MockSingleArgumentFunction.class.getName(), Collections.singleton("foo")));
+    Mockito.when(configSource.getFunctionConfiguration(t1)).thenReturn(configuration1);
+    Mockito.when(configSource.getFunctionConfiguration(t2)).thenReturn(configuration1);
+    Mockito.when(configSource.getFunctionConfiguration(t3)).thenReturn(configuration2);
+    final FunctionRepository repo1 = instance.constructRepository(t1);
+    final FunctionRepository repo2 = instance.constructRepository(t2);
+    assertEquals(repo1.getAllFunctions().size(), FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT);
+    assertSame(repo1, repo2);
+    final FunctionRepository repo3 = instance.constructRepository(t3);
+    assertEquals(repo3.getAllFunctions().size(), FunctionRepositoryFactory.INTRINSIC_FUNCTION_COUNT + 1);
   }
 
 }
