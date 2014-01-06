@@ -34,11 +34,11 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
    * The result of the function invocation.
    */
   @PropertyDefinition(validate = "notNull")
-  private final T _result;
+  private final T _value;
 
   @ImmutableConstructor
-  /* package */ SuccessResult(T result) {
-    _result = result;
+  /* package */ SuccessResult(T value) {
+    _value = value;
   }
 
   @Override
@@ -48,7 +48,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
 
   @Override
   public String toString() {
-    return "SuccessResult{_result=" + _result + '}';
+    return "SuccessResult{_value=" + _value + '}';
   }
 
   @Override
@@ -116,8 +116,8 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
    * Gets the result of the function invocation.
    * @return the value of the property, not null
    */
-  public T getResult() {
-    return _result;
+  public T getValue() {
+    return _value;
   }
 
   //-----------------------------------------------------------------------
@@ -141,7 +141,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       SuccessResult<?> other = (SuccessResult<?>) obj;
-      return JodaBeanUtils.equal(getResult(), other.getResult());
+      return JodaBeanUtils.equal(getValue(), other.getValue());
     }
     return false;
   }
@@ -149,7 +149,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResult());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
     return hash;
   }
 
@@ -165,17 +165,17 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code result} property.
+     * The meta-property for the {@code value} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _result = (DirectMetaProperty) DirectMetaProperty.ofImmutable(
-        this, "result", SuccessResult.class, Object.class);
+    private final MetaProperty<T> _value = (DirectMetaProperty) DirectMetaProperty.ofImmutable(
+        this, "value", SuccessResult.class, Object.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "result");
+        "value");
 
     /**
      * Restricted constructor.
@@ -186,8 +186,8 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -934426595:  // result
-          return _result;
+        case 111972721:  // value
+          return _value;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -210,19 +210,19 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code result} property.
+     * The meta-property for the {@code value} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<T> result() {
-      return _result;
+    public MetaProperty<T> value() {
+      return _value;
     }
 
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -934426595:  // result
-          return ((SuccessResult<?>) bean).getResult();
+        case 111972721:  // value
+          return ((SuccessResult<?>) bean).getValue();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -244,7 +244,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
    */
   public static final class Builder<T> extends DirectFieldsBeanBuilder<SuccessResult<T>> {
 
-    private T _result;
+    private T _value;
 
     /**
      * Restricted constructor.
@@ -257,7 +257,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(SuccessResult<T> beanToCopy) {
-      this._result = beanToCopy.getResult();
+      this._value = beanToCopy.getValue();
     }
 
     //-----------------------------------------------------------------------
@@ -265,8 +265,8 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     @Override
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case -934426595:  // result
-          this._result = (T) newValue;
+        case 111972721:  // value
+          this._value = (T) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -301,18 +301,18 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     @Override
     public SuccessResult<T> build() {
       return new SuccessResult<T>(
-          _result);
+          _value);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code result} property in the builder.
-     * @param result  the new value, not null
+     * Sets the {@code value} property in the builder.
+     * @param value  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> result(T result) {
-      JodaBeanUtils.notNull(result, "result");
-      this._result = result;
+    public Builder<T> value(T value) {
+      JodaBeanUtils.notNull(value, "value");
+      this._value = value;
       return this;
     }
 
@@ -321,7 +321,7 @@ public final class SuccessResult<T> implements Result<T>, ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(64);
       buf.append("SuccessResult.Builder{");
-      buf.append("result").append('=').append(JodaBeanUtils.toString(_result));
+      buf.append("value").append('=').append(JodaBeanUtils.toString(_value));
       buf.append('}');
       return buf.toString();
     }
