@@ -125,8 +125,7 @@ public class CurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitFXFutureSecurity(final FXFutureSecurity security) {
-    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, security.getDenominator().getCode()),
-        ExternalId.of(Currency.OBJECT_SCHEME, security.getNumerator().getCode()));
+    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, security.getDenominator().getCode()), ExternalId.of(Currency.OBJECT_SCHEME, security.getNumerator().getCode()));
   }
 
   @Override
@@ -192,8 +191,7 @@ public class CurrencyExposureFunction implements ExposureFunction {
   @Override
   public List<ExternalId> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
     final FXFutureSecurity fxFuture = (FXFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getDenominator().getCode()),
-        ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getNumerator().getCode()));
+    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getDenominator().getCode()), ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getNumerator().getCode()));
   }
 
   @Override

@@ -67,8 +67,8 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -117,17 +117,15 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
     try {
       final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
       final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-      final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource);
+      final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource, context.getFunctionInitializationVersionCorrection(),
+          context.getComputationTargetResolver().getVersionCorrection());
       for (final String curveExposureConfig : curveExposureConfigs) {
         final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
-          final ValueProperties properties = ValueProperties.builder()
-              .with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
+          final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
               .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))
               .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE))
-              .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS))
-              .with(PROPERTY_CURVE_TYPE, curveTypes)
-              .get();
+              .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)).with(PROPERTY_CURVE_TYPE, curveTypes).get();
           requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
         }
       }
@@ -140,21 +138,18 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
 
   /**
    * Gets the value properties of the result
+   * 
    * @param target The computation target
    * @return The properties
    */
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return createValueProperties()
-        .with(CALCULATION_METHOD, CLEAN_PRICE_METHOD)
-        .withAny(CURVE_EXPOSURES)
-        .withAny(PROPERTY_CURVE_TYPE)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+    return createValueProperties().with(CALCULATION_METHOD, CLEAN_PRICE_METHOD).withAny(CURVE_EXPOSURES).withAny(PROPERTY_CURVE_TYPE).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
   }
 
   /**
    * Calculates the result.
+   * 
    * @param inputs The function inputs
    * @param bond The bond transaction
    * @param issuerCurves The issuer and discounting curves
@@ -162,7 +157,6 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
    * @param spec The result specification
    * @return The set of results
    */
-  protected abstract Set<ComputedValue> getResult(FunctionInputs inputs, BondFixedTransaction bond, IssuerProvider issuerCurves,
-      double cleanPrice, ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(FunctionInputs inputs, BondFixedTransaction bond, IssuerProvider issuerCurves, double cleanPrice, ValueSpecification spec);
 
 }

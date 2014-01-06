@@ -105,6 +105,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
   /**
    * Constructs an object capable of converting from {@link ComputationTarget} to {@link InstrumentDefinition}.
+   * 
    * @param context The compilation context, not null
    * @return The converter
    */
@@ -121,21 +122,16 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(holidaySource, conventionSource, regionSource);
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashSecurityVisitor(cashConverter)
-        .deliverableSwapFutureSecurityVisitor(dsfConverter)
-        .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter)
-        .fxForwardVisitor(fxForwardSecurityConverter)
-        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
-        .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
+    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter)
+        .deliverableSwapFutureSecurityVisitor(dsfConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter).fxForwardVisitor(fxForwardSecurityConverter)
+        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).create();
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     return new TradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, securityConverter);
   }
 
   /**
    * Constructs an object capable of converting from {@link InstrumentDefinition} to {@link InstrumentDerivative}.
+   * 
    * @param context The compilation context, not null
    * @return The converter
    */
@@ -158,8 +154,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      * @param tradeToDefinitionConverter Converts trades to definitions, not null
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      */
-    protected MultiCurveCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter) {
+    protected MultiCurveCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter) {
       ArgumentChecker.notNull(tradeToDefinitionConverter, "target to definition converter");
       ArgumentChecker.notNull(definitionToDerivativeConverter, "definition to derivative converter");
       _tradeToDefinitionConverter = tradeToDefinitionConverter;
@@ -167,8 +162,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+        throws AsynchronousExecution {
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
@@ -181,8 +176,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       final Currency initialCurrency = iter.next();
       while (iter.hasNext()) {
         final Currency otherCurrency = iter.next();
-        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-            CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair
+            .of(otherCurrency, initialCurrency))));
         fxMatrix.addCurrency(otherCurrency, initialCurrency, spotRate);
       }
       return getValues(executionContext, inputs, target, desiredValues, derivative, fxMatrix);
@@ -196,12 +191,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       final Security security = target.getTrade().getSecurity();
-      return security instanceof CashSecurity ||
-          security instanceof FRASecurity ||
-          security instanceof SwapSecurity ||
-          security instanceof FXForwardSecurity ||
-          security instanceof NonDeliverableFXForwardSecurity ||
-          security instanceof InterestRateFutureSecurity;
+      return security instanceof CashSecurity || security instanceof FRASecurity || security instanceof SwapSecurity || security instanceof FXForwardSecurity ||
+          security instanceof NonDeliverableFXForwardSecurity || security instanceof InterestRateFutureSecurity;
     }
 
     @SuppressWarnings("synthetic-access")
@@ -227,7 +218,8 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource);
+        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource,
+            context.getFunctionInitializationVersionCorrection(), context.getComputationTargetResolver().getVersionCorrection());
         final ConfigDBCurveConstructionConfigurationSource constructionConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ValueProperties.Builder commonCurveProperties = getCurveProperties(target, constraints);
@@ -240,11 +232,10 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
             final CurveConstructionConfiguration curveConstructionConfiguration = constructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
             final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
             for (final String curveName : curveNames) {
-              final ValueProperties curveProperties = ValueProperties.builder()
-                  .with(CURVE, curveName)
-                  .get();
+              final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
               requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, curveProperties));
-              requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, ValueProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationNames).get()));
+              requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, ValueProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationNames)
+                  .get()));
             }
           }
         }
@@ -263,6 +254,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets the FX spot requirements for a security.
+     * 
      * @param security The security, not null
      * @param securitySource The security source, not null
      * @return A set of FX spot requirements
@@ -282,6 +274,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets the fixing or market close time series requirements for a security.
+     * 
      * @param context The compilation context, not null
      * @param target The target
      * @return A set of fixing / market close time series requirements
@@ -297,6 +290,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets an {@link InstrumentDefinition} given a target.
+     * 
      * @param target The target, not null
      * @return An instrument definition
      */
@@ -305,20 +299,20 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     }
 
     /**
-     * Gets a conversion time-series for an instrument definition. If no time-series are required,
-     * returns an empty set.
+     * Gets a conversion time-series for an instrument definition. If no time-series are required, returns an empty set.
+     * 
      * @param context The compilation context, not null
      * @param target The target, not null
      * @param definition The definition, not null
      * @return A set of time-series requirements
      */
-    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target,
-        final InstrumentDefinition<?> definition) {
+    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target, final InstrumentDefinition<?> definition) {
       return _definitionToDerivativeConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), definition);
     }
 
     /**
      * Gets an {@link InstrumentDerivative}.
+     * 
      * @param target The target, not null
      * @param now The valuation time, not null
      * @param timeSeries The conversion time series bundle, not null but may be empty
@@ -332,6 +326,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets the value requirement names that this function can produce
+     * 
      * @return The value requirement names
      */
     @SuppressWarnings("synthetic-access")
@@ -341,6 +336,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets the properties for the results given a target.
+     * 
      * @param context The compilation context, not null
      * @param target The target, not null
      * @return The result properties
@@ -349,6 +345,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Checks that all constraints have values.
+     * 
      * @param constraints The constraints, not null
      * @return True if all of the constraints have been set
      */
@@ -356,6 +353,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets the properties that are common to all curves.
+     * 
      * @param target The target, not null
      * @param constraints The input constraints
      * @return The common curve properties
@@ -364,6 +362,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Calculates the result.
+     * 
      * @param executionContext The execution context, not null
      * @param inputs The inputs, not null
      * @param target The target, not null
@@ -372,7 +371,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
      * @param fxMatrix The FX matrix, not null
      * @return The results
      */
-    protected abstract Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs,
-        ComputationTarget target, Set<ValueRequirement> desiredValues, InstrumentDerivative derivative, FXMatrix fxMatrix);
+    protected abstract Set<ComputedValue> getValues(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
+        InstrumentDerivative derivative, FXMatrix fxMatrix);
   }
 }

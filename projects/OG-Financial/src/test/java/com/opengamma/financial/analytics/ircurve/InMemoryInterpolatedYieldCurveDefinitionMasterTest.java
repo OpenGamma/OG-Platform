@@ -39,7 +39,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   }
 
   @Test
-  public void testGetDefinition () {
+  public void testGetDefinition() {
     YieldCurveDefinition yc = _master.getDefinition(Currency.USD, "1");
     assertNotNull(yc);
     assertEquals("A", yc.getInterpolatorName());
@@ -73,7 +73,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   }
 
   @Test
-  public void testGetDefinition_instant () {
+  public void testGetDefinition_instant() {
     assertNotNull(_master.getDefinition(Currency.USD, "1", VersionCorrection.ofVersionAsOf(Instant.now())));
   }
 
@@ -88,39 +88,39 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   }
 
   @Test
-  public void testGetDefinition_versioned () {
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
+  public void testGetDefinition_versioned() {
+    VersionCorrection vc = VersionCorrection.ofVersionAsOf(Instant.now());
     sleep();
     _master.add(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.GBP, null, "3", "E", "L", "R", true)));
     _master.update(new YieldCurveDefinitionDocument(UniqueId.of(_master.getUniqueIdScheme(), "1_GBP"), new YieldCurveDefinition(Currency.GBP, null, "1", "E", "L", "R", false)));
     // Expect original data
-    YieldCurveDefinition yc = _master.getDefinition(Currency.GBP, "3");
+    YieldCurveDefinition yc = _master.getDefinition(Currency.GBP, "3", vc);
     assertNull(yc);
-    yc = _master.getDefinition(Currency.GBP, "1");
+    yc = _master.getDefinition(Currency.GBP, "1", vc);
     assertNotNull(yc);
     assertEquals("B", yc.getInterpolatorName());
     final Instant nextInstant = Instant.now();
     sleep();
     _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "3_GBP"));
     // Still at original instant - expect original data
-    yc = _master.getDefinition(Currency.GBP, "3");
+    yc = _master.getDefinition(Currency.GBP, "3", vc);
     assertNull(yc);
-    yc = _master.getDefinition(Currency.GBP, "1");
+    yc = _master.getDefinition(Currency.GBP, "1", vc);
     assertNotNull(yc);
     assertEquals("B", yc.getInterpolatorName());
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(nextInstant));
+    vc = VersionCorrection.ofVersionAsOf(nextInstant);
     // Expect first set of new data
-    yc = _master.getDefinition(Currency.GBP, "3");
+    yc = _master.getDefinition(Currency.GBP, "3", vc);
     assertNotNull(yc);
     assertEquals("E", yc.getInterpolatorName());
-    yc = _master.getDefinition(Currency.GBP, "1");
+    yc = _master.getDefinition(Currency.GBP, "1", vc);
     assertNotNull(yc);
     assertEquals("E", yc.getInterpolatorName());
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
+    vc = VersionCorrection.ofVersionAsOf(Instant.now());
     // Expect to see the delete
-    yc = _master.getDefinition(Currency.GBP, "3");
+    yc = _master.getDefinition(Currency.GBP, "3", vc);
     assertNull(yc);
-    yc = _master.getDefinition(Currency.GBP, "1");
+    yc = _master.getDefinition(Currency.GBP, "1", vc);
     assertNotNull(yc);
     assertEquals("E", yc.getInterpolatorName());
   }
@@ -131,14 +131,14 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
   }
 
   @Test
-  public void testAddOrUpdate_add () {
+  public void testAddOrUpdate_add() {
     assertNull(_master.getDefinition(Currency.USD, "3"));
     _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "3", "E", "L1", "R1", true)));
     assertNotNull(_master.getDefinition(Currency.USD, "3"));
   }
 
   @Test
-  public void testAddOrUpdate_update () {
+  public void testAddOrUpdate_update() {
     YieldCurveDefinition yc = _master.getDefinition(Currency.USD, "1");
     assertNotNull(yc);
     assertEquals("A", yc.getInterpolatorName());
@@ -148,30 +148,13 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertEquals("E", yc.getInterpolatorName());
   }
 
-  @Test
-  public void testAddOrUpdate_discardOld () {
-    final Instant first = Instant.now();
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
-    sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "1", "E", "L1", "R1", true)));
-    final Instant second = Instant.now();
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
-    sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "1", "F", "L1", "R1", true)));
-    // This should only have kept the second one
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
-    assertNull(_master.getDefinition(Currency.USD, "1"));
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
-    assertNotNull(_master.getDefinition(Currency.USD, "1"));
-  }
-
-  @Test(expectedExceptions=UnsupportedOperationException.class)
-  public void testCorrect () {
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testCorrect() {
     _master.correct(null);
   }
 
   @Test
-  public void testGet () {
+  public void testGet() {
     final YieldCurveDefinitionDocument ycdoc = _master.get(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
     assertNotNull(ycdoc);
     final YieldCurveDefinition yc = ycdoc.getYieldCurveDefinition();
@@ -179,68 +162,32 @@ public class InMemoryInterpolatedYieldCurveDefinitionMasterTest {
     assertEquals("A", yc.getInterpolatorName());
   }
 
-  @Test(expectedExceptions=DataNotFoundException.class)
-  public void testGet_missing () {
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void testGet_missing() {
     _master.get(UniqueId.of(_master.getUniqueIdScheme(), "GBP_3"));
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void testGet_deleted () {
+  public void testGet_deleted() {
     _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "USD_1"));
     _master.get(UniqueId.of(_master.getUniqueIdScheme(), "USD_1"));
   }
 
   @Test
-  public void testRemove () {
+  public void testRemove() {
     assertNotNull(_master.getDefinition(Currency.USD, "1"));
     _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
     assertNull(_master.getDefinition(Currency.USD, "1"));
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
-  public void testRemove_missing () {
+  public void testRemove_missing() {
     _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "3_USD"));
   }
 
-  @Test
-  public void testRemove_discardOld () {
-    final Instant first = Instant.now();
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
-    sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "1", "E", "L1", "R1", true)));
-    final Instant second = Instant.now();
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
-    sleep();
-    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
-    // This should only have kept the second one
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
-    assertNull(_master.getDefinition(Currency.USD, "1"));
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
-    assertNotNull(_master.getDefinition(Currency.USD, "1"));
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now()));
-    assertNull(_master.getDefinition(Currency.USD, "1"));
-  }
-
-  @Test(expectedExceptions=DataNotFoundException.class)
-  public void testUpdate_missing () {
+  @Test(expectedExceptions = DataNotFoundException.class)
+  public void testUpdate_missing() {
     _master.update(new YieldCurveDefinitionDocument(UniqueId.of(_master.getUniqueIdScheme(), "3_USD"), new YieldCurveDefinition(Currency.USD, null, "3", "E", "L1", "R1", true)));
-  }
-
-  @Test
-  public void testUpdate_discardOld () {
-    final Instant first = Instant.now();
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
-    sleep();
-    _master.addOrUpdate(new YieldCurveDefinitionDocument(new YieldCurveDefinition(Currency.USD, null, "1", "E", "L1", "R1", true)));
-    final Instant second = Instant.now();
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
-    sleep();
-    _master.remove(UniqueId.of(_master.getUniqueIdScheme(), "1_USD"));
-    // This should only have kept the second one
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(first));
-    assertNull(_master.getDefinition(Currency.USD, "1"));
-    _master.setVersionCorrection(VersionCorrection.ofVersionAsOf(second));
-    assertNotNull(_master.getDefinition(Currency.USD, "1"));
   }
 
 }

@@ -48,7 +48,6 @@ import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -98,14 +97,11 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    final ValueProperties properties = createValueProperties()
-        .with(PROPERTY_HULL_WHITE_PARAMETERS, _name)
-        .with(PROPERTY_HULL_WHITE_CURRENCY, _currency.getCode())
-        .get();
+    final ValueProperties properties = createValueProperties().with(PROPERTY_HULL_WHITE_PARAMETERS, _name).with(PROPERTY_HULL_WHITE_CURRENCY, _currency.getCode()).get();
     final ValueSpecification result = new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final Collection<ConfigItem<HullWhiteOneFactorParameters>> configs = configSource.get(HullWhiteOneFactorParameters.class, _name, VersionCorrection.LATEST);
+    final Collection<ConfigItem<HullWhiteOneFactorParameters>> configs = configSource.get(HullWhiteOneFactorParameters.class, _name, context.getFunctionInitializationVersionCorrection());
     if (configs == null) {
       throw new OpenGammaRuntimeException("HullWhiteOneFactorParameter configuration called " + _name + " was null");
     }
@@ -128,15 +124,13 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-        Object meanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getMeanReversionId()));
+        Object meanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getMeanReversionId()));
         if (meanReversionObject == null) {
           // TODO Jim - these are hacks that should be removed.
           meanReversionObject = MEAN_REVERSION_DEFAULT;
           s_logger.info("Using default mean reversion");
         }
-        Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
+        Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
         if (initialVolatilityObject == null) {
           // TODO Jim - these are hacks that should be removed.
           initialVolatilityObject = INITIAL_VOLATILITY_DEFAULT;
@@ -151,8 +145,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
           final ExternalScheme scheme = entry.getValue().getScheme();
           final String id = entry.getValue().getValue();
           final ExternalId tenorAppendedId = ExternalId.of(scheme, createId(entry.getKey(), id));
-          Object volatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-              ComputationTargetType.PRIMITIVE, tenorAppendedId));
+          Object volatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, tenorAppendedId));
           // TODO Jim - next block is a hack that should be removed.
           if (volatilityObject == null) {
             volatilityObject = VOLATILITY_TERMS.get(entry.getKey());
@@ -211,6 +204,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
 
   /**
    * Appends the tenor to an id to create the market data identifier.
+   * 
    * @param tenor The tenor
    * @param id The id
    * @return The market data id

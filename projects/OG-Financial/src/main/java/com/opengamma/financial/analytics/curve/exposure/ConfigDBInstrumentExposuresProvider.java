@@ -12,14 +12,16 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.config.impl.VersionLockedConfigSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.impl.VersionLockedSecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Gets the name(s) of the curve construction configurations to be used in pricing
- * a security.
+ * Gets the name(s) of the curve construction configurations to be used in pricing a security.
  */
 public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresProvider {
   /** The configuration source */
@@ -30,17 +32,29 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
   /**
    * @param configSource The config source, not null
    * @param securitySource The security source, not null
+   * @deprecated Use the form which takes a {@link VersionCorrection} instance instead
    */
+  @Deprecated
   public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource, final SecuritySource securitySource) {
+    this(configSource, securitySource, VersionCorrection.LATEST, VersionCorrection.LATEST);
+  }
+
+  /**
+   * @param configSource The config source, not null
+   * @param securitySource The security source, not null
+   * @param configVersionCorrection The version/correction timestamp to make queries to the configuration with, not null
+   * @param securityVersionCorrection The version/correction timestamp to make queries to the security source with, not null
+   */
+  public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource, final SecuritySource securitySource, final VersionCorrection configVersionCorrection,
+      final VersionCorrection securityVersionCorrection) {
     ArgumentChecker.notNull(configSource, "config source");
     ArgumentChecker.notNull(securitySource, "security source");
-    _configSource = configSource;
-    _securitySource = securitySource;
+    _configSource = new VersionLockedConfigSource(configSource, ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection"));
+    _securitySource = new VersionLockedSecuritySource(securitySource, ArgumentChecker.notNull(securityVersionCorrection, "securityVersionCorrection"));
   }
 
   @Override
-  public Set<String> getCurveConstructionConfigurationsForConfig(final String instrumentExposureConfigurationName,
-      final FinancialSecurity security) {
+  public Set<String> getCurveConstructionConfigurationsForConfig(final String instrumentExposureConfigurationName, final FinancialSecurity security) {
     ArgumentChecker.notNull(instrumentExposureConfigurationName, "instrument exposure configuration name");
     ArgumentChecker.notNull(security, "security");
     final ExposureFunctions exposures = _configSource.getLatestByName(ExposureFunctions.class, instrumentExposureConfigurationName);

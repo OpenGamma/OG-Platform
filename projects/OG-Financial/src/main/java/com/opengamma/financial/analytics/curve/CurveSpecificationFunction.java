@@ -50,6 +50,7 @@ public class CurveSpecificationFunction extends AbstractFunction {
 
   /**
    * Gets the curve name.
+   * 
    * @return The curve name
    */
   public String getCurveName() {
@@ -68,10 +69,9 @@ public class CurveSpecificationFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, _curveName)
-        .get();
+    final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName,
+        context.getFunctionInitializationVersionCorrection());
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
     return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveSpecification, spec);
   }
@@ -91,16 +91,15 @@ public class CurveSpecificationFunction extends AbstractFunction {
      * @param specification The curve specification
      * @param spec The result specification
      */
-    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification,
-        final ValueSpecification spec) {
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification, final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _spec = spec;
       _result = Collections.singleton(new ComputedValue(spec, specification));
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+        throws AsynchronousExecution {
       return _result;
     }
 

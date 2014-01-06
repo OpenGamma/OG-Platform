@@ -78,7 +78,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    _curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    _curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource, context.getFunctionInitializationVersionCorrection());
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
@@ -132,9 +132,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -146,7 +144,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, _curveConfigSource));
     final Set<ValueRequirement> timeSeriesRequirements = _dataConverter.getConversionTimeSeriesRequirements(security, _converter.convert(trade));
     if (timeSeriesRequirements == null) {
       return null;
@@ -156,17 +154,14 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target) {
-    return new ValueSpecification(_valueRequirement, target.toSpecification(),
-        createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get());
+    return new ValueSpecification(_valueRequirement, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode()).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get());
   }
 
   private ValueSpecification getSpecification(final ComputationTarget target, final String curveCalculationConfig) {
-    return new ValueSpecification(_valueRequirement, target.toSpecification(),
-        createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get());
+    return new ValueSpecification(_valueRequirement, target.toSpecification(), createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get());
   }
 
 }

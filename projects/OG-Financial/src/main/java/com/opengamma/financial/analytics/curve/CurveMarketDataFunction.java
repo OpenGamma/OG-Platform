@@ -46,9 +46,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * For a given curve name, returns a {@link SnapshotDataBundle} containing the market data for the nodes
- * of that curve. This function does not require that any or all of the market data is available for
- * it to return the snapshot.
+ * For a given curve name, returns a {@link SnapshotDataBundle} containing the market data for the nodes of that curve. This function does not require that any or all of the market data is available
+ * for it to return the snapshot.
  */
 public class CurveMarketDataFunction extends AbstractFunction {
   /** The logger */
@@ -66,6 +65,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
 
   /**
    * Gets the curve name.
+   * 
    * @return The curve name
    */
   public String getCurveName() {
@@ -83,13 +83,12 @@ public class CurveMarketDataFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, _curveName)
-        .get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     try {
-      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
+      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName,
+          context.getFunctionInitializationVersionCorrection());
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), specification, spec);
     } catch (final Exception e) {
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveDefinition called " + _curveName);
@@ -113,8 +112,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
      * @param specification The curve specification
      * @param spec The result specification
      */
-    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification,
-        final ValueSpecification spec) {
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification, final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _specification = specification;
       _spec = spec;
@@ -122,8 +120,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+        throws AsynchronousExecution {
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(executionContext.getComputationTargetResolver());
       final SnapshotDataBundle marketData = new SnapshotDataBundle();
       populateSnapshot(_specification, inputs, marketData, resolver);
@@ -159,7 +157,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
     }
   }
 
-  /* package */ static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
+  /* package */static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
     final Set<ValueRequirement> requirements = new HashSet<>();
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
@@ -203,8 +201,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
     return requirements;
   }
 
-  /* package */ static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs,
-      final SnapshotDataBundle marketData, final ExternalIdBundleResolver resolver) {
+  /* package */static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs, final SnapshotDataBundle marketData,
+      final ExternalIdBundleResolver resolver) {
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
       final ComputedValue value = inputs.getComputedValue(new ValueRequirement(constant.getDataField(), ComputationTargetType.PRIMITIVE, constant.getIdentifier()));
@@ -236,7 +234,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
             final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
             if (id instanceof PointsCurveNodeWithIdentifier) {
               final PointsCurveNodeWithIdentifier pointsId = (PointsCurveNodeWithIdentifier) id;
-              final ComputedValue base = inputs.getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
+              final ComputedValue base = inputs
+                  .getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
               if (base != null) {
                 final Object baseObject = base.getValue();
                 if (!(baseObject instanceof Double)) {

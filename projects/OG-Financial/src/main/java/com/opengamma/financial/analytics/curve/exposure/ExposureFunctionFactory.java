@@ -46,4 +46,5 @@ public class ExposureFunctionFactory {
     }
     throw new OpenGammaRuntimeException("Could not get exposure function called " + name);
   }
+
 }

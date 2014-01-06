@@ -20,7 +20,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -39,7 +38,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
@@ -70,6 +68,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
   private final String _valueRequirement;
   private InterestRateFutureTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
   public InterestRateFutureCurveSpecificFunction(final String valueRequirement) {
     ArgumentChecker.notNull(valueRequirement, "value requirement");
@@ -84,6 +83,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
@@ -96,9 +96,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
@@ -109,7 +107,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     for (int i = 0; i < curveNames.length; i++) {
       fullCurveNames[i] = curveNames[i] + "_" + currency;
     }
-    final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle data = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, _curveCalculationConfigSource);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(target, curveName);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);
     if (curveSpecObject == null) {
@@ -118,8 +116,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
     final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, fullCurveNames, timeSeries);
-    final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(),
-        createValueProperties(target, curveName, curveCalculationConfigName));
+    final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(), createValueProperties(target, curveName, curveCalculationConfigName));
     return getResults(irFuture, fullCurveName, curveSpec, data, spec, trade.getSecurity());
   }
 
@@ -155,9 +152,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -185,7 +180,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, _curveCalculationConfigSource));
     requirements.add(getCurveSpecRequirement(target, Iterables.getOnlyElement(requestedCurveNames)));
     final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
     if (tsRequirements == null) {
@@ -204,22 +199,16 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
   private ValueProperties createValueProperties(final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .withAny(ValuePropertyNames.CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     return properties.get();
   }
 
   private ValueProperties createValueProperties(final ComputationTarget target, final String curveName, final String curveCalculationConfig) {
     final Security security = target.getTrade().getSecurity();
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig);
+    final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CURVE_CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig);
     return properties.get();
   }
 }

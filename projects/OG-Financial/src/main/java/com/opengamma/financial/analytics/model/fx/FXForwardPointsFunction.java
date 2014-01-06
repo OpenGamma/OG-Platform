@@ -119,6 +119,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
 
   /**
    * Constructs an object capable of converting from {@link ComputationTarget} to {@link InstrumentDefinition}.
+   * 
    * @param context The compilation context, not null
    * @return The converter
    */
@@ -131,16 +132,14 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .fxForwardVisitor(fxForwardSecurityConverter)
-        .nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter)
-        .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
+        .fxForwardVisitor(fxForwardSecurityConverter).nonDeliverableFxForwardVisitor(nonDeliverableFXForwardSecurityConverter).create();
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     return new TradeConverter(futureTradeConverter, securityConverter);
   }
 
   /**
    * Constructs an object capable of converting from {@link InstrumentDefinition} to {@link InstrumentDerivative}.
+   * 
    * @param context The compilation context, not null
    * @return The converter
    */
@@ -166,8 +165,8 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if this function sets {@link ValuePropertyNames#CURRENCY}
      */
-    protected FXForwardPointsCompiledFunction(final TradeConverter tradeToDefinitionConverter,
-        final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
+    protected FXForwardPointsCompiledFunction(final TradeConverter tradeToDefinitionConverter, final FixedIncomeConverterDataProvider definitionToDerivativeConverter,
+        final boolean withCurrency) {
       ArgumentChecker.notNull(tradeToDefinitionConverter, "target to definition converter");
       ArgumentChecker.notNull(definitionToDerivativeConverter, "definition to derivative converter");
       _tradeToDefinitionConverter = tradeToDefinitionConverter;
@@ -176,8 +175,8 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+        throws AsynchronousExecution {
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
@@ -188,12 +187,10 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
       final Currency currency1 = forex.getCurrency1();
       final Currency currency2 = forex.getCurrency2();
       if (pairs.getCurrencyPair(currency1, currency2).getBase().equals(currency1)) {
-        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-            CurrencyPair.TYPE.specification(CurrencyPair.of(currency2, currency1))));
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(currency2, currency1))));
         fxMatrix.addCurrency(currency1, currency2, spotRate);
       } else {
-        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-            CurrencyPair.TYPE.specification(CurrencyPair.of(currency2, currency1))));
+        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(currency2, currency1))));
         fxMatrix.addCurrency(currency2, currency1, 1 / spotRate);
       }
       return getValues(inputs, target, desiredValues, forex, fxMatrix, now);
@@ -207,8 +204,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       final Security security = target.getTrade().getSecurity();
-      return security instanceof FXForwardSecurity ||
-          security instanceof NonDeliverableFXForwardSecurity;
+      return security instanceof FXForwardSecurity || security instanceof NonDeliverableFXForwardSecurity;
     }
 
     @Override
@@ -236,7 +232,8 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
         final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource);
+        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource,
+            context.getFunctionInitializationVersionCorrection(), context.getComputationTargetResolver().getVersionCorrection());
         final ConfigDBCurveConstructionConfigurationSource constructionConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final String curveExposureConfig : curveExposureConfigs) {
@@ -248,9 +245,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
             final CurveConstructionConfiguration curveConstructionConfiguration = constructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
             final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
             for (final String curveName : curveNames) {
-              final ValueProperties curveProperties = ValueProperties.builder()
-                  .with(CURVE, curveName)
-                  .get();
+              final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
               requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, curveProperties));
               requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, properties));
             }
@@ -272,12 +267,9 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
         requirements.addAll(timeSeriesRequirements);
         final String fxForwardCurveName = Iterables.getOnlyElement(fxForwardCurveNames);
         final ValueProperties fxForwardCurveProperties = ValueProperties.builder().with(CURVE, fxForwardCurveName).get();
-        final ValueRequirement fxForwardCurveDefinition = new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL,
-            fxForwardCurveProperties);
-        final ValueRequirement fxForwardCurveSpecification = new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL,
-            fxForwardCurveProperties);
-        final ValueRequirement fxForwardCurveDataRequirement = new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL,
-            fxForwardCurveProperties);
+        final ValueRequirement fxForwardCurveDefinition = new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, fxForwardCurveProperties);
+        final ValueRequirement fxForwardCurveSpecification = new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, fxForwardCurveProperties);
+        final ValueRequirement fxForwardCurveDataRequirement = new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, fxForwardCurveProperties);
         final ValueRequirement currencyPairsRequirement = new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, ValueProperties.none());
         requirements.add(fxForwardCurveDataRequirement);
         requirements.add(fxForwardCurveDefinition);
@@ -291,10 +283,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     }
 
     protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-      final ValueProperties.Builder properties = createValueProperties()
-          .withAny(CURVE_EXPOSURES)
-          .withAny(FORWARD_CURVE_NAME)
-          .with(PROPERTY_CURVE_TYPE, FORWARD_POINTS);
+      final ValueProperties.Builder properties = createValueProperties().withAny(CURVE_EXPOSURES).withAny(FORWARD_CURVE_NAME).with(PROPERTY_CURVE_TYPE, FORWARD_POINTS);
       if (_withCurrency) {
         properties.with(CURRENCY, ((FinancialSecurity) target.getTrade().getSecurity()).accept(ForexVisitors.getReceiveCurrencyVisitor()).getCode());
       }
@@ -303,6 +292,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
 
     /**
      * Gets an {@link InstrumentDefinition} given a target.
+     * 
      * @param target The target, not null
      * @return An instrument definition
      */
@@ -311,33 +301,33 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
     }
 
     /**
-     * Gets a conversion time-series for an instrument definition. If no time-series are required,
-     * returns an empty set.
+     * Gets a conversion time-series for an instrument definition. If no time-series are required, returns an empty set.
+     * 
      * @param context The compilation context, not null
      * @param target The target, not null
      * @param definition The definition, not null
      * @return A set of time-series requirements
      */
-    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target,
-        final InstrumentDefinition<?> definition) {
+    protected Set<ValueRequirement> getConversionTimeSeriesRequirements(final FunctionCompilationContext context, final ComputationTarget target, final InstrumentDefinition<?> definition) {
       return _definitionToDerivativeConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), definition);
     }
 
     /**
      * Gets an {@link InstrumentDerivative}.
+     * 
      * @param target The target, not null
      * @param now The valuation time, not null
      * @param timeSeries The conversion time series bundle, not null but may be empty
      * @param definition The definition, not null
      * @return The instrument derivative
      */
-    protected Forex getForex(final ComputationTarget target, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries,
-        final InstrumentDefinition<?> definition) {
+    protected Forex getForex(final ComputationTarget target, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries, final InstrumentDefinition<?> definition) {
       return (Forex) _definitionToDerivativeConverter.convert(target.getTrade().getSecurity(), definition, now, timeSeries);
     }
 
     /**
      * Calculates the result.
+     * 
      * @param inputs The inputs, not null
      * @param target The target, not null
      * @param desiredValues The desired values for this function, not null
@@ -346,8 +336,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
      * @param now The valuation time, not null
      * @return The results
      */
-    protected abstract Set<ComputedValue> getValues(FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues,
-        Forex forex, FXMatrix fxMatrix, ZonedDateTime now);
+    protected abstract Set<ComputedValue> getValues(FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues, Forex forex, FXMatrix fxMatrix, ZonedDateTime now);
 
     protected MulticurveProviderDiscount getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
       final Collection<MulticurveProviderDiscount> providers = new HashSet<>();
@@ -372,8 +361,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
       return result;
     }
 
-    protected DoublesCurve getForwardPoints(final FunctionInputs inputs, final String fxForwardCurveName,
-        final ZonedDateTime now) {
+    protected DoublesCurve getForwardPoints(final FunctionInputs inputs, final String fxForwardCurveName, final ZonedDateTime now) {
       final ValueProperties curveProperties = ValueProperties.with(CURVE, fxForwardCurveName).get();
       final ValueRequirement definitionRequirement = new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, curveProperties);
       final CurveDefinition definition = (CurveDefinition) inputs.getValue(definitionRequirement);
@@ -413,8 +401,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
         tList.add(DateUtils.getDifferenceInYears(now, now.plus(tenor.getPeriod())));
         fxList.add(fxForward);
       }
-      final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName,
-          leftExtrapolatorName, rightExtrapolatorName);
+      final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
       return InterpolatedDoublesCurve.from(tList.toDoubleArray(), fxList.toDoubleArray(), interpolator);
     }
   }

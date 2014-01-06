@@ -18,10 +18,12 @@ import com.opengamma.util.ArgumentChecker;
 public class ConfigDBCurveCalculationConfigSource implements CurveCalculationConfigSource {
 
   private final ConfigSource _configSource;
+  private final VersionCorrection _lockedVersionCorrection;
 
-  public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource) {
+  public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(configSource, "configuration source");
     _configSource = configSource;
+    _lockedVersionCorrection = versionCorrection;
   }
 
   public static void reinitOnChanges(final FunctionCompilationContext context, final FunctionDefinition function) {
@@ -30,7 +32,7 @@ public class ConfigDBCurveCalculationConfigSource implements CurveCalculationCon
 
   @Override
   public MultiCurveCalculationConfig getConfig(final String name) {
-    return _configSource.getLatestByName(MultiCurveCalculationConfig.class, name);
+    return getConfig(name, _lockedVersionCorrection);
   }
 
   @Override

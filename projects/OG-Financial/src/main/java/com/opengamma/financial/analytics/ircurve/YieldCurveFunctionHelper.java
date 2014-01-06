@@ -60,9 +60,6 @@ public class YieldCurveFunctionHelper {
       throw new UnsupportedOperationException("No curve definition for " + _curveName + " on " + _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
-        // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
-        // which easily replaces the function reinitialiser mechanism and will result in a proper implementation of version/correction handling.
         final FunctionReinitializer functionReinitializer = context.getFunctionReinitializer();
         if (functionReinitializer != null) { // this step won't happen during a compile.
           final ObjectId objectId = _definition.getUniqueId().getObjectId();
@@ -75,8 +72,7 @@ public class YieldCurveFunctionHelper {
     return _definition;
   }
 
-  public Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile(
-      final FunctionCompilationContext context, final Instant atInstant, final FunctionDefinition functionDefinition) {
+  public Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile(final FunctionCompilationContext context, final Instant atInstant, final FunctionDefinition functionDefinition) {
     init(context, functionDefinition);
 
     //TODO: avoid doing this compile twice all the time
@@ -88,9 +84,8 @@ public class YieldCurveFunctionHelper {
   }
 
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext
-        .getConfigSource(context);
-    return configSource.getLatestByName(YieldCurveDefinition.class, _curveName + "_" + _currency.getCode());
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    return configSource.getSingle(YieldCurveDefinition.class, _curveName + "_" + _currency.getCode(), context.getFunctionInitializationVersionCorrection());
   }
 
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final Instant curveDate, final InterpolatedYieldCurveSpecification specification, final Instant eod) {
@@ -136,9 +131,7 @@ public class YieldCurveFunctionHelper {
   }
 
   public ValueRequirement getMarketDataValueRequirement() {
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA,
-        ComputationTargetSpecification.of(_currency),
-        ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, ComputationTargetSpecification.of(_currency), ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
   }
 
   public SnapshotDataBundle getMarketDataMap(final FunctionInputs inputs) {

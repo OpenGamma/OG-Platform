@@ -45,7 +45,6 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -67,6 +66,7 @@ public class FXMatrixFunction extends AbstractFunction {
 
   /**
    * Gets the curve configuration name.
+   * 
    * @return The curve configuration names
    */
   public String getConfigurationName() {
@@ -85,20 +85,17 @@ public class FXMatrixFunction extends AbstractFunction {
     final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
     //TODO work out a way to use dependency graph to get curve information for this config
     final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
-        VersionCorrection.LATEST);
+        context.getFunctionInitializationVersionCorrection());
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     try {
       final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
-      final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, VersionCorrection.LATEST, visitor);
-      final ValueProperties properties = createValueProperties()
-          .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
-          .get();
+      final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, context.getFunctionInitializationVersionCorrection(), visitor);
+      final ValueProperties properties = createValueProperties().with(CURVE_CONSTRUCTION_CONFIG, _configurationName).get();
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
-      return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000),
-          spec, currencies);
+      return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), spec, currencies);
     } catch (final Exception e) {
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveConstructionConfiguration called " + _configurationName);
     }
@@ -128,8 +125,8 @@ public class FXMatrixFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+        throws AsynchronousExecution {
       if (inputs.getAllValues().size() == 0) {
         return Collections.singleton(new ComputedValue(_spec, new FXMatrix()));
       }
@@ -140,12 +137,12 @@ public class FXMatrixFunction extends AbstractFunction {
       while (iter.hasNext()) {
         final Currency otherCurrency = iter.next();
         if (pairs.getCurrencyPair(initialCurrency, otherCurrency).getBase().equals(initialCurrency)) {
-          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-              CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency,
+              initialCurrency))));
           matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
         } else {
-          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-              CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency,
+              initialCurrency))));
           matrix.addCurrency(otherCurrency, initialCurrency, 1 / spotRate);
         }
       }

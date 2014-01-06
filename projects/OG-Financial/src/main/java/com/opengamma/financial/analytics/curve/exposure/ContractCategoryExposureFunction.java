@@ -80,6 +80,7 @@ import com.opengamma.id.ExternalIdBundle;
  *
  */
 public class ContractCategoryExposureFunction implements ExposureFunction {
+
   private final SecuritySource _securitySource;
 
   public ContractCategoryExposureFunction(final SecuritySource securitySource) {

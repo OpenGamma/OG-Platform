@@ -33,7 +33,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -65,13 +64,11 @@ public class CurveDefinitionFunction extends AbstractFunction {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
-    final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(_curveName, VersionCorrection.LATEST);
+    final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(_curveName, context.getFunctionInitializationVersionCorrection());
     if (curveDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get curve definition called " + _curveName);
     }
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, _curveName)
-        .get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties);
     final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, curveDefinition));
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {

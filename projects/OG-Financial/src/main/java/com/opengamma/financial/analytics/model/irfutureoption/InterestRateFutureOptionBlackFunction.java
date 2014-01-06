@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -61,7 +60,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
- *
+ * 
  * @deprecated Use classes that descend from {@link BlackDiscountingIRFutureOptionFunction}
  */
 @Deprecated
@@ -74,6 +73,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   private final boolean _setCurrencyProperty;
   /** Converts an {@link InstrumentDefinition} to an {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _dataConverter;
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
   /**
    * @param valueRequirementName The value requirement name, not null
@@ -87,6 +87,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Gets the interest rate future option trade converter.
+   * 
    * @param context The compilation context
    * @return The converter
    */
@@ -95,12 +96,13 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
-        .getComputationTargetResolver().getVersionCorrection()));
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
+        context.getComputationTargetResolver().getVersionCorrection()));
   }
 
   /**
    * Gets the interest rate future option trade converter.
+   * 
    * @param context The execution context
    * @return The converter
    */
@@ -109,8 +111,8 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
-    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
-        .getComputationTargetResolver().getVersionCorrection()));
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource,
+        context.getComputationTargetResolver().getVersionCorrection()));
   }
 
   @Override
@@ -118,6 +120,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
@@ -133,9 +136,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String surfaceNameWithPrefix = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target); // Done to enable standard and midcurve options to share the same default name
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
@@ -147,7 +148,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     if (curveNames.length == 1) { // MultiCurveCalculationConfig contains just a single curve for discounting and forwarding
       fullCurveNames[1] = fullCurveNames[0];
     }
-    final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, _curveCalculationConfigSource);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceNameWithPrefix, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -191,9 +192,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
       return null;
     }
     surfaceName = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -205,7 +204,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, _curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     try {
       final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), getConverter(context).convert(trade));
@@ -221,26 +220,25 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Calculates the result
-   *
+   * 
    * @param irFutureOption The IR future option
    * @param data The data used in pricing
    * @param spec The value specification of the result
    * @param desiredValues The constraints on the function
    * @return The result
    */
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data,
-      final ValueSpecification spec, Set<ValueRequirement> desiredValues);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      Set<ValueRequirement> desiredValues);
 
   /**
    * Gets the result properties.
+   * 
    * @param currency The currency
    * @return The result properties
    */
   protected ValueProperties.Builder getResultProperties(final String currency) {
-    final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE);
+    final ValueProperties.Builder builder = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).withAny(ValuePropertyNames.SURFACE);
     if (_setCurrencyProperty) {
       return builder.with(ValuePropertyNames.CURRENCY, currency);
     }
@@ -249,13 +247,13 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Gets the volatility surface requirement.
+   * 
    * @param surface The surface name
    * @param currency The currency
    * @return The volatility surface requirement
    */
   private static ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, surface)
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
   }

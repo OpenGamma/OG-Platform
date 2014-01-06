@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -61,14 +60,13 @@ public class CurveConstructionConfigurationFunction extends AbstractFunction {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
-    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName, VersionCorrection.LATEST);
+    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
+        context.getFunctionInitializationVersionCorrection());
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
     //TODO also return any exogenous configs
-    final ValueProperties properties = createValueProperties()
-        .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
-        .get();
+    final ValueProperties properties = createValueProperties().with(CURVE_CONSTRUCTION_CONFIG, _configurationName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_CONSTRUCTION_CONFIG, ComputationTargetSpecification.NULL, properties);
     final Set<ComputedValue> result = Collections.singleton(new ComputedValue(spec, curveConstructionConfiguration));
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {

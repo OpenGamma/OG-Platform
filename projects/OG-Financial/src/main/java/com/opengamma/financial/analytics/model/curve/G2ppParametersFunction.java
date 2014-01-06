@@ -47,7 +47,6 @@ import com.opengamma.financial.analytics.parameters.G2ppParameters;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
@@ -112,13 +111,11 @@ public class G2ppParametersFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    final ValueProperties properties = createValueProperties()
-        .with(PROPERTY_G2PP_PARAMETERS, _name)
-        .get();
+    final ValueProperties properties = createValueProperties().with(PROPERTY_G2PP_PARAMETERS, _name).get();
     final ValueSpecification result = new ValueSpecification(G2PP_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final Collection<ConfigItem<G2ppParameters>> configs = configSource.get(G2ppParameters.class, _name, VersionCorrection.LATEST);
+    final Collection<ConfigItem<G2ppParameters>> configs = configSource.get(G2ppParameters.class, _name, context.getFunctionInitializationVersionCorrection());
     if (configs == null) {
       throw new OpenGammaRuntimeException("G2ppParameter configuration called " + _name + " was null");
     }
@@ -148,32 +145,31 @@ public class G2ppParametersFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-        Object firstMeanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getFirstMeanReversionId()));
+        Object firstMeanReversionObject = inputs
+            .getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getFirstMeanReversionId()));
         if (firstMeanReversionObject == null) {
           //TODO remove this when we can handle the configurations properly
           firstMeanReversionObject = FIRST_MEAN_REVERSION_DEFAULT;
         }
-        Object secondMeanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getSecondMeanReversionId()));
+        Object secondMeanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters
+            .getSecondMeanReversionId()));
         if (secondMeanReversionObject == null) {
           //TODO remove this when we can handle the configurations properly
           secondMeanReversionObject = SECOND_MEAN_REVERSION_DEFAULT;
         }
-        Object firstInitialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getFirstInitialVolatilityId()));
+        Object firstInitialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters
+            .getFirstInitialVolatilityId()));
         if (firstInitialVolatilityObject == null) {
           //TODO remove this when we can handle the configurations properly
           firstInitialVolatilityObject = FIRST_INITIAL_VOLATILITY_DEFAULT;
         }
-        Object secondInitialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getSecondInitialVolatilityId()));
+        Object secondInitialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters
+            .getSecondInitialVolatilityId()));
         if (secondInitialVolatilityObject == null) {
           //TODO remove this when we can handle the configurations properly
           secondInitialVolatilityObject = SECOND_INITIAL_VOLATILITY_DEFAULT;
         }
-        Object correlationObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-            ComputationTargetType.PRIMITIVE, parameters.getCorrelationId()));
+        Object correlationObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getCorrelationId()));
         if (correlationObject == null) {
           //TODO remove this when we can handle the configurations properly
           correlationObject = CORRELATION_DEFAULT;
@@ -195,14 +191,12 @@ public class G2ppParametersFunction extends AbstractFunction {
           final String secondId = entry.getValue().getSecond().getValue();
           final ExternalId firstTenorAppendedId = ExternalId.of(firstScheme, createId(entry.getKey(), firstId));
           final ExternalId secondTenorAppendedId = ExternalId.of(secondScheme, createId(entry.getKey(), secondId));
-          Object firstVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-              ComputationTargetType.PRIMITIVE, firstTenorAppendedId));
+          Object firstVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, firstTenorAppendedId));
           //TODO remove block this when we can handle the configurations properly
           if (firstVolatilityObject == null) {
             firstVolatilityObject = FIRST_VOLATILITY_TERMS.get(entry.getKey());
           }
-          Object secondVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
-              ComputationTargetType.PRIMITIVE, secondTenorAppendedId));
+          Object secondVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, secondTenorAppendedId));
           //TODO remove block this when we can handle the configurations properly
           if (secondVolatilityObject == null) {
             secondVolatilityObject = SECOND_VOLATILITY_TERMS.get(entry.getKey());
@@ -220,8 +214,8 @@ public class G2ppParametersFunction extends AbstractFunction {
             volatilityTime.add(t);
           }
         }
-        final G2ppPiecewiseConstantParameters g2ppParameters = new G2ppPiecewiseConstantParameters(new double[] {firstMeanReversion, secondMeanReversion},
-            new double[][] {firstVolatility.toDoubleArray(), secondVolatility.toDoubleArray()}, volatilityTime.toDoubleArray(), correlation);
+        final G2ppPiecewiseConstantParameters g2ppParameters = new G2ppPiecewiseConstantParameters(new double[] {firstMeanReversion, secondMeanReversion }, new double[][] {
+            firstVolatility.toDoubleArray(), secondVolatility.toDoubleArray() }, volatilityTime.toDoubleArray(), correlation);
         return Collections.singleton(new ComputedValue(result, g2ppParameters));
       }
 
@@ -266,6 +260,7 @@ public class G2ppParametersFunction extends AbstractFunction {
 
   /**
    * Appends the tenor to an id to create the market data identifier.
+   * 
    * @param tenor The tenor
    * @param id The id
    * @return The market data id

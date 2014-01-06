@@ -67,6 +67,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyCDSSecurity;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -83,9 +84,16 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   /** Calculates the first difference of a time series */
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
+  private VersionCorrection _configVersion;
+
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public void init(final FunctionCompilationContext context) {
+    _configVersion = context.getFunctionInitializationVersionCorrection();
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final Position position = target.getPosition();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
@@ -110,7 +118,7 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO
     final String curveName = getCurvePrefix() + "_" + spreadCurveName;
-    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName);
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName, _configVersion);
     DoubleTimeSeries<?> fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {
@@ -158,19 +166,13 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getPosition().getSecurity();
-    return security instanceof StandardCDSSecurity ||
-        security instanceof LegacyCDSSecurity;
+    return security instanceof StandardCDSSecurity || security instanceof LegacyCDSSecurity;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties()
-        .withAny(CURRENCY)
-        .withAny(SAMPLING_PERIOD)
-        .withAny(SAMPLING_FUNCTION)
-        .withAny(SCHEDULE_CALCULATOR)
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01)
-        .get();
+    final ValueProperties properties = createValueProperties().withAny(CURRENCY).withAny(SAMPLING_PERIOD).withAny(SAMPLING_FUNCTION).withAny(SCHEDULE_CALCULATOR)
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.BUCKETED_CS01).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
@@ -221,14 +223,13 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   }
 
   protected ValueRequirement getBucketedCS01Requirement(final Security security) {
-    final ValueProperties properties = ValueProperties.builder()
-        .get();
+    final ValueProperties properties = ValueProperties.builder().get();
     return new ValueRequirement(ValueRequirementNames.BUCKETED_CS01, ComputationTargetSpecification.of(security), properties);
   }
 
   protected ValueRequirement getCreditSpreadCurveHTSRequirement(final Security security, final String curveName, final String samplingPeriod) {
-    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, MarketDataRequirementNames.MARKET_VALUE,
-        null, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createCreditSpreadCurveHTSRequirement(security, curveName, MarketDataRequirementNames.MARKET_VALUE, null,
+        DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true);
   }
 
   protected String getCurvePrefix() {
