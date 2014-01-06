@@ -70,17 +70,17 @@ public final class BondFuturesSecurityHullWhiteNumericalIntegrationMethod {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(data, "Hull-White/Issuer provider");
     final Currency ccy = futures.getCurrency();
-    final LegalEntity issuer = futures.getDeliveryBasket()[0].getIssuerEntity();
+    final LegalEntity issuer = futures.getDeliveryBasketAtDeliveryDate()[0].getIssuerEntity();
     final double expiryTime = futures.getNoticeLastTime();
     final double deliveryTime = futures.getDeliveryLastTime();
-    final int nbBonds = futures.getDeliveryBasket().length;
+    final int nbBonds = futures.getDeliveryBasketAtDeliveryDate().length;
     final int[] nbPayments = new int[nbBonds];
     final AnnuityPaymentFixed[] cfe = new AnnuityPaymentFixed[nbBonds];
     for (int loopb = 0; loopb < nbBonds; loopb++) {
-      cfe[loopb] = futures.getDeliveryBasket()[loopb].accept(CFEC, data.getMulticurveProvider());
+      cfe[loopb] = futures.getDeliveryBasketAtDeliveryDate()[loopb].accept(CFEC, data.getMulticurveProvider());
       nbPayments[loopb] = cfe[loopb].getNumberOfPayments();
       final PaymentFixed[] payments = new PaymentFixed[nbPayments[loopb] + 1];
-      payments[0] = new PaymentFixed(ccy, deliveryTime, -futures.getDeliveryBasket()[loopb].getAccruedInterest());
+      payments[0] = new PaymentFixed(ccy, deliveryTime, -futures.getDeliveryBasketAtDeliveryDate()[loopb].getAccruedInterest());
       System.arraycopy(cfe[loopb].getPayments(), 0, payments, 1, nbPayments[loopb]);
       cfe[loopb] = new AnnuityPaymentFixed(payments);
     }

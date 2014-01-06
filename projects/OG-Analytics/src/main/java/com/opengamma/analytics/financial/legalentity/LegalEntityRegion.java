@@ -112,8 +112,6 @@ public class LegalEntityRegion implements LegalEntityFilter<LegalEntity>, Bean {
         selections.addAll(countries);
       } else if (countries.containsAll(_countries)) {
         selections.addAll(_countries);
-      } else {
-        throw new IllegalStateException();
       }
     }
     if (_useCurrency) {
@@ -122,8 +120,6 @@ public class LegalEntityRegion implements LegalEntityFilter<LegalEntity>, Bean {
         selections.addAll(currencies);
       } else if (currencies.containsAll(_currencies)) {
         selections.addAll(_currencies);
-      } else {
-        throw new IllegalStateException();
       }
     }
     return selections;

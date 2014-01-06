@@ -90,17 +90,16 @@ public class BondFuturesTransactionHullWhiteMethodTest {
   private static final double LAST_NOTICE_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_NOTICE_DATE);
   private static final double FIRST_DELIVERY_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIRST_DELIVERY_DATE);
   private static final double LAST_DELIVERY_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_DELIVERY_DATE);
-  private static final BondFixedSecurity[] BASKET = new BondFixedSecurity[NB_BOND];
-  private static final BondFixedSecurity[] STANDARD = new BondFixedSecurity[NB_BOND];
+  private static final BondFixedSecurity[] BASKET_AT_DELIVERY = new BondFixedSecurity[NB_BOND];
+  private static final BondFixedSecurity[] BASKET_AT_SPOT = new BondFixedSecurity[NB_BOND];
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
-      BASKET[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_DELIVERY_DATE);
-      STANDARD[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE);
+      BASKET_AT_DELIVERY[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_DELIVERY_DATE);
+      BASKET_AT_SPOT[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE);
     }
   }
   private static final BondFuturesSecurity BOND_FUTURES_SEC = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL,
-      BASKET,
-      CONVERSION_FACTOR);
+      BASKET_AT_DELIVERY, BASKET_AT_SPOT, CONVERSION_FACTOR);
   private static final int QUANTITY = 1234;
   private static final double PRICE_REFERENCE = 1.2345;
   private static final BondFuturesTransaction BOND_FUTURES_TRA = new BondFuturesTransaction(BOND_FUTURES_SEC, QUANTITY, PRICE_REFERENCE);

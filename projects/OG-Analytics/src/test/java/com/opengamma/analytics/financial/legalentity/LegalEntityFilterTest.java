@@ -163,26 +163,6 @@ public class LegalEntityFilterTest {
   }
 
   /**
-   * Tests failure when a country is requested that is not in the legal entity.
-   */
-  @Test(expectedExceptions = IllegalStateException.class)
-  public void testRegionNoMatchingCountry() {
-    final LegalEntityRegion filter = new LegalEntityRegion();
-    filter.setCountries(Collections.singleton(Country.GB));
-    filter.getFilteredData(LEGAL_ENTITY);
-  }
-
-  /**
-   * Tests failure when a currency is requested that is not in the legal entity.
-   */
-  @Test(expectedExceptions = IllegalStateException.class)
-  public void testRegionNoMatchingCurrency() {
-    final LegalEntityRegion filter = new LegalEntityRegion();
-    filter.setCurrencies(Collections.singleton(Currency.GBP));
-    filter.getFilteredData(LEGAL_ENTITY);
-  }
-
-  /**
    * Tests region requests.
    */
   @Test

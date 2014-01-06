@@ -198,4 +198,18 @@ public class CAConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CA_TREASURY_BOND_CONVENTION")), "CA_TREASURY_BOND_CONVENTION", true, true, 0, 2, 3,
         true, Tenor.TWO_YEARS);
   }
+
+
+  /**
+   * Adds conventions for CAD-denominated corporate bonds
+   * @param conventionMaster The convention master, not null
+   */
+  //TODO need to get the correct convention
+  public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
+    ArgumentChecker.notNull(conventionMaster, "convention master");
+    final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CA_CORPORATE_BOND_CONVENTION")), "CA_CORPORATE_BOND_CONVENTION", true, true, 0, 3,
+        true);
+  }
+  
 }

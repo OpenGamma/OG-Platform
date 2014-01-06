@@ -82,8 +82,8 @@ public final class BondFuturesSecurityHullWhiteMethod {
   public double price(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
-    final int nbBond = futures.getDeliveryBasket().length;
-    final LegalEntity issuer = futures.getDeliveryBasket()[0].getIssuerEntity();
+    final int nbBond = futures.getDeliveryBasketAtDeliveryDate().length;
+    final LegalEntity issuer = futures.getDeliveryBasketAtDeliveryDate()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
     final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, futures.getCurrency(), issuer);
@@ -113,7 +113,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
     final double[][] pv = new double[nbPoint][nbBond];
     final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      cf[loopbnd] = futures.getDeliveryBasket()[loopbnd].accept(CFEC, multicurvesDecorated);
+      cf[loopbnd] = futures.getDeliveryBasketAtDeliveryDate()[loopbnd].accept(CFEC, multicurvesDecorated);
       final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];
@@ -130,7 +130,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
         }
       }
-      e[loopbnd] = futures.getDeliveryBasket()[loopbnd].getAccruedInterest() / futures.getConversionFactor()[loopbnd];
+      e[loopbnd] = futures.getDeliveryBasketAtDeliveryDate()[loopbnd].getAccruedInterest() / futures.getConversionFactor()[loopbnd];
       for (int looppt = 0; looppt < nbPoint; looppt++) {
         pv[looppt][loopbnd] -= e[loopbnd];
       }
@@ -219,8 +219,8 @@ public final class BondFuturesSecurityHullWhiteMethod {
   public MulticurveSensitivity priceCurveSensitivity(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
-    final int nbBond = futures.getDeliveryBasket().length;
-    final LegalEntity issuer = futures.getDeliveryBasket()[0].getIssuerEntity();
+    final int nbBond = futures.getDeliveryBasketAtDeliveryDate().length;
+    final LegalEntity issuer = futures.getDeliveryBasketAtDeliveryDate()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
     final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, futures.getCurrency(), issuer);
@@ -251,7 +251,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
     final double[][] pv = new double[nbPoint][nbBond];
     final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      cf[loopbnd] = futures.getDeliveryBasket()[loopbnd].accept(CFEC, multicurvesDecorated);
+      cf[loopbnd] = futures.getDeliveryBasketAtDeliveryDate()[loopbnd].accept(CFEC, multicurvesDecorated);
       final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];
@@ -268,7 +268,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
         }
       }
-      e[loopbnd] = futures.getDeliveryBasket()[loopbnd].getAccruedInterest() / futures.getConversionFactor()[loopbnd];
+      e[loopbnd] = futures.getDeliveryBasketAtDeliveryDate()[loopbnd].getAccruedInterest() / futures.getConversionFactor()[loopbnd];
       for (int looppt = 0; looppt < nbPoint; looppt++) {
         pv[looppt][loopbnd] -= e[loopbnd];
       }
@@ -382,8 +382,8 @@ public final class BondFuturesSecurityHullWhiteMethod {
   public Pair<Double, MulticurveSensitivity> priceAD(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
-    final int nbBond = futures.getDeliveryBasket().length;
-    final LegalEntity issuer = futures.getDeliveryBasket()[0].getIssuerEntity();
+    final int nbBond = futures.getDeliveryBasketAtDeliveryDate().length;
+    final LegalEntity issuer = futures.getDeliveryBasketAtDeliveryDate()[0].getIssuerEntity();
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
     final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, futures.getCurrency(), issuer);
@@ -414,7 +414,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
     final double[][] pv = new double[nbPoint][nbBond];
     final AnnuityPaymentFixed[] cf = new AnnuityPaymentFixed[nbBond];
     for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      cf[loopbnd] = futures.getDeliveryBasket()[loopbnd].accept(CFEC, multicurvesDecorated);
+      cf[loopbnd] = futures.getDeliveryBasketAtDeliveryDate()[loopbnd].accept(CFEC, multicurvesDecorated);
       final int nbCf = cf[loopbnd].getNumberOfPayments();
       cfTime[loopbnd] = new double[nbCf];
       df[loopbnd] = new double[nbCf];
@@ -431,7 +431,7 @@ public final class BondFuturesSecurityHullWhiteMethod {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
         }
       }
-      e[loopbnd] = futures.getDeliveryBasket()[loopbnd].getAccruedInterest() / futures.getConversionFactor()[loopbnd];
+      e[loopbnd] = futures.getDeliveryBasketAtDeliveryDate()[loopbnd].getAccruedInterest() / futures.getConversionFactor()[loopbnd];
       for (int looppt = 0; looppt < nbPoint; looppt++) {
         pv[looppt][loopbnd] -= e[loopbnd];
       }

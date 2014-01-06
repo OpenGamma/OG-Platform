@@ -152,6 +152,7 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     final BondFixedSecurityDefinition securityDefinition = BondFixedSecurityDefinition.from(currency, firstAccrualDate,
         firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay, yieldConvention, isEOM,
         legalEntity);
+    // TODO: PLAT-5253 Standard days to settlement are missing in bond description.
     return BondFixedTransactionDefinition.fromYield(securityDefinition, 1, _valuationTime, yield);
   }
 

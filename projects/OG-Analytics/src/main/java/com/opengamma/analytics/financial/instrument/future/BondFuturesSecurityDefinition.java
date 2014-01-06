@@ -16,9 +16,8 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -198,34 +197,38 @@ public class BondFuturesSecurityDefinition implements InstrumentDefinition<BondF
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     ArgumentChecker.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double lastTradingTime = actAct.getDayCountFraction(date, getTradingLastDate(), _calendar);
-    final double firstNoticeTime = actAct.getDayCountFraction(date, getNoticeFirstDate(), _calendar);
-    final double lastNoticeTime = actAct.getDayCountFraction(date, getNoticeLastDate(), _calendar);
-    final double firstDeliveryTime = actAct.getDayCountFraction(date, getDeliveryFirstDate(), _calendar);
-    final double lastDeliveryTime = actAct.getDayCountFraction(date, getDeliveryLastDate(), _calendar);
-    final BondFixedSecurity[] basket = new BondFixedSecurity[_deliveryBasket.length];
+    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getTradingLastDate());
+    final double firstNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeFirstDate());
+    final double lastNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeLastDate());
+    final double firstDeliveryTime = TimeCalculator.getTimeBetween(date, getDeliveryFirstDate());
+    final double lastDeliveryTime = TimeCalculator.getTimeBetween(date, getDeliveryLastDate());
+    final BondFixedSecurity[] basketAtDeliveryDate = new BondFixedSecurity[_deliveryBasket.length];
+    final BondFixedSecurity[] basketAtSpotDate = new BondFixedSecurity[_deliveryBasket.length];
     for (int loopbasket = 0; loopbasket < _deliveryBasket.length; loopbasket++) {
-      basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate, yieldCurveNames);
+      basketAtDeliveryDate[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate, yieldCurveNames);
+      basketAtSpotDate[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, yieldCurveNames);
     }
-    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket, _conversionFactor);
+    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional,
+        basketAtDeliveryDate, basketAtSpotDate, _conversionFactor);
   }
 
   @Override
   public BondFuturesSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getNoticeLastDate()), "Date is after last notice date");
-    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
-    final double lastTradingTime = actAct.getDayCountFraction(date, getTradingLastDate(), _calendar);
-    final double firstNoticeTime = actAct.getDayCountFraction(date, getNoticeFirstDate(), _calendar);
-    final double lastNoticeTime = actAct.getDayCountFraction(date, getNoticeLastDate(), _calendar);
-    final double firstDeliveryTime = actAct.getDayCountFraction(date, getDeliveryFirstDate(), _calendar);
-    final double lastDeliveryTime = actAct.getDayCountFraction(date, getDeliveryLastDate(), _calendar);
-    final BondFixedSecurity[] basket = new BondFixedSecurity[_deliveryBasket.length];
+    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getTradingLastDate());
+    final double firstNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeFirstDate());
+    final double lastNoticeTime = TimeCalculator.getTimeBetween(date, getNoticeLastDate());
+    final double firstDeliveryTime = TimeCalculator.getTimeBetween(date, getDeliveryFirstDate());
+    final double lastDeliveryTime = TimeCalculator.getTimeBetween(date, getDeliveryLastDate());
+    final BondFixedSecurity[] basketAtDeliveryDate = new BondFixedSecurity[_deliveryBasket.length];
+    final BondFixedSecurity[] basketAtSpotDate = new BondFixedSecurity[_deliveryBasket.length];
     for (int loopbasket = 0; loopbasket < _deliveryBasket.length; loopbasket++) {
-      basket[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate);
+      basketAtDeliveryDate[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date, _deliveryLastDate);
+      basketAtSpotDate[loopbasket] = _deliveryBasket[loopbasket].toDerivative(date);
     }
-    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional, basket, _conversionFactor);
+    return new BondFuturesSecurity(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, _notional,
+        basketAtDeliveryDate, basketAtSpotDate, _conversionFactor);
   }
 
   @Override
