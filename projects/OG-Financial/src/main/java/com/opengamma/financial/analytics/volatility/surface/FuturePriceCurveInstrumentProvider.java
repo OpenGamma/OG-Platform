@@ -11,13 +11,13 @@ import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExp
 import com.opengamma.id.ExternalId;
 
 /**
- * Provides instruments for each point on the curve
+ * Provides instrument tickers, {@link ExternalId}'s, for each point on the curve.
+ * It is likely that the implementing classes will be specific to the data provider.
  * @param <X> The type of the x-axis values
  */
-//TODO probably best to combine this and CurveInstrumentProvider
 public interface FuturePriceCurveInstrumentProvider<X> {
 
-  ExternalId getInstrument(X xAxis);
+  ExternalId getInstrument(X xAxis); // TODO: Remove this. It will never be used by any implementing class
 
   ExternalId getInstrument(X xAxis, LocalDate curveDate);
 
