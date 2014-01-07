@@ -40,7 +40,7 @@ public class DynamicFunctionConfigurationSourceTest {
   }
 
   public void testCreate() {
-    final DynamicFunctionConfigurationSource source = new DynamicFunctionConfigurationSource(DummyChangeManager.INSTANCE) {
+    final DynamicFunctionConfigurationSource source = new BeanDynamicFunctionConfigurationSource(DummyChangeManager.INSTANCE) {
 
       @Override
       protected boolean isPropogateEvent(ChangeEvent event) {
@@ -63,7 +63,7 @@ public class DynamicFunctionConfigurationSourceTest {
 
   public void testChangeManagerListeners() {
     final ChangeManager cm = Mockito.mock(ChangeManager.class);
-    final DynamicFunctionConfigurationSource source = new DynamicFunctionConfigurationSource(cm) {
+    final DynamicFunctionConfigurationSource source = new BeanDynamicFunctionConfigurationSource(cm) {
 
       @Override
       protected boolean isPropogateEvent(ChangeEvent event) {
@@ -97,7 +97,7 @@ public class DynamicFunctionConfigurationSourceTest {
 
   public void testChangeManagerNotifications() {
     final ChangeManager cm = new BasicChangeManager();
-    final DynamicFunctionConfigurationSource source = new DynamicFunctionConfigurationSource(cm) {
+    final DynamicFunctionConfigurationSource source = new BeanDynamicFunctionConfigurationSource(cm) {
 
       @Override
       protected boolean isPropogateEvent(ChangeEvent event) {

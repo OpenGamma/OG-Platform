@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,7 +19,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Wrapper for a {@link AbstractFunctionConfigurationBean} that supports dynamic configurations by recreating the bean for each version timestamp.
+ * Partial implementation of {@link FunctionConfigurationSource} that supports listening to changes from an underlying provider.
  */
 public abstract class DynamicFunctionConfigurationSource implements FunctionConfigurationSource {
 
@@ -72,13 +72,11 @@ public abstract class DynamicFunctionConfigurationSource implements FunctionConf
 
   protected abstract boolean isPropogateEvent(ChangeEvent event);
 
-  protected abstract VersionedFunctionConfigurationBean createConfiguration();
+  protected abstract FunctionConfigurationBundle getFunctionConfiguration(VersionCorrection version);
 
   @Override
   public FunctionConfigurationBundle getFunctionConfiguration(Instant version) {
-    final VersionedFunctionConfigurationBean factory = createConfiguration();
-    factory.setVersionCorrection(VersionCorrection.of(version, version));
-    return factory.createObject().getFunctionConfiguration(version);
+    return getFunctionConfiguration(VersionCorrection.of(version, version));
   }
 
   @Override

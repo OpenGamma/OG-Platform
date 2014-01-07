@@ -12,7 +12,7 @@ import java.util.List;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
-import com.opengamma.engine.function.config.DynamicFunctionConfigurationSource;
+import com.opengamma.engine.function.config.BeanDynamicFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.VersionedFunctionConfigurationBean;
@@ -48,7 +48,7 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
    * @return A function configuration source
    */
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
+    return new BeanDynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
 
       @Override
       protected VersionedFunctionConfigurationBean createConfiguration() {
