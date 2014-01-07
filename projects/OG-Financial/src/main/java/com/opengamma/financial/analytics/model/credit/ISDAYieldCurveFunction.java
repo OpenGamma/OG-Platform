@@ -18,7 +18,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,6 +33,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -68,16 +68,12 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String offsetString = desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_OFFSET);
     final int offset = Integer.parseInt(offsetString);
-    final Object dataObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_MARKET_DATA);
+    final Object dataObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_DATA);
     if (dataObject == null) {
       throw new OpenGammaRuntimeException("Couldn't get yield curve data for " + curveName);
     }
-    final Object specObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_SPEC);
-    if (specObject == null) {
-      throw new OpenGammaRuntimeException("Could not get yield curve specification for " + curveName + " and target " + target.getName());
-    }
-    final SnapshotDataBundle marketData = (SnapshotDataBundle) dataObject;
-    final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) specObject;
+    final YieldCurveData yieldCurveData = (YieldCurveData) dataObject;
+    final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = yieldCurveData.getCurveSpecification();
 
     final int nNodes = yieldCurveSpec.getStrips().size();
     final double[] marketDataForCurve = new double[nNodes];
@@ -92,10 +88,10 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
 
     for (final FixedIncomeStripWithSecurity strip : yieldCurveSpec.getStrips()) {
       final String securityType = strip.getSecurity().getSecurityType();
-      if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE) || securityType.equals(specObject))) {
+      if (!(securityType.equals(CashSecurity.SECURITY_TYPE) || securityType.equals(SwapSecurity.SECURITY_TYPE)/* || securityType.equals(specObject)*/)) {
         throw new OpenGammaRuntimeException("ISDA curves should only use Libor and swap rates");
       }
-      final Double marketValue = marketData.getDataPoint(strip.getSecurityIdentifier());
+      final Double marketValue = yieldCurveData.getDataPoint(strip.getSecurityIdentifier());
       if (marketValue == null) {
         throw new OpenGammaRuntimeException("Could not get market data for " + strip);
       }
@@ -196,8 +192,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
         .get();
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
-    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_DATA, targetSpec, properties));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, curveTSProperties));
     return requirements;
   }
