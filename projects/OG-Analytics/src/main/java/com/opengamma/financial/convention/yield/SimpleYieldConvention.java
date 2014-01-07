@@ -83,7 +83,7 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
   /**
    * Canada Compound Method
    */
-  public static final YieldConvention CANADA_COMPND_METHOD = new SimpleYieldConvention("CANADA:COMPND METH");  
+  public static final YieldConvention CANADA_COMPND_METHOD = new SimpleYieldConvention("CANADA:COMPND METH");
   /**
    * Pay-in-kind
    */
@@ -136,7 +136,11 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Italy Treasury Bill
    */
   public static final YieldConvention ITALY_TREASURY_BILL = new SimpleYieldConvention("ITALY:TRSY BILL");
-  
+  /**
+   * Australian Government bonds.
+   */
+  public static final YieldConvention AUSTRALIA_EX_DIVIDEND = new SimpleYieldConvention("AUSTRALIA:EX-DIV");
+
   /**
    * The convention name.
    */
@@ -160,16 +164,16 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
   public String getConventionName() {
     return getName();
   }
-  
+
   @Override
   public String getName() {
     return _name;
   }
-    
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-  
+
   //REVIEW emcleod 28-1-2011 Is the lack of hashCode() and equals() deliberate?
 }

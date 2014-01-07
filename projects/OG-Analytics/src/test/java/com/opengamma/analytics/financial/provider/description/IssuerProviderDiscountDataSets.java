@@ -49,17 +49,22 @@ public class IssuerProviderDiscountDataSets {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  /** US government issuer name */
-  private static final String US_NAME = "US GOVT";
+  /** Australian government issuer name */
+  private static final String AUS_NAME = "AUSTRALIAN GOVT";
   /** Belgian government issuer name */
   private static final String BEL_NAME = "BELGIUM GOVT";
   /** German government issuer name */
   private static final String GER_NAME = "GERMANY GOVT";
-  /** UK government issuer name */
-  private static final String UK_NAME = "UK GOVT";
   /** ITALY government issuer name */
   private static final String IT_NAME = "IT GOVT";
+  /** UK government issuer name */
+  private static final String UK_NAME = "UK GOVT";
+  /** US government issuer name */
+  private static final String US_NAME = "US GOVT";
 
+  /** US government legal entity */
+  private static final LegalEntity AUS_GOVT = new LegalEntity(AUS_NAME, AUS_NAME, Sets.newHashSet(CreditRating.of("AAA", "S&P", true)), Sector.of("Government"),
+      Region.of("Australia", Country.AU, Currency.AUD));
   /** US government legal entity */
   private static final LegalEntity US_GOVT = new LegalEntity(US_NAME, US_NAME, Sets.newHashSet(CreditRating.of("AA", "S&P", true)), Sector.of("Government"), Region.of("United States", Country.US,
       Currency.USD));
@@ -267,4 +272,13 @@ public class IssuerProviderDiscountDataSets {
   public static LegalEntity[] getIssuers() {
     return new LegalEntity[] {US_GOVT, BEL_GOVT, GER_GOVT, UK_GOVT, IT_GOVT };
   }
+
+  /**
+   * Gets the issuers Australia
+   * @return The issuers AUS
+   */
+  public static LegalEntity getIssuersAUS() {
+    return AUS_GOVT;
+  }
+
 }

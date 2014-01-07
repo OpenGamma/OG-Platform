@@ -93,6 +93,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addDEFixedIncomeInstruments();
     addFRFixedIncomeInstruments();
     addSEFixedIncomeInstruments();
+    addBETreasuryBondConvention();
     addLUTreasuryBondConvention();
     addLUCorporateBondConvention();
     addBHTreasuryBondConvention();
@@ -332,6 +333,11 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKSWAPP25Y")), "SEKSWAPP25Y", act360, modified, Period.ofYears(25), 2, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKSWAPP30Y")), "SEKSWAPP30Y", act360, modified, Period.ofYears(30), 2, false, null);
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SEKSWAPP40Y")), "SEKSWAPP40Y", act360, modified, Period.ofYears(40), 2, false, null);
+  }
+
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
+  private void addBETreasuryBondConvention() { // Government Belgium
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "BE_TREASURY_BOND_CONVENTION")), "BE_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
