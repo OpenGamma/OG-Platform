@@ -30,14 +30,14 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.BondFunctionUtils;
+import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Calculates the sensitivities to the market quotes of a bond or bond future for all curves
  * to which the instruments are sensitive.
  */
-public class BondBCSFunction extends BondFromCurvesFunction<ParameterIssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public class BondAndBondFutureBCSFunction extends BondAndBondFutureFromCurvesFunction<ParameterIssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> {
   /** The curve sensitivity calculator */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityIssuerCalculator.getInstance();
@@ -52,7 +52,7 @@ public class BondBCSFunction extends BondFromCurvesFunction<ParameterIssuerProvi
    * Sets the value requirement name to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES} and
    * sets the calculator to null.
    */
-  public BondBCSFunction() {
+  public BondAndBondFutureBCSFunction() {
     super(BLOCK_CURVE_SENSITIVITIES, null);
   }
 
@@ -60,7 +60,7 @@ public class BondBCSFunction extends BondFromCurvesFunction<ParameterIssuerProvi
   public Set<ComputedValue> execute(final FunctionExecutionContext context, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(context.getValuationClock());
-    final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(context, target, now);
+    final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(context, target, now, inputs);
     final ParameterIssuerProviderInterface issuerCurves = (ParameterIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final CurveBuildingBlockBundle blocks = (CurveBuildingBlockBundle) inputs.getValue(JACOBIAN_BUNDLE);
     final Set<ComputedValue> result = new HashSet<>();

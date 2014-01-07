@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.BondFunctionUtils;
+import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -42,9 +42,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Calculates the PV01 of a bond or bond future for all curves to which the instruments are sensitive.
  */
-public class BondPV01Function extends BondFromCurvesFunction<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
+public class BondAndBondFuturePV01Function extends BondAndBondFutureFromCurvesFunction<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BondPV01Function.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BondAndBondFuturePV01Function.class);
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
@@ -53,7 +53,7 @@ public class BondPV01Function extends BondFromCurvesFunction<ParameterIssuerProv
    * Sets the value requirement name to {@link ValueRequirementNames#PV01} and
    * sets the calculator to {@link PV01CurveParametersCalculator}
    */
-  public BondPV01Function() {
+  public BondAndBondFuturePV01Function() {
     super(PV01, CALCULATOR);
   }
 
@@ -63,7 +63,7 @@ public class BondPV01Function extends BondFromCurvesFunction<ParameterIssuerProv
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(context.getValuationClock());
-    final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(context, target, now);
+    final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(context, target, now, inputs);
     final ParameterIssuerProviderInterface issuerCurves = (ParameterIssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final String desiredCurveName = properties.getStrictValue(CURVE);
     final ReferenceAmount<Pair<String, Currency>> pv01 = derivative.accept(CALCULATOR, issuerCurves);

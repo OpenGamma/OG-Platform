@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.BondFunctionUtils;
+import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -36,12 +36,12 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the modified duration of a bond from yield curves.
  */
-public class BondPresentValueFromCurvesFunction extends BondFromCurvesFunction<IssuerProviderInterface, MultipleCurrencyAmount> {
+public class BondAndBondFuturePresentValueFromCurvesFunction extends BondAndBondFutureFromCurvesFunction<IssuerProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#PRESENT_VALUE}.
    */
-  public BondPresentValueFromCurvesFunction() {
+  public BondAndBondFuturePresentValueFromCurvesFunction() {
     super(PRESENT_VALUE, null);
   }
 
@@ -51,7 +51,7 @@ public class BondPresentValueFromCurvesFunction extends BondFromCurvesFunction<I
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-    final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
+    final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final IssuerProvider issuerCurves = (IssuerProvider) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
     final MultipleCurrencyAmount pv = derivative.accept(PresentValueIssuerCalculator.getInstance(), issuerCurves);

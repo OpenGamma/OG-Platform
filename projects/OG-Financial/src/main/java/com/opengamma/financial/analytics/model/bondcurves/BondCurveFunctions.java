@@ -10,6 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.financial.analytics.model.bondcurves.future.BondFutureConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.bondcurves.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bondcurves.future.BondFutureNetBasisFromCurvesFunction;
 
@@ -30,17 +31,18 @@ public class BondCurveFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondAccruedInterestFromCurvesFunction.class));
-    functions.add(functionConfiguration(BondBCSFunction.class));
+    functions.add(functionConfiguration(BondAndBondFutureBCSFunction.class));
     functions.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class));
     functions.add(functionConfiguration(BondConvexityFromCurvesFunction.class));
-    functions.add(functionConfiguration(BondGammaPV01FromCurvesFunction.class));
+    functions.add(functionConfiguration(BondAndBondFutureGammaPV01FromCurvesFunction.class));
     functions.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class));
     functions.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class));
-    functions.add(functionConfiguration(BondPresentValueFromCurvesFunction.class));
-    functions.add(functionConfiguration(BondPV01Function.class));
-    functions.add(functionConfiguration(BondYCNSFunction.class));
+    functions.add(functionConfiguration(BondAndBondFuturePresentValueFromCurvesFunction.class));
+    functions.add(functionConfiguration(BondAndBondFuturePV01Function.class));
+    functions.add(functionConfiguration(BondAndBondFutureYCNSFunction.class));
     functions.add(functionConfiguration(BondYieldFromCurvesFunction.class));
 
+    functions.add(functionConfiguration(BondFutureConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
     functions.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
   }

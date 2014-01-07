@@ -25,7 +25,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -51,22 +50,18 @@ import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FixingTimeSeriesVisitor;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
-import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
@@ -74,8 +69,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- *
+ * Calculates one-day theta for swaps by rolling down the discounting and forward curves
+ * without slide.
+ * @deprecated This functions uses deprecated analytics code
  */
+@Deprecated
 public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwapConstantSpreadThetaFunction.class);
@@ -168,7 +166,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    final Set<String> daysForwardNames = constraints.getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
     if (daysForwardNames == null || daysForwardNames.size() != 1) {
       return null;
     }
@@ -273,27 +271,6 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
    */
   private ValueSpecification getResultSpec(final ComputationTarget target, final String curveCalculationConfig, final String currency, final String daysForward) {
     return new ValueSpecification(ValueRequirementNames.VALUE_THETA, target.toSpecification(), getResultProperties(currency, curveCalculationConfig, daysForward).get());
-  }
-
-  private static InstrumentDerivative getDerivative(final FinancialSecurity security, final ZonedDateTime now, final HistoricalTimeSeriesBundle timeSeries, final String[] curveNames,
-      final InstrumentDefinition<?> definition, final FixedIncomeConverterDataProvider definitionConverter) {
-    final InstrumentDerivative derivative;
-    final SwapSecurity swapSecurity = (SwapSecurity) security;
-    final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType(swapSecurity);
-    if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {
-      final Frequency resetFrequency;
-      if (swapSecurity.getPayLeg() instanceof FloatingInterestRateLeg) {
-        resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getPayLeg()).getFrequency();
-      } else {
-        resetFrequency = ((FloatingInterestRateLeg) swapSecurity.getReceiveLeg()).getFrequency();
-      }
-      derivative = definitionConverter.convert(security, definition, now,
-          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames, resetFrequency), timeSeries);
-    } else {
-      derivative = definitionConverter.convert(security, definition, now,
-          FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames), timeSeries);
-    }
-    return derivative;
   }
 
   /**

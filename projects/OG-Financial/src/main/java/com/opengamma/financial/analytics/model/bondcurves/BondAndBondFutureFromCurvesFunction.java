@@ -44,10 +44,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
-import com.opengamma.financial.analytics.model.BondFunctionUtils;
+import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -56,9 +57,9 @@ import com.opengamma.util.async.AsynchronousExecution;
  * @param <S> The type of the curves required by the calculator
  * @param <T> The type of the result
  */
-public abstract class BondFromCurvesFunction<S extends ParameterIssuerProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
+public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIssuerProviderInterface, T> extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BondFromCurvesFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BondAndBondFutureFromCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
   /** The calculator */
@@ -68,7 +69,7 @@ public abstract class BondFromCurvesFunction<S extends ParameterIssuerProviderIn
    * @param valueRequirementName The value requirement name, not null
    * @param calculator The calculator
    */
-  public BondFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<S, T> calculator) {
+  public BondAndBondFutureFromCurvesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<S, T> calculator) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
     _calculator = calculator;
@@ -80,7 +81,7 @@ public abstract class BondFromCurvesFunction<S extends ParameterIssuerProviderIn
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
-    final InstrumentDerivative derivative = BondFunctionUtils.getDerivative(executionContext, target, now);
+    final InstrumentDerivative derivative = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final S issuerCurves = (S) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final T result = derivative.accept(_calculator, issuerCurves);
@@ -140,6 +141,8 @@ public abstract class BondFromCurvesFunction<S extends ParameterIssuerProviderIn
           requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
         }
       }
+      final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+      requirements.addAll(BondAndBondFutureFunctionUtils.getConversionRequirements(security, timeSeriesResolver));
       return requirements;
     } catch (final Exception e) {
       s_logger.error(e.getMessage(), e);

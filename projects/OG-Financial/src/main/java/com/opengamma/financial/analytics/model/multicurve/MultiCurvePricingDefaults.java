@@ -17,6 +17,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION
 import static com.opengamma.engine.value.ValueRequirementNames.NET_BASIS;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
+import static com.opengamma.engine.value.ValueRequirementNames.VALUE_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.engine.value.ValueRequirementNames.YTM;
 import static com.opengamma.engine.value.ValueRequirementNames.Z_SPREAD;
@@ -41,20 +42,21 @@ public class MultiCurvePricingDefaults extends DefaultPropertyFunction {
   /** The value requirement names for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ACCRUED_INTEREST,
+    BLOCK_CURVE_SENSITIVITIES,
+    BUCKETED_PV01,
     CLEAN_PRICE,
     CONVEXITY,
-    MACAULAY_DURATION,
-    MODIFIED_DURATION,
-    PRESENT_VALUE,
-    PV01,
-    YTM,
-    Z_SPREAD,
-    BLOCK_CURVE_SENSITIVITIES,
-    YIELD_CURVE_NODE_SENSITIVITIES,
-    BUCKETED_PV01,
     GAMMA_PV01,
     GROSS_BASIS,
-    NET_BASIS
+    MACAULAY_DURATION,
+    MODIFIED_DURATION,
+    NET_BASIS,
+    PRESENT_VALUE,
+    PV01,
+    VALUE_THETA,
+    YIELD_CURVE_NODE_SENSITIVITIES,
+    YTM,
+    Z_SPREAD
   };
   /** The absolute tolerance */
   private final Set<String> _absoluteTolerance;

@@ -14,9 +14,9 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Param
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
- * Calculates the gamma PV01 of a bond from yield curves.
+ * Calculates the gamma PV01 of a bond or bond future from yield curves.
  */
-public class BondGammaPV01FromCurvesFunction extends BondFromCurvesFunction<ParameterIssuerProviderInterface, Double> {
+public class BondAndBondFutureGammaPV01FromCurvesFunction extends BondAndBondFutureFromCurvesFunction<ParameterIssuerProviderInterface, Double> {
   /** The gamma PV01 calculator */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> CALCULATOR =
       new GammaPV01CurveParametersCalculator<>(PresentValueCurveSensitivityIssuerCalculator.getInstance());
@@ -25,7 +25,7 @@ public class BondGammaPV01FromCurvesFunction extends BondFromCurvesFunction<Para
    * Sets the value requirement name to {@link ValueRequirementNames#GAMMA_PV01} and
    * the calculator to {@link GammaPV01CurveParametersCalculator}.
    */
-  public BondGammaPV01FromCurvesFunction() {
+  public BondAndBondFutureGammaPV01FromCurvesFunction() {
     super(GAMMA_PV01, CALCULATOR);
   }
 
