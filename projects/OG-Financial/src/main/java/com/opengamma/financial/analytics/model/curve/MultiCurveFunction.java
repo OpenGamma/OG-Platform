@@ -99,10 +99,10 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   @Override
   public void init(final FunctionCompilationContext context) {
     AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, null, CurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, InterpolatedCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, ConstantCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, SpreadCurveDefinition.class);
   }
 
   @Override
