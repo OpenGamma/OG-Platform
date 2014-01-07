@@ -20,18 +20,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Wrapper for a {@link AbstractFunctionConfigurationBean} that supports dynamic configurations by recreating the bean for each version timestamp.
  */
-public abstract class DynamicFunctionConfigurationBean implements FunctionConfigurationSource {
+public abstract class DynamicFunctionConfigurationSource implements FunctionConfigurationSource {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DynamicFunctionConfigurationBean.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DynamicFunctionConfigurationSource.class);
 
   private final ChangeListener _changeListener = new ChangeListener() {
     @Override
     public void entityChanged(final ChangeEvent event) {
       if (isPropogateEvent(event)) {
-        s_logger.info("Function configuration change at {} caused by {}", DynamicFunctionConfigurationBean.this, event);
+        s_logger.info("Function configuration change at {} caused by {}", DynamicFunctionConfigurationSource.this, event);
         _changeManager.entityChanged(ChangeType.CHANGED, FunctionConfigurationSource.OBJECT_ID, event.getVersionFrom(), event.getVersionTo(), event.getVersionInstant());
       } else {
-        s_logger.debug("Ignoring event {} at {}", event, DynamicFunctionConfigurationBean.this);
+        s_logger.debug("Ignoring event {} at {}", event, DynamicFunctionConfigurationSource.this);
       }
     }
   };
@@ -42,7 +42,7 @@ public abstract class DynamicFunctionConfigurationBean implements FunctionConfig
     public synchronized void addChangeListener(final ChangeListener listener) {
       ArgumentChecker.notNull(listener, "listener");
       if (getListeners().isEmpty()) {
-        s_logger.info("Registering listener for {}", DynamicFunctionConfigurationBean.this);
+        s_logger.info("Registering listener for {}", DynamicFunctionConfigurationSource.this);
         addListenerToUnderlyings(_changeListener);
       }
       super.addChangeListener(listener);
@@ -52,7 +52,7 @@ public abstract class DynamicFunctionConfigurationBean implements FunctionConfig
     public synchronized void removeChangeListener(final ChangeListener listener) {
       super.removeChangeListener(listener);
       if (getListeners().isEmpty()) {
-        s_logger.info("Removing listener for {}", DynamicFunctionConfigurationBean.this);
+        s_logger.info("Removing listener for {}", DynamicFunctionConfigurationSource.this);
         removeListenerFromUnderlyings(_changeListener);
       }
     }

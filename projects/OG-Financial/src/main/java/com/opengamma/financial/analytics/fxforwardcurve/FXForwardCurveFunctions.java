@@ -10,7 +10,7 @@ import java.util.List;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
-import com.opengamma.engine.function.config.DynamicFunctionConfigurationBean;
+import com.opengamma.engine.function.config.DynamicFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.VersionedFunctionConfigurationBean;
@@ -34,7 +34,7 @@ public class FXForwardCurveFunctions extends AbstractFunctionConfigurationBean {
   }
 
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationBean() {
+    return new DynamicFunctionConfigurationSource() {
 
       @Override
       public ChangeManager getUnderlyingChangeManager() {
