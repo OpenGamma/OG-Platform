@@ -351,7 +351,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
               }
             }
           } catch (final Throwable t2) {
-            t2.printStackTrace();
+            s_logger.error("Exception building implied deposit curve for valuation date " + valuationDate, t2);
             continue;
           }
         }
@@ -368,7 +368,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
             bundle.add(MarketDataRequirementNames.MARKET_VALUE, id, ts);
           } catch (final Exception e) {
-            e.printStackTrace();
+            s_logger.error("Exception building implied deposit curve series when adding timeseries to bundle for " + strip.getSecurityIdentifier() , e);
             break;
           }
         }
@@ -377,7 +377,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         return Collections.singleton(new ComputedValue(curveSpec, bundle));
 
       } catch (final Throwable t3) {
-        t3.printStackTrace();
+        s_logger.error("Exception building implied deposit curve series", t3);
         throw t3;
       }
 
