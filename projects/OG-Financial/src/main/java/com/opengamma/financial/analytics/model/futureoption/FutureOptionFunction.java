@@ -42,7 +42,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
 import com.opengamma.financial.analytics.conversion.EquityOptionsConverter;
-import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.FutureSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
@@ -83,7 +83,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final FutureSecurityConverter futureSecurityConverter = new FutureSecurityConverter(null, null);
+    final FutureSecurityConverterDeprecated futureSecurityConverter = new FutureSecurityConverterDeprecated(null, null);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> commodityFutureOption = new CommodityFutureOptionConverter(securitySource, holidaySource, conventionSource, regionSource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> equityFutureOption = new EquityOptionsConverter(futureSecurityConverter, securitySource);
     _converter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()

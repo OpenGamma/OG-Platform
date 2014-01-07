@@ -8,6 +8,8 @@ package com.opengamma.financial.analytics.ircurve.rest;
 import java.net.URI;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.VersionCorrection;
@@ -21,14 +23,28 @@ import com.opengamma.util.rest.UniformInterfaceException404NotFound;
  */
 public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemoteClient implements InterpolatedYieldCurveDefinitionSource {
 
+  private ChangeManager _changeManager;
+
   /**
    * Creates an instance.
    * 
    * @param baseUri  the base target URI for all RESTful web services, not null
    */
   public RemoteInterpolatedYieldCurveDefinitionSource(final URI baseUri) {
-    super(baseUri);
+    this(baseUri, DummyChangeManager.INSTANCE);
   }
+  
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager to use for this source, not null
+   */
+  public RemoteInterpolatedYieldCurveDefinitionSource(final URI baseUri, final ChangeManager changeManager) {
+    super(baseUri);
+    ArgumentChecker.notNull(changeManager, "changeManager");
+    _changeManager = changeManager;
+  }  
 
   //-------------------------------------------------------------------------
   @Override
@@ -59,6 +75,11 @@ public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemote
     } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

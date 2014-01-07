@@ -27,7 +27,8 @@ import com.opengamma.financial.security.MarketSecurityVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * Provides the market price for the security of a position as a value on the position
+ * Provides the market price for the security of a position as a value on the position. <p>
+ * See also {@link SecurityMarkCurrentFunction}
  */
 public class SecurityMarketPriceFunction extends AbstractFunction.NonCompiledInvoker {
 

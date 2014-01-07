@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.forward;
@@ -46,7 +46,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class FXForwardCurveMarketDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveMarketDataFunction.class);
@@ -100,7 +100,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
           s_logger.error("Cannot handle quote type " + quoteType);
           return null;
         }
-        final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+        final Set<ValueRequirement> requirements = new HashSet<>();
         final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(atZDT.toLocalDate(), tenor);
@@ -132,7 +132,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
         }
         final Double spot = (Double) inputs.getValue(spotRequirement);
-        final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
+        final Map<ExternalId, Double> data = new HashMap<>();
         final boolean isRegular = specification.isMarketQuoteConvention();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);

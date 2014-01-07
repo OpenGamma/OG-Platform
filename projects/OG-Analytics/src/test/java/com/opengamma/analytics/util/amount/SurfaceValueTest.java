@@ -10,9 +10,13 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SurfaceValueTest {
 
   private static final double TOLERANCE = 1.0E-10;
@@ -21,7 +25,7 @@ public class SurfaceValueTest {
   public void constructor() {
     SurfaceValue surf0 = new SurfaceValue();
     assertEquals("Surface value - constructor", 0, surf0.getMap().size());
-    DoublesPair point1 = new DoublesPair(1.0, 2.0);
+    DoublesPair point1 = DoublesPair.of(1.0, 2.0);
     double value1 = 2345.678;
     SurfaceValue surf1 = SurfaceValue.from(point1, value1);
     assertEquals("Surface value - constructor", 1, surf1.getMap().size());
@@ -31,10 +35,10 @@ public class SurfaceValueTest {
 
   @Test
   public void plus() {
-    DoublesPair point1 = new DoublesPair(1.0, 2.0);
+    DoublesPair point1 = DoublesPair.of(1.0, 2.0);
     double value1 = 2345.678;
     SurfaceValue surf1 = SurfaceValue.from(point1, value1);
-    DoublesPair point2 = new DoublesPair(2.0, Math.PI);
+    DoublesPair point2 = DoublesPair.of(2.0, Math.PI);
     double value2 = 10 * Math.E;
     SurfaceValue surfPlus1 = SurfaceValue.plus(surf1, point2, value2);
     assertEquals("Surface value - plus", 2, surfPlus1.getMap().size());
@@ -50,7 +54,7 @@ public class SurfaceValueTest {
     assertEquals("Surface value - plus", value1, surfPlus2.getMap().get(point1), TOLERANCE);
     assertEquals("Surface value - plus", value2, surfPlus2.getMap().get(point2), TOLERANCE);
     assertTrue("Surface value - plus", SurfaceValue.compare(SurfaceValue.plus(surfPlus2, surfPlus2), SurfaceValue.multiplyBy(surfPlus2, 2), TOLERANCE));
-    DoublesPair point3 = new DoublesPair(2.0, 2.0);
+    DoublesPair point3 = DoublesPair.of(2.0, 2.0);
     double value3 = 12.345;
     SurfaceValue surf3 = SurfaceValue.from(point3, value3);
     assertTrue("Surface value - plus", SurfaceValue.compare(SurfaceValue.plus(surfPlus2, point3, value3), SurfaceValue.plus(surfPlus2, surf3), TOLERANCE));
@@ -58,7 +62,7 @@ public class SurfaceValueTest {
 
   @Test
   public void multipliedBy() {
-    DoublesPair point1 = new DoublesPair(1.0, 2.0);
+    DoublesPair point1 = DoublesPair.of(1.0, 2.0);
     double value1 = 2345.678;
     SurfaceValue surf1 = SurfaceValue.from(point1, value1);
     double factor = 3;
@@ -69,10 +73,10 @@ public class SurfaceValueTest {
 
   @Test
   public void compare() {
-    DoublesPair point1 = new DoublesPair(1.0, 2.0);
+    DoublesPair point1 = DoublesPair.of(1.0, 2.0);
     double value1 = 2345.678;
     SurfaceValue surf1 = SurfaceValue.from(point1, value1);
-    DoublesPair point2 = new DoublesPair(2.0, Math.PI);
+    DoublesPair point2 = DoublesPair.of(2.0, Math.PI);
     double value2 = 10 * Math.E;
     SurfaceValue surf2 = SurfaceValue.from(point2, value2);
     SurfaceValue surfPlus1 = SurfaceValue.plus(surf1, surf2);
@@ -85,10 +89,10 @@ public class SurfaceValueTest {
    * Tests the toSingleValue method.
    */
   public void toSingleValue() {
-    DoublesPair point1 = new DoublesPair(1.0, 2.0);
+    DoublesPair point1 = DoublesPair.of(1.0, 2.0);
     double value1 = 2345.678;
     SurfaceValue surf1 = SurfaceValue.from(point1, value1);
-    DoublesPair point2 = new DoublesPair(2.0, Math.PI);
+    DoublesPair point2 = DoublesPair.of(2.0, Math.PI);
     double value2 = 10 * Math.E;
     SurfaceValue surf2 = SurfaceValue.from(point2, value2);
     SurfaceValue surfPlus1 = SurfaceValue.plus(surf1, surf2);

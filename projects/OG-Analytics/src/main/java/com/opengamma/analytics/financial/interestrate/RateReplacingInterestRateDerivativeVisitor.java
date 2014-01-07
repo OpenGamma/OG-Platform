@@ -15,8 +15,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * 
+ * @deprecated This calculator uses {@link InstrumentDerivative}s that refer to curve names.
+ * Use {@link RateReplacingVisitor}.
  */
+@Deprecated
 public final class RateReplacingInterestRateDerivativeVisitor extends InstrumentDerivativeVisitorAdapter<Double, InstrumentDerivative> {
   private static final RateReplacingInterestRateDerivativeVisitor INSTANCE = new RateReplacingInterestRateDerivativeVisitor();
 
@@ -55,10 +57,9 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
         fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), rate, fra.getForwardCurveName());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public SwapFixedCoupon<?> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final Double rate) {
-    return new SwapFixedCoupon(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
+    return new SwapFixedCoupon<>(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
   }
 
   @Override
@@ -74,7 +75,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
     final double accruedInterest = rate * bond.getAccruedInterest() / originalRate;
     final AnnuityCouponFixed originalCoupons = (AnnuityCouponFixed) bond.getCoupon();
     final AnnuityCouponFixed coupons = visitFixedCouponAnnuity(originalCoupons, rate);
-    return new BondFixedSecurity((AnnuityPaymentFixed) bond.getNominal(), coupons, bond.getSettlementTime(), accruedInterest, bond.getAccrualFactorToNextCoupon(), bond.getYieldConvention(),
-        bond.getCouponPerYear(), bond.getRepoCurveName(), bond.getIssuer());
+    return new BondFixedSecurity((AnnuityPaymentFixed) bond.getNominal(), coupons, bond.getSettlementTime(), accruedInterest, bond.getFactorToNextCoupon(), bond.getYieldConvention(),
+        bond.getCouponPerYear(), bond.getRepoCurveName(), bond.getIssuerEntity());
   }
 }

@@ -54,6 +54,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationFunction;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated This has been replaced by the pair, RawEquityOptionVolatilitySurfaceDataFunction, EquityFutureOptionVolatilitySurfaceDataFunction 
@@ -283,7 +284,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              volatilityValues.put(Pair.of((Object) expiry, (Object) strike), volatility / 100);
+              volatilityValues.put(Pairs.of((Object) expiry, (Object) strike), volatility / 100);
             }
           }
         }

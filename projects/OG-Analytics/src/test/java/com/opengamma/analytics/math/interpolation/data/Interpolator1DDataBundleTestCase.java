@@ -14,9 +14,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class Interpolator1DDataBundleTestCase {
   private static final double EPS = 1e-16;
   private static final double[] KEYS1 = new double[] {5., 1., 4., 2., 3.};

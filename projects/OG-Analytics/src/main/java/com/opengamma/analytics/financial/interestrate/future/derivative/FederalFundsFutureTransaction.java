@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -38,7 +37,7 @@ public class FederalFundsFutureTransaction implements InstrumentDerivative {
    * @param referencePrice The reference price. It is the transaction price on the transaction date and the last close (margining) price afterward.
    */
   public FederalFundsFutureTransaction(final FederalFundsFutureSecurity underlyingFuture, final int quantity, final double referencePrice) {
-    Validate.notNull(underlyingFuture, "Future");
+    ArgumentChecker.notNull(underlyingFuture, "Future");
     _underlyingFuture = underlyingFuture;
     _quantity = quantity;
     _referencePrice = referencePrice;

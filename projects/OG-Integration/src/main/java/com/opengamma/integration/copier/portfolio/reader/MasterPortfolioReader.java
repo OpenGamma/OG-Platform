@@ -85,9 +85,9 @@ public class MasterPortfolioReader implements PortfolioReader {
     } else {
       ManageablePosition position;
       try {
-      position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+        position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
       } catch (Throwable t) {
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+        return ObjectsPair.of(null, null);
       }
 
       // Write the related security(ies)
@@ -105,8 +105,7 @@ public class MasterPortfolioReader implements PortfolioReader {
           try {
             underlying = _securitySource.getSingle(id.toBundle());
             if (underlying != null) {
-              return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
-                  position, 
+              return ObjectsPair.of(position, 
                   new ManageableSecurity[] {(ManageableSecurity) security, (ManageableSecurity) underlying});
             } else {
               s_logger.warn("Could not resolve underlying " + id + " for security " + security.getName());
@@ -116,13 +115,12 @@ public class MasterPortfolioReader implements PortfolioReader {
             s_logger.warn("Error trying to resolve underlying " + id + " for security " + security.getName());
           }
         }
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
-              position, 
+        return ObjectsPair.of(position, 
               new ManageableSecurity[] {(ManageableSecurity) security});
 
       } else {
         s_logger.warn("Could not resolve security relating to position " + position.getName());
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+        return ObjectsPair.of(null, null);
       }
     }
   }

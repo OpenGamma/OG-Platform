@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -36,6 +37,10 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
    * The swaption expiry.
    */
   private final Expiry _expiry;
+  /**
+   * The currency.
+   */
+  private final Currency _currency;
 
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flqg.
@@ -50,6 +55,7 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
+    _currency = underlyingSwap.getCurrency();
     _isLong = isLong;
     _expiry = new Expiry(expiryDate);
   }
@@ -86,8 +92,20 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     return _isLong;
   }
 
+  /**
+   * Gets the expiry.
+   * @return The expiry
+   */
   public Expiry getExpiry() {
     return _expiry;
+  }
+
+  /**
+   * Gets the currency.
+   * @return The currency
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   @Override
@@ -110,6 +128,11 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     return visitor.visitSwaptionPhysicalFixedIborDefinition(this);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwaptionPhysicalFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");

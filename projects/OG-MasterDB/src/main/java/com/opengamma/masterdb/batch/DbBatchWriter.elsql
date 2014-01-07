@@ -251,11 +251,17 @@
     
 @NAME(DeleteRiskFailure)
    DELETE FROM rsk_failure WHERE run_id = :run_id 
-    
+
+@NAME(InsertTargetProperties)
+  INSERT INTO rsk_target_property
+    (id, target_id, property_key, property_value)
+  VALUES
+    (:id, :target_id, :property_key, :property_value)
+
 -- ==========================================================================
 @NAME(SelectFromRunStatus)    
   SELECT 
-    id, calculation_configuration_id, computation_target_id, status 
+    id, run_id, calculation_configuration_id, computation_target_id, status
   FROM 
     rsk_run_status 
   WHERE 
@@ -272,9 +278,9 @@
   
 @NAME(InsertFromRunStatus)  
   INSERT INTO rsk_run_status 
-    (id, calculation_configuration_id, computation_target_id, status) 
+    (id, run_id, calculation_configuration_id, computation_target_id, status)
   VALUES 
-    (:id, :calculation_configuration_id, :computation_target_id, :status)      
+    (:id, :run_id, :calculation_configuration_id, :computation_target_id, :status)
     
     
 -- ==========================================================================
@@ -324,7 +330,7 @@
 -- ==========================================================================
 @NAME(SelectStatusEntry)
   SELECT 
-    id, calculation_configuration_id, computation_target_id, status 
+    id, run_id, calculation_configuration_id, computation_target_id, status
   FROM 
     rsk_run_status 
   WHERE 

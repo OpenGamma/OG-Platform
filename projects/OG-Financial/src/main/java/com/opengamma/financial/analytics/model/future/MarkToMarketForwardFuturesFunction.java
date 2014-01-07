@@ -6,6 +6,9 @@
 package com.opengamma.financial.analytics.model.future;
 
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 
@@ -21,6 +24,13 @@ public class MarkToMarketForwardFuturesFunction extends MarkToMarketFuturesFunct
    */
   public MarkToMarketForwardFuturesFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
     super(ValueRequirementNames.FORWARD, MarkToMarketFuturesCalculator.ForwardPriceCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
+  }
+  
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    final ValueProperties.Builder properties = createValueProperties()
+      .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD_NAME);
+    return properties;
   }
   
   

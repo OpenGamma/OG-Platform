@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
@@ -48,7 +48,7 @@ public class TwoStateMarkovChainLocalVolFitter {
   }
 
   /**
-   * 
+   *
    * @param forward The forward curve <b>NOTE</b> Anything other than a constant rate will give spurious results because the local vol calculator
    * does not handle time varying rates
    * @param marketVolSurface <b> THIS IS A CHEAT</b> Don't have access to some continuous (twice differentiable in strike and once in time)
@@ -89,7 +89,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     //      public Double evaluate(Double... ts) {
     //        double t = ts[0];
     //        double s = ts[1];
-    //        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(t, s));
+    //        return GRID_INTERPOLATOR2D.interpolate(dataBundle, DoublesPair.of(t, s));
     //      }
     //    };
     // BlackVolatilitySurface marketVolSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(mrkVolFunc));
@@ -195,6 +195,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     final TwoStateMarkovChainPricer pricer = new TwoStateMarkovChainPricer(forward, chainData, lvOverlay);
     final PDEFullResults1D res = pricer.solve(grid, 1.0);
     final Map<DoublesPair, Double> modelVols = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK, true);
+    @SuppressWarnings("unused")
     final Map<Double, Interpolator1DDataBundle> volData = GRID_INTERPOLATOR2D.getDataBundle(modelVols);
 
     //    final Iterator<Entry<DoublesPair, Double>> iter = marketVolsMap.entrySet().iterator();
@@ -249,7 +250,7 @@ public class TwoStateMarkovChainLocalVolFitter {
   //      System.out.print(t);
   //      for (int i = 0; i < 101; i++) {
   //        double k = kMin + (kMax - kMin) * i / 100.;
-  //        DoublesPair tk = new DoublesPair(t, k);
+  //        DoublesPair tk = DoublesPair.of(t, k);
   //
   //        System.out.print("\t" + GRID_INTERPOLATOR2D.interpolate(dataBundle, tk));
   //      }
@@ -354,7 +355,7 @@ public class TwoStateMarkovChainLocalVolFitter {
           }
           if (eNu > 0.0 && overlay > 0.0) {
             final double lVOverlay = mrkLV * mrkLV / overlay / overlay / eNu;
-            res.put(new DoublesPair(t, s), Math.sqrt(lVOverlay));
+            res.put(DoublesPair.of(t, s), Math.sqrt(lVOverlay));
           }
         }
       }
@@ -367,7 +368,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     final Iterator<Pair<double[], Double>> iter = from.iterator();
     while (iter.hasNext()) {
       final Pair<double[], Double> temp = iter.next();
-      res.put(new DoublesPair(temp.getFirst()[0], temp.getFirst()[1]), temp.getSecond());
+      res.put(DoublesPair.of(temp.getFirst()[0], temp.getFirst()[1]), temp.getSecond());
     }
 
     return res;

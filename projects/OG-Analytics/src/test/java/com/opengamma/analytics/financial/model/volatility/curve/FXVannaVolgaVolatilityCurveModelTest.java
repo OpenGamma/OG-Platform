@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.model.option.definition.FXOptionDataBun
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FXVannaVolgaVolatilityCurveModelTest {
   private static final YieldAndDiscountCurve DOMESTIC = DiscountCurve.from(ConstantDoublesCurve.from(0.9902752));
   private static final YieldAndDiscountCurve FOREIGN = DiscountCurve.from(ConstantDoublesCurve.from(0.9945049));

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance.pricing;
@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ExpectedVarianceCalculatorTest {
   private static final double TOL = 1e-10;
   private static final double SPOT = 80;
@@ -33,7 +35,7 @@ public class ExpectedVarianceCalculatorTest {
    * Start with a Black volatility surface (strike) - which comes from a mixed log-normal model (hence we know the answer analytically) and convert the surface to ones
    * parameterised by moneyness, log-moneyness and (Black) delta, then check we recover the expected value using all four surfaces.
    */
-  @Test
+ // @Test
   public void testMixedLogNormalVolSurface() {
 
     final double sigma1 = 0.2;

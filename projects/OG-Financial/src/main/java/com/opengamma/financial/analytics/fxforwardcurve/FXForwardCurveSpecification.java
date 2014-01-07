@@ -12,7 +12,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 /**
  * 
  */
-@Config
+@Config(description = "FX forward curve specification")
 public class FXForwardCurveSpecification {
   /** The type of the FX forward quote */
   public enum QuoteType {

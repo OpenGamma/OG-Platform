@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.provider.calculator.priceindexmarketmo
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationZeroCouponInterpolationBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationZeroCouponMonthlyBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationZeroCouponInterpolationBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationZeroCouponMonthlyBlackSmileMethod;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationZeroCouponProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 

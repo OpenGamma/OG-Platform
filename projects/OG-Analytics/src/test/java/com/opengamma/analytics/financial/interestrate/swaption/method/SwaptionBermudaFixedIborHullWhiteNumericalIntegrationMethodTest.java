@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -26,23 +26,27 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the Bermuda swaption pricing in the Hull-White one factor model.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   // General
   private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap - 5Y semi bond vs quarterly money
@@ -52,11 +56,11 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
   private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6); // <<<<======================
-  private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount FIXED_DAY_COUNT = DayCounts.THIRTY_U_360;
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
-  private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final DayCount IBOR_DAY_COUNT = DayCounts.ACT_360;
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR, CALENDAR);
   private static final double RATE = 0.0400;
   private static final SwapFixedIborDefinition TOTAL_SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
@@ -156,7 +160,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     }
     assertEquals("Bermuda swaption pv performance", pv[nbTest / 2].getAmount(), total / nbTest, 1.0E+5);
   }
-  
+
   @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
@@ -165,7 +169,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     long startTime, endTime;
     final int nbTest = 10000;
     CurrencyAmount totalPv = CurrencyAmount.of(CUR, 0.0);
-    
+
     // Creates swaption
     final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
     final SwapFixedIborDefinition[] swapExpiryDefinition = new SwapFixedIborDefinition[NB_EXPIRY];
@@ -183,7 +187,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv Bermuda swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
     // Performance note: HW price: 19-Jan-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 440 ms for 20 swaptions.
-    
+
     // 5Y Bermudan Swaption with 6m looks (Hull-White Gaussian Integration) = 10 expiries ~ 3.7ms/price
     //10000 pv Bermuda swaption Hull-White numerical integration method: 37545 ms
     //100000 pv Bermuda swaption Hull-White numerical integration method: 363339 ms
@@ -191,10 +195,10 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
 
     //30Y Bermudan Swaption with 6m looks (Hull-White Gaussian Integration) = 60 expiries ~ 87ms/price
     //10000 pv Bermuda swaption Hull-White numerical integration method: 867701 ms
-    
-    CurrencyAmount singlePV = METHOD_BERMUDA.presentValue(swaptionBermuda, BUNDLE_HW);
+
+    final CurrencyAmount singlePV = METHOD_BERMUDA.presentValue(swaptionBermuda, BUNDLE_HW);
     assertEquals("Bermuda swaption pv performance", totalPv.getAmount() / nbTest, singlePV.getAmount(), 1.0E+5);
-    
+
     // Loop for pricing
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -202,7 +206,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv Bermuda swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
-    
+
   }
-  
+
 }

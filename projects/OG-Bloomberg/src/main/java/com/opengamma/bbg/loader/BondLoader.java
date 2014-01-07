@@ -22,11 +22,16 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_CUSIP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_ISIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_GROUP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INDUSTRY_SECTOR;
+import static com.opengamma.bbg.BloombergConstants.FIELD_INFLATION_LINKED_INDICATOR;
 import static com.opengamma.bbg.BloombergConstants.FIELD_INT_ACC_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ISSUE_PX;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MATURITY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_MTY_TYPE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_IS_PERPETUAL;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BULLET;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_INCREMENT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MIN_PIECE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PAR_AMT;
@@ -36,11 +41,17 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_TYP;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SETTLE_DT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ZERO_CPN;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_FITCH;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_MOODY;
+import static com.opengamma.bbg.BloombergConstants.FIELD_RTG_SP;
+import static com.opengamma.bbg.BloombergConstants.FIELD_BB_COMPOSITE;
 import static com.opengamma.bbg.BloombergConstants.MARKET_SECTOR_MUNI;
 import static com.opengamma.bbg.util.BloombergDataUtils.isValidField;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.swing.text.rtf.RTFEditorKit;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -66,6 +77,7 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -87,6 +99,7 @@ public class BondLoader extends SecurityLoader {
   private static final Set<String> BLOOMBERG_BOND_FIELDS = ImmutableSet.of(
       FIELD_ISSUER,
       FIELD_INDUSTRY_GROUP,
+      FIELD_INDUSTRY_SECTOR,
       FIELD_CNTRY_ISSUE_ISO,
       FIELD_SECURITY_TYP,
       FIELD_CALC_TYP_DES,
@@ -109,6 +122,14 @@ public class BondLoader extends SecurityLoader {
       FIELD_PAR_AMT,
       FIELD_REDEMP_VAL,
       FIELD_FLOATER,
+      FIELD_INFLATION_LINKED_INDICATOR,
+      FIELD_MTY_TYPE,
+      FIELD_IS_PERPETUAL,
+      FIELD_BULLET,
+      FIELD_RTG_FITCH,
+      FIELD_RTG_MOODY,
+      FIELD_RTG_SP,
+      FIELD_BB_COMPOSITE,
       FIELD_ID_BBG_UNIQUE,
       FIELD_ID_CUSIP,
       FIELD_ID_ISIN,
@@ -160,6 +181,13 @@ public class BondLoader extends SecurityLoader {
     }
     return fieldData.getString(fieldName);
   }
+  
+  private String validateAndGetNullableStringField(FudgeMsg fieldData, String fieldName) {
+    if (!isValidField(fieldData.getString(fieldName))) {
+      return null;
+    }
+    return fieldData.getString(fieldName);
+  }
 
   private Double validateAndGetDoubleField(FudgeMsg fieldData, String fieldName) {
     if (!isValidField(fieldData.getString(fieldName))) {
@@ -201,6 +229,14 @@ public class BondLoader extends SecurityLoader {
     try {
       String issuerName = validateAndGetStringField(fieldData, FIELD_ISSUER);
       String issuerType = validateAndGetStringField(fieldData, FIELD_INDUSTRY_GROUP);
+      String issuerSector = validateAndGetStringField(fieldData, FIELD_INDUSTRY_SECTOR);
+      String inflationIndicator = validateAndGetNullableStringField(fieldData, FIELD_INFLATION_LINKED_INDICATOR);
+      String isPerpetualStr = validateAndGetNullableStringField(fieldData, FIELD_IS_PERPETUAL);
+      boolean isPerpetual = (isPerpetualStr != null && isPerpetualStr.trim().toUpperCase().contains("Y"));
+      String isBulletStr = validateAndGetNullableStringField(fieldData, FIELD_BULLET);
+      boolean isBullet = (isBulletStr != null && isBulletStr.trim().toUpperCase().contains("Y"));
+      String maturityType = validateAndGetNullableStringField(fieldData, FIELD_MTY_TYPE);
+      boolean isCallable = (maturityType != null && maturityType.trim().toUpperCase().contains("CALL"));
       String issuerDomicile = validateAndGetStringField(fieldData, FIELD_CNTRY_ISSUE_ISO);
       String market = validateAndGetStringField(fieldData, FIELD_SECURITY_TYP);
       String currencyStr = validateAndGetStringField(fieldData, FIELD_CRNCY);
@@ -211,7 +247,10 @@ public class BondLoader extends SecurityLoader {
         throw new OpenGammaRuntimeException("Cannot get yield Convention called " + yieldConventionStr);
       }
       String guaranteeType = fieldData.getString(FIELD_GUARANTOR); // bit unsure about this one.
-      String maturityStr = validateAndGetStringField(fieldData, FIELD_MATURITY);
+      String maturityStr = validateAndGetNullableStringField(fieldData, FIELD_MATURITY);
+      if (maturityStr == null && isPerpetual) {
+        maturityStr = "2049-06-29"; // fake date, need to remove.
+      }
       // These will need to be sorted out.
       LocalTime expiryTime = LocalTime.of(17, 00);
       ZoneId zone = ZoneOffset.UTC;
@@ -221,6 +260,10 @@ public class BondLoader extends SecurityLoader {
       } catch (Exception e) {
         throw new OpenGammaRuntimeException(maturityStr + " returned from bloomberg not in format yyyy-mm-dd", e);
       }
+      String rtgFitch = validateAndGetNullableStringField(fieldData, FIELD_RTG_FITCH);
+      String rtgMoody = validateAndGetNullableStringField(fieldData, FIELD_RTG_MOODY);
+      String rtgSp = validateAndGetNullableStringField(fieldData, FIELD_RTG_SP);
+      String bbComposite = validateAndGetNullableStringField(fieldData, FIELD_BB_COMPOSITE);
       String couponType = validateAndGetStringField(fieldData, FIELD_CPN_TYP);
       Double couponRate = validateAndGetDoubleField(fieldData, FIELD_CPN);
       String zeroCoupon = validateAndGetStringField(fieldData, FIELD_ZERO_CPN);
@@ -233,7 +276,11 @@ public class BondLoader extends SecurityLoader {
       }
       String dayCountString = validateAndGetStringField(fieldData, FIELD_DAY_CNT_DES);
       // REVIEW: jim 27-Jan-2011 -- remove this and fix it properly.
-      if (dayCountString.equals("ACT/ACT")) {
+      boolean isEOM = true;
+      if (dayCountString.endsWith("NON-EOM")) {
+        isEOM = false;
+      }
+      if (dayCountString.equals("ACT/ACT") || dayCountString.equals("ACT/ACT NON-EOM")) {
         dayCountString = "Actual/Actual ICMA";
       }
       ZonedDateTime announcementDate = validateAndGetNullableDateField(fieldData, FIELD_ANNOUNCE_DT);
@@ -247,10 +294,7 @@ public class BondLoader extends SecurityLoader {
           dayCountString = "Actual/365";
         }
       }
-      DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(dayCountString);
-      if (dayCount == null) {
-        throw new OpenGammaRuntimeException("Could not find day count convention " + dayCountString);
-      }
+      DayCount dayCount = DayCountFactory.of(dayCountString);
       Double issuancePrice = validateAndGetNullableDoubleField(fieldData, FIELD_ISSUE_PX);
       Double totalAmountIssued = validateAndGetDoubleField(fieldData, FIELD_AMT_ISSUED);
       Double minimumAmount = validateAndGetDoubleField(fieldData, FIELD_MIN_PIECE);
@@ -263,7 +307,15 @@ public class BondLoader extends SecurityLoader {
       String des = validateAndGetStringField(fieldData, FIELD_SECURITY_DES);
       
       ManageableSecurity bondSecurity;
-      if (issuerType.trim().equals(SOVEREIGN)) {
+      if ((inflationIndicator != null) && (inflationIndicator.trim().toUpperCase().startsWith("Y"))) {
+        bondSecurity = new InflationBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
+            yieldConvention, maturity, couponType, couponRate,
+            couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
+            totalAmountIssued, minimumAmount, minimumIncrement, parAmount,
+            redemptionValue);
+        ((BondSecurity) bondSecurity).setAnnouncementDate(announcementDate);
+        ((BondSecurity) bondSecurity).setGuaranteeType(guaranteeType);
+      } else if (issuerType.trim().equals(SOVEREIGN)) {
         bondSecurity = new GovernmentBondSecurity(issuerName, issuerType, issuerDomicile, market, currency,
             yieldConvention, maturity, couponType, couponRate,
             couponFrequency, dayCount, interestAccrualDate, settlementDate, firstCouponDate, issuancePrice,
@@ -291,6 +343,25 @@ public class BondLoader extends SecurityLoader {
       }
       
       bondSecurity.setName(des.trim());
+      bondSecurity.addAttribute("Bullet", isBullet ? "Y" : "N");
+      bondSecurity.addAttribute("Callable", isCallable ? "Y" : "N");
+      bondSecurity.addAttribute("Perpetual", isPerpetual ? "Y" : "N");
+      bondSecurity.addAttribute("EOM", isEOM ? "Y" : "N");
+      if (rtgFitch != null) {
+        bondSecurity.addAttribute("RatingFitch", rtgFitch);
+      }
+      if (rtgMoody != null) {
+        bondSecurity.addAttribute("RatingMoody", rtgMoody);
+      }
+      if (rtgSp != null) {
+        bondSecurity.addAttribute("RatingSP", rtgSp);        
+      }
+      if (issuerSector != null) {
+        bondSecurity.addAttribute("IndustrySector", issuerSector);
+      }
+      if (bbComposite != null) {
+        bondSecurity.addAttribute("RatingComposite", bbComposite);
+      }
       // set identifiers
       parseIdentifiers(fieldData, bondSecurity);
       return bondSecurity;

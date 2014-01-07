@@ -7,6 +7,7 @@ package com.opengamma.component;
 
 import org.slf4j.Logger;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -87,6 +88,45 @@ public interface ComponentLogger {
     @Override
     public void logError(Throwable throwable) {
       // do nothing
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Logger that throws an exception for errors.
+   */
+  public static final class Throws implements ComponentLogger {
+    /**
+     * Singleton instance of a sink logger.
+     */
+    public static final ComponentLogger INSTANCE = new Throws();
+
+    private Throws() {
+    }
+
+    @Override
+    public void logDebug(String message) {
+      // do nothing
+    }
+
+    @Override
+    public void logInfo(String message) {
+      // do nothing
+    }
+
+    @Override
+    public void logWarn(String message) {
+      // do nothing
+    }
+
+    @Override
+    public void logError(String message) {
+      throw new OpenGammaRuntimeException(message);
+    }
+
+    @Override
+    public void logError(Throwable throwable) {
+      throw new OpenGammaRuntimeException(throwable.getMessage(), throwable);
     }
   }
 

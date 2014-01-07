@@ -12,11 +12,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -34,17 +34,17 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionInterpolatedBlackLognormalDefaults.class);
   /** Map of id name to discounting curve configuration */
-  private final Map<String, String> _idToDiscountingCurveConfig;
+  private final Map<String, Set<String>> _idToDiscountingCurveConfig;
   /** Map of id name to discounting curve name */
-  private final Map<String, String> _idToDiscountingCurveName;
+  private final Map<String, Set<String>> _idToDiscountingCurveName;
   /** Map of id name to volatility surface name */
-  private final Map<String, String> _idToSurfaceName;
+  private final Map<String, Set<String>> _idToSurfaceName;
   /** Map of id name to volatility surface calculation method name */
-  private final Map<String, String> _idToSurfaceInterpolatorName;
+  private final Map<String, Set<String>> _idToSurfaceInterpolatorName;
   /** Map of id name to forward curve name */
-  private final Map<String, String> _idToForwardCurveName;
+  private final Map<String, Set<String>> _idToForwardCurveName;
   /** Map of id name to forward curve calculation method name */
-  private final Map<String, String> _idToForwardCurveCalculationMethodName;
+  private final Map<String, Set<String>> _idToForwardCurveCalculationMethodName;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
 
@@ -106,12 +106,12 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
     _idToForwardCurveCalculationMethodName = Maps.newHashMap();
     for (int i = 0; i < perIdConfig.length; i += 7) {
       final String id = perIdConfig[i].toUpperCase();
-      _idToDiscountingCurveName.put(id, perIdConfig[i + 1]);
-      _idToDiscountingCurveConfig.put(id, perIdConfig[i + 2]);
-      _idToSurfaceName.put(id, perIdConfig[i + 3]);
-      _idToSurfaceInterpolatorName.put(id, perIdConfig[i + 4]);
-      _idToForwardCurveName.put(id, perIdConfig[i + 5]);
-      _idToForwardCurveCalculationMethodName.put(id, perIdConfig[i + 6]);
+      _idToDiscountingCurveName.put(id, Collections.singleton(perIdConfig[i + 1]));
+      _idToDiscountingCurveConfig.put(id, Collections.singleton(perIdConfig[i + 2]));
+      _idToSurfaceName.put(id, Collections.singleton(perIdConfig[i + 3]));
+      _idToSurfaceInterpolatorName.put(id, Collections.singleton(perIdConfig[i + 4]));
+      _idToForwardCurveName.put(id, Collections.singleton(perIdConfig[i + 5]));
+      _idToForwardCurveCalculationMethodName.put(id, Collections.singleton(perIdConfig[i + 6]));
     }
   }
 
@@ -135,38 +135,38 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
   }
 
   @Override
-  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final Set<String> surfaceCalculationMethod = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
-    if (surfaceCalculationMethod != null && surfaceCalculationMethod.size() == 1) {
-      if (!Iterables.getOnlyElement(surfaceCalculationMethod).equals(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL)) {
-        return null;
-      }
-    }
-    final String id = getId(target.getSecurity());
-    if (!_idToDiscountingCurveConfig.containsKey(id)) {
-      s_logger.error("Could not find defaults for {}", id);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    if (!constraints.isDefined(ValuePropertyNames.CALCULATION_METHOD)) {
       return null;
     }
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_idToDiscountingCurveConfig.get(id));
+    Set<String> values = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
+    if ((values == null) || (!values.isEmpty() && !values.contains(BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL))) {
+      return null;
     }
-    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_idToDiscountingCurveName.get(id));
+    return super.getRequirements(context, target, desiredValue);
+  }
+
+  @Override
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    final String id = getId(target.getSecurity());
+    switch (propertyName) {
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG:
+        return _idToDiscountingCurveConfig.get(id);
+      case EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME:
+        return _idToDiscountingCurveName.get(id);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME:
+        return _idToForwardCurveName.get(id);
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return _idToForwardCurveCalculationMethodName.get(id);
+      case ValuePropertyNames.SURFACE:
+        return _idToSurfaceName.get(id);
+      case BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR:
+        return _idToSurfaceInterpolatorName.get(id);
+      default:
+        s_logger.error("Cannot get a default value for {}", propertyName);
+        return null;
     }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_idToForwardCurveName.get(id));
-    }
-    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_idToForwardCurveCalculationMethodName.get(id));
-    }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_idToSurfaceName.get(id));
-    }
-    if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_idToSurfaceInterpolatorName.get(id));
-    }
-    s_logger.error("Cannot get a default value for {}", propertyName);
-    return null;
   }
 
   @Override
@@ -176,7 +176,7 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.EQUITY_OPTION_DEFAULTS;
+    return OpenGammaFunctionExclusions.INTERPOLATED_BLACK_LOGNORMAL_DEFAULTS;
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -97,7 +97,7 @@ public class CouponIbor extends CouponFloating {
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
     _index = index;
   }
-  
+
   /**
    * Gets the fixing period start time (in years).
    * @return The fixing period start time.
@@ -143,10 +143,16 @@ public class CouponIbor extends CouponFloating {
     return _index;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIbor withNotional(final double notional) {
-    return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
-        getFixingAccrualFactor(), getForwardCurveName());
+    try {
+      return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+          getFixingAccrualFactor(), getForwardCurveName());
+    } catch (final IllegalStateException e) {
+      return new CouponIbor(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+          getFixingAccrualFactor());
+    }
   }
 
   @Override
@@ -196,8 +202,13 @@ public class CouponIbor extends CouponFloating {
     return true;
   }
 
+  @SuppressWarnings("deprecation")
   public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), 1.0);
+    }
   }
 
   @Override

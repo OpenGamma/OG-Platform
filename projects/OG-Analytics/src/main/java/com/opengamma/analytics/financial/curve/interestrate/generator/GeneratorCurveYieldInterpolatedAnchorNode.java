@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -18,6 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  * One extra node with value zero is added at the mid point between the first and second point. This extra anchor is required when two translation invariant curves descriptions
  * are added in a spread curve (two translations would create a singular system).
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve {
 
   /**
@@ -58,25 +59,30 @@ public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve 
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] x) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] x) {
     ArgumentChecker.isTrue(x.length == _nbPoints, "Incorrect dimension for the rates");
     return new YieldCurve(name, DoublesCurveInterpolatedAnchor.from(_nodePoints, x, _anchor, _interpolator, name));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public double[] initialGuess(double[] rates) {
+  public double[] initialGuess(final double[] rates) {
     ArgumentChecker.isTrue(rates.length == _nbPoints, "Rates of incorrect length.");
-    double[] spread = new double[_nbPoints];
+    final double[] spread = new double[_nbPoints];
     // implementation note: The "anchor" generator is used for spread. The initial guess is a spread of 0.
     return spread;
   }

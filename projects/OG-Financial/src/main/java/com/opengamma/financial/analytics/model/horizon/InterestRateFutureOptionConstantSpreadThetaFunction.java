@@ -50,8 +50,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
@@ -67,35 +67,36 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Function computes the amount a position is expected to gain or lose over a horizon specified by {@link ThetaPropertyNamesAndValues#PROPERTY_DAYS_TO_MOVE_FORWARD}.
- * Horizon calculation is specified in {@link ConstantSpreadHorizonThetaCalculator}.<p>
- * For interest rate future options, {@link PresentValueBlackCalculator} is currently used.<p>
+ * Function computes the amount a position is expected to gain or lose over a horizon specified by {@link ThetaPropertyNamesAndValues#PROPERTY_DAYS_TO_MOVE_FORWARD}. Horizon calculation is specified
+ * in {@link ConstantSpreadHorizonThetaCalculator}.
+ * <p>
+ * For interest rate future options, {@link PresentValueBlackCalculator} is currently used.
+ * <p>
  */
 public class InterestRateFutureOptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionConstantSpreadThetaFunction.class);
 
-  private InterestRateFutureOptionTradeConverter _converter;
   private String _valueRequirement;
-  
+
   public InterestRateFutureOptionConstantSpreadThetaFunction() {
     setValueRequirement(ValueRequirementNames.VALUE_THETA);
   }
-  
+
   public String getValueRequirement() {
     return _valueRequirement;
   }
 
-  protected void setValueRequirement(String valueRequiremnt) {
+  protected void setValueRequirement(final String valueRequiremnt) {
     _valueRequirement = valueRequiremnt;
   }
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
   }
 
   @Override
@@ -134,7 +135,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
-    final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
+    final InstrumentDefinition<?> irFutureOptionDefinition = getConverter(executionContext).convert(trade);
     final HistoricalTimeSeries ts = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
@@ -150,8 +151,9 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, surfaceName, currency.getCode(), daysForward), getValue(theta, currency)));
   }
 
-  /** 
-   * This aids child classes to return value in different format, eg Double 
+  /**
+   * This aids child classes to return value in different format, eg Double
+   * 
    * @param theta ConstantSpreadHorizonThetaCalculator produced MultipleCurrencyAmount
    * @param currency Allows for function to pull out specified currency
    * @return theta in desired format
@@ -159,7 +161,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   protected Object getValue(final MultipleCurrencyAmount theta, final Currency currency) {
     return theta;
   }
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.TRADE;
@@ -180,24 +182,22 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SURFACE);
+    String surfaceName = constraints.getStrictValue(ValuePropertyNames.SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final Set<String> daysForwardNames = desiredValue.getConstraints().getValues(PROPERTY_DAYS_TO_MOVE_FORWARD);
-    if (daysForwardNames == null || daysForwardNames.size() != 1) {
+    final String daysForwardName = constraints.getStrictValue(PROPERTY_DAYS_TO_MOVE_FORWARD);
+    if (daysForwardName == null) {
       return null;
     }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    surfaceName = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName, context.getComputationTargetResolver().getVersionCorrection());
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;

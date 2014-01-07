@@ -5,63 +5,72 @@
  */
 package com.opengamma.financial.convention.frequency;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
+import org.joda.convert.FromString;
+
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.AbstractNamedInstanceFactory;
 
 /**
  * Factory to obtain instances of {@code SimpleFrequency}.
  */
-public final class SimpleFrequencyFactory {
+public final class SimpleFrequencyFactory
+    extends AbstractNamedInstanceFactory<SimpleFrequency> {
 
   /**
    * Singleton instance.
    */
   public static final SimpleFrequencyFactory INSTANCE = new SimpleFrequencyFactory();
   /**
-   * Map of convention name to convention.
-   */
-  private final Map<String, SimpleFrequency> _conventionMap = new HashMap<String, SimpleFrequency>();
-  /**
    * Map of periods per year to convention, only contains frequencies with an integer number of periods per year
    * (plus {@link SimpleFrequency#TWENTY_EIGHT_DAYS} with a key of 13 periods).
    */
-  private final Map<Integer, SimpleFrequency> _periodsMap = new HashMap<Integer, SimpleFrequency>();
-  /**
-   * All the frequencies.
-   */
-  private final List<SimpleFrequency> _frequencies = Lists.newArrayList();
+  private final Map<Integer, SimpleFrequency> _periodsMap = new HashMap<>();
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates the factory.
+   * Finds a convention by name, ignoring case.
+   * 
+   * @param name  the name of the instance to find, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if the name is not found
+   */
+  @FromString
+  public static SimpleFrequency of(final String name) {
+    return INSTANCE.instance(name);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Restricted constructor, hard coding the conventions.
    */
   private SimpleFrequencyFactory() {
-    store(SimpleFrequency.NEVER);
-    store(SimpleFrequency.ANNUAL, "12m", "1y", "Yearly");
-    store(SimpleFrequency.SEMI_ANNUAL, "6m", "Half Yearly");
-    store(SimpleFrequency.QUARTERLY, "3m");
-    store(SimpleFrequency.BIMONTHLY, "2m");
-    store(SimpleFrequency.MONTHLY, "1m");
-    store(SimpleFrequency.TWENTY_EIGHT_DAYS, "28d");
-    store(SimpleFrequency.BIWEEKLY, "2w");
-    store(SimpleFrequency.WEEKLY, "1w");
-    store(SimpleFrequency.DAILY);
-    store(SimpleFrequency.CONTINUOUS);
-    store(SimpleFrequency.FOUR_MONTHS);
-    store(SimpleFrequency.FIVE_MONTHS);
-    store(SimpleFrequency.SEVEN_MONTHS);
-    store(SimpleFrequency.EIGHT_MONTHS);
-    store(SimpleFrequency.NINE_MONTHS);
-    store(SimpleFrequency.TEN_MONTHS);
-    store(SimpleFrequency.ELEVEN_MONTHS);
+    super(SimpleFrequency.class);
+    addInstance(SimpleFrequency.NEVER, "1t");
+    addInstance(SimpleFrequency.ANNUAL, "12m", "1y", "Yearly");
+    addInstance(SimpleFrequency.SEMI_ANNUAL, "6m", "Half Yearly");
+    addInstance(SimpleFrequency.QUARTERLY, "3m");
+    addInstance(SimpleFrequency.BIMONTHLY, "2m");
+    addInstance(SimpleFrequency.MONTHLY, "1m");
+    addInstance(SimpleFrequency.TWENTY_EIGHT_DAYS, "28d");
+    addInstance(SimpleFrequency.BIWEEKLY, "2w");
+    addInstance(SimpleFrequency.WEEKLY, "1w");
+    addInstance(SimpleFrequency.DAILY, "1d");
+    addInstance(SimpleFrequency.CONTINUOUS);
+    addInstance(SimpleFrequency.FOUR_MONTHS);
+    addInstance(SimpleFrequency.FIVE_MONTHS);
+    addInstance(SimpleFrequency.SEVEN_MONTHS);
+    addInstance(SimpleFrequency.EIGHT_MONTHS);
+    addInstance(SimpleFrequency.NINE_MONTHS);
+    addInstance(SimpleFrequency.TEN_MONTHS);
+    addInstance(SimpleFrequency.ELEVEN_MONTHS);
     storeByPeriodCount(SimpleFrequency.DAILY,
                        SimpleFrequency.WEEKLY,
                        SimpleFrequency.BIWEEKLY,
@@ -74,38 +83,20 @@ public final class SimpleFrequencyFactory {
   }
 
   /**
-   * Stores the convention.
-   * @param convention  the convention to store, not null
-   */
-  private void store(final SimpleFrequency convention, final String... alternativeNames) {
-    _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
-    for (final String alternativeName : alternativeNames) {
-      _conventionMap.put(alternativeName.toLowerCase(Locale.ENGLISH), convention);
-    }
-    _frequencies.add(convention);
-    Collections.sort(_frequencies, new Comparator<SimpleFrequency>() {
-      @Override
-      public int compare(SimpleFrequency o1, SimpleFrequency o2) {
-        return (int) Math.signum(o2.getPeriodsPerYear() - o1.getPeriodsPerYear());
-      }
-    });
-  }
-
-  /**
    * Stores the frequencies keyed by the number of periods per year. This only really makes sense for periods
    * with an integer number of periods per year. It will fail if it is called with multiple frequencies whose
    * period counts round to the same integer.
    * @param frequencies The frequencies to keyed on their (integer) period count.
    */
-  private void storeByPeriodCount(SimpleFrequency... frequencies) {
-    for (SimpleFrequency frequency : frequencies) {
-      int periodsPerYear = (int) frequency.getPeriodsPerYear();
+  private void storeByPeriodCount(final SimpleFrequency... frequencies) {
+    for (final SimpleFrequency frequency : frequencies) {
+      final int periodsPerYear = (int) frequency.getPeriodsPerYear();
       // this check is to prevent a repeat of a bug where frequencies were overwritten by another frequency whose
       // non-integer period count rounded to the same integer
       if (_periodsMap.containsKey(periodsPerYear)) {
-        SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
-        throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getConventionName() +
-                                                " with " + frequency.getConventionName());
+        final SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
+        throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getName() +
+                                                " with " + frequency.getName());
       }
       _periodsMap.put(periodsPerYear, frequency);
     }
@@ -118,9 +109,15 @@ public final class SimpleFrequencyFactory {
    * 
    * @param name  the name, not null
    * @return the convention, null if not found
+   * @deprecated Use {@link #of(String)} or {@link #instance(String)}.
    */
+  @Deprecated
   public SimpleFrequency getFrequency(final String name) {
-    return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
+    try {
+      return instance(name);
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
   }
 
   /**
@@ -140,9 +137,18 @@ public final class SimpleFrequencyFactory {
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
    * 
    * @return the available conventions, not null
+   * @deprecated Use {@link #instanceMap()}
    */
+  @Deprecated
   public Iterator<SimpleFrequency> enumerateAvailableFrequencies() {
-    return Iterators.unmodifiableIterator(_frequencies.iterator());
+    List<SimpleFrequency> frequencies = new ArrayList<>(instanceMap().values());
+    Collections.sort(frequencies, new Comparator<SimpleFrequency>() {
+      @Override
+      public int compare(final SimpleFrequency o1, final SimpleFrequency o2) {
+        return (int) Math.signum(o2.getPeriodsPerYear() - o1.getPeriodsPerYear());
+      }
+    });
+    return frequencies.iterator();
   }
 
 }

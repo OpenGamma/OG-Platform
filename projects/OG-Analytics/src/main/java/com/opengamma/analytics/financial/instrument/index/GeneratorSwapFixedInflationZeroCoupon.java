@@ -5,14 +5,12 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,10 +22,6 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    * The Price index.
    */
   private final IndexPrice _indexPrice;
-  /**
-   * The time series with the relevant price index values.
-   */
-  private final DoubleTimeSeries<ZonedDateTime> _priceIndexTimeSeries;
   /**
    * The business day convention associated to fix leg.
    */
@@ -57,7 +51,6 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    * Constructor from all the details.
    * @param name The generator name. Not null.
    * @param indexPrice The Price index..
-   * @param priceIndexTimeSeries price index time series.
    * @param businessDayConvention The business day convention associated to fix leg.
    * @param calendar  The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month flag.
@@ -65,14 +58,13 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    * @param spotLag Lag between today and the spot date.
    * @param isLinear True if the price index is interpolated linearly.
    */
-  public GeneratorSwapFixedInflationZeroCoupon(final String name, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
-      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean isLinear) {
+  public GeneratorSwapFixedInflationZeroCoupon(final String name, final IndexPrice indexPrice, final BusinessDayConvention businessDayConvention,
+      final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean isLinear) {
     super(name);
-    Validate.notNull(indexPrice, "index price");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(businessDayConvention, "businessDayConvention");
+    ArgumentChecker.notNull(indexPrice, "index price");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(businessDayConvention, "businessDayConvention");
     _indexPrice = indexPrice;
-    _priceIndexTimeSeries = priceIndexTimeSeries;
     _businessDayConvention = businessDayConvention;
     _calendar = calendar;
     _endOfMonth = endOfMonth;
@@ -87,14 +79,6 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
    */
   public IndexPrice getIndexPrice() {
     return _indexPrice;
-  }
-
-  /**
-   * Gets the priceIndexTimeSeries.
-   * @return the priceIndexTimeSeries
-   */
-  public DoubleTimeSeries<ZonedDateTime> getPriceIndexTimeSeries() {
-    return _priceIndexTimeSeries;
   }
 
   /**
@@ -145,19 +129,20 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
     return _isLinear;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
+  @Override
   public SwapFixedInflationZeroCouponDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), this.getCalendar());
     if (this._isLinear) {
-      return SwapFixedInflationZeroCouponDefinition.fromGeneratorInterpolation(startDate, rate, notional, attribute.getEndPeriod(), this, true, _priceIndexTimeSeries);
+      return SwapFixedInflationZeroCouponDefinition.fromGeneratorInterpolation(startDate, rate, notional, attribute.getEndPeriod(), this, true);
     }
-    return SwapFixedInflationZeroCouponDefinition.fromGeneratorMonthly(startDate, rate, notional, attribute.getEndPeriod(), this, true, _priceIndexTimeSeries);
+    return SwapFixedInflationZeroCouponDefinition.fromGeneratorMonthly(startDate, rate, notional, attribute.getEndPeriod(), this, true);
   }
 
   @Override
@@ -175,7 +160,6 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
     result = prime * result + ((_indexPrice == null) ? 0 : _indexPrice.hashCode());
     result = prime * result + (_isLinear ? 1231 : 1237);
     result = prime * result + _monthLag;
-    result = prime * result + ((_priceIndexTimeSeries == null) ? 0 : _priceIndexTimeSeries.hashCode());
     result = prime * result + _spotLag;
     return result;
   }
@@ -220,13 +204,6 @@ public class GeneratorSwapFixedInflationZeroCoupon extends GeneratorInstrument<G
       return false;
     }
     if (_monthLag != other._monthLag) {
-      return false;
-    }
-    if (_priceIndexTimeSeries == null) {
-      if (other._priceIndexTimeSeries != null) {
-        return false;
-      }
-    } else if (!_priceIndexTimeSeries.equals(other._priceIndexTimeSeries)) {
       return false;
     }
     if (_spotLag != other._spotLag) {

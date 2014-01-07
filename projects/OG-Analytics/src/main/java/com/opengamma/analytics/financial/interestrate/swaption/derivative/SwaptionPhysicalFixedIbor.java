@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -46,15 +45,15 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
   private SwaptionPhysicalFixedIbor(final double expiryTime, final double strike, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isCall,
       final boolean isLong) {
     super(strike, expiryTime, isCall);
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
     _settlementTime = settlementTime;
   }
 
   /**
-   * Builder from the expiry date, the underlying swap and the long/short flag. The strike stored in the EuropeanVanillaOption should not be used for pricing as the 
+   * Builder from the expiry date, the underlying swap and the long/short flag. The strike stored in the EuropeanVanillaOption should not be used for pricing as the
    * strike can be different for each coupon and need to be computed at the pricing method level.
    * @param expiryTime The expiry time.
    * @param underlyingSwap The underlying swap.
@@ -63,7 +62,7 @@ public final class SwaptionPhysicalFixedIbor extends EuropeanVanillaOption imple
    * @return The swaption.
    */
   public static SwaptionPhysicalFixedIbor from(final double expiryTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isLong) {
-    Validate.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
     // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
     return new SwaptionPhysicalFixedIbor(expiryTime, strike, underlyingSwap, settlementTime, underlyingSwap.getFixedLeg().isPayer(), isLong);

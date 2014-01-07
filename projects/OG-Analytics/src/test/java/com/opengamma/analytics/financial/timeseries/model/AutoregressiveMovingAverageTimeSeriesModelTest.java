@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.model;
@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.timeseries.analysis.AutocovarianceFunct
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.1;
@@ -32,14 +34,11 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final LocalDate[] DATES;
   private static final int P = 3;
   private static final int Q = 6;
-  // private static final LocalDateDoubleTimeSeries ARMA;
   private static final LocalDateDoubleTimeSeries ARMA11;
   private static final LocalDateDoubleTimeSeries MA;
   private static final LocalDateDoubleTimeSeries AR;
   private static final double[] PHI;
   private static final double[] THETA;
-  @SuppressWarnings("unused")
-  private static double LIMIT = 3;
 
   static {
     final int n = 20000;
@@ -60,10 +59,8 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
       theta1[i + 1] = THETA[i];
     }
     ARMA11 = MODEL.getSeries(PHI, 1, THETA, 1, DATES);
-    //ARMA = MODEL.getSeries(PHI, P, THETA, Q, DATES);
     MA = MA_MODEL.getSeries(theta1, Q, DATES);
     AR = AR_MODEL.getSeries(PHI, P, DATES);
-    LIMIT /= Math.sqrt(n);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

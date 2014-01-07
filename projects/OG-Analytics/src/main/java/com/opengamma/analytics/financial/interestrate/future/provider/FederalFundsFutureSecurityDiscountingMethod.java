@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -64,9 +64,9 @@ public final class FederalFundsFutureSecurityDiscountingMethod {
   public double price(final FederalFundsFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    IndexON index = futures.getIndex();
-    int nbFixing = futures.getFixingPeriodAccrualFactor().length;
-    double[] rates = new double[nbFixing];
+    final IndexON index = futures.getIndex();
+    final int nbFixing = futures.getFixingPeriodAccrualFactor().length;
+    final double[] rates = new double[nbFixing];
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
       rates[loopfix] = multicurves.getForwardRate(index, futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1], futures.getFixingPeriodAccrualFactor()[loopfix]);
     }
@@ -86,25 +86,25 @@ public final class FederalFundsFutureSecurityDiscountingMethod {
   public MulticurveSensitivity priceCurveSensitivity(final FederalFundsFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    IndexON index = futures.getIndex();
-    int nbFixing = futures.getFixingPeriodAccrualFactor().length;
-    double[] rates = new double[nbFixing];
+    final IndexON index = futures.getIndex();
+    final int nbFixing = futures.getFixingPeriodAccrualFactor().length;
+    final double[] rates = new double[nbFixing];
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
       rates[loopfix] = multicurves.getForwardRate(index, futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1], futures.getFixingPeriodAccrualFactor()[loopfix]);
     }
     // Backward sweep
-    double priceBar = 1.0;
-    double interestBar = -1.0 / futures.getFixingTotalAccrualFactor() * priceBar;
-    double[] ratesBar = new double[nbFixing];
+    final double priceBar = 1.0;
+    final double interestBar = -1.0 / futures.getFixingTotalAccrualFactor() * priceBar;
+    final double[] ratesBar = new double[nbFixing];
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
       ratesBar[loopfix] = futures.getFixingPeriodAccrualFactor()[loopfix] * interestBar;
     }
-    Map<String, List<ForwardSensitivity>> resultMap = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listON = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> resultMap = new HashMap<>();
+    final List<ForwardSensitivity> listON = new ArrayList<>();
     for (int loopfix = 0; loopfix < nbFixing; loopfix++) {
       listON.add(new ForwardSensitivity(futures.getFixingPeriodTime()[loopfix], futures.getFixingPeriodTime()[loopfix + 1], futures.getFixingPeriodAccrualFactor()[loopfix], ratesBar[loopfix]));
     }
-    resultMap.put(futures.getOISCurveName(), listON);
+    resultMap.put(multicurves.getName(index), listON);
     return MulticurveSensitivity.ofForward(resultMap);
   }
 

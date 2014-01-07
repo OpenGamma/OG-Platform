@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -28,11 +28,15 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of deliverable interest rate swap futures as traded on CME.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

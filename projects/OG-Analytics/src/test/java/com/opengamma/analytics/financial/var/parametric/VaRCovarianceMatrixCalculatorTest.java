@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.var.parametric;
@@ -33,10 +33,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.Matrix;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VaRCovarianceMatrixCalculatorTest {
   private static final CovarianceCalculator COVARIANCE = new CovarianceCalculator() {
 
@@ -222,11 +224,11 @@ public class VaRCovarianceMatrixCalculatorTest {
     A_DATA_SECOND_ORDER_3[2] = A_DATA_SECOND_ORDER_2[2];
     A_DATA_SECOND_ORDER_3[3] = A_DATA_SECOND_ORDER_2[3];
     A_DATA_SECOND_ORDER_3[4] = A_DATA_SECOND_ORDER_2[4];
-    final Map<UnderlyingType, DoubleTimeSeries<?>> deltaBleedMap = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> deltaBleedMap = new HashMap<>();
     deltaBleedMap.put(UnderlyingType.SPOT_PRICE, spotATS);
     deltaBleedMap.put(UnderlyingType.TIME, timeATS);
     A_DATA_SECOND_ORDER_3[5] = new SensitivityAndReturnDataBundle(deltaBleedA3, DELTA_BLEED_A, deltaBleedMap);
-    final Map<UnderlyingType, DoubleTimeSeries<?>> vannaAMap = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> vannaAMap = new HashMap<>();
     vannaAMap.put(UnderlyingType.SPOT_PRICE, spotATS);
     vannaAMap.put(UnderlyingType.IMPLIED_VOLATILITY, volATS);
     A_DATA_SECOND_ORDER_3[6] = new SensitivityAndReturnDataBundle(vannaA3, VANNA_A, vannaAMap);
@@ -241,11 +243,11 @@ public class VaRCovarianceMatrixCalculatorTest {
     DATA_SECOND_ORDER[7] = new SensitivityAndReturnDataBundle(gammaB, GAMMA_B, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, spotBTS));
     DATA_SECOND_ORDER[8] = new SensitivityAndReturnDataBundle(vommaB, VOMMA_B, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.IMPLIED_VOLATILITY, volBTS));
     DATA_SECOND_ORDER[9] = new SensitivityAndReturnDataBundle(gammaC, GAMMA_C, Collections.<UnderlyingType, DoubleTimeSeries<?>> singletonMap(UnderlyingType.SPOT_PRICE, spotCTS));
-    final Map<UnderlyingType, DoubleTimeSeries<?>> vannaCMap = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> vannaCMap = new HashMap<>();
     vannaCMap.put(UnderlyingType.SPOT_PRICE, spotCTS);
     vannaCMap.put(UnderlyingType.IMPLIED_VOLATILITY, volCTS);
     DATA_SECOND_ORDER[10] = new SensitivityAndReturnDataBundle(vannaC, VANNA_C, vannaCMap);
-    final Map<UnderlyingType, DoubleTimeSeries<?>> dummyAMap = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> dummyAMap = new HashMap<>();
     dummyAMap.put(UnderlyingType.YIELD, dummyATS);
     dummyAMap.put(UnderlyingType.SPOT_PRICE, spotATS);
     DATA_SECOND_ORDER[11] = new SensitivityAndReturnDataBundle(dummyA, DUMMY_A, dummyAMap);

@@ -134,6 +134,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     
     ExternalIdSearch regionSearch = request.getRegionExternalIdSearch();
     ExternalIdSearch exchangeSearch = request.getExchangeExternalIdSearch();
+    ExternalIdSearch customSearch = request.getCustomExternalIdSearch();
     String currencyISO = (request.getCurrency() != null ? request.getCurrency().getCode() : null);
     if ((request.getHolidayObjectIds() != null && request.getHolidayObjectIds().size() == 0) ||
         ExternalIdSearch.canMatch(regionSearch) == false ||
@@ -142,7 +143,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
@@ -175,6 +176,18 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         i++;
       }
       args.addValue("sql_search_exchange_ids", sqlSelectIdKeys(request.getExchangeExternalIdSearch(), "exchange"));
+    }
+    if (customSearch != null) {
+      if (customSearch.getSearchType() != ExternalIdSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + customSearch.getSearchType());
+      }
+      int i = 0;
+      for (ExternalId idKey : customSearch.getExternalIds()) {
+        args.addValue("custom_scheme" + i, idKey.getScheme().getName());
+        args.addValue("custom_value" + i, idKey.getValue());
+        i++;
+      }
+      args.addValue("sql_search_custom_ids", sqlSelectIdKeys(request.getCustomExternalIdSearch(), "custom"));
     }
     if (request.getHolidayObjectIds() != null) {
       StringBuilder buf = new StringBuilder(request.getHolidayObjectIds().size() * 10);
@@ -252,6 +265,9 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       case SETTLEMENT:
         ArgumentChecker.notNull(document.getHoliday().getExchangeExternalId(), "document.holiday.exchange");
         break;
+      case CUSTOM:
+        ArgumentChecker.notNull(document.getHoliday().getCustomExternalId(), "document.holiday.custom");
+        break;
       default:
         throw new IllegalArgumentException("Holiday type not set");
     }
@@ -261,7 +277,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
       // the arguments for inserting into the holiday table
       final ManageableHoliday holiday = document.getHoliday();
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -288,13 +304,19 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         .addValue("exchange_value",
             holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null,
             Types.VARCHAR)
+        .addValue("custom_scheme",
+            holiday.getCustomExternalId() != null ? holiday.getCustomExternalId().getValue() : null,
+            Types.VARCHAR)
+        .addValue("custom_value",
+            holiday.getCustomExternalId() != null ? holiday.getCustomExternalId().getValue() : null,
+            Types.VARCHAR)
         .addValue("currency_iso",
             holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null,
             Types.VARCHAR);
       // the arguments for inserting into the date table
       final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
       for (LocalDate date : holiday.getHolidayDates()) {
-        final DbMapSqlParameterSource dateArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource dateArgs = createParameterSource()
           .addValue("doc_id", docId)
           .addDate("hol_date", date);
         dateList.add(dateArgs);
@@ -349,6 +371,8 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       final String regionValue = rs.getString("REGION_VALUE");
       final String exchangeScheme = rs.getString("EXCHANGE_SCHEME");
       final String exchangeValue = rs.getString("EXCHANGE_VALUE");
+      final String customScheme = rs.getString("CUSTOM_SCHEME");
+      final String customValue = rs.getString("CUSTOM_VALUE");
       final String currencyISO = rs.getString("CURRENCY_ISO");
       UniqueId uniqueId = createUniqueId(docOid, docId);
       ManageableHoliday holiday = new ManageableHoliday();
@@ -359,6 +383,9 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       }
       if (exchangeScheme != null && exchangeValue != null) {
         holiday.setExchangeExternalId(ExternalId.of(exchangeScheme, exchangeValue));
+      }
+      if (customScheme != null && customValue != null) {
+        holiday.setCustomExternalId(ExternalId.of(customScheme, customValue));
       }
       if (currencyISO != null) {
         holiday.setCurrency(Currency.of(currencyISO));

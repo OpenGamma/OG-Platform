@@ -80,6 +80,7 @@ public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttribute
     ArgumentChecker.notNull(fixedLegDayCount, "Fixed leg day count");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(index, "Index ON");
+    ArgumentChecker.isFalse(legsPeriod.isZero(), "legsPeriod must be non zero");
     _index = index;
     _legsPeriod = legsPeriod;
     _fixedLegDayCount = fixedLegDayCount;
@@ -111,6 +112,7 @@ public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttribute
     ArgumentChecker.notNull(fixedLegDayCount, "Fixed leg day count");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(index, "Index ON");
+    ArgumentChecker.isFalse(legsPeriod.isZero(), "legsPeriod must be non zero");
     _index = index;
     _legsPeriod = legsPeriod;
     _fixedLegDayCount = fixedLegDayCount;
@@ -203,10 +205,11 @@ public class GeneratorSwapFixedON extends GeneratorInstrument<GeneratorAttribute
     return _calendar;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is date+_spotLag. The end of fixing period is effective date+tenor.
    */
+  @Override
   public SwapFixedONDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

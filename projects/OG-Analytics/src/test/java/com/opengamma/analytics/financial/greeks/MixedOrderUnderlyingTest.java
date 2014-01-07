@@ -17,7 +17,12 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class MixedOrderUnderlyingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -27,14 +32,14 @@ public class MixedOrderUnderlyingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testSmallMap() {
-    final TreeMap<Integer, UnderlyingType> map = new TreeMap<Integer, UnderlyingType>();
+    final TreeMap<Integer, UnderlyingType> map = new TreeMap<>();
     map.put(1, UnderlyingType.SPOT_PRICE);
     new MixedOrderUnderlying(map);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadOrder1() {
-    final TreeMap<Integer, UnderlyingType> map = new TreeMap<Integer, UnderlyingType>();
+    final TreeMap<Integer, UnderlyingType> map = new TreeMap<>();
     map.put(0, UnderlyingType.BOND_YIELD);
     map.put(1, UnderlyingType.COST_OF_CARRY);
     new MixedOrderUnderlying(map);
@@ -42,7 +47,7 @@ public class MixedOrderUnderlyingTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadOrder2() {
-    final List<NthOrderUnderlying> orders = new ArrayList<NthOrderUnderlying>();
+    final List<NthOrderUnderlying> orders = new ArrayList<>();
     orders.add(new NthOrderUnderlying(0, UnderlyingType.SPOT_PRICE));
     orders.add(new NthOrderUnderlying(1, UnderlyingType.BOND_YIELD));
     new MixedOrderUnderlying(orders);
@@ -64,13 +69,13 @@ public class MixedOrderUnderlyingTest {
     final int order2 = 3;
     final UnderlyingType type1 = UnderlyingType.SPOT_PRICE;
     final UnderlyingType type2 = UnderlyingType.SPOT_VOLATILITY;
-    final TreeMap<Integer, UnderlyingType> map1 = new TreeMap<Integer, UnderlyingType>();
+    final TreeMap<Integer, UnderlyingType> map1 = new TreeMap<>();
     map1.put(order1, type1);
     map1.put(order2, type2);
-    final List<NthOrderUnderlying> set = new ArrayList<NthOrderUnderlying>();
+    final List<NthOrderUnderlying> set = new ArrayList<>();
     set.add(new NthOrderUnderlying(order1, type1));
     set.add(new NthOrderUnderlying(order2, type2));
-    final TreeMap<Integer, UnderlyingType> map2 = new TreeMap<Integer, UnderlyingType>();
+    final TreeMap<Integer, UnderlyingType> map2 = new TreeMap<>();
     map2.put(order1, type1);
     map2.put(order2, type2);
     final MixedOrderUnderlying underlying = new MixedOrderUnderlying(map1);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -17,7 +17,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the price of bond future as the cheapest forward.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.BondFutureDiscountingMethod}
  */
+@Deprecated
 public final class BondFutureDiscountingMethod extends BondFutureMethod {
 
   /**
@@ -130,7 +132,7 @@ public final class BondFutureDiscountingMethod extends BondFutureMethod {
   /**
    * Compute the present value sensitivity to rates of a bond future by discounting.
    * @param future The future.
-   * @param curves The yield curves. Should contain the credit and repo curves associated. 
+   * @param curves The yield curves. Should contain the credit and repo curves associated.
    * @return The present value rate sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondFuture future, final YieldCurveBundle curves) {

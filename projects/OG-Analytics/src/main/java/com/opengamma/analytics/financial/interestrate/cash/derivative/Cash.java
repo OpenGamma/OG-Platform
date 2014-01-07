@@ -67,7 +67,7 @@ public class Cash implements InstrumentDerivative {
    * @param yieldCurveName Name of yield curve used to price loan
    * @deprecated Use the constructor that does not take yield curve names.
    */
-  @Deprecated 
+  @Deprecated
   public Cash(final Currency currency, final double startTime, final double endTime, final double notional, final double rate, final double accrualFactor, final String yieldCurveName) {
     this(currency, startTime, endTime, notional, notional, rate, accrualFactor, yieldCurveName);
   }
@@ -103,7 +103,7 @@ public class Cash implements InstrumentDerivative {
     ArgumentChecker.notNull(yieldCurveName, "yield curve name");
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.isTrue(startTime >= 0, "Start time should be positive or 0.");
-    ArgumentChecker.isTrue(accrualFactor >= 0, "Accrual factor should be positive");
+    ArgumentChecker.isTrue(accrualFactor >= 0, "Accrual factor should be positive or zero"); //REVIEW: Should the accrual factor be restricted to >0?
     ArgumentChecker.isTrue(startTime <= endTime, "Start time must be less or equal to the end time"); //REVIEW: Should the time be restricted to startTime < endTime?
     ArgumentChecker.isTrue(notional * initialAmount >= 0.0, "Notional and initial amount should have the same sign");
     _currency = currency;

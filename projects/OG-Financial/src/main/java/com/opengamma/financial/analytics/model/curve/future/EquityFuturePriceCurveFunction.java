@@ -31,7 +31,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -39,8 +38,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
@@ -48,24 +45,21 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceC
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
-import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
-import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdentifiable;
-import com.opengamma.util.money.Currency;
-
-//TODO: Take account of holidays
-//TODO: Modify parent class to handle most of this logic
-//TODO: Take expiry rules from instrument provider
+import com.opengamma.id.VersionCorrection;
 
 /**
  * Function providing an equity future curve.
- *
  */
 public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveFunction.class);
+  
+  private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
 
   @Override
   protected String getInstrumentType() {
@@ -74,44 +68,53 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
 
   @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
-      final String definitionName) {
-    
+      final String definitionName, final VersionCorrection versionCorrection) {
+
     if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return null;
     }
     ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
     final String fullDefinitionName = definitionName + "_" + ticker;
-    return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType());
+    return (FuturePriceCurveDefinition<Object>) source.getDefinition(fullDefinitionName, getInstrumentType(), versionCorrection);
   }
 
   private FuturePriceCurveSpecification getCurveSpecification(final ConfigDBFuturePriceCurveSpecificationSource source, final ComputationTarget target,
-      final String specificationName) {
+      final String specificationName, final VersionCorrection versionCorrection) {
     if (!(target.getValue() instanceof ExternalIdentifiable)) {
       return null;
     }
     ExternalId id = ((ExternalIdentifiable) target.getValue()).getExternalId();
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(id);
     final String fullSpecificationName = specificationName + "_" + ticker;
-    return source.getSpecification(fullSpecificationName, getInstrumentType());
+    return source.getSpecification(fullSpecificationName, getInstrumentType(), versionCorrection);
   }
 
   @SuppressWarnings("unchecked")
   public static Set<ValueRequirement> buildRequirements(final FuturePriceCurveSpecification futurePriceCurveSpecification, final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
-      final ZonedDateTime atInstant) {
+      final ValueRequirement desiredValue, final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<>();
-    final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
+    final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) futurePriceCurveSpecification.getCurveInstrumentProvider();
+    final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
     for (final Object x : futurePriceCurveDefinition.getXs()) {
-      final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
-      result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
+      final ExternalId identifier = futurePriceCurveProvider.getInstrument((Number) x, atInstant.toLocalDate());
+      result.add(new ValueRequirement(dataFieldName, ComputationTargetType.PRIMITIVE, identifier));
     }
     return result;
+  }
+  
+  private static String getDataFieldName(FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider, ValueRequirement desiredValue) {
+    return futurePriceCurveProvider.getDataFieldName();
   }
 
   @Override
   protected Double getTimeToMaturity(final int n, final LocalDate date, final Calendar calendar) {
-    //TODO: Need to check for specific expiry rule from instrument provider
-    return Double.valueOf(TimeCalculator.getTimeBetween(date, FutureOptionExpiries.EQUITY.getOneChicagoEquityFutureExpiry(n, date)));
+    throw new OpenGammaRuntimeException("Unexpected call");
+  }
+
+  /* Spot value of the equity index or name */
+  private ValueRequirement getSpotRequirement(final ComputationTarget target, final String dataFieldName) {
+    return new ValueRequirement(dataFieldName, ComputationTargetType.PRIMITIVE, target.getUniqueId());
   }
 
   @Override
@@ -139,33 +142,33 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         return Collections.singleton(futurePriceCurveResult);
       }
 
-      @SuppressWarnings("synthetic-access")
+      @SuppressWarnings({"synthetic-access", "unchecked" })
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         final ValueProperties constraints = desiredValue.getConstraints();
-        final String curveName;
-        final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-        if (curveNames == null || curveNames.size() != 1) {
-          s_logger.error("Can only get a single curve; asked for " + curveNames);
+        final String curveName = constraints.getStrictValue(ValuePropertyNames.CURVE);
+        if (curveName == null) {
           return null;
         }
-        curveName = curveNames.iterator().next();
-        //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
-        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target,
-            curveDefinitionName);
+        final VersionCorrection versionCorrection = myContext.getComputationTargetResolver().getVersionCorrection();
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName, versionCorrection);
         if (priceCurveDefinition == null) {
-          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType()});
+          s_logger.error("Price curve definition for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveDefinitionName, getInstrumentType() });
           return null;
         }
-        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target,
-            curveSpecificationName);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName, versionCorrection);
         if (priceCurveSpecification == null) {
-          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType()});
+          s_logger.error("Price curve specification for target {} with curve name {} and instrument type {} was null", new Object[] {target, curveSpecificationName, getInstrumentType() });
           return null;
         }
-        final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(priceCurveSpecification, priceCurveDefinition, atZDT));
+        final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
+        final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
+        
+        Set<ValueRequirement> requirements = Sets.newHashSet();
+        requirements.add(getSpotRequirement(target, dataFieldName));
+        requirements.addAll(buildRequirements(priceCurveSpecification, priceCurveDefinition, desiredValue, atZDT));
         return requirements;
       }
 
@@ -179,38 +182,44 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         return true;
       }
 
-      @SuppressWarnings({ "synthetic-access" })
+      @SuppressWarnings({"synthetic-access", "unchecked" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
-        final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
-        //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
         final String curveSpecificationName = curveName;
-        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName);
-        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName);
+        final VersionCorrection versionCorrection = executionContext.getComputationTargetResolver().getVersionCorrection();
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target, curveDefinitionName, versionCorrection);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target, curveSpecificationName, versionCorrection);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final DoubleArrayList xList = new DoubleArrayList();
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
+        final String dataFieldName = getDataFieldName(futurePriceCurveProvider, desiredValue);
         final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
         }
+        // Add spot
+        final Object spotUnderlying = inputs.getValue(getSpotRequirement(target, dataFieldName));
+        if (spotUnderlying != null) {
+          xList.add(0.0);
+          prices.add((Double) spotUnderlying);
+        }
+        // Add futures
         for (final Object x : priceCurveDefinition.getXs()) {
           final Number xNum = (Number) x;
           final ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
-          final ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
+          final ValueRequirement requirement = new ValueRequirement(dataFieldName, ComputationTargetType.PRIMITIVE, identifier);
           Double futurePrice = null;
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, calendar);
+              LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, WEEKDAYS); // TODO Add true holiday calendar
               final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
               xList.add(ttm);
               prices.add(futurePrice);
@@ -226,8 +235,6 @@ public class EquityFuturePriceCurveFunction extends FuturePriceCurveFunction {
         final ComputedValue futurePriceCurveResultValue = new ComputedValue(futurePriceCurveResult, curve);
         return Sets.newHashSet(futurePriceCurveResultValue);
       }
-
     };
   }
-
 }

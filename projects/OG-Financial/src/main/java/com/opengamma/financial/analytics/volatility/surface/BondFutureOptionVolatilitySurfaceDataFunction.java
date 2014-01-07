@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,14 +42,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.convention.BondFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.expirycalc.BondFutureOptionExpiryCalculator;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -176,14 +177,18 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionVolatilities.getXs()) {
+    final Object[] xs = optionVolatilities.getXs();
+    for (final Object xObj : xs) {
+      Number x = (Number) xObj;
       final Double t = TimeCalculator.getTimeBetween(today, expiryCalculator.getExpiryDate(x.intValue(), today, calendar));
-      for (final Double y : optionVolatilities.getYs()) {
+      final Object[] ys = optionVolatilities.getYs();
+      for (final Object yObj : ys) {
+        Double y = (Double) yObj;
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
           tList.add(t);
           kList.add(y / 100.);
-          volatilityValues.put(Pair.of(t, y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
+          volatilityValues.put(Pairs.of(t, y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
         }
       }
     }
@@ -208,7 +213,9 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
     if (nFutures == 0) {
       throw new OpenGammaRuntimeException("No future prices found for surface : " + specification.getName());
     }
-    for (final Number x : optionPrices.getXs()) {
+    final Object[] xs = optionPrices.getXs();
+    for (final Object xObj : xs) {
+      final Number x = (Number) xObj;
       // Loop over option expiries
       final int nFutureOption = x.intValue();
       final LocalDate futureOptionExpiryDate = expiryCalculator.getExpiryDate(nFutureOption, today, calendar);
@@ -219,7 +226,9 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
       }
       final Double forward = futurePrices.getYValue(futureExpiries[nFuture]);
       // Loop over strikes
-      for (final Double y : optionPrices.getYs()) {
+      final Object[] ys = optionPrices.getYs();
+      for (final Object yObj : ys) {
+        final Double y = (Double) yObj;
         final Double price = optionPrices.getVolatility(x, y);
         if (price != null) {
           try {
@@ -233,7 +242,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
             if (!CompareUtils.closeEquals(volatility, 0.0)) {
               txList.add(optionExpiry);
               kList.add(y / 100.0);
-              volatilityValues.put(Pair.of(optionExpiry, y / 100.), volatility);
+              volatilityValues.put(Pairs.of(optionExpiry, y / 100.), volatility);
             }
           } catch (final MathException e) {
             s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });

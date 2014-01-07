@@ -17,6 +17,7 @@ import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -38,8 +39,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.financial.view.HistoricalViewEvaluationMarketDataMode;
 import com.opengamma.financial.view.HistoricalViewEvaluationResult;
 import com.opengamma.financial.view.HistoricalViewEvaluationTarget;
 import com.opengamma.financial.view.ViewEvaluationFunction;
@@ -50,6 +53,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.TimeSeries;
+import com.opengamma.util.money.Currency;
 
 /**
  * Iterates a view client over historical data to produce a historical valuation of a target. The view client iteration is performed by a helper function on a {@link ViewEvaluationTarget} created by
@@ -94,8 +98,13 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
    */
   public static final String TARGET_SPECIFICATION_EXTERNAL = "External";
 
+  /**
+   * Value of the market data mode property.
+   */
+  public static final String MARKET_DATA_MODE_PROPERTY = "MarketDataMode";
+
   private static final Set<String> s_ignoreConstraints = ImmutableSet.of(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY,
-      HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, ValuePropertyNames.FUNCTION);
+      HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, MARKET_DATA_MODE_PROPERTY, ValuePropertyNames.FUNCTION);
 
   protected ValueRequirement getNestedRequirement(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTarget target, final ValueProperties constraints) {
     String valueName = ValueRequirementNames.VALUE;
@@ -195,23 +204,14 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES, target.toSpecification(), ValueProperties.all()));
   }
 
-  private String anyConstraintOrNull(final ValueProperties constraints, final String name) {
-    final Set<String> values = constraints.getValues(name);
-    if ((values == null) || values.isEmpty()) {
-      return null;
-    } else {
-      return values.iterator().next();
-    }
-  }
-
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    ValueProperties constraints = desiredValue.getConstraints();
-    String startDateConstraint = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
-    String includeStartConstraintString = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
+    final ValueProperties constraints = desiredValue.getConstraints();
+    String startDateConstraint = constraints.getSingleValue(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+    final String includeStartConstraintString = constraints.getSingleValue(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
     boolean includeStartConstraint = true;
-    String endDateConstraint = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
-    String includeEndConstraintString = anyConstraintOrNull(constraints, HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
+    String endDateConstraint = constraints.getSingleValue(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+    final String includeEndConstraintString = constraints.getSingleValue(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
     boolean includeEndConstraint = false;
     if (includeStartConstraintString != null) {
       includeStartConstraint = HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(includeStartConstraintString);
@@ -237,9 +237,19 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
         }
       }
     }
-    ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
+    final String marketDataModeConstraint = constraints.getSingleValue(MARKET_DATA_MODE_PROPERTY);
+    final HistoricalViewEvaluationMarketDataMode marketDataMode = marketDataModeConstraint != null ?
+        HistoricalViewEvaluationMarketDataMode.parse(marketDataModeConstraint) : HistoricalViewEvaluationMarketDataMode.HISTORICAL;
+    Security security = null;
+    if (ComputationTargetType.SECURITY.isCompatible(target.getType())) {
+      security = target.getSecurity();
+    } else if (ComputationTargetType.POSITION.isCompatible(target.getType())) {
+      security = target.getPosition().getSecurity();
+    }
+    final Set<Currency> targetCurrencies = security != null ? ImmutableSet.copyOf(FinancialSecurityUtils.getCurrencies(security, context.getSecuritySource())) : null;
+    final ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
     final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDateConstraint, includeStartConstraint, endDateConstraint,
-        includeEndConstraint);
+        includeEndConstraint, targetCurrencies, marketDataMode);
     final ValueRequirement requirement = getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints());
     if (requirement == null) {
       return null;
@@ -261,6 +271,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     builder.with(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY, target.getEndDate());
     builder.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, target.isIncludeEnd() ? HistoricalTimeSeriesFunctionUtils.YES_VALUE
         : HistoricalTimeSeriesFunctionUtils.NO_VALUE);
+    builder.with(MARKET_DATA_MODE_PROPERTY, target.getMarketDataMode().getConstraintName());
     return builder;
   }
 

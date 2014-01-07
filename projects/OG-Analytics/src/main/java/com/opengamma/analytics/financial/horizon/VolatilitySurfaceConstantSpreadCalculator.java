@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.horizon;
@@ -10,6 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
@@ -18,15 +19,26 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the change in value of a FX option when the (Black) surface has been
+ * shifted forward in time without slide.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class VolatilitySurfaceConstantSpreadCalculator {
+  /** The singleton instance */
   private static final VolatilitySurfaceConstantSpreadCalculator INSTANCE = new VolatilitySurfaceConstantSpreadCalculator();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static VolatilitySurfaceConstantSpreadCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private VolatilitySurfaceConstantSpreadCalculator() {
   }
 

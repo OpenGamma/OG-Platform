@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.compilation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -28,9 +29,12 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -39,8 +43,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.depgraph.Housekeeper;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
+import com.opengamma.engine.depgraph.impl.RootDiscardingSubgrapher;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -64,9 +69,6 @@ import com.opengamma.util.tuple.Pair;
 public final class ViewDefinitionCompiler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinitionCompiler.class);
-  private static final boolean OUTPUT_DEPENDENCY_GRAPHS = false;
-  private static final boolean OUTPUT_LIVE_DATA_REQUIREMENTS = false;
-  private static final boolean OUTPUT_FAILURE_REPORTS = false;
   private static boolean s_striped;
   private static Timer s_fullTimer = new Timer(); // timer for full graph compilation (replaced if registerMetrics called)
   private static Timer s_deltaTimer = new Timer(); // timer for delta graph compilation (replaced if registerMetrics called)
@@ -159,12 +161,11 @@ public final class ViewDefinitionCompiler {
 
     private final ViewCompilationContext _viewCompilationContext;
     private volatile CompiledViewDefinitionWithGraphsImpl _result;
-    private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
     private boolean _portfolioOutputs;
+    private Portfolio _portfolio;
 
-    protected CompilationTask(final ViewCompilationContext context, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    protected CompilationTask(final ViewCompilationContext context) {
       _viewCompilationContext = context;
-      _resolutions = resolutions;
       if (s_logger.isDebugEnabled()) {
         new CompilationCompletionEstimate(_viewCompilationContext);
       }
@@ -176,10 +177,6 @@ public final class ViewDefinitionCompiler {
       return _viewCompilationContext;
     }
 
-    protected ConcurrentMap<ComputationTargetReference, UniqueId> getResolutions() {
-      return _resolutions;
-    }
-
     protected abstract void compile(DependencyGraphBuilder builder);
 
     protected void compile() {
@@ -189,24 +186,26 @@ public final class ViewDefinitionCompiler {
         compile(builder);
         // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
         // Wait for the current config's dependency graph to be built before moving to the next view calc config
-        final DependencyGraph graph = builder.getDependencyGraph();
-        graph.removeUnnecessaryValues();
-        getContext().addGraph(graph);
+        DependencyGraph graph = builder.getDependencyGraph();
         builders.remove();
+        graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
+        getContext().getGraphs().add(graph);
+        s_logger.debug("Built {}", graph);
       }
     }
 
-    private void removeUnusedResolutions(final Collection<DependencyGraph> graphs, final Portfolio portfolio) {
-      final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>(getResolutions().size());
-      if (portfolio != null) {
-        validIdentifiers.add(portfolio.getUniqueId());
+    private void removeUnusedResolutions(final Collection<DependencyGraph> graphs) {
+      final Set<UniqueId> validIdentifiers = new HashSet<UniqueId>(getContext().getActiveResolutions().size());
+      if (_portfolio != null) {
+        validIdentifiers.add(_portfolio.getUniqueId());
       }
       for (DependencyGraph graph : graphs) {
-        for (final ComputationTargetSpecification target : graph.getAllComputationTargets()) {
-          validIdentifiers.add(target.getUniqueId());
+        final Iterator<DependencyNode> itr = graph.nodeIterator();
+        while (itr.hasNext()) {
+          validIdentifiers.add(itr.next().getTarget().getUniqueId());
         }
       }
-      final Iterator<Map.Entry<ComputationTargetReference, UniqueId>> itrResolutions = getResolutions().entrySet().iterator();
+      final Iterator<Map.Entry<ComputationTargetReference, UniqueId>> itrResolutions = getContext().getActiveResolutions().entrySet().iterator();
       while (itrResolutions.hasNext()) {
         final Map.Entry<ComputationTargetReference, UniqueId> resolution = itrResolutions.next();
         if (resolution.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
@@ -229,11 +228,10 @@ public final class ViewDefinitionCompiler {
      * @param compilationContext the compilation context containing the view being compiled, not null
      * @return the resolved portfolio, not null
      */
-    private Portfolio getPortfolio() {
+    private Portfolio resolvePortfolio() {
       final UniqueId portfolioId = getContext().getViewDefinition().getPortfolioId();
       if (portfolioId == null) {
-        throw new OpenGammaRuntimeException("The view definition '" + getContext().getViewDefinition().getName()
-            + "' contains required portfolio outputs, but it does not reference a portfolio.");
+        throw new OpenGammaRuntimeException("The view definition '" + getContext().getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
       }
       final ComputationTargetResolver resolver = getContext().getServices().getFunctionCompilationContext().getRawComputationTargetResolver();
       final ComputationTargetResolver.AtVersionCorrection versioned = resolver.atVersionCorrection(getContext().getResolverVersionCorrection());
@@ -244,13 +242,17 @@ public final class ViewDefinitionCompiler {
       }
       final ComputationTarget target = versioned.resolve(specification);
       if (target == null) {
-        throw new OpenGammaRuntimeException("Unable to resolve '" + specification + "' for view '" + getContext().getViewDefinition().getName() + "'");
+        throw new OpenGammaRuntimeException("Unable to resolve portfolio ID " + specification.getUniqueId() + " for view '" + getContext().getViewDefinition().getName() + "'");
       }
       return target.getValue(ComputationTargetType.PORTFOLIO);
     }
 
     protected boolean isPortfolioOutputs() {
       return _portfolioOutputs;
+    }
+
+    protected Portfolio getPortfolio() {
+      return _portfolio;
     }
 
     /**
@@ -299,17 +301,28 @@ public final class ViewDefinitionCompiler {
 
     @Override
     public CompiledViewDefinitionWithGraphsImpl get() {
-      Portfolio portfolio = null;
-      for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
-        final FunctionCompilationContext functionContext = builder.getCompilationContext();
-        final ComputationTargetResolver.AtVersionCorrection resolver = functionContext.getComputationTargetResolver();
-        functionContext.setComputationTargetResolver(TargetResolutionLogger.of(resolver, getResolutions()));
-        if (isPortfolioOutputs() && !functionContext.getViewCalculationConfiguration().getAllPortfolioRequirements().isEmpty()) {
-          if (portfolio == null) {
-            portfolio = getPortfolio();
-            getResolutions().putIfAbsent(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getContext().getViewDefinition().getPortfolioId()), portfolio.getUniqueId());
+      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions = getContext().getActiveResolutions();
+      if (isPortfolioOutputs()) {
+        for (final DependencyGraphBuilder builder : getContext().getBuilders()) {
+          final FunctionCompilationContext functionContext = builder.getCompilationContext();
+          if (!functionContext.getViewCalculationConfiguration().getAllPortfolioRequirements().isEmpty()) {
+            if (_portfolio == null) {
+              _portfolio = resolvePortfolio();
+              final UniqueId newPortfolioId = _portfolio.getUniqueId();
+              final UniqueId oldPortfolioId = resolutions.put(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getContext().getViewDefinition().getPortfolioId()), newPortfolioId);
+              if (oldPortfolioId != null) {
+                if (newPortfolioId.equals(oldPortfolioId)) {
+                  s_logger.debug("No change to the portfolio {}", oldPortfolioId);
+                } else {
+                  s_logger.info("Late change to portfolio resolution detected from {} to {}; abandoning compilation", oldPortfolioId, newPortfolioId);
+                  throw new IllegalCompilationStateException(newPortfolioId.getObjectId());
+                }
+              } else {
+                s_logger.debug("No previous portfolio to check new resolution against");
+              }
+            }
+            functionContext.setPortfolio(_portfolio);
           }
-          functionContext.setPortfolio(portfolio);
         }
       }
       long t = -System.nanoTime();
@@ -317,19 +330,8 @@ public final class ViewDefinitionCompiler {
       final Collection<DependencyGraph> graphs = getContext().getGraphs();
       t += System.nanoTime();
       s_logger.info("Processed dependency graphs after {}ms", t / 1e6);
-      removeUnusedResolutions(graphs, portfolio);
-      _result = new CompiledViewDefinitionWithGraphsImpl(getContext().getResolverVersionCorrection(), s_uniqueIdentifiers.get(), getContext().getViewDefinition(), graphs,
-          getResolutions(), portfolio, getContext()
-              .getServices().getFunctionCompilationContext().getFunctionInitId());
-      if (OUTPUT_DEPENDENCY_GRAPHS) {
-        outputDependencyGraphs(graphs);
-      }
-      if (OUTPUT_LIVE_DATA_REQUIREMENTS) {
-        outputLiveDataRequirements(graphs);
-      }
-      if (OUTPUT_FAILURE_REPORTS) {
-        outputFailureReports(_viewCompilationContext.getBuilders());
-      }
+      removeUnusedResolutions(graphs);
+      _result = CompiledViewDefinitionWithGraphsImpl.of(getContext(), s_uniqueIdentifiers.get(), graphs, _portfolio);
       return _result;
     }
 
@@ -343,14 +345,29 @@ public final class ViewDefinitionCompiler {
   private static class FullCompilationTask extends CompilationTask {
 
     protected FullCompilationTask(final ViewCompilationContext context) {
-      super(context, new ConcurrentHashMap<ComputationTargetReference, UniqueId>());
+      super(context);
     }
 
     @Override
     protected void compile(final DependencyGraphBuilder builder) {
       final ViewCalculationConfiguration config = getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName());
-      addSpecificRequirements(builder, getContext().getViewDefinition().getResultModelDefinition(), config);
-      addPortfolioRequirements(builder, getContext(), config, getResolutions(), null, null);
+      Set<ValueRequirement> specificRequirements = config.getSpecificRequirements();
+      if (specificRequirements.isEmpty()) {
+        specificRequirements = null;
+      } else {
+        final ResultModelDefinition resultModelDefinition = getContext().getViewDefinition().getResultModelDefinition();
+        for (final ValueRequirement requirement : specificRequirements) {
+          final ComputationTargetReference targetReference = requirement.getTargetReference();
+          if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
+            // We're not including this in the results, so no point it being a terminal output. It will be added
+            // automatically if it is needed for some other terminal output.
+            continue;
+          }
+          // Add the specific requirement to the current calc config's dep graph builder
+          builder.addTarget(requirement);
+        }
+      }
+      addPortfolioRequirements(builder, specificRequirements, getContext(), config, null, null);
     }
 
     @Override
@@ -365,13 +382,13 @@ public final class ViewDefinitionCompiler {
 
   private static class IncrementalCompilationTask extends CompilationTask {
 
-    private final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> _previousGraphs;
+    private final Map<String, PartiallyCompiledGraph> _previousGraphs;
     private final Set<UniqueId> _unchangedNodes;
     private final Set<UniqueId> _changedPositions;
 
-    protected IncrementalCompilationTask(final ViewCompilationContext context, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
-        final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions, final Set<UniqueId> unchangedNodes) {
-      super(context, resolutions);
+    protected IncrementalCompilationTask(final ViewCompilationContext context, final Map<String, PartiallyCompiledGraph> previousGraphs, final Set<UniqueId> changedPositions,
+        final Set<UniqueId> unchangedNodes) {
+      super(context);
       _previousGraphs = previousGraphs;
       _unchangedNodes = unchangedNodes;
       _changedPositions = changedPositions;
@@ -379,24 +396,110 @@ public final class ViewDefinitionCompiler {
 
     @Override
     protected void compile(final DependencyGraphBuilder builder) {
-      final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.remove(builder.getCalculationConfigurationName());
-      if (graph != null) {
-        builder.setDependencyGraph(graph.getFirst());
-        if (graph.getSecond().isEmpty()) {
-          s_logger.debug("No incremental work for {}", graph.getFirst());
-        } else {
-          s_logger.info("{} incremental resolutions required for {}", graph.getSecond().size(), graph.getFirst());
-          builder.addTarget(graph.getSecond());
+      final ViewCalculationConfiguration calcConfig = getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName());
+      final PartiallyCompiledGraph previousGraph = _previousGraphs.remove(builder.getCalculationConfigurationName());
+      final Set<ValueRequirement> incrementalRequirements;
+      Set<UniqueId> changedPositions = _changedPositions;
+      if (previousGraph != null) {
+        if (builder.getCompilationContext().getPortfolio() != null) {
+          // Remove any invalid terminal outputs from the graph and update the changed position set with any late noticed changes
+          final PortfolioIdentifierGatherer gatherer = new PortfolioIdentifierGatherer();
+          PortfolioNodeTraverser.parallel(gatherer, getContext().getServices().getExecutorService()).traverse(builder.getCompilationContext().getPortfolio().getRootNode());
+          final Set<UniqueId> identifiers = gatherer.getIdentifiers();
+          final Set<ValueRequirement> specifics = calcConfig.getSpecificRequirements();
+          final Iterator<Map.Entry<ValueSpecification, Set<ValueRequirement>>> itrTerminal = previousGraph.getTerminalOutputs().entrySet().iterator();
+          Set<ValueRequirement> toRemove = null;
+          Set<UniqueId> updatedPositions = null;
+          while (itrTerminal.hasNext()) {
+            final Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal = itrTerminal.next();
+            final ValueSpecification terminalSpec = terminal.getKey();
+            final ComputationTargetSpecification terminalTarget = terminalSpec.getTargetSpecification();
+            if (!identifiers.contains(terminalTarget.getUniqueId())) {
+              // Can't be a portfolio requirement
+              for (ValueRequirement requirement : terminal.getValue()) {
+                if (!specifics.contains(requirement)) {
+                  // Not a specific requirement
+                  if (toRemove == null) {
+                    toRemove = Sets.newHashSetWithExpectedSize(terminal.getValue().size());
+                  }
+                  toRemove.add(requirement);
+                }
+              }
+              if ((toRemove != null) && !toRemove.isEmpty()) {
+                final int removes = toRemove.size();
+                final int existing = terminal.getValue().size();
+                if (removes == existing) {
+                  // No more value requirements left
+                  itrTerminal.remove();
+                  s_logger.trace("Removed terminal output {} ({})", terminalSpec, terminal.getValue());
+                } else {
+                  final Set<ValueRequirement> newReqs = Sets.newHashSetWithExpectedSize(existing - removes);
+                  for (ValueRequirement oldTerminal : terminal.getValue()) {
+                    if (!toRemove.contains(oldTerminal)) {
+                      newReqs.add(oldTerminal);
+                    }
+                  }
+                  terminal.setValue(newReqs);
+                  s_logger.trace("Pruned terminal output {} ({})", terminalSpec, toRemove);
+                }
+                if (_unchangedNodes == null) {
+                  if (terminalTarget.getType().isTargetType(ComputationTargetType.POSITION)) {
+                    // [PLAT-5097] This is an old, or updated position, that we've removed the terminal outputs for. In the case of an
+                    // updated position, it might not be present in the change set if the change notification was not observed before
+                    // the incremental-P compilation started. An incremental-N will have observed the updated by not matching the node
+                    // identifier.
+                    if (updatedPositions == null) {
+                      updatedPositions = new HashSet<UniqueId>();
+                    }
+                    updatedPositions.add(terminalTarget.getUniqueId());
+                  }
+                }
+                toRemove.clear();
+              }
+            }
+          }
+          if (updatedPositions != null) {
+            s_logger.info("Late updates detected on {} positions - updating the change set", updatedPositions.size());
+            // Note: looking up the new identifiers of the updated positions (if they haven't been deleted) could be costly; good caching should
+            // still have the OID/VC pair locked in memory so this ought to be cheap. If it's not then storing OIDs in the change set might be
+            // wiser. We don't use the target resolver because we don't want to log these resolutions.
+            final PositionSource ps = getContext().getServices().getFunctionCompilationContext().getPortfolioStructure().getPositionSource();
+            final VersionCorrection vc = getContext().getResolverVersionCorrection();
+            if (changedPositions == null) {
+              changedPositions = new HashSet<UniqueId>();
+            }
+            for (UniqueId oldPositionId : updatedPositions) {
+              try {
+                final Position newPosition = ps.getPosition(oldPositionId.getObjectId(), vc);
+                final UniqueId newPositionId = newPosition.getUniqueId();
+                s_logger.trace("Old position {} might now be {}", oldPositionId, newPosition.getUniqueId());
+                changedPositions.add(newPositionId);
+              } catch (DataNotFoundException e) {
+                s_logger.trace("Old position {} no longer exists", oldPositionId);
+              }
+            }
+          }
         }
+        // Populate the builder with the graph
+        builder.setDependencyGraph(previousGraph);
+        final Set<ValueRequirement> requirements = previousGraph.getMissingRequirements();
+        if (requirements.isEmpty()) {
+          s_logger.debug("No incremental work for {}", calcConfig.getName());
+          incrementalRequirements = null;
+        } else {
+          s_logger.info("{} incremental resolutions required for {}", requirements.size(), calcConfig.getName());
+          builder.addTarget(requirements);
+          incrementalRequirements = requirements;
+        }
+      } else {
+        incrementalRequirements = null;
       }
       if (_unchangedNodes != null) {
         s_logger.info("Adding portfolio requirements with unchanged node set");
-        addPortfolioRequirements(builder, getContext(), getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName()), getResolutions(), null,
-            _unchangedNodes);
-      } else if (_changedPositions != null) {
+        addPortfolioRequirements(builder, incrementalRequirements, getContext(), calcConfig, null, _unchangedNodes);
+      } else if (changedPositions != null) {
         s_logger.info("Adding portfolio requirements with changed position set");
-        addPortfolioRequirements(builder, getContext(), getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName()), getResolutions(), _changedPositions,
-            null);
+        addPortfolioRequirements(builder, incrementalRequirements, getContext(), calcConfig, changedPositions, null);
       } else {
         s_logger.info("No additional portfolio requirements needed");
       }
@@ -407,47 +510,83 @@ public final class ViewDefinitionCompiler {
       s_logger.info("Performing incremental compilation");
       try (Timer.Context context = s_deltaTimer.time()) {
         super.compile();
+        while (getContext().hasExpiredResolutions()) {
+          // The graph(s) may be inconsistent because we didn't detect all changes in advance. The identifiers in the expired set correspond to nodes
+          // that we must get rid of, and create new value requirements to regenerate any affected top-level nodes.
+          final Set<UniqueId> expiredResolutions = getContext().takeExpiredResolutions();
+          s_logger.debug("Revalidate graph(s) against {} expired resolutions", expiredResolutions.size());
+          final RootDiscardingSubgrapher filter = new InvalidTargetDependencyNodeFilter(expiredResolutions);
+          final Set<ValueRequirement> missing = new HashSet<ValueRequirement>();
+          final Collection<DependencyGraph> graphs = new ArrayList<DependencyGraph>(getContext().getGraphs());
+          getContext().getGraphs().clear();
+          for (DependencyGraph graph : graphs) {
+            DependencyGraph filtered = filter.subGraph(graph, missing);
+            if (filtered == null) {
+              // Entire graph has been rejected
+              for (Set<ValueRequirement> requirements : graph.getTerminalOutputs().values()) {
+                missing.addAll(requirements);
+              }
+            }
+            if (missing.isEmpty()) {
+              // No requirements ejected from this graph - keep it
+              getContext().getGraphs().add(graph);
+              continue;
+            }
+            s_logger.info("Late changes detected affecting {} requirements", missing.size());
+            final DependencyGraphBuilder builder = getContext().createBuilder(getContext().getViewDefinition().getCalculationConfiguration(graph.getCalculationConfigurationName()));
+            graph = null;
+            if (getPortfolio() != null) {
+              builder.getCompilationContext().setPortfolio(getPortfolio());
+            }
+            if (filtered != null) {
+              builder.setDependencyGraph(filtered);
+            }
+            filtered = null;
+            builder.addTarget(missing);
+            missing.clear();
+            graph = builder.getDependencyGraph();
+            graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
+            getContext().getGraphs().add(graph);
+          }
+        }
       }
     }
 
   }
 
-  public static Future<CompiledViewDefinitionWithGraphsImpl> fullCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
-      final Instant valuationTime, final VersionCorrection versionCorrection) {
+  public static Future<CompiledViewDefinitionWithGraphsImpl> fullCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+      final VersionCorrection versionCorrection) {
     s_logger.info("Full compile of {} for use at {}", viewDefinition.getName(), valuationTime);
-    return new FullCompilationTask(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection));
+    return new FullCompilationTask(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection, new ConcurrentHashMap<ComputationTargetReference, UniqueId>()));
   }
 
+  /**
+   * @param viewDefinition the view definition to compile against, not null
+   * @param compilationServices compilation infrastructure, not null
+   * @param valuationTime the valuation time, not null
+   * @param versionCorrection the target resolution v/c, not null
+   * @param previousGraphs the results of previous compilations, not null
+   * @param resolutions the map to populate with identifier resolutions used during compilation, not null, this might be updated/modified
+   * @param changedPositions the new identifiers of updated positions, null if none, this might be updated/modified
+   * @param unchangedNodes the identifiers of nodes which are known not to have changed, null if none
+   * @return a future for controlling/monitoring the compilation
+   */
   public static Future<CompiledViewDefinitionWithGraphsImpl> incrementalCompileTask(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
-      final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+      final Instant valuationTime, final VersionCorrection versionCorrection, final Map<String, PartiallyCompiledGraph> previousGraphs,
       final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> changedPositions, final Set<UniqueId> unchangedNodes) {
     s_logger.info("Incremental compile of {} for use at {}", viewDefinition.getName(), valuationTime);
-    return new IncrementalCompilationTask(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection), previousGraphs, resolutions,
-        changedPositions, unchangedNodes);
+    return new IncrementalCompilationTask(new ViewCompilationContext(viewDefinition, compilationServices, valuationTime, versionCorrection, resolutions), previousGraphs, changedPositions,
+        unchangedNodes);
   }
 
-  public static CompiledViewDefinitionWithGraphsImpl compile(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices,
-      final Instant valuationTime, final VersionCorrection versionCorrection) {
+  public static CompiledViewDefinitionWithGraphsImpl compile(final ViewDefinition viewDefinition, final ViewCompilationServices compilationServices, final Instant valuationTime,
+      final VersionCorrection versionCorrection) {
     try {
       return fullCompileTask(viewDefinition, compilationServices, valuationTime, versionCorrection).get();
     } catch (final InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     } catch (final ExecutionException e) {
       throw new OpenGammaRuntimeException("Failed", e);
-    }
-  }
-
-  private static void addSpecificRequirements(final DependencyGraphBuilder builder, final ResultModelDefinition resultModelDefinition, final ViewCalculationConfiguration calcConfig) {
-    // Scan through the current calc config's specific requirements
-    for (final ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
-      final ComputationTargetReference targetReference = requirement.getTargetReference();
-      if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
-        // We're not including this in the results, so no point it being a terminal output. It will be added
-        // automatically if it is needed for some other terminal output.
-        continue;
-      }
-      // Add the specific requirement to the current calc config's dep graph builder
-      builder.addTarget(requirement);
     }
   }
 
@@ -484,15 +623,14 @@ public final class ViewDefinitionCompiler {
     s_striped = useStripes;
   }
 
-  private static void addPortfolioRequirements(final DependencyGraphBuilder builder, final ViewCompilationContext context, final ViewCalculationConfiguration calcConfig,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
+  private static void addPortfolioRequirements(final DependencyGraphBuilder builder, final Set<ValueRequirement> alreadyAdded, final ViewCompilationContext context,
+      final ViewCalculationConfiguration calcConfig, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
     if (calcConfig.getAllPortfolioRequirements().size() == 0) {
       // No portfolio requirements for this calculation configuration - avoid further processing.
       return;
     }
-    // Add portfolio requirements to the dependency graph
     final Portfolio portfolio = builder.getCompilationContext().getPortfolio();
-    final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, resolutions, includeEvents, excludeEvents);
+    final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, alreadyAdded, context.getActiveResolutions(), includeEvents, excludeEvents);
     final PortfolioNodeTraverser traverser = PortfolioNodeTraverser.parallel(traversalCallback, context.getServices().getExecutorService());
     if (isStripedPortfolioRequirements()) {
       final Map<String, Set<Pair<String, ValueProperties>>> requirementsBySecurityType = traversalCallback.getPortfolioRequirementsBySecurityType();
@@ -521,64 +659,6 @@ public final class ViewDefinitionCompiler {
     } else {
       s_logger.debug("Adding all portfolio requirements directly");
       traverser.traverse(portfolio.getRootNode());
-    }
-  }
-
-  private static void outputDependencyGraphs(final Collection<DependencyGraph> graphs) {
-    final StringBuilder sb = new StringBuilder();
-    for (DependencyGraph graph : graphs) {
-      final String configName = graph.getCalculationConfigurationName();
-      sb.append("DepGraph for ").append(configName);
-
-      sb.append("\tProducing values ").append(graph.getOutputSpecifications());
-      for (final DependencyNode depNode : graph.getDependencyNodes()) {
-        sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
-      }
-    }
-    s_logger.warn("Dependency Graphs -- \n{}", sb);
-  }
-
-  private static void outputLiveDataRequirements(final Collection<DependencyGraph> graphs) {
-    final StringBuilder sb = new StringBuilder();
-    for (DependencyGraph graph : graphs) {
-      final String configName = graph.getCalculationConfigurationName();
-      final Collection<ValueSpecification> requiredLiveData = graph.getAllRequiredMarketData();
-      if (requiredLiveData.isEmpty()) {
-        sb.append(configName).append(" requires no live data.\n");
-      } else {
-        sb.append("Live data for ").append(configName).append("\n");
-        for (final ValueSpecification liveRequirement : requiredLiveData) {
-          sb.append("\t").append(liveRequirement).append("\n");
-        }
-      }
-    }
-    s_logger.warn("Live data requirements -- \n{}", sb);
-  }
-
-  private static void outputFailureReports(final Collection<DependencyGraphBuilder> builders) {
-    for (final DependencyGraphBuilder builder : builders) {
-      outputFailureReport(builder);
-    }
-  }
-
-  public static void outputFailureReport(final DependencyGraphBuilder builder) {
-    final Map<Throwable, Integer> exceptions = builder.getExceptions();
-    if (!exceptions.isEmpty()) {
-      for (final Map.Entry<Throwable, Integer> entry : exceptions.entrySet()) {
-        final Throwable exception = entry.getKey();
-        final Integer count = entry.getValue();
-        if (exception.getCause() != null) {
-          if (s_logger.isDebugEnabled()) {
-            s_logger.debug("Nested exception raised " + count + " time(s)", exception);
-          }
-        } else {
-          if (s_logger.isWarnEnabled()) {
-            s_logger.warn("Exception raised " + count + " time(s)", exception);
-          }
-        }
-      }
-    } else {
-      s_logger.info("No exceptions raised for configuration {}", builder.getCalculationConfigurationName());
     }
   }
 

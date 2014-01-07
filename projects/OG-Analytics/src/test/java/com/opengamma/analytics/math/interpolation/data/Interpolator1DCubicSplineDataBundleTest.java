@@ -16,10 +16,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Interpolator1DCubicSplineDataBundleTest {
   private static final RealPolynomialFunction1D LINEAR = new RealPolynomialFunction1D(new double[] {1, 3});
   private static final RealPolynomialFunction1D CUBIC = new RealPolynomialFunction1D(new double[] {1, 3, 3, 1});

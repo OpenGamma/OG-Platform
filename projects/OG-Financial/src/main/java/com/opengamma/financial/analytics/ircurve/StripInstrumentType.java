@@ -52,5 +52,7 @@ public enum StripInstrumentType {
   /** Continuous zero deposit strip */
   CONTINUOUS_ZERO_DEPOSIT,
   /** Spread strip */
-  SPREAD
+  SPREAD,
+  /** Fixed / float swap (28 day floating leg reset tenor) */
+  SWAP_28D
 }

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -93,27 +94,27 @@ public class YieldCurveDataFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
-                                      FunctionInputs inputs,
-                                      ComputationTarget target,
-                                      Set<ValueRequirement> desiredValues) {
-      FixedIncomeStripIdentifierAndMaturityBuilder builder =
-          new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
-                                                           OpenGammaExecutionContext.getConventionBundleSource(executionContext),
-                                                           executionContext.getSecuritySource(),
-                                                           OpenGammaExecutionContext.getHolidaySource(executionContext));
-      SnapshotDataBundle marketData = _helper.getMarketDataMap(inputs);
-      InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities =
-          builder.resolveToSecurity(_curveSpecification, marketData);
-      YieldCurveData curveData = new YieldCurveData(curveSpecificationWithSecurities, marketData.getDataPoints());
-      return ImmutableSet.of(new ComputedValue(_curveSpec, curveSpecificationWithSecurities),
-                             new ComputedValue(_curveDataSpec, curveData));
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      try {
+        final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
+            OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
+        final SnapshotDataBundle marketData = _helper.getMarketDataMap(inputs);
+        final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(getCurveSpecification(), marketData);
+        YieldCurveData curveData = new YieldCurveData(curveSpecificationWithSecurities, marketData.getDataPoints());
+        return ImmutableSet.of(new ComputedValue(_curveSpec, curveSpecificationWithSecurities),
+                               new ComputedValue(_curveDataSpec, curveData));
+      } catch (final OpenGammaRuntimeException e) {
+        throw new OpenGammaRuntimeException("Error in constructing " + _helper.getCurveName() + "_" + _helper.getCurrency() + ": " + e.getMessage());
+      }
     }
+
   }
 
+  @SuppressWarnings("synthetic-access")
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
+    _helper.init(context, this);
+    Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant, this);
     return new CompiledImpl(compile.getFirst(), compile.getSecond(), compile.getThird());
   }
 

@@ -11,15 +11,17 @@ import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.
 
 import org.threeten.bp.Period;
 
+import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Contains information used to construct standard versions of BRL instruments
@@ -33,8 +35,8 @@ public class BRConventions {
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act252 = DayCountFactory.INSTANCE.getDayCount("Actual/252");
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount bus252 = DayCounts.BUSINESS_252;
     final ExternalId br = ExternalSchemes.financialRegionId("BR");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -46,8 +48,8 @@ public class BRConventions {
       final String weekDepositName = "BRL DEPOSIT " + i + "w";
       final ExternalId weekBbgDeposit = bloombergTickerSecurityId("BCDR" + i + "Z Curncy");
       final ExternalId weekSimpleDeposit = simpleNameSecurityId(weekDepositName);
-      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, act252, following, Period.ofDays(i), 2, false, br);
-      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, act252, following, Period.ofDays(i * 7), 2, false, br);
+      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, bus252, following, Period.ofDays(i), 2, false, br);
+      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, bus252, following, Period.ofDays(i * 7), 2, false, br);
     }
 
     for (int i = 1; i < 12; i++) {
@@ -57,17 +59,41 @@ public class BRConventions {
       final String impliedDepositName = "BRL IMPLIED DEPOSIT " + i + "m";
       final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPBRLSPT" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act252, following, Period.ofMonths(i), 2, false, br);
-      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, act252, following, Period.ofMonths(i), 2, false, br);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, bus252, following, Period.ofMonths(i), 2, false, br);
+      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, bus252, following, Period.ofMonths(i), 2, false, br);
     }
 
     for (int i = 1; i < 2; i++) {
       final String depositName = "BRL DEPOSIT " + i + "y";
       final ExternalId bbgDeposit = bloombergTickerSecurityId("BCDR" + i + " Curncy");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act252, following, Period.ofYears(i), 2, false, br);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, bus252, following, Period.ofYears(i), 2, false, br);
     }
 
+    final DayCount swapFixedLegDayCount = DayCounts.BUSINESS_252;
+    final BusinessDayConvention swapFixedLegBusinessDayConvention = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final Frequency swapFixedLegPaymentFrequency = PeriodFrequency.ANNUAL;
+    final int swapFixedLegSettlementDays = 2;
+    final ExternalId swapFixedLegRegion = br;
+    final Frequency swapFixedLegCompoundingFrequency = PeriodFrequency.DAILY;
+    final InterestRate.Type swapFixedLegCompoundingType = InterestRate.Type.CONTINUOUS;
+    final DayCount swapFloatingLegDayCount = DayCounts.BUSINESS_252;
+    final BusinessDayConvention swapFloatingLegBusinessDayConvention = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final Frequency swapFloatingLegPaymentFrequency = PeriodFrequency.ANNUAL;
+    final int swapFloatingLegSettlementDays = 2;
+    final ExternalId swapFloatingLegInitialRate = bloombergTickerSecurityId("BZDIOVRA Index");
+    final ExternalId swapFloatingLegRegion = br;
+    final Frequency swapFloatingLegCompoundingFrequency = PeriodFrequency.DAILY;
+    final InterestRate.Type swapFloatingLegCompoundingType = InterestRate.Type.CONTINUOUS;
+    final boolean isEOM = true;
+
+    utils.addConventionBundle(
+        ExternalIdBundle.of(bloombergTickerSecurityId("BZDIOVRA Index"), simpleNameSecurityId("Brazil Cetip Interbank Deposit Rate")),
+        "Brazil Cetip Interbank Deposit Rate", bus252, following, Period.ofDays(1), 0, false, br, 0);
+
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("BRL_DI_SWAP")), "BRL_DI_SWAP", swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegPaymentFrequency,
+        swapFixedLegSettlementDays, swapFixedLegRegion, swapFixedLegCompoundingFrequency, swapFixedLegCompoundingType, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention,
+        swapFloatingLegPaymentFrequency, swapFloatingLegSettlementDays, swapFloatingLegCompoundingFrequency, swapFloatingLegCompoundingType, swapFloatingLegInitialRate, swapFloatingLegRegion, isEOM);
   }
 
 }

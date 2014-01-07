@@ -34,13 +34,13 @@ public final class CountryFudgeSecondaryType extends SecondaryFieldType<Country,
 
   //-------------------------------------------------------------------------
   @Override
-  public String secondaryToPrimary(Country object) {
+  public String secondaryToPrimary(final Country object) {
     return object.getCode();
   }
 
   @Override
   public Country primaryToSecondary(final String isoCodeOrUniqueId) {
-    if (isoCodeOrUniqueId.length() == 1) {
+    if (isoCodeOrUniqueId.length() == 2) {
       // 2 letters means ISO code
       return Country.of(isoCodeOrUniqueId);
     } else if (isoCodeOrUniqueId.startsWith(Country.OBJECT_SCHEME)) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility;
@@ -10,19 +10,17 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackScholesFormulaRepositoryTest {
   private static final double EPS = 1.e-14;
-  private static final double EPS_EX = 1.e-10;
   private static final double DELTA = 1.e-6;
   private static final double NAN = Double.NaN;
   private static final double INF = Double.POSITIVE_INFINITY;
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final double TIME_TO_EXPIRY = 4.5;
   private static final double SPOT = 100.;
@@ -135,7 +133,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * Test all of the greeks by the finite difference method 
+   * Test all of the greeks by the finite difference method
    */
   @Test
   public void greeksFiniteDiffTest() {
@@ -143,16 +141,16 @@ public class BlackScholesFormulaRepositoryTest {
     final int nVols = VOLS.length;
     final int nInt = INTEREST_RATES.length;
 
-    double[] upStrikes = new double[nStrikes];
-    double[] dwStrikes = new double[nStrikes];
+    final double[] upStrikes = new double[nStrikes];
+    final double[] dwStrikes = new double[nStrikes];
     final double upSpot = SPOT * (1. + DELTA);
     final double dwSpot = SPOT * (1. - DELTA);
     final double upTime = TIME_TO_EXPIRY * (1. + DELTA);
     final double dwTime = TIME_TO_EXPIRY * (1. - DELTA);
-    double[] upVOLS = new double[nVols];
-    double[] dwVOLS = new double[nVols];
-    double[] upInt = new double[nInt];
-    double[] dwInt = new double[nInt];
+    final double[] upVOLS = new double[nVols];
+    final double[] dwVOLS = new double[nVols];
+    final double[] upInt = new double[nInt];
+    final double[] dwInt = new double[nInt];
     final double upCost = COST_OF_CARRY * (1. + DELTA);
     final double dwCost = COST_OF_CARRY * (1. - DELTA);
 
@@ -301,7 +299,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void strikeForDeltaRecoveryTest() {
@@ -324,12 +322,12 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /*
-   * 
-   * Tests below are checking that limiting case is properly realized  
-   * Since the formula typically becomes ambiguous when several inputs are very large/small at the same time, 
+   *
+   * Tests below are checking that limiting case is properly realized
+   * Since the formula typically becomes ambiguous when several inputs are very large/small at the same time,
    * we just check that a reference value (rather than NaN) is returned for that case.
-   * 
-   * 
+   *
+   *
    */
 
   /**
@@ -384,7 +382,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.price(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.price(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -574,9 +571,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or negative value is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -665,7 +662,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.delta(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.delta(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -855,9 +851,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -946,7 +942,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.dualDelta(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.dualDelta(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -1136,9 +1131,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -1223,7 +1218,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.gamma(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.gamma(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -1390,9 +1384,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -1474,7 +1468,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.dualGamma(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.dualGamma(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -1641,9 +1634,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -1725,7 +1718,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.crossGamma(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.crossGamma(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -1892,9 +1884,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -1980,7 +1972,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.theta(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.theta(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -2175,9 +2166,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -2264,7 +2255,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.charm(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.charm(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -2459,9 +2449,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -2548,7 +2538,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.dualCharm(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.dualCharm(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -2743,9 +2732,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -2828,7 +2817,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.vega(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.vega(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -2995,9 +2983,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -3079,7 +3067,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.vanna(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.vanna(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -3246,9 +3233,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -3330,7 +3317,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.dualVanna(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.dualVanna(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -3497,9 +3483,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -3581,7 +3567,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.vomma(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.vomma(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -3748,9 +3733,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -3832,7 +3817,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.vegaBleed(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
           final double resC2 = BlackScholesFormulaRepository.vegaBleed(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY);
@@ -3999,9 +3983,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -4087,7 +4071,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.rho(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.rho(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -4278,9 +4261,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -4369,7 +4352,6 @@ public class BlackScholesFormulaRepositoryTest {
       for (int j = 0; j < nVols; ++j) {
         for (int l = 0; l < nInt; ++l) {
           final double rate = INTEREST_RATES[l];
-          final double SPOT = STRIKES_INPUT[i];
           final double vol = VOLS[j];
           final double resC1 = BlackScholesFormulaRepository.carryRho(SPOT, 1.e-12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
           final double resC2 = BlackScholesFormulaRepository.carryRho(SPOT, 1.e12 * SPOT, TIME_TO_EXPIRY, vol, rate, COST_OF_CARRY, true);
@@ -4560,9 +4542,9 @@ public class BlackScholesFormulaRepositoryTest {
     }
 
     /*
-     * 
+     *
      * Since the reference value is as descent as BlackFormulaRepository, below just check NaN or wrong signature is not produced
-     * 
+     *
      */
     final int nSpt = SPOT_EX.length;
     final int nStr = STRIKES_INPUT_EX.length;
@@ -4600,14 +4582,14 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /*
-   * 
+   *
    * Error tests
-   * 
-   * 
+   *
+   *
    */
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorstrikeForDeltaTest() {
@@ -4615,7 +4597,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorstrikeForDeltaTest() {
@@ -4623,7 +4605,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorstrikeForDeltaTest() {
@@ -4631,7 +4613,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void rangeErrorstrikeForDelta1Test() {
@@ -4639,7 +4621,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void rangeErrorstrikeForDelta2Test() {
@@ -4647,7 +4629,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void rangeErrorstrikeForDelta3Test() {
@@ -4655,7 +4637,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void rangeErrorstrikeForDelta4Test() {
@@ -4663,7 +4645,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorPriceTest() {
@@ -4671,7 +4653,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorPriceTest() {
@@ -4679,7 +4661,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorPriceTest() {
@@ -4687,7 +4669,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorPriceTest() {
@@ -4695,7 +4677,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorPriceTest() {
@@ -4703,7 +4685,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorPriceTest() {
@@ -4711,7 +4693,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrordeltaTest() {
@@ -4719,7 +4701,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrordeltaTest() {
@@ -4727,7 +4709,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrordeltaTest() {
@@ -4735,7 +4717,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrordeltaTest() {
@@ -4743,7 +4725,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrordeltaTest() {
@@ -4751,7 +4733,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrordeltaTest() {
@@ -4759,7 +4741,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrordualDeltaTest() {
@@ -4767,7 +4749,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrordualDeltaTest() {
@@ -4775,7 +4757,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrordualDeltaTest() {
@@ -4783,7 +4765,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrordualDeltaTest() {
@@ -4791,7 +4773,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrordualDeltaTest() {
@@ -4799,7 +4781,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrordualDeltaTest() {
@@ -4807,7 +4789,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorgammaTest() {
@@ -4815,7 +4797,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorgammaTest() {
@@ -4823,7 +4805,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorgammaTest() {
@@ -4831,7 +4813,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorgammaTest() {
@@ -4839,7 +4821,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorgammaTest() {
@@ -4847,7 +4829,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorgammaTest() {
@@ -4855,7 +4837,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrordualGammaTest() {
@@ -4863,7 +4845,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrordualGammaTest() {
@@ -4871,7 +4853,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrordualGammaTest() {
@@ -4879,7 +4861,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrordualGammaTest() {
@@ -4887,7 +4869,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrordualGammaTest() {
@@ -4895,7 +4877,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrordualGammaTest() {
@@ -4903,7 +4885,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorcrossGammaTest() {
@@ -4911,7 +4893,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorcrossGammaTest() {
@@ -4919,7 +4901,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorcrossGammaTest() {
@@ -4927,7 +4909,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorcrossGammaTest() {
@@ -4935,7 +4917,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorcrossGammaTest() {
@@ -4943,7 +4925,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorcrossGammaTest() {
@@ -4951,7 +4933,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorthetaTest() {
@@ -4959,7 +4941,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorthetaTest() {
@@ -4967,7 +4949,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorthetaTest() {
@@ -4975,7 +4957,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorthetaTest() {
@@ -4983,7 +4965,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorthetaTest() {
@@ -4991,7 +4973,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorthetaTest() {
@@ -4999,7 +4981,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorcharmTest() {
@@ -5007,7 +4989,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorcharmTest() {
@@ -5015,7 +4997,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorcharmTest() {
@@ -5023,7 +5005,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorcharmTest() {
@@ -5031,7 +5013,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorcharmTest() {
@@ -5039,7 +5021,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorcharmTest() {
@@ -5047,7 +5029,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrordualCharmTest() {
@@ -5055,7 +5037,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrordualCharmTest() {
@@ -5063,7 +5045,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrordualCharmTest() {
@@ -5071,7 +5053,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrordualCharmTest() {
@@ -5079,7 +5061,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrordualCharmTest() {
@@ -5087,7 +5069,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrordualCharmTest() {
@@ -5095,7 +5077,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorvegaTest() {
@@ -5103,7 +5085,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorvegaTest() {
@@ -5111,7 +5093,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorvegaTest() {
@@ -5119,7 +5101,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorvegaTest() {
@@ -5127,7 +5109,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorvegaTest() {
@@ -5135,7 +5117,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorvegaTest() {
@@ -5143,7 +5125,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorvannaTest() {
@@ -5151,7 +5133,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorvannaTest() {
@@ -5159,7 +5141,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorvannaTest() {
@@ -5167,7 +5149,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorvannaTest() {
@@ -5175,7 +5157,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorvannaTest() {
@@ -5183,7 +5165,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorvannaTest() {
@@ -5191,7 +5173,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrordualVannaTest() {
@@ -5199,7 +5181,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrordualVannaTest() {
@@ -5207,7 +5189,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrordualVannaTest() {
@@ -5215,7 +5197,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrordualVannaTest() {
@@ -5223,7 +5205,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrordualVannaTest() {
@@ -5231,7 +5213,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrordualVannaTest() {
@@ -5239,7 +5221,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorvommaTest() {
@@ -5247,7 +5229,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorvommaTest() {
@@ -5255,7 +5237,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorvommaTest() {
@@ -5263,7 +5245,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorvommaTest() {
@@ -5271,7 +5253,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorvommaTest() {
@@ -5279,7 +5261,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorvommaTest() {
@@ -5287,7 +5269,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorvegaBleedTest() {
@@ -5295,7 +5277,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorvegaBleedTest() {
@@ -5303,7 +5285,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorvegaBleedTest() {
@@ -5311,7 +5293,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorvegaBleedTest() {
@@ -5319,7 +5301,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorvegaBleedTest() {
@@ -5327,7 +5309,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorvegaBleedTest() {
@@ -5335,7 +5317,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorrhoTest() {
@@ -5343,7 +5325,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorrhoTest() {
@@ -5351,7 +5333,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorrhoTest() {
@@ -5359,7 +5341,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorrhoTest() {
@@ -5367,7 +5349,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorrhoTest() {
@@ -5375,7 +5357,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorrhoTest() {
@@ -5383,7 +5365,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorcarryRhoTest() {
@@ -5391,7 +5373,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotErrorcarryRhoTest() {
@@ -5399,7 +5381,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorcarryRhoTest() {
@@ -5407,7 +5389,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorcarryRhoTest() {
@@ -5415,7 +5397,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanIntErrorcarryRhoTest() {
@@ -5423,7 +5405,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nanCarryErrorcarryRhoTest() {
@@ -5431,13 +5413,13 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /*
-   * 
+   *
    * Tests below are for debugging
-   * 
-   * 
+   *
+   *
    */
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)
@@ -5486,7 +5468,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)
@@ -5498,7 +5480,7 @@ public class BlackScholesFormulaRepositoryTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)

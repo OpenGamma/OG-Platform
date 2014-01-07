@@ -25,11 +25,11 @@ public final class CreditDefaultSwapBeanOperation {
     bean.setAdjustEffectiveDate(security.isAdjustEffectiveDate());
     bean.setAdjustMaturityDate(security.isAdjustMaturityDate());
     bean.setBusinessDayConvention(
-        secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getConventionName()));
+        secMasterSession.getOrCreateBusinessDayConventionBean(security.getBusinessDayConvention().getName()));
     bean.setBuy(security.isBuy());
     bean.setCouponFrequency(
-        secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getConventionName()));
-    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName()));
+        secMasterSession.getOrCreateFrequencyBean(security.getCouponFrequency().getName()));
+    bean.setDayCount(secMasterSession.getOrCreateDayCountBean(security.getDayCount().getName()));
     bean.setDebtSeniority(secMasterSession.getOrCreateDebtSeniorityBean(security.getDebtSeniority().name()));
     bean.setEffectiveDate(dateTimeWithZoneToZonedDateTimeBean(security.getEffectiveDate()));
     bean.setImmAdjustMaturityDate(security.isImmAdjustMaturityDate());
@@ -39,7 +39,6 @@ public final class CreditDefaultSwapBeanOperation {
     bean.setProtectionBuyer(externalIdToExternalIdBean(security.getProtectionBuyer()));
     bean.setProtectionSeller(externalIdToExternalIdBean(security.getProtectionSeller()));
     bean.setProtectionStart(security.isProtectionStart());
-    bean.setRecoveryRate(security.getRecoveryRate());
     bean.setReferenceEntity(externalIdToExternalIdBean(security.getReferenceEntity()));
     bean.setRegionId(externalIdToExternalIdBean(security.getRegionId()));
     bean.setRestructuringClause(

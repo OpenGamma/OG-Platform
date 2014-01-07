@@ -30,6 +30,7 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -131,7 +132,7 @@ public class LoggingViewportListenerTest {
   private static GridStructure gridStructure(final List<GridCell> cells) {
     final GridStructure mock = mock(GridStructure.class);
     for (final GridCell cell : cells) {
-      when(mock.getTargetForCell(cell.getRow(), cell.getColumn())).thenReturn(target(cell));
+      when(mock.getValueSpecificationForCell(cell.getRow(), cell.getColumn())).thenReturn(target(cell));
     }
     return mock;
   }
@@ -142,7 +143,7 @@ public class LoggingViewportListenerTest {
     final ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.POSITION,
                                                                                UniqueId.of("Cell", row + "," + col));
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "fnName").get();
-    return Pair.of("Default", new ValueSpecification("valueName(" + row + "," + col + ")", target, properties));
+    return Pairs.of("Default", new ValueSpecification("valueName(" + row + "," + col + ")", target, properties));
   }
 
   private Set<Pair<String, ValueSpecification>> resultSpecs(final GridCell... cells) {

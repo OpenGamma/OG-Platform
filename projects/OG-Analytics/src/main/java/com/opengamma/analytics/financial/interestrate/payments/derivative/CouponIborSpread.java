@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -214,10 +214,16 @@ public class CouponIborSpread extends CouponFloating {
     return withSpread(0.0);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIborSpread withNotional(final double notional) {
-    return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingAccrualFactor(), getSpread(), getForwardCurveName());
+    try {
+      return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(),
+          getFixingPeriodEndTime(), getFixingAccrualFactor(), getSpread(), getForwardCurveName());
+    } catch (final IllegalStateException e) {
+      return new CouponIborSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(),
+          getFixingPeriodEndTime(), getFixingAccrualFactor(), getSpread());
+    }
   }
 
   @Override
@@ -273,13 +279,15 @@ public class CouponIborSpread extends CouponFloating {
     return true;
   }
 
+  @SuppressWarnings("deprecation")
   public CouponIborSpread withSpread(final double spread) {
-    return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), _index, getFixingPeriodStartTime(),
-        getFixingPeriodEndTime(), getFixingAccrualFactor(), spread, getForwardCurveName());
-  }
-
-  public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
+    try {
+      return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), _index, getFixingPeriodStartTime(),
+          getFixingPeriodEndTime(), getFixingAccrualFactor(), spread, getForwardCurveName());
+    } catch (final IllegalStateException e) {
+      return new CouponIborSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getFixingTime(), _index, getFixingPeriodStartTime(),
+          getFixingPeriodEndTime(), getFixingAccrualFactor(), spread);
+    }
   }
 
   @Override

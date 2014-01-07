@@ -43,7 +43,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     ArgumentChecker.notNull(yValues, "yValues");
 
     ArgumentChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
-    ArgumentChecker.isTrue(xValues.length > 2, "Data points should be more than 2");
+    ArgumentChecker.isTrue(xValues.length > 4, "Data points should be more than 4");
 
     final int nDataPts = xValues.length;
     final int yValuesLen = yValues.length;
@@ -97,7 +97,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
     ArgumentChecker.isTrue(xValues.length == yValuesMatrix[0].length | xValues.length + 2 == yValuesMatrix[0].length,
         "(xValues length = yValuesMatrix's row vector length) or (xValues length + 2 = yValuesMatrix's row vector length)");
-    ArgumentChecker.isTrue(xValues.length > 2, "Data points should be more than 2");
+    ArgumentChecker.isTrue(xValues.length > 4, "Data points should be more than 4");
 
     final int nDataPts = xValues.length;
     final int yValuesLen = yValuesMatrix[0].length;
@@ -170,7 +170,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     ArgumentChecker.notNull(yValues, "yValues");
 
     ArgumentChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
-    ArgumentChecker.isTrue(xValues.length > 2, "Data points should be more than 2");
+    ArgumentChecker.isTrue(xValues.length > 4, "Data points should be more than 4");
 
     final int nDataPts = xValues.length;
     final int yValuesLen = yValues.length;

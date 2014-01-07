@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -38,20 +38,19 @@ import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of physical delivery swaption in LMM displaced diffusion.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborLMMDDMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
 
@@ -60,7 +59,7 @@ public class CapFloorIborLMMDDMethodTest {
   private static final int SWAP_TENOR_YEAR = 4;
   private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
 
-  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor(NOT_USED, EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M, CALENDAR);
+  private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("Ibor", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M, CALENDAR);
   private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR3MEURIBOR3M, SWAP_TENOR);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EURIBOR3M.getSpotLag(), CALENDAR);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, EURIBOR3M.getSpotLag(), CALENDAR);
@@ -70,26 +69,26 @@ public class CapFloorIborLMMDDMethodTest {
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_INDEX, NOTIONAL, STRIKE, FIXED_IS_PAYER, CALENDAR);
   //to derivatives
 
-  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final int NB_CPN_IBOR = SWAP_PAYER.getSecondLeg().getNumberOfPayments();
   private static final boolean IS_CAP = true;
 
   private static final CouponIbor COUPON_IBOR_LAST = (CouponIbor) SWAP_PAYER.getSecondLeg().getNthPayment(NB_CPN_IBOR - 1);
   private static final CouponFixed COUPON_FIXED_LAST = SWAP_PAYER.getFirstLeg().getNthPayment(NB_CPN_IBOR - 1);
-  private static final CapFloorIbor CAP_LAST = new CapFloorIbor(EUR, COUPON_IBOR_LAST.getPaymentTime(), NOT_USED, COUPON_IBOR_LAST.getPaymentYearFraction(), NOTIONAL,
+  private static final CapFloorIbor CAP_LAST = new CapFloorIbor(EUR, COUPON_IBOR_LAST.getPaymentTime(), COUPON_IBOR_LAST.getPaymentYearFraction(), NOTIONAL,
       COUPON_IBOR_LAST.getFixingTime(), EURIBOR3M, COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingAccrualFactor(),
-      COUPON_IBOR_LAST.getForwardCurveName(), STRIKE, IS_CAP);
-  private static final CapFloorIbor FLOOR_LAST = new CapFloorIbor(EUR, COUPON_IBOR_LAST.getPaymentTime(), NOT_USED, COUPON_IBOR_LAST.getPaymentYearFraction(), NOTIONAL,
+      STRIKE, IS_CAP);
+  private static final CapFloorIbor FLOOR_LAST = new CapFloorIbor(EUR, COUPON_IBOR_LAST.getPaymentTime(), COUPON_IBOR_LAST.getPaymentYearFraction(), NOTIONAL,
       COUPON_IBOR_LAST.getFixingTime(), EURIBOR3M, COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingAccrualFactor(),
-      COUPON_IBOR_LAST.getForwardCurveName(), STRIKE, !IS_CAP);
-  private static final CapFloorIbor CAP_LAST_SHORT = new CapFloorIbor(EUR, COUPON_IBOR_LAST.getPaymentTime(), NOT_USED, COUPON_IBOR_LAST.getPaymentYearFraction(), -NOTIONAL,
+      STRIKE, !IS_CAP);
+  private static final CapFloorIbor CAP_LAST_SHORT = new CapFloorIbor(EUR, COUPON_IBOR_LAST.getPaymentTime(), COUPON_IBOR_LAST.getPaymentYearFraction(), -NOTIONAL,
       COUPON_IBOR_LAST.getFixingTime(), EURIBOR3M, COUPON_IBOR_LAST.getFixingPeriodStartTime(), COUPON_IBOR_LAST.getFixingPeriodEndTime(), COUPON_IBOR_LAST.getFixingAccrualFactor(),
-      COUPON_IBOR_LAST.getForwardCurveName(), STRIKE, IS_CAP);
+      STRIKE, IS_CAP);
 
   private static final CouponIbor COUPON_IBOR_6 = (CouponIbor) SWAP_PAYER.getSecondLeg().getNthPayment(6);
-  private static final CapFloorIbor CAP_6 = new CapFloorIbor(EUR, COUPON_IBOR_6.getPaymentTime(), COUPON_IBOR_6.getFundingCurveName(), COUPON_IBOR_6.getPaymentYearFraction(), NOTIONAL,
+  private static final CapFloorIbor CAP_6 = new CapFloorIbor(EUR, COUPON_IBOR_6.getPaymentTime(), COUPON_IBOR_6.getPaymentYearFraction(), NOTIONAL,
       COUPON_IBOR_6.getFixingTime(), EURIBOR3M, COUPON_IBOR_6.getFixingPeriodStartTime(), COUPON_IBOR_6.getFixingPeriodEndTime(), COUPON_IBOR_6.getFixingAccrualFactor(),
-      COUPON_IBOR_6.getForwardCurveName(), STRIKE, IS_CAP);
+      STRIKE, IS_CAP);
   // Parameters and methods
   private static final int NB_PATH = 12500;
 

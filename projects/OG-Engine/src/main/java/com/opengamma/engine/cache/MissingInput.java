@@ -16,7 +16,11 @@ public enum MissingInput implements MissingValue {
   /**
    * Value used in place of the input when market data could not be obtained.
    */
-  MISSING_MARKET_DATA("Missing market data");
+  MISSING_MARKET_DATA("Missing market data"),
+  /**
+   * Value used in place of the input when market data was available but could not be used.
+   */
+  INSUFFICIENT_MARKET_DATA("Insufficient market data");
     
   private final String _reason;
 

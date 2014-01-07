@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of the data required to describe a delta dependent smile from ATM, risk reversal and strangle as used in Forex market.
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileDeltaParametersTest {
 
   private static final double TIME_TO_EXPIRY = 2.0;

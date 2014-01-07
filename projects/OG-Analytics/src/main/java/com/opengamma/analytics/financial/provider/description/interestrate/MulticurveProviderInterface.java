@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -11,9 +11,8 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface of a multi-curves framework providing discounting factors, forward rate (linked to Ibor index), issuer/currency specific curves and currency exchange rates.
@@ -29,11 +28,11 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
 
   /**
    * Gets the discount factor for one currency at a given time to maturity.
-   * TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
    * @param ccy The currency.
    * @param time The time.
    * @return The discount factor.
    */
+  // TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
   double getDiscountFactor(Currency ccy, Double time);
 
   /**
@@ -47,15 +46,34 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
 
   /**
+   * Gets the forward for one Ibor index between start and end times.The accrual factor is computed withh the start and the end time (end time -start time).
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @return The forward rate.
+   */
+  double getForwardRate(IborIndex index, double startTime, double endTime);
+
+  /**
    * Gets the forward for one Ibor index between start and end times.
-   * TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.
    * @param accrualFactor The Ibor accrual factor.
    * @return The forward rate.
    */
+  // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
   double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
+
+  /**
+   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed withh the start and the end time (end time -start time).
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @return The forward rate.
+   */
+  // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
+  double getForwardRate(IndexON index, double startTime, double endTime);
 
   /**
    * Return the exchange rate between two currencies.
@@ -65,12 +83,6 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    */
   double getFxRate(final Currency ccy1, final Currency ccy2);
 
-  // TODO: Maybe some of the methods below should be in an implementation class.
-
-  double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);
-
-  double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
-
   /**
    * Gets the number of parameters for a curve described by its name.
    * @param name The curve name.
@@ -78,6 +90,12 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    */
   Integer getNumberOfParameters(String name);
 
+  /**
+   * Gets the underlying name(s) (i.e. {@link YieldAndDiscountCurve#getName()} for a curve name;
+   * this can be multi-valued in the case of spread curves.
+   * @param name The curve name
+   * @return The name(s) of the underlying curves.
+   */
   List<String> getUnderlyingCurvesNames(String name);
 
   //     =====     Related methods for the discounting curves     =====

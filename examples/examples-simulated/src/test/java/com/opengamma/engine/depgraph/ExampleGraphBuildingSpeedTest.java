@@ -7,10 +7,11 @@ package com.opengamma.engine.depgraph;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -56,7 +57,6 @@ import com.opengamma.util.test.TestGroup;
  * <p>
  * Although timings can be reported, the repeated attempts to build the graph are more useful to detect faults with the graph building algorithm - for example inconsistent behaviors.
  */
-@Test(groups = TestGroup.INTEGRATION)
 public class ExampleGraphBuildingSpeedTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleGraphBuildingSpeedTest.class);
@@ -70,7 +70,7 @@ public class ExampleGraphBuildingSpeedTest {
   private CacheManager _cacheManager;
   private List<String> _report;
 
-  @BeforeClass(timeOut = 20_000L)
+  @BeforeClass(timeOut = 40_000L)
   public void initialise() {
     final ComponentManager manager = new ComponentManager("test");
     manager.start("classpath:/fullstack/fullstack-examplessimulated-test.properties");
@@ -81,7 +81,7 @@ public class ExampleGraphBuildingSpeedTest {
     _report = new LinkedList<String>();
   }
 
-  @AfterClass(timeOut = 20_000L)
+  @AfterClass(timeOut = 40_000L)
   public void cleanup() {
     if (_repo != null) {
       _repo.stop();
@@ -112,7 +112,7 @@ public class ExampleGraphBuildingSpeedTest {
     return new ViewCompilationServices(mdap, functionResolver, cfs.getFunctionCompilationContext(), cfs.getExecutorService(), dependencyGraphBuilder);
   }
 
-  @Test(dataProvider = "viewDefinitions", enabled = true)
+  @Test(dataProvider = "viewDefinitions", enabled = true, groups = TestGroup.INTEGRATION)
   public void runTimingTest(final ViewDefinition view) {
     if (view == null) {
       s_logger.warn("Skipping - passed null");
@@ -134,19 +134,24 @@ public class ExampleGraphBuildingSpeedTest {
             VersionCorrection.LATEST);
         final long tStop = System.nanoTime();
         s_logger.info("Compilation {} of view in {}ms", i, (tStop - tStart) / 1e6);
-        _report.add("Compilation " + j + "/" + i + " of " + view.getName() + " in " + ((tStop - tStart) / 1e6) + "ms");
+        final Map<String, Integer> nodeCounts = new HashMap<String, Integer>();
         for (final DependencyGraph graph : CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compiled)) {
-          if (graph.getTerminalOutputSpecifications().isEmpty()) {
+          if (graph.getTerminalOutputs().isEmpty()) {
             s_logger.warn("Didn't compile any terminal output specifications into the graph for {}", graph.getCalculationConfigurationName());
-            fail();
-          } else {
-            s_logger.debug("{} graph = {} output specifications from {} nodes", new Object[] {graph.getCalculationConfigurationName(), graph.getTerminalOutputSpecifications().size(),
-                graph.getDependencyNodes().size() });
             if (terminalOutputs.get(graph.getCalculationConfigurationName()) == null) {
-              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputSpecifications());
+              nodeCounts.put(graph.getCalculationConfigurationName(), 0);
+              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs().keySet());
             } else {
-              final Set<ValueSpecification> missing = Sets.difference(terminalOutputs.get(graph.getCalculationConfigurationName()), graph.getTerminalOutputSpecifications());
-              final Set<ValueSpecification> extra = Sets.difference(graph.getTerminalOutputSpecifications(), terminalOutputs.get(graph.getCalculationConfigurationName()));
+              assertEquals(terminalOutputs.get(graph.getCalculationConfigurationName()).size(), 0);
+            }
+          } else {
+            s_logger.debug("{} graph = {} output specifications from {} nodes", new Object[] {graph.getCalculationConfigurationName(), graph.getTerminalOutputs().size(), graph.getSize() });
+            nodeCounts.put(graph.getCalculationConfigurationName(), graph.getSize());
+            if (terminalOutputs.get(graph.getCalculationConfigurationName()) == null) {
+              terminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs().keySet());
+            } else {
+              final Set<ValueSpecification> missing = Sets.difference(terminalOutputs.get(graph.getCalculationConfigurationName()), graph.getTerminalOutputs().keySet());
+              final Set<ValueSpecification> extra = Sets.difference(graph.getTerminalOutputs().keySet(), terminalOutputs.get(graph.getCalculationConfigurationName()));
               if (!missing.isEmpty()) {
                 if (missing.size() < 8) {
                   s_logger.info("Missing = {}", missing);
@@ -165,7 +170,7 @@ public class ExampleGraphBuildingSpeedTest {
                   }
                 }
               }
-              assertEquals(graph.getTerminalOutputSpecifications().size(), terminalOutputs.get(graph.getCalculationConfigurationName()).size());
+              assertEquals(graph.getTerminalOutputs().size(), terminalOutputs.get(graph.getCalculationConfigurationName()).size());
               assertEquals(missing.size(), extra.size());
               final Collection<ValueSpecification> extraCopy = new LinkedList<ValueSpecification>(extra);
               for (ValueSpecification vs1 : missing) {
@@ -188,6 +193,14 @@ public class ExampleGraphBuildingSpeedTest {
             }
           }
         }
+        final List<String> configs = new ArrayList<String>(nodeCounts.keySet());
+        Collections.sort(configs);
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Compilation ").append(j).append("/").append(i).append(" of ").append(view.getName()).append(" in ").append((tStop - tStart) / 1e6).append("ms");
+        for (String config : configs) {
+          sb.append(' ').append(config).append('=').append(nodeCounts.get(config));
+        }
+        _report.add(sb.toString());
       }
     }
   }

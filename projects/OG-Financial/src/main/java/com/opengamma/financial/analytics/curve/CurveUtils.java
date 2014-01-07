@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,6 @@ import java.util.TreeSet;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -22,7 +22,6 @@ import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -33,7 +32,35 @@ import com.opengamma.util.money.Currency;
 public class CurveUtils {
 
   /**
-   * Gets a {@link CurveSpecification} from the configuration database that is valid at a particular time.
+   * Builds a {@link CurveSpecification} from a curve definition that is valid at a particular time. This
+   * method handles only {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
+   * @param valuationTime The valuation time, not null
+   * @param configSource The config source, not null
+   * @param curveDate The curve date, not null
+   * @param curveName The curve name, not null
+   * @return The curve specification
+   * @throws OpenGammaRuntimeException if the curve definition is not found.
+   * @deprecated This method does not handle definition types other than {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
+   * Use {@link #getSpecification(Instant, ConfigSource, LocalDate, String)}.
+   */
+  @Deprecated
+  public static CurveSpecification getCurveSpecification(final Instant valuationTime, final ConfigSource configSource, final LocalDate curveDate, final String curveName) {
+    ArgumentChecker.notNull(valuationTime, "valuation time");
+    ArgumentChecker.notNull(configSource, "config source");
+    ArgumentChecker.notNull(curveDate, "curve date");
+    ArgumentChecker.notNull(curveName, "curve name");
+    final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
+    final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName, VersionCorrection.LATEST);
+    if (curveDefinition == null) {
+      throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
+    }
+    final CurveSpecificationBuilder curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
+    return curveSpecificationBuilder.buildCurve(valuationTime, curveDate, curveDefinition);
+  }
+
+  /**
+   * Builds a {@link CurveSpecification} from a curve definition that is valid at a particular time. This
+   * method handles only {@link CurveDefinition} and {@link InterpolatedCurveDefinition}.
    * @param valuationTime The valuation time, not null
    * @param configSource The config source, not null
    * @param curveDate The curve date, not null
@@ -41,19 +68,18 @@ public class CurveUtils {
    * @return The curve specification
    * @throws OpenGammaRuntimeException if the curve definition is not found.
    */
-  public static CurveSpecification getCurveSpecification(final Instant valuationTime, final ConfigSource configSource, final LocalDate curveDate, final String curveName) {
+  public static AbstractCurveSpecification getSpecification(final Instant valuationTime, final ConfigSource configSource, final LocalDate curveDate, final String curveName) {
     ArgumentChecker.notNull(valuationTime, "valuation time");
     ArgumentChecker.notNull(configSource, "config source");
     ArgumentChecker.notNull(curveDate, "curve date");
     ArgumentChecker.notNull(curveName, "curve name");
-    final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
-    final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName, VersionCorrection.of(versionTime, versionTime));
+    final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveName, VersionCorrection.LATEST);
     if (curveDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
     }
     final CurveSpecificationBuilder curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(configSource);
-    return curveSpecificationBuilder.buildCurve(valuationTime, curveDate, curveDefinition);
+    return curveSpecificationBuilder.buildSpecification(valuationTime, curveDate, curveDefinition);
   }
 
   /**
@@ -76,31 +102,36 @@ public class CurveUtils {
    * Gets the definitions for all of the curves in a configuration, including any in exogenous configurations.
    * @param configuration The curve construction configuration, not null
    * @param configSource The config source that contains information about any exogenous curve configurations, not null
-   * @param valuationTime The valuation time, not null
-   * @param conventionSource The convention source, not null
+   * @param versionCorrection The version-correction, not null
    * @param curveNodeCurrencyVisitor The curve node currency visitor, not null
    * @return An ordered set of currencies for these curves
    * @throws OpenGammaRuntimeException if any of the definitions are not found
    */
-  public static Set<Currency> getCurrencies(final CurveConstructionConfiguration configuration, final ConfigSource configSource, final Instant valuationTime,
-      final ConventionSource conventionSource, final CurveNodeVisitor<Set<Currency>> curveNodeCurrencyVisitor) {
+  public static Set<Currency> getCurrencies(final CurveConstructionConfiguration configuration, final ConfigSource configSource, final VersionCorrection versionCorrection,
+      final CurveNodeVisitor<Set<Currency>> curveNodeCurrencyVisitor) {
     ArgumentChecker.notNull(configuration, "configuration");
     ArgumentChecker.notNull(configSource, "config source");
-    ArgumentChecker.notNull(valuationTime, "valuation time");
-    ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ArgumentChecker.notNull(curveNodeCurrencyVisitor, "curve node currency visitor");
-    final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
     final Set<Currency> currencies = new TreeSet<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
       for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         final String curveName = entry.getKey();
-        final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(curveName, VersionCorrection.of(versionTime, versionTime));
+        final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveName, versionCorrection);
         if (curveDefinition == null) {
           throw new OpenGammaRuntimeException("Could not get curve definition called " + curveName);
         }
-        for (final CurveNode node : curveDefinition.getNodes()) {
-          currencies.addAll(node.accept(curveNodeCurrencyVisitor));
+        if (curveDefinition instanceof InterpolatedCurveDefinition) {
+          for (final CurveNode node : ((InterpolatedCurveDefinition) curveDefinition).getNodes()) {
+            currencies.addAll(node.accept(curveNodeCurrencyVisitor));
+          }
+        } else if (curveDefinition instanceof CurveDefinition) {
+          for (final CurveNode node : ((InterpolatedCurveDefinition) curveDefinition).getNodes()) {
+            currencies.addAll(node.accept(curveNodeCurrencyVisitor));
+          }
+        } else {
+          return Collections.emptySet();
         }
       }
     }
@@ -108,8 +139,8 @@ public class CurveUtils {
     if (exogenousConfigurations != null && !exogenousConfigurations.isEmpty()) {
       final CurveConstructionConfigurationSource source = new ConfigDBCurveConstructionConfigurationSource(configSource);
       for (final String name : exogenousConfigurations) {
-        final CurveConstructionConfiguration exogenousConfiguration = source.getCurveConstructionConfiguration(name, VersionCorrection.of(versionTime, versionTime));
-        currencies.addAll(getCurrencies(exogenousConfiguration, configSource, valuationTime, conventionSource, curveNodeCurrencyVisitor));
+        final CurveConstructionConfiguration exogenousConfiguration = source.getCurveConstructionConfiguration(name, versionCorrection);
+        currencies.addAll(getCurrencies(exogenousConfiguration, configSource, versionCorrection, curveNodeCurrencyVisitor));
       }
     }
     return currencies;

@@ -7,6 +7,7 @@ package com.opengamma.provider.historicaltimeseries;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -73,24 +74,47 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
     return HistoricalTimeSeriesProviderGetResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        return getResultMap();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series that were obtained.
+   * @return the value of the property, not null
+   */
+  public Map<ExternalIdBundle, LocalDateDoubleTimeSeries> getResultMap() {
+    return _resultMap;
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Sets the time-series that were obtained.
+   * @param resultMap  the new value of the property, not null
+   */
+  public void setResultMap(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> resultMap) {
+    JodaBeanUtils.notNull(resultMap, "resultMap");
+    this._resultMap.clear();
+    this._resultMap.putAll(resultMap);
+  }
+
+  /**
+   * Gets the the {@code resultMap} property.
+   * @return the property, not null
+   */
+  public final Property<Map<ExternalIdBundle, LocalDateDoubleTimeSeries>> resultMap() {
+    return metaBean().resultMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        setResultMap((Map<ExternalIdBundle, LocalDateDoubleTimeSeries>) newValue);
-        return;
+  public HistoricalTimeSeriesProviderGetResult clone() {
+    BeanBuilder<? extends HistoricalTimeSeriesProviderGetResult> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
     }
-    super.propertySet(propertyName, newValue, quiet);
+    return builder.build();
   }
 
   @Override
@@ -112,30 +136,21 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
     return hash;
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the time-series that were obtained.
-   * @return the value of the property
-   */
-  public Map<ExternalIdBundle, LocalDateDoubleTimeSeries> getResultMap() {
-    return _resultMap;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("HistoricalTimeSeriesProviderGetResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the time-series that were obtained.
-   * @param resultMap  the new value of the property
-   */
-  public void setResultMap(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> resultMap) {
-    this._resultMap.clear();
-    this._resultMap.putAll(resultMap);
-  }
-
-  /**
-   * Gets the the {@code resultMap} property.
-   * @return the property, not null
-   */
-  public final Property<Map<ExternalIdBundle, LocalDateDoubleTimeSeries>> resultMap() {
-    return metaBean().resultMap().createProperty(this);
+  protected void toString(StringBuilder buf) {
+    buf.append("resultMap").append('=').append(JodaBeanUtils.toString(getResultMap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -198,6 +213,32 @@ public class HistoricalTimeSeriesProviderGetResult extends DirectBean {
      */
     public final MetaProperty<Map<ExternalIdBundle, LocalDateDoubleTimeSeries>> resultMap() {
       return _resultMap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          return ((HistoricalTimeSeriesProviderGetResult) bean).getResultMap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          ((HistoricalTimeSeriesProviderGetResult) bean).setResultMap((Map<ExternalIdBundle, LocalDateDoubleTimeSeries>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetResult) bean)._resultMap, "resultMap");
     }
 
   }

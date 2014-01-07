@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -22,6 +23,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Tests related to the construction of volatility sensitivity data bundle.
  */
+@Test(groups = TestGroup.UNIT)
 public class PresentValueVolatilitySensitivityDataBundleTest {
 
   private static final Currency CUR_1 = Currency.EUR;
@@ -37,7 +39,7 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
     final double exp = 1.0;
     final double strike = 0.05;
     final double value = 10000;
-    final DoublesPair point = new DoublesPair(exp, strike);
+    final DoublesPair point = DoublesPair.of(exp, strike);
     vega.add(point, value);
     final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(CUR_1, CUR_2, SurfaceValue.from(point, value));
     final Pair<Currency, Currency> pair = ObjectsPair.of(CUR_1, CUR_2);
@@ -53,7 +55,7 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
     final double exp = 1.0;
     final double strike = 0.05;
     final double value = 10000;
-    final DoublesPair point = new DoublesPair(exp, strike);
+    final DoublesPair point = DoublesPair.of(exp, strike);
     SurfaceValue vega = new SurfaceValue();
     vega.add(point, value);
     final PresentValueForexBlackVolatilitySensitivity sensitivities = new PresentValueForexBlackVolatilitySensitivity(CUR_1, CUR_2, vega);
@@ -88,7 +90,7 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
     final double exp = 1.0;
     final double strike = 0.05;
     final double value = 10000;
-    final DoublesPair point = new DoublesPair(exp, strike);
+    final DoublesPair point = DoublesPair.of(exp, strike);
     vega.add(point, 2 * value);
     final PresentValueForexBlackVolatilitySensitivity first = new PresentValueForexBlackVolatilitySensitivity(CUR_1, CUR_2, vega);
     vega = new SurfaceValue();

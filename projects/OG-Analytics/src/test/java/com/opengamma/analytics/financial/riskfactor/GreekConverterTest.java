@@ -19,10 +19,12 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.sensitivity.PositionGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GreekConverterTest {
   private static final double N = 123.;
   private static final double PV = 456;
@@ -43,7 +45,7 @@ public class GreekConverterTest {
     GREEKS.put(Greek.DELTA, DELTA);
     GREEKS.put(Greek.GAMMA, GAMMA);
     GREEKS.put(Greek.VANNA, VANNA);
-    final Map<UnderlyingType, Double> map = new HashMap<UnderlyingType, Double>();
+    final Map<UnderlyingType, Double> map = new HashMap<>();
     map.put(UnderlyingType.SPOT_PRICE, SPOT_PRICE);
     map.put(UnderlyingType.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
     GREEKS_DATA = new GreekDataBundle(GREEKS, map, TRADE_DATA);

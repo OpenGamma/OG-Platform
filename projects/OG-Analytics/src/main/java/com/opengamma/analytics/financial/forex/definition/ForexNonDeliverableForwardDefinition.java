@@ -121,6 +121,11 @@ public class ForexNonDeliverableForwardDefinition implements InstrumentDefinitio
     return _paymentDate;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public ForexNonDeliverableForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_fixingDate), "Date is after fixing date");

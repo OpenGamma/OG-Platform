@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.calendar;
@@ -13,7 +13,7 @@ import org.threeten.bp.LocalDate;
 /**
  * Simple implementation of a calendar using sets of dates for exceptions.
  */
-public abstract class ExceptionCalendar extends CalendarBase {
+public abstract class ExceptionCalendar extends AbstractCalendar {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -21,7 +21,7 @@ public abstract class ExceptionCalendar extends CalendarBase {
   /**
    * Map of exception dates and whether they are working or non-working.
    */
-  private final ConcurrentMap<LocalDate, Boolean> _workingDays = new ConcurrentHashMap<LocalDate, Boolean>();
+  private final ConcurrentMap<LocalDate, Boolean> _workingDays = new ConcurrentHashMap<>();
 
   /**
    * Creates an instance.

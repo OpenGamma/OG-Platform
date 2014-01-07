@@ -8,6 +8,7 @@ package com.opengamma.financial.aggregation;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -23,6 +24,7 @@ import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -267,6 +269,28 @@ public class UnderlyingIdVisitor extends FinancialSecurityVisitorAdapter<String>
     SwapSecurity underlying = (SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
     String name = underlying.getName();
     return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
+  }
+
+  @Override
+  public String visitCreditDefaultSwapIndexSecurity(CreditDefaultSwapIndexSecurity security) {
+    if (security.getReferenceEntity().isScheme(_preferredScheme)) {
+      String identifier = security.getReferenceEntity().getValue();
+      return identifier != null ? identifier : NOT_APPLICABLE;
+    }
+    Security underlying = _securitySource.getSingle(ExternalIdBundle.of(security.getReferenceEntity()));
+    String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+    return identifier != null ? identifier : NOT_APPLICABLE;
+  }
+
+  @Override
+  public String visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
+    if (security.getUnderlyingId().isScheme(_preferredScheme)) {
+      String identifier = security.getUnderlyingId().getValue();
+      return identifier != null ? identifier : NOT_APPLICABLE;
+    }
+    Security underlying = _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+    String identifier = underlying.getExternalIdBundle().getValue(_preferredScheme);
+    return identifier != null ? identifier : NOT_APPLICABLE;
   }
 
 }

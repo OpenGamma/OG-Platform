@@ -25,6 +25,7 @@ import com.opengamma.web.spring.StandardFunctionConfiguration;
 public class ExampleStandardFunctionConfiguration extends StandardFunctionConfiguration {
   /**
    * Gets an instance of the example function configuration.
+   * 
    * @return Gets the instance
    */
   public static FunctionConfigurationSource instance() {
@@ -135,6 +136,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
+    i.setCurveName("model/volatility/surface/black", "Discounting");
+    i.setSurfaceName("model/volatility/surface/black", "DEFAULT");
     i.setSurfaceName("model/fxoption/black", "DEFAULT");
     i.setForwardCurveName("model/fxforward", "DEFAULT");
     return i;
@@ -266,6 +269,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
+    super.curveFunctions();
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "Discounting"));
   }
 

@@ -24,7 +24,7 @@ import com.opengamma.util.time.Tenor;
 public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurveInstrumentProvider {
   private static final String DATA_FIELD = MarketDataRequirementNames.MARKET_VALUE;
   private static final DataFieldType FIELD_TYPE = DataFieldType.OUTRIGHT;
-  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER_WEAK;
+  private static final ExternalScheme SCHEME = ExternalSchemes.BLOOMBERG_TICKER;
   private final String _prefix;
   private final String _postfix;
   private final String _spotPrefix;
@@ -136,6 +136,11 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
     throw new UnsupportedOperationException();
   }
 

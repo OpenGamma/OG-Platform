@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -13,12 +11,15 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Pricing method for Forex transactions (spot or forward) by discounting each payment.
+ * @deprecated {@link YieldCurveBundle} is deprecated. Use {@link com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod}
  */
+@Deprecated
 public final class ForexDiscountingMethod implements ForexPricingMethod {
 
   /**
@@ -63,7 +64,7 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
 
   @Override
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.isTrue(derivative instanceof Forex, "Derivative should be Forex");
+    ArgumentChecker.isTrue(derivative instanceof Forex, "Derivative should be Forex");
     return presentValue((Forex) derivative, curves);
   }
 
@@ -101,7 +102,7 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
 
   @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof Forex, "Forex");
+    ArgumentChecker.isTrue(instrument instanceof Forex, "Forex");
     return presentValueCurveSensitivity((Forex) instrument, curves);
   }
 

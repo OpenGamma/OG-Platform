@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -13,17 +13,19 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StepInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new StepInterpolator1D();
   private static final Interpolator1DDataBundle DATA;
   private static final double EPS = 1e-13;
 
   static {
-    final TreeMap<Double, Double> map = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> map = new TreeMap<>();
     map.put(1., 4.5);
     map.put(2., 4.3);
     map.put(3., 6.7);
@@ -79,9 +81,9 @@ public class StepInterpolator1DTest {
   @Test(enabled = false)
   void printTest() {
     System.out.println("StepInterpolator1DTest");
-    CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.STEP, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
     for (int i = 0; i < 101; i++) {
-      double x = 0.5 + i * 3.0 / 100;
+      final double x = 0.5 + i * 3.0 / 100;
       System.out.println(x + "\t" + interpolator.interpolate(DATA, x));
     }
   }

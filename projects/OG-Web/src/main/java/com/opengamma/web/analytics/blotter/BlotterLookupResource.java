@@ -43,6 +43,7 @@ import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
+import com.opengamma.financial.security.swap.InterpolationMethod;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.i18n.Country;
@@ -78,7 +79,9 @@ public class BlotterLookupResource {
   @GET
   @Path("frequencies")
   @Produces(MediaType.APPLICATION_JSON)
+  @SuppressWarnings("deprecation")
   public String getFrequencies() {
+    // deprecated method has an ordering applied
     return convertToJsonArray(Frequency.class, SimpleFrequencyFactory.INSTANCE.enumerateAvailableFrequencies());
   }
 
@@ -97,7 +100,7 @@ public class BlotterLookupResource {
   @Path("daycountconventions")
   @Produces(MediaType.APPLICATION_JSON)
   public String getDayCountConventions() {
-    return convertToJsonArray(DayCount.class, DayCountFactory.INSTANCE.enumerateAvailableDayCounts());
+    return convertToJsonArray(DayCount.class, DayCountFactory.INSTANCE.instanceMap().values().iterator());
   }
 
   @GET
@@ -105,7 +108,7 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getBusinessDayConventions() {
     return convertToJsonArray(BusinessDayConvention.class,
-                              BusinessDayConventionFactory.INSTANCE.enumerateAvailableBusinessDayConventions());
+                              BusinessDayConventionFactory.INSTANCE.instanceMap().values().iterator());
   }
 
   @GET
@@ -170,6 +173,13 @@ public class BlotterLookupResource {
   public String getMonitoringType() {
     return convertToJsonArray(MonitoringType.class, Arrays.asList(MonitoringType.values()).iterator());
   }
+  
+  @GET
+  @Path("interpolationmethods")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getInterpolationMethods() {
+    return convertToJsonArray(InterpolationMethod.class, Arrays.asList(InterpolationMethod.values()).iterator());
+  }
 
   @GET
   @Path("idschemes")
@@ -197,7 +207,7 @@ public class BlotterLookupResource {
   @Path("regions")
   @Produces(MediaType.APPLICATION_JSON)
   public String getRegions() {
-    List<Country> countryList = Lists.newArrayList(Country.getAvailableCountries().iterator());
+    List<Country> countryList = Lists.newArrayList(Country.getAvailableCountries());
     Collections.sort(countryList);
     return convertToJsonArray(Country.class, countryList.iterator());
   }

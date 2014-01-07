@@ -15,10 +15,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NelsonSiegelBondCurveModelTest {
   private static final NelsonSiegelBondCurveModel MODEL = new NelsonSiegelBondCurveModel();
   private static final NonLinearLeastSquare NLLS = new NonLinearLeastSquare();
@@ -32,7 +34,7 @@ public class NelsonSiegelBondCurveModelTest {
   //private static final DoubleMatrix1D TREASURY_19740830_Y = new DoubleMatrix1D(new double[] {9.4411, 8.7922, 8.4988, 8.3483, 8.2579, 8.1975, 8.1545, 8.1221, 8.0970, 8.0769, 8.0605, 8.0467, 8.0351,
   //    8.0252, 8.0166});
   private static final DoubleMatrix1D TREASURY_19740102_Y = new DoubleMatrix1D(new double[] {7.2912, 6.8593, 6.7166, 6.6840, 6.6901, 6.7077, 6.7266, 6.7438, 6.7584, 6.7707, 6.7810, 6.7897, 6.7971,
-      6.8035, 6.8090 });
+    6.8035, 6.8090 });
   private static final DoubleMatrix1D TREASURY_E;
 
   static {
@@ -84,4 +86,5 @@ public class NelsonSiegelBondCurveModelTest {
     //    assertEquals(fitted.getEntry(2), 5.35682485, 1e-3);
     //    assertEquals(fitted.getEntry(3), 0.30308753, 1e-3);
   }
+
 }

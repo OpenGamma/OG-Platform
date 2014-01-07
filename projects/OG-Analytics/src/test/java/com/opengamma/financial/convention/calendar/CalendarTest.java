@@ -13,17 +13,19 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test Calendar.
  */
+@Test(groups = TestGroup.UNIT)
 public class CalendarTest {
 
   @Test
   public void testUKBankHolidays() {
-    final Calendar cal = CalendarFactory.INSTANCE.getCalendar("UK Bank Holidays");
+    final Calendar cal = CalendarFactory.of("UK Bank Holidays");
     assertNotNull(cal);
-    assertEquals("UK Bank Holidays", cal.getConventionName());
+    assertEquals("UK Bank Holidays", cal.getName());
     assertFalse(cal.isWorkingDay(LocalDate.of(2010, 1, 1))); // Friday (BH)
     assertFalse(cal.isWorkingDay(LocalDate.of(2010, 1, 2))); // Sat
     assertFalse(cal.isWorkingDay(LocalDate.of(2010, 1, 3))); // Sun

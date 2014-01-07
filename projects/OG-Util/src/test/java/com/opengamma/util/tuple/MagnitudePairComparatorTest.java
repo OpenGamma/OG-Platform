@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Comparator;
 
-import com.opengamma.util.tuple.Pair;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -21,9 +20,9 @@ import com.opengamma.util.test.TestGroup;
 public class MagnitudePairComparatorTest {
 
   public void testCompare_differentQuadrants() {
-    final Pair<Double, Double> first = Pair.of(2.0, 3.0);
-    final Pair<Double, Double> second = Pair.of(3.0, 2.0);
-    final Pair<Double, Double> third = Pair.of(4.0, 4.0);
+    final Pair<Double, Double> first = DoublesPair.of(2.0, 3.0);
+    final Pair<Double, Double> second = DoublesPair.of(3.0, 2.0);
+    final Pair<Double, Double> third = DoublesPair.of(4.0, 4.0);
     
     final Comparator<Pair<Double, Double>> test = MagnitudePairComparator.INSTANCE;
     

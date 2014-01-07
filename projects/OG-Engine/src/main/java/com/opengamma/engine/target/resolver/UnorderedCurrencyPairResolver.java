@@ -5,35 +5,21 @@
  */
 package com.opengamma.engine.target.resolver;
 
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * A {@link ObjectResolver} for {@link ComputationTargetType#UNORDERED_CURRENCY_PAIR}.
  */
-public class UnorderedCurrencyPairResolver implements ObjectResolver<UnorderedCurrencyPair> {
+public class UnorderedCurrencyPairResolver extends AbstractPrimitiveResolver<UnorderedCurrencyPair> {
 
-  @Override
-  public UnorderedCurrencyPair resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-    if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      return UnorderedCurrencyPair.of(uniqueId);
-    } else {
-      return null;
-    }
+  public UnorderedCurrencyPairResolver() {
+    super(UnorderedCurrencyPair.OBJECT_SCHEME);
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return false;
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    return DummyChangeManager.INSTANCE;
+  protected UnorderedCurrencyPair resolveObject(final String identifier) {
+    return UnorderedCurrencyPair.parse(identifier);
   }
 
 }

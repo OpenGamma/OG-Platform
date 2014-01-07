@@ -14,7 +14,10 @@ import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Remote implementation of {@link NamedMarketDataSpecificationRepository}.
+ * 
+ * @deprecated  This is only required for the legacy analytics UI.
  */
+@Deprecated
 public class RemoteNamedMarketDataSpecificationRepository implements NamedMarketDataSpecificationRepository {
 
   private final URI _baseUri;

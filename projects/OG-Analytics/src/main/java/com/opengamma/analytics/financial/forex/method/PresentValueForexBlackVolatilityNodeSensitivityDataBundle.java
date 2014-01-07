@@ -1,15 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -38,10 +38,10 @@ public class PresentValueForexBlackVolatilityNodeSensitivityDataBundle {
    * @param numberDelta The number of deltas, not negative
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final int numberExpiry, final int numberDelta) {
-    Validate.notNull(ccy1, "currency 1");
-    Validate.notNull(ccy2, "currency 2");
-    Validate.isTrue(numberExpiry >= 0);
-    Validate.isTrue(numberDelta >= 0);
+    ArgumentChecker.notNull(ccy1, "currency 1");
+    ArgumentChecker.notNull(ccy2, "currency 2");
+    ArgumentChecker.isTrue(numberExpiry >= 0, "number of expiries must be greater than or equal to zero");
+    ArgumentChecker.isTrue(numberDelta >= 0, "number of deltas must be greater than or equal to zero");
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
     _expiries = new DoubleMatrix1D(new double[numberExpiry]);
     _delta = new DoubleMatrix1D(new double[numberDelta]);
@@ -57,13 +57,13 @@ public class PresentValueForexBlackVolatilityNodeSensitivityDataBundle {
    * @param vega The initial sensitivity, not null
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle(final Currency ccy1, final Currency ccy2, final DoubleMatrix1D expiries, final DoubleMatrix1D delta, final DoubleMatrix2D vega) {
-    Validate.notNull(ccy1, "currency 1");
-    Validate.notNull(ccy2, "currency 2");
-    Validate.notNull(expiries, "expiries");
-    Validate.notNull(delta, "strikes");
-    Validate.notNull(vega, "Matrix");
-    Validate.isTrue(vega.getNumberOfRows() == expiries.getNumberOfElements(), "Number of rows did not match number of expiries");
-    Validate.isTrue(vega.getNumberOfColumns() == delta.getNumberOfElements(), "Number of columns did not match number of delta");
+    ArgumentChecker.notNull(ccy1, "currency 1");
+    ArgumentChecker.notNull(ccy2, "currency 2");
+    ArgumentChecker.notNull(expiries, "expiries");
+    ArgumentChecker.notNull(delta, "strikes");
+    ArgumentChecker.notNull(vega, "Matrix");
+    ArgumentChecker.isTrue(vega.getNumberOfRows() == expiries.getNumberOfElements(), "Number of rows did not match number of expiries");
+    ArgumentChecker.isTrue(vega.getNumberOfColumns() == delta.getNumberOfElements(), "Number of columns did not match number of delta");
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
     _expiries = expiries;
     _delta = delta;
@@ -101,7 +101,8 @@ public class PresentValueForexBlackVolatilityNodeSensitivityDataBundle {
    * @param tolerance The tolerance.
    * @return The comparison flag.
    */
-  public static boolean compare(final PresentValueForexBlackVolatilityNodeSensitivityDataBundle value1, final PresentValueForexBlackVolatilityNodeSensitivityDataBundle value2, double tolerance) {
+  public static boolean compare(final PresentValueForexBlackVolatilityNodeSensitivityDataBundle value1, final PresentValueForexBlackVolatilityNodeSensitivityDataBundle value2,
+      final double tolerance) {
     if (!value1._currencyPair.equals(value2._currencyPair)) {
       return false;
     }
@@ -124,10 +125,10 @@ public class PresentValueForexBlackVolatilityNodeSensitivityDataBundle {
    * The first dimension is the expiration and the second dimension the quotes: ATM, Risk Reversal, Strangle.
    */
   public PresentValueForexBlackVolatilityQuoteSensitivityDataBundle quoteSensitivity() {
-    double[][] vegaStrike = getVega().getData();
-    int nbStrike = vegaStrike[0].length;
-    double[][] result = new double[vegaStrike.length][nbStrike];
-    int nbQuote = (vegaStrike[0].length - 1) / 2;
+    final double[][] vegaStrike = getVega().getData();
+    final int nbStrike = vegaStrike[0].length;
+    final double[][] result = new double[vegaStrike.length][nbStrike];
+    final int nbQuote = (vegaStrike[0].length - 1) / 2;
     for (int loopexp = 0; loopexp < vegaStrike.length; loopexp++) {
       result[loopexp][0] = vegaStrike[loopexp][nbQuote]; // ATM
       for (int loopstrike = 0; loopstrike < nbQuote; loopstrike++) {

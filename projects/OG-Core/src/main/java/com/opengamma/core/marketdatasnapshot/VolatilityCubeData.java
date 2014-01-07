@@ -20,6 +20,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A bundle of data to use to build a volatility cube.
@@ -285,7 +286,7 @@ public class VolatilityCubeData {
       }
       if (newSwapTenor || newExpiry) {
         if (currentOptionExpiry != null) {
-          smiles.get(currentSwapTenor).put(currentOptionExpiry, Pair.of(getNativeArray(strikes), getNativeArray(vols)));
+          smiles.get(currentSwapTenor).put(currentOptionExpiry, Pairs.of(getNativeArray(strikes), getNativeArray(vols)));
           smileIds.get(currentSwapTenor).put(currentOptionExpiry, ids.toArray(new ExternalId[ids.size()]));
           smileRelativeStrikes.get(currentSwapTenor).put(currentOptionExpiry, relativeStrikes.toArray(new Double[relativeStrikes.size()]));
         }
@@ -311,7 +312,7 @@ public class VolatilityCubeData {
     }
 
     if (currentOptionExpiry != null) {
-      smiles.get(currentSwapTenor).put(currentOptionExpiry, Pair.of(getNativeArray(strikes), getNativeArray(vols)));
+      smiles.get(currentSwapTenor).put(currentOptionExpiry, Pairs.of(getNativeArray(strikes), getNativeArray(vols)));
       if (dataIds != null) {
         smileIds.get(currentSwapTenor).put(currentOptionExpiry, ids.toArray(new ExternalId[ids.size()]));
       }
@@ -385,7 +386,7 @@ public class VolatilityCubeData {
   private static Pair<double[], double[]> getPair(final ArrayList<Double> strikes, final ArrayList<Double> vols) {
     final double[] nStrikes = getNativeArray(strikes);
     final double[] nVols = getNativeArray(vols);
-    return Pair.of(nStrikes, nVols);
+    return Pairs.of(nStrikes, nVols);
   }
 
   private static double[] getNativeArray(final ArrayList<Double> strikes) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo;
@@ -29,7 +29,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Monte Carlo pricing method in the hull-White one factor model.
  * The Monte Carlo is on the solution of the discount factor (not on the equation of the short rate).
+ * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.HullWhiteMonteCarloMethod}
  */
+@Deprecated
 public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
 
   /**
@@ -76,7 +78,6 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final String dscName, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    // TODO: remove currency and dsc curve name (should be available from the instrument)
     final YieldAndDiscountCurve dsc = hwData.getCurve(dscName);
     final DecisionSchedule decision = instrument.accept(DC, hwData);
     final double[] decisionTime = decision.getDecisionTime();
@@ -294,10 +295,10 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     }
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(numeraireTime, -numeraireTime * pDN * pDNBar));
+    listDiscounting.add(DoublesPair.of(numeraireTime, -numeraireTime * pDN * pDNBar));
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
-        listDiscounting.add(new DoublesPair(impactTime[loopjump][loopimp], -impactTime[loopjump][loopimp] * pDI[loopjump][loopimp] * pDIBar[loopjump][loopimp]));
+        listDiscounting.add(DoublesPair.of(impactTime[loopjump][loopimp], -impactTime[loopjump][loopimp] * pDI[loopjump][loopimp] * pDIBar[loopjump][loopimp]));
       }
     }
     resultMap.put(dscName, listDiscounting);

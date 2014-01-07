@@ -12,8 +12,8 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Bundle of curves names and the curve building block associated.
@@ -58,7 +58,7 @@ public class CurveBuildingBlockBundle {
    * @param mat The inverse Jacobian matrix
    */
   public void add(final String name, final CurveBuildingBlock block, final DoubleMatrix2D mat) {
-    _bundle.put(name, new ObjectsPair<>(block, mat));
+    _bundle.put(name, Pairs.of(block, mat));
   }
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -18,7 +18,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Jacobian matrix builder for multi-curves construction when the calculator returns an InterestRateCurveSensitivity object.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class MultipleYieldCurveFinderIRSJacobian extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
 
   /**

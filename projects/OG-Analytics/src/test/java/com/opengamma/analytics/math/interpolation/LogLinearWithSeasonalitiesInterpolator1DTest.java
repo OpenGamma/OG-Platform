@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -19,10 +19,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.util.wrapper.CommonsMathWrapper;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LogLinearWithSeasonalitiesInterpolator1DTest {
   private static final int NB_MONTH = 12;
   private static final double[] MONTHLY_FACTORS = {.01, .01, .01, .01, .01, .01, .01, .01, .01, .01, .01 };
@@ -50,8 +52,8 @@ public class LogLinearWithSeasonalitiesInterpolator1DTest {
     }
     seasonalValues[NB_MONTH - 1] = 1.0 - sum;
 
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
-    final TreeMap<Double, Double> transformedData = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<>();
+    final TreeMap<Double, Double> transformedData = new TreeMap<>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
@@ -72,13 +74,13 @@ public class LogLinearWithSeasonalitiesInterpolator1DTest {
     // solver used to find the growth
     final BrentSolver solver = new BrentSolver();
 
-    // definition of the function to minimize  
-    Function1D<Double, Double> function = new Function1D<Double, Double>() {
+    // definition of the function to minimize
+    final Function1D<Double, Double> function = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(final Double x) {
+      public Double evaluate(final Double xf) {
         double result = y1;
         for (int loopmonth = 0; loopmonth < NB_MONTH; loopmonth++) {
-          result = result * (1 + x + seasonalValues[loopmonth]);
+          result = result * (1 + xf + seasonalValues[loopmonth]);
         }
         return result - y2;
       }
@@ -88,7 +90,7 @@ public class LogLinearWithSeasonalitiesInterpolator1DTest {
     final double initialGuess = Math.pow(y2 / y1, 1 / 12.0) - 1.0;
 
     // We solve the equation define by the function and use the result to calculate values, nodes are also calculates.
-    UnivariateRealFunction f = CommonsMathWrapper.wrapUnivariate(function);
+    final UnivariateRealFunction f = CommonsMathWrapper.wrapUnivariate(function);
     double growth;
     try {
       growth = solver.solve(f, -.5, .5, initialGuess);
@@ -98,10 +100,10 @@ public class LogLinearWithSeasonalitiesInterpolator1DTest {
         nodes[loopmonth] = x1 + loopmonth * (x2 - x1) / NB_MONTH;
         transformedData.put(nodes[loopmonth], values[loopmonth]);
       }
-    } catch (MaxIterationsExceededException ex) {
+    } catch (final MaxIterationsExceededException ex) {
       // TODO Auto-generated catch block
       ex.printStackTrace();
-    } catch (FunctionEvaluationException ex) {
+    } catch (final FunctionEvaluationException ex) {
       // TODO Auto-generated catch block`
       ex.printStackTrace();
     }

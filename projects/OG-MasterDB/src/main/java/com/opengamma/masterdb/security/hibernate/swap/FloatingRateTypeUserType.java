@@ -27,6 +27,8 @@ public class FloatingRateTypeUserType extends EnumUserType<FloatingRateType> {
         return "cms";
       case OIS:
         return "ois";
+      case OVERNIGHT_ARITHMETIC_AVERAGE:
+        return "overnightArithmeticAverage";
       default:
         throw new OpenGammaRuntimeException("unexpected value " + value);
     }

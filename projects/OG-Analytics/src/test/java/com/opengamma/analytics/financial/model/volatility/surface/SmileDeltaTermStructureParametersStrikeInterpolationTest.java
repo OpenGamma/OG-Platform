@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
@@ -16,12 +16,14 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Tests related to the construction of term structure of smile data from delta.
  * Tests related to the interpolation of volatility.
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
 
   private static final double[] TIME_TO_EXPIRY = {0.10, 0.25, 0.50, 1.00, 2.00, 3.00};
@@ -155,7 +157,7 @@ public class SmileDeltaTermStructureParametersStrikeInterpolationTest {
     final double volExpected = interpolator.interpolate(volatilityInterpolation, strike);
     final double volComputed = SMILE_TERM.getVolatility(timeToExpiration, strike, forward);
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volExpected, volComputed, TOLERANCE_VOL);
-    final double volTriple = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiration, strike, forward));
+    final double volTriple = SMILE_TERM.getVolatility(new Triple<>(timeToExpiration, strike, forward));
     assertEquals("Smile by delta term structure: volatility interpolation on strike", volComputed, volTriple, TOLERANCE_VOL);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm2 = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE,
         INTERPOLATOR_STRIKE, INTERPOLATOR_TIME);

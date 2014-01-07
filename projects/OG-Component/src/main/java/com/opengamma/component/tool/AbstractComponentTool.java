@@ -24,7 +24,10 @@ import com.opengamma.util.StartupUtils;
 
 /**
  * Abstract base class for tools which operate on components obtained through an OpenGamma component server.
+ * 
+ * @deprecated Use {@link AbstractTool}
  */
+@Deprecated
 public abstract class AbstractComponentTool {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractComponentTool.class);

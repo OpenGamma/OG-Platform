@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.covariance;
@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.covariance;
 import java.util.Iterator;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 
 /**
@@ -45,18 +45,21 @@ import com.opengamma.util.CalculationMode;
  * scaling by the square root of the number of periods in a year.
  */
 public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator extends HistoricalVolatilityCalculator {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ExponentialWeightedMovingAverageHistoricalVolatilityCalculator.class);
+  /** The return calculator */
   private final TimeSeriesReturnCalculator _returnCalculator;
+  /** Lambda, the volatility weighting parameter */
   private final double _lambda;
+  /** Lambda minus one */
   private final double _lambdaM1;
 
   /**
    * Although the return calculator can be any {@link TimeSeriesReturnCalculator}, to obtain correct results a {@link ContinuouslyCompoundedTimeSeriesReturnCalculator} should be
    * used. The calculation mode is set to be the default (strict). Although the weight parameter can take any positive value, for most use the range should be $\lambda < 1$;
    * if a value higher outside of this range is used then greater weight will be placed on older return values.
-   * @param lambda The weight parameter
-   * @param returnCalculator The return calculator
-   * @throws IllegalArgumentException If the calculator is null or if $\lambda < 0$
+   * @param lambda The weight parameter, not negative
+   * @param returnCalculator The return calculator, not null
    */
   public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator) {
     this(lambda, returnCalculator, getDefaultCalculationMode());
@@ -66,28 +69,21 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
    * Although the return calculator can be any {@link TimeSeriesReturnCalculator}, to obtain correct results a {@link ContinuouslyCompoundedTimeSeriesReturnCalculator} should be
    * used. Although the weight parameter can take any positive value, for most use the range should be $\lambda < 1$; if a value higher outside of this range is used then
    * greater weight will be placed on older return values.
-   * @param lambda The weight parameter
-   * @param returnCalculator The return calculator
-   * @param mode The calculation mode
-   * @throws IllegalArgumentException If the calculator is null or if $\lambda < 0$
+   * @param lambda The weight parameter, not negative
+   * @param returnCalculator The return calculator, not null
+   * @param mode The calculation mode, not null
    */
   public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
     super(mode);
-    Validate.notNull(returnCalculator, "return calculator");
-    Validate.notNull(mode, "calculation mode");
-    checkLambda(lambda);
-    _lambda = lambda;
-    _lambdaM1 = 1 - lambda;
-    _returnCalculator = returnCalculator;
-  }
-
-  private void checkLambda(final double lambda) {
-    if (lambda < 0) {
-      throw new IllegalArgumentException("Lambda must be positive");
-    }
+    ArgumentChecker.notNull(returnCalculator, "return calculator");
+    ArgumentChecker.notNull(mode, "calculation mode");
+    ArgumentChecker.notNegative(lambda, "lambda");
     if (lambda > 1) {
       s_logger.warn("Weight for EWMA series is greater than one: this is probably not what was intended");
     }
+    _lambda = lambda;
+    _lambdaM1 = 1 - lambda;
+    _returnCalculator = returnCalculator;
   }
 
   /**

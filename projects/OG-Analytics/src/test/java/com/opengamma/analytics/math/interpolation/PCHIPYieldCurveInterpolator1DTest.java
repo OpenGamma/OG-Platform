@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -10,12 +10,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PCHIPYieldCurveInterpolator1DTest {
-  private static final Interpolator1D BASE_INTERPOLATOR = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.PCHIP);
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.getInterpolator(Interpolator1DFactory.MOD_PCHIP);
 
   private static final double[] T = new double[] {0, 0.5150684931506849, 0.7671232876712328, 1.010958904109589, 2.010958904109589, 3.0181600419193053, 4.013698630136986, 5.010958904109589,
@@ -26,7 +27,6 @@ public class PCHIPYieldCurveInterpolator1DTest {
 
   private static final double[] TR;
 
-  private static final Interpolator1DDataBundle BASE_DATA;
   private static final Interpolator1DDataBundle DATA = INTERPOLATOR.getDataBundle(T, R);
 
   static {
@@ -35,7 +35,6 @@ public class PCHIPYieldCurveInterpolator1DTest {
     for (int i = 0; i < n; i++) {
       TR[i] = T[i] * R[i];
     }
-    BASE_DATA = BASE_INTERPOLATOR.getDataBundle(T, TR);
   }
 
   @Test(enabled=false)
@@ -43,21 +42,21 @@ public class PCHIPYieldCurveInterpolator1DTest {
     System.out.println("PCHIPYieldCurveInterpolator1DTest");
     final int nSamples = 201;
     for (int i = 0; i < nSamples; i++) {
-      double t = 30.0 * i / ((double) (nSamples - 1));
-      double r = INTERPOLATOR.interpolate(DATA, t);
+      final double t = 30.0 * i / ((nSamples - 1));
+      final double r = INTERPOLATOR.interpolate(DATA, t);
       System.out.println(t + "\t" + r);
     }
   }
-  
+
   @Test
   public void test() {
     final int n = T.length;
-    for(int i=1;i<n;i++) { //cannot recover the t=0 value 
-      double r = INTERPOLATOR.interpolate(DATA, T[i]);
+    for(int i=1;i<n;i++) { //cannot recover the t=0 value
+      final double r = INTERPOLATOR.interpolate(DATA, T[i]);
       assertEquals(R[i],r,1e-15);
     }
   }
-  
-  
+
+
 
 }

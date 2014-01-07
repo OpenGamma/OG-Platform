@@ -29,11 +29,11 @@ import com.opengamma.util.ArgumentChecker;
   /** Immediate child nodes. */
   private final List<AnalyticsNode> _children;
   /** Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades. */
-  private final boolean _collapseByDefault;
+  private final boolean _collapsed;
 
-  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean collapseByDefault) {
+  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean collapsed) {
     ArgumentChecker.notNull(children, "children");
-    _collapseByDefault = collapseByDefault;
+    _collapsed = collapsed;
     _startRow = startRow;
     _endRow = endRow;
     _children = children;
@@ -44,7 +44,7 @@ import com.opengamma.util.ArgumentChecker;
    * @param portfolio The portfolio
    * @return The root node of the portfolio's node structure, null if the portfolio is null
    */
-  /* package */ static AnalyticsNode portoflioRoot(Portfolio portfolio) {
+  /* package */ static AnalyticsNode portfolioRoot(Portfolio portfolio) {
     if (portfolio == null) {
       return null;
     }
@@ -75,10 +75,10 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * @return Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades
+   * @return Whether this node is collapsed
    */
-  public boolean isCollapseByDefault() {
-    return _collapseByDefault;
+  public boolean isCollapsed() {
+    return _collapsed;
   }
 
   @Override
@@ -98,11 +98,11 @@ import com.opengamma.util.ArgumentChecker;
     private int _lastRow;
 
     /* package */ PortfolioNodeBuilder(PortfolioNode root) {
-      _root = createPortfolioNode(root, true);
+      _root = createPortfolioNode(root, 0);
       _lastRow = 0;
     }
 
-    private AnalyticsNode createPortfolioNode(PortfolioNode node, boolean root) {
+    private AnalyticsNode createPortfolioNode(PortfolioNode node, int level) {
       int nodeStart = _lastRow;
       List<AnalyticsNode> nodes = Lists.newArrayList();
       for (Position position : node.getPositions()) {
@@ -113,10 +113,10 @@ import com.opengamma.util.ArgumentChecker;
       }
       for (PortfolioNode child : node.getChildNodes()) {
         ++_lastRow;
-        nodes.add(createPortfolioNode(child, false));
+        nodes.add(createPortfolioNode(child, level + 1));
       }
-      // collapse nodes if there are no child nodes (unless it's the root node which is never collapsed)
-      boolean collapse = node.getChildNodes().isEmpty() && !root;
+      // leave root and first-level children expanded
+      boolean collapse = level >= 2;
       return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), collapse);
     }
 

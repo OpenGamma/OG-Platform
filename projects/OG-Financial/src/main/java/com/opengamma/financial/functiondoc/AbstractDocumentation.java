@@ -43,6 +43,7 @@ import com.opengamma.financial.filtering.AbstractFilteringFunction;
 import com.opengamma.financial.filtering.PortfolioFilter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utility template for generating documentation from a function repository.
@@ -83,7 +84,7 @@ public abstract class AbstractDocumentation implements Runnable {
     @Override
     public boolean acceptPosition(final Position position) {
       final Security security = position.getSecurity();
-      return incrementAndGet(Pair.<String, Class<?>>of(security.getSecurityType(), security.getClass()), _visited) < MAX_SECURITIES_PER_TYPE;
+      return incrementAndGet(Pairs.<String, Class<?>>of(security.getSecurityType(), security.getClass()), _visited) < MAX_SECURITIES_PER_TYPE;
     }
 
   }
@@ -441,7 +442,7 @@ public abstract class AbstractDocumentation implements Runnable {
         } else {
           final String k = s.substring(0, eq).trim();
           final String v = s.substring(eq + 1).trim();
-          _valuePropertyDescription.add(Pair.of(Pattern.compile("^" + k.replace("\\", "\\\\").replace(".", "\\.").replace("*", ".*?") + "$"), v));
+          _valuePropertyDescription.add(Pairs.of(Pattern.compile("^" + k.replace("\\", "\\\\").replace(".", "\\.").replace("*", ".*?") + "$"), v));
         }
       }
       reader.close();

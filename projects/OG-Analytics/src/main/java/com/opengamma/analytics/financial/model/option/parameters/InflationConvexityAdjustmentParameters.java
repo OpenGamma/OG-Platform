@@ -1,17 +1,18 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * _atmVolatility
@@ -19,7 +20,7 @@ import com.opengamma.analytics.math.surface.Surface;
 public class InflationConvexityAdjustmentParameters {
 
   /**
-   * The times separating the inflation periods. 
+   * The times separating the inflation periods.
    */
   private final double[] _inflationTime;
   /**
@@ -47,20 +48,22 @@ public class InflationConvexityAdjustmentParameters {
   private final IndexPrice _index;
 
   /**
-   * Constructor from the parameter surfaces. 
+   * Constructor from the parameter surfaces.
    * @param inflationTime the inflation times.
    * @param atmVolatility The atm Black volatility curve.
+   * @param liborCorrelation the inter libor correlation
    * @param priceIndexCorrelation The price index correlation surface.
    * @param priceIndexRateCorrelation  The price index\rate volatility surface.
    * @param index The index price for which the volatility is valid.
    */
-  public InflationConvexityAdjustmentParameters(final double[] inflationTime, double[] atmVolatility, final Surface<Double, Double, Double> priceIndexCorrelation,
+  public InflationConvexityAdjustmentParameters(final double[] inflationTime, final double[] atmVolatility, final Surface<Double, Double, Double> priceIndexCorrelation,
       final Surface<Double, Double, Double> liborCorrelation, final Curve<Double, Double> priceIndexRateCorrelation, final IndexPrice index) {
-    Validate.notNull(inflationTime, "inflation time");
-    Validate.notNull(atmVolatility, "price index correlation surface");
-    Validate.notNull(priceIndexCorrelation, "volatility curve");
-    Validate.notNull(priceIndexRateCorrelation, "price index\rate volatility");
-    Validate.notNull(index, "index price");
+    ArgumentChecker.notNull(inflationTime, "inflation time");
+    ArgumentChecker.notNull(atmVolatility, "price index correlation surface");
+    ArgumentChecker.notNull(priceIndexCorrelation, "price index correlation");
+    ArgumentChecker.notNull(liborCorrelation, "Libor correlation");
+    ArgumentChecker.notNull(priceIndexRateCorrelation, "price index\rate volatility");
+    ArgumentChecker.notNull(index, "index price");
     _inflationTime = inflationTime;
     _atmVolatility = atmVolatility;
     _priceIndexCorrelation = priceIndexCorrelation;
@@ -122,58 +125,39 @@ public class InflationConvexityAdjustmentParameters {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_atmVolatility);
-    result = prime * result + ((_index == null) ? 0 : _index.hashCode());
+    result = prime * result + _index.hashCode();
     result = prime * result + Arrays.hashCode(_inflationTime);
-    result = prime * result + ((_liborCorrelation == null) ? 0 : _liborCorrelation.hashCode());
-    result = prime * result + ((_priceIndexCorrelation == null) ? 0 : _priceIndexCorrelation.hashCode());
-    result = prime * result + ((_priceIndexRateCorrelation == null) ? 0 : _priceIndexRateCorrelation.hashCode());
+    result = prime * result + _liborCorrelation.hashCode();
+    result = prime * result + _priceIndexCorrelation.hashCode();
+    result = prime * result + _priceIndexRateCorrelation.hashCode();
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!(obj instanceof InflationConvexityAdjustmentParameters)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    InflationConvexityAdjustmentParameters other = (InflationConvexityAdjustmentParameters) obj;
-    if (!Arrays.equals(_atmVolatility, other._atmVolatility)) {
-      return false;
-    }
-    if (_index == null) {
-      if (other._index != null) {
-        return false;
-      }
-    } else if (!_index.equals(other._index)) {
-      return false;
-    }
+    final InflationConvexityAdjustmentParameters other = (InflationConvexityAdjustmentParameters) obj;
     if (!Arrays.equals(_inflationTime, other._inflationTime)) {
       return false;
     }
-    if (_liborCorrelation == null) {
-      if (other._liborCorrelation != null) {
-        return false;
-      }
-    } else if (!_liborCorrelation.equals(other._liborCorrelation)) {
+    if (!Arrays.equals(_atmVolatility, other._atmVolatility)) {
       return false;
     }
-    if (_priceIndexCorrelation == null) {
-      if (other._priceIndexCorrelation != null) {
-        return false;
-      }
-    } else if (!_priceIndexCorrelation.equals(other._priceIndexCorrelation)) {
+    if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
-    if (_priceIndexRateCorrelation == null) {
-      if (other._priceIndexRateCorrelation != null) {
-        return false;
-      }
-    } else if (!_priceIndexRateCorrelation.equals(other._priceIndexRateCorrelation)) {
+    if (!ObjectUtils.equals(_liborCorrelation, other._liborCorrelation)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_priceIndexCorrelation, other._priceIndexCorrelation)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_priceIndexRateCorrelation, other._priceIndexRateCorrelation)) {
       return false;
     }
     return true;

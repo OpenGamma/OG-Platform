@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -19,20 +19,21 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class FDCurveSensitivityCalculator {
 
   /**
    * Gives the sensitivity of the some metric of an IRD to a points on a one of the family of curves by finite difference
      * @param ird The Interest Rate Derivative
-   * @param calculator This calculates the metric 
+   * @param calculator This calculates the metric
    * @param curves The family of yield curves
    * @param curveName The name of the curve of interest
-   * @param times The times along the curve. <b>Note</b> These should be in ascending order and  be known sensitivity points 
-   * (or the result will be zero) 
-   * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
-   * @return Sensitivities at a given points 
+   * @param times The times along the curve. <b>Note</b> These should be in ascending order and  be known sensitivity points
+   * (or the result will be zero)
+   * @param absTol If the absolute value of a sensitivities is below this value it is ignored
+   * @return Sensitivities at a given points
    */
   public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> calculator,
       final YieldCurveBundle curves, final String curveName, final double[] times, final double absTol) {
@@ -44,7 +45,7 @@ public abstract class FDCurveSensitivityCalculator {
     Validate.isTrue(times[0] >= 0.0, "t less than 0");
     Validate.isTrue(curves.containsName(curveName), "curveName not in curves");
 
-    final List<DoublesPair> res = new ArrayList<DoublesPair>();
+    final List<DoublesPair> res = new ArrayList<>();
     double oldT = times[0];
     boolean first = true;
     for (final double t : times) {
@@ -55,7 +56,7 @@ public abstract class FDCurveSensitivityCalculator {
       }
       final double sense = impFDCalculator(ird, calculator, curves, curveName, t);
       if (Math.abs(sense) > absTol) {
-        res.add(new DoublesPair(t, sense));
+        res.add(DoublesPair.of(t, sense));
       }
       oldT = t;
     }
@@ -70,13 +71,13 @@ public abstract class FDCurveSensitivityCalculator {
   /**
    * Gives the sensitivity of the some metric of an IRD to a points on a one of the family of curves by finite difference
      * @param ird The Interest Rate Derivative
-   * @param method This calculates the metric 
+   * @param method This calculates the metric
    * @param curves The family of yield curves
    * @param curveName The name of the curve of interest
-   * @param times The times along the curve. <b>Note</b> These should be in ascending order and  be known sensitivity points 
-   * (or the result will be zero) 
-   * @param absTol If the absolute value of a sensitivities is below this value it is ignored 
-   * @return Sensitivities at a given points 
+   * @param times The times along the curve. <b>Note</b> These should be in ascending order and  be known sensitivity points
+   * (or the result will be zero)
+   * @param absTol If the absolute value of a sensitivities is below this value it is ignored
+   * @return Sensitivities at a given points
    */
   public static final List<DoublesPair> curveSensitvityFDCalculator(final InstrumentDerivative ird, final PricingMethod method, final YieldCurveBundle curves, final String curveName,
       final double[] times,
@@ -89,7 +90,7 @@ public abstract class FDCurveSensitivityCalculator {
     Validate.isTrue(times[0] >= 0.0, "t less than 0");
     Validate.isTrue(curves.containsName(curveName), "curveName not in curves");
 
-    final List<DoublesPair> res = new ArrayList<DoublesPair>();
+    final List<DoublesPair> res = new ArrayList<>();
     double oldT = times[0];
     boolean first = true;
     for (final double t : times) {
@@ -100,7 +101,7 @@ public abstract class FDCurveSensitivityCalculator {
       }
       final double sense = impFDCalculator(ird, method, curves, curveName, t);
       if (Math.abs(sense) > absTol) {
-        res.add(new DoublesPair(t, sense));
+        res.add(DoublesPair.of(t, sense));
       }
       oldT = t;
     }
@@ -110,11 +111,11 @@ public abstract class FDCurveSensitivityCalculator {
   /**
    * Gives the sensitivity of the some metric of an IRD to a point on a one of the family of curves by finite difference
    * @param ird The Interest Rate Derivative
-   * @param calculator This calculates the metric 
+   * @param calculator This calculates the metric
    * @param curves The family of yield curves
    * @param curveName The name of the curve of interest
-   * @param t The time along the curve. <b>Note</b> This should be a known sensitivity point or the result will be zero 
-   * @return Sensitivity at a given point 
+   * @param t The time along the curve. <b>Note</b> This should be a known sensitivity point or the result will be zero
+   * @return Sensitivity at a given point
    */
   public static final double curveSensitvityFDCalculator(final InstrumentDerivative ird, final InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> calculator, final YieldCurveBundle curves,
       final String curveName, final double t) {
@@ -135,7 +136,7 @@ public abstract class FDCurveSensitivityCalculator {
     final Function1D<Double, Double> blip = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
-        return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance 
+        return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance
       }
     };
 
@@ -160,7 +161,7 @@ public abstract class FDCurveSensitivityCalculator {
     final Function1D<Double, Double> blip = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
-        return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance 
+        return (Math.abs(x - t) < 3.0e-6 ? eps : 0.0); //100 second tolerance
       }
     };
 

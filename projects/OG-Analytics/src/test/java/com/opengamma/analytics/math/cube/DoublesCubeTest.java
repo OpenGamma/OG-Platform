@@ -13,11 +13,13 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DoublesCubeTest {
   static final String NAME = "a";
   static final double[] X_PRIMITIVE;
@@ -43,10 +45,10 @@ public class DoublesCubeTest {
     Y_OBJECT = new Double[n];
     Z_OBJECT = new Double[n];
     DATA_OBJECT = new Double[n];
-    X_LIST = new ArrayList<Double>();
-    Y_LIST = new ArrayList<Double>();
-    Z_LIST = new ArrayList<Double>();
-    DATA_LIST = new ArrayList<Double>();
+    X_LIST = new ArrayList<>();
+    Y_LIST = new ArrayList<>();
+    Z_LIST = new ArrayList<>();
+    DATA_LIST = new ArrayList<>();
     int count = 0;
     for (int i = 0; i < 5; i++) {
       final double x = i;

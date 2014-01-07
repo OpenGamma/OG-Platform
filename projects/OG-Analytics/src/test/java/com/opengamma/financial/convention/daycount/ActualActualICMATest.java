@@ -12,11 +12,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test ActualActualICMA.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualActualICMATest {
 
   protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
@@ -69,7 +71,7 @@ public class ActualActualICMATest {
 
   @Test
   public void test1() {
-    assertEquals(DC1.getConventionName(), "Actual/Actual ICMA");
+    assertEquals(DC1.getName(), "Actual/Actual ICMA");
     assertEquals(DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, StubType.NONE), 0);
   }
 
@@ -115,7 +117,7 @@ public class ActualActualICMATest {
 
   @Test
   public void test2() {
-    assertEquals(DC2.getConventionName(), "Actual/Actual ICMA Normal");
+    assertEquals(DC2.getName(), "Actual/Actual ICMA Normal");
     assertEquals(DC2.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), DC1.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS, StubType.NONE), 0);
   }
 }

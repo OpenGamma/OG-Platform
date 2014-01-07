@@ -9,12 +9,13 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A cache to optimize the results of {@code InterpolatedYieldCurveDefinitionSource}.
@@ -66,7 +67,7 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
   //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(Currency currency, String name) {
-    ObjectsPair<Currency, String> cacheKey = Pair.of(currency, name);
+    Pair<Currency, String> cacheKey = Pairs.of(currency, name);
     Element e = _latestDefinitionCache.get(cacheKey);
     if (e != null) {
       YieldCurveDefinition doc = (YieldCurveDefinition) e.getObjectValue();
@@ -85,6 +86,11 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
   @Override
   public YieldCurveDefinition getDefinition(Currency currency, String name, VersionCorrection version) {
     return _underlying.getDefinition(currency, name, version); // TODO PLAT-1308: I'm not caching this because this cache doesn't version things properly
+  }
+
+  @Override
+  public ChangeManager changeManager() {
+    return _underlying.changeManager();
   }
 
 }

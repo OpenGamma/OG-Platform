@@ -11,25 +11,27 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveShiftFunctionFactoryTest {
-  private static final Function<Double, Double> F = new Function<Double, Double>() {
+  private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
-    public Double evaluate(final Double... x) {
-      return x[0];
+    public Double evaluate(final Double x) {
+      return x;
     }
 
   };
   private static final ConstantDoublesCurve CONSTANT = ConstantDoublesCurve.from(3.4);
   private static final FunctionalDoublesCurve FUNCTIONAL = FunctionalDoublesCurve.from(F);
-  private static final InterpolatedDoublesCurve INTERPOLATED = InterpolatedDoublesCurve.from(new double[] {1, 2}, new double[] {1.2, 3.4}, new LinearInterpolator1D());
-  private static final SpreadDoublesCurve SPREAD = SpreadDoublesCurve.from(new AddCurveSpreadFunction(), new DoublesCurve[] {INTERPOLATED, CONSTANT});
+  private static final InterpolatedDoublesCurve INTERPOLATED = InterpolatedDoublesCurve.from(new double[] {1, 2 }, new double[] {1.2, 3.4 }, new LinearInterpolator1D());
+  private static final SpreadDoublesCurve SPREAD = SpreadDoublesCurve.from(new AddCurveSpreadFunction(), new DoublesCurve[] {INTERPOLATED, CONSTANT });
   private static final DoublesCurve DUMMY = new DoublesCurve() {
 
     @Override
@@ -55,6 +57,11 @@ public class CurveShiftFunctionFactoryTest {
     @Override
     public Double[] getYValueParameterSensitivity(final Double x) {
       return ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
+    }
+
+    @Override
+    public double getDyDx(final double x) {
+      return 0;
     }
 
   };
@@ -185,48 +192,48 @@ public class CurveShiftFunctionFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType5() {
-    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1}, new double[] {1});
+    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1 }, new double[] {1 });
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongCurveType6() {
-    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1}, new double[] {1}, "N");
+    CurveShiftFunctionFactory.getShiftedCurve(DUMMY, new double[] {1 }, new double[] {1 }, "N");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift7() {
-    CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1}, new double[] {1});
+    CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1 }, new double[] {1 });
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift8() {
-    CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1}, new double[] {1});
+    CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1 }, new double[] {1 });
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift9() {
-    CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1}, new double[] {1});
+    CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1 }, new double[] {1 });
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift10() {
-    CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1}, new double[] {1}, "L");
+    CurveShiftFunctionFactory.getShiftedCurve(CONSTANT, new double[] {1 }, new double[] {1 }, "L");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift11() {
-    CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1}, new double[] {1}, "K");
+    CurveShiftFunctionFactory.getShiftedCurve(FUNCTIONAL, new double[] {1 }, new double[] {1 }, "K");
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testUnsupportedShift12() {
-    CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1}, new double[] {1}, "J");
+    CurveShiftFunctionFactory.getShiftedCurve(SPREAD, new double[] {1 }, new double[] {1 }, "J");
   }
 
   @Test
   public void testGetShiftedCurve3() {
-    final double[] x = new double[] {1};
-    final double[] y = new double[] {2};
+    final double[] x = new double[] {1 };
+    final double[] y = new double[] {2 };
     Curve<Double, Double> shifted = CurveShiftFunctionFactory.getShiftedCurve(INTERPOLATED, x, y);
     Curve<Double, Double> expected = new InterpolatedCurveShiftFunction().evaluate(INTERPOLATED, x, y);
     assertEquals(shifted.getClass(), expected.getClass());

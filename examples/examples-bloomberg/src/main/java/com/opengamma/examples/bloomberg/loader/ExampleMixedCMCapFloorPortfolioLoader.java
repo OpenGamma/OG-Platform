@@ -27,9 +27,9 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -71,11 +71,11 @@ public class ExampleMixedCMCapFloorPortfolioLoader extends AbstractTool<Integrat
   /** The trade date */
   private static final LocalDate TRADE_DATE = DateUtils.previousWeekDay().minusDays(30);
   /** Following business day convention */
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** The region */
   private static final ExternalId REGION = ExternalSchemes.financialRegionId("US+GB");
   /** Act/360 day-count */
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   /** The currency */
   private static final Currency CURRENCY = Currency.USD;
   /** The counterparty */

@@ -33,8 +33,9 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.AbstractDayCount;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
@@ -48,7 +49,7 @@ public class InstrumentTestHelper {
   public static final Calendar NO_HOLIDAY = new NoHolidayCalendar();
   public static final DayCount SEMI_ANNUAL_DAY_COUNT = new SemiAnnualDayCount();
   public static final DayCount QUARTERLY_DAY_COUNT = new QuarterlyDayCount();
-  public static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
+  public static final BusinessDayConvention NONE = BusinessDayConventions.NONE;
   public static final Currency FIXED_INCOME_CURRENCY = Currency.EUR;
   public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, SEMI_ANNUAL_DAY_COUNT, NONE, false,
       "f");
@@ -138,7 +139,7 @@ public class InstrumentTestHelper {
     IBOR_FIXING_SERIES = ImmutableLocalDateDoubleTimeSeries.of(dates, fixings);
   }
 
-  public static final class SemiAnnualDayCount extends DayCount {
+  public static final class SemiAnnualDayCount extends AbstractDayCount {
 
     public SemiAnnualDayCount() {
     }
@@ -155,13 +156,13 @@ public class InstrumentTestHelper {
     }
 
     @Override
-    public String getConventionName() {
+    public String getName() {
       return null;
     }
 
   }
 
-  public static final class QuarterlyDayCount extends DayCount {
+  public static final class QuarterlyDayCount extends AbstractDayCount {
 
     public QuarterlyDayCount() {
     }
@@ -178,7 +179,7 @@ public class InstrumentTestHelper {
     }
 
     @Override
-    public String getConventionName() {
+    public String getName() {
       return null;
     }
 

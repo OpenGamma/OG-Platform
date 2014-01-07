@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -134,7 +134,7 @@ public class CouponFixed extends Coupon {
   public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double rate) {
     this(currency, paymentTime, paymentYearFraction, 1.0, rate);
   }
-  
+
   /**
    * Gets the coupon fixed rate.
    * @return The fixed rate.
@@ -171,8 +171,13 @@ public class CouponFixed extends Coupon {
    * Creates a new coupon with the same characteristics, except the rate which is 1.0.
    * @return The new coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), 1);
+    }
   }
 
   /**
@@ -180,8 +185,13 @@ public class CouponFixed extends Coupon {
    * @param rate The new rate.
    * @return The coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withRate(final double rate) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    }
   }
 
   /**
@@ -189,21 +199,37 @@ public class CouponFixed extends Coupon {
    * @param spread The rate spread.
    * @return The coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withRateShifted(final double spread) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponFixed withNotional(final double notional) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+
+    }
   }
 
   /**
    * Returns a fixed payment with the same features (currency, payment time, amount) as the fixed coupon.
    * @return A fixed payment.
    */
+  @SuppressWarnings("deprecation")
   public PaymentFixed toPaymentFixed() {
-    return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());
+    try {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());
+    } catch (final IllegalStateException e) {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), _amount);
+    }
   }
 
   @Override

@@ -1,0 +1,61 @@
+<section>
+  <table class="OG-table">
+    <colgroup>
+      <col style="width: 33%">              
+      <col style="width: 67%">              
+    </colgroup>
+    <tbody>
+      <tr>
+        <td>
+          <label>
+            <span>Notional</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span>{{{item_0}}}</span><span><input name="security.amount" type="text" value="{{amount}}"/></span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Rate</span>
+          </label>
+        </td>
+        <td>
+          <input name="security.rate" type="text" value="{{rate}}"/>
+        </td>
+      </tr>
+      {{{item_1}}}
+      <tr>
+        <td>
+          <label>
+            <span>Start Date</span>
+          </label>
+        </td>
+        <td>
+          <input class="blotter-date" name="security.start" type="text" value="{{start}}"/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Maturity</span>
+          </label>
+      </td>
+        <td>
+          <input class="blotter-date" name="security.maturity" type="text" value="{{maturity}}"/>
+        </td>
+      </tr>
+      <tr>
+          <td>
+              <label>
+                  <span>Day Count</span>
+              </label>
+          </td>
+          <td>
+            {{{item_2}}}
+          </td>
+      </tr>
+    </tbody>
+  </table>
+</section>

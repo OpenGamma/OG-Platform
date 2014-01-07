@@ -1,14 +1,14 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
+import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.BondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -17,7 +17,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Description of a bond future (derivative version).
+ * @deprecated Use the {@link BondFuturesSecurityDefinition} and {@link BondFuturesTransactionDefinition}.
  */
+@Deprecated
 public class BondFuture implements InstrumentDerivative {
 
   /**
@@ -54,7 +56,7 @@ public class BondFuture implements InstrumentDerivative {
    */
   private final double[] _conversionFactor;
   /**
-   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
+   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.
    * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
    * TODO Confirm treatment
    */
@@ -70,24 +72,23 @@ public class BondFuture implements InstrumentDerivative {
    * @param notional The notional of the bond future.
    * @param deliveryBasket The basket of deliverable bonds.
    * @param conversionFactor The conversion factor of each bond in the basket.
-   * @param referencePrice The price used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward. 
+   * @param referencePrice The price used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.
    */
   public BondFuture(final double tradingLastTime, final double noticeFirstTime, final double noticeLastTime, final double deliveryFirstTime, final double deliveryLastTime, final double notional,
-      final BondFixedSecurity[] deliveryBasket,
-      final double[] conversionFactor, final double referencePrice) {
-    Validate.notNull(deliveryBasket, "Delivery basket");
-    Validate.notNull(conversionFactor, "Conversion factors");
-    Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
-    Validate.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
-    this._tradingLastTime = tradingLastTime;
-    this._noticeFirstTime = noticeFirstTime;
-    this._noticeLastTime = noticeLastTime;
-    this._deliveryFirstTime = deliveryFirstTime;
-    this._deliveryLastTime = deliveryLastTime;
-    this._deliveryBasket = deliveryBasket;
-    this._conversionFactor = conversionFactor;
-    this._notional = notional;
-    this._referencePrice = referencePrice;
+      final BondFixedSecurity[] deliveryBasket, final double[] conversionFactor, final double referencePrice) {
+    ArgumentChecker.notNull(deliveryBasket, "Delivery basket");
+    ArgumentChecker.notNull(conversionFactor, "Conversion factors");
+    ArgumentChecker.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
+    ArgumentChecker.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
+    _tradingLastTime = tradingLastTime;
+    _noticeFirstTime = noticeFirstTime;
+    _noticeLastTime = noticeLastTime;
+    _deliveryFirstTime = deliveryFirstTime;
+    _deliveryLastTime = deliveryLastTime;
+    _deliveryBasket = deliveryBasket;
+    _conversionFactor = conversionFactor;
+    _notional = notional;
+    _referencePrice = referencePrice;
   }
 
   /**
@@ -173,7 +174,9 @@ public class BondFuture implements InstrumentDerivative {
   /**
    * Gets the discount factor name.
    * @return The name.
+   * @deprecated The discounting curve name should not be set in derivatives
    */
+  @Deprecated
   public String getDiscountingCurveName() {
     return _deliveryBasket[0].getDiscountingCurveName();
   }

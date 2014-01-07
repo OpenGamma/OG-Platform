@@ -15,9 +15,9 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.ConventionBundleMasterUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
@@ -32,10 +32,10 @@ public class SyntheticUSConventions {
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount thirty360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount thirty360 = DayCounts.THIRTY_U_360;
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
 
@@ -61,7 +61,7 @@ public class SyntheticUSConventions {
     final Frequency swapFloatPaymentFrequency = quarterly;
     final Frequency annual = PeriodFrequency.ANNUAL;
 
-    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30};
+    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30 };
     // ISDA fixing 11.00 New-York
     for (final int element : isdaFixTenor) {
       final String tenorString = element + "Y";
@@ -96,12 +96,13 @@ public class SyntheticUSConventions {
 
     final int publicationLag = 1;
     // Fed Fund effective
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDFF"), simpleNameSecurityId("USD FF EFFECTIVE")),
-        "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us, publicationLag);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDFF"), simpleNameSecurityId("USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us,
+        publicationLag);
     // OIS swap
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
-        modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
-
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360, modified, annual, 2,
+        simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USDOVERNIGHT")), "USDOVERNIGHT", act360, following, Period.ofDays(1), 2, false,
+        us, publicationLag);
     // FRA conventions are stored as IRS
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_3M_FRA")), "USD_3M_FRA", thirty360, modified, quarterly, 2, usgb, act360,
         modified, quarterly, 2, simpleNameSecurityId("USD LIBOR 3m"), usgb, true);
@@ -119,6 +120,7 @@ public class SyntheticUSConventions {
 
   /**
    * Adds conventions for US Treasury bonds,
+   * 
    * @param conventionMaster The convention master, not null
    */
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {

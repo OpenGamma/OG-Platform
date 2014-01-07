@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing the Black volatility surface and shift curve used in cap/floor modeling.
@@ -39,8 +39,8 @@ public class BlackSmileShiftCapParameters implements VolatilityModel<double[]> {
    * @param index The Ibor index for which the volatility is valid.
    */
   public BlackSmileShiftCapParameters(final Surface<Double, Double, Double> volatility, final Curve<Double, Double> shift, final IborIndex index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(index, "Ibor index");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(index, "index");
     _volatility = volatility;
     _shift = shift;
     _index = index;
@@ -63,8 +63,8 @@ public class BlackSmileShiftCapParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 2, "data should have two components (expiration and strike)");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 2, "data should have two components (expiration and strike)");
     return getVolatility(data[0], data[1]);
   }
 
@@ -96,17 +96,14 @@ public class BlackSmileShiftCapParameters implements VolatilityModel<double[]> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!(obj instanceof BlackSmileShiftCapParameters)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    BlackSmileShiftCapParameters other = (BlackSmileShiftCapParameters) obj;
+    final BlackSmileShiftCapParameters other = (BlackSmileShiftCapParameters) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }

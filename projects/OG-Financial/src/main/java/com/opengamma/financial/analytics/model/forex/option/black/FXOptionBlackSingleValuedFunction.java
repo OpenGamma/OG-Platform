@@ -11,6 +11,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingFXOptionFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -19,10 +20,16 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for FX option functions that use the Black method. The results
+ * set the {@link ValuePropertyNames#CURRENCY} property.
+ * @deprecated Use classes that descend from {@link BlackDiscountingFXOptionFunction}
  */
+@Deprecated
 public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFunction {
 
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   */
   public FXOptionBlackSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
@@ -81,6 +88,14 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 
+  /**
+   * Gets the currency of the result. This is necessary to set before the calculation is performed
+   * because the engine tries to do a currency conversion if the currency is not set, leading to
+   * mismatched result specifications.
+   * @param target The target
+   * @param baseQuotePair The base quote pair
+   * @return The currency of the result
+   */
   protected String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (security instanceof FXDigitalOptionSecurity) {

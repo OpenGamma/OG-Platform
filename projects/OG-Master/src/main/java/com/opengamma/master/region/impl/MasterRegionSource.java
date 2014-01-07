@@ -51,7 +51,7 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Collection<Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);

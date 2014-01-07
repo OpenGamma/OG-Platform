@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureOptionPremiumSecurityBlackSmileMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeAndForwardBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -19,8 +20,10 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method for the pricing of bond future options. The pricing is done with a Black approach on the bond future.
- * The Black parameters are represented by (expiration-strike) surfaces.  
+ * The Black parameters are represented by (expiration-strike) surfaces.
+ * @deprecated Use {@link BondFutureOptionPremiumSecurityBlackSmileMethod}
  */
+@Deprecated
 public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
 
   /**
@@ -48,7 +51,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
   /**
-   * The method used to compute the future price. 
+   * The method used to compute the future price.
    */
   private static final BondFutureDiscountingMethod METHOD_FUTURE = BondFutureDiscountingMethod.getInstance();
 
@@ -70,7 +73,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option security price. The future price is computed from the curves. 
+   * Computes the option security price. The future price is computed from the curves.
    * @param security The bond future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price.
@@ -84,7 +87,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   /**
    * Computes the option security price. If the future price is present in the bundle ()
    * @param security The bond future option security, not null
-   * @param curves The curve, Black volatility data and potentially future price. 
+   * @param curves The curve, Black volatility data and potentially future price.
    * @return The security price.
    */
   public double optionPrice(final BondFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
@@ -99,7 +102,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option security price curve sensitivity. 
+   * Computes the option security price curve sensitivity.
    * It is supposed that for a given strike the volatility does not change with the curves.
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
@@ -123,7 +126,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option security price curve sensitivity. 
+   * Computes the option security price curve sensitivity.
    * It is supposed that for a given strike the volatility does not change with the curves.
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
@@ -148,7 +151,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option security price volatility sensitivity. 
+   * Computes the option security price volatility sensitivity.
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price Black volatility sensitivity.
@@ -165,7 +168,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
     // Backward sweep
     final double priceBar = 1.0;
     final double volatilityBar = priceAdjoint[2] * priceBar;
-    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), strike);
+    final DoublesPair expiryStrikeDelay = DoublesPair.of(security.getExpirationTime(), strike);
     final SurfaceValue sensitivity = SurfaceValue.from(expiryStrikeDelay, volatilityBar);
     return sensitivity;
   }
@@ -207,7 +210,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate.
    * @param security The future option security, not null
    * @param curves The curve and Black volatility data, not null
    * @return The security value delta.
@@ -229,7 +232,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price gamma.
@@ -252,7 +255,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
    * @param security The future option security, not null
    * @param curves The curve and Black volatility data, not null
    * @return The security price gamma.
@@ -274,7 +277,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value vega, the first derivative of the security price wrt implied vol. 
+   * Computes the option's value vega, the first derivative of the security price wrt implied vol.
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security value delta.
@@ -294,7 +297,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate. 
+   * Computes the option's value delta, the first derivative of the security price wrt underlying futures rate.
    * @param security The future option security, not null
    * @param curves The curve and Black volatility data, not null
    * @return The security value delta.
@@ -316,7 +319,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Interpolates and returns the option's implied volatility 
+   * Interpolates and returns the option's implied volatility
    * @param security The future option security, not null
    * @param curves The curve and Black volatility data, not null
    * @return Lognormal Implied Volatility
@@ -331,7 +334,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Interpolates and returns the option's implied volatility 
+   * Interpolates and returns the option's implied volatility
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return Lognormal Implied Volatility.
@@ -357,7 +360,7 @@ public final class BondFutureOptionPremiumSecurityBlackSurfaceMethod {
   }
 
   /**
-   * Computes the underlying future security price. 
+   * Computes the underlying future security price.
    * @param security The future option security, not null
    * @param blackData The curve and Black volatility data, not null
    * @return The security price.

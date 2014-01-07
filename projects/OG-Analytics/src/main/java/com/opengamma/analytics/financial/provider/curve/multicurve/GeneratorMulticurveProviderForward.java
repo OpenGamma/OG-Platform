@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.multicurve;
@@ -23,7 +23,6 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Generator of MarketDiscountBundle from the parameters.
- * @author marc
  */
 public class GeneratorMulticurveProviderForward extends Function1D<DoubleMatrix1D, MulticurveProviderInterface> {
 
@@ -85,15 +84,15 @@ public class GeneratorMulticurveProviderForward extends Function1D<DoubleMatrix1
   }
 
   @Override
-  public MulticurveProviderForward evaluate(DoubleMatrix1D x) {
-    MulticurveProviderForward bundle = _knownData.copy();
-    Set<String> nameSet = _generatorsMap.keySet();
+  public MulticurveProviderForward evaluate(final DoubleMatrix1D x) {
+    final MulticurveProviderForward bundle = _knownData.copy();
+    final Set<String> nameSet = _generatorsMap.keySet();
     int indexParam = 0;
-    for (String name : nameSet) {
-      GeneratorYDCurve gen = _generatorsMap.get(name);
-      double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + gen.getNumberOfParameter());
+    for (final String name : nameSet) {
+      final GeneratorYDCurve gen = _generatorsMap.get(name);
+      final double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + gen.getNumberOfParameter());
       indexParam += gen.getNumberOfParameter();
-      YieldAndDiscountCurve curve = gen.generateCurve(name, bundle, paramCurve);
+      final YieldAndDiscountCurve curve = gen.generateCurve(name, bundle, paramCurve);
       if (_discountingMap.containsKey(name)) {
         bundle.setCurve(_discountingMap.get(name), curve);
       }

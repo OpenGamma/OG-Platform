@@ -14,10 +14,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TridiagonalMatrixTest {
   private static final double[] A = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   private static final double[] B = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};

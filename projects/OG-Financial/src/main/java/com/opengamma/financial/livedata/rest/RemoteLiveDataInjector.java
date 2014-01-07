@@ -24,8 +24,12 @@ public class RemoteLiveDataInjector implements MarketDataInjector {
   private final FudgeRestClient _client;
 
   public RemoteLiveDataInjector(final URI baseUri) {
+    this(baseUri, FudgeRestClient.create());
+  }
+
+  public RemoteLiveDataInjector(final URI baseUri, final FudgeRestClient client) {
     _baseUri = baseUri;
-    _client = FudgeRestClient.create();
+    _client = client;
   }
 
   @Override

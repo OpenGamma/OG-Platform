@@ -57,6 +57,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
     EHCacheUtils.addCache(cacheManager, CONFIG_CACHE);
     _configCache = EHCacheUtils.getCacheFromManager(cacheManager, CONFIG_CACHE);
+    
   }
 
   //-------------------------------------------------------------------------
@@ -147,7 +148,7 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public <R> Collection<ConfigItem<R>> get(final Class<R> clazz, final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
@@ -207,16 +208,16 @@ public class EHCachingMasterConfigSource extends MasterConfigSource {
     }
 
     private void cleanCaches(final ChangeEvent event) {
-      final ObjectId objectId = event.getObjectId();
-      if (inCache(objectId)) {
-        _configCache.removeAll();
-      }
+//    final ObjectId objectId = event.getObjectId();
+//    if (inCache(objectId)) {
+      _configCache.removeAll(); // Jim - 5-Aug-2013 -- This was too conservative I think.  Just flush everything for the moment.
+//    }
     }
 
-    private boolean inCache(final ObjectId objectId) {
-      final Element element = _configCache.get(objectId);
-      return element != null;
-    }
+//    private boolean inCache(final ObjectId objectId) {
+//      final Element element = _configCache.get(objectId);
+//      return element != null;
+//    }
   }
 
 }

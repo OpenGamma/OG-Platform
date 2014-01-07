@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.property;
@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueRequirement;
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (Map.Entry<String, String> attribute : getAttributes(defaults.getTarget()).entrySet()) {
+    for (final Map.Entry<String, String> attribute : getAttributes(defaults.getTarget()).entrySet()) {
       final int i = attribute.getKey().indexOf(SEP);
       if (i > 0) {
         final String valueName = attribute.getKey().substring(0, i);
@@ -60,7 +60,7 @@ import com.opengamma.engine.value.ValueRequirement;
       s_logger.debug("No attributes for target {}", target);
       return false;
     }
-    for (Map.Entry<String, String> attribute : attributes.entrySet()) {
+    for (final Map.Entry<String, String> attribute : attributes.entrySet()) {
       final int i = attribute.getKey().indexOf(SEP);
       if (i > 0) {
         s_logger.debug("Found attribute {} for target {}", attribute.getKey(), target);
@@ -86,8 +86,8 @@ import com.opengamma.engine.value.ValueRequirement;
   /**
    * Position and trade default functions are declared a lower priority so that the normal functions that work
    * from the calculation configuration can override their behavior.
-   * 
-   * @return {@link PriorityClass#BELOW_NORMAL}
+   *
+   * @return {@link com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass#BELOW_NORMAL}
    */
   @Override
   public PriorityClass getPriority() {

@@ -36,6 +36,17 @@ public interface CurveInstrumentProvider {
   ExternalId getInstrument(LocalDate curveDate, Tenor startTenor, Tenor futureTenor, int numFutureFromTenor);
 
   /**
+   * Gets the external id of the market data for an IMM instrument given a curve construction date,
+   * start tenor, start IMM period number and end IMM period number.
+   * @param curveDate The curve construction date
+   * @param startTenor The tenor from which to start counting IMM periods
+   * @param startIMMPeriods The number of IMM periods to the start of the swap from the start tenor
+   * @param endIMMPeriods The number of IMM periods to the end of the swap from the start tenor
+   * @return The external id for the market data of the instrument
+   */
+  ExternalId getInstrument(LocalDate curveDate, Tenor startTenor, int startIMMPeriods, int endIMMPeriods);
+
+  /**
    * Gets the market data field to use for this identifier.
    * @return The market data field
    */

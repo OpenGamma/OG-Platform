@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.function.Function1D;
 public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double> {
 
   @Override
-  public Double getRoot(Function1D<Double, Double> function, Double... startingPoints) {
+  public Double getRoot(final Function1D<Double, Double> function, final Double... startingPoints) {
     Validate.notNull(startingPoints);
     Validate.isTrue(startingPoints.length == 2);
     return getRoot(function, startingPoints[0], startingPoints[1]);
@@ -34,7 +34,7 @@ public abstract class RealSingleRootFinder implements SingleRootFinder<Double, D
     Validate.notNull(function);
     Validate.notNull(x1);
     Validate.notNull(x2);
-    Validate.isTrue(x1 < x2, "x1 must be less than x2");
+    Validate.isTrue(x1 <= x2, "x1 must be less or equal to  x2");
     Validate.isTrue(function.evaluate(x1) * function.evaluate(x2) <= 0, "x1 and x2 do not bracket a root");
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -24,7 +24,6 @@ public class PCHIPInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
 
   // TODO have options on method
-  private static final PiecewisePolynomialInterpolator BASE = new PiecewiseCubicHermiteSplineInterpolator();
   private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialWithSensitivityFunction1D();
 
   @Override
@@ -34,6 +33,16 @@ public class PCHIPInterpolator1D extends Interpolator1D {
     Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
     final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
     final DoubleMatrix1D res = FUNC.evaluate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
+    return res.getEntry(0);
+  }
+
+  @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    Validate.isTrue(data instanceof Interpolator1DPiecewisePoynomialDataBundle);
+    final Interpolator1DPiecewisePoynomialDataBundle polyData = (Interpolator1DPiecewisePoynomialDataBundle) data;
+    final DoubleMatrix1D res = FUNC.differentiate(polyData.getPiecewisePolynomialResultsWithSensitivity(), value);
     return res.getEntry(0);
   }
 

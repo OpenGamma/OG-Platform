@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -19,11 +19,13 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFutu
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -42,9 +44,6 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
   private static final int QUANTITY = 1234;
   private static final SwapFuturesPriceDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
       new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
-
-  private static final String NOT_USED = "NOT USED";
-  private static final String[] NOT_USED_A = new String[] {NOT_USED, NOT_USED };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullUnderlying() {
@@ -72,11 +71,11 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeOnTradeDate() {
-    ZonedDateTime referenceDate = TRAN_DATE;
-    double lastMargin = 0.99 + 1.0 / 32.0 / 100.0;
-    SwapFuturesPriceDeliverableSecurity underlying = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, NOT_USED_A);
-    SwapFuturesPriceDeliverableTransaction derivativeExpected = new SwapFuturesPriceDeliverableTransaction(underlying, TRAN_PRICE, QUANTITY);
-    SwapFuturesPriceDeliverableTransaction derivativeConverted = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMargin, NOT_USED_A);
+    final ZonedDateTime referenceDate = TRAN_DATE;
+    final double lastMargin = 0.99 + 1.0 / 32.0 / 100.0;
+    final SwapFuturesPriceDeliverableSecurity underlying = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate);
+    final SwapFuturesPriceDeliverableTransaction derivativeExpected = new SwapFuturesPriceDeliverableTransaction(underlying, TRAN_PRICE, QUANTITY);
+    final SwapFuturesPriceDeliverableTransaction derivativeConverted = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMargin);
     assertEquals("DeliverableSwapFuturesTransactionDefinition: toDerivative", derivativeExpected, derivativeConverted);
   }
 
@@ -85,11 +84,11 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeAfterTradeDate() {
-    ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRAN_DATE, 1, NYC);
-    double lastMargin = 0.99080;
-    SwapFuturesPriceDeliverableSecurity underlying = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, NOT_USED_A);
-    SwapFuturesPriceDeliverableTransaction derivativeExpected = new SwapFuturesPriceDeliverableTransaction(underlying, lastMargin, QUANTITY);
-    SwapFuturesPriceDeliverableTransaction derivativeConverted = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMargin, NOT_USED_A);
+    final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRAN_DATE, 1, NYC);
+    final double lastMargin = 0.99080;
+    final SwapFuturesPriceDeliverableSecurity underlying = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate);
+    final SwapFuturesPriceDeliverableTransaction derivativeExpected = new SwapFuturesPriceDeliverableTransaction(underlying, lastMargin, QUANTITY);
+    final SwapFuturesPriceDeliverableTransaction derivativeConverted = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMargin);
     assertEquals("DeliverableSwapFuturesTransactionDefinition: toDerivative", derivativeExpected, derivativeConverted);
   }
 

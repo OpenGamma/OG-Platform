@@ -10,7 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Abstract test.
+ */
+@Test(groups = TestGroup.UNIT)
 public abstract class Integrator1DTestCase {
   private static final Function1D<Double, Double> DF = new Function1D<Double, Double>() {
 

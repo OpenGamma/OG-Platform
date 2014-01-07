@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -17,26 +17,28 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.future.BondFuturesSecurityDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to bond futures transaction Derivative construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFutureTransactionTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -63,10 +65,7 @@ public class BondFutureTransactionTest {
   private static final BondFuturesSecurityDefinition BOND_FUTURE_SECURITY_DEFINITION = new BondFuturesSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL,
       BASKET_DEFINITION, CONVERSION_FACTOR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 20);
-  private static final String CREDIT_CURVE_NAME = "Credit";
-  private static final String REPO_CURVE_NAME = "Repo";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
-  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE);
   // Transaction
   private static final int QUANTITY = 4321;
   private static final double REFERENCE_PRICE = 1.0987;
@@ -93,7 +92,7 @@ public class BondFutureTransactionTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_TRANSACTION.equals(FUTURE_TRANSACTION));
-    BondFuturesTransaction other = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
+    final BondFuturesTransaction other = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
     assertTrue(FUTURE_TRANSACTION.equals(other));
     assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
     BondFuturesTransaction modifiedFuture;
@@ -101,7 +100,7 @@ public class BondFutureTransactionTest {
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     modifiedFuture = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
-    BondFuturesSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 1, CALENDAR), CURVES_NAME);
+    final BondFuturesSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 1, CALENDAR));
     modifiedFuture = new BondFuturesTransaction(otherUnderlying, QUANTITY, REFERENCE_PRICE);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     assertFalse(FUTURE_TRANSACTION.equals(CUR));

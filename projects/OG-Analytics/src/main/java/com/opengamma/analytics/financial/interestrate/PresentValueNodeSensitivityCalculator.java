@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -11,12 +11,15 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Computes the sensitivity to the node in the curves.
+ * @deprecated Use the calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public class PresentValueNodeSensitivityCalculator extends NodeYieldSensitivityCalculator {
 
   private static final PresentValueNodeSensitivityCalculator DEFAULT_INSTANCE = new PresentValueNodeSensitivityCalculator();

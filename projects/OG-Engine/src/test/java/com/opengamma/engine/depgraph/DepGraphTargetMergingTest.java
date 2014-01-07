@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the dependency graph building when two targets can be merged to create a composite equivalent to both.
@@ -71,13 +72,11 @@ public class DepGraphTargetMergingTest extends AbstractDependencyGraphBuilderTes
       } else if (target.getUniqueId().getValue().startsWith("3")) {
         return ImmutableSet.of(_req1, _req2);
       } else if (target.getUniqueId().getValue().startsWith("4")) {
-        return ImmutableSet.of(
-            new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2A"))),
+        return ImmutableSet.of(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2A"))),
             new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2B"))),
             new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3A"))),
             new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3B"))),
-            new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))),
-            _req1, _req2);
+            new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))), _req1, _req2);
       } else {
         throw new IllegalStateException();
       }
@@ -164,93 +163,119 @@ public class DepGraphTargetMergingTest extends AbstractDependencyGraphBuilderTes
   }
 
   private Set<String> getTargets(final DependencyGraph graph) {
-    final Collection<ComputationTargetSpecification> targets = graph.getAllComputationTargets();
-    final Set<String> identifiers = Sets.newHashSetWithExpectedSize(targets.size());
-    for (final ComputationTargetSpecification target : targets) {
-      identifiers.add(target.getUniqueId().getValue());
+    final Set<String> identifiers = new HashSet<String>();
+    final Iterator<DependencyNode> itr = graph.nodeIterator();
+    while (itr.hasNext()) {
+      final DependencyNode node = itr.next();
+      identifiers.add(node.getTarget().getUniqueId().getValue());
     }
     return identifiers;
   }
 
   public void testNoInputsNoOutputs() {
-    final DependencyGraphBuilder builder = helper().createBuilder(null);
-    builder.setComputationTargetCollapser(collapser());
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
-    final DependencyGraph graph = builder.getDependencyGraph();
-    assertEquals(graph.getDependencyNodes().size(), 1); // Foo(0A0B0C)
-    assertEquals(getTargets(graph), ImmutableSet.of("0A0B0C"));
+    TestLifecycle.begin();
+    try {
+      final DependencyGraphBuilder builder = helper().createBuilder(null);
+      builder.setComputationTargetCollapser(collapser());
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
+      final DependencyGraph graph = builder.getDependencyGraph();
+      assertEquals(graph.getSize(), 1); // Foo(0A0B0C)
+      assertEquals(getTargets(graph), ImmutableSet.of("0A0B0C"));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testNoInputs() {
-    final DepGraphTestHelper helper = helper();
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    builder.setComputationTargetCollapser(collapser());
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
-    final DependencyGraph graph = builder.getDependencyGraph();
-    assertEquals(graph.getDependencyNodes().size(), 4); // Foo(0A0B0C) -> { Bar(0A), Bar(0B), Bar(0C) }
-    assertEquals(getTargets(graph), ImmutableSet.of("0A0B0C", "0A", "0B", "0C"));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = helper();
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      builder.setComputationTargetCollapser(collapser());
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
+      final DependencyGraph graph = builder.getDependencyGraph();
+      assertEquals(graph.getSize(), 4); // Foo(0A0B0C) -> { Bar(0A), Bar(0B), Bar(0C) }
+      assertEquals(getTargets(graph), ImmutableSet.of("0A0B0C", "0A", "0B", "0C"));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testNoOutputs() {
-    final DepGraphTestHelper helper = helper();
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    builder.setComputationTargetCollapser(collapser());
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1C"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2C"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3C"))));
-    final DependencyGraph graph = builder.getDependencyGraph();
-    assertEquals(graph.getDependencyNodes().size(), 6); // Foo(0A0B0C), Req1 -> Foo(1A1B1C), Req2 -> Foo(2A2B2C), { Req1, Req2 } -> Foo(3A3B3C)
-    assertEquals(getTargets(graph), ImmutableSet.of("0A0B0C", "1A1B1C", "2A2B2C", "3A3B3C", helper.getTarget().toSpecification().getUniqueId().getValue()));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = helper();
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      builder.setComputationTargetCollapser(collapser());
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1C"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2C"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3C"))));
+      final DependencyGraph graph = builder.getDependencyGraph();
+      assertEquals(graph.getSize(), 6); // Foo(0A0B0C), Req1 -> Foo(1A1B1C), Req2 -> Foo(2A2B2C), { Req1, Req2 } -> Foo(3A3B3C)
+      assertEquals(getTargets(graph), ImmutableSet.of("0A0B0C", "1A1B1C", "2A2B2C", "3A3B3C", helper.getTarget().toSpecification().getUniqueId().getValue()));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testFull() {
-    final DepGraphTestHelper helper = helper();
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    builder.setComputationTargetCollapser(collapser());
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "1A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1B"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "1C"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2A"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "2B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2C"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "3A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3B"))));
-    builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "3C"))));
-    final DependencyGraph graph = builder.getDependencyGraph();
-    assertEquals(graph.getDependencyNodes().size(), 12); // Foo(0A0B0C) -> Bar(0B), Req1 -> Foo(1A1B1C) -> { Bar(1A), Bar(1C) }, Req2 -> Foo(2A2B2C) -> Bar(2B), { Req1, Req2 } -> Foo(3A3B3C) -> { Bar(3A), Bar (3C) }
-    assertEquals(getTargets(graph),
-        ImmutableSet.of("0A0B0C", "1A1B1C", "2A2B2C", "3A3B3C", helper.getTarget().toSpecification().getUniqueId().getValue(), "0B", "1A", "1C", "2B", "3A", "3C"));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = helper();
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      builder.setComputationTargetCollapser(collapser());
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0A"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "0B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "0C"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "1A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1B"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "1C"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2A"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "2B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "2C"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "3A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "3B"))));
+      builder.addTarget(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "3C"))));
+      final DependencyGraph graph = builder.getDependencyGraph();
+      assertEquals(graph.getSize(), 12); // Foo(0A0B0C) -> Bar(0B), Req1 -> Foo(1A1B1C) -> { Bar(1A), Bar(1C) }, Req2 -> Foo(2A2B2C) -> Bar(2B), { Req1, Req2 } -> Foo(3A3B3C) -> { Bar(3A), Bar (3C) }
+      assertEquals(getTargets(graph),
+          ImmutableSet.of("0A0B0C", "1A1B1C", "2A2B2C", "3A3B3C", helper.getTarget().toSpecification().getUniqueId().getValue(), "0B", "1A", "1C", "2B", "3A", "3C"));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testTwoLevelCollapse() {
-    final DepGraphTestHelper helper = helper();
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    builder.setComputationTargetCollapser(collapser());
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4A"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4B"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4C"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4D"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4E"))));
-    builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4F"))));
-    final DependencyGraph graph = builder.getDependencyGraph();
-    assertEquals(graph.getDependencyNodes().size(), 6);
-    assertEquals(getTargets(graph), ImmutableSet.of("0C", "2A2B", "3A3B", "4A4B4C4D4E4F", helper.getTarget().toSpecification().getUniqueId().getValue()));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = helper();
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      builder.setComputationTargetCollapser(collapser());
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4A"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4B"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4C"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4D"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4E"))));
+      builder.addTarget(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "4F"))));
+      final DependencyGraph graph = builder.getDependencyGraph();
+      assertEquals(graph.getSize(), 6);
+      assertEquals(getTargets(graph), ImmutableSet.of("0C", "2A2B", "3A3B", "4A4B4C4D4E4F", helper.getTarget().toSpecification().getUniqueId().getValue()));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
@@ -9,10 +9,13 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 
 /**
  * Class describing the data required to price interest rate derivatives with Hull-White one factor model (curves and model parameters).
+ * @deprecated Use {@link HullWhiteOneFactorProviderDiscount}
  */
+@Deprecated
 public class HullWhiteOneFactorPiecewiseConstantDataBundle extends YieldCurveBundle {
 
   /**

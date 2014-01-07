@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cash.definition;
@@ -20,8 +20,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DepositIborDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -34,7 +39,6 @@ public class DepositIborDefinitionTest {
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE = 0.0250;
-  //  private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, INDEX, NO_HOLIDAYS);
   private static final double DEPOSIT_AF = INDEX.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final DepositIborDefinition DEPOSIT_IBOR_DEFINITION = new DepositIborDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF, INDEX);
@@ -77,16 +81,86 @@ public class DepositIborDefinitionTest {
     assertEquals("DepositDefinition: from", DEPOSIT_IBOR_DEFINITION, fromStartTenor);
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeTradeDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeBetweenTradeAndSettleDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeSettleDeprecated() {
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeBetweenSettleMaturityDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeMaturityDeprecated() {
+    final ZonedDateTime referenceDate = END_DATE;
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
   @Test
   /**
    * Tests toDerivative.
    */
   public void toDerivativeTrade() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -96,10 +170,10 @@ public class DepositIborDefinitionTest {
    */
   public void toDerivativeBetweenTradeAndSettle() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
-    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -109,10 +183,10 @@ public class DepositIborDefinitionTest {
    */
   public void toDerivativeSettle() {
     final ZonedDateTime referenceDate = SPOT_DATE;
-    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -122,10 +196,10 @@ public class DepositIborDefinitionTest {
    */
   public void toDerivativeBetweenSettleMaturity() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final double startTime = 0;
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, INDEX);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -135,11 +209,10 @@ public class DepositIborDefinitionTest {
    */
   public void toDerivativeMaturity() {
     final ZonedDateTime referenceDate = END_DATE;
-    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final DepositIbor converted = DEPOSIT_IBOR_DEFINITION.toDerivative(referenceDate);
     final double startTime = 0;
     final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor expected = new DepositIbor(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, INDEX);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
-
 }

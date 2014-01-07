@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
 
 import java.util.TreeMap;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -22,13 +20,16 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Compute the cash flow equivalent of simple instruments (in single or multi-curve framework).
  * The cash-flow equivalent have at most one payment by time and the times are sorted in ascending order.
  * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
+ * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator}
  */
+@Deprecated
 public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, AnnuityPaymentFixed> {
 
   /**
@@ -52,22 +53,22 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
 
   @Override
   public AnnuityPaymentFixed visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(payment, "payment");
     return new AnnuityPaymentFixed(new PaymentFixed[] {payment });
   }
 
   @Override
   public AnnuityPaymentFixed visitCouponFixed(final CouponFixed coupon, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(coupon);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(coupon, "coupon");
     return new AnnuityPaymentFixed(new PaymentFixed[] {coupon.toPaymentFixed() });
   }
 
   @Override
   public AnnuityPaymentFixed visitCouponIbor(final CouponIbor payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(payment, "payment");
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(payment.getForwardCurveName());
     final double fixingStartTime = payment.getFixingPeriodStartTime();
@@ -84,8 +85,8 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
 
   @Override
   public AnnuityPaymentFixed visitCouponIborSpread(final CouponIborSpread payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(payment, "payment");
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(payment.getForwardCurveName());
     final double fixingStartTime = payment.getFixingPeriodStartTime();
@@ -102,8 +103,8 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
 
   @Override
   public AnnuityPaymentFixed visitCouponIborGearing(final CouponIborGearing payment, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(payment);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(payment, "payment");
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(payment.getFundingCurveName());
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(payment.getForwardCurveName());
     final double fixingStartTime = payment.getFixingPeriodStartTime();
@@ -121,9 +122,9 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
 
   @Override
   public AnnuityPaymentFixed visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(annuity);
-    final TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(annuity, "annuity");
+    final TreeMap<Double, Double> flow = new TreeMap<>();
     final Currency ccy = annuity.getCurrency();
     for (final Payment p : annuity.getPayments()) {
       final AnnuityPaymentFixed cfe = p.accept(this, curves);
@@ -146,11 +147,11 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
 
   @Override
   public AnnuityPaymentFixed visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(swap);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(swap, "swap");
     final Currency ccy = swap.getFirstLeg().getCurrency();
-    Validate.isTrue(ccy.equals(swap.getSecondLeg().getCurrency()), "Cash flow equivalent available only for single currency swaps.");
-    final TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    ArgumentChecker.isTrue(ccy.equals(swap.getSecondLeg().getCurrency()), "Cash flow equivalent available only for single currency swaps.");
+    final TreeMap<Double, Double> flow = new TreeMap<>();
     final AnnuityPaymentFixed cfeLeg1 = swap.getFirstLeg().accept(this, curves);
     final AnnuityPaymentFixed cfeLeg2 = swap.getSecondLeg().accept(this, curves);
     for (final PaymentFixed p : cfeLeg1.getPayments()) {
@@ -174,10 +175,10 @@ public class CashFlowEquivalentCalculator extends InstrumentDerivativeVisitorAda
 
   @Override
   public AnnuityPaymentFixed visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bond);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(bond, "bond");
     final Currency ccy = bond.getCurrency();
-    final TreeMap<Double, Double> flow = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> flow = new TreeMap<>();
     final AnnuityPaymentFixed cfeNom = bond.getNominal().accept(this, curves);
     final AnnuityPaymentFixed cfeCpn = bond.getCoupon().accept(this, curves);
     for (final PaymentFixed p : cfeNom.getPayments()) {

@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -34,13 +33,14 @@ public class DepositIbor extends Cash {
    * @param accrualFactor The accrual factor (or year fraction).
    * @param index The associated index.
    * @param indexCurveName The name of the curve associated to the index.
+   * @deprecated Use the constructor that does not take yield curve names
    */
-  @SuppressWarnings("deprecation")
+  @Deprecated
   public DepositIbor(final Currency currency, final double startTime, final double endTime, final double notional, final double initialAmount, final double rate, final double accrualFactor,
       final IborIndex index, final String indexCurveName) {
     super(currency, startTime, endTime, notional, initialAmount, rate, accrualFactor, indexCurveName);
-    Validate.notNull(index, "Index");
-    Validate.isTrue(currency.equals(index.getCurrency()), "Currency should be equal to index currency");
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Currency should be equal to index currency");
     _index = index;
   }
 
@@ -58,8 +58,8 @@ public class DepositIbor extends Cash {
   public DepositIbor(final Currency currency, final double startTime, final double endTime, final double notional, final double initialAmount, final double rate, final double accrualFactor,
       final IborIndex index) {
     super(currency, startTime, endTime, notional, initialAmount, rate, accrualFactor);
-    Validate.notNull(index, "Index");
-    Validate.isTrue(currency.equals(index.getCurrency()), "Currency should be equal to index currency");
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Currency should be equal to index currency");
     _index = index;
   }
 

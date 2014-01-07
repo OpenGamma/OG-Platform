@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -19,13 +19,15 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test of coupon Ibor Average class.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborAverageTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -34,7 +36,7 @@ public class CouponIborAverageTest {
   private static final IborIndex INDEX_EURIBOR6M = INDEX_IBOR_MASTER.getIndex("EURIBOR6M");
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Coupon
-  private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount DAY_COUNT_COUPON = DayCounts.ACT_365;
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 2, 23);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2011, 8, 22);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 8, 24);
@@ -47,8 +49,6 @@ public class CouponIborAverageTest {
   private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_2, INDEX_EURIBOR3M, TARGET);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
-  //  private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);
-  //  private static final double ACCRUAL_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATE);
   private static final double FIXING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE);
   private static final double FIXING_START_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_START_DATE_1);
   private static final double FIXING_END_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE_1);
@@ -102,6 +102,14 @@ public class CouponIborAverageTest {
     assertEquals("CouponIbor: getter", FIXING_START_TIME_2, CPN_IBOR_AVERAGE.getFixingPeriodStartTime2());
     assertEquals("CouponIbor: getter", FIXING_END_TIME_2, CPN_IBOR_AVERAGE.getFixingPeriodEndTime2());
     assertEquals("CouponIbor: getter", FIXING_ACCRUAL_FACTOR_2, CPN_IBOR_AVERAGE.getFixingAccrualFactor2());
+  }
+
+  @Test
+  public void testWithNotional() {
+    final double notional = NOTIONAL + 1000;
+    final CouponIborAverage expected = new CouponIborAverage(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, notional, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME_1, FIXING_END_TIME_1,
+        FIXING_ACCRUAL_FACTOR_1, INDEX_EURIBOR6M, FIXING_START_TIME_2, FIXING_END_TIME_2, FIXING_ACCRUAL_FACTOR_2, WEIGHT_1, WEIGHT_2);
+    assertEquals(expected, CPN_IBOR_AVERAGE.withNotional(notional));
   }
 
   @Test

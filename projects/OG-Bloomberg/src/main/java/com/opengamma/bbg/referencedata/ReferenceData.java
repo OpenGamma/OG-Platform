@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -173,66 +174,6 @@ public class ReferenceData extends DirectBean {
     return ReferenceData.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1618432855:  // identifier
-        return getIdentifier();
-      case 427230908:  // fieldValues
-        return getFieldValues();
-      case -1294635157:  // errors
-        return getErrors();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1618432855:  // identifier
-        setIdentifier((String) newValue);
-        return;
-      case 427230908:  // fieldValues
-        setFieldValues((FudgeMsg) newValue);
-        return;
-      case -1294635157:  // errors
-        setErrors((List<ReferenceDataError>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_identifier, "identifier");
-    JodaBeanUtils.notNull(_fieldValues, "fieldValues");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ReferenceData other = (ReferenceData) obj;
-      return JodaBeanUtils.equal(getIdentifier(), other.getIdentifier()) &&
-          JodaBeanUtils.equal(getFieldValues(), other.getFieldValues()) &&
-          JodaBeanUtils.equal(getErrors(), other.getErrors());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the identifier that this reference data is for.
@@ -292,7 +233,7 @@ public class ReferenceData extends DirectBean {
   /**
    * Gets the errors.
    * This includes errors related to the identifier and to a single field.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ReferenceDataError> getErrors() {
     return _errors;
@@ -301,9 +242,10 @@ public class ReferenceData extends DirectBean {
   /**
    * Sets the errors.
    * This includes errors related to the identifier and to a single field.
-   * @param errors  the new value of the property
+   * @param errors  the new value of the property, not null
    */
   public void setErrors(List<ReferenceDataError> errors) {
+    JodaBeanUtils.notNull(errors, "errors");
     this._errors.clear();
     this._errors.addAll(errors);
   }
@@ -315,6 +257,64 @@ public class ReferenceData extends DirectBean {
    */
   public final Property<List<ReferenceDataError>> errors() {
     return metaBean().errors().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ReferenceData clone() {
+    BeanBuilder<? extends ReferenceData> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ReferenceData other = (ReferenceData) obj;
+      return JodaBeanUtils.equal(getIdentifier(), other.getIdentifier()) &&
+          JodaBeanUtils.equal(getFieldValues(), other.getFieldValues()) &&
+          JodaBeanUtils.equal(getErrors(), other.getErrors());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFieldValues());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getErrors());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("ReferenceData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("identifier").append('=').append(JodaBeanUtils.toString(getIdentifier())).append(',').append(' ');
+    buf.append("fieldValues").append('=').append(JodaBeanUtils.toString(getFieldValues())).append(',').append(' ');
+    buf.append("errors").append('=').append(JodaBeanUtils.toString(getErrors())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -409,6 +409,44 @@ public class ReferenceData extends DirectBean {
      */
     public final MetaProperty<List<ReferenceDataError>> errors() {
       return _errors;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1618432855:  // identifier
+          return ((ReferenceData) bean).getIdentifier();
+        case 427230908:  // fieldValues
+          return ((ReferenceData) bean).getFieldValues();
+        case -1294635157:  // errors
+          return ((ReferenceData) bean).getErrors();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1618432855:  // identifier
+          ((ReferenceData) bean).setIdentifier((String) newValue);
+          return;
+        case 427230908:  // fieldValues
+          ((ReferenceData) bean).setFieldValues((FudgeMsg) newValue);
+          return;
+        case -1294635157:  // errors
+          ((ReferenceData) bean).setErrors((List<ReferenceDataError>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ReferenceData) bean)._identifier, "identifier");
+      JodaBeanUtils.notNull(((ReferenceData) bean)._fieldValues, "fieldValues");
+      JodaBeanUtils.notNull(((ReferenceData) bean)._errors, "errors");
     }
 
   }

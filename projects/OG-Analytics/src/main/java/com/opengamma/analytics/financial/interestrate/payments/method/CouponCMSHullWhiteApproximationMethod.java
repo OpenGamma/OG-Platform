@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -21,9 +21,11 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Pricing method of a CMS coupon in the Hull-White (extended Vasicek) model by approximation.
- * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008. 
+ * <P> Reference: M. Henrard. CMS Swaps and Caps in One-Factor Gaussian Models, SSRN working paper 985551, February 2008.
  * Available at http://ssrn.com/abstract=985551
+ * @deprecated {@link HullWhiteOneFactorPiecewiseConstantDataBundle} is deprecated
  */
+@Deprecated
 public final class CouponCMSHullWhiteApproximationMethod implements PricingMethod {
 
   /**

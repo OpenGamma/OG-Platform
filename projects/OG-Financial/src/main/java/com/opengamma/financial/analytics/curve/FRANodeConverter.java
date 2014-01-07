@@ -13,13 +13,12 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
-import com.opengamma.financial.convention.Convention;
-import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -29,7 +28,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Convert a FRA node into an Instrument definition.
+ * The dates of the FRA are computed in the following way:
+ * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days) of the convention.
+ * - The accrual start date is computed from the spot date adding the "FixingStart" of the node and using the business-day-convention, calendar and EOM of the convention.
+ * - The accrual end date is computed from the spot date adding the "FixingEnd" of the node and using the business-day-convention, calendar and EOM of the convention.
+ * The FRA notional is 1.
  */
 public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */
@@ -70,40 +74,32 @@ public class FRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefiniti
   }
 
   //TODO check calendars
-  @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitFRANode(final FRANode fraNode) {
-    final Convention convention = _conventionSource.getConvention(fraNode.getConvention());
     final Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
+    final IborIndexConvention indexConvention = _conventionSource.getSingle(fraNode.getConvention(), IborIndexConvention.class);
     final Period startPeriod = fraNode.getFixingStart().getPeriod();
     final Period endPeriod = fraNode.getFixingEnd().getPeriod();
     //TODO probably need a specific FRA convention to hold the reset tenor
     final long months = endPeriod.toTotalMonths() - startPeriod.toTotalMonths();
     final Period indexTenor = Period.ofMonths((int) months);
-    final IborIndexConvention indexConvention;
-    if (convention instanceof IborIndexConvention) {
-      indexConvention = (IborIndexConvention) convention;
-    } else {
-      if (convention == null) {
-        throw new OpenGammaRuntimeException("Convention with id " + fraNode.getConvention() + " was null");
-      }
-      throw new OpenGammaRuntimeException("Could not handle underlying convention of type " + convention.getClass());
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Convention with id " + fraNode.getConvention() + " was null");
     }
     final Currency currency = indexConvention.getCurrency();
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
     final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-    final int settlementDays = indexConvention.getSettlementDays();
-    final int spotLag = 0; //TODO
+    final int spotLag = indexConvention.getSettlementDays();
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
     final DayCount dayCount = indexConvention.getDayCount();
     final boolean eom = indexConvention.isIsEOM();
-    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, convention.getName());
-    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, regionCalendar);
+    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLag, regionCalendar);
     final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, regionCalendar, eom);
-    final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(_valuationTime, endPeriod, businessDayConvention, regionCalendar, eom);
+    final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, businessDayConvention, regionCalendar, eom);
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, rate, fixingCalendar);
   }
 

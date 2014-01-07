@@ -14,9 +14,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
@@ -25,30 +22,15 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Test.
  */
-@Test(groups = TestGroup.UNIT_DB, singleThreaded = true)
-public class BloombergHTSMasterUpdaterTest extends AbstractHistoricalTimeSeriesDBTest {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergHTSMasterUpdaterTest.class);
-  
-  /**
-   * Creates an instance specifying the database to run.
-   * @param databaseType  the database type
-   * @param databaseVersion  the database version
-   */
-  @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
-  public BloombergHTSMasterUpdaterTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.debug("running test for database = {}", databaseType);
-  }
+@Test(groups = TestGroup.UNIT)
+public class BloombergHTSMasterUpdaterTest extends AbstractBloombergHTSTest {
 
-  //-------------------------------------------------------------------------
   public void update() throws Exception {
     HistoricalTimeSeriesMaster htsMaster = getHtsMaster();
     BloombergHTSMasterUpdater htsMasterUpdater = getHtsMasterUpdater();
@@ -122,4 +104,5 @@ public class BloombergHTSMasterUpdaterTest extends AbstractHistoricalTimeSeriesD
       }
     }
   }
+
 }

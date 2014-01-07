@@ -59,7 +59,7 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
 
   /**
    * Static constructor method for cash settled futures
-   * 
+   *
    * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
    * @param underlying  identifier of the underlying commodity
    * @param unitAmount  size of a unit
@@ -77,7 +77,7 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
 
   /**
    * Static constructor method for physical settlement futures
-   * 
+   *
    * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
    * @param underlying  identifier of the underlying commodity
    * @param unitAmount  size of a unit
@@ -96,11 +96,21 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
     return new EnergyFutureDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
   @Override
   public EnergyFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
   @Override
   public EnergyFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     return toDerivative(date, referencePrice);
@@ -123,7 +133,7 @@ public class EnergyFutureDefinition extends CommodityFutureDefinition<EnergyFutu
     return new EnergyFuture(timeToFixing, getUnderlying(), getUnitAmount(), getFirstDeliveryDate(), getLastDeliveryDate(), getAmount(), getUnitName(), getSettlementType(), timeToSettlement,
         referencePrice.doubleValue(), getCurrency());
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

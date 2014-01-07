@@ -48,6 +48,11 @@ public class TransformedInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    return _transform.inverseTransformGradient(_base.interpolate(data, value)) * _base.firstDerivative(data, value);
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
 
     final double yStar = _base.interpolate(data, value);

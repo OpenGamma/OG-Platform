@@ -44,7 +44,7 @@ import com.opengamma.util.PublicAPI;
  */
 @PublicAPI
 public final class ExternalId
-    implements ExternalIdentifiable, Comparable<ExternalId>, Serializable {
+    implements ExternalIdentifiable, ExternalIdOrBundle, Comparable<ExternalId>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -194,6 +194,7 @@ public final class ExternalId
    * 
    * @return a bundle wrapping this identifier, not null
    */
+  @Override
   public ExternalIdBundle toBundle() {
     return ExternalIdBundle.of(this);
   }

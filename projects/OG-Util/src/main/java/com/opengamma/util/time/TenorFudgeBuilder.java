@@ -25,18 +25,18 @@ public class TenorFudgeBuilder implements FudgeBuilder<Tenor> {
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, Tenor object) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add(TENOR_FIELD_NAME, object.getPeriod().toString());
+    
+    msg.add(TENOR_FIELD_NAME, object.toFormattedString());
     return msg;
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public Tenor buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     final String tenorStr = msg.getString(TENOR_FIELD_NAME);
     if (tenorStr == null) {
       throw new IllegalArgumentException("Fudge message is not a Tenor - field 'tenor' is not present");
     }
-    return Tenor.of(DateUtils.toPeriod(tenorStr));
+    return Tenor.parse(tenorStr);
   }
 
 }

@@ -15,6 +15,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test {@link VolatilityCubeDataBuilder}.
@@ -63,9 +64,9 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
     data.setOtherData(bundle);
 
     final Map<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
-    strikes.put(Pair.of(Tenor.DAY, Tenor.DAY), 1.0);
-    strikes.put(Pair.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK), 50.0);
-    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), 150.0);
+    strikes.put(Pairs.of(Tenor.DAY, Tenor.DAY), 1.0);
+    strikes.put(Pairs.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK), 50.0);
+    strikes.put(Pairs.of(Tenor.DAY, Tenor.WORKING_WEEK), 150.0);
     data.setATMStrikes(strikes);
     return data;
   }
@@ -101,9 +102,9 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
 
     final Map<Pair<Tenor, Tenor>, Double> strikes = data.getATMStrikes();
     assertEquals(3, strikes.size());
-    assertEquals(1.0, strikes.get(Pair.of(Tenor.DAY, Tenor.DAY)));
-    assertEquals(50.0, strikes.get(Pair.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK)));
-    assertEquals(150.0, strikes.get(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK)));
+    assertEquals(1.0, strikes.get(Pairs.of(Tenor.DAY, Tenor.DAY)));
+    assertEquals(50.0, strikes.get(Pairs.of(Tenor.WORKING_WEEK, Tenor.WORKING_WEEK)));
+    assertEquals(150.0, strikes.get(Pairs.of(Tenor.DAY, Tenor.WORKING_WEEK)));
   }
 
   private static void checkNulldata(final VolatilityCubeData data) {

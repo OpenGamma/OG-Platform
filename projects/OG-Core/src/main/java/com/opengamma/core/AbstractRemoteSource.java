@@ -16,12 +16,14 @@ import com.opengamma.util.PublicSPI;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * An abstract source built on top of an underlying master.
+ * An abstract source providing remote access.
  * 
  * @param <T> the type returned by the source
  */
 @PublicSPI
-public abstract class AbstractRemoteSource<T> extends AbstractRemoteClient implements Source<T> {
+public abstract class AbstractRemoteSource<T>
+    extends AbstractRemoteClient
+    implements Source<T> {
 
   /**
    * Creates an instance.

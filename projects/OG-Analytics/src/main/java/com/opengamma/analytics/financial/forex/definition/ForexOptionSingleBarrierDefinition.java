@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.definition;
@@ -14,11 +14,12 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a single-barrier FX option definition. The class wraps a vanilla European FX option ({@code ForexOptionVanillaDefinition}) and a
- * {code BarrierType}.
+ * {@link BarrierType}.
  * It is suppose that the barrier has not been activated yet (and thus there is no flag indicated if the activation took place already).
  */
 public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<InstrumentDerivative> {
@@ -85,6 +86,11 @@ public class ForexOptionSingleBarrierDefinition implements InstrumentDefinition<
     return _rebate;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public ForexOptionSingleBarrier toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");

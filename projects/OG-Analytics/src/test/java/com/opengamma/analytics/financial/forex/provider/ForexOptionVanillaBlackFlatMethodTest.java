@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.provider;
@@ -37,20 +37,23 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaBlackFlatMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final Currency EUR = Currency.EUR;
@@ -58,10 +61,10 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final int SETTLEMENT_DAYS = 2;
   // Vol data
-  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
+  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pairs.of(EUR, USD);
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1),
     Period.ofYears(2), Period.ofYears(5)};
   private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20};
@@ -96,8 +99,6 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final CurrencyExposureDiscountingCalculator CEDC = CurrencyExposureDiscountingCalculator.getInstance();
   private static final PresentValueForexBlackFlatCalculator PVFBFC = PresentValueForexBlackFlatCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexBlackFlatCalculator PVCSFBFC = PresentValueCurveSensitivityForexBlackFlatCalculator.getInstance();
-  //  private static final PresentValueForexVolatilitySensitivityForexBlackFlatCalculator PVFVSFBFC = PresentValueForexVolatilitySensitivityForexBlackFlatCalculator.getInstance();
-  //  private static final CurrencyExposureForexBlackFlatCalculator CEFBFC = CurrencyExposureForexBlackFlatCalculator.getInstance();
   // For comparison
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
@@ -116,9 +117,9 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(EUR, USD, OPT_PAY_DATE, NOTIONAL_EUR, STRIKE);
   private static final ForexOptionVanillaDefinition CALL_LONG_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, OPT_EXP_DATE, IS_CALL, IS_LONG);
   private static final ForexOptionVanillaDefinition PUT_SHORT_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, OPT_EXP_DATE, !IS_CALL, !IS_LONG);
-  private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  private static final ForexOptionVanilla CALL_LONG = CALL_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  private static final ForexOptionVanilla PUT_SHORT = PUT_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
+  private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final ForexOptionVanilla CALL_LONG = CALL_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final ForexOptionVanilla PUT_SHORT = PUT_SHORT_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_VOL = 1.0E-8;

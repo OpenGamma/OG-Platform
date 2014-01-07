@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,10 +36,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * 
@@ -141,7 +142,7 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
         if (volatility != null) {
           xList.add(xTime);
           yList.add(yTime);
-          volatilityValues.put(Pair.of(xTime, yTime), volatility);
+          volatilityValues.put(DoublesPair.of(xTime, yTime), volatility);
         }
       }
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -30,20 +30,13 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
 @Test(groups = TestGroup.INTEGRATION)
 public abstract class SmileModelFitterTest<T extends SmileModelData> {
   private static final double TIME_TO_EXPIRY = 7.0;
   private static final double F = 0.03;
   private static RandomEngine UNIFORM = new MersenneTwister();
-
-  static {
-
-  }
-
-  //  protected EuropeanOptionMarketData[] _marketData;
-  // protected EuropeanOptionMarketData[] _noisyMarketData;
   protected double[] _cleanVols;
   protected double[] _noisyVols;
   protected double[] _errors;
@@ -69,8 +62,8 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   abstract BitSet[] getFixedValues();
 
   public SmileModelFitterTest() {
-    VolatilityFunctionProvider<T> model = getModel();
-    T data = getModelData();
+    final VolatilityFunctionProvider<T> model = getModel();
+    final T data = getModelData();
     final double[] strikes = new double[] {0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1 };
     final int n = strikes.length;
     _noisyVols = new double[n];
@@ -90,20 +83,20 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
     final double[][] start = getStartValues();
     final BitSet[] fixed = getFixedValues();
-    int nStartPoints = start.length;
+    final int nStartPoints = start.length;
     Validate.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
       final LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
-      DoubleMatrix1D res = toStandardForm(results.getModelParameters());
+      final DoubleMatrix1D res = toStandardForm(results.getModelParameters());
 
       //debug
-      T fittedModel = _fitter.toSmileModelData(res);
+      final T fittedModel = _fitter.toSmileModelData(res);
       fittedModel.toString();
 
       assertEquals(0.0, results.getChiSq(), _chiSqEps);
 
       final int n = res.getNumberOfElements();
-      T data = getModelData();
+      final T data = getModelData();
       assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
         assertEquals(data.getParameter(i), res.getEntry(i), _paramValueEps);
@@ -114,24 +107,24 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   /**
    * Convert the fitted parameters to standard form - useful if there is degeneracy in the solution
    * @param from
-   * @return
+   * @return The matrix in standard form
    */
-  public DoubleMatrix1D toStandardForm(DoubleMatrix1D from) {
+  protected DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
     return from;
   }
 
   public void testNoisyFit() {
     final double[][] start = getStartValues();
     final BitSet[] fixed = getFixedValues();
-    int nStartPoints = start.length;
+    final int nStartPoints = start.length;
     Validate.isTrue(fixed.length == nStartPoints);
     for (int trys = 0; trys < nStartPoints; trys++) {
       final LeastSquareResultsWithTransform results = _fitter.solve(new DoubleMatrix1D(start[trys]), fixed[trys]);
-      DoubleMatrix1D res = toStandardForm(results.getModelParameters());
+      final DoubleMatrix1D res = toStandardForm(results.getModelParameters());
       final double eps = 1e-2;
       assertTrue(results.getChiSq() < 7);
       final int n = res.getNumberOfElements();
-      T data = getModelData();
+      final T data = getModelData();
       assertEquals(data.getNumberOfParameters(), n);
       for (int i = 0; i < n; i++) {
         assertEquals(data.getParameter(i), res.getEntry(i), eps);
@@ -151,7 +144,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       for (int i = 0; i < benchmarkCycles; i++) {
         testNoisyFit();
       }
-      long time = timer.finished();
+      final long time = timer.finished();
       getlogger().info("time per fit: " + ((double) time) / benchmarkCycles / nStarts + "ms");
 
     }
@@ -167,19 +160,19 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     final double[] vols = new double[] {2.7100433855959642, 1.5506135190088546, 0.9083977239618538, 0.738416513934868, 0.8806973450124451, 1.0906290439592792, 1.2461975189027226, 1.496275983572826,
         1.5885915338673156, 1.4842142974195722, 1.7667347426399058, 1.4550288621444052, 1.0651798188736166, 1.143318270172714, 1.216215092528441, 1.2845258218014657, 1.3488224665755535,
         1.9259326343836376, 1.9868728791190922, 2.0441767092857317, 2.0982583238541026, 2.1494622372820675, 2.198020785622251, 2.244237863291375 };
-    int n = strikes.length;
+    final int n = strikes.length;
     final double[] errors = new double[n];
     Arrays.fill(errors, 0.01); //1% error
-    SmileModelFitter<T> fitter = getFitter(forward, strikes, expiry, vols, errors, getModel());
+    final SmileModelFitter<T> fitter = getFitter(forward, strikes, expiry, vols, errors, getModel());
     LeastSquareResults best = null;
     final BitSet fixed = new BitSet();
     for (int i = 0; i < 5; i++) {
       final double[] start = getRandomStartValues();
 
       //   int nStartPoints = start.length;
-      LeastSquareResults lsRes = fitter.solve(new DoubleMatrix1D(start), fixed);
+      final LeastSquareResults lsRes = fitter.solve(new DoubleMatrix1D(start), fixed);
       //     System.out.println(this.toString() + lsRes.toString());
-      if (i == 0) {
+      if (best == null) {
         best = lsRes;
       } else {
         if (lsRes.getChiSq() < best.getChiSq()) {
@@ -192,30 +185,32 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     //    System.out.println("model Jac: " + jacFunc.evaluate(best.getParameters()));
     //    System.out.println("fit invJac: " + best.getInverseJacobian());
     //    System.out.println("best" + this.toString() + best.toString());
-    assertTrue("chi square", best.getChiSq() < 24000); //average error 31.6% - not a good fit, but the data is horrible
+    if (best != null) {
+      assertTrue("chi square", best.getChiSq() < 24000); //average error 31.6% - not a good fit, but the data is horrible
+    }
   }
 
   public void testJacobian() {
 
-    T data = getModelData();
+    final T data = getModelData();
 
     final int n = data.getNumberOfParameters();
     final double[] temp = new double[n];
     for (int i = 0; i < n; i++) {
       temp[i] = data.getParameter(i);
     }
-    DoubleMatrix1D x = new DoubleMatrix1D(temp);
+    final DoubleMatrix1D x = new DoubleMatrix1D(temp);
 
     testJacobian(x);
   }
 
   public void testRandomJacobian() {
     for (int i = 0; i < 10; i++) {
-      double[] temp = getRandomStartValues();
-      DoubleMatrix1D x = new DoubleMatrix1D(temp);
+      final double[] temp = getRandomStartValues();
+      final DoubleMatrix1D x = new DoubleMatrix1D(temp);
       try {
         testJacobian(x);
-      } catch (AssertionError e) {
+      } catch (final AssertionError e) {
         System.out.println("Jacobian test failed at " + x.toString());
         throw e;
       }
@@ -226,14 +221,14 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
     final int n = x.getNumberOfElements();
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = _fitter.getModelValueFunction();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = _fitter.getModelJacobianFunction();
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = _fitter.getModelValueFunction();
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = _fitter.getModelJacobianFunction();
 
-    VectorFieldFirstOrderDifferentiator differ = new VectorFieldFirstOrderDifferentiator();
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFuncFD = differ.differentiate(func);
+    final VectorFieldFirstOrderDifferentiator differ = new VectorFieldFirstOrderDifferentiator();
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFuncFD = differ.differentiate(func);
 
-    DoubleMatrix2D jac = jacFunc.evaluate(x);
-    DoubleMatrix2D jacFD = jacFuncFD.evaluate(x);
+    final DoubleMatrix2D jac = jacFunc.evaluate(x);
+    final DoubleMatrix2D jacFD = jacFuncFD.evaluate(x);
     final int rows = jacFD.getNumberOfRows();
     final int cols = jacFD.getNumberOfColumns();
 

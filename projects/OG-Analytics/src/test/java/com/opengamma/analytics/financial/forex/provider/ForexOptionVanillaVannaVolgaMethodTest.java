@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.provider;
@@ -37,21 +37,23 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ForexOptionVanillaVannaVolgaMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final Currency EUR = Currency.EUR;
@@ -59,7 +61,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1),
@@ -98,12 +100,9 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
 
   private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
-  //  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  //  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
-
-  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
-  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pairs.of(EUR, USD));
+  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
@@ -132,9 +131,9 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition callDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
       final ForexOptionVanillaDefinition putDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, !isCall, !isLong);
-      call[loopstrike] = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-      put[loopstrike] = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-      final Forex forexForward = forexUnderlyingDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      call[loopstrike] = callDefinition.toDerivative(REFERENCE_DATE);
+      put[loopstrike] = putDefinition.toDerivative(REFERENCE_DATE);
+      final Forex forexForward = forexUnderlyingDefinition.toDerivative(REFERENCE_DATE);
       // Present value
       final MultipleCurrencyAmount pvCall = METHOD_VANNA_VOLGA.presentValue(call[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyAmount pvPut = METHOD_VANNA_VOLGA.presentValue(put[loopstrike], VANNAVOLGA_MULTICURVES);
@@ -184,7 +183,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       strikes[loopstrike] = strikeMin + loopstrike * strikeRange / nbStrike;
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double forward = METHOD_BLACK.forwardForexRate(forexOption[0], MULTICURVES);
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, forexOption[0].getUnderlyingForex().getPaymentTime()); // USD
@@ -239,7 +238,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       strikes[loopstrike] = strikeMin + loopstrike * strikeRange / nbStrike;
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double[] pvVV = new double[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -260,7 +259,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingSpotDefinition = new ForexDefinition(EUR, USD, optionPay, notional, SPOT);
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
-    final ForexOptionVanilla forexOptionSpot = forexOptionSpotDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+    final ForexOptionVanilla forexOptionSpot = forexOptionSpotDefinition.toDerivative(REFERENCE_DATE);
     final double forward = METHOD_BLACK.forwardForexRate(forexOptionSpot, MULTICURVES);
     final SmileDeltaParameters smileTime = SMILE_TERM.getSmileForTime(forexOptionSpot.getTimeToExpiry());
     final double[] strikes = smileTime.getStrike(forward);
@@ -269,7 +268,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double[] pvVV = new double[nbStrike];
     final double[] pvInt = new double[nbStrike];
@@ -299,7 +298,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       strikes[loopstrike] = strikeMin + loopstrike * strikeRange / nbStrike;
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double forward = METHOD_BLACK.forwardForexRate(forexOption[0], MULTICURVES);
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, forexOption[0].getUnderlyingForex().getPaymentTime()); // USD
@@ -310,7 +309,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     for (int loopvv = 0; loopvv < 3; loopvv++) {
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikesVV[loopvv]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      optReference[loopvv] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      optReference[loopvv] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final MultipleCurrencyAmount[] ceVV = new MultipleCurrencyAmount[nbStrike + 1];
     final MultipleCurrencyAmount[] ceFlat = new MultipleCurrencyAmount[nbStrike + 1];
@@ -358,7 +357,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       strikes[loopstrike] = strikeMin + loopstrike * strikeRange / nbStrike;
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double[] pvVV = new double[nbStrike + 1];
     final double[] pvInt = new double[nbStrike + 1];
@@ -409,7 +408,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       strikes[loopstrike] = strikeMin + loopstrike * strikeRange / nbStrike;
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double[] pvVV = new double[nbStrike + 1];
     final double[] pvInt = new double[nbStrike + 1];
@@ -447,7 +446,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       strikes[loopstrike] = strikeMin + loopstrike * strikeRange / nbStrike;
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
 
     final double forward = METHOD_BLACK.forwardForexRate(forexOption[0], MULTICURVES);
@@ -480,7 +479,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingSpotDefinition = new ForexDefinition(EUR, USD, optionPay, notional, SPOT);
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
-    final ForexOptionVanilla forexOptionSpot = forexOptionSpotDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+    final ForexOptionVanilla forexOptionSpot = forexOptionSpotDefinition.toDerivative(REFERENCE_DATE);
     final double forward = METHOD_BLACK.forwardForexRate(forexOptionSpot, MULTICURVES);
 
     final SmileDeltaParameters smileTime = SMILE_TERM.getSmileForTime(forexOptionSpot.getTimeToExpiry());
@@ -491,7 +490,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
       final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, optionPay, notional, strikes[loopstrike]);
       final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, optionExpiry, isCall, isLong);
-      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+      forexOption[loopstrike] = forexOptionDefinition.toDerivative(REFERENCE_DATE);
     }
     final double[] pvVV = new double[nbStrike];
     final double[] pvInt = new double[nbStrike];
@@ -542,7 +541,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
-        forexOption[loopstrike] = forexOptionDefinition[loopstrike].toDerivative(REFERENCE_DATE, NOT_USED_2);
+        forexOption[loopstrike] = forexOptionDefinition[loopstrike].toDerivative(REFERENCE_DATE);
         pvInt[loopstrike] = METHOD_BLACK.presentValue(forexOption[loopstrike], SMILE_MULTICURVES).getAmount(USD);
         ceInt[loopstrike] = METHOD_BLACK.currencyExposure(forexOption[loopstrike], SMILE_MULTICURVES);
         pvbsInt[loopstrike] = METHOD_BLACK.presentValueBlackVolatilitySensitivity(forexOption[loopstrike], SMILE_MULTICURVES);
@@ -556,7 +555,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
-        forexOption[loopstrike] = forexOptionDefinition[loopstrike].toDerivative(REFERENCE_DATE, NOT_USED_2);
+        forexOption[loopstrike] = forexOptionDefinition[loopstrike].toDerivative(REFERENCE_DATE);
         pvVV[loopstrike] = METHOD_VANNA_VOLGA.presentValue(forexOption[loopstrike], VANNAVOLGA_MULTICURVES).getAmount(USD);
         ceVV[loopstrike] = METHOD_VANNA_VOLGA.currencyExposure(forexOption[loopstrike], VANNAVOLGA_MULTICURVES);
         pvbsVV[loopstrike] = METHOD_VANNA_VOLGA.presentValueBlackVolatilitySensitivity(forexOption[loopstrike], VANNAVOLGA_MULTICURVES);

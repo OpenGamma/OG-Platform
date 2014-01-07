@@ -32,7 +32,7 @@ public class InMemoryLKVLiveMarketDataProviderFactoryTest {
     LiveDataFactory defaultFactory = mock(LiveDataFactory.class);
     LiveDataFactory factory1 = mock(LiveDataFactory.class);
     LiveDataFactory factory2 = mock(LiveDataFactory.class);
-    _factory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, ImmutableMap.of("1", factory1, "2", factory2));
+    _factory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, ImmutableMap.of("1", factory1, "2", factory2, "default", defaultFactory));
     _defaultProvider = mock(LiveMarketDataProvider.class);
     stub(defaultFactory.create(_user)).toReturn(_defaultProvider);
     _provider1 = mock(LiveMarketDataProvider.class);
@@ -43,20 +43,20 @@ public class InMemoryLKVLiveMarketDataProviderFactoryTest {
 
   @Test
   public void createDefault() {
-    MarketDataProvider provider = _factory.create(_user, new LiveMarketDataSpecification(null));
+    MarketDataProvider provider = _factory.create(_user, LiveMarketDataSpecification.LIVE_SPEC);
     assertEquals(_defaultProvider, provider);
   }
 
   @Test
   public void createNamed() {
-    MarketDataProvider provider1 = _factory.create(_user, new LiveMarketDataSpecification("1"));
+    MarketDataProvider provider1 = _factory.create(_user, LiveMarketDataSpecification.of("1"));
     assertEquals(provider1, _provider1);
-    MarketDataProvider provider2 = _factory.create(_user, new LiveMarketDataSpecification("2"));
+    MarketDataProvider provider2 = _factory.create(_user, LiveMarketDataSpecification.of("2"));
     assertEquals(provider2, _provider2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void createMissing() {
-    _factory.create(_user, new LiveMarketDataSpecification("3"));
+    _factory.create(_user, LiveMarketDataSpecification.of("3"));
   }
 }

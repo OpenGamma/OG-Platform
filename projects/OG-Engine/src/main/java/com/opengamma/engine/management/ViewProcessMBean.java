@@ -10,8 +10,9 @@ import com.opengamma.id.UniqueId;
 
 /**
  * A management bean for a View
- *
+ * @deprecated use ViewProcessMXBean
  */
+@Deprecated
 public interface ViewProcessMBean {
 
   /**

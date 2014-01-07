@@ -33,6 +33,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains results of calculations associated with curves
@@ -112,7 +113,7 @@ import com.opengamma.util.tuple.Pair;
         for (int i = 0; i < timeFields.size(); i++) {
           final Double time = deserializer.fieldValueToObject(Double.class, timeFields.get(i));
           final Double sensitivity = deserializer.fieldValueToObject(Double.class, valueFields.get(i));
-          sensitivities.add(new DoublesPair(time, sensitivity));
+          sensitivities.add(DoublesPair.of(time.doubleValue(), sensitivity.doubleValue()));
         }
         yieldCurveSensitivities.put(yieldCurveName, sensitivities);
       }
@@ -277,7 +278,7 @@ import com.opengamma.util.tuple.Pair;
         for (int j = 0; j < perCurveFields.size(); j++) {
           values[j] = (Double) perCurveFields.get(j).getValue();
         }
-        sensitivities.put(Pair.of(curve, currency), new DoubleMatrix1D(values));
+        sensitivities.put(Pairs.of(curve, currency), new DoubleMatrix1D(values));
       }
       return MultipleCurrencyParameterSensitivity.of(sensitivities);
     }
@@ -330,7 +331,7 @@ import com.opengamma.util.tuple.Pair;
         final Number nParametersNumber = (Number) nParametersFields.get(i).getValue();
         final Integer startPoint = startPointNumber.intValue();
         final Integer nParameters = nParametersNumber.intValue();
-        data.put(curveName, Pair.of(startPoint, nParameters));
+        data.put(curveName, Pairs.of(startPoint, nParameters));
       }
       return new CurveBuildingBlock(data);
     }
@@ -375,7 +376,7 @@ import com.opengamma.util.tuple.Pair;
         final String curveName = (String) curveNameFields.get(i).getValue();
         final CurveBuildingBlock curveBuildingBlock = deserializer.fieldValueToObject(CurveBuildingBlock.class, curveBuildingBlockFields.get(i));
         final DoubleMatrix2D jacobian = deserializer.fieldValueToObject(DoubleMatrix2D.class, jacobianFields.get(i));
-        data.put(curveName, Pair.of(curveBuildingBlock, jacobian));
+        data.put(curveName, Pairs.of(curveBuildingBlock, jacobian));
       }
       return new CurveBuildingBlockBundle(data);
     }
@@ -426,7 +427,9 @@ import com.opengamma.util.tuple.Pair;
           throw new OpenGammaRuntimeException("Should have one sensitivity per time");
         }
         for (int j = 0; j < times.size(); j++) {
-          sensitivities.add(new DoublesPair((Double) times.get(j).getValue(), (Double) sensitivity.get(j).getValue()));
+          Double time = (Double) times.get(j).getValue();
+          Double sens = (Double) sensitivity.get(j).getValue();
+          sensitivities.add(DoublesPair.of(time.doubleValue(), sens.doubleValue()));
         }
         priceCurveSensitivity.put(priceCurveName, sensitivities);
       }

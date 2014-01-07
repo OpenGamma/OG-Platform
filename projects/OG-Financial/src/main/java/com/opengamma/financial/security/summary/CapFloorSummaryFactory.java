@@ -24,7 +24,7 @@ public class CapFloorSummaryFactory implements SummaryFactory<CapFloorSecurity> 
         .with(SummaryField.MATURITY, security.getMaturityDate())
         .with(SummaryField.NOTIONAL, security.getNotional())
         .with(SummaryField.STRIKE, security.getStrike())
-        .with(SummaryField.FREQUENCY, security.getFrequency().getConventionName())
+        .with(SummaryField.FREQUENCY, security.getFrequency().getName())
         .with(SummaryField.UNDERLYING, security.getUnderlyingId()).build();
   }
 

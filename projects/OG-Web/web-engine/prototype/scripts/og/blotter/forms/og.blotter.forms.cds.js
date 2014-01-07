@@ -8,9 +8,12 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, 
-                trade: util.otc_trade};}
+            if (config.details) {
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
+            } else {
+                data = {security: {type: config.type, externalIdBundle: "", attributes: {}}, trade: util.otc_trade};
+            }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = config.title;
@@ -26,15 +29,12 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty,
                         portfolio: data.nodeId, trade: data.trade, name: data.security.name}),
-                    new og.blotter.forms.blocks.cds({
-                        form: form, data: data, standard: config.standard, stdvanilla: config.stdvanilla, 
-                        legacy: config.legacy, index: config.index}),
-                    new og.common.util.ui.Attributes({
-                        form: form, attributes: data.trade.attributes, index: 'trade.attributes'
-                    })
+                    new og.blotter.forms.blocks.cds({ form: form, data: data, type: config.type}),
+                    new og.common.util.ui.Attributes({ form: form, attributes: data.trade.attributes,
+                        index: 'trade.attributes'})
                 );
                 form.dom();
-                form.on('form:load' , function () {
+                form.on('form:load', function () {
                     util.set_initial_focus();
                 });
                 form.on('form:submit', function (result) {

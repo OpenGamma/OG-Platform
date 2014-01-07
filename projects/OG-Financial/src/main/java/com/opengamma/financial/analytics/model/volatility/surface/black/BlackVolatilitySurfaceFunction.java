@@ -58,19 +58,18 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
-    if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
+    final String forwardCurveCalculationMethod = constraints.getStrictValue(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+    if (forwardCurveCalculationMethod == null) {
       return null;
     }
-    final Set<String> surfaceNames = constraints.getValues(SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
+    final String surfaceName = constraints.getStrictValue(SURFACE);
+    if (surfaceName == null) {
       return null;
     }
-    final Set<String> curveNames = constraints.getValues(CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
+    final String curveName = constraints.getStrictValue(CURVE);
+    if (curveName == null) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next();
     final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(target, desiredValue);
     final ValueRequirement volatilitySurfaceRequirement = getVolatilityDataRequirement(target, surfaceName);
     final ValueRequirement interpolatorRequirement = getInterpolatorRequirement(target, desiredValue);
@@ -79,6 +78,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
 
   /**
    * Gets the data in a form that the analytics library can understand
+   * 
    * @param inputs The inputs
    * @return The data
    */
@@ -86,18 +86,21 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
 
   /**
    * Gets the instrument type supported by the function
+   * 
    * @return The instrument type
    */
   protected abstract String getInstrumentType();
 
   /**
    * Gets general result properties
+   * 
    * @return The result properties
    */
   protected abstract ValueProperties getResultProperties();
 
   /**
    * Gets result properties with the constraints set
+   * 
    * @param desiredValue The desired value
    * @return The result properties
    */
@@ -110,6 +113,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
 
   /**
    * Gets the forward curve requirement
+   * 
    * @param target The target
    * @param desiredValue The desired value
    * @return The forward curve requirement
@@ -118,6 +122,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
 
   /**
    * Gets the volatility surface data requirement
+   * 
    * @param target The target
    * @param surfaceName The surface name
    * @return The volatility surface data requirement

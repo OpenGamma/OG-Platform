@@ -10,9 +10,14 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MeshingTest {
 
   protected void testMesh(final MeshingFunction mesh, final double[] fixedPoints) {

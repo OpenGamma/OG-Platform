@@ -133,12 +133,7 @@ final class LabelledMatrix2DBuilder {
         if (!xLabelTypes.isEmpty() && !xLabelValues.isEmpty()) {
           // Have a type and a value, which can be consumed
           final String labelType = xLabelTypes.remove();
-          Class<?> labelClass;
-          try {
-            labelClass = ClassUtils.loadClass(labelType);
-          } catch (final ClassNotFoundException ex) {
-            throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
-          }
+          Class<?> labelClass = ClassUtils.loadClassRuntime(labelType);
           final FudgeField labelValue = xLabelValues.remove();
           final Object label = deserializer.fieldValueToObject(labelClass, labelValue);
           xLabels.add(label);
@@ -146,12 +141,7 @@ final class LabelledMatrix2DBuilder {
         if (!yLabelTypes.isEmpty() && !yLabelValues.isEmpty()) {
           // Have a type and a value, which can be consumed
           final String labelType = yLabelTypes.remove();
-          Class<?> labelClass;
-          try {
-            labelClass = ClassUtils.loadClass(labelType);
-          } catch (final ClassNotFoundException ex) {
-            throw new OpenGammaRuntimeException("Could not deserialize label of type " + labelType, ex);
-          }
+          Class<?> labelClass = ClassUtils.loadClassRuntime(labelType);
           final FudgeField labelValue = yLabelValues.remove();
           final Object label = deserializer.fieldValueToObject(labelClass, labelValue);
           yLabels.add(label);

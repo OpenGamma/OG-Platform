@@ -12,15 +12,15 @@ import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterAbstractCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.AbstractParameterInflationSensitivityParameterCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *  Calculator of the sensitivity to the market quotes of instruments used to build the curves .
@@ -38,13 +38,13 @@ public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends In
   /**
    * The parameter sensitivity calculator. The parameters are the parameters used to described the curve.
    */
-  private final ParameterInflationSensitivityParameterAbstractCalculator<DATA_TYPE> _parameterInflationSensitivityCalculator;
+  private final AbstractParameterInflationSensitivityParameterCalculator<DATA_TYPE> _parameterInflationSensitivityCalculator;
 
   /**
    * The constructor.
    * @param parameterInflationSensitivityCalculator The parameter sensitivity calculator.
    */
-  public MarketQuoteInflationSensitivityBlockCalculator(final ParameterInflationSensitivityParameterAbstractCalculator<DATA_TYPE> parameterInflationSensitivityCalculator) {
+  public MarketQuoteInflationSensitivityBlockCalculator(final AbstractParameterInflationSensitivityParameterCalculator<DATA_TYPE> parameterInflationSensitivityCalculator) {
     _parameterInflationSensitivityCalculator = parameterInflationSensitivityCalculator;
   }
 
@@ -67,7 +67,7 @@ public class MarketQuoteInflationSensitivityBlockCalculator<DATA_TYPE extends In
         final int start = unitPair.getFirst().getStart(name2);
         final double[] sensiName2 = new double[nbParameters];
         System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
-        oneCurveSensiMap.put(new ObjectsPair<>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
+        oneCurveSensiMap.put(Pairs.of(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
       }
       final MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
       result = result.plus(sensiName);

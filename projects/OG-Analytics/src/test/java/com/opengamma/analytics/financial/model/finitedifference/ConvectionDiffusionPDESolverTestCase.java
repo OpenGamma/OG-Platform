@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -35,12 +36,14 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConvectionDiffusionPDESolverTestCase {
 
   //private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
@@ -83,7 +86,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   private static Surface<Double, Double, Double> EARLY_EXCISE;
 
   static {
-    GREEKS = new HashSet<Greek>();
+    GREEKS = new HashSet<>();
     GREEKS.add(Greek.DELTA);
     GREEKS.add(Greek.GAMMA);
 
@@ -180,7 +183,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   public void testBlackScholesEquationUniformGrid(final ConvectionDiffusionPDESolver solver, final int timeNodes, final int spotNodes, final double lowerMoneyness, final double upperMoneyness,
       final double volTol, final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
     final PDEGrid1D grid = new PDEGrid1D(timeNodes, spotNodes, T, LOWER.getLevel(), UPPER.getLevel());
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid);
     final PDEResults1D res = solver.solve(data);
     testBlackScholesEquation(res, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
   }
@@ -193,7 +196,7 @@ public class ConvectionDiffusionPDESolverTestCase {
     // MeshingFunction spaceMesh = new ExponentalMeshing(LOWER.getLevel(), UPPER.getLevel(), spotSteps + 1, 0.0);
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid);
     final PDEResults1D res = solver.solve(data);
     testBlackScholesEquation(res, lowerMoneyness, upperMoneyness, volTol, priceTol, deltaTol, gammaTol, print);
   }
@@ -272,8 +275,8 @@ public class ConvectionDiffusionPDESolverTestCase {
     final PDEGrid1D grid1 = new PDEGrid1D(timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
     final PDEGrid1D grid2 = new PDEGrid1D(2 * timeSteps + 1, spotSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
 
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data1 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid1);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data2 = data1.withGrid(grid2);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data1 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, grid1);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data2 = data1.withGrid(grid2);
     final PDEResults1D res1 = solver.solve(data1);
     final PDEResults1D res2 = solver.solve(data2);
 
@@ -317,12 +320,12 @@ public class ConvectionDiffusionPDESolverTestCase {
   }
 
   /**
-   * Tests that the solver can solve the form of Black_scholes equation when the log of spot is the space variable 
+   * Tests that the solver can solve the form of Black_scholes equation when the log of spot is the space variable
    */
   public void testLogTransformedBlackScholesEquation(final ConvectionDiffusionPDESolver solver, final int timeNodes, final int spotNodes, final double lowerMoneyness, final double upperMoneyness,
       final double volTol, final double priceTol, final double deltaTol, final double gammaTol, final boolean print) {
     final PDEGrid1D grid = new PDEGrid1D(timeNodes + 1, spotNodes + 1, T, LN_LOWER.getLevel(), LN_UPPER.getLevel());
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db =
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db =
         new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(LN_DATA, PAYOFF_LOG_COOR, LN_LOWER, LN_UPPER, grid);
     final PDEResults1D res = solver.solve(db);
     final double df = YIELD_CURVE.getDiscountFactor(T);
@@ -378,7 +381,7 @@ public class ConvectionDiffusionPDESolverTestCase {
     }
 
     final PDEGrid1D grid = new PDEGrid1D(timeNodes + 1, priceNodes + 1, T, LOWER.getLevel(), UPPER.getLevel());
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(CEV_DATA, PAYOFF, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(CEV_DATA, PAYOFF, LOWER, UPPER, grid);
     final PDEResults1D res = solver.solve(db);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res.getNumberSpaceNodes();
@@ -415,7 +418,7 @@ public class ConvectionDiffusionPDESolverTestCase {
     final Function1D<StandardOptionDataBundle, Double> pFunc = model.getPricingFunction(option);
 
     final PDEGrid1D grid = new PDEGrid1D(timeSteps + 1, priceSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, EARLY_EXCISE, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(DATA, PAYOFF, LOWER, UPPER, EARLY_EXCISE, grid);
 
     final PDEResults1D res = solver.solve(db);
     final int n = res.getNumberSpaceNodes();

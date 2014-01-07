@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -24,10 +25,12 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests of the RiskCare implementation of the ISDA CDS model
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDAModelTest {
 
   // -----------------------------------------------------------------------------------------------------------
@@ -70,21 +73,22 @@ public class ISDAModelTest {
     final boolean protectStart = true;
 
     final ISDACDSPremiumDefinition premiumDefinition = ISDACDSPremiumDefinition.from(startDate, maturity, couponFrequency, convention, stubType, protectStart, notional, spread,
-        Currency.EUR);
+        Currency.EUR, calendar);
 
     return new ISDACDSDefinition(startDate, maturity, premiumDefinition, notional, spread, recoveryRate, accrualOnDefault, payOnDefault, protectStart, couponFrequency, convention, stubType);
   }
 
   // -----------------------------------------------------------------------------------------------------------
 
-  //@Test
+  @Test(enabled = false)
+  @SuppressWarnings("deprecation")
   public void testISDAModel() {
 
     final DayCount s_act365 = new ActualThreeSixtyFive();
 
     // -----------------------------------------------------------------------------------------------------------
 
-    // The baseline date for calculating hazard rates 
+    // The baseline date for calculating hazard rates
     final ZonedDateTime baseDate = zdt(2008, 9, 18, 0, 0, 0, 0, ZoneOffset.UTC);
 
     // Remember this ...
@@ -95,7 +99,7 @@ public class ISDAModelTest {
     // Interest rate term structure
 
     // The the time nodes ...
-    double[] timeNodesRates = {
+    final double[] timeNodesRates = {
         s_act365.getDayCountFraction(baseDate2, zdt(2008, 10, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
         s_act365.getDayCountFraction(baseDate2, zdt(2008, 11, 24, 0, 0, 0, 0, ZoneOffset.UTC)),
         s_act365.getDayCountFraction(baseDate2, zdt(2008, 12, 22, 0, 0, 0, 0, ZoneOffset.UTC)),
@@ -163,7 +167,7 @@ public class ISDAModelTest {
     };
 
     // The rates at each timenode ...
-    double[] interestRates = {
+    final double[] interestRates = {
         (new PeriodicInterestRate(0.00452115893602745000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.00965814197655757000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.01256719569422680000, 1)).toContinuous().getRate(),
@@ -234,14 +238,14 @@ public class ISDAModelTest {
 
     // The hazard rate term structure (assumed to have been calibrated previously)
 
-    double[] timeNodesHazardRate = {
+    final double[] timeNodesHazardRate = {
         0.0,
         s_act365.getDayCountFraction(baseDate, zdt(2013, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
         s_act365.getDayCountFraction(baseDate, zdt(2015, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC)),
         s_act365.getDayCountFraction(baseDate, zdt(2018, 06, 20, 0, 0, 0, 0, ZoneOffset.UTC))
     };
 
-    double[] hazardRates = {
+    final double[] hazardRates = {
         (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.09709857471184660000, 1)).toContinuous().getRate(),
         (new PeriodicInterestRate(0.09705141266558010000, 1)).toContinuous().getRate(),
@@ -261,8 +265,8 @@ public class ISDAModelTest {
     final double offsetHazardRateCurve = 0.0;
 
     // Build the yield and hazard rate curves
-    ISDACurve discountCurve = new ISDACurve("IR_CURVE", timeNodesRates, interestRates, offsetInterestRateCurve);
-    ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timeNodesHazardRate, hazardRates, offsetHazardRateCurve);
+    final ISDACurve discountCurve = new ISDACurve("IR_CURVE", timeNodesRates, interestRates, offsetInterestRateCurve);
+    final ISDACurve hazardRateCurve = new ISDACurve("HAZARD_RATE_CURVE", timeNodesHazardRate, hazardRates, offsetHazardRateCurve);
 
     // ----------------------------------------------------------------------------------------------------------
 
@@ -270,7 +274,7 @@ public class ISDAModelTest {
     ZonedDateTime rollingDate = valuationDate.minusDays(1);
 
     // Specify the end date
-    ZonedDateTime endDate = valuationDate.plusDays(1647);
+    final ZonedDateTime endDate = valuationDate.plusDays(1647);
 
     while (rollingDate.isBefore(endDate)) {
 
@@ -293,7 +297,7 @@ public class ISDAModelTest {
   }
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneOffset offset) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneOffset offset) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(offset);
   }
 

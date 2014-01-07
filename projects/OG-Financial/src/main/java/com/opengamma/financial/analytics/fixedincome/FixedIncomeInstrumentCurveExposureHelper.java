@@ -34,6 +34,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
         return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_12M:
         return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_28D:
+        return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
         return new String[] {fundingCurveName };
       case FRA_3M:
@@ -78,6 +80,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       case SWAP_6M:
         return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_12M:
+        return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_28D:
         return new String[] {fundingCurveName, forwardCurveName };
       case CASH:
         return new String[] {forwardCurveName };
@@ -183,9 +187,9 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     final String forward2CurveName = curveNames.length == 3 ? curveNames[2] : forward1CurveName;
     switch (type) {
       case SWAP_FIXED_IBOR:
-        if (resetFrequency.getConventionName().equals(Frequency.QUARTERLY_NAME)) {
+        if (resetFrequency.getName().equals(Frequency.QUARTERLY_NAME)) {
           return new String[] {fundingCurveName, forward1CurveName};
-        } else if (resetFrequency.getConventionName().equals(Frequency.SEMI_ANNUAL_NAME)) {
+        } else if (resetFrequency.getName().equals(Frequency.SEMI_ANNUAL_NAME)) {
           return new String[] {fundingCurveName, forward2CurveName};
         }
         return new String[] {fundingCurveName, forward1CurveName };

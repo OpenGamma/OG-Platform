@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.inflation;
@@ -19,26 +19,28 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
 
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final ZonedDateTime LAST_KNOWN_FIXING_DATE = DateUtils.getUTCDate(2008, 6, 1);
   private static final Period COUPON_TENOR = Period.ofYears(10);
@@ -55,10 +57,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
   private static final double WEIGHT_END = 0.8;
   private static final CapFloorInflationYearOnYearMonthlyDefinition YoY_CAP_DEFINITION = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
       ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final String PRICE_INDEX_CURVE_NAME = "Price index";
-  private static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, PRICE_INDEX_CURVE_NAME };
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
@@ -136,7 +135,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
    */
   public void equalHash() {
     assertEquals(YoY_CAP_DEFINITION, YoY_CAP_DEFINITION);
-    CapFloorInflationYearOnYearMonthlyDefinition couponDuplicate = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+    final CapFloorInflationYearOnYearMonthlyDefinition couponDuplicate = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
     assertEquals(YoY_CAP_DEFINITION, couponDuplicate);
     assertEquals(YoY_CAP_DEFINITION.hashCode(), couponDuplicate.hashCode());
@@ -190,19 +189,19 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
    * Tests the first based on indexation lag.
    */
   public void from() {
-    CapFloorInflationYearOnYearMonthlyDefinition constructor = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+    final CapFloorInflationYearOnYearMonthlyDefinition constructor = new CapFloorInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, LAST_KNOWN_FIXING_DATE, MONTH_LAG, 3, REFERENCE_START_DATE, REFERENCE_END_DATE, STRIKE, IS_CAP);
 
-    CouponInflationYearOnYearMonthlyDefinition yoyCoupon = new CouponInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
+    final CouponInflationYearOnYearMonthlyDefinition yoyCoupon = new CouponInflationYearOnYearMonthlyDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE,
         ACCRUAL_END_DATE, 1.0, NOTIONAL, PRICE_INDEX, MONTH_LAG, 3, REFERENCE_START_DATE, REFERENCE_END_DATE, false);
-    CapFloorInflationYearOnYearMonthlyDefinition from = CapFloorInflationYearOnYearMonthlyDefinition.from(yoyCoupon, LAST_KNOWN_FIXING_DATE, STRIKE, IS_CAP);
+    final CapFloorInflationYearOnYearMonthlyDefinition from = CapFloorInflationYearOnYearMonthlyDefinition.from(yoyCoupon, LAST_KNOWN_FIXING_DATE, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon : from", constructor, from);
   }
 
   @Test
   public void toDerivativesNoData() {
     final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 7, 29);
-    Coupon zeroCouponConverted = YoY_CAP_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
+    final Coupon zeroCouponConverted = YoY_CAP_DEFINITION.toDerivative(pricingDate);
     //lastKnownFixingTime could be negatif so we don't use the dayfraction
     final double lastKnownFixingTime = TimeCalculator.getTimeBetween(pricingDate, LAST_KNOWN_FIXING_DATE);
     final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
@@ -210,7 +209,7 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
     final double naturalPaymentStartPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_START_DATE);
     final double naturalPaymentEndPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_END_DATE);
-    CapFloorInflationYearOnYearMonthly zeroCoupon = new CapFloorInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime, referenceStartTime,
+    final CapFloorInflationYearOnYearMonthly zeroCoupon = new CapFloorInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime, referenceStartTime,
         naturalPaymentStartPaymentTime, referenceEndTime, naturalPaymentEndPaymentTime, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
@@ -222,15 +221,15 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
         DateUtils.getUTCDate(2017, 6, 1), DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
         new double[] {
             127.23, 127.43, 128.23, 128.43 });
-    Coupon zeroCouponConverted = YoY_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
+    final Coupon zeroCouponConverted = YoY_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS);
     // lastKnownFixingTime could be negatif so we don't use the dayfraction
     final double lastKnownFixingTime = TimeCalculator.getTimeBetween(pricingDate, LAST_KNOWN_FIXING_DATE);
-    double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
+    final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceStartTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_START_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
     final double naturalPaymentStartPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_START_DATE);
     final double naturalPaymentEndPaymentTime = ACT_ACT.getDayCountFraction(pricingDate, ACCRUAL_END_DATE);
-    CapFloorInflationYearOnYearMonthly zeroCoupon = new CapFloorInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime, referenceStartTime,
+    final CapFloorInflationYearOnYearMonthly zeroCoupon = new CapFloorInflationYearOnYearMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, lastKnownFixingTime, referenceStartTime,
         naturalPaymentStartPaymentTime, referenceEndTime, naturalPaymentEndPaymentTime, STRIKE, IS_CAP);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
@@ -242,9 +241,9 @@ public class CapFloorInflationYearOnYearMonthlyDefinitionTest {
         DateUtils.getUTCDate(2017, 6, 1), DateUtils.getUTCDate(2018, 5, 1), DateUtils.getUTCDate(2018, 6, 1) },
         new double[] {
             127.23, 127.43, 128.23, 128.43 });
-    Coupon zeroCouponConverted = YoY_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
-    double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
-    CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, Math.max((WEIGHT_END * 128.23 + (1 - WEIGHT_END) * 128.43) /
+    final Coupon zeroCouponConverted = YoY_CAP_DEFINITION.toDerivative(pricingDate, priceIndexTS);
+    final double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
+    final CouponFixed zeroCoupon = new CouponFixed(CUR, paymentTime, 1.0, NOTIONAL, Math.max((WEIGHT_END * 128.23 + (1 - WEIGHT_END) * 128.43) /
         (WEIGHT_START * 127.23 + (1 - WEIGHT_START) * 127.43) - 1.0 - STRIKE, 0.0));
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }

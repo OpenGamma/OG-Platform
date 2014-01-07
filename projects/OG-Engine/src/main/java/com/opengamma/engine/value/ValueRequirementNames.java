@@ -62,9 +62,21 @@ public final class ValueRequirementNames {
   //  public static final String DAILY_VOLUME_AVG_20D = "Last Volume Avg 20D";
   //  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
   /**
-   * The mark as of the previous close (e.g. equity price)
+   * The mark as of the previous close (e.g. equity price) <p>
+   * Used in {@link ExternallyProvidedSecurityMarkFunction} 
    */
   public static final String MARK = "Mark";
+  /** 
+   * Current value of a security. 
+   * This is typically the mid of bid/ask prices, but if these are not available, may be formed in another fashion
+   */
+  public static final String MARK_CURRENT = "Mark - Current";
+  
+  /** 
+   * Previous value of a security. 
+   * This is typically the mid of previous bid/ask prices, but if these are not available, may be formed in another fashion
+   */
+  public static final String MARK_PREVIOUS = "Mark - Previous";
   /**
    * Spot - General name for current value of underlying asset / index
    */
@@ -89,6 +101,11 @@ public final class ValueRequirementNames {
    * The market price of the underlying security in a compound security, such as an option
    */
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
+  /**
+   * For margined securities, the reference or margin price. This will either be the security's close price or,
+   * on the transaction date itself, the traded price 
+   */
+  public static final String MARGIN_PRICE = "Margin Price";
   /**
    * The historical time series of a quantity.
    */
@@ -153,6 +170,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Curve containing (time, rate) pairs.
+   */
+  public static final String INSTANTANEOUS_FORWARD_CURVE = "InstantaneousForwardCurve";
+  /**
    * Curve containing (time, price index) pairs.
    */
   public static final String PRICE_INDEX_CURVE = "PriceIndexCurve";
@@ -188,6 +209,14 @@ public final class ValueRequirementNames {
    * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
    */
   public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a yield curve to their OG-Analytics derivative form.
+   */
+  public static final String YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Conversion Series";
+  /**
+   * A series of yield curves calculated using historical data
+   */
+  public static final String YIELD_CURVE_SERIES = "Yield Curve Series";
   /** 
    * The FX matrix associated with a bundle of curves.
    */
@@ -233,6 +262,14 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
   /**
+   * The bucketed PV01.
+   */
+  public static final String BUCKETED_PV01 = "Bucketed PV01";
+  /**
+   * The bucketed PV01.
+   */
+  public static final String ISIN = "ISIN";
+  /**
    * Curve property metadata.
    */
   public static final String YIELD_CURVE_SPEC = "YieldCurveSpec";
@@ -249,9 +286,17 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
   /**
+   * A vector of P&L series for the nodal points of a curve. 
+   */
+  public static final String CURVE_PNL_SERIES = "Curve P&L Series";
+  /**
    * A vector of return series for the nodal points of a yield curve.
    */
   public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
+  /**
+   * A vector of return series for the nodal points of a curve.
+   */
+  public static final String CURVE_RETURN_SERIES = "Curve Return Series";
   /**
    * A vector of return series for the nodal points of an FX forward curve.
    */
@@ -395,6 +440,12 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
 
+  ///// Volatility adjustments
+  /**
+   * The shifts to apply to a log-normal volatility surface
+   */
+  public static final String LOGNORMAL_SURFACE_SHIFTS = "LognormalSurfaceShifts";
+  
   ///// Pricing
 
   /**
@@ -462,6 +513,11 @@ public final class ValueRequirementNames {
   public static final String POINTS_UPFRONT = "Points Upfront";
 
   /**
+   * The spread for a credit default swap.
+   */
+  public static final String QUOTED_SPREAD = "Quoted Spread";
+
+  /**
    * The principal for a credit default swap.
    */
   public static final String PRINCIPAL = "Principal";
@@ -487,6 +543,16 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_SPREADS = "Bucketed Spreads";
 
   /**
+   * The pillar spreads used for pricing a credit default swap.
+   */
+  public static final String PILLAR_SPREADS = "Pillar Spreads";
+
+  /**
+   * The hedge notional, a matrix of notionals and tenors required to hedge an instrument.
+   */
+  public static final String HEDGE_NOTIONAL = "Hedge Notional";
+
+  /**
    * The dividend yield of an equity or equity index.
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";
@@ -507,9 +573,29 @@ public final class ValueRequirementNames {
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
+   * The present value of the pay leg of a swap.
+   */
+  public static final String PAY_LEG_PRESENT_VALUE = "Swap Pay Leg Present Value";
+  /**
+   * The present value of the receive leg of a swap.
+   */
+  public static final String RECEIVE_LEG_PRESENT_VALUE = "Swap Receive Leg Present Value";
+  /**
+   * The details of a swap pay leg.
+   */
+  public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
+  /**
+   * The details of a swap receive leg.
+   */
+  public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
+  /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";
+  /**
+   * The spread that must be added to the market quote of an instrument to produce a present value of zero
+   */
+  public static final String PAR_SPREAD = "Par Spread";
   /**
    * Sensitivity of par rate to a 1bp shift in the yield curve.
    */
@@ -522,6 +608,10 @@ public final class ValueRequirementNames {
    * The PV01 of a cash-flow based fixed-income instrument.
    */
   public static final String PV01 = "PV01";
+  /**
+   * The Gamma PV01 of a cash-flow based fixed-income instrument.
+   */
+  public static final String GAMMA_PV01 = "Gamma PV01";
   /**
    * The implied volatility of a security.
    */
@@ -542,7 +632,18 @@ public final class ValueRequirementNames {
    * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value).
    */
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
-
+  /**
+   * The convexity adjustment - the difference between the price and the par rate of an instrument
+   */
+  public static final String CONVEXITY_ADJUSTMENT = "Convexity Adjustment";
+  /**
+   * The net amount of an inflation coupon at the start of a month with respect to the reference index.
+   */
+  public static final String INFLATION_NET_AMOUNT = "Inflation Net Amount";
+  /**
+   * The market quoted value of an instrument (e.g. 0.99 for a Eurodollar future)
+   */
+  public static final String MARKET_QUOTE = "Market Quote";
   ///// Greeks
 
   /**
@@ -763,7 +864,7 @@ public final class ValueRequirementNames {
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
    * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
-   * {@link Delta} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
+   * {@link #DELTA} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
    * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
    * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
@@ -1040,6 +1141,10 @@ public final class ValueRequirementNames {
    * The attributes of a security
    */
   public static final String ATTRIBUTES = "Attributes";
+  /**
+   * An ExternalId of a security
+   */
+  public static final String EXTERNAL_ID = "ExternalId";
 
   ///// Value At Risk
 
@@ -1168,6 +1273,10 @@ public final class ValueRequirementNames {
    * The convexity of a bond.
    */
   public static final String CONVEXITY = "Convexity";
+  /** 
+   * The accrued interest of a bond.
+   */
+  public static final String ACCRUED_INTEREST = "Accrued Interest";
   /**
    * The current yield of a bond
    */

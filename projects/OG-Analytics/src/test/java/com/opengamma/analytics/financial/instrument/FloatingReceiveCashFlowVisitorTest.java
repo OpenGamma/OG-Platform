@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -43,10 +43,12 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.Iterables;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FloatingReceiveCashFlowVisitorTest {
   private static final FloatingReceiveCashFlowVisitor VISITOR = FloatingReceiveCashFlowVisitor.getInstance();
 
@@ -114,7 +116,7 @@ public class FloatingReceiveCashFlowVisitorTest {
 
   @Test
   public void testSwap() {
-    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(PAYER_SWAP.accept(VISITOR));
+    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<>(PAYER_SWAP.accept(VISITOR));
     assertEquals(60, payments.size());
     LocalDate paymentDate = SWAP_START.plusMonths(6).toLocalDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
@@ -127,7 +129,7 @@ public class FloatingReceiveCashFlowVisitorTest {
       assertEquals(SWAP_NOTIONAL * 0.5, ca.getAmount());
     }
     assertEquals(payments, PAYER_SWAP.accept(VISITOR, null));
-    payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(PAYER_SWAP_WITH_SPREAD.accept(VISITOR));
+    payments = new TreeMap<>(PAYER_SWAP_WITH_SPREAD.accept(VISITOR));
     assertEquals(60, payments.size());
     paymentDate = SWAP_START.plusMonths(6).toLocalDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
@@ -146,7 +148,7 @@ public class FloatingReceiveCashFlowVisitorTest {
 
   @Test
   public void testIborIborSwap() {
-    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVE_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR));
+    Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<>(RECEIVE_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR));
     assertEquals(100, payments.size());
     LocalDate paymentDate = SWAP_START.plusMonths(6).toLocalDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
@@ -159,7 +161,7 @@ public class FloatingReceiveCashFlowVisitorTest {
       assertEquals(SWAP_NOTIONAL / 2. + SWAP_NOTIONAL * IBOR_SPREAD / 2., ca.getAmount());
     }
     assertEquals(payments, RECEIVE_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR, null));
-    payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(PAY_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR));
+    payments = new TreeMap<>(PAY_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR));
     assertEquals(200, payments.size());
     paymentDate = SWAP_START.plusMonths(3).toLocalDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {

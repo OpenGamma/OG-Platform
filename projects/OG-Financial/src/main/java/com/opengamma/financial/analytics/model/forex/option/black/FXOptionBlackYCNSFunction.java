@@ -49,6 +49,7 @@ import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingYCNSFXOptionFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -59,8 +60,11 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Calculates yield curve node sensitivities for FX options.
+ * 
+ * @deprecated Use {@link BlackDiscountingYCNSFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackYCNSFunction.class);
   private static final MarketQuoteSensitivityCalculator CALCULATOR =
@@ -68,6 +72,11 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
 
   public FXOptionBlackYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

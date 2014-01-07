@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -249,7 +249,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
             throw new NotImplementedException("SolverMode " + _mode.toString() + " not implemented");
         }
 
-        if (_showFullResults) {
+        if (_showFullResults && full != null) {
           full[jj + 1] = Arrays.copyOf(h, _nNodesX);
         }
       }
@@ -478,7 +478,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
     }
 
     /**
-     * 
+     *
      */
     void updateRHSBoundary() {
       double[] temp = _lowerBoundary.getRightMatrixCondition(_coefficients, getGrid(), getT1());

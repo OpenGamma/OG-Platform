@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,13 +21,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 
 /**
  * Implementation of {@link Executor} that allows jobs to run in a group with a single consumer receiving results for them.
  * <p>
  * The maximum number of additional threads is limited, but the thread which submitted jobs may temporarily join the pool to allow its tasks to complete.
  */
-public class PoolExecutor implements Executor {
+public class PoolExecutor implements Executor, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PoolExecutor.class);
 
@@ -351,8 +353,8 @@ public class PoolExecutor implements Executor {
    */
   public PoolExecutor(final int maxThreads, final String name) {
     if (maxThreads > 0) {
-      _underlying = new ThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, _queue);
-      _underlying.setThreadFactory(new ExecutorThreadFactory(_me, name));
+      ThreadFactory factory = new ExecutorThreadFactory(_me, name);
+      _underlying = new MdcAwareThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, _queue, factory);
       _underlying.allowCoreThreadTimeOut(true);
     } else {
       _underlying = null;
@@ -434,6 +436,31 @@ public class PoolExecutor implements Executor {
     } else {
       getQueue().add(command);
     }
+  }
+
+  // Lifecycle
+
+  /**
+   * Dummy {@link Lifecycle#start} method; this object is implicitly started at construction and it is not possible to restart it after a {@link #stop} request.
+   */
+  @Override
+  public void start() {
+    if (!isRunning()) {
+      throw new IllegalStateException("Can't restart service after explicit stop");
+    }
+  }
+
+  @Override
+  public void stop() {
+    _me.clear();
+    if (_underlying != null) {
+      _underlying.shutdown();
+    }
+  }
+
+  @Override
+  public boolean isRunning() {
+    return _me.get() != null;
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -8,20 +8,13 @@ package com.opengamma.analytics.financial.interestrate;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
-import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
  * Sets of market data used in tests.
+ * @deprecated {@link YieldCurveBundle} is deprecated, as are the classes that use it.
  */
+@Deprecated
 public class TestsDataSetsBond {
-
-  /**
-   * The linear interpolator/ flat extrapolator. 
-   */
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
   private static final String DSC_EUR = "EUR Discounting";
   private static final String CURVE_GOVT_DE = "EUR - DE Govt";

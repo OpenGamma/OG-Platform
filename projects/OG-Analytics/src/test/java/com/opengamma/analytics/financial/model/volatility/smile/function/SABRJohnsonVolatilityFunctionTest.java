@@ -8,9 +8,12 @@ package com.opengamma.analytics.financial.model.volatility.smile.function;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRJohnsonVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
   private static final SABRJohnsonVolatilityFunction FUNCTION = new SABRJohnsonVolatilityFunction();
 

@@ -1,14 +1,14 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -45,14 +45,14 @@ public abstract class CouponDefinition extends PaymentDefinition {
   public CouponDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional) {
     super(currency, paymentDate);
-    Validate.notNull(accrualStartDate, "accrual start date");
-    this._accrualStartDate = accrualStartDate;
-    Validate.notNull(accrualEndDate, "accrual end date");
-    Validate.isTrue(!accrualEndDate.isBefore(accrualStartDate), "end before start"); // REVIEW
-    this._accrualEndDate = accrualEndDate;
-    Validate.isTrue(paymentAccrualFactor >= 0.0, "year fraction < 0");
-    this._paymentYearFraction = paymentAccrualFactor;
-    this._notional = notional;
+    ArgumentChecker.notNull(accrualStartDate, "accrual start date");
+    _accrualStartDate = accrualStartDate;
+    ArgumentChecker.notNull(accrualEndDate, "accrual end date");
+    ArgumentChecker.isTrue(!accrualEndDate.isBefore(accrualStartDate), "end before start"); // REVIEW
+    _accrualEndDate = accrualEndDate;
+    ArgumentChecker.isTrue(paymentAccrualFactor >= 0.0, "year fraction < 0");
+    _paymentYearFraction = paymentAccrualFactor;
+    _notional = notional;
   }
 
   /**
@@ -66,11 +66,11 @@ public abstract class CouponDefinition extends PaymentDefinition {
   public CouponDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double accrualFactor,
       final double notional) {
     super(currency, paymentDate);
-    Validate.notNull(accrualStartDate, "accrual start date");
-    this._accrualStartDate = accrualStartDate;
-    this._accrualEndDate = paymentDate;
-    this._paymentYearFraction = accrualFactor;
-    this._notional = notional;
+    ArgumentChecker.notNull(accrualStartDate, "accrual start date");
+    _accrualStartDate = accrualStartDate;
+    _accrualEndDate = paymentDate;
+    _paymentYearFraction = accrualFactor;
+    _notional = notional;
   }
 
   /**
@@ -116,9 +116,6 @@ public abstract class CouponDefinition extends PaymentDefinition {
     return _notional;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -133,9 +130,6 @@ public abstract class CouponDefinition extends PaymentDefinition {
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

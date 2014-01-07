@@ -81,8 +81,8 @@ public class Compressor {
   }
 
   /* package */ static void decompressStream(InputStream inputStream, OutputStream outputStream) throws IOException {
-    InputStream iStream =
-        new GZIPInputStream(new Base64InputStream(new BufferedInputStream(inputStream), false, -1, null));
+    @SuppressWarnings("resource")
+    InputStream iStream = new GZIPInputStream(new Base64InputStream(new BufferedInputStream(inputStream), false, -1, null));
     OutputStream oStream = new BufferedOutputStream(outputStream);
     byte[] buffer = new byte[2048];
     int bytesRead;
@@ -91,4 +91,5 @@ public class Compressor {
     }
     oStream.flush();
   }
+
 }

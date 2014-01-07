@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.calculator;
@@ -24,6 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Calculator of the sensitivity to the market quotes of instruments used to build the curves.
  */
+@SuppressWarnings("deprecation")
 public final class MarketQuoteSensitivityCalculator {
 
   /**
@@ -61,7 +62,9 @@ public final class MarketQuoteSensitivityCalculator {
    * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @param inverseJacobian The inverse Jacobian matrix (derivative of the curve parameters with respect to the market quotes).
    * @return The market quote sensitivity.
+   * @deprecated {@link YieldCurveBundle} is deprecated
    */
+  @Deprecated
   public DoubleMatrix1D fromInstrumentInverseJacobian(final InstrumentDerivative instrument, final Set<String> fixedCurves, final YieldCurveBundle bundle, final DoubleMatrix2D inverseJacobian) {
     final DoubleMatrix1D parameterSensitivity = _parameterSensitivityCalculator.calculateSensitivity(instrument, fixedCurves, bundle);
     return fromParameterSensitivityInverseJacobian(parameterSensitivity, inverseJacobian);
@@ -74,7 +77,9 @@ public final class MarketQuoteSensitivityCalculator {
    * @param couponSensitivity The sensitivity
    * @param jacobian The present value coupon sensitivity.
    * @return The instrument quote/rate sensitivity.
+   * @deprecated {@link YieldCurveBundle} is deprecated
    */
+  @Deprecated
   public DoubleMatrix1D calculateFromPresentValue(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle curves, final DoubleMatrix1D couponSensitivity,
       final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
@@ -95,6 +100,14 @@ public final class MarketQuoteSensitivityCalculator {
   }
 
   // REVIEW: Would work only for one curve? MH:11-Jun-2013
+  /**
+   * @param curveSensitivities The curve sensitivities, not null
+   * @param interpolatedCurves The interpolated curves, not null
+   * @param jacobian The Jacobian, not null
+   * @return The instrument quote / rate sensitivity
+   * @deprecated {@link YieldCurveBundle} is deprecated
+   */
+  @Deprecated
   public DoubleMatrix1D calculateFromParRate(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D jacobian) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {
@@ -113,10 +126,19 @@ public final class MarketQuoteSensitivityCalculator {
     return new DoubleMatrix1D(resultList.toDoubleArray());
   }
 
-  public DoubleMatrix1D calculateFromParRateFromTransition(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D transition) {
-    Set<String> curvesNames = interpolatedCurves.getAllNames();
+  /**
+   * @param curveSensitivities The curve sensitivities, not null
+   * @param interpolatedCurves The interpolated curves, not null
+   * @param transition The transition matrix, not null
+   * @return The market quote sensitivity
+   * @deprecated {@link YieldCurveBundle} is deprecated
+   */
+  @Deprecated
+  public DoubleMatrix1D calculateFromParRateFromTransition(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves,
+      final DoubleMatrix2D transition) {
+    final Set<String> curvesNames = interpolatedCurves.getAllNames();
     ArgumentChecker.isTrue(curvesNames.size() == 1, "More than one curve");
-    String[] curvesNamesArray = curvesNames.toArray(new String[1]);
+    final String[] curvesNamesArray = curvesNames.toArray(new String[1]);
     final List<Double> pointToParameterSensitivity = _parameterSensitivityCalculator.pointToParameterSensitivity(curveSensitivities.get(curvesNamesArray[0]),
         interpolatedCurves.getCurve(curvesNamesArray[0]));
     final DoubleMatrix1D nodeSensitivity = new DoubleMatrix1D(pointToParameterSensitivity.toArray(new Double[pointToParameterSensitivity.size()]));
@@ -124,6 +146,13 @@ public final class MarketQuoteSensitivityCalculator {
     return result;
   }
 
+  /**
+   * @param curveSensitivities The curve sensitivities, not null
+   * @param interpolatedCurves The interpolated curves, not null
+   * @return The market quote sensitivity
+   * @deprecated {@link YieldCurveBundle} is deprecated
+   */
+  @Deprecated
   public DoubleMatrix1D calculateFromSimpleInterpolatedCurve(final Map<String, List<DoublesPair>> curveSensitivities, final YieldCurveBundle interpolatedCurves) {
     final DoubleArrayList resultList = new DoubleArrayList();
     for (final String curveName : interpolatedCurves.getAllNames()) {

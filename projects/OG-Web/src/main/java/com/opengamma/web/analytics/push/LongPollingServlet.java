@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -23,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * {@code <servlet path>/{clientId}}.
  */
 public class LongPollingServlet extends HttpServlet {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(LongPollingServlet.class);
 
   /** Key for storing the results as an attribute of the continuation. */
   /* package */ static final String RESULTS = "RESULTS";
@@ -64,7 +68,7 @@ public class LongPollingServlet extends HttpServlet {
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     Continuation continuation = ContinuationSupport.getContinuation(request);
     if (continuation.isExpired()) {
-      // timeout - just send a blank reponse and tell the connection that its continuation has timed out
+      // timeout - just send a blank response and tell the connection that its continuation has timed out
       String clientId = (String) continuation.getAttribute(CLIENT_ID);
       if (clientId != null) {
         // TODO will this always get the correct continuation?
@@ -79,6 +83,7 @@ public class LongPollingServlet extends HttpServlet {
       setUpConnection(continuation, request, response);
     } else {
       // Send the results
+      s_logger.debug("Writing results to HTTP response {}", results);
       response.getWriter().write(results);
     }
   }

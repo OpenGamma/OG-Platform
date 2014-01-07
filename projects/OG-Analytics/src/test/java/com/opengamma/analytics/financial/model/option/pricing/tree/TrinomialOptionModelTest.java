@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -21,13 +21,15 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TrinomialOptionModelTest {
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, 1));
@@ -38,32 +40,32 @@ public class TrinomialOptionModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
-    new TrinomialOptionModel<StandardOptionDataBundle>(null);
+    new TrinomialOptionModel<>(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
-    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, -3);
+    new TrinomialOptionModel<>(TRINOMIAL, -3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroN() {
-    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 0);
+    new TrinomialOptionModel<>(TRINOMIAL, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDepth() {
-    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3, -3);
+    new TrinomialOptionModel<>(TRINOMIAL, 3, -3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInconsistentDepth() {
-    new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3, 10);
+    new TrinomialOptionModel<>(TRINOMIAL, 3, 10);
   }
 
   @Test
   public void test() {
-    final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<StandardOptionDataBundle>(TRINOMIAL, 3);
+    final TrinomialOptionModel<StandardOptionDataBundle> model = new TrinomialOptionModel<>(TRINOMIAL, 3);
     final Function1D<StandardOptionDataBundle, RecombiningTrinomialTree<DoublesPair>> f = model.getTreeGeneratingFunction(CALL);
     final DoublesPair[][] tree = f.evaluate(DATA).getNodes();
     final DoublesPair[][] expected = new DoublesPair[4][7];

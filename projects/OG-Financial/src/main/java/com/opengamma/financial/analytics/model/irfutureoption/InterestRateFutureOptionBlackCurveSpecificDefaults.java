@@ -20,33 +20,36 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Adds {@link ValuePropertyNames#CURVE} to the {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
  * that require it, such as {@link ValueRequirementNames#POSITION_RHO}
+ * @deprecated The functions for which these defaults apply are deprecated.
  */
+@Deprecated
 public class InterestRateFutureOptionBlackCurveSpecificDefaults extends InterestRateFutureOptionBlackDefaults {
 
-  
+
   private static final String[] s_curveRequirements = new String[] {
     ValueRequirementNames.POSITION_RHO
   };
-  
+
   private final HashMap<String, String> _currencyCurveNames;
 
   public InterestRateFutureOptionBlackCurveSpecificDefaults(final String[] currencyCurveConfigAndSurfaceNames) {
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve names");
     final int argLenth = currencyCurveConfigAndSurfaceNames.length;
     ArgumentChecker.isTrue(argLenth % 4 == 0, "Must have one curve, one curv config and one surface name per currency");
-    _currencyCurveNames = new HashMap<String, String>();
-    final HashMap<String, Pair<String, String>> currencyConfigAndSurfaceMap = new HashMap<String, Pair<String, String>>();
+    _currencyCurveNames = new HashMap<>();
+    final HashMap<String, Pair<String, String>> currencyConfigAndSurfaceMap = new HashMap<>();
     for (int i = 0; i < argLenth; i += 4) {
       final String currency = currencyCurveConfigAndSurfaceNames[i];
       final String curve = currencyCurveConfigAndSurfaceNames[i + 1];
       final String config = currencyCurveConfigAndSurfaceNames[i + 2];
-      final String surface = currencyCurveConfigAndSurfaceNames[i + 3];      
+      final String surface = currencyCurveConfigAndSurfaceNames[i + 3];
       _currencyCurveNames.put(currency, curve);
-      currencyConfigAndSurfaceMap.put(currency, Pair.of(config, surface));
+      currencyConfigAndSurfaceMap.put(currency, Pairs.of(config, surface));
     }
     setCurrencyCurveConfigAndSurfaceNames(currencyConfigAndSurfaceMap);
   }
@@ -54,7 +57,7 @@ public class InterestRateFutureOptionBlackCurveSpecificDefaults extends Interest
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     super.getDefaults(defaults);
-    for (String requirement : s_curveRequirements) {
+    for (final String requirement : s_curveRequirements) {
       defaults.addValuePropertyName(requirement, ValuePropertyNames.CURVE);
     }
   }

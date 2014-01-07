@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -21,24 +21,47 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated This function sets defaults for deprecated yield curve calculation functions.
  */
+@Deprecated
 public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
+  /** The value requirement names for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
       ValueRequirementNames.YIELD_CURVE,
       ValueRequirementNames.YIELD_CURVE_JACOBIAN,
-      ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX
+      ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
+      ValueRequirementNames.YIELD_CURVE_SERIES
   };
-  private final String _absoluteTolerance;
-  private final String _relativeTolerance;
-  private final String _maxIterations;
-  private final String _decomposition;
-  private final String _useFiniteDifference;
-  private final String _interpolatorName;
-  private final String _leftExtrapolatorName;
-  private final String _rightExtrapolatorName;
-  private final String[] _applicableCurrencies;
+  /** The interpolator name */
+  private final Set<String> _interpolatorName;
+  /** The left extrapolator name */
+  private final Set<String> _leftExtrapolatorName;
+  /** The right extrapolator name */
+  private final Set<String> _rightExtrapolatorName;
+  /** The absolute tolerance */
+  private final Set<String> _absoluteTolerance;
+  /** The relative tolerance */
+  private final Set<String> _relativeTolerance;
+  /** The maximum number of iterations */
+  private final Set<String> _maxIterations;
+  /** The matrix decomposition method */
+  private final Set<String> _decomposition;
+  /** Whether to use finite difference or analytic derivatives */
+  private final Set<String> _useFiniteDifference;
+  /** The currencies for which these defaults apply */
+  private final Set<String> _applicableCurrencies;
 
+  /**
+   * @param absoluteTolerance The absolute tolerance used in root-finding
+   * @param relativeTolerance The relative tolerance use in root-finding
+   * @param maxIterations The maximum number of iterations used in root-finding
+   * @param decomposition The matrix decomposition method used in root-finding
+   * @param interpolatorName The interpolator name
+   * @param leftExtrapolatorName The left extrapolator name
+   * @param rightExtrapolatorName The right extrapolator name
+   * @param useFiniteDifference True if calculations should use finite difference in root-finding, otherwise analytic derivatives are used
+   * @param applicableCurrencies The currencies for which these defaults apply
+   */
   public FXImpliedYieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
       final String useFiniteDifference, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... applicableCurrencies) {
@@ -52,15 +75,15 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(applicableCurrencies, "applicable currencies");
-    _absoluteTolerance = absoluteTolerance;
-    _relativeTolerance = relativeTolerance;
-    _maxIterations = maxIterations;
-    _decomposition = decomposition;
-    _useFiniteDifference = useFiniteDifference;
-    _interpolatorName = interpolatorName;
-    _leftExtrapolatorName = leftExtrapolatorName;
-    _rightExtrapolatorName = rightExtrapolatorName;
-    _applicableCurrencies = applicableCurrencies;
+    _absoluteTolerance = Collections.singleton(absoluteTolerance);
+    _relativeTolerance = Collections.singleton(relativeTolerance);
+    _maxIterations = Collections.singleton(maxIterations);
+    _decomposition = Collections.singleton(decomposition);
+    _useFiniteDifference = Collections.singleton(useFiniteDifference);
+    _interpolatorName = Collections.singleton(interpolatorName);
+    _leftExtrapolatorName = Collections.singleton(leftExtrapolatorName);
+    _rightExtrapolatorName = Collections.singleton(rightExtrapolatorName);
+    _applicableCurrencies = Sets.newHashSet(applicableCurrencies);
   }
 
   @Override
@@ -79,6 +102,11 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
+      defaults.addValuePropertyName(valueRequirement, MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.X_INTERPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
       defaults.addValuePropertyName(valueRequirement, InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
@@ -88,11 +116,10 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+    final String curveCalculationMethod = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethod == null) {
       return super.getRequirements(context, target, desiredValue);
     }
-    final String curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       return null;
     }
@@ -101,15 +128,25 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (InterpolatedDataProperties.X_INTERPOLATOR_NAME.equals(propertyName)) {
-      return Collections.singleton(_interpolatorName);
+    switch (propertyName) {
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION:
+        return _decomposition;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE:
+        return _absoluteTolerance;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE:
+        return _relativeTolerance;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS:
+        return _maxIterations;
+      case MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE:
+        return _useFiniteDifference;
+      case InterpolatedDataProperties.X_INTERPOLATOR_NAME:
+        return _interpolatorName;
+      case InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME:
+        return _leftExtrapolatorName;
+      case InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME:
+        return _rightExtrapolatorName;
+      default:
+        return null;
     }
-    if (InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
-      return Collections.singleton(_leftExtrapolatorName);
-    }
-    if (InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME.equals(propertyName)) {
-      return Collections.singleton(_rightExtrapolatorName);
-    }
-    return null;
   }
 }

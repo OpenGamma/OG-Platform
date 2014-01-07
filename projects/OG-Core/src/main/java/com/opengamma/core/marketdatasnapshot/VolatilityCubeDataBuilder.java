@@ -20,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Fudge builder for {@code VolatilityCubeData}.
@@ -119,7 +120,7 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
         final Tenor swapTenor = deserializer.fieldValueToObject(Tenor.class, strikeMsg.getByName(SWAP_TENOR_FIELD_NAME));
         final Tenor optionExpiry = deserializer.fieldValueToObject(Tenor.class, strikeMsg.getByName(OPTION_EXPIRY_FIELD_NAME));
         final Double strike = deserializer.fieldValueToObject(Double.class, strikeMsg.getByName(STRIKE_FIELD_NAME));
-        strikes.put(Pair.of(swapTenor, optionExpiry), strike);
+        strikes.put(Pairs.of(swapTenor, optionExpiry), strike);
       }
       ret.setATMStrikes(strikes);
     }
@@ -132,7 +133,7 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
         final Tenor swapTenor = deserializer.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(SWAP_TENOR_FIELD_NAME));
         final Tenor optionExpiry = deserializer.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(OPTION_EXPIRY_FIELD_NAME));
         final Double atmVol = deserializer.fieldValueToObject(Double.class, atmVolatilityMsg.getByName(ATM_VOLS_FIELD_NAME));
-        atmVols.put(Pair.of(swapTenor, optionExpiry), atmVol);
+        atmVols.put(Pairs.of(swapTenor, optionExpiry), atmVol);
       }
       ret.setATMVolatilities(atmVols);
     }

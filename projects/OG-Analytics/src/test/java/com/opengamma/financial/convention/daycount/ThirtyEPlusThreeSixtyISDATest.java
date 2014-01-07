@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ThirtyEPlusThreeSixtyISDA.
  */
+@Test(groups = TestGroup.UNIT)
 public class ThirtyEPlusThreeSixtyISDATest extends DayCountTestCase {
 
   private static final ThirtyEPlusThreeSixtyISDA DC = new ThirtyEPlusThreeSixtyISDA();
@@ -25,7 +27,7 @@ public class ThirtyEPlusThreeSixtyISDATest extends DayCountTestCase {
   @Test
   public void test() {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
-    assertEquals(DC.getConventionName(), "30E+/360 ISDA");
+    assertEquals(DC.getName(), "30E+/360 ISDA");
   }
 
 }

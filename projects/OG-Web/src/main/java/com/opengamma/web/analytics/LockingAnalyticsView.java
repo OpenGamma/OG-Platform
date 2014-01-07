@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -46,6 +47,16 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public String viewCompilationFailed(Throwable t) {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.viewCompilationFailed(t);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     try {
       _lock.writeLock().lock();
@@ -56,20 +67,30 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
     try {
       _lock.readLock().lock();
-      return _delegate.getGridStructure(gridType);
+      return _delegate.getGridStructure(gridType, viewportId);
     } finally {
       _lock.readLock().unlock();
     }
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getInitialGridStructure(gridType);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+      return _delegate.createViewport(requestId, gridType, viewportId, callbackId, structureCallbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -116,6 +137,21 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public void openDependencyGraph(int requestId,
+                                  GridType gridType,
+                                  int graphId,
+                                  String callbackId,
+                                  String calcConfigName,
+                                  ValueRequirement valueRequirement) {
+    try {
+      _lock.writeLock().lock();
+      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
   public void closeDependencyGraph(GridType gridType, int graphId) {
     try {
       _lock.writeLock().lock();
@@ -126,20 +162,30 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
     try {
       _lock.readLock().lock();
-      return _delegate.getGridStructure(gridType, graphId);
+      return _delegate.getGridStructure(gridType, graphId, viewportId);
     } finally {
       _lock.readLock().unlock();
     }
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getInitialGridStructure(gridType, graphId);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+      return _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, structureCallbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -214,7 +260,24 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
       _lock.readLock().unlock();
     }
   }
-  
-  
-  
+
+  @Override
+  public List<ErrorInfo> getErrors() {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getErrors();
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void deleteError(long id) {
+    try {
+      _lock.writeLock().lock();
+      _delegate.deleteError(id);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
 }

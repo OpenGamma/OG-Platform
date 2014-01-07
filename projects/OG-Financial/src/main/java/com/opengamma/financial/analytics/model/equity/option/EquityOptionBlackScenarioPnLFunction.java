@@ -12,7 +12,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -24,10 +23,10 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.model.equity.ScenarioPnLPropertyNamesAndValues;
 
 /**
@@ -49,7 +48,7 @@ public class EquityOptionBlackScenarioPnLFunction extends EquityOptionBlackFunct
   private static final String s_priceShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT_TYPE;
   private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE;
   
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBAWScenarioPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBlackScenarioPnLFunction.class);
   
   private String getValueRequirementName() {
     return ValueRequirementNames.PNL;

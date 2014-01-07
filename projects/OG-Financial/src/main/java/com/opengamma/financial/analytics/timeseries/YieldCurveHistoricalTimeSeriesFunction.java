@@ -5,14 +5,17 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -32,14 +35,38 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function to source time series data for each of the instruments in a curve from a {@link HistoricalTimeSeriesSource} attached to the execution context.
  */
 public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledInvoker {
-
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveHistoricalTimeSeriesFunction.class);
+  /** The excluded curve names */
+  private final String[] _excludedCurves;
 
+  /**
+   * No curves names are excluded.
+   */
+  public YieldCurveHistoricalTimeSeriesFunction() {
+    this(ArrayUtils.EMPTY_STRING_ARRAY);
+  }
+
+  /**
+   * @param excludedCurves The excluded curve names, not null
+   */
+  public YieldCurveHistoricalTimeSeriesFunction(final String[] excludedCurves) {
+    ArgumentChecker.notNull(excludedCurves, "excluded curves");
+    _excludedCurves = excludedCurves;
+    Arrays.sort(_excludedCurves);
+  }
+
+  /**
+   * Parses a string and returns null if the string is empty, otherwise returns the original string.
+   * @param str The input string
+   * @return The parsed string
+   */
   private static String parseString(final String str) {
     if (str.length() == 0) {
       return null;
@@ -55,7 +82,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
     final String resolutionKey = parseString(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY));
     final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
-    LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
+    final LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getAllValues().iterator().next().getValue();
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
@@ -96,6 +123,16 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     ValueProperties.Builder constraints = null;
+    if (_excludedCurves.length != 0) {
+      final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+      if (curveNames != null && curveNames.size() == 1) {
+        final String curveName = Iterables.getOnlyElement(curveNames);
+        final int index = Arrays.binarySearch(_excludedCurves, curveName);
+        if (index >= 0) {
+          return null;
+        }
+      }
+    }
     Set<String> values = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     if ((values == null) || values.isEmpty()) {
       constraints = desiredValue.getConstraints().copy().with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, MarketDataRequirementNames.MARKET_VALUE);

@@ -23,6 +23,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An abstract source built on top of an underlying master.
@@ -32,8 +33,10 @@ import com.opengamma.util.tuple.Pair;
  * @param <M> the type of the master
  */
 @PublicSPI
+@SuppressWarnings("deprecation")
 public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D extends AbstractDocument, M extends AbstractChangeProvidingMaster<? extends D>>
-    extends AbstractSource<V> implements Source<V>, VersionedSource, ObjectChangeListenerManager {
+    extends AbstractSource<V>
+    implements Source<V>, VersionedSource, ObjectChangeListenerManager {
 
   /**
    * The master.
@@ -164,13 +167,13 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
         }
       }
     };
-    _registeredListeners.put(Pair.of(oid, listener), changeListener);
+    _registeredListeners.put(Pairs.of(oid, listener), changeListener);
     changeManager().addChangeListener(changeListener);
   }
 
   @Override
   public void removeChangeListener(ObjectId oid, ObjectChangeListener listener) {
-    ChangeListener changeListener = _registeredListeners.remove(Pair.of(oid, listener));
+    ChangeListener changeListener = _registeredListeners.remove(Pairs.of(oid, listener));
     changeManager().removeChangeListener(changeListener);
   }
 

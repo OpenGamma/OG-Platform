@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -10,13 +10,17 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexVannaVolgaProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing the data required to price instruments with the volatility delta and time dependent.
+ * @deprecated Use {@link BlackForexVannaVolgaProvider}
  */
+@Deprecated
 public class SmileDeltaTermStructureVannaVolgaDataBundle extends ForexOptionDataBundle<SmileDeltaTermStructureParameters> {
 
   public static SmileDeltaTermStructureVannaVolgaDataBundle from(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParameters smile, final Pair<Currency, Currency> currencyPair) {
@@ -41,7 +45,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundle extends ForexOptionData
   public SmileDeltaTermStructureVannaVolgaDataBundle copy() {
     final YieldCurveBundle curves = getCurvesCopy();
     final SmileDeltaTermStructureParameters smile = getVolatilityModel().copy();
-    final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
+    final Pair<Currency, Currency> currencyPair = Pairs.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new SmileDeltaTermStructureVannaVolgaDataBundle(curves, smile, currencyPair);
   }
 

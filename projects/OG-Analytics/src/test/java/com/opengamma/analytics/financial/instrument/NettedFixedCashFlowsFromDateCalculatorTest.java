@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -37,15 +37,17 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NettedFixedCashFlowsFromDateCalculatorTest {
   private static final NettedFixedCashFlowFromDateCalculator CALCULATOR = NettedFixedCashFlowFromDateCalculator.getInstance();
   private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> ALL_CASH_FLOWS = NettedFixedCashFlowVisitor.getVisitor();
-  private static final Set<InstrumentDefinition<?>> INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
-  private static final Set<InstrumentDefinition<?>> NON_FIXING_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
+  private static final Set<InstrumentDefinition<?>> INSTRUMENTS = new HashSet<>();
+  private static final Set<InstrumentDefinition<?>> NON_FIXING_INSTRUMENTS = new HashSet<>();
 
   static {
     NON_FIXING_INSTRUMENTS.add(PAY_CASH);
@@ -100,12 +102,12 @@ public class NettedFixedCashFlowsFromDateCalculatorTest {
   public void testDateBeforeAnyCashFlows() {
     final LocalDate date = LocalDate.of(1990, 1, 1);
     for (final InstrumentDefinition<?> definition : INSTRUMENTS) {
-      final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(ALL_CASH_FLOWS, IBOR_FIXING_SERIES));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<>(definition.accept(ALL_CASH_FLOWS, IBOR_FIXING_SERIES));
       final Map<LocalDate, MultipleCurrencyAmount> trimmed = CALCULATOR.getCashFlows(definition, IBOR_FIXING_SERIES, date);
       assertEquals(allFlows, trimmed);
     }
     for (final InstrumentDefinition<?> definition : NON_FIXING_INSTRUMENTS) {
-      final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(ALL_CASH_FLOWS));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<>(definition.accept(ALL_CASH_FLOWS));
       final Map<LocalDate, MultipleCurrencyAmount> trimmed = CALCULATOR.getCashFlows(definition, date);
       assertEquals(allFlows, trimmed);
     }
@@ -126,11 +128,11 @@ public class NettedFixedCashFlowsFromDateCalculatorTest {
 
   @Test
   public void testTrimming() {
-    final Set<InstrumentDefinition<?>> allInstruments = new HashSet<InstrumentDefinition<?>>(INSTRUMENTS);
+    final Set<InstrumentDefinition<?>> allInstruments = new HashSet<>(INSTRUMENTS);
     allInstruments.addAll(NON_FIXING_INSTRUMENTS);
     final LocalDate date = LocalDate.of(2012, 1, 1);
     for (final InstrumentDefinition<?> definition : allInstruments) {
-      final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(ALL_CASH_FLOWS, IBOR_FIXING_SERIES));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> allFlows = new TreeMap<>(definition.accept(ALL_CASH_FLOWS, IBOR_FIXING_SERIES));
       final Map<LocalDate, MultipleCurrencyAmount> trimmed = CALCULATOR.getCashFlows(definition, IBOR_FIXING_SERIES, date);
       final Iterator<Map.Entry<LocalDate, MultipleCurrencyAmount>> iterator = trimmed.entrySet().iterator();
       for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : allFlows.entrySet()) {

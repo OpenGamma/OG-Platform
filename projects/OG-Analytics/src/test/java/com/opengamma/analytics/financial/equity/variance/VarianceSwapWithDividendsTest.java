@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance;
@@ -35,13 +35,13 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
 @Test(groups = TestGroup.UNIT_SLOW)
 public class VarianceSwapWithDividendsTest {
 
   private static final boolean PRINT = false; //set to false for push
-  private static final boolean ASSERT = true; //set to true for push 
+  private static final boolean ASSERT = true; //set to true for push
   private static final int N_SIMS = 10000; //put to 10,000 for push
   final static int seed = 123;
   private static final double MC_SD = 4.0;
@@ -53,24 +53,18 @@ public class VarianceSwapWithDividendsTest {
   private static final EquityVarianceSwapBackwardsPurePDE PDE_BKD_SOLVER = new EquityVarianceSwapBackwardsPurePDE();
   private static final double EXPIRY = 1.5;
   private static final double PURE_VOL = 0.5;
-  private static final double VOL = 0.4;
   private static final double SPOT = 123;
   private static final double DRIFT = 0.07;
 
-  @SuppressWarnings("unused")
-  private static final LocalVolatilitySurfaceStrike LOCAL_VOL_FLAT = new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(VOL));
   private static final PureLocalVolatilitySurface PURE_LOCAL_VOL_FLAT = new PureLocalVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
   private static final PureImpliedVolatilitySurface PURE_IMPLIED_VOL_FLAT = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
   private static final MultiHorizonMixedLogNormalModelData MLN_DATA;
   private static final YieldAndDiscountCurve DISCOUNT_CURVE = YieldCurve.from(ConstantDoublesCurve.from(DRIFT));
 
-  // private static final ForwardCurve FORWARD_CURVE;
-
   static {
-    double[] weights = new double[] {0.8, 0.15, 0.05 };
-    double[] sigmas = new double[] {0.3, 0.5, 0.9 };
-    //double[] mus = new double[3];
-    double[] mus = new double[] {0.04, 0.1, -0.2 };
+    final double[] weights = new double[] {0.8, 0.15, 0.05 };
+    final double[] sigmas = new double[] {0.3, 0.5, 0.9 };
+    final double[] mus = new double[] {0.04, 0.1, -0.2 };
     MLN_DATA = new MultiHorizonMixedLogNormalModelData(weights, sigmas, mus);
   }
 
@@ -88,22 +82,9 @@ public class VarianceSwapWithDividendsTest {
     }
   }
 
-  //  @Test
-  //  public void debug() {
-  //    System.out.println("VarianceSwapWithDividendsTest");
-  //
-  //    PDEUtilityTools.printSurface("lv", PURE_LOCAL_VOL.getSurface(), 0.001, 2.0, 0.01, 10.0);
-  //    PDEUtilityTools.printSurface("im", PURE_IMPLIED_VOL.getSurface(), 0.001, 2.0, 0.01, 10.0);
-  //
-  //    DupireLocalVolatilityCalculator dupire = new DupireLocalVolatilityCalculator();
-  //    PureLocalVolatilitySurface lv2 = dupire.getLocalVolatility(PURE_IMPLIED_VOL);
-  //    PDEUtilityTools.printSurface("lv2", lv2.getSurface(), 0.001, 2.0, 0.01, 10.0);
-  //  }
-
   @Test
   public void noDividendsTest() {
-
-    AffineDividends dividends = AffineDividends.noDividends();
+    final AffineDividends dividends = AffineDividends.noDividends();
     testNumericsForFlatPureVol(dividends);
     testNumerics(dividends, MLN_DATA, 1e-7);
 
@@ -111,40 +92,40 @@ public class VarianceSwapWithDividendsTest {
 
   @Test
   public void proportionalOnlyTest() {
-    double[] tau = new double[] {EXPIRY - 0.7, EXPIRY - 0.1, EXPIRY + 0.1 };
-    double[] alpha = new double[3];
-    double[] beta = new double[] {0.1, 0.1, 0.1 };
-    AffineDividends dividends = new AffineDividends(tau, alpha, beta);
+    final double[] tau = new double[] {EXPIRY - 0.7, EXPIRY - 0.1, EXPIRY + 0.1 };
+    final double[] alpha = new double[3];
+    final double[] beta = new double[] {0.1, 0.1, 0.1 };
+    final AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
   @Test
   public void dividendsAfterExpiryTest() {
-    double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6 };
-    double[] alpha = new double[] {0.1 * SPOT, 0.05 * SPOT };
-    double[] beta = new double[] {0.05, 0.1 };
-    AffineDividends dividends = new AffineDividends(tau, alpha, beta);
+    final double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6 };
+    final double[] alpha = new double[] {0.1 * SPOT, 0.05 * SPOT };
+    final double[] beta = new double[] {0.05, 0.1 };
+    final AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
   @Test
   public void dividendsBeforeExpiryTest() {
-    double[] tau = new double[] {0.85, 1.2 };
-    double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT };
-    double[] beta = new double[] {0.1, 0.2 };
-    AffineDividends dividends = new AffineDividends(tau, alpha, beta);
+    final double[] tau = new double[] {0.85, 1.2 };
+    final double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT };
+    final double[] beta = new double[] {0.1, 0.2 };
+    final AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     testNumericsForFlatPureVol(dividends);
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
   @Test
   public void dividendsAtExpiryTest() {
-    double[] tau = new double[] {1.2, EXPIRY };
-    double[] alpha = new double[] {0.1 * SPOT, 0.05 * SPOT };
-    double[] beta = new double[] {0.1, 0.2 };
-    AffineDividends dividends = new AffineDividends(tau, alpha, beta);
+    final double[] tau = new double[] {1.2, EXPIRY };
+    final double[] alpha = new double[] {0.1 * SPOT, 0.05 * SPOT };
+    final double[] beta = new double[] {0.1, 0.2 };
+    final AffineDividends dividends = new AffineDividends(tau, alpha, beta);
     //   testNumericsForFlatPureVol(dividends);
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
@@ -152,9 +133,8 @@ public class VarianceSwapWithDividendsTest {
   @Test
   public void testMixedLogNormalVolSurface() {
 
-    AffineDividends dividends = AffineDividends.noDividends();
+    final AffineDividends dividends = AffineDividends.noDividends();
     final ForwardCurve fwdCurve = new ForwardCurve(SPOT, DRIFT);
-
     final double sigma1 = 0.2;
     final double sigma2 = 1.0;
     final double w = 0.9;
@@ -174,8 +154,8 @@ public class VarianceSwapWithDividendsTest {
 
     final BlackVolatilitySurfaceStrike surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
 
-    double[] res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, surfaceStrike);
-    double rv = res[0] / EXPIRY;
+    final double[] res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, surfaceStrike);
+    final double rv = res[0] / EXPIRY;
     final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
     assertEquals(expected, rv, 2e-6); //TODO this should be better
 
@@ -187,10 +167,10 @@ public class VarianceSwapWithDividendsTest {
    * @param dividends
    */
   private void testNumericsForFlatPureVol(final AffineDividends dividends) {
-    EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(SPOT, DISCOUNT_CURVE, dividends);
-    LocalVolatilitySurfaceStrike localVol = VolatilitySurfaceConverter.convertLocalVolSurface(PURE_LOCAL_VOL_FLAT, divCurves);
+    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(SPOT, DISCOUNT_CURVE, dividends);
+    final LocalVolatilitySurfaceStrike localVol = VolatilitySurfaceConverter.convertLocalVolSurface(PURE_LOCAL_VOL_FLAT, divCurves);
 
-    //get the analytic values of the expected variance if there are no cash dividends 
+    //get the analytic values of the expected variance if there are no cash dividends
     boolean canPriceAnalytic = true;
     for (int i = 0; i < dividends.getNumberOfDividends(); i++) {
       if (dividends.getAlpha(i) > 0.0) {
@@ -215,16 +195,16 @@ public class VarianceSwapWithDividendsTest {
       }
     }
 
-    double fT = divCurves.getF(EXPIRY);
+    final double fT = divCurves.getF(EXPIRY);
 
     //run Monte Carlo (simulating the actual stock process)
     double[] res = MC_CALCULATOR.solve(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, localVol, N_SIMS);
-    double mcST = res[0]; //The expected stock price at expiry
-    double mcSDST = Math.sqrt(res[3]); //The Standard Deviation of the expected stock price at expiry
-    double mcRV1 = res[1]; //The (annualised) expected variance correcting for dividends 
-    double mcVarRV1 = res[4];// The variance of the expected variance correcting for dividends
-    double mcRV2 = res[2]; //The (annualised) expected variance NOT correcting for dividends 
-    double mcVarRV2 = res[5]; //The variance of expected variance NOT correcting for dividends 
+    final double mcST = res[0]; //The expected stock price at expiry
+    final double mcSDST = Math.sqrt(res[3]); //The Standard Deviation of the expected stock price at expiry
+    final double mcRV1 = res[1]; //The (annualised) expected variance correcting for dividends
+    final double mcVarRV1 = res[4];// The variance of the expected variance correcting for dividends
+    final double mcRV2 = res[2]; //The (annualised) expected variance NOT correcting for dividends
+    final double mcVarRV2 = res[5]; //The variance of expected variance NOT correcting for dividends
     //      double mceK1 = (Math.sqrt(mcRV1) - mcVarRV1 / 8 / Math.pow(mcRV1, 1.5)); //very small bias correction applied here
     //      double sdK1 = Math.sqrt(mcVarRV1 / 4 / mcRV1 * (1 - mcVarRV1 / 16 / mcRV1 / mcRV1));
     //      double mceK2 = (Math.sqrt(mcRV2) - mcVarRV2 / 8 / Math.pow(mcRV2, 1.5)); //very small bias correction applied here
@@ -240,12 +220,12 @@ public class VarianceSwapWithDividendsTest {
 
     //run Monte Carlo (simulating the PURE stock process)
     res = MC_CALCULATOR_PURE.solve(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, PURE_LOCAL_VOL_FLAT, N_SIMS);
-    double mcpST = res[0]; //see above for definition of these variables 
-    double mcpSDST = Math.sqrt(res[3]);
-    double mcpRV1 = res[1];
-    double mcpVarRV1 = res[4];
-    double mcpRV2 = res[2];
-    double mcpVarRV2 = res[5];
+    final double mcpST = res[0]; //see above for definition of these variables
+    final double mcpSDST = Math.sqrt(res[3]);
+    final double mcpRV1 = res[1];
+    final double mcpVarRV1 = res[4];
+    final double mcpRV2 = res[2];
+    final double mcpVarRV2 = res[5];
     if (PRINT) {
       System.out.format("Pure Monte Carlo: F_T = %1$.3f, s =  %2$.3f+-%3$.3f RV1 = %4$.8f+-%5$.8f RV2 = %6$.8f+-%7$.8f%n", fT, mcpST, mcpSDST, mcpRV1, Math.sqrt(mcpVarRV1), mcpRV2,
           Math.sqrt(mcpVarRV2));
@@ -261,19 +241,19 @@ public class VarianceSwapWithDividendsTest {
       assertEquals("MC (pure) V MC  RV2", mcpRV2, mcRV2, 1e-3); //TODO should have a better tolerance than this
     }
 
-    //To match up with Monte Carlo, make all dividend times an integer number of days 
+    //To match up with Monte Carlo, make all dividend times an integer number of days
     final int n = dividends.getNumberOfDividends();
-    double[] tau = dividends.getTau();
+    final double[] tau = dividends.getTau();
     final double dt = 1. / 252;
     for (int i = 0; i < n; i++) {
-      int steps = (int) (Math.ceil(tau[i] * 252));
+      final int steps = (int) (Math.ceil(tau[i] * 252));
       tau[i] = steps * dt;
     }
 
-    //calculate by static replication using prices of PURE put and call prices  
+    //calculate by static replication using prices of PURE put and call prices
     res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, PURE_IMPLIED_VOL_FLAT);
-    double srpRV1 = res[0] / EXPIRY;
-    double srpRV2 = res[1] / EXPIRY;
+    final double srpRV1 = res[0] / EXPIRY;
+    final double srpRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Static replication (pure):  RV1 = %1$.8f RV2 = %2$.8f%n", srpRV1, srpRV2);
     }
@@ -291,8 +271,8 @@ public class VarianceSwapWithDividendsTest {
     //NOTE, this surface is converted from the (smooth, flat) pure implied vol surface, and will have the correct discontinuities at cash dividend dates
     final BlackVolatilitySurfaceStrike impVol = VolatilitySurfaceConverter.convertImpliedVolSurface(PURE_IMPLIED_VOL_FLAT, divCurves);
     res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, impVol);
-    double srRV1 = res[0] / EXPIRY;
-    double srRV2 = res[1] / EXPIRY;
+    final double srRV1 = res[0] / EXPIRY;
+    final double srRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Static replication (real price):  RV1 = %1$.8f RV2 = %2$.8f%n", srRV1, srRV2);
     }
@@ -301,15 +281,15 @@ public class VarianceSwapWithDividendsTest {
         assertEquals("Analytic V Static Rep (real price) RV1", anVar1, srRV1, 1e-8);
         assertEquals("Analytic V Static Rep (real price) RV2", anVar2, srRV2, 1e-8);
       } else {
-        assertEquals("Static Rep (real price) V Static Rep (pure) RV1", srRV1, srpRV1, 2e-4); //TODO These should be closer 
+        assertEquals("Static Rep (real price) V Static Rep (pure) RV1", srRV1, srpRV1, 2e-4); //TODO These should be closer
         assertEquals("Static Rep (real prcie) V Static Rep (pure) RV2", srRV2, srpRV2, 5e-5);
       }
     }
 
-    //calculate by solving the forward PDE 
+    //calculate by solving the forward PDE
     res = PDE_FWD_SOLVER.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, PURE_LOCAL_VOL_FLAT);
-    double fpdeRV1 = res[0] / EXPIRY;
-    double fpdeRV2 = res[1] / EXPIRY;
+    final double fpdeRV1 = res[0] / EXPIRY;
+    final double fpdeRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Forward PDE:  RV1 = %1$.8f RV2 = %2$.8f%n", fpdeRV1, fpdeRV2);
     }
@@ -325,8 +305,8 @@ public class VarianceSwapWithDividendsTest {
 
     //calculate by solving the backwards PDE
     res = PDE_BKD_SOLVER.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, PURE_LOCAL_VOL_FLAT);
-    double bpdeRV1 = res[0] / EXPIRY;
-    double bpdeRV2 = res[1] / EXPIRY;
+    final double bpdeRV1 = res[0] / EXPIRY;
+    final double bpdeRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Backwards PDE:  RV1 = %1$.8f RV2 = %2$.8f%n", bpdeRV1, bpdeRV2);
     }
@@ -342,8 +322,8 @@ public class VarianceSwapWithDividendsTest {
   }
 
   /**
-   * Test the various numerical scheme when we have extraneously given pure (implied and local) volatility surfaces 
-   * @param dividends The dividend structure 
+   * Test the various numerical scheme when we have extraneously given pure (implied and local) volatility surfaces
+   * @param dividends The dividend structure
    * @param pImpVol The pure implied volatility surface
    * @param plv The pure local volatility surface
    */
@@ -360,7 +340,7 @@ public class VarianceSwapWithDividendsTest {
     final double m = weights.length;
     final int n = dividends.getNumberOfDividends();
 
-    //get the analytic values of the expected variance if there are no cash dividends 
+    //get the analytic values of the expected variance if there are no cash dividends
     boolean canPriceAnalytic = true;
     for (int i = 0; i < n; i++) {
       if (dividends.getAlpha(i) > 0.0) {
@@ -394,11 +374,12 @@ public class VarianceSwapWithDividendsTest {
   }
 
   /**
-   * Test the various numerical scheme when we have extraneously given pure (implied and local) volatility surfaces 
-   * @param dividends The dividend structure 
+   * Test the various numerical scheme when we have extraneously given pure (implied and local) volatility surfaces
+   * @param dividends The dividend structure
    * @param pImpVol The pure implied volatility surface
    * @param plv The pure local volatility surface
    */
+  @SuppressWarnings("unused")
   private void testNumerics(final boolean isAnalytic, final double expDivCorr, final double expDivNoCorr, final AffineDividends dividends, final PureImpliedVolatilitySurface pImpVol,
       final PureLocalVolatilitySurface plv, final double defaultTol) {
 
@@ -407,19 +388,19 @@ public class VarianceSwapWithDividendsTest {
     }
 
     //convert the pure (implied and local)
-    EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(SPOT, DISCOUNT_CURVE, dividends);
-    LocalVolatilitySurfaceStrike localVol = VolatilitySurfaceConverter.convertLocalVolSurface(plv, divCurves);
-    BlackVolatilitySurfaceStrike impVol = VolatilitySurfaceConverter.convertImpliedVolSurface(pImpVol, divCurves);
-    double fT = divCurves.getF(EXPIRY);
+    final EquityDividendsCurvesBundle divCurves = new EquityDividendsCurvesBundle(SPOT, DISCOUNT_CURVE, dividends);
+    final LocalVolatilitySurfaceStrike localVol = VolatilitySurfaceConverter.convertLocalVolSurface(plv, divCurves);
+    final BlackVolatilitySurfaceStrike impVol = VolatilitySurfaceConverter.convertImpliedVolSurface(pImpVol, divCurves);
+    final double fT = divCurves.getF(EXPIRY);
 
     //run Monte Carlo (simulating the PURE stock process)
     double[] res = MC_CALCULATOR_PURE.solve(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, plv, N_SIMS);
-    double mcpST = res[0]; //The expected stock price at expiry
-    double mcpSDST = Math.sqrt(res[3]); //The Standard Deviation of the expected stock price at expiry
-    double mcpRV1 = res[1]; //The (annualised) expected variance correcting for dividends 
-    double mcpVarRV1 = res[4];// The variance of the expected variance correcting for dividends
-    double mcpRV2 = res[2]; //The (annualised) expected variance NOT correcting for dividends 
-    double mcpVarRV2 = res[5]; //The variance of expected variance NOT correcting for dividends 
+    final double mcpST = res[0]; //The expected stock price at expiry
+    final double mcpSDST = Math.sqrt(res[3]); //The Standard Deviation of the expected stock price at expiry
+    final double mcpRV1 = res[1]; //The (annualised) expected variance correcting for dividends
+    final double mcpVarRV1 = res[4];// The variance of the expected variance correcting for dividends
+    final double mcpRV2 = res[2]; //The (annualised) expected variance NOT correcting for dividends
+    final double mcpVarRV2 = res[5]; //The variance of expected variance NOT correcting for dividends
     if (PRINT) {
       System.out.format("Pure Monte Carlo: F_T = %1$.3f, s =  %2$.3f+-%3$.3f RV1 = %4$.8f+-%5$.8f RV2 = %6$.8f+-%7$.8f%n", fT, mcpST, mcpSDST, mcpRV1, Math.sqrt(mcpVarRV1), mcpRV2,
           Math.sqrt(mcpVarRV2));
@@ -434,12 +415,12 @@ public class VarianceSwapWithDividendsTest {
 
     //run the Monte Carlo (simulating the ACTUAL stock process)
     res = MC_CALCULATOR.solve(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, localVol, N_SIMS);
-    double mcST = res[0]; //see above for definition of these variables 
-    double mcSDST = Math.sqrt(res[3]);
-    double mcRV1 = res[1];
-    double mcVarRV1 = res[4];
-    double mcRV2 = res[2];
-    double mcVarRV2 = res[5];
+    final double mcST = res[0]; //see above for definition of these variables
+    final double mcSDST = Math.sqrt(res[3]);
+    final double mcRV1 = res[1];
+    final double mcVarRV1 = res[4];
+    final double mcRV2 = res[2];
+    final double mcVarRV2 = res[5];
     if (PRINT) {
       System.out.format("Monte Carlo: F_T = %1$.3f, s =  %2$.3f+-%3$.3f RV1 = %4$.8f+-%5$.8f RV2 = %6$.8f+-%7$.8f%n", fT, mcST, mcSDST, mcRV1, Math.sqrt(mcVarRV1), mcRV2,
           Math.sqrt(mcVarRV2));
@@ -454,8 +435,8 @@ public class VarianceSwapWithDividendsTest {
 
     //calculate by static replication using prices of PURE put and call prices (from the pure implied volatility surface)
     res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, pImpVol);
-    double srpRV1 = res[0] / EXPIRY;
-    double srpRV2 = res[1] / EXPIRY;
+    final double srpRV1 = res[0] / EXPIRY;
+    final double srpRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Static replication (pure):  RV1 = %1$.8f RV2 = %2$.8f%n", srpRV1, srpRV2);
     }
@@ -471,8 +452,8 @@ public class VarianceSwapWithDividendsTest {
 
     //calculate by static replication using actual prices of put and call prices  (from the (converted) implied volatility surface)
     res = STATIC_REPLICATION.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, impVol);
-    double srRV1 = res[0] / EXPIRY;
-    double srRV2 = res[1] / EXPIRY;
+    final double srRV1 = res[0] / EXPIRY;
+    final double srRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Static replication (real price):  RV1 = %1$.8f RV2 = %2$.8f%n", srRV1, srRV2);
     }
@@ -488,14 +469,14 @@ public class VarianceSwapWithDividendsTest {
 
     //calculate by solving the forward PDE using the pure local volatility to get pure option prices, before pricing the variance swaps via static replication
     res = PDE_FWD_SOLVER.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, plv);
-    double fpdeRV1 = res[0] / EXPIRY;
-    double fpdeRV2 = res[1] / EXPIRY;
+    final double fpdeRV1 = res[0] / EXPIRY;
+    final double fpdeRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Forward PDE:  RV1 = %1$.8f RV2 = %2$.8f%n", fpdeRV1, fpdeRV2);
     }
     if (ASSERT) {
       if (isAnalytic) {
-        assertEquals("Analytic V Forward PDE RV1", expDivCorr, fpdeRV1, 1e4 * defaultTol); //poor tolerance 
+        assertEquals("Analytic V Forward PDE RV1", expDivCorr, fpdeRV1, 1e4 * defaultTol); //poor tolerance
         assertEquals("Analytic V Forward PDE RV2", expDivNoCorr, fpdeRV2, 1e4 * defaultTol);
       } else {
         assertEquals("Static Rep (pure) V  Forward PDE RV1", srpRV1, fpdeRV1, 1e4 * defaultTol);
@@ -503,10 +484,10 @@ public class VarianceSwapWithDividendsTest {
       }
     }
 
-    //calculate by solving the backwards PDE using the pure local volatility surface 
+    //calculate by solving the backwards PDE using the pure local volatility surface
     res = PDE_BKD_SOLVER.expectedVariance(SPOT, DISCOUNT_CURVE, dividends, EXPIRY, plv);
-    double bpdeRV1 = res[0] / EXPIRY;
-    double bpdeRV2 = res[1] / EXPIRY;
+    final double bpdeRV1 = res[0] / EXPIRY;
+    final double bpdeRV2 = res[1] / EXPIRY;
     if (PRINT) {
       System.out.format("Backwards PDE:  RV1 = %1$.8f RV2 = %2$.8f%n", bpdeRV1, bpdeRV2);
     }

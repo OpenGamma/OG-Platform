@@ -71,6 +71,12 @@ public class YieldCurve extends YieldAndDiscountCurve {
   }
 
   @Override
+  public double getForwardRate(final double t) {
+    final DoublesCurve curve = getCurve();
+    return curve.getYValue(t) + t * curve.getDyDx(t);
+  }
+
+  @Override
   public double[] getInterestRateParameterSensitivity(final double t) {
     return ArrayUtils.toPrimitive(_curve.getYValueParameterSensitivity(t));
   }

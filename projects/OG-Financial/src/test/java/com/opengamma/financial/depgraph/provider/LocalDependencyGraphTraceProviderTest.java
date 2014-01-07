@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.depgraph.provider;
 
 import static org.mockito.Mockito.mock;
@@ -11,10 +16,12 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuildTrace;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilder;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperties;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test for {@link LocalDependencyGraphTraceProvider}
  */
+@Test(groups = TestGroup.UNIT)
 public class LocalDependencyGraphTraceProviderTest {
 
   @Test

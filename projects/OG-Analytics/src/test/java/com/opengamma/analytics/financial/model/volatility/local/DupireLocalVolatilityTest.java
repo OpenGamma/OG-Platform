@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2011 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.local;
@@ -41,10 +41,12 @@ import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DupireLocalVolatilityTest {
 
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
@@ -72,7 +74,7 @@ public class DupireLocalVolatilityTest {
   private static AbsoluteLocalVolatilitySurface ABS_LOCAL_VOL;
   private static LocalVolatilitySurfaceStrike LOCAL_VOL;
   /**
-   * 
+   *
    */
   static {
     ALPHA = ATM_VOL * Math.pow(SPOT, 1 - BETA);
@@ -170,7 +172,7 @@ public class DupireLocalVolatilityTest {
     final MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 6.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0, upperLevel, STRIKE, nSpotNodes, 0.05);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDEResults1D res = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid));
+    final PDEResults1D res = solver.solve(new PDE1DDataBundle<>(pde, payoff, lower, upper, grid));
 
     final int fwdIndex = grid.getLowerBoundIndexForSpace(forward);
     final double[] fwd = new double[4];
@@ -238,10 +240,10 @@ public class DupireLocalVolatilityTest {
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Test(enabled = false)
   public void volTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    @SuppressWarnings("deprecation")
     final LocalVolatilitySurfaceStrike locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
     double t;
     double f;

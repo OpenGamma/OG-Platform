@@ -22,6 +22,8 @@ public class DependencyGraphViewport implements Viewport {
   private final DependencyGraphGridStructure _gridStructure;
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
+  /** The ID that is sent to the client to notify it that the viewport's structure has been updated. */
+  private final String _structureCallbackId;
 
   /** Defines the extent of the viewport. */
   private ViewportDefinition _viewportDefinition;
@@ -36,6 +38,8 @@ public class DependencyGraphViewport implements Viewport {
    * @param calcConfigName  the calculation configuration used to calculate the dependency graph
    * @param gridStructure  the row and column structure of the grid
    * @param callbackId  the ID that's passed to listeners when the viewport's data changes
+   * @param structureCallbackId  the ID that's passed to listeners when the viewport's structure changes
+   *  TODO not used currently
    * @param viewportDefinition  the viewport definition
    * @param cycle  the view cycle from the previous calculation cycle
    * @param cache  the current results TODO should this be a new cache?
@@ -45,9 +49,11 @@ public class DependencyGraphViewport implements Viewport {
   /* package */ DependencyGraphViewport(String calcConfigName,
                                         DependencyGraphGridStructure gridStructure,
                                         String callbackId,
+                                        String structureCallbackId,
                                         ViewportDefinition viewportDefinition,
                                         ViewCycle cycle,
                                         ResultsCache cache) {
+    _structureCallbackId = structureCallbackId;
     ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notEmpty(callbackId, "callbackId");
@@ -95,6 +101,11 @@ public class DependencyGraphViewport implements Viewport {
   }
 
   @Override
+  public GridStructure getGridStructure() {
+    return _gridStructure;
+  }
+
+  @Override
   public ViewportResults getData() {
     return _latestResults;
   }
@@ -114,4 +125,8 @@ public class DependencyGraphViewport implements Viewport {
     return _state;
   }
 
+  @Override
+  public String getStructureCallbackId() {
+    return _structureCallbackId;
+  }
 }

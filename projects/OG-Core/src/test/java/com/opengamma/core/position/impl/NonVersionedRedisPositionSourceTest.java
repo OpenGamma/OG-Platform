@@ -11,27 +11,37 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.redis.AbstractRedisTestCase;
+import com.opengamma.util.test.AbstractRedisTestCase;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
-@Test(enabled=false)
+@Test(groups = TestGroup.INTEGRATION, enabled = false)
 public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
   
-  public void empty() {
+  @Test(expectedExceptions={DataNotFoundException.class})
+  public void emptyPortfolioSearch() {
     NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
     
     assertNull(source.getPortfolio(UniqueId.of("TEST", "NONE"), null));
+  }
+  
+  @Test(expectedExceptions={DataNotFoundException.class})
+  public void emptyPositionSearch() {
+    NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
+    
     assertNull(source.getPosition(UniqueId.of("TEST", "NONE")));
   }
   
@@ -140,6 +150,25 @@ public class NonVersionedRedisPositionSourceTest extends AbstractRedisTestCase {
     double durationInSec = ((double) (end - start)) / 1000000000.0;
     System.out.println("Adding " + NUM_POSITIONS + " took " + durationInSec + " sec");
     
+  }
+  
+  public void portfolioNames() {
+    NonVersionedRedisPositionSource source = new NonVersionedRedisPositionSource(getJedisPool(), getRedisPrefix());
+    
+    SimplePortfolio portfolio1 = new SimplePortfolio("Fibble-1");
+    UniqueId id1 = source.storePortfolio(portfolio1);
+    SimplePortfolio portfolio2 = new SimplePortfolio("Fibble-2");
+    UniqueId id2 = source.storePortfolio(portfolio2);
+    SimplePortfolio portfolio3 = new SimplePortfolio("Fibble-3");
+    UniqueId id3 = source.storePortfolio(portfolio3);
+    
+    Map<String, UniqueId> result = source.getAllPortfolioNames();
+    assertNotNull(result);
+    assertEquals(3, result.size());
+    
+    assertEquals(id1, result.get(portfolio1.getName()));
+    assertEquals(id2, result.get(portfolio2.getName()));
+    assertEquals(id3, result.get(portfolio3.getName()));
   }
 
 }

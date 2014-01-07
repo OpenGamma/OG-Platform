@@ -5,11 +5,14 @@
  */
 package com.opengamma.analytics.math.rootfinding;
 
+import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RidderSingleRootFinderTest extends RealSingleRootFinderTestCase {
   private static final RealSingleRootFinder FINDER = new RidderSingleRootFinder();
 

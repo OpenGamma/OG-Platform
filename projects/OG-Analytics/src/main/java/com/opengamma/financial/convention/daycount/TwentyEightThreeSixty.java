@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -8,7 +8,7 @@ package com.opengamma.financial.convention.daycount;
 import org.threeten.bp.LocalDate;
 
 /**
- * 
+ *
  */
 public class TwentyEightThreeSixty extends StatelessDayCount {
   private static final long serialVersionUID = 1L;
@@ -21,14 +21,21 @@ public class TwentyEightThreeSixty extends StatelessDayCount {
     final double m1 = firstDate.getMonthValue();
     final double m2 = secondDate.getMonthValue();
     final double y1 = firstDate.getYear();
-    final double y2 = secondDate.getYear();
+    double y2 = secondDate.getYear();
     if (d1 > 28) {
       d1 = 28;
     }
     if (d2 > 28) {
       d2 = 28;
     }
-    return (360 * (y2 - y1) + 28 * (m2 - m1) + (d2 - d1)) / 360;
+    double deltaMonth;
+    if (m1 > m2) {
+      y2 -= 1;
+      deltaMonth = 12 - Math.abs(m2 - m1);
+    } else {
+      deltaMonth = m2 - m1;
+    }
+    return (360 * (y2 - y1) + 28 * deltaMonth + (d2 - d1)) / 360;
   }
 
   @Override
@@ -37,7 +44,7 @@ public class TwentyEightThreeSixty extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "28/360";
   }
 

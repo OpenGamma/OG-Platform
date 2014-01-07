@@ -15,6 +15,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -66,11 +67,11 @@ public class BloombergReferenceDataStatisticsTest {
     assertEquals(2, snap2.getLookupsByField().size());
     assertEquals(2, snap2.getLookupsBySecurity().size());
 
-    assertPairEquals(Pair.of(2, "1"), snap2.getLookupsBySecurity().get(0));
-    assertPairEquals(Pair.of(1, "2"), snap2.getLookupsBySecurity().get(1));
+    assertPairEquals(Pairs.of(2, "1"), snap2.getLookupsBySecurity().get(0));
+    assertPairEquals(Pairs.of(1, "2"), snap2.getLookupsBySecurity().get(1));
 
-    assertPairEquals(Pair.of(2, "B"), snap2.getLookupsByField().get(0));
-    assertPairEquals(Pair.of(1, "A"), snap2.getLookupsByField().get(1));
+    assertPairEquals(Pairs.of(2, "B"), snap2.getLookupsByField().get(0));
+    assertPairEquals(Pairs.of(1, "A"), snap2.getLookupsByField().get(1));
   }
 
   @Test(groups = TestGroup.UNIT_SLOW)

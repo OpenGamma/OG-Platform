@@ -140,6 +140,9 @@ public final class FunctionUtils {
       index = -(index + 1);
       index--;
     }
+    if (value == -0. && index < n - 1 && set[index + 1] == 0.) {
+      ++index;
+    }
     return index;
   }
 

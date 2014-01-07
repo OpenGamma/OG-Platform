@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing;
@@ -38,9 +38,15 @@ import com.opengamma.analytics.financial.model.option.pricing.tree.TrinomialOpti
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class VanillaOptionCrossModelPricingTest {
   private static final double SPOT = 10;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
@@ -63,27 +69,27 @@ public class VanillaOptionCrossModelPricingTest {
     final OptionDefinition call2 = new EuropeanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, true);
     final OptionDefinition put2 = new EuropeanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, false);
     final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> bsm = new BlackScholesMertonModel();
-    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> treeModel = new BinomialOptionModel<StandardOptionDataBundle>(CRR, n, 5);
+    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> treeModel = new BinomialOptionModel<>(CRR, n, 5);
     assertGreeks(call1, treeModel, bsm);
     assertGreeks(put1, treeModel, bsm);
     assertGreeks(call2, treeModel, bsm);
     assertGreeks(put2, treeModel, bsm);
-    treeModel = new BinomialOptionModel<StandardOptionDataBundle>(LR, n, 5);
+    treeModel = new BinomialOptionModel<>(LR, n, 5);
     assertGreeks(call1, treeModel, bsm);
     assertGreeks(put1, treeModel, bsm);
     assertGreeks(call2, treeModel, bsm);
     assertGreeks(put2, treeModel, bsm);
-    treeModel = new BinomialOptionModel<StandardOptionDataBundle>(RB, n, 5);
+    treeModel = new BinomialOptionModel<>(RB, n, 5);
     assertGreeks(call1, treeModel, bsm);
     assertGreeks(put1, treeModel, bsm);
     assertGreeks(call2, treeModel, bsm);
     assertGreeks(put2, treeModel, bsm);
-    treeModel = new BinomialOptionModel<StandardOptionDataBundle>(TRISGEORGIS, n, 5);
+    treeModel = new BinomialOptionModel<>(TRISGEORGIS, n, 5);
     assertGreeks(call1, treeModel, bsm);
     assertGreeks(put1, treeModel, bsm);
     assertGreeks(call2, treeModel, bsm);
     assertGreeks(put2, treeModel, bsm);
-    treeModel = new TrinomialOptionModel<StandardOptionDataBundle>(BOYLE, n, 5);
+    treeModel = new TrinomialOptionModel<>(BOYLE, n, 5);
     assertGreeks(call1, treeModel, bsm);
     assertGreeks(put1, treeModel, bsm);
     assertGreeks(call2, treeModel, bsm);
@@ -98,27 +104,27 @@ public class VanillaOptionCrossModelPricingTest {
     final AmericanVanillaOptionDefinition call2 = new AmericanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, true);
     final AmericanVanillaOptionDefinition put2 = new AmericanVanillaOptionDefinition(SPOT * 1.1, EXPIRY, false);
     final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> bs = new BjerksundStenslandModelDeprecated();
-    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> treeModel = new BinomialOptionModel<StandardOptionDataBundle>(CRR, n, 5);
+    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> treeModel = new BinomialOptionModel<>(CRR, n, 5);
     assertGreeks(call1, treeModel, bs);
     assertGreeks(put1, treeModel, bs);
     assertGreeks(call2, treeModel, bs);
     assertGreeks(put2, treeModel, bs);
-    treeModel = new BinomialOptionModel<StandardOptionDataBundle>(LR, n, 5);
+    treeModel = new BinomialOptionModel<>(LR, n, 5);
     assertGreeks(call1, treeModel, bs);
     assertGreeks(put1, treeModel, bs);
     assertGreeks(call2, treeModel, bs);
     assertGreeks(put2, treeModel, bs);
-    treeModel = new BinomialOptionModel<StandardOptionDataBundle>(RB, n, 5);
+    treeModel = new BinomialOptionModel<>(RB, n, 5);
     assertGreeks(call1, treeModel, bs);
     assertGreeks(put1, treeModel, bs);
     assertGreeks(call2, treeModel, bs);
     assertGreeks(put2, treeModel, bs);
-    treeModel = new BinomialOptionModel<StandardOptionDataBundle>(TRISGEORGIS, n, 5);
+    treeModel = new BinomialOptionModel<>(TRISGEORGIS, n, 5);
     assertGreeks(call1, treeModel, bs);
     assertGreeks(put1, treeModel, bs);
     assertGreeks(call2, treeModel, bs);
     assertGreeks(put2, treeModel, bs);
-    treeModel = new TrinomialOptionModel<StandardOptionDataBundle>(BOYLE, n, 5);
+    treeModel = new TrinomialOptionModel<>(BOYLE, n, 5);
     assertGreeks(call1, treeModel, bs);
     assertGreeks(put1, treeModel, bs);
     assertGreeks(call2, treeModel, bs);

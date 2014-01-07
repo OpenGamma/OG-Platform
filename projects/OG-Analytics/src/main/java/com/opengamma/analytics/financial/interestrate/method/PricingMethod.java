@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.method;
@@ -11,7 +11,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Interface for interest rate pricing methods.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public interface PricingMethod {
 
   /**

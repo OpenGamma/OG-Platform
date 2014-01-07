@@ -7,6 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.InterpolationBoundedValues;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
@@ -34,6 +35,27 @@ public class LinearInterpolator1D extends Interpolator1D {
     final double x2 = boundedValues.getHigherBoundKey();
     final double y2 = boundedValues.getHigherBoundValue();
     return y1 + (value - x1) / (x2 - x1) * (y2 - y1);
+  }
+
+  @Override
+  public double firstDerivative(final Interpolator1DDataBundle model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Data bundle must not be null");
+    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    final double x1 = boundedValues.getLowerBoundKey();
+    final double y1 = boundedValues.getLowerBoundValue();
+    if (model.getLowerBoundIndex(value) == model.size() - 1) {
+      if (value > model.lastKey()) {
+        throw new MathException("Value of " + value + " after last key. Use exstrapolator");
+      }
+      final double[] x = model.getKeys();
+      final double[] y = model.getValues();
+      final int n = x.length;
+      return n == 1 ? 0.0 : (y[n - 1] - y[n - 2]) / (x[n - 1] - x[n - 2]);
+    }
+    final double x2 = boundedValues.getHigherBoundKey();
+    final double y2 = boundedValues.getHigherBoundValue();
+    return (y2 - y1) / (x2 - x1);
   }
 
   @Override

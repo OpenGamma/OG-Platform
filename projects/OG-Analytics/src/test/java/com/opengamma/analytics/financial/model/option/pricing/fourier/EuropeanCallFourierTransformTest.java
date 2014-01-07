@@ -5,6 +5,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class EuropeanCallFourierTransformTest {
   private static final  MartingaleCharacteristicExponent CE = new GaussianMartingaleCharacteristicExponent(0.2);
   private static final EuropeanCallFourierTransform FT = new EuropeanCallFourierTransform(CE);

@@ -13,10 +13,12 @@ import java.util.BitSet;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TransformParametersTest {
   private static final DoubleMatrix1D INIT = new DoubleMatrix1D(new double[] {1, 2, 3, 4});
   private static final ParameterLimitsTransform[] NULLS = new ParameterLimitsTransform[] {new NullTransform(), new NullTransform(), new NullTransform(), new NullTransform()};

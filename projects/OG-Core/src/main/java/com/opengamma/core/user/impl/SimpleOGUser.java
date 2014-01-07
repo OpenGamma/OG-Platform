@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -118,103 +119,6 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   @Override
   public SimpleOGUser.Meta metaBean() {
     return SimpleOGUser.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case -836030906:  // userId
-        return getUserId();
-      case 566700617:  // passwordHash
-        return getPasswordHash();
-      case -1704576794:  // entitlements
-        return getEntitlements();
-      case 3373707:  // name
-        return getName();
-      case -2077180903:  // timeZone
-        return getTimeZone();
-      case -1070931784:  // emailAddress
-        return getEmailAddress();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-      case -836030906:  // userId
-        setUserId((String) newValue);
-        return;
-      case 566700617:  // passwordHash
-        setPasswordHash((String) newValue);
-        return;
-      case -1704576794:  // entitlements
-        setEntitlements((Set<String>) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -2077180903:  // timeZone
-        setTimeZone((ZoneId) newValue);
-        return;
-      case -1070931784:  // emailAddress
-        setEmailAddress((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalIdBundle, "externalIdBundle");
-    JodaBeanUtils.notNull(_userId, "userId");
-    JodaBeanUtils.notNull(_entitlements, "entitlements");
-    JodaBeanUtils.notNull(_timeZone, "timeZone");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleOGUser other = (SimpleOGUser) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
-          JodaBeanUtils.equal(getPasswordHash(), other.getPasswordHash()) &&
-          JodaBeanUtils.equal(getEntitlements(), other.getEntitlements()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
-          JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordHash());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlements());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -335,9 +239,10 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   /**
    * Sets the entitlements for the user.
    * This is a set of entitlements that the user has, which enables access restriction.
-   * @param entitlements  the new value of the property
+   * @param entitlements  the new value of the property, not null
    */
   public void setEntitlements(Set<String> entitlements) {
+    JodaBeanUtils.notNull(entitlements, "entitlements");
     this._entitlements.clear();
     this._entitlements.addAll(entitlements);
   }
@@ -425,6 +330,79 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    */
   public final Property<String> emailAddress() {
     return metaBean().emailAddress().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SimpleOGUser clone() {
+    BeanBuilder<? extends SimpleOGUser> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleOGUser other = (SimpleOGUser) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
+          JodaBeanUtils.equal(getPasswordHash(), other.getPasswordHash()) &&
+          JodaBeanUtils.equal(getEntitlements(), other.getEntitlements()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+          JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPasswordHash());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEntitlements());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("SimpleOGUser{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("userId").append('=').append(JodaBeanUtils.toString(getUserId())).append(',').append(' ');
+    buf.append("passwordHash").append('=').append(JodaBeanUtils.toString(getPasswordHash())).append(',').append(' ');
+    buf.append("entitlements").append('=').append(JodaBeanUtils.toString(getEntitlements())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
+    buf.append("emailAddress").append('=').append(JodaBeanUtils.toString(getEmailAddress())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -599,6 +577,70 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
      */
     public final MetaProperty<String> emailAddress() {
       return _emailAddress;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleOGUser) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((SimpleOGUser) bean).getExternalIdBundle();
+        case -836030906:  // userId
+          return ((SimpleOGUser) bean).getUserId();
+        case 566700617:  // passwordHash
+          return ((SimpleOGUser) bean).getPasswordHash();
+        case -1704576794:  // entitlements
+          return ((SimpleOGUser) bean).getEntitlements();
+        case 3373707:  // name
+          return ((SimpleOGUser) bean).getName();
+        case -2077180903:  // timeZone
+          return ((SimpleOGUser) bean).getTimeZone();
+        case -1070931784:  // emailAddress
+          return ((SimpleOGUser) bean).getEmailAddress();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleOGUser) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((SimpleOGUser) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+        case -836030906:  // userId
+          ((SimpleOGUser) bean).setUserId((String) newValue);
+          return;
+        case 566700617:  // passwordHash
+          ((SimpleOGUser) bean).setPasswordHash((String) newValue);
+          return;
+        case -1704576794:  // entitlements
+          ((SimpleOGUser) bean).setEntitlements((Set<String>) newValue);
+          return;
+        case 3373707:  // name
+          ((SimpleOGUser) bean).setName((String) newValue);
+          return;
+        case -2077180903:  // timeZone
+          ((SimpleOGUser) bean).setTimeZone((ZoneId) newValue);
+          return;
+        case -1070931784:  // emailAddress
+          ((SimpleOGUser) bean).setEmailAddress((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SimpleOGUser) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((SimpleOGUser) bean)._userId, "userId");
+      JodaBeanUtils.notNull(((SimpleOGUser) bean)._entitlements, "entitlements");
+      JodaBeanUtils.notNull(((SimpleOGUser) bean)._timeZone, "timeZone");
     }
 
   }

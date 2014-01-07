@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -20,10 +20,13 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class MultipleYieldCurveFinderFunctionTest {
   private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME = "Test";
@@ -36,14 +39,14 @@ public class MultipleYieldCurveFinderFunctionTest {
 
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> FINDER;
-  private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
-  private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
+  private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<>();
   private static final MultipleYieldCurveFinderDataBundle DATA;
   private static final FXMatrix FX_MATRIX = new FXMatrix(Currency.EUR);
 
   static {
     final int n = 10;
-    DERIVATIVES = new ArrayList<InstrumentDerivative>();
+    DERIVATIVES = new ArrayList<>();
     SIMPLE_RATES = new double[n];
     CONTINUOUS_RATES = new double[n];
     TIMES = new double[n];
@@ -83,7 +86,7 @@ public class MultipleYieldCurveFinderFunctionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNodeNumber() {
-    final List<InstrumentDerivative> list = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> list = new ArrayList<>();
     list.add(new Cash(CUR, 0, 1, 1, 0.01, 1, CURVE_NAME));
     list.add(new Cash(CUR, 0, 0.5, 1, 0.01, 0.5, CURVE_NAME));
     new MultipleYieldCurveFinderFunction(new MultipleYieldCurveFinderDataBundle(list, new double[list.size()], null, NODES, INTERPOLATORS, false, FX_MATRIX), CALCULATOR);

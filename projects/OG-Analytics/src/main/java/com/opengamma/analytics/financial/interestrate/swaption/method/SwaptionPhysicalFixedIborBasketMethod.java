@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Method to create calibration baskets for swaptions.
@@ -42,20 +43,21 @@ public final class SwaptionPhysicalFixedIborBasketMethod {
    * @return The basket.
    */
   public SwaptionPhysicalFixedIbor[] calibrationBasketFixedLegPeriod(final SwaptionPhysicalFixedIbor swaption) {
-    AnnuityCouponFixed legFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    int nbCal = legFixed.getNumberOfPayments();
-    SwaptionPhysicalFixedIbor[] basket = new SwaptionPhysicalFixedIbor[nbCal];
-    double notional = Math.abs(legFixed.getNthPayment(0).getNotional());
+    ArgumentChecker.notNull(swaption, "swaption");
+    final AnnuityCouponFixed legFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    final int nbCal = legFixed.getNumberOfPayments();
+    final SwaptionPhysicalFixedIbor[] basket = new SwaptionPhysicalFixedIbor[nbCal];
+    final double notional = Math.abs(legFixed.getNthPayment(0).getNotional());
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
-      double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
-      SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
+      final double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
+      final SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
       basket[loopcal] = SwaptionPhysicalFixedIbor.from(swaption.getTimeToExpiry(), swap, swaption.getSettlementTime(), true);
     }
     return basket;
   }
 
   /**
-   * Create a calibration basket for the swaption. The basket is made of one swaption for each period on the underlying swap fixed leg and for each relative moneyness provided. 
+   * Create a calibration basket for the swaption. The basket is made of one swaption for each period on the underlying swap fixed leg and for each relative moneyness provided.
    * The basket swaptions are trimmed after the end of the periods. The notional of all the coupons in all the underlying swaps is equal to the absolute notional of the first fixed leg coupon.
    * The basket swaptions rates are shifted by the relative moneyness provided.
    * All the swaptions are long. The expiry time of all swaptions in the basket are the one of the original one.
@@ -63,15 +65,17 @@ public final class SwaptionPhysicalFixedIborBasketMethod {
    * @param relativeMoneyness The relative moneyness.
    * @return The basket.
    */
-  public SwaptionPhysicalFixedIbor[] calibrationBasketFixedLegPeriod(final SwaptionPhysicalFixedIbor swaption, double[] relativeMoneyness) {
-    AnnuityCouponFixed legFixed = swaption.getUnderlyingSwap().getFixedLeg();
-    int nbPeriods = legFixed.getNumberOfPayments();
-    int nbStrikes = relativeMoneyness.length;
-    SwaptionPhysicalFixedIbor[] basket = new SwaptionPhysicalFixedIbor[nbPeriods * nbStrikes];
-    double notional = 1; // Math.abs(legFixed.getNthPayment(0).getNotional());
+  public SwaptionPhysicalFixedIbor[] calibrationBasketFixedLegPeriod(final SwaptionPhysicalFixedIbor swaption, final double[] relativeMoneyness) {
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(relativeMoneyness, "relative moneyness");
+    final AnnuityCouponFixed legFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    final int nbPeriods = legFixed.getNumberOfPayments();
+    final int nbStrikes = relativeMoneyness.length;
+    final SwaptionPhysicalFixedIbor[] basket = new SwaptionPhysicalFixedIbor[nbPeriods * nbStrikes];
+    final double notional = 1; // Math.abs(legFixed.getNthPayment(0).getNotional());
     for (int loopcal = 0; loopcal < nbPeriods; loopcal++) {
-      double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
-      SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
+      final double maturity = legFixed.getNthPayment(loopcal).getPaymentTime();
+      final SwapFixedCoupon<? extends Payment> swap = swaption.getUnderlyingSwap().trimAfter(maturity).withNotional(notional);
       for (int loopstrike = 0; loopstrike < nbStrikes; loopstrike++) {
         basket[loopcal * nbStrikes + loopstrike] = SwaptionPhysicalFixedIbor.from(swaption.getTimeToExpiry(), swap.withRateShifted(relativeMoneyness[loopstrike]), swaption.getSettlementTime(), true);
       }

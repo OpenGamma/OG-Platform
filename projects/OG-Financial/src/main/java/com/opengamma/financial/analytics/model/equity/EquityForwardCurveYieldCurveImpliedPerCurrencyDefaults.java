@@ -22,14 +22,14 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Populates {@link EquityForwardCurveFunction} with default properties
  */
 public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends DefaultPropertyFunction {
   /** The logger */
@@ -77,21 +77,24 @@ public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends Defa
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
+    // Properties For all ValueRequirement's
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CURRENCY);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.DIVIDEND_TYPE);
     }
+    // Properties specific to FORWARD_CURVE
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.DIVIDEND_TYPE);
+    //  Properties specific to STANDARD_VOLATILITY_SURFACE_DATA
+    defaults.addValuePropertyName(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ValuePropertyNames.DISCOUNTING_CURVE_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ValuePropertyNames.FORWARD_CURVE_NAME);
+    defaults.addValuePropertyName(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);    
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    //TODO put back in when calculation method property is added to EquityOptionVolatilitySurfaceDataFunction
-//    if (!ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD.equals(desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD))) {
-//      return null;
-//    }
+
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final String currency = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
     if (currency == null) {
@@ -99,20 +102,26 @@ public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends Defa
       return null;
     }
     final Triple<String, String, String> config = _perCurrencyConfig.get(currency);
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(config.getFirst());
+    
+    switch (propertyName) {
+      case ValuePropertyNames.CURVE_CURRENCY:
+        return Collections.singleton(currency);
+      case ValuePropertyNames.CURVE_CALCULATION_CONFIG:
+        return Collections.singleton(config.getSecond()); 
+      case ValuePropertyNames.CURVE:
+        return Collections.singleton(config.getFirst());
+      case ValuePropertyNames.DIVIDEND_TYPE:
+        return Collections.singleton(config.getThird());
+      case ValuePropertyNames.DISCOUNTING_CURVE_NAME:
+        return Collections.singleton(config.getFirst());
+      case ValuePropertyNames.FORWARD_CURVE_NAME:
+        return Collections.singleton(config.getFirst());
+      case ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD:
+        return  Collections.singleton(ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
+      default:
+        s_logger.error("Could not find default value for {} in this function", propertyName);
+        return null;
     }
-    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
-      return Collections.singleton(config.getSecond());
-    }
-    if (ValuePropertyNames.DIVIDEND_TYPE.equals(propertyName)) {
-      return Collections.singleton(config.getThird());
-    }
-    if (ValuePropertyNames.CURVE_CURRENCY.equals(propertyName)) {
-      return Collections.singleton(currency);
-    }
-    s_logger.error("Could not find default value for {} in this function", propertyName);
-    return null;
   }
 
   @Override

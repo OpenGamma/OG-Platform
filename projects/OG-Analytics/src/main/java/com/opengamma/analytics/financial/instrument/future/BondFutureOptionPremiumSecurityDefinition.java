@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -48,9 +48,9 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
   public BondFutureOptionPremiumSecurityDefinition(final BondFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
-    this._underlyingFuture = underlyingFuture;
-    this._expirationDate = expirationDate;
-    this._strike = strike;
+    _underlyingFuture = underlyingFuture;
+    _expirationDate = expirationDate;
+    _strike = strike;
     _isCall = isCall;
   }
 
@@ -102,6 +102,11 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
     return _underlyingFuture.getCurrency();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
@@ -119,7 +124,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     return new BondFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

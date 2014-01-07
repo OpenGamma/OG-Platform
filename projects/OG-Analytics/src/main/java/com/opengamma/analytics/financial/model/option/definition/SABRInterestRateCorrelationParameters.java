@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing the SABR parameter surfaces used in interest rate modeling and the correlation parameters for CMS spread modeling.
@@ -34,7 +34,7 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
   public SABRInterestRateCorrelationParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho,
       final InterpolatedDoublesSurface nu, final DayCount dayCount, final DoubleFunction1D correlation) {
     super(alpha, beta, rho, nu, dayCount);
-    Validate.notNull(correlation, "Correlation");
+    ArgumentChecker.notNull(correlation, "Correlation");
     _correlation = correlation;
   }
 
@@ -44,8 +44,9 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    * @param correlation The correlation function.
    * @return The SABR with correlation object.
    */
+  @SuppressWarnings("deprecation")
   public static SABRInterestRateCorrelationParameters from(final SABRInterestRateParameters sabr, final DoubleFunction1D correlation) {
-    Validate.notNull(sabr, "SABR parameters");
+    ArgumentChecker.notNull(sabr, "SABR parameters");
     return new SABRInterestRateCorrelationParameters(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), correlation);
   }
 

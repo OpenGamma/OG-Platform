@@ -19,10 +19,12 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.PreciseDoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SensitivityPnLCalculatorTest {
   private static final ValueGreekSensitivity DELTA = new ValueGreekSensitivity(new ValueGreek(Greek.DELTA), "A");
   private static final double DELTA_VALUE = 100.;
@@ -48,19 +50,19 @@ public class SensitivityPnLCalculatorTest {
 
   static {
     DATA = new SensitivityAndReturnDataBundle[6];
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m1 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m1 = new HashMap<>();
     m1.put(UnderlyingType.SPOT_PRICE, TS_SPOT);
     DATA[0] = new SensitivityAndReturnDataBundle(DELTA, DELTA_VALUE, m1);
     DATA[1] = new SensitivityAndReturnDataBundle(GAMMA, GAMMA_VALUE, m1);
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m2 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m2 = new HashMap<>();
     m2.put(UnderlyingType.IMPLIED_VOLATILITY, TS_IMP_VOL);
     DATA[2] = new SensitivityAndReturnDataBundle(VEGA, VEGA_VALUE, m2);
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m3 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m3 = new HashMap<>();
     m3.put(UnderlyingType.SPOT_PRICE, TS_SPOT);
     m3.put(UnderlyingType.IMPLIED_VOLATILITY, TS_IMP_VOL);
     DATA[3] = new SensitivityAndReturnDataBundle(VANNA, VANNA_VALUE, m3);
     DATA[4] = new SensitivityAndReturnDataBundle(VOMMA, VOMMA_VALUE, m2);
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m4 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m4 = new HashMap<>();
     m4.put(UnderlyingType.INTEREST_RATE, TS_IR);
     DATA[5] = new SensitivityAndReturnDataBundle(RHO, RHO_VALUE, m4);
   }

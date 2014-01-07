@@ -5,15 +5,14 @@
  */
 package com.opengamma.analytics.math.rootfinding;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Parent class for root-finders that calculate a root for a vector function (i.e. $\mathbf{y} = f(\mathbf{x})$, where 
- * $\mathbf{x}$ and $\mathbf{y}$ are vectors). 
+ * Parent class for root-finders that calculate a root for a vector function (i.e. $\mathbf{y} = f(\mathbf{x})$, where
+ * $\mathbf{x}$ and $\mathbf{y}$ are vectors).
  */
 public abstract class VectorRootFinder implements SingleRootFinder<DoubleMatrix1D, DoubleMatrix1D> {
 
@@ -22,8 +21,8 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleMatrix1
    * Vector root finders only need a single starting point; if more than one is provided, the first is used and any other points ignored.
    */
   @Override
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, DoubleMatrix1D... startingPoint) {
-    Validate.notNull(startingPoint, "starting point");
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D... startingPoint) {
+    ArgumentChecker.notNull(startingPoint, "starting point");
     return getRoot(function, startingPoint[0]);
   }
 
@@ -39,19 +38,19 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleMatrix1
    * @param x0 The starting point, not null
    */
   protected void checkInputs(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D x0) {
-    Validate.notNull(function);
-    Validate.notNull(x0);
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notNull(x0, "x0");
     final int n = x0.getNumberOfElements();
     for (int i = 0; i < n; i++) {
       if (!Doubles.isFinite(x0.getEntry(i))) {
-        throw new IllegalArgumentException("Invaild start position x0 = " + x0.toString());
+        throw new IllegalArgumentException("Invalid start position x0 = " + x0.toString());
       }
     }
-    DoubleMatrix1D y = function.evaluate(x0);
+    final DoubleMatrix1D y = function.evaluate(x0);
     final int m = y.getNumberOfElements();
     for (int i = 0; i < m; i++) {
       if (!Doubles.isFinite(y.getEntry(i))) {
-        throw new IllegalArgumentException("Invaild start position f(x0) = " + y.toString());
+        throw new IllegalArgumentException("Invalid start position f(x0) = " + y.toString());
       }
     }
   }

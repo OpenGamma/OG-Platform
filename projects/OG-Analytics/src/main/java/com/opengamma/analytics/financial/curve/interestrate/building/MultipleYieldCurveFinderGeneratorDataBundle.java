@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.building;
@@ -10,11 +10,15 @@ import java.util.LinkedHashMap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Data bundle with the data required to build curves in the Multiple Yield Curve framework. The data is based on generators.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated. Use classes such as
+ * {@link MulticurveDiscountBuildingRepository}.
  */
+@Deprecated
 public class MultipleYieldCurveFinderGeneratorDataBundle {
 
   /**
@@ -40,7 +44,7 @@ public class MultipleYieldCurveFinderGeneratorDataBundle {
    * @param knownData The bundle with the already build data.
    * @param curveGenerators The map of String/Curve generators.
    */
-  public MultipleYieldCurveFinderGeneratorDataBundle(InstrumentDerivative[] instruments, YieldCurveBundle knownData, LinkedHashMap<String, GeneratorYDCurve> curveGenerators) {
+  public MultipleYieldCurveFinderGeneratorDataBundle(final InstrumentDerivative[] instruments, final YieldCurveBundle knownData, final LinkedHashMap<String, GeneratorYDCurve> curveGenerators) {
     ArgumentChecker.notNull(instruments, "Instruments");
     ArgumentChecker.notNull(knownData, "Known data");
     ArgumentChecker.notNull(curveGenerators, "Curve generators");
@@ -55,7 +59,7 @@ public class MultipleYieldCurveFinderGeneratorDataBundle {
    * @return The instruments.
    */
   public InstrumentDerivative[] getInstruments() {
-    InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstruments];
+    final InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstruments];
     System.arraycopy(_instruments, 0, instruments, 0, _nbInstruments);
     return instruments;
   }

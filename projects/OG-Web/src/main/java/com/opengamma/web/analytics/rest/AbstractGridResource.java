@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics.rest;
 
-import java.net.URI;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.DataNotFoundException;
@@ -28,7 +28,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * REST resource superclass for all analytics grids.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public abstract class AbstractGridResource {
 
   /**
@@ -75,10 +77,11 @@ public abstract class AbstractGridResource {
   }
 
   /**
-   * @return The row and column structure of the grid
+   * @return The initial row and column structure of the grid
+   * subsequent requests will need to be made to the viewport
    */
   @GET
-  public abstract GridStructure getGridStructure();
+  public abstract GridStructure getInitialGridStructure();
 
   /**
    * Creates a new viewport which represents a part of a grid that the user is viewing.
@@ -107,9 +110,10 @@ public abstract class AbstractGridResource {
     ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
-    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
-    String callbackId = viewportUri.getPath();
-    createViewport(requestId, viewportId, callbackId, viewportDefinition);
+    UriBuilder viewportUriBuilder = uriInfo.getAbsolutePathBuilder().path(viewportIdStr);
+    String callbackId = viewportUriBuilder.build().getPath();
+    String structureCallbackId = viewportUriBuilder.path(AbstractViewportResource.class, "getGridStructure").build().getPath();
+    createViewport(requestId, viewportId, callbackId, structureCallbackId, viewportDefinition);
     return Response.status(Response.Status.CREATED).build();
   }
 
@@ -117,11 +121,12 @@ public abstract class AbstractGridResource {
    * Creates a viewport corresponding to a visible area of the grid.
    * @param viewportId Unique ID for the viewport
    * @param callbackId ID passed to listeners when the viewport data changes
+   * @param structureCallbackId ID passed to listeners when the viewport structure changes
    * @param viewportDefinition Definition of the viewport
    * @return Viewport version number, allows clients to ensure the data they receive for a viewport corresponds to
    * its current state
    */
-  /* package */abstract void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  /* package */abstract void createViewport(int requestId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Returns a resource for a viewport. If the ID is unknown a resource will be returned but a

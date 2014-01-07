@@ -23,11 +23,13 @@ import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.LogLinearInterpolator1D;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromSurfacesDoublesCubeTest {
   private static final double A0 = 0;
   private static final double A1 = 2;
@@ -76,13 +78,13 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
   static {
     final int n = POINTS_PRIMITIVE.length;
     POINTS_OBJECT = new Double[n];
-    POINTS_LIST = new ArrayList<Double>();
-    SURFACE_LIST = new ArrayList<Surface<Double, Double, Double>>();
-    SURFACE_MAP = new TreeMap<Double, Surface<Double, Double, Double>>();
+    POINTS_LIST = new ArrayList<>();
+    SURFACE_LIST = new ArrayList<>();
+    SURFACE_MAP = new TreeMap<>();
     UNSORTED_POINTS_OBJECT = new Double[n];
-    UNSORTED_POINTS_LIST = new ArrayList<Double>();
-    UNSORTED_SURFACE_LIST = new ArrayList<Surface<Double, Double, Double>>();
-    UNSORTED_SURFACE_MAP = new TreeMap<Double, Surface<Double, Double, Double>>();
+    UNSORTED_POINTS_LIST = new ArrayList<>();
+    UNSORTED_SURFACE_LIST = new ArrayList<>();
+    UNSORTED_SURFACE_MAP = new TreeMap<>();
     for (int i = 0; i < n; i++) {
       POINTS_OBJECT[i] = POINTS_PRIMITIVE[i];
       POINTS_LIST.add(POINTS_PRIMITIVE[i]);
@@ -104,35 +106,35 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     double y = 4;
     double z = A1;
     assertEquals(XY_CUBE.getValue(x, y, z), F2.evaluate(x, y), 0);
-    assertEquals(XY_CUBE.getValue(new Triple<Double, Double, Double>(x, y, z)), F2.evaluate(x, y), 0);
+    assertEquals(XY_CUBE.getValue(new Triple<>(x, y, z)), F2.evaluate(x, y), 0);
     z = A1 * Math.random();
     double lower = F1.evaluate(x, y);
     double higher = F2.evaluate(x, y);
     double value = (higher - lower) * (z / A1) + lower;
     assertEquals(XY_CUBE.getValue(x, y, z), value, 0);
-    assertEquals(XY_CUBE.getValue(new Triple<Double, Double, Double>(x, y, z)), value, 0);
+    assertEquals(XY_CUBE.getValue(new Triple<>(x, y, z)), value, 0);
     x = 2.4;
     y = A2;
     z = 5.6;
     assertEquals(XZ_CUBE.getValue(x, y, z), F2.evaluate(x, z), 0);
-    assertEquals(XZ_CUBE.getValue(new Triple<Double, Double, Double>(x, y, z)), F2.evaluate(x, z), 0);
+    assertEquals(XZ_CUBE.getValue(new Triple<>(x, y, z)), F2.evaluate(x, z), 0);
     y = A1 * Math.random();
     lower = F1.evaluate(x, z);
     higher = F2.evaluate(x, z);
     value = (higher - lower) * (y / A1) + lower;
     assertEquals(XZ_CUBE.getValue(x, y, z), value, 0);
-    assertEquals(XZ_CUBE.getValue(new Triple<Double, Double, Double>(x, y, z)), value, 0);
+    assertEquals(XZ_CUBE.getValue(new Triple<>(x, y, z)), value, 0);
     x = A0;
     y = 1.34;
     z = 5.6;
     assertEquals(YZ_CUBE.getValue(x, y, z), F1.evaluate(y, z), 0);
-    assertEquals(YZ_CUBE.getValue(new Triple<Double, Double, Double>(x, y, z)), F1.evaluate(y, z), 0);
+    assertEquals(YZ_CUBE.getValue(new Triple<>(x, y, z)), F1.evaluate(y, z), 0);
     x = A1 * Math.random();
     lower = F1.evaluate(y, z);
     higher = F2.evaluate(y, z);
     value = (higher - lower) * (x / A1) + lower;
     assertEquals(YZ_CUBE.getValue(x, y, z), value, 0);
-    assertEquals(YZ_CUBE.getValue(new Triple<Double, Double, Double>(x, y, z)), value, 0);
+    assertEquals(YZ_CUBE.getValue(new Triple<>(x, y, z)), value, 0);
   }
 
   @Test
@@ -146,13 +148,13 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
     assertEquals(other.getName(), NAME);
     assertEquals(other.getPlane(), SurfacePlane.XY);
     assertFalse(other.equals(XZ_CUBE));
-    TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<Double, Surface<Double, Double, Double>>();
+    TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<>();
     m.put(1., S1);
     m.put(2.5, S2);
     m.put(3., S3);
     other = InterpolatedFromSurfacesDoublesCube.fromSorted(SurfacePlane.XY, m, INTERPOLATOR, NAME);
     assertFalse(other.equals(XY_CUBE));
-    m = new TreeMap<Double, Surface<Double, Double, Double>>();
+    m = new TreeMap<>();
     m.put(1., S1);
     m.put(2., S1);
     m.put(3., S3);
@@ -431,7 +433,7 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry1() {
-    final TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<Double, Surface<Double, Double, Double>>();
+    final TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<>();
     m.put(1., S1);
     m.put(2., null);
     m.put(3., S3);
@@ -440,7 +442,7 @@ public class InterpolatedFromSurfacesDoublesCubeTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry2() {
-    final TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<Double, Surface<Double, Double, Double>>();
+    final TreeMap<Double, Surface<Double, Double, Double>> m = new TreeMap<>();
     m.put(1., S1);
     m.put(2., null);
     m.put(3., S3);

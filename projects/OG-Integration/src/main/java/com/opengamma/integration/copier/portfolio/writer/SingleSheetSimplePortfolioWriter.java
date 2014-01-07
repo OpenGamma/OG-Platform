@@ -158,7 +158,7 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
     // Empty the current row buffer
     _currentRow = new HashMap<String, String>();
 
-    return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);            
+    return ObjectsPair.of(position, securities);            
   }
 
   @Override

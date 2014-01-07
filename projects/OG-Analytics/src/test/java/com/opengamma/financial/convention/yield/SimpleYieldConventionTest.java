@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleYieldConventionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -23,6 +26,6 @@ public class SimpleYieldConventionTest {
   public void test() {
     final String name = "CONV";
     final SimpleYieldConvention convention = new SimpleYieldConvention(name);
-    assertEquals(convention.getConventionName(), name);
+    assertEquals(convention.getName(), name);
   }
 }

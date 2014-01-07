@@ -118,7 +118,7 @@ public final class ForexSwapDiscountingMethod {
     final MultipleCurrencyMulticurveSensitivity pv2DrMC = presentValueCurveSensitivity(fx, multicurves);
     final MulticurveSensitivity pv2Dr = pv2DrMC.converted(ccy2, multicurves.getFxRates()).getSensitivity(ccy2);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(payTime, -payTime * dfEnd * dfEndBar));
+    list.add(DoublesPair.of(payTime, -payTime * dfEnd * dfEndBar));
     final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(multicurves.getName(ccy2), list);
     final MulticurveSensitivity dfEndDr = MulticurveSensitivity.ofYieldDiscounting(result);

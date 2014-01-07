@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -11,7 +11,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Methods for the pricing of bond futures generic to all models.
+ * @deprecated {@link PricingMethod} is deprecated
  */
+@Deprecated
 public abstract class BondFutureMethod implements PricingMethod {
 
   /**
@@ -21,7 +23,7 @@ public abstract class BondFutureMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValueFromPrice(final BondFuture future, final double price) {
-    double pv = (price - future.getReferencePrice()) * future.getNotional();
+    final double pv = (price - future.getReferencePrice()) * future.getNotional();
     return CurrencyAmount.of(future.getCurrency(), pv);
   }
 

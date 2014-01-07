@@ -15,6 +15,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -32,6 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * Able to scale values produced by the rest of the OG-Financial package.
  */
 public class DV01Function extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(DV01Function.class);
 
   @Override
@@ -57,6 +59,11 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
     return Collections.singleton(requirement);
   }
 
+  /**
+   * Replaces the {@link ValuePropertyNames#FUNCTION} property.
+   * @param input The input
+   * @return The result properties
+   */
   protected ValueProperties getResultProperties(final ValueSpecification input) {
     return input.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).withAny(ValuePropertyNames.SHIFT).get();
   }
@@ -75,11 +82,12 @@ public class DV01Function extends AbstractFunction.NonCompiledInvoker {
     final Object value = input.getValue();
     final ValueSpecification specification = new ValueSpecification(DV01, target.toSpecification(), desiredValue.getConstraints());
     ComputedValue scaledValue = null;
+    double shift;
     if (value instanceof Double) {
       Double doubleValue = (Double) value;
-      final String shiftStr = desiredValue.getConstraint(ValuePropertyNames.SHIFT);
-      double shift;
-      if (shiftStr != null) {
+      final Set<String> shiftProperties = desiredValue.getConstraints().getValues(ValuePropertyNames.SHIFT);
+      if (shiftProperties != null && shiftProperties.size() == 1) {
+        final String shiftStr = Iterables.getOnlyElement(shiftProperties);
         try {
           shift = Double.parseDouble(shiftStr);
         } catch (final NumberFormatException nfe) {

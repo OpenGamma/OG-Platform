@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -21,7 +21,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to compute present value and present value sensitivity for Ibor compounded coupon.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingDiscountingMethod}
  */
+@Deprecated
 public final class CouponIborCompoundedDiscountingMethod implements PricingMethod {
 
   /**
@@ -46,7 +48,7 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
   /**
    * Compute the present value of a Ibor compounded coupon by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value.
    */
   public CurrencyAmount presentValue(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
@@ -57,7 +59,7 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
     final int nbSubPeriod = coupon.getFixingTimes().length;
     double notionalAccrued = coupon.getNotionalAccrued();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      double ratioForward = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[loopsub]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[loopsub]);
+      final double ratioForward = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[loopsub]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[loopsub]);
       notionalAccrued *= ratioForward;
     }
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
@@ -74,7 +76,7 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
   /**
    * Compute the present value sensitivity to rates of a Ibor compounded coupon by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
@@ -84,9 +86,9 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
     final int nbSubPeriod = coupon.getFixingTimes().length;
     double notionalAccrued = coupon.getNotionalAccrued();
-    double[] ratioForward = new double[nbSubPeriod];
-    double[] dfStart = new double[nbSubPeriod];
-    double[] dfEnd = new double[nbSubPeriod];
+    final double[] ratioForward = new double[nbSubPeriod];
+    final double[] dfStart = new double[nbSubPeriod];
+    final double[] dfEnd = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       dfStart[loopsub] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[loopsub]);
       dfEnd[loopsub] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[loopsub]);
@@ -98,22 +100,22 @@ public final class CouponIborCompoundedDiscountingMethod implements PricingMetho
     final double pvBar = 1.0;
     final double dfPaymentBar = (notionalAccrued - coupon.getNotional()) * pvBar;
     final double notionalAccruedBar = dfPayment * pvBar;
-    double[] ratioForwardBar = new double[nbSubPeriod];
-    double[] dfStartBar = new double[nbSubPeriod];
-    double[] dfEndBar = new double[nbSubPeriod];
+    final double[] ratioForwardBar = new double[nbSubPeriod];
+    final double[] dfStartBar = new double[nbSubPeriod];
+    final double[] dfEndBar = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       ratioForwardBar[loopsub] = notionalAccrued / ratioForward[loopsub] * notionalAccruedBar;
       dfEndBar[loopsub] = -dfStart[loopsub] / (dfEnd[loopsub] * dfEnd[loopsub]) * ratioForwardBar[loopsub];
       dfStartBar[loopsub] = ratioForwardBar[loopsub] / dfEnd[loopsub];
     }
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
     result = result.plus(coupon.getFundingCurveName(), listDiscounting);
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      listForward.add(new DoublesPair(coupon.getFixingPeriodStartTimes()[loopsub], -coupon.getFixingPeriodStartTimes()[loopsub] * dfStart[loopsub] * dfStartBar[loopsub]));
-      listForward.add(new DoublesPair(coupon.getFixingPeriodEndTimes()[loopsub], -coupon.getFixingPeriodEndTimes()[loopsub] * dfEnd[loopsub] * dfEndBar[loopsub]));
+      listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[loopsub], -coupon.getFixingPeriodStartTimes()[loopsub] * dfStart[loopsub] * dfStartBar[loopsub]));
+      listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTimes()[loopsub], -coupon.getFixingPeriodEndTimes()[loopsub] * dfEnd[loopsub] * dfEndBar[loopsub]));
     }
     result = result.plus(coupon.getForwardCurveName(), listForward);
     return result;

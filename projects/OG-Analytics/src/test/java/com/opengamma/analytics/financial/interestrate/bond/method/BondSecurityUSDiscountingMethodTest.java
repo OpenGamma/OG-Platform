@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -28,19 +28,23 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BondSecurityUSDiscountingMethodTest {
 
   // Calculators
@@ -56,8 +60,8 @@ public class BondSecurityUSDiscountingMethodTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final Period PAYMENT_TENOR_FIXED_US = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR = 2;
-  private static final DayCount DAY_COUNT_ACTACTICMA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_ACTACTICMA = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FIXED = false;
   private static final Period BOND_TENOR_FIXED = Period.ofYears(10);
   private static final int SETTLEMENT_DAYS_US = 3;
@@ -70,7 +74,7 @@ public class BondSecurityUSDiscountingMethodTest {
       RATE_FIXED, SETTLEMENT_DAYS_US, NOTIONAL, CALENDAR, DAY_COUNT_ACTACTICMA, BUSINESS_DAY_FIXED, YIELD_CONVENTION_FIXED, IS_EOM_FIXED, ISSUER_US, REPO_TYPE);
 
   // To derivatives
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String FORWARD_CURVE_NAME = "Forward";
@@ -294,7 +298,7 @@ public class BondSecurityUSDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
+    final double dirtyPriceExpected = (1 + RATE_FIXED / COUPON_PER_YEAR) / (1 + bondSecurity.getFactorToNextCoupon() * yield / COUPON_PER_YEAR);
     assertEquals("Fixed coupon bond security: dirty price from yield US Street - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
@@ -362,7 +366,7 @@ public class BondSecurityUSDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.modifiedDurationFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = bondSecurity.getAccrualFactorToNextCoupon() / COUPON_PER_YEAR / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR);
+    final double dirtyPriceExpected = bondSecurity.getFactorToNextCoupon() / COUPON_PER_YEAR / (1 + bondSecurity.getFactorToNextCoupon() * yield / COUPON_PER_YEAR);
     assertEquals("Fixed coupon bond security: modified duration from yield US Street - last period", dirtyPriceExpected, dirtyPrice, 1E-8);
   }
 
@@ -473,12 +477,12 @@ public class BondSecurityUSDiscountingMethodTest {
 
     final double modDur = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
     final double convexity = METHOD.convexityFromYield(BOND_FIXED_SECURITY_1, yield);
-    for (int loopshift = 0; loopshift < shift.length; loopshift++) {
-      final double price = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift[loopshift]);
-      final double price1 = price0 * (1 - shift[loopshift] * modDur);
-      final double price2 = price0 * (1 - shift[loopshift] * modDur + 0.5 * shift[loopshift] * shift[loopshift] * convexity);
-      assertEquals("Fixed coupon bond security: expansion US Street - shift " + shift[loopshift], price, price1, 2.0E-1 * Math.abs(shift[loopshift]));
-      assertEquals("Fixed coupon bond security: expansion US Street - shift " + shift[loopshift], price, price2, 3.0E-3 * Math.abs(shift[loopshift]));
+    for (final double element : shift) {
+      final double price = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + element);
+      final double price1 = price0 * (1 - element * modDur);
+      final double price2 = price0 * (1 - element * modDur + 0.5 * element * element * convexity);
+      assertEquals("Fixed coupon bond security: expansion US Street - shift " + element, price, price1, 2.0E-1 * Math.abs(element));
+      assertEquals("Fixed coupon bond security: expansion US Street - shift " + element, price, price2, 3.0E-3 * Math.abs(element));
     }
 
   }
@@ -518,7 +522,7 @@ public class BondSecurityUSDiscountingMethodTest {
       cleanPriceForward[loopdate] = METHOD.cleanPriceFromCurves(bondForward, CURVES);
     }
     //Test note: 0.005 is roughly the difference between the coupon and the repo rate. The clean price is decreasing naturally by this amount divided by (roughly) 365 every day.
-    //Test note: On the coupon date there is a jump in the clean price: If the coupon is included the clean price due to coupon is 0.04625/2*exp(-t*0.05)*exp(t*0.04) - 0.04625/2 = 7.94738E-05; 
+    //Test note: On the coupon date there is a jump in the clean price: If the coupon is included the clean price due to coupon is 0.04625/2*exp(-t*0.05)*exp(t*0.04) - 0.04625/2 = 7.94738E-05;
     //           if the coupon is not included the impact is 0. The clean price is thus expected to jump by the above amount when the settlement is on the coupon date 15-May-2012.
     final double couponJump = 7.94738E-05;
     for (int loopdate = 1; loopdate < nbDateForward; loopdate++) {

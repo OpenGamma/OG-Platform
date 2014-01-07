@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -13,12 +13,15 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
-public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTest {
+@Deprecated
+@Test(groups = TestGroup.UNIT)
+public class ParRateNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTestBase {
 
   private static ParRateCalculator VALUE_CALCULATOR = ParRateCalculator.getInstance();
   private static ParRateCurveSensitivityCalculator SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();

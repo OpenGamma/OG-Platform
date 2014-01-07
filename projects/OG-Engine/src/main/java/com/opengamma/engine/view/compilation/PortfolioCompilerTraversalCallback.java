@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -39,6 +42,8 @@ import com.opengamma.util.tuple.Pair;
  * the result model definition), and then added to the dependency graph's list of targets in the post-order method for that portfolio node.
  */
 /* package */final class PortfolioCompilerTraversalCallback extends AbstractPortfolioNodeTraversalCallback {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioCompilerTraversalCallback.class);
 
   private static final class NodeData {
 
@@ -72,6 +77,7 @@ import com.opengamma.util.tuple.Pair;
   private final Set<UniqueId> _includeEvents;
   private final Set<UniqueId> _excludeEvents;
   private Map<String, Set<Pair<String, ValueProperties>>> _portfolioRequirementsBySecurityType;
+  private final Set<ValueRequirement> _alreadyAdded;
   private final DependencyGraphBuilder _builder;
   private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
   private final boolean _outputAggregates;
@@ -85,13 +91,15 @@ import com.opengamma.util.tuple.Pair;
   private final ConcurrentMap<UniqueId, NodeData> _nodeData = new ConcurrentHashMap<UniqueId, NodeData>();
 
   public PortfolioCompilerTraversalCallback(final ViewCalculationConfiguration calculationConfiguration, final DependencyGraphBuilder builder,
-      final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
+      final Set<ValueRequirement> alreadyAdded, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions, final Set<UniqueId> includeEvents,
+      final Set<UniqueId> excludeEvents) {
     _portfolioRequirementsBySecurityType = calculationConfiguration.getPortfolioRequirementsBySecurityType();
     final ResultModelDefinition resultModelDefinition = calculationConfiguration.getViewDefinition().getResultModelDefinition();
     _outputAggregates = resultModelDefinition.getAggregatePositionOutputMode() != ResultOutputMode.NONE;
     _outputPositions = resultModelDefinition.getPositionOutputMode() != ResultOutputMode.NONE;
     _outputTrades = resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE;
     _builder = builder;
+    _alreadyAdded = alreadyAdded;
     _resolutions = resolutions;
     _includeEvents = includeEvents;
     _excludeEvents = excludeEvents;
@@ -110,12 +118,19 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * Add the specified value requirement to the dep graph builder, triggering graph building by background threads
+   * Add the specified value requirement to the dep graph builder, triggering graph building by background threads.
+   * <p>
+   * If supplied, the {@link #_alreadyAdded} set member is used to identify anything that has already been added from the specific requirements of a view or as part of invalidating a previous graph.
+   * See the notes in {@link DependencyGraphBuilder} for the hazards of requesting the same value requirement multiple times.
    * 
    * @param valueRequirement the value requirement to add
    */
   protected void addValueRequirement(final ValueRequirement valueRequirement) {
-    _builder.addTarget(valueRequirement);
+    if ((_alreadyAdded == null) || !_alreadyAdded.contains(valueRequirement)) {
+      _builder.addTarget(valueRequirement);
+    } else {
+      s_logger.debug("Suppressing {} from the incremental requirement set", valueRequirement);
+    }
   }
 
   /**
@@ -149,7 +164,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Store details of the position lookup in the resolution cache. Positions are referenced from portfolio nodes by object identifier.
    * 
-   * @param
+   * @param position the position to store
    */
   private void store(final Position position) {
     _resolutions.putIfAbsent(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest())), position.getUniqueId());
@@ -217,7 +232,6 @@ import com.opengamma.util.tuple.Pair;
       }
       positionExcluded = nodeData.isExcluded();
     }
-
     // Get this position's security or return immediately if not available
     final Security security = position.getSecurity();
     if (security == null) {
@@ -227,18 +241,13 @@ import com.opengamma.util.tuple.Pair;
       store(position);
       store(position.getSecurityLink());
     }
-
     // Identify this position's security type
     final String securityType = security.getSecurityType();
-
     Set<Pair<String, ValueProperties>> requiredOutputs;
-
     // Are we interested in producing results for positions?
     if (_outputPositions || _outputAggregates) {
-
       // Get all known required outputs for this security type in the current calculation configuration
       requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
-
       // Check that there's at least one required output to deal with
       if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
         if (nodeData == null) {
@@ -264,15 +273,12 @@ import com.opengamma.util.tuple.Pair;
       final Collection<Trade> trades = position.getTrades();
       if (!trades.isEmpty()) {
         requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
-
         // Check that there's at least one required output to deal with
         if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-
           // Add value requirements for each trade
           for (final Trade trade : trades) {
             // TODO: [PLAT-2286] Scope the trade underneath it's parent portfolio node and position
             final ComputationTargetSpecification tradeSpec = ComputationTargetSpecification.of(trade);
-
             // Add the value requirements for the current trade to the graph builder's set of value requirements,
             // building them using the retrieved required outputs icw trades for this security type and the newly
             // created computation target spec for this trade.
@@ -281,7 +287,7 @@ import com.opengamma.util.tuple.Pair;
             }
           }
         }
-        for (final Trade trade : position.getTrades()) {
+        for (final Trade trade : trades) {
           store(trade.getSecurityLink());
         }
       }

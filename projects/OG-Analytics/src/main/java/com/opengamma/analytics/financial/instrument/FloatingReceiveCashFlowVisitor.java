@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -291,7 +291,7 @@ public final class FloatingReceiveCashFlowVisitor extends InstrumentDefinitionVi
   }
 
   private Map<LocalDate, MultipleCurrencyAmount> getDatesFromAnnuity(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
-    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<LocalDate, MultipleCurrencyAmount>();
+    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<>();
     for (final PaymentDefinition payment : annuity.getPayments()) {
       final Map<LocalDate, MultipleCurrencyAmount> payments = payment.accept(this);
       for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {

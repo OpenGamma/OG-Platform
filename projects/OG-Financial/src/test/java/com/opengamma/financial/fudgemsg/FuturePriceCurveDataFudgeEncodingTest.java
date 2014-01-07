@@ -12,7 +12,11 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.engine.target.Primitive.ExternalIdentifiablePrimitive;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -41,6 +45,21 @@ public class FuturePriceCurveDataFudgeEncodingTest extends FinancialTestBase {
   @Test
   public void testCycle() {
     final FuturePriceCurveData<Double> data = new FuturePriceCurveData<Double>(DEFINITION_NAME, SPECIFICATION_NAME, UID, X, VALUES);
+    assertEquals(data, cycleObject(FuturePriceCurveData.class, data));
+  }
+  
+  @Test
+  public void testExternalIdAsTarget() {
+//    The following does not work
+//    ExternalId extId = ExternalId.of(ExternalSchemes.ACTIVFEED_TICKER, "=SPX.W");
+//    UniqueId uniqId = UniqueId.of(extId);
+//  ExternalIdentifiablePrimitive primitive = new ExternalIdentifiablePrimitive(uniqId, extId);
+    
+    // But this does!
+    UniqueId uniqId = UniqueId.of(ExternalSchemes.ACTIVFEED_TICKER.getName(), "=SPX.W");
+    ExternalIdentifiablePrimitive primitive = new ExternalIdentifiablePrimitive(uniqId, uniqId.toExternalId());
+
+    final FuturePriceCurveData<Double> data = new FuturePriceCurveData<Double>(DEFINITION_NAME, SPECIFICATION_NAME, primitive, X, VALUES);
     assertEquals(data, cycleObject(FuturePriceCurveData.class, data));
   }
 }

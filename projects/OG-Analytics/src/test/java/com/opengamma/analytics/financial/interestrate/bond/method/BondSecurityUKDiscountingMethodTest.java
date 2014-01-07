@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -17,22 +17,37 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.CleanPriceFromCurvesCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.CleanPriceFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ConvexityFromCurvesCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPriceFromCurvesCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.DirtyPriceFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromCurvesCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.MacaulayDurationFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCleanPriceCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromCurvesCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.ModifiedDurationFromYieldCalculator;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BondSecurityUKDiscountingMethodTest {
 
   // Calculators
@@ -44,7 +59,7 @@ public class BondSecurityUKDiscountingMethodTest {
   private static final Calendar LON = new MondayToFridayCalendar("A");
 
   // To derivatives
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String FORWARD_CURVE_NAME = "Forward";
@@ -58,8 +73,8 @@ public class BondSecurityUKDiscountingMethodTest {
   private static final Period PAYMENT_TENOR_G = Period.ofMonths(6);
   private static final int COUPON_PER_YEAR_G = 2;
   private static final Calendar CALENDAR_G = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_G = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
-  private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_G = DayCounts.ACT_ACT_ICMA; // To check
+  private static final BusinessDayConvention BUSINESS_DAY_G = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_G = false;
   private static final Period BOND_TENOR_G = Period.ofYears(12);
   private static final int SETTLEMENT_DAYS_G = 1;
@@ -75,6 +90,17 @@ public class BondSecurityUKDiscountingMethodTest {
   private static final BondFixedSecurity BOND_FIXED_SECURITY_G = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(REFERENCE_DATE_3, CURVES_NAME);
   private static final ZonedDateTime SPOT_3 = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE_3, SETTLEMENT_DAYS_G, LON);
   private static final double REFERENCE_TIME_3 = ACT_ACT.getDayCountFraction(REFERENCE_DATE_3, SPOT_3);
+  private final static YieldFromCurvesCalculator YFCC = YieldFromCurvesCalculator.getInstance();
+  private final static ModifiedDurationFromCurvesCalculator MDFC = ModifiedDurationFromCurvesCalculator.getInstance();
+  private static final ModifiedDurationFromYieldCalculator MDFY = ModifiedDurationFromYieldCalculator.getInstance();
+  private static final ModifiedDurationFromCleanPriceCalculator MDFP = ModifiedDurationFromCleanPriceCalculator.getInstance();
+  private static final MacaulayDurationFromCurvesCalculator McDFC = MacaulayDurationFromCurvesCalculator.getInstance();
+  private static final MacaulayDurationFromYieldCalculator McDFY = MacaulayDurationFromYieldCalculator.getInstance();
+  private static final DirtyPriceFromYieldCalculator DPFY = DirtyPriceFromYieldCalculator.getInstance();
+  private static final DirtyPriceFromCurvesCalculator DPFC = DirtyPriceFromCurvesCalculator.getInstance();
+  private static final ConvexityFromCurvesCalculator CFC = ConvexityFromCurvesCalculator.getInstance();
+  private static final CleanPriceFromYieldCalculator CPFY = CleanPriceFromYieldCalculator.getInstance();
+  private static final CleanPriceFromCurvesCalculator CPFC = CleanPriceFromCurvesCalculator.getInstance();
 
   @Test
   public void presentValueFixedExDividend() {
@@ -111,7 +137,7 @@ public class BondSecurityUKDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_FIXED_SECURITY_DEFINITION_G.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.04;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getAccrualFactorToNextCoupon());
+    final double dirtyPriceExpected = (1 + RATE_G / COUPON_PER_YEAR_G) * Math.pow(1 + yield / COUPON_PER_YEAR_G, -bondSecurity.getFactorToNextCoupon());
     assertEquals("Fixed coupon bond security: dirty price from yield UK - last period", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE);
   }
 
@@ -146,7 +172,7 @@ public class BondSecurityUKDiscountingMethodTest {
   }
 
   // UKT 6 1/4 11/25/10
-  private static final DayCount DAY_COUNT_G2 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
+  private static final DayCount DAY_COUNT_G2 = DayCounts.ACT_ACT_ICMA; // To check
   //  private static final Period BOND_TENOR_G2 = Period.ofYears(10);
   private static final int SETTLEMENT_DAYS_G2 = 1;
   private static final int EX_DIVIDEND_DAYS_G2 = 7;
@@ -185,4 +211,60 @@ public class BondSecurityUKDiscountingMethodTest {
     assertEquals("Fixed coupon bond security: dirty price from clean price", mdExpected, md, 1E-3);
   }
 
+  @Test
+  public void yieldFromCurvesMethodVsCalculator() {
+    final double yieldMethod = METHOD.yieldFromCurves(BOND_FIXED_SECURITY_G2, CURVES);
+    final double yieldCalculator = BOND_FIXED_SECURITY_G2.accept(YFCC, CURVES);
+    assertEquals("bond Security: discounting method - yield", yieldMethod, yieldCalculator, 1e-9);
+  }
+
+  @Test
+  public void modifiedDurationMethodVsCalculator() {
+    double method = METHOD.modifiedDurationFromCurves(BOND_FIXED_SECURITY_G2, CURVES);
+    double calculator = BOND_FIXED_SECURITY_G2.accept(MDFC, CURVES);
+    assertEquals("bond Security: discounting method - modified duration", method, calculator, 1e-9);
+    method = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_G2, 0.05);
+    calculator = BOND_FIXED_SECURITY_G2.accept(MDFY, 0.05);
+    assertEquals("bond Security: discounting method - modified duration", method, calculator, 1e-9);
+    method = METHOD.modifiedDurationFromCleanPrice(BOND_FIXED_SECURITY_G2, 1.00);
+    calculator = BOND_FIXED_SECURITY_G2.accept(MDFP, 1.00);
+    assertEquals("bond Security: discounting method - modified duration", method, calculator, 1e-9);
+  }
+
+  @Test
+  public void macaulayDurationMethodVsCalculator() {
+    double method = METHOD.macaulayDurationFromCurves(BOND_FIXED_SECURITY_G2, CURVES);
+    double calculator = BOND_FIXED_SECURITY_G2.accept(McDFC, CURVES);
+    assertEquals("bond Security: discounting method - macaulay duration", method, calculator, 1e-9);
+    method = METHOD.macaulayDurationFromYield(BOND_FIXED_SECURITY_G2, 0.05);
+    calculator = BOND_FIXED_SECURITY_G2.accept(McDFY, 0.05);
+    assertEquals("bond Security: discounting method - macaulay duration", method, calculator, 1e-9);
+  }
+
+  @Test
+  public void dirtyPriceMethodVsCalculator() {
+    double method = METHOD.dirtyPriceFromCurves(BOND_FIXED_SECURITY_G2, CURVES);
+    double calculator = BOND_FIXED_SECURITY_G2.accept(DPFC, CURVES);
+    assertEquals("bond Security: discounting method - dirty price", method, calculator, 1e-9);
+    method = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_G2, 0.05);
+    calculator = BOND_FIXED_SECURITY_G2.accept(DPFY, 0.05);
+    assertEquals("bond Security: discounting method - dirty price", method, calculator, 1e-9);
+  }
+
+  @Test
+  public void convexityMethodVsCalculator() {
+    final double method = METHOD.convexityFromCurves(BOND_FIXED_SECURITY_G2, CURVES);
+    final double calculator = BOND_FIXED_SECURITY_G2.accept(CFC, CURVES);
+    assertEquals("bond Security: discounting method - convexity", method, calculator, 1e-9);
+  }
+
+  @Test
+  public void cleanPriceMethodVsCalculator() {
+    double method = METHOD.cleanPriceFromCurves(BOND_FIXED_SECURITY_G2, CURVES);
+    double calculator = BOND_FIXED_SECURITY_G2.accept(CPFC, CURVES);
+    assertEquals("bond Security: discounting method - clean price", method, calculator, 1e-9);
+    method = METHOD.cleanPriceFromYield(BOND_FIXED_SECURITY_G2, 0.05);
+    calculator = BOND_FIXED_SECURITY_G2.accept(CPFY, 0.05);
+    assertEquals("bond Security: discounting method - clean price", method, calculator / 100, 1e-9);
+  }
 }

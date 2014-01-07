@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
@@ -42,10 +42,9 @@ public class MulticurveSensitivity {
   }
 
   /**
-   * Constructor from a yield discounting map, a forward map and a price index curve of sensitivity. The maps are used directly.
+   * Constructor from a yield discounting map and a forward map. The maps are used directly.
    * @param sensitivityYieldDiscounting The map.
    * @param sensitivityForward The map.
-   * @param sensitivityPriceCurve The map.
    */
   private MulticurveSensitivity(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<ForwardSensitivity>> sensitivityForward) {
     _sensitivityYieldDiscounting = sensitivityYieldDiscounting;
@@ -128,6 +127,17 @@ public class MulticurveSensitivity {
   public MulticurveSensitivity multipliedBy(final double factor) {
     final Map<String, List<DoublesPair>> resultDsc = MulticurveSensitivityUtils.multipliedBy(_sensitivityYieldDiscounting, factor);
     final Map<String, List<ForwardSensitivity>> resultFwd = MulticurveSensitivityUtils.multipliedByFwd(_sensitivityForward, factor);
+    return new MulticurveSensitivity(resultDsc, resultFwd);
+  }
+
+  /**
+   * Create a new sensitivity object by a product of two sensitivities
+   * @param other The other sensitivity
+   * @return The new sensitivity
+   */
+  public MulticurveSensitivity productOf(final MulticurveSensitivity other) {
+    final Map<String, List<DoublesPair>> resultDsc = MulticurveSensitivityUtils.productOf(_sensitivityYieldDiscounting, other._sensitivityYieldDiscounting);
+    final Map<String, List<ForwardSensitivity>> resultFwd = MulticurveSensitivityUtils.productOfFwd(_sensitivityForward, other._sensitivityForward);
     return new MulticurveSensitivity(resultDsc, resultFwd);
   }
 

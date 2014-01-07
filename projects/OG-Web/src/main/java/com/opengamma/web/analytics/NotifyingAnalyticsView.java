@@ -10,6 +10,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -44,6 +45,13 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
+  public String viewCompilationFailed(Throwable t) {
+    String callbackId = _delegate.viewCompilationFailed(t);
+    _listener.itemUpdated(callbackId);
+    return callbackId;
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     List<String> callbackIds = _delegate.updateResults(results, viewCycle);
     _listener.itemsUpdated(callbackIds);
@@ -51,13 +59,18 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
-    return _delegate.getGridStructure(gridType);
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
+    return _delegate.getGridStructure(gridType, viewportId);
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    boolean hasData = _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    return _delegate.getInitialGridStructure(gridType);
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = _delegate.createViewport(requestId, gridType, viewportId, callbackId, structureCallbackId, viewportDefinition);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
     // TODO is this logic correct? just because the viewport doesn't contain data updated in the previous cycle it
     // doesn't mean it doesn't have any data.
@@ -98,18 +111,35 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
+  public void openDependencyGraph(int requestId,
+                                  GridType gridType,
+                                  int graphId,
+                                  String callbackId,
+                                  String calcConfigName,
+                                  ValueRequirement valueRequirement) {
+    _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
+    _listener.itemUpdated(callbackMap);
+  }
+
+  @Override
   public void closeDependencyGraph(GridType gridType, int graphId) {
     _delegate.closeDependencyGraph(gridType, graphId);
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
-    return _delegate.getGridStructure(gridType, graphId);
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
+    return _delegate.getGridStructure(gridType, graphId, viewportId);
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    boolean hasData = _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    return _delegate.getInitialGridStructure(gridType, graphId);
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, structureCallbackId, viewportDefinition);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
     if (hasData) {
       _listener.itemsUpdated(ImmutableList.of(callbackMap, callbackId));
@@ -161,5 +191,14 @@ import com.opengamma.web.analytics.push.UpdateListener;
   public UniqueId getViewDefinitionId() {
     return _delegate.getViewDefinitionId();
   }
-  
+
+  @Override
+  public List<ErrorInfo> getErrors() {
+    return _delegate.getErrors();
+  }
+
+  @Override
+  public void deleteError(long id) {
+    _delegate.deleteError(id);
+  }
 }

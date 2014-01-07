@@ -22,7 +22,7 @@ public class BondSummaryFactory implements SummaryFactory<BondSecurity> {
     return SummaryBuilder.create(security)
         .with(SummaryField.DESCRIPTION, security.getIssuerName())
         .with(SummaryField.STRIKE, security.getCouponRate())
-        .with(SummaryField.FREQUENCY, security.getCouponFrequency().getConventionName())
+        .with(SummaryField.FREQUENCY, security.getCouponFrequency().getName())
         .with(SummaryField.START, security.getFirstCouponDate())
         .with(SummaryField.MATURITY, security.getLastTradeDate()).build();
   }

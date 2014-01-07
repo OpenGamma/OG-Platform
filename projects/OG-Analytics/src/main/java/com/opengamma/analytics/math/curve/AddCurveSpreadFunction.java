@@ -20,12 +20,31 @@ import com.opengamma.util.ArgumentChecker;
  * $$
  */
 public class AddCurveSpreadFunction implements CurveSpreadFunction {
-  private static final String NAME = "+";
+  /** The operation name */
+  public static final String NAME = "+";
+  /** An instance of this function */
+  private static final AddCurveSpreadFunction INSTANCE = new AddCurveSpreadFunction();
+
+  /**
+   * Gets an instance of this function
+   * @return The instance
+   */
+  public static CurveSpreadFunction getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * @deprecated Use {@link #getInstance()}
+   */
+  @Deprecated
+  public AddCurveSpreadFunction() {
+  }
 
   /**
    * @param curves An array of curves, not null or empty
    * @return A function that will find the value of each curve at the given input <i>x</i> and return the sum of these values
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Function<Double, Double> evaluate(final Curve<Double, Double>... curves) {
     ArgumentChecker.notNull(curves, "x");
@@ -47,11 +66,14 @@ public class AddCurveSpreadFunction implements CurveSpreadFunction {
     };
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getOperationName() {
     return NAME;
   }
+
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
 }

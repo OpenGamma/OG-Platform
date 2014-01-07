@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.provider;
@@ -38,20 +38,19 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the Libor Market Model method for Annuity on Ibor Ratchet.
  */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityCouponIborRatchetLMMMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
 
@@ -71,7 +70,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
       EURIBOR3M, IS_PAYER, MAIN_COEF, FLOOR_COEF, CAP_COEF, TARGET);
   // Curves and derivatives
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {REFERENCE_DATE}, new double[] {FIRST_CPN_RATE});
-  private static final AnnuityCouponIborRatchet ANNUITY_RATCHET_FIXED = ANNUITY_RATCHET_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_A);
+  private static final AnnuityCouponIborRatchet ANNUITY_RATCHET_FIXED = ANNUITY_RATCHET_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS);
   // Methods and calculators
   private static final int NB_PATH = 12500;
   private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(REFERENCE_DATE,
@@ -99,7 +98,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
   @Test
   public void presentValueIbor() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
-    final AnnuityCouponIborRatchet annuityRatchetIbor = ANNUITY_RATCHET_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS, NOT_USED_A);
+    final AnnuityCouponIborRatchet annuityRatchetIbor = ANNUITY_RATCHET_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS);
     final LiborMarketModelDisplacedDiffusionParameters parameterLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(referenceDate, ANNUITY_RATCHET_FIXED_DEFINITION);
     final LiborMarketModelDisplacedDiffusionProviderDiscount bundleLMM = new LiborMarketModelDisplacedDiffusionProviderDiscount(MULTICURVES, parameterLMM, EUR);
     final LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
@@ -121,10 +120,10 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     final double[] capFixed = new double[] {0.0, 0.0, FIRST_CPN_RATE};
     final AnnuityCouponIborRatchetDefinition ratchetFixedDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, EURIBOR3M, IS_PAYER,
         FIRST_CPN_RATE, mainFixed, floorFixed, capFixed, TARGET);
-    final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_A);
+    final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS);
     final AnnuityCouponFixedDefinition fixedDefinition = AnnuityCouponFixedDefinition.from(EUR, SETTLEMENT_DATE, ANNUITY_TENOR, EURIBOR3M.getTenor(), TARGET, EURIBOR3M.getDayCount(),
         EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, FIRST_CPN_RATE, IS_PAYER);
-    final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount pvFixedExpected = fixed.accept(PVDC, MULTICURVES);
     final MultipleCurrencyAmount pvFixedMC = methodMC.presentValue(ratchetFixed, EUR, LMM_MULTICURVES);
     assertEquals("Annuity Ratchet Ibor - LMM - Monte Carlo - Degenerate in Fixed leg", pvFixedExpected.getAmount(EUR), pvFixedMC.getAmount(EUR), TOLERANCE_PV_MC);
@@ -142,9 +141,9 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     final double[] capIbor = new double[] {0.0, 0.0, +50.0};
     final AnnuityCouponIborRatchetDefinition ratchetFixedDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, EURIBOR3M, IS_PAYER,
         FIRST_CPN_RATE, mainIbor, floorIbor, capIbor, TARGET);
-    final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_A);
+    final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS);
     final AnnuityCouponIborDefinition iborDefinition = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, EURIBOR3M, IS_PAYER, TARGET);
-    final Annuity<? extends Coupon> ibor = iborDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_A);
+    final Annuity<? extends Coupon> ibor = iborDefinition.toDerivative(REFERENCE_DATE, FIXING_TS);
     final Coupon[] iborFirstFixed = new Coupon[ibor.getNumberOfPayments()];
     iborFirstFixed[0] = ratchetFixed.getNthPayment(0);
     for (int loopcpn = 1; loopcpn < ibor.getNumberOfPayments(); loopcpn++) {
@@ -172,14 +171,14 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     final double[] capIbor = new double[] {0.0, 0.0, +50.0};
     final AnnuityCouponIborRatchetDefinition ratchetFixedDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, EURIBOR3M, IS_PAYER,
         FIRST_CPN_RATE, mainIbor, floorIbor, capIbor, TARGET);
-    final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_A);
+    final AnnuityCouponIborRatchet ratchetFixed = ratchetFixedDefinition.toDerivative(REFERENCE_DATE, FIXING_TS);
     final AnnuityCapFloorIborDefinition capDefinition = AnnuityCapFloorIborDefinition.from(SETTLEMENT_DATE, SETTLEMENT_DATE.plus(ANNUITY_TENOR), NOTIONAL, EURIBOR3M, IS_PAYER, strike, true, TARGET);
-    final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, FIXING_TS, NOT_USED_A);
+    final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, FIXING_TS);
     final LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     final CapFloorIborLMMDDMethod methodCapLMM = CapFloorIborLMMDDMethod.getInstance();
     final AnnuityCouponFixedDefinition fixedDefinition = AnnuityCouponFixedDefinition.from(EUR, SETTLEMENT_DATE, ANNUITY_TENOR, EURIBOR3M.getTenor(), TARGET, EURIBOR3M.getDayCount(),
         EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, strike, IS_PAYER);
-    final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE);
     MultipleCurrencyAmount pvFlooredExpected = MultipleCurrencyAmount.of(EUR, 0.0);
     pvFlooredExpected = pvFlooredExpected.plus(ratchetFixed.getNthPayment(0).accept(PVDC, MULTICURVES));
     for (int loopcpn = 1; loopcpn < cap.getNumberOfPayments(); loopcpn++) {
@@ -204,7 +203,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
     final LiborMarketModelDisplacedDiffusionParameters parameterLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(referenceDate, annuityRatchetIbor20Definition);
     final LiborMarketModelDisplacedDiffusionProviderDiscount LMMmulticurves = new LiborMarketModelDisplacedDiffusionProviderDiscount(MULTICURVES, parameterLMM, EUR);
-    final AnnuityCouponIborRatchet annuityRatchetIbor20 = annuityRatchetIbor20Definition.toDerivative(referenceDate, FIXING_TS, NOT_USED_A);
+    final AnnuityCouponIborRatchet annuityRatchetIbor20 = annuityRatchetIbor20Definition.toDerivative(referenceDate, FIXING_TS);
     final LiborMarketModelMonteCarloMethod methodMC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     final MultipleCurrencyAmount[] pvMC = new MultipleCurrencyAmount[nbTest];
     //    InterestRateCurveSensitivity[] pvcsMC = new InterestRateCurveSensitivity[nbTest];

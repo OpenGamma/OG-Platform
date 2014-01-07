@@ -18,12 +18,19 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Sets the default number of days to move forward when calculating theta for
+ * FX forwards and non-deliverable FX forwards.
  */
 public class FXForwardThetaDefaults extends DefaultPropertyFunction {
+  /** The priority */
   private final PriorityClass _priority;
+  /** The default number of days to move forward */
   private final String _defaultNumberOfDays;
 
+  /**
+   * @param priority The priority
+   * @param defaultNumberOfDays The default number of days to move forward, not null
+   */
   public FXForwardThetaDefaults(final String priority, final String defaultNumberOfDays) {
     super(FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY), true);
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");

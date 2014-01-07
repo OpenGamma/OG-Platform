@@ -53,8 +53,10 @@ $.register_module({
                 .then(function (result) {
                     var config = result ? result.data.data : {}, blotter = og.analytics.blotter;
                     if (config.main && !Object.equals(config.main, last.main)) {
-                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
-                        if (og.analytics.grid) og.analytics.grid.kill();
+                        new og.analytics.Form({callback: og.analytics.url.main, data: config.main});
+                        if (og.analytics.grid) {
+                            og.analytics.grid.kill();
+                        }
                         og.analytics.grid = new og.common.gadgets.Grid({
                             selector: main_selector, cellmenu: true, show_save: blotter,
                             source: !!blotter ? $.extend({blotter: blotter}, config.main) : config.main
@@ -66,7 +68,9 @@ $.register_module({
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
                             if (cell) return og.blotter.contextmenu(cell, event);
                         });
-                    } else if (!config.main) {new og.analytics.Form2({callback: og.analytics.url.main});}
+                    } else if (!config.main) {
+                        new og.analytics.Form({callback: og.analytics.url.main});
+                    }
                     last.main = config.main;
                     og.common.routes.set_title('loading title...');
                     $.when(last.main ? og.api.rest.configs.get({id: last.main.viewdefinition}) : null)

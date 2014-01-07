@@ -17,6 +17,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeTypeDictionary;
 import org.reflections.Configuration;
 import org.reflections.scanners.FieldAnnotationsScanner;
+import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -83,13 +84,16 @@ public final class OpenGammaFudgeContext {
       Set<ClassLoader> loaders = new HashSet<>();
       loaders.add(OpenGammaFudgeContext.class.getClassLoader());
       try {
-        loaders.add(Thread.currentThread().getContextClassLoader());
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader != null) {
+          loaders.add(loader);
+        }
       } catch (Exception ex) {
         // ignore
       }
       Configuration config = new ConfigurationBuilder()
         .setUrls(ClasspathHelper.forManifest(ClasspathHelper.forJavaClassPath()))
-        .setScanners(new TypeAnnotationsScanner(), new FieldAnnotationsScanner())
+        .setScanners(new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new SubTypesScanner(false))
         .filterInputsBy(FilterBuilder.parse(AnnotationReflector.DEFAULT_ANNOTATION_REFLECTOR_FILTER))
         .addClassLoaders(loaders)
         .useParallelExecutor();

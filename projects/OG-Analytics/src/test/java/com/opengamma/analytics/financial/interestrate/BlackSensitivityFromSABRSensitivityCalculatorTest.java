@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -43,14 +43,17 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the sensitivity of swaptions to the Black volatility when SABR fitting and interpolation is used.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BlackSensitivityFromSABRSensitivityCalculatorTest {
 
   protected Logger _logger = LoggerFactory.getLogger(SABRModelFitterTest.class);
@@ -131,7 +134,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     final double[] rhoVector = new double[NB_EXPIRY * NB_MATURITY];
     final double[] nuVector = new double[NB_EXPIRY * NB_MATURITY];
     int vect = 0;
-    final HashMap<DoublesPair, DoubleMatrix2D> inverseJacobianMap = new HashMap<DoublesPair, DoubleMatrix2D>();
+    final HashMap<DoublesPair, DoubleMatrix2D> inverseJacobianMap = new HashMap<>();
     for (int loopexpiry = 0; loopexpiry < NB_EXPIRY; loopexpiry++) {
       final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexpiry], USD6MLIBOR3M.getSpotLag(), NYC);
       for (int loopmat = 0; loopmat < NB_MATURITY; loopmat++) {
@@ -146,7 +149,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
         }
         final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(atm, strikeAbs, EXPIRY_TIME[loopexpiry], volBlack[loopexpiry][loopmat], errors, SABR_FUNCTION).solve(
             SABR_INITIAL_VALUES, FIXED);
-        inverseJacobianMap.put(new DoublesPair(EXPIRY_TIME[loopexpiry], MATURITY_TIME[loopmat]), fittedResult.getModelParameterSensitivityToData());
+        inverseJacobianMap.put(DoublesPair.of(EXPIRY_TIME[loopexpiry], MATURITY_TIME[loopmat]), fittedResult.getModelParameterSensitivityToData());
         expiryTimeVector[vect] = EXPIRY_TIME[loopexpiry];
         maturityTimeVector[vect] = MATURITY_TIME[loopmat];
         alphaVector[vect] = fittedResult.getModelParameters().getEntry(0);
@@ -161,7 +164,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(expiryTimeVector, maturityTimeVector, nuVector, INTERPOLATOR, "SABR nu surface");
     final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(expiryTimeVector, maturityTimeVector, rhoVector, INTERPOLATOR, "SABR rho surface");
     final SABRInterestRateParameters sabrParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, USD6MLIBOR3M.getFixedLegDayCount(), SABR_FUNCTION);
-    return Pair.of(sabrParameters, inverseJacobianMap);
+    return ObjectsPair.of(sabrParameters, inverseJacobianMap);
   }
 
   @Test

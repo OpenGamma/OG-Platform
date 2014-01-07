@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -46,9 +45,9 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   private SwaptionCashFixedIbor(final double expiryTime, final double strike, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isCall,
       final boolean isLong) {
     super(strike, expiryTime, isCall);
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(Double.doubleToLongBits(underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate()) == Double.doubleToLongBits(strike), "Strike not in line with underlying");
-    Validate.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(Double.doubleToLongBits(underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate()) == Double.doubleToLongBits(strike), "Strike not in line with underlying");
+    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _settlementTime = settlementTime;
     _isLong = isLong;
@@ -63,7 +62,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
    * @return The swaption.
    */
   public static SwaptionCashFixedIbor from(final double expiryTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isLong) {
-    Validate.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
     // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
     return new SwaptionCashFixedIbor(expiryTime, strike, underlyingSwap, settlementTime, underlyingSwap.getFixedLeg().isPayer(), isLong);

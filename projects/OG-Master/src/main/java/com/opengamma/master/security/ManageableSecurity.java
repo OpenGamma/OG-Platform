@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -69,8 +70,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   /**
    * The security type.
    */
-  @PropertyDefinition(validate = "notNull", set = "")
-  private final String _securityType;
+  @PropertyDefinition(validate = "notNull", set = "private")
+  private String _securityType;
 
   /**
    * The general purpose trade attributes, which can be used for aggregating in portfolios.
@@ -146,83 +147,6 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   @Override
   public ManageableSecurity.Meta metaBean() {
     return ManageableSecurity.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case 3373707:  // name
-        return getName();
-      case 808245914:  // securityType
-        return getSecurityType();
-      case 405645655:  // attributes
-        return getAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 808245914:  // securityType
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: securityType");
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalIdBundle, "externalIdBundle");
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_securityType, "securityType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableSecurity other = (ManageableSecurity) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -321,6 +245,15 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   }
 
   /**
+   * Sets the security type.
+   * @param securityType  the new value of the property, not null
+   */
+  private void setSecurityType(String securityType) {
+    JodaBeanUtils.notNull(securityType, "securityType");
+    this._securityType = securityType;
+  }
+
+  /**
    * Gets the the {@code securityType} property.
    * @return the property, not null
    */
@@ -331,7 +264,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   //-----------------------------------------------------------------------
   /**
    * Gets the general purpose trade attributes, which can be used for aggregating in portfolios.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -339,9 +272,10 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
 
   /**
    * Sets the general purpose trade attributes, which can be used for aggregating in portfolios.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -352,6 +286,70 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
    */
   public final Property<Map<String, String>> attributes() {
     return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ManageableSecurity clone() {
+    BeanBuilder<? extends ManageableSecurity> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableSecurity other = (ManageableSecurity) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ManageableSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -382,7 +380,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     /**
      * The meta-property for the {@code securityType} property.
      */
-    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(
         this, "securityType", ManageableSecurity.class, String.class);
     /**
      * The meta-property for the {@code attributes} property.
@@ -478,6 +476,55 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
      */
     public final MetaProperty<Map<String, String>> attributes() {
       return _attributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableSecurity) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((ManageableSecurity) bean).getExternalIdBundle();
+        case 3373707:  // name
+          return ((ManageableSecurity) bean).getName();
+        case 808245914:  // securityType
+          return ((ManageableSecurity) bean).getSecurityType();
+        case 405645655:  // attributes
+          return ((ManageableSecurity) bean).getAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableSecurity) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((ManageableSecurity) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+        case 3373707:  // name
+          ((ManageableSecurity) bean).setName((String) newValue);
+          return;
+        case 808245914:  // securityType
+          ((ManageableSecurity) bean).setSecurityType((String) newValue);
+          return;
+        case 405645655:  // attributes
+          ((ManageableSecurity) bean).setAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._name, "name");
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._securityType, "securityType");
+      JodaBeanUtils.notNull(((ManageableSecurity) bean)._attributes, "attributes");
     }
 
   }

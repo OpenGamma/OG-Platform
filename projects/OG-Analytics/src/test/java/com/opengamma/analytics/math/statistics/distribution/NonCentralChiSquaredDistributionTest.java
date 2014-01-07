@@ -11,9 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NonCentralChiSquaredDistributionTest {
   private static final double DOF = 3;
   private static final double NON_CENTRALITY = 1.5;

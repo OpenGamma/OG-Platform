@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
@@ -60,10 +59,10 @@ public class GeneratorDeposit extends GeneratorInstrument<GeneratorAttributeIR> 
   public GeneratorDeposit(final String name, final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     super(name);
-    Validate.notNull(currency, "Currency");
-    Validate.notNull(calendar, "Calendar");
-    Validate.notNull(dayCount, "Day count");
-    Validate.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(dayCount, "Day count");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     _currency = currency;
     _calendar = calendar;
     _spotLag = spotLag;
@@ -120,17 +119,18 @@ public class GeneratorDeposit extends GeneratorInstrument<GeneratorAttributeIR> 
     return _endOfMonth;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The deposit start at spot+start tenor and end at spot+end tenor.
    */
+  @Override
   public CashDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _calendar);
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), this);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, attribute.getEndPeriod(), this);
-    final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
+    final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate, _calendar);
     return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
   }
 

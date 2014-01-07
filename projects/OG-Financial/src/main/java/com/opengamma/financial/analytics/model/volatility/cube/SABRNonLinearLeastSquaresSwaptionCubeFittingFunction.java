@@ -41,13 +41,14 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -121,7 +122,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
           }
         }
         final double[] errors = new double[n];
-        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
+        final Pair<Tenor, Tenor> tenorPair = Pairs.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
         if (volatilityCubeData.getATMStrikes() != null && volatilityCubeData.getATMStrikes().containsKey(tenorPair)) {
           final double forward = volatilityCubeData.getATMStrikes().get(tenorPair);
           for (int k = 0; k < n; k++) {
@@ -136,7 +137,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
             betaList.add(parameters.getEntry(1));
             rhoList.add(parameters.getEntry(2));
             nuList.add(parameters.getEntry(3));
-            final DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
+            final DoublesPair expiryMaturityPair = DoublesPair.of(swaptionExpiry, maturity);
             inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
             chiSqList.add(fittedResult.getChiSq());
             fittedSmileIds.put(tenorPair, externalIds);
@@ -193,13 +194,13 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     return Sets.newHashSet(sabrSurfacesSpecification, smileIdsSpecification);
   }
 
-  private double getTime(final Tenor tenor) {
+  private static double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
     final double months = period.toTotalMonths();
     return months / 12.;
   }
 
-  private ValueRequirement getCubeDataRequirement(final ComputationTarget target, final String cubeName) {
+  private static ValueRequirement getCubeDataRequirement(final ComputationTarget target, final String cubeName) {
     final ValueProperties cubeProperties = ValueProperties.with(ValuePropertyNames.CUBE, cubeName).get();
     return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_CUBE_DATA, target.toSpecification(), cubeProperties);
   }
@@ -208,15 +209,15 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     return createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CUBE)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get();
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String cubeName) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get();
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
+        .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES).get();
   }
 }

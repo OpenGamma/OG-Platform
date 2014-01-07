@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.returns;
@@ -14,7 +14,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
 /**
- * 
+ *
  */
 public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSeriesReturnCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleNetRelativeTimeSeriesReturnCalculator.class);
@@ -38,8 +38,8 @@ public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSer
     final LocalDateDoubleEntryIterator iter1 = ts1.iterator();
     int i = 0;
     while (iter1.hasNext()) {
-      int date = iter1.nextTimeFast();
-      Double value2 = ts2.getValue(date);
+      final int date = iter1.nextTimeFast();
+      final Double value2 = ts2.getValue(date);
       if (value2 == null || Math.abs(value2) < ZERO) {
         if (getMode().equals(CalculationMode.STRICT)) {
           throw new TimeSeriesException("No data in second series for time " + iter1.currentTime());
@@ -49,7 +49,7 @@ public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSer
         returns[i++] = (iter1.currentValue() / value2 - 1);
       }
     }
-    return getSeries(x[0], times, returns, i);
+    return getSeries(times, returns, i);
   }
 
 }

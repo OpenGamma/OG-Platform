@@ -29,6 +29,7 @@
 
 .OG-analytics-form-menu table td:first-child {
     padding-left: 10px;
+    padding-top: 8px;
 }
 
 .OG-analytics-form-menu table td:last-child {
@@ -148,7 +149,7 @@
         z-index: 10;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .extra-opts{
+    .OG-analytics-form-menu.og-menu-datasources .og-historical-opts{
         margin-left: 11px;
     }
 
@@ -164,6 +165,11 @@
         width: 49px;
     }
 
+    .OG-datasources-menu td {
+        vertical-align: top;
+    }
+
+
     .OG-analytics-form-menu.og-menu-datasources .extra-opts input[disabled=true]{
         border-top-color: #ccc !important;
     }
@@ -173,7 +179,24 @@
         cursor: default;
     }
 
-    .OG-analytics-form-menu.og-menu-datasources .latest{
+    .OG-analytics-form-menu.og-menu-datasources .og-randomized-opts input {
+        width: 33px;
+    }
+
+
+    .OG-analytics-form-menu.og-menu-datasources .og-randomized-opts span {
+        padding-left: 3px;
+        padding-right: 1px;
+        font-size: 80%;
+    }
+
+    .OG-analytics-form-menu.og-menu-datasources .og-randomized-opts {
+        padding-top: 2px;
+        min-width: 400px;
+    }
+
+
+.OG-analytics-form-menu.og-menu-datasources .latest{
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
         border-right-width: 1px !important;

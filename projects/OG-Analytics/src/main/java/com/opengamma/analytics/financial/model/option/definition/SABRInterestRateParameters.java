@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
@@ -16,6 +15,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -45,8 +45,8 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
   private final VolatilityFunctionProvider<SABRFormulaData> _sabrFunction;
   /**
    * The standard day count for which the parameter surfaces are valid.
-   * TODO: should be removed from the data structure but available at the provider level.
    */
+  // TODO: should be removed from the data structure but available at the provider level.
   private final DayCount _dayCount;
 
   /**
@@ -73,12 +73,12 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    */
   public SABRInterestRateParameters(final InterpolatedDoublesSurface alpha, final InterpolatedDoublesSurface beta, final InterpolatedDoublesSurface rho, final InterpolatedDoublesSurface nu,
       final DayCount dayCount, final VolatilityFunctionProvider<SABRFormulaData> sabrFormula) {
-    Validate.notNull(alpha, "alpha surface");
-    Validate.notNull(beta, "beta surface");
-    Validate.notNull(rho, "rho surface");
-    Validate.notNull(nu, "nu surface");
-    Validate.notNull(dayCount, "dayCount");
-    Validate.notNull(sabrFormula, "SABR formula");
+    ArgumentChecker.notNull(alpha, "alpha surface");
+    ArgumentChecker.notNull(beta, "beta surface");
+    ArgumentChecker.notNull(rho, "rho surface");
+    ArgumentChecker.notNull(nu, "nu surface");
+    ArgumentChecker.notNull(dayCount, "dayCount");
+    ArgumentChecker.notNull(sabrFormula, "SABR formula");
     _alphaSurface = alpha;
     _betaSurface = beta;
     _rhoSurface = rho;
@@ -182,7 +182,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public double getVolatility(final double expiryTime, final double maturity, final double strike, final double forward) {
-    final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     final Function1D<SABRFormulaData, Double> funcSabrLongPayer = _sabrFunction.getVolatilityFunction(option, forward);
@@ -196,8 +196,8 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 4, "data should have four components (expiry time, maturity, strike and forward");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 4, "data should have four components (expiry time, maturity, strike and forward");
     return getVolatility(data[0], data[1], data[2], data[3]);
   }
 
@@ -211,9 +211,9 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
    * [3] the derivative w.r.t. to alpha, [4] the derivative w.r.t. to beta, [5] the derivative w.r.t. to rho, [6] the derivative w.r.t. to nu.
    */
   public double[] getVolatilityAdjoint(final double expiryTime, final double maturity, final double strike, final double forward) {
-    Validate.isTrue(_sabrFunction instanceof SABRHaganVolatilityFunction, "Adjoint volatility available only for Hagan formula");
+    ArgumentChecker.isTrue(_sabrFunction instanceof SABRHaganVolatilityFunction, "Adjoint volatility available only for Hagan formula");
     final SABRHaganVolatilityFunction sabrHaganFunction = (SABRHaganVolatilityFunction) _sabrFunction;
-    final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
     final double[] result = sabrHaganFunction.getVolatilityAdjoint(option, forward, data);

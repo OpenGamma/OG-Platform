@@ -5,16 +5,22 @@
  */
 package com.opengamma.master.cache;
 
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 
 import com.opengamma.master.AbstractLink;
 
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-
+/**
+ * Strategy based on Joda beans.
+ */
 public class JodaBeanCopyStrategy implements ReadWriteCopyStrategy<Element> {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = -7446127079130032128L;
 
   @Override
   public Element copyForWrite(Element element) {

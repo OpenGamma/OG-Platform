@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -31,9 +31,11 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor cap/floor with SABR model and extrapolation for high strikes. 
+ *  Class used to compute the price and sensitivity of a Ibor cap/floor with SABR model and extrapolation for high strikes.
  *  No convexity adjustment is done for payment at non-standard dates.
+ *  @deprecated {@link PricingMethod} is deprecated.
  */
+@Deprecated
 public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
 
   /**
@@ -88,7 +90,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
     } else { // With extrapolation
       SABRExtrapolationRightFunction sabrExtrapolation;
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -123,9 +125,9 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     InterestRateCurveSensitivity result;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
-    list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> list = new ArrayList<>();
+    list.add(DoublesPair.of(cap.getPaymentTime(), dfDr));
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(cap.getFundingCurveName(), list);
     result = new InterestRateCurveSensitivity(resultMap); // result contains \partial df / \partial r
     double bsPrice;
@@ -137,7 +139,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       bsPrice = bsAdjoint[0];
       bsDforward = df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]);
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -154,7 +156,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
   }
 
   /**
-   * Computes the present value SABR sensitivity of a cap/floor in the SABR framework with extrapolation on the right. 
+   * Computes the present value SABR sensitivity of a cap/floor in the SABR framework with extrapolation on the right.
    * @param cap The cap/floor.
    * @param sabrData The SABR data. The SABR function need to be the Hagan function.
    * @return The present value SABR sensitivity.
@@ -176,7 +178,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       bsDsabr[2] = bsAdjoint[2] * volatilityAdjoint[5];
       bsDsabr[3] = bsAdjoint[2] * volatilityAdjoint[6];
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -186,7 +188,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       sabrExtrapolation.priceAdjointSABR(option, bsDsabr);
     }
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[0]);
     sensi.addBeta(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[1]);
     sensi.addRho(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[2]);

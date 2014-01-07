@@ -22,10 +22,16 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -36,7 +42,6 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(60), GEN_USD_DEPOSIT);
-  //  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, GEN_USD6MLIBOR3M.getSpotLag(), NYC);
 
   // CMS spread coupon
   private static final double NOTIONAL = 100000000;
@@ -44,7 +49,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
   private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, GEN_USD6MLIBOR3M.getSpotLag(), NYC);
   private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, Period.ofMonths(6), GEN_USD_DEPOSIT);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
-  private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount PAYMENT_DAY_COUNT = DayCounts.ACT_360;
   private static final double PAYMENT_ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
   private static final double STRIKE = 0.0010; // 10 bps
   private static final boolean IS_CAP = true;
@@ -61,8 +66,6 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   // Method and calculators
   private static final CapFloorCMSSpreadG2ppNumericalIntegrationMethod METHOD_NI = new CapFloorCMSSpreadG2ppNumericalIntegrationMethod();
-  //  private static final CapFloorCMSSpreadG2ppApproximationMethod METHOD_APPROX = new CapFloorCMSSpreadG2ppApproximationMethod();
-  //  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // 0.01 currency unit for 100m notional.
 

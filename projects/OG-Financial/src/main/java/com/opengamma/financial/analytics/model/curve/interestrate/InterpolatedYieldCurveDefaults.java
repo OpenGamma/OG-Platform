@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -19,13 +19,21 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Sets default values for the extrapolation methods for interpolated yield curves.
  */
 public class InterpolatedYieldCurveDefaults extends DefaultPropertyFunction {
+  /** The left extrapolator name */
   private final String _leftExtrapolatorName;
+  /** The right extrapolator name */
   private final String _rightExtrapolatorName;
+  /** The currencies for which these defaults apply */
   private final String[] _applicableCurrencyNames;
 
+  /**
+   * @param leftExtrapolatorName The left extrapolator name, not null
+   * @param rightExtrapolatorName The right extrapolator name, not null
+   * @param applicableCurrencyNames The applicable currency names, not null
+   */
   public InterpolatedYieldCurveDefaults(final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... applicableCurrencyNames) {
     super(ComputationTargetType.CURRENCY, true);

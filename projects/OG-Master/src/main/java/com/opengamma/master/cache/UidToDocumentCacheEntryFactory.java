@@ -5,13 +5,17 @@
  */
 package com.opengamma.master.cache;
 
+import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
+
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
 
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
-
+/**
+ * Cache factory.
+ * @param <D>  the document type
+ */
 public class UidToDocumentCacheEntryFactory<D extends AbstractDocument> implements CacheEntryFactory {
 
   /** The underlying master. */

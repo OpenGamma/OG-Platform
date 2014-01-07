@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -22,7 +22,10 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for Forex non-deliverable forward transactions by discounting.
+ * @deprecated {@link YieldCurveBundle} is deprecated.
+ * Use {@link com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod}
  */
+@Deprecated
 public final class ForexNonDeliverableForwardDiscountingMethod implements ForexPricingMethod {
 
   /**
@@ -119,10 +122,10 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
     final double df2Bar = ndf.getNotionalCurrency2() * pvBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listDiscounting1 = new ArrayList<>();
-    listDiscounting1.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df1 * df1Bar));
+    listDiscounting1.add(DoublesPair.of(ndf.getPaymentTime(), -ndf.getPaymentTime() * df1 * df1Bar));
     resultMap.put(ndf.getDiscountingCurve1Name(), listDiscounting1);
     final List<DoublesPair> listDiscounting2 = new ArrayList<>();
-    listDiscounting2.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df2 * df2Bar));
+    listDiscounting2.add(DoublesPair.of(ndf.getPaymentTime(), -ndf.getPaymentTime() * df2 * df2Bar));
     resultMap.put(ndf.getDiscountingCurve2Name(), listDiscounting2);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return MultipleCurrencyInterestRateCurveSensitivity.of(ndf.getCurrency2(), result);

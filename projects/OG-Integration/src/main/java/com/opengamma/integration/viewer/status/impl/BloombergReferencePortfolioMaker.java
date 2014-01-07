@@ -23,9 +23,9 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -232,8 +232,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
   }
 
   private BusinessDayConvention businessDayConvention() {
-    return select(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None"));
+    return select(BusinessDayConventions.FOLLOWING, BusinessDayConventions.MODIFIED_FOLLOWING, BusinessDayConventions.NONE);
   }
 
   private Currency currency() {
@@ -249,7 +248,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
   }
 
   private DayCount dayCount() {
-    return select(DayCountFactory.INSTANCE.getDayCount("Act/Act"), DayCountFactory.INSTANCE.getDayCount("30/360"));
+    return select(DayCounts.ACT_ACT_ISDA, DayCounts.THIRTY_U_360);
   }
 
   @SuppressWarnings("unchecked")
@@ -757,12 +756,11 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final boolean adjustEffectiveDate = bool();
     final boolean adjustMaturityDate = bool();
     final InterestRateNotional notional = interestRateNotional();
-    final double recoveryRate = 0;
     final boolean includeAccruedPremium = bool();
     final boolean protectionStart = bool();
     final double parSpread = 0;
     final LegacyVanillaCDSSecurity security = new LegacyVanillaCDSSecurity(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId,
-        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
         includeAccruedPremium, protectionStart, parSpread);
     store(security);
     return security;
@@ -886,7 +884,6 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final boolean adjustEffectiveDate = bool();
     final boolean adjustMaturityDate = bool();
     final InterestRateNotional notional = interestRateNotional();
-    final double recoveryRate = 0;
     final boolean includeAccruedPremium = bool();
     final boolean protectionStart = bool();
     final double quotedSpread = 0;
@@ -895,7 +892,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final ZonedDateTime settlementDate = ZonedDateTime.now().plusMonths(7);
     final boolean adjustCashSettlementDate = true;
     final StandardVanillaCDSSecurity security = new StandardVanillaCDSSecurity(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId,
-        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
         includeAccruedPremium, protectionStart, quotedSpread, upfrontAmount, coupon, settlementDate, adjustCashSettlementDate);
     store(security);
     return security;

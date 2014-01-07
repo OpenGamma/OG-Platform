@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.provider;
@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
@@ -36,11 +37,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of cash deposits by discounting.
  */
+@Test(groups = TestGroup.UNIT)
 public class CashDiscountingMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -58,27 +61,28 @@ public class CashDiscountingMethodTest {
   private static final CashDefinition DEPOSIT_DEFINITION = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);
 
   private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
-  private static final String[] NOT_USED = new String[] {"Not used 1"};
 
-  private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
+  private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+
+  private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
 
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PV_C = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PV_C = new ParameterSensitivityParameterCalculator<>(PVCSDC);
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PV_FDC = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVC, SHIFT_FD);
 
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PSMQCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PS_PSMQ_C = new SimpleParameterSensitivityParameterCalculator<>(PSMQCSDC);
   private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PS_PSMQ_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSMQDC, SHIFT_FD);
 
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
-  private static final double TOLERANCE_SPREAD = 1.0E-10;
-  private static final double TOLERANCE_PV_DELTA = 1.0E+2; //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
+  private static final double TOLERANCE_RATE = 1.0E-10;
+  private static final double TOLERANCE_PV_DELTA = 1.0E+2; //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move on 100m.
 
   @Test
   /**
@@ -86,7 +90,7 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueTrade() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER);
     final double dfEnd = PROVIDER.getDiscountFactor(EUR, deposit.getEndTime());
     final double dfStart = PROVIDER.getDiscountFactor(EUR, deposit.getStartTime());
@@ -100,7 +104,7 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueBetweenTradeAndSettle() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER);
     final double dfEnd = PROVIDER.getDiscountFactor(EUR, deposit.getEndTime());
     final double dfStart = PROVIDER.getDiscountFactor(EUR, deposit.getStartTime());
@@ -114,7 +118,7 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueSettle() {
     final ZonedDateTime referenceDate = SPOT_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER);
     final double dfEnd = PROVIDER.getDiscountFactor(EUR, deposit.getEndTime());
     final double dfStart = PROVIDER.getDiscountFactor(EUR, deposit.getStartTime());
@@ -128,7 +132,7 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueBetweenSettleMaturity() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER);
     final double dfEnd = PROVIDER.getDiscountFactor(EUR, deposit.getEndTime());
     final double pvExpected = (NOTIONAL + deposit.getInterestAmount()) * dfEnd;
@@ -141,7 +145,7 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueMaturity() {
     final ZonedDateTime referenceDate = END_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount pvComputed = METHOD_DEPOSIT.presentValue(deposit, PROVIDER);
     final double pvExpected = NOTIONAL + deposit.getInterestAmount();
     assertEquals("DepositDefinition: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
@@ -153,7 +157,7 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueCurveSensitivityTrade() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(deposit, PROVIDER, PROVIDER.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(deposit, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
@@ -165,10 +169,36 @@ public class CashDiscountingMethodTest {
    */
   public void presentValueCurveSensitivityBetweenSettleMaturity() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyParameterSensitivity pvpsDepositExact = PS_PV_C.calculateSensitivity(deposit, PROVIDER, PROVIDER.getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsDepositFD = PS_PV_FDC.calculateSensitivity(deposit, PROVIDER);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
+  }
+
+  @Test
+  /**
+   * Tests parRate when the present is before the deposit start date.
+   */
+  public void parRateBeforeStart() {
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double parRate = METHOD_DEPOSIT.parRate(deposit, PROVIDER);
+    final CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, parRate, DEPOSIT_AF);
+    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate);
+    final MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER);
+    assertEquals("DepositDefinition: par rate", 0, pv0.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Tests parRate method vs calculator.
+   */
+  public void parRateMethodVsCalculator() {
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double parRateMethod = METHOD_DEPOSIT.parRate(deposit, PROVIDER);
+    final double parRateCalculator = deposit.accept(PRDC, PROVIDER);
+    assertEquals("DepositDefinition: par rate", parRateMethod, parRateCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -177,12 +207,12 @@ public class CashDiscountingMethodTest {
    */
   public void parSpreadBeforeStart() {
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final double parSpread = METHOD_DEPOSIT.parSpread(deposit, PROVIDER);
     final CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE + parSpread, DEPOSIT_AF);
-    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate);
     final MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER);
-    assertEquals("DepositDefinition: present value", 0, pv0.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("DepositDefinition: par spread", 0, pv0.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -191,10 +221,10 @@ public class CashDiscountingMethodTest {
    */
   public void parSpreadOnStart() {
     final ZonedDateTime referenceDate = DEPOSIT_DEFINITION.getStartDate();
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final double parSpread = METHOD_DEPOSIT.parSpread(deposit, PROVIDER);
     final CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE + parSpread, DEPOSIT_AF);
-    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate);
     final MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER);
     assertEquals("DepositDefinition: present value", 0, pv0.getAmount(EUR), TOLERANCE_PV);
   }
@@ -205,10 +235,10 @@ public class CashDiscountingMethodTest {
    */
   public void parSpreadAfterStart() {
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(DEPOSIT_DEFINITION.getStartDate(), 1, TARGET);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final double parSpread = METHOD_DEPOSIT.parSpread(deposit, PROVIDER); // Spread will be -(1/delta+rate), as there is no initial amount
     final CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE + parSpread, DEPOSIT_AF);
-    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate);
     final MultipleCurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, PROVIDER);
     assertEquals("DepositDefinition: present value", 0, pv0.getAmount(EUR), TOLERANCE_PV);
   }
@@ -219,10 +249,10 @@ public class CashDiscountingMethodTest {
    */
   public void parSpreadMethodVsCalculator() {
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final double parSpreadMethod = METHOD_DEPOSIT.parSpread(deposit, PROVIDER);
     final double parSpreadCalculator = deposit.accept(PSMQDC, PROVIDER);
-    assertEquals("DepositDefinition: present value", parSpreadMethod, parSpreadCalculator, TOLERANCE_SPREAD);
+    assertEquals("DepositDefinition: present value", parSpreadMethod, parSpreadCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -231,7 +261,7 @@ public class CashDiscountingMethodTest {
    */
   public void parSpreadCurveSensitivity() {
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final SimpleParameterSensitivity pspsDepositExact = PS_PSMQ_C.calculateSensitivity(deposit, PROVIDER, PROVIDER.getAllNames());
     final SimpleParameterSensitivity pspsDepositFD = PS_PSMQ_FDC.calculateSensitivity(deposit, PROVIDER);
     AssertSensivityObjects.assertEquals("DepositCounterpartDiscountingMethod: presentValueCurveSensitivity ", pspsDepositExact, pspsDepositFD, TOLERANCE_PV_DELTA);
@@ -243,10 +273,10 @@ public class CashDiscountingMethodTest {
    */
   public void parSpreadCurveSensitivityMethodVsCalculator() {
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MulticurveSensitivity pscsMethod = METHOD_DEPOSIT.parSpreadCurveSensitivity(deposit, PROVIDER);
     final MulticurveSensitivity pscsCalculator = deposit.accept(PSMQCSDC, PROVIDER);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: parSpreadCurveSensitivity", pscsMethod, pscsCalculator, TOLERANCE_SPREAD);
+    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: parSpreadCurveSensitivity", pscsMethod, pscsCalculator, TOLERANCE_RATE);
   }
 
   @Test
@@ -255,7 +285,7 @@ public class CashDiscountingMethodTest {
    */
   public void todayPaymentBeforeStart() {
     final ZonedDateTime referenceDate = TRADE_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount cash = deposit.accept(TPC);
     assertEquals("DepositDefinition: today payment", 0.0, cash.getAmount(deposit.getCurrency()), TOLERANCE_PV);
     assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
@@ -267,7 +297,7 @@ public class CashDiscountingMethodTest {
    */
   public void todayPaymentOnStart() {
     final ZonedDateTime referenceDate = SPOT_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount cash = deposit.accept(TPC);
     assertEquals("DepositDefinition: today payment", -NOTIONAL, cash.getAmount(deposit.getCurrency()), TOLERANCE_PV);
     assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
@@ -279,7 +309,7 @@ public class CashDiscountingMethodTest {
    */
   public void todayPaymentBetweenStartAndEnd() {
     final ZonedDateTime referenceDate = SPOT_DATE.plusDays(2);
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount cash = deposit.accept(TPC);
     assertEquals("DepositDefinition: today payment", 0.0, cash.getAmount(deposit.getCurrency()), TOLERANCE_PV);
     assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);
@@ -291,7 +321,7 @@ public class CashDiscountingMethodTest {
    */
   public void todayPaymentOnEnd() {
     final ZonedDateTime referenceDate = END_DATE;
-    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, NOT_USED);
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate);
     final MultipleCurrencyAmount cash = deposit.accept(TPC);
     assertEquals("DepositDefinition: today payment", NOTIONAL + deposit.getInterestAmount(), cash.getAmount(deposit.getCurrency()), TOLERANCE_PV);
     assertEquals("DepositDefinition: today payment", 1, cash.getCurrencyAmounts().length);

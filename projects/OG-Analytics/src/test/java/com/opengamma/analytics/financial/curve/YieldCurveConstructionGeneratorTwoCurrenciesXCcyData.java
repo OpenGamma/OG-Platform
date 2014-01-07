@@ -5,10 +5,15 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Data for the testing of curve construction with FX swaps and XCCy swaps
  * TODO: This is old code that has been commented. It should be removed at some point.
  */
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
 
   //  private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
@@ -26,9 +31,9 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   //  private static final FXMatrix FX_MATRIX = new FXMatrix(CCY2, CCY1, FX_EURUSD);
   //  private static final Calendar CALENDAR = new MondayToFridayCalendar("CAL");
   //  private static final int SPOT_LAG = 2;
-  //  private static final DayCount DAY_COUNT_CASH = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  //  private static final DayCount DAY_COUNT_CASH = DayCounts.ACT_360;
   //  private static final double NOTIONAL = 1.0;
-  //  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  //  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY1, DAY_COUNT_CASH, 1, CALENDAR);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_1 = new GeneratorDepositON("USD Deposit ON", CCY1, CALENDAR, DAY_COUNT_CASH);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_2 = new GeneratorDepositON("EUR Deposit ON", CCY2, CALENDAR, DAY_COUNT_CASH);

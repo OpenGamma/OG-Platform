@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bill transaction valued by discounting.
  * <P> Reference: Bill pricing, version 1.0. OpenGamma documentation, January 2012.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.bond.provider.BillTransactionDiscountingMethod}
  */
+@Deprecated
 public final class BillTransactionDiscountingMethod implements PricingMethod {
 
   /**
@@ -86,12 +88,12 @@ public final class BillTransactionDiscountingMethod implements PricingMethod {
     final double dfDscSettleBar = bill.getSettlementAmount() * pvBar;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listCredit = new ArrayList<>();
-    listCredit.add(new DoublesPair(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
+    listCredit.add(DoublesPair.of(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
     resultMapCredit.put(bill.getBillPurchased().getCreditCurveName(), listCredit);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapCredit);
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDsc = new ArrayList<>();
-    listDsc.add(new DoublesPair(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
+    listDsc.add(DoublesPair.of(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
     resultMapDsc.put(bill.getBillPurchased().getDiscountingCurveName(), listDsc);
     return result.plus(new InterestRateCurveSensitivity(resultMapDsc));
   }
@@ -127,12 +129,12 @@ public final class BillTransactionDiscountingMethod implements PricingMethod {
     final double dfCreditEndBar = priceParBar / dfDscSettle;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listCredit = new ArrayList<>();
-    listCredit.add(new DoublesPair(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
+    listCredit.add(DoublesPair.of(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
     resultMapCredit.put(bill.getBillPurchased().getCreditCurveName(), listCredit);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapCredit);
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDsc = new ArrayList<>();
-    listDsc.add(new DoublesPair(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
+    listDsc.add(DoublesPair.of(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
     resultMapDsc.put(bill.getBillPurchased().getDiscountingCurveName(), listDsc);
     return result.plus(new InterestRateCurveSensitivity(resultMapDsc));
   }

@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Defines static helpers for yield curve functions.
@@ -245,7 +246,7 @@ public final class YieldCurveFunction {
     }
     ArgumentChecker.notNull(fundingCurveName, "fundingCurveName");
     ArgumentChecker.notNull(forwardCurveName, "forwardCurveName");
-    return Pair.of(forwardCurveName, fundingCurveName);
+    return Pairs.of(forwardCurveName, fundingCurveName);
   }
 
   public static Pair<String, String> getDesiredValueCurveNames(final FunctionCompilationContext context, final ValueRequirement desiredValue) {
@@ -269,7 +270,7 @@ public final class YieldCurveFunction {
         }
       }
     }
-    return Pair.of(forwardCurveName, fundingCurveName);
+    return Pairs.of(forwardCurveName, fundingCurveName);
   }
 
   public static Pair<String, String> getInputCurveNames(final Map<ValueSpecification, ValueRequirement> inputs) {
@@ -297,7 +298,7 @@ public final class YieldCurveFunction {
     }
     ArgumentChecker.notNull(fundingCurveName, "fundingCurveName");
     ArgumentChecker.notNull(forwardCurveName, "forwardCurveName");
-    return Pair.of(forwardCurveName, fundingCurveName);
+    return Pairs.of(forwardCurveName, fundingCurveName);
   }
 
 }

@@ -45,7 +45,7 @@ final class ImmutableLocalDateDoubleTimeSeriesBuilder
     if (newSize > _times.length) {
       newSize = Math.max(newSize + 8, (_size * 3) / 2);
       _times = Arrays.copyOf(_times, newSize);
-      _values = Arrays.copyOf(_values, _size * 2);
+      _values = Arrays.copyOf(_values, newSize);
     }
   }
 

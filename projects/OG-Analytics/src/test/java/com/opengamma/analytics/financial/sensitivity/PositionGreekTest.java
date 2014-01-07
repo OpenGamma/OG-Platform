@@ -12,10 +12,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PositionGreekTest {
   private static final PositionGreek GREEK = new PositionGreek(Greek.VANNA);
 

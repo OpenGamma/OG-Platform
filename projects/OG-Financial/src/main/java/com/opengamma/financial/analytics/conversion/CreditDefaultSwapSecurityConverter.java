@@ -5,16 +5,17 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -28,6 +29,7 @@ import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -46,6 +48,9 @@ import com.opengamma.util.money.Currency;
  *
  */
 public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
+
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
+
   static final Obligor DUMMY_OBLIGOR_A = new Obligor(
       "Dummy_A",
       "Dummy_A",
@@ -89,14 +94,32 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
   private final OrganizationSource _organizationSource;
+  private double _recoveryRate = 0.5;
+  private final ZonedDateTime _valuationTime;
 
-  public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource) {
+  public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource,
+                                            final double recoveryRate, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(valuationTime, "valuation time" +
+        "");
     //ArgumentChecker.notNull(organizationSource, "organization source");
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _organizationSource = organizationSource;
+    _recoveryRate = recoveryRate;
+    _valuationTime = valuationTime;
+  }
+
+  public CreditDefaultSwapSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource, ZonedDateTime valuationTime) {
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(valuationTime, "valuation time");
+    //ArgumentChecker.notNull(organizationSource, "organization source");
+    _holidaySource = holidaySource;
+    _regionSource = regionSource;
+    _organizationSource = organizationSource;
+    _valuationTime = valuationTime;
   }
 
   @Override
@@ -107,7 +130,8 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     //final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getNotional().getCurrency());
     final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = security.getEffectiveDate(); //FOLLOWING.adjustDate(calendar, valuationDate.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1));
+    //final ZonedDateTime effectiveDate = IMMDateLogic.getPrevIMMDate(_valuationTime.toLocalDate()).atStartOfDay(ZoneId.systemDefault());
+    final ZonedDateTime effectiveDate = _valuationTime;
     final ZonedDateTime maturityDate = security.getMaturityDate();
     final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
     final DayCount dayCount = security.getDayCount();
@@ -120,11 +144,10 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final DebtSeniority debtSeniority = security.getDebtSeniority();
     final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final double quotedSpread = security.getQuotedSpread();
-    final StandardCDSCoupon premiumLegCoupon = getCoupon(security.getCoupon());
+    final double premiumLegCoupon = security.getCoupon();
     final double upFrontAmount = security.getUpfrontAmount().getAmount();
     final StubType stubType = security.getStubType().toAnalyticsType();
     final ZonedDateTime cashSettlementDate = security.getCashSettlementDate();
@@ -136,7 +159,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, 0.5, includeAccruedPremium, protectionStart, coupon);
+        amount, _recoveryRate, includeAccruedPremium, protectionStart, coupon);
   }
 
   @Override
@@ -170,7 +193,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency,
         debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, 0.5, includeAccruedPremium, protectionStart, parSpread);
+        amount, _recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
   private PeriodFrequency getPeriodFrequency(final Frequency frequency) {
@@ -183,24 +206,7 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     throw new OpenGammaRuntimeException("Can only handle PeriodFrequency and SimpleFrequency");
   }
 
-  private StandardCDSCoupon getCoupon(final double coupon) {
-    if (Double.compare(coupon, 25) == 0) {
-      return StandardCDSCoupon._25bps;
-    }
-    if (Double.compare(coupon, 100) == 0) {
-      return StandardCDSCoupon._100bps;
-    }
-    if (Double.compare(coupon, 500) == 0) {
-      return StandardCDSCoupon._500bps;
-    }
-    if (Double.compare(coupon, 750) == 0) {
-      return StandardCDSCoupon._750bps;
-    }
-    if (Double.compare(coupon, 1000) == 0) {
-      return StandardCDSCoupon._1000bps;
-    }
-    throw new OpenGammaRuntimeException("Could not identify coupon with value " + coupon);
-  }
+
 
   private com.opengamma.analytics.financial.credit.obligor.definition.Obligor getObligorForReferenceEntity(final ExternalId obligorId) {
     final Organization organization;

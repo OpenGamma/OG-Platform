@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -42,10 +42,6 @@ public class CurveBuildingBlock {
     _unit = new LinkedHashMap<>();
     _unit.putAll(block);
   }
-
-  //  public void add(String name, int start, int number) {
-  //    _unit.put(name, new ObjectsPair<Integer, Integer>(start, number));
-  //  }
 
   /**
    * Returns the start index of the given string in the array of all parameters.

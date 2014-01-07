@@ -402,6 +402,7 @@ public abstract class DoubleTimeSeriesTest<T> {
     assertEquals(1, dts.subSeries(testDates[4], testDates[5]).size());
     assertEquals(1, dts.subSeries(testDates[4], false, testDates[5], true).size());
     assertEquals(0, dts.subSeries(testDates[5], true, testDates[5], false).size());
+    assertEquals(0, dts.subSeries(testDates[5], false, testDates[5], false).size());
     assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 

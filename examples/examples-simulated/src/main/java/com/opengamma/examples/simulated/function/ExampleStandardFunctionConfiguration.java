@@ -27,6 +27,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
 
   /**
    * Gets an instance of the example function configuration.
+   * 
    * @return Gets the instance
    */
   public static FunctionConfigurationSource instance() {
@@ -137,6 +138,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
+    i.setCurveName("model/volatility/surface/black", "Discounting");
+    i.setSurfaceName("model/volatility/surface/black", "DEFAULT");
     i.setSurfaceName("model/fxoption/black", "DEFAULT");
     i.setForwardCurveName("model/fxforward", "DEFAULT");
     return i;
@@ -206,7 +209,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     final FunctionConfigurationSource fxOptionRepository = getRepository(fxOptionDefaults);
     return CombiningFunctionConfigurationSource.of(fxForwardRepository, fxOptionRepository);
   }
-  
+
   protected void setForexOptionDefaults(FXOptionPropertiesFunctions defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FXOptionPropertiesFunctions.CurrencyInfo>() {
       @Override
@@ -226,7 +229,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     }));
 
   }
-  
+
   protected void setForexForwardDefaults(FXForwardPropertiesFunctions defaults) {
     defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FXForwardPropertiesFunctions.CurrencyInfo>() {
       @Override
@@ -246,7 +249,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     }));
 
   }
-  
+
   protected void setForexForwardDefaults(final CurrencyInfo i, final FXForwardPropertiesFunctions.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/fxforward"));
     defaults.setDiscountingCurve(i.getCurveName("model/fxforward"));
@@ -255,7 +258,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected void setForexForwardDefaults(final CurrencyPairInfo i, final FXForwardPropertiesFunctions.CurrencyPairInfo defaults) {
     defaults.setForwardCurveName(i.getForwardCurveName("model/fxforward"));
   }
-  
+
   protected void setForexOptionDefaults(final CurrencyInfo i, final FXOptionPropertiesFunctions.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/fxoption/black"));
     defaults.setDiscountingCurve(i.getCurveName("model/fxoption/black"));
@@ -264,7 +267,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   protected void setForexOptionDefaults(final CurrencyPairInfo i, final FXOptionPropertiesFunctions.CurrencyPairInfo defaults) {
     defaults.setSurfaceName(i.getSurfaceName("model/fxoption/black"));
   }
-  
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
@@ -279,4 +282,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setReceiveCurveName("SECONDARY");
   }
 
+  @Override
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions());
+  }
 }

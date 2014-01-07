@@ -19,10 +19,12 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   //TODO test start date = holiday
   private static final LocalDate START = LocalDate.of(2009, 1, 1);
@@ -40,10 +42,10 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   private static final LocalDateDoubleTimeSeries TS_TWO_MISSING_DATA_POINTS;
 
   static {
-    final List<LocalDate> t1 = new ArrayList<LocalDate>();
-    final List<Double> d1 = new ArrayList<Double>();
-    final List<LocalDate> t2 = new ArrayList<LocalDate>();
-    final List<Double> d2 = new ArrayList<Double>();
+    final List<LocalDate> t1 = new ArrayList<>();
+    final List<Double> d1 = new ArrayList<>();
+    final List<LocalDate> t2 = new ArrayList<>();
+    final List<Double> d2 = new ArrayList<>();
     for (int i = 0; i < DAILY_SCHEDULE.length; i++) {
       t1.add(DAILY_SCHEDULE[i]);
       d1.add(Double.valueOf(i));
@@ -70,8 +72,8 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   public void testMissingFirstData() {
     final LocalDate start = START.minusDays(21);
     final LocalDate[] daily = HOLIDAY_REMOVER.getStrippedSchedule(DAILY.getSchedule(start, END, true, true), WEEKEND_CALENDAR);
-    final List<LocalDate> t = new ArrayList<LocalDate>();
-    final List<Double> d = new ArrayList<Double>();
+    final List<LocalDate> t = new ArrayList<>();
+    final List<Double> d = new ArrayList<>();
     for (int i = 0; i < daily.length; i++) {
       if (daily[i].isAfter(START)) {
         t.add(daily[i]);

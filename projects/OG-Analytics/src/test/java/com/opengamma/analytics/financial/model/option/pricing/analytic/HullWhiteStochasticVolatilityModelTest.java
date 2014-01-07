@@ -18,9 +18,14 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class HullWhiteStochasticVolatilityModelTest {
   private static final AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelDataBundle> MODEL = new HullWhiteStochasticVolatilityModel();
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -12,7 +12,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -33,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -53,12 +53,19 @@ public class CurveDefinitionFunction extends AbstractFunction {
   }
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, InterpolatedCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, ConstantCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, SpreadCurveDefinition.class);
+  }
+
+  @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
-    final Instant versionTime = atZDT.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS).toInstant();
-    final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(_curveName, VersionCorrection.of(versionTime, versionTime));
+    final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(_curveName, VersionCorrection.LATEST);
     if (curveDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get curve definition called " + _curveName);
     }

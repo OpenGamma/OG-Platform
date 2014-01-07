@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -22,10 +22,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.Volatil
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLogNormalModelData> {
   private static RandomEngine RANDOM = new MersenneTwister();
   private static Logger LOGGER = LoggerFactory.getLogger(MixedLogNormalModelFitterTest.class);
@@ -98,15 +100,17 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
 
     // DoubleMatrix1D start = new DoubleMatrix1D(0.1653806454982462, 0.2981998932366687, 1.298321083180569, 0.16115590666749585);
     //  best = fitter.solve(start);
-    System.out.println(best.toString());
-    final MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
-    System.out.println(data.toString());
-    for (int i = 0; i < 200; i++) {
-      final double k = 500 + 1700 * i / 199.;
+    if (best != null) {
+      System.out.println(best.toString());
+      final MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
+      System.out.println(data.toString());
+      for (int i = 0; i < 200; i++) {
+        final double k = 500 + 1700 * i / 199.;
 
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
-      final double vol = model.getVolatility(option, forward, data);
-      System.out.println(k + "\t" + vol);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
+        final double vol = model.getVolatility(option, forward, data);
+        System.out.println(k + "\t" + vol);
+      }
     }
 
     //    BitSet fixed = new BitSet();
@@ -177,7 +181,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   @Override
-  public DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
+  protected DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
     final int n = from.getNumberOfElements();
     final double[] temp = new double[n];
     final double[] f = from.getData();

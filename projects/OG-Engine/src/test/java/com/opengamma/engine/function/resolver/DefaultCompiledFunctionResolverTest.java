@@ -76,12 +76,11 @@ public class DefaultCompiledFunctionResolverTest {
     assertEquals(result.getFirst(), parameterizedF2);
   }
 
-  private static class Filter extends ComputationTargetFilter {
+  private static class Filter implements ComputationTargetFilter {
 
     private final ComputationTarget _match;
 
     public Filter(final ComputationTarget match) {
-      super(null);
       _match = match;
     }
 

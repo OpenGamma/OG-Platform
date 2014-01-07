@@ -11,11 +11,13 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FunctionalDoublesCubeTest {
   private static final String NAME1 = "P";
   private static final String NAME2 = "O";
@@ -110,7 +112,7 @@ public class FunctionalDoublesCubeTest {
     assertEquals(CUBE.getName(), NAME1);
     assertEquals(CUBE.getFunction(), F1);
     assertEquals(CUBE.getValue(1., 2., 3.), F1.evaluate(1., 2., 3.), 0);
-    assertEquals(CUBE.getValue(new Triple<Double, Double, Double>(1., 2., 3.)), F1.evaluate(1., 2., 3.), 0);
+    assertEquals(CUBE.getValue(new Triple<>(1., 2., 3.)), F1.evaluate(1., 2., 3.), 0);
   }
 
   @Test

@@ -24,11 +24,13 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromCurvesDoublesSurfaceTest {
   private static final String NAME = "L";
   private static final ConstantDoublesCurve C1 = ConstantDoublesCurve.from(3.);
@@ -58,12 +60,12 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
     final int n = 6;
     POINT_OBJECT = new Double[n];
     POINT_OBJECT_SORTED = new Double[n];
-    POINT_LIST = new ArrayList<Double>();
-    POINT_LIST_SORTED = new ArrayList<Double>();
-    CURVES_LIST = new ArrayList<Curve<Double, Double>>();
-    CURVES_LIST_SORTED = new ArrayList<Curve<Double, Double>>();
-    MAP = new HashMap<Double, Curve<Double, Double>>();
-    MAP_SORTED = new TreeMap<Double, Curve<Double, Double>>();
+    POINT_LIST = new ArrayList<>();
+    POINT_LIST_SORTED = new ArrayList<>();
+    CURVES_LIST = new ArrayList<>();
+    CURVES_LIST_SORTED = new ArrayList<>();
+    MAP = new HashMap<>();
+    MAP_SORTED = new TreeMap<>();
     for (int i = 0; i < n; i++) {
       final double x1 = POINT_PRIMITIVE[i];
       final double x2 = POINT_PRIMITIVE_SORTED[i];
@@ -291,12 +293,12 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullX2() {
-    SURFACE.getZValue(Pair.of((Double) null, 2.));
+    SURFACE.getZValue(Pairs.of((Double) null, 2.));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullY2() {
-    SURFACE.getZValue(Pair.of(1., (Double) null));
+    SURFACE.getZValue(Pairs.of(1., (Double) null));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -368,14 +370,14 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull14() {
-    final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
+    final Map<Double, Curve<Double, Double>> m = new HashMap<>();
     m.put(null, C1);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull15() {
-    final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
+    final Map<Double, Curve<Double, Double>> m = new HashMap<>();
     m.put(2., null);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false);
   }
@@ -454,14 +456,14 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull30() {
-    final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
+    final Map<Double, Curve<Double, Double>> m = new HashMap<>();
     m.put(null, C1);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull31() {
-    final Map<Double, Curve<Double, Double>> m = new HashMap<Double, Curve<Double, Double>>();
+    final Map<Double, Curve<Double, Double>> m = new HashMap<>();
     m.put(2., null);
     new InterpolatedFromCurvesDoublesSurface(true, m, INTERPOLATOR, false, NAME);
   }
@@ -544,7 +546,7 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength6() {
-    final List<Curve<Double, Double>> l = new ArrayList<Curve<Double, Double>>();
+    final List<Curve<Double, Double>> l = new ArrayList<>();
     l.add(C1);
     new InterpolatedFromCurvesDoublesSurface(true, POINT_LIST, l, INTERPOLATOR, false);
   }
@@ -578,7 +580,7 @@ public class InterpolatedFromCurvesDoublesSurfaceTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongLength12() {
-    final List<Curve<Double, Double>> l = new ArrayList<Curve<Double, Double>>();
+    final List<Curve<Double, Double>> l = new ArrayList<>();
     l.add(C1);
     new InterpolatedFromCurvesDoublesSurface(true, POINT_LIST, l, INTERPOLATOR, false, NAME);
   }

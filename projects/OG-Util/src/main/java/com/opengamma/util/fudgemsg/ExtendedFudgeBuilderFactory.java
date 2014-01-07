@@ -14,7 +14,8 @@ import org.fudgemsg.mapping.FudgeBuilderFactoryAdapter;
 import org.fudgemsg.mapping.FudgeMessageBuilder;
 import org.fudgemsg.mapping.FudgeObjectBuilder;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
-import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.Bean;
+import org.joda.beans.impl.flexi.FlexiBean;
 
 /**
  * Utilities for converting Beans to Fudge and vice versa.
@@ -48,7 +49,7 @@ public final class ExtendedFudgeBuilderFactory extends FudgeBuilderFactoryAdapte
   //-------------------------------------------------------------------------
   @Override
   public <T> FudgeMessageBuilder<T> createMessageBuilder(final Class<T> clazz) {
-    if (DirectBean.class.isAssignableFrom(clazz)) {
+    if (Bean.class.isAssignableFrom(clazz) && clazz != FlexiBean.class) {
       FudgeMessageBuilder<T> bld = super.createMessageBuilder(clazz);
       if (bld == null || bld.getClass().getSimpleName().equals("JavaBeanBuilder")) {  // best we can do
         return createBeanBuilder(clazz);
@@ -60,7 +61,7 @@ public final class ExtendedFudgeBuilderFactory extends FudgeBuilderFactoryAdapte
 
   @Override
   public <T> FudgeObjectBuilder<T> createObjectBuilder(final Class<T> clazz) {
-    if (DirectBean.class.isAssignableFrom(clazz)) {
+    if (Bean.class.isAssignableFrom(clazz) && clazz != FlexiBean.class) {
       FudgeObjectBuilder<T> bld = super.createObjectBuilder(clazz);
       if (bld == null || bld.getClass().getSimpleName().equals("JavaBeanBuilder")) {  // best we can do
         return createBeanBuilder(clazz);

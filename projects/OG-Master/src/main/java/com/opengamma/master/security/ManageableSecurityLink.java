@@ -94,7 +94,9 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
    * Creates a link from an object identifier.
    * 
    * @param objectId  the object identifier, not null
+   * @deprecated using object ids will limit ability to export links, use ExternalIds or ExternalIdBundles, even if they need to be generated GUIDs
    */
+  @Deprecated
   public ManageableSecurityLink(final ObjectId objectId) {
     super(objectId);
   }
@@ -103,7 +105,9 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
    * Creates a link from a unique identifier, only storing the object identifier.
    * 
    * @param uniqueId  the unique identifier, not null
+   * @deprecated using object ids will limit ability to export links, use ExternalIds or ExternalIdBundles, even if they need to be generated GUIDs
    */
+  @Deprecated
   public ManageableSecurityLink(final UniqueId uniqueId) {
     super(uniqueId);
   }
@@ -273,16 +277,7 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
     return ManageableSecurityLink.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -298,6 +293,24 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("ManageableSecurityLink{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

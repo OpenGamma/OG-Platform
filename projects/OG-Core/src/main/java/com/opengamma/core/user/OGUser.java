@@ -27,14 +27,15 @@ import com.opengamma.util.PublicAPI;
 public interface OGUser extends UniqueIdentifiable, ExternalBundleIdentifiable {
 
   /**
-   * Gets the external identifier bundle defining the user.
+   * Gets the external identifier bundle that defines the user.
    * <p>
    * Each external system has one or more identifiers by which they refer to the user.
    * Some of these may be unique within that system, while others may be more descriptive.
    * This bundle stores the set of these external identifiers.
    * 
-   * @return the bundle, not null
+   * @return the bundle defining the user, not null
    */
+  @Override  // override for Javadoc
   ExternalIdBundle getExternalIdBundle();
 
   /**

@@ -16,7 +16,12 @@ import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveSelectorTest {
 
   private final SelectorResolver _resolver = mock(SelectorResolver.class);
@@ -25,7 +30,7 @@ public class YieldCurveSelectorTest {
   private static final String CALC_CONFIG_NAME = "calcConfigName";
 
   private static StructureIdentifier structureId(String curveName) {
-    return StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
+    return StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, curveName));
   }
 
   /** if no criteria are specified the selector should match any curve */
@@ -108,8 +113,8 @@ public class YieldCurveSelectorTest {
     curve.currencies("GBP");
     MarketDataSelector selector = curve.getSelector();
     String curveName = "curveName";
-    StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
-    StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
+    StructureIdentifier structure1 = StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, curveName));
+    StructureIdentifier structure2 = StructureIdentifier.of(YieldCurveKey.of(Currency.USD, curveName));
     assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
     assertNull(selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
   }
@@ -121,9 +126,9 @@ public class YieldCurveSelectorTest {
     curve.currencies("GBP", "USD");
     MarketDataSelector selector = curve.getSelector();
     String curveName = "curveName";
-    StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName));
-    StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName));
-    StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName));
+    StructureIdentifier structure1 = StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, curveName));
+    StructureIdentifier structure2 = StructureIdentifier.of(YieldCurveKey.of(Currency.USD, curveName));
+    StructureIdentifier structure3 = StructureIdentifier.of(YieldCurveKey.of(Currency.AUD, curveName));
     assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
     assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
     assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));
@@ -138,10 +143,10 @@ public class YieldCurveSelectorTest {
     String curveName3 = "curveName3";
     curve.named(curveName1, curveName2).currencies("USD", "GBP");
     MarketDataSelector selector = curve.getSelector();
-    StructureIdentifier structure1 = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, curveName1));
-    StructureIdentifier structure2 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName2));
-    StructureIdentifier structure3 = StructureIdentifier.of(new YieldCurveKey(Currency.AUD, curveName1));
-    StructureIdentifier structure4 = StructureIdentifier.of(new YieldCurveKey(Currency.USD, curveName3));
+    StructureIdentifier structure1 = StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, curveName1));
+    StructureIdentifier structure2 = StructureIdentifier.of(YieldCurveKey.of(Currency.USD, curveName2));
+    StructureIdentifier structure3 = StructureIdentifier.of(YieldCurveKey.of(Currency.AUD, curveName1));
+    StructureIdentifier structure4 = StructureIdentifier.of(YieldCurveKey.of(Currency.USD, curveName3));
     assertEquals(selector, selector.findMatchingSelector(structure1, CALC_CONFIG_NAME, _resolver));
     assertEquals(selector, selector.findMatchingSelector(structure2, CALC_CONFIG_NAME, _resolver));
     assertNull(selector.findMatchingSelector(structure3, CALC_CONFIG_NAME, _resolver));

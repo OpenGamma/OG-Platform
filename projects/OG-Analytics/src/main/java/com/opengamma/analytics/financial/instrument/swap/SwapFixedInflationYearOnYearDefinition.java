@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Class describing a year on year inflation swap.
  */
 public class SwapFixedInflationYearOnYearDefinition extends SwapDefinition {
 

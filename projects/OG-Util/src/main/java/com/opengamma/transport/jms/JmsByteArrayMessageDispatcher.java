@@ -32,7 +32,7 @@ public class JmsByteArrayMessageDispatcher implements MessageListener {
   /**
    * Creates an instance based on a message receiver.
    * 
-   * @param underlying  the underlying message receiver, not null
+   * @param underlying the underlying message receiver, not null
    */
   public JmsByteArrayMessageDispatcher(final ByteArrayMessageReceiver underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -52,9 +52,14 @@ public class JmsByteArrayMessageDispatcher implements MessageListener {
   //-------------------------------------------------------------------------
   @Override
   public void onMessage(final Message message) {
-    final byte[] bytes = JmsByteArrayHelper.extractBytes(message);
-    s_logger.debug("Dispatching byte array of length {}", bytes.length);
-    getUnderlying().messageReceived(bytes);
+    try {
+      final byte[] bytes = JmsByteArrayHelper.extractBytes(message);
+      s_logger.debug("Dispatching byte array of length {}", bytes.length);
+      getUnderlying().messageReceived(bytes);
+    } catch (RuntimeException e) {
+      s_logger.error("Caught exception dispatching message", e);
+      throw e;
+    }
   }
 
 }

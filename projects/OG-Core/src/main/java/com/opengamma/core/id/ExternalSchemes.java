@@ -90,6 +90,10 @@ public class ExternalSchemes {
    * Identification scheme for GMI contracts.
    */
   public static final ExternalScheme GMI = ExternalScheme.of("GMI");
+  /**
+   * Identification scheme conventions specified for ISDA.
+   */
+  public static final ExternalScheme ISDA = ExternalScheme.of("ISDA");
   // --------------------- SCHEMES FOR EXCHANGES ---------------------------
 
 /**
@@ -136,6 +140,11 @@ public class ExternalSchemes {
    */
   public static final ExternalScheme ISO_MIC = ExternalScheme.of("ISO_MIC");
 
+  /**
+   * Identification scheme for holiday conventions specified for ISDA.
+   * Common examples include USNY, CATO, and EUTA.
+   */
+  public static final ExternalScheme ISDA_HOLIDAY = ExternalScheme.of("ISDA_HOLIDAY");
 
   /**
    * Restricted constructor.
@@ -400,6 +409,17 @@ public class ExternalSchemes {
     return ExternalId.of(MARKIT_RED_CODE, redcode);
   }
   
+  /**
+   * Creates an ISDA identifier
+   * <p>
+   * @param isdaName the isda name, not null or empty
+   * @return the isda identifier, not null
+   */
+  public static ExternalId isda(String isdaName) {
+    ArgumentChecker.notEmpty(isdaName, "isdaname");
+    return ExternalId.of(ISDA, isdaName);
+  }
+  
   // -------------------------- METHODS FOR REGIONS ---------------------------
 
   /**
@@ -503,6 +523,20 @@ public class ExternalSchemes {
       throw new IllegalArgumentException("ISO MIC code is invalid: " + code);
     }
     return ExternalId.of(ExternalSchemes.ISO_MIC, code);
+  }
+  
+  //---------------------- HOLIDAYS ---------------------
+  /**
+   * Creates an ISDA holiday code.
+   * <p>
+   * Examples might be {@code USNY} or {@code EUTA}.
+   * 
+   * @param code  the code, not null
+   * @return the holiday identifier, not null
+   */
+  public static ExternalId isdaHoliday(final String code) {
+    ArgumentChecker.notNull(code, "code");
+    return ExternalId.of(ExternalSchemes.ISDA_HOLIDAY, code);
   }
 
 }

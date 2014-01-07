@@ -76,6 +76,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             public void run() {
               try {
                 _callback.preOrderOperation(_node, position);
+              } catch (Exception e) {
+                s_logger.warn("Failed preOrderOperation", e);
               } finally {
                 childDone();
               }
@@ -92,6 +94,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
           if (_secondPass) {
             try {
               _callback.postOrderOperation(_node);
+            } catch (Exception e) {
+              s_logger.warn("Failed preOrderOperation", e);
             } finally {
               if (_parent != null) {
                 _parent.childDone();
@@ -103,6 +107,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             if (positions.isEmpty()) {
               try {
                 _callback.postOrderOperation(_node);
+              } catch (Exception e) {
+                s_logger.warn("Failed postOrderOperation", e);
               } finally {
                 if (_parent != null) {
                   _parent.childDone();
@@ -116,6 +122,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
                   public void run() {
                     try {
                       _callback.postOrderOperation(_node, position);
+                    } catch (Exception e) {
+                      s_logger.warn("Failed postOrderOperation", e);
                     } finally {
                       childDone();
                     }

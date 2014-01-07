@@ -85,11 +85,21 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
     return _tradePrice;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the two argument method (without margin price data).");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime date, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -118,7 +128,7 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
     ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getDeliveryLastDate()), "Date is after last delivery date");
     ArgumentChecker.isTrue(!date.isBefore(_tradeDate), "Date is before trade date");
     final BondFuturesSecurity underlyingFuture = _underlyingFuture.toDerivative(date);
-    double referencePrice;
+    final double referencePrice;
     if (_tradeDate.isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today

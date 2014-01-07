@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.depgraph.rest;
 
 import static org.mockito.Mockito.mock;
@@ -11,17 +16,20 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -30,10 +38,12 @@ import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test for {@link DependencyGraphTraceProviderResource}
  */
+@Test(groups = TestGroup.UNIT)
 public class DependencyGraphTraceProviderResourceTest {
 
   private static final String s_testUrl = "http://testurl.com/";
@@ -97,10 +107,10 @@ public class DependencyGraphTraceProviderResourceTest {
     String snapshotId = "Foo~1";
 
     //expected arg
-    UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
-    UserMarketDataSpecification originalMD = _resource.getProperties().getMarketData();
+    List<MarketDataSpecification> marketData = Lists.<MarketDataSpecification>newArrayList(MarketData.user(UniqueId.parse(snapshotId)));
+    List<MarketDataSpecification> originalMD = _resource.getProperties().getMarketData();
 
-    DependencyGraphTraceProviderResource newResource = _resource.setMarketData(snapshotId);
+    DependencyGraphTraceProviderResource newResource = _resource.setMarketDataSnapshot(snapshotId);
 
     assertEquals(marketData, newResource.getProperties().getMarketData());
     assertEquals(originalMD, _resource.getProperties().getMarketData());
@@ -205,14 +215,36 @@ public class DependencyGraphTraceProviderResourceTest {
   }
 
   @Test
-  public void uriMarketData() throws UnsupportedEncodingException {
+  public void uriMarketDataSnapshot() throws UnsupportedEncodingException {
     String snapshotId = "Foo~1";
-    UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
-    URI uri = DependencyGraphTraceProviderResource.uriMarketData(_baseUri, marketData);
+    MarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
+    URI uri = DependencyGraphTraceProviderResource.uriMarketData(_baseUri, Lists.newArrayList(marketData));
     String url = decode(uri);
     assertEquals(s_testUrl + "marketDataSnapshot/" + snapshotId, url);
   }
+  @Test
+  public void uriMarketDataLiveDefault() throws UnsupportedEncodingException {
+    MarketDataSpecification marketData = MarketData.live();
+    URI uri = DependencyGraphTraceProviderResource.uriMarketData(_baseUri, Lists.newArrayList(marketData));
+    String url = decode(uri);
+    assertEquals(s_testUrl + "marketDataLiveDefault", url);
+  }
 
+  @Test
+  public void uriMarketDataLive() throws UnsupportedEncodingException {
+    MarketDataSpecification marketData = MarketData.live("BB");
+    URI uri = DependencyGraphTraceProviderResource.uriMarketData(_baseUri, Lists.newArrayList(marketData));
+    String url = decode(uri);
+    assertEquals(s_testUrl + "marketDataLive/BB", url);
+  }
+  @Test
+  public void uriMarketDataHistorical() throws UnsupportedEncodingException {
+    LocalDate now = LocalDate.now();
+    MarketDataSpecification marketData = MarketData.historical(now, "ts");
+    URI uri = DependencyGraphTraceProviderResource.uriMarketData(_baseUri, Lists.newArrayList(marketData));
+    String url = decode(uri);
+    assertEquals(s_testUrl + "marketDataHistorical/" + now + "/ts", url);
+  }
   @Test
   public void uriResolutionTime() throws UnsupportedEncodingException {
     String rtStr = "V1970-01-01T00:00:01Z.CLATEST";

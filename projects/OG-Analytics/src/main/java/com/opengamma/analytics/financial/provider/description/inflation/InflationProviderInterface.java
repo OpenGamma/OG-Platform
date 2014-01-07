@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
@@ -15,7 +15,6 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface specific to inflation curves.
@@ -25,7 +24,7 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Create a new copy of the provider.
-   * @return The bundle.
+   * @return The provider.
    */
   @Override
   InflationProviderInterface copy();
@@ -54,12 +53,12 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
   Set<IndexPrice> getPriceIndexes();
 
   /**
-   * Gets the names of all curves (discounting, forward, price index and issuers).
+   * Returns an unmodifiable sorted set containing the names of all curves (discounting, forward, price index and issuers).
    * @return The names.
+   * @deprecated Use {@link #getAllCurveNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
-
-  double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity);
 
   /**
    * Gets the number of parameters for a curve described by its name.
@@ -68,6 +67,12 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
    */
   Integer getNumberOfParameters(String name);
 
+  /**
+   * Gets the underlying name(s) (i.e. {@link YieldAndDiscountCurve#getName()} for a curve name;
+   * this can be multi-valued in the case of spread curves.
+   * @param name The curve name
+   * @return The name(s) of the underlying curves.
+   */
   List<String> getUnderlyingCurvesNames(String name);
 
   /**
@@ -82,7 +87,6 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Gets the discount factor for one currency at a given time to maturity.
-   * TODO: extend it to a more general unique reference to include issuer/currency curves? UniqueIdentifiable?
    * @param ccy The currency.
    * @param time The time.
    * @return The discount factor.
@@ -101,7 +105,6 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   /**
    * Gets the forward for one Ibor index between start and end times.
-   * TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.
@@ -165,10 +168,28 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   //     =====     Convenience methods     =====
 
+  /**
+   * Returns a new provider with the discounting curve for a particular currency replaced.
+   * @param ccy The currency, not null
+   * @param replacement The replacement discounting curve, not null
+   * @return A new provider with the discounting curve for the currency replaced by the input curve.
+   */
   InflationProviderInterface withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement);
 
+  /**
+   * Returns a new provider with the curve for a particular ibor index replaced.
+   * @param index The ibor index, not null
+   * @param replacement The replacement ibor index curve, not null
+   * @return A new provider with the ibor index curve replaced by the input curve.
+   */
   InflationProviderInterface withForward(IborIndex index, YieldAndDiscountCurve replacement);
 
+  /**
+   * Returns a new provider with the curve for a particular overnight index replaced.
+   * @param index The overnight index, not null
+   * @param replacement The replacement overnight index curve, not null
+   * @return A new provider with the overnight index curve replaced by the input curve.
+   */
   InflationProviderInterface withForward(IndexON index, YieldAndDiscountCurve replacement);
 
 }

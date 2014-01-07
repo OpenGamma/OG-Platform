@@ -28,6 +28,7 @@ import com.opengamma.core.config.impl.DataConfigSourceResource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -57,6 +58,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * URI path to the market data repository.
    */
   public static final String PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY = "namedMarketDataSpecRepository";
+  /**
+   * URI path to clear view execution cache.
+   */
+  public static final String PATH_CLEAR_CACHE = "clearViewExecutionCache";
   /**
    * URI path to the name.
    */
@@ -121,7 +126,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * @param viewProcessor the view processor, not null
    * @param targetResolver the target resolver, not null
    * @param volatilityCubeDefinitionSource the volatility cube, not null
-   * @param jmsConnector the JMS connector, not null
+   * @param jmsConnector the JMS connector, may be null
    * @param fudgeContext the Fudge context, not null
    * @param scheduler the scheduler, not null
    * @param htsSource the hts source, may be null
@@ -164,6 +169,13 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return responseOk(getViewProcessor().getName());
   }
 
+  @POST
+  @Path(PATH_CLEAR_CACHE)
+  public Response clearViewExecutionCache() {
+    getViewProcessor().clearViewExecutionCache();
+    return responseOk();
+  }
+
   @Path(PATH_CONFIG_SOURCE)
   public DataConfigSourceResource getConfigSource() {
     return new DataConfigSourceResource(getViewProcessor().getConfigSource());
@@ -174,9 +186,9 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return new DataNamedMarketDataSpecificationRepositoryResource(getViewProcessor().getNamedMarketDataSpecificationRepository());
   }
 
-  @Path(PATH_SNAPSHOTTER)
-  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource);
+  @Path(PATH_SNAPSHOTTER + "/{mode}")
+  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl(@PathParam("mode") final String mode) {
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_targetResolver, _volatilityCubeDefinitionSource, _htsSource,  Mode.valueOf(Mode.class, mode));
     return new DataMarketDataSnapshotterResource(getViewProcessor(), snp);
   }
 
@@ -230,6 +242,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   public static URI uriClient(final URI clientsBaseUri, final UniqueId viewClientId) {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
+  }
+  
+  public static URI uriSnapshotter(final URI clientsBaseUri, final Mode mode) {
+    return UriBuilder.fromUri(clientsBaseUri).path(PATH_SNAPSHOTTER).segment(mode.name()).build();
   }
 
   private URI getViewProcessorUri(final UriInfo uriInfo) {

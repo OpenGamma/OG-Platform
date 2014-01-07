@@ -13,8 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sub-class of the standard {@link OpenGammaComponentServer} that works with the Advanced
- * Installer service wrappers when installed on Windows.
+ * Sub-class of the standard {@link OpenGammaComponentServer} that works with the Advanced Installer service wrappers when installed on Windows.
  */
 public class OpenGammaComponentService extends OpenGammaComponentServer {
 
@@ -42,8 +41,8 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
       if (!INSTANCE.run(runArgs)) {
         s_logger.error("One or more errors occurred starting the service");
         System.exit(1);
-      } else {
-        System.exit(0);
+        //} else {
+        //System.exit(0);
       }
     } catch (Throwable e) {
       s_logger.error("Couldn't start service", e);

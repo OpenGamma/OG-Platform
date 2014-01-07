@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -22,13 +22,16 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPh
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
-public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTest {
+@Deprecated
+@Test(groups = TestGroup.UNIT)
+public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTestBase {
 
   private static PresentValueCalculator VALUE_CALCULATOR = PresentValueCalculator.getInstance();
   private static PresentValueCurveSensitivityCalculator SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();

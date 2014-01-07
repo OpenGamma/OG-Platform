@@ -23,10 +23,12 @@ import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SensitivityAndReturnDataBundleTest {
   private static final Sensitivity<ValueGreek> S1 = new ValueGreekSensitivity(new ValueGreek(Greek.DELTA), "ValueDelta");
   private static final Sensitivity<ValueGreek> S2 = new ValueGreekSensitivity(new ValueGreek(Greek.GAMMA), "ValueGamma");
@@ -50,9 +52,9 @@ public class SensitivityAndReturnDataBundleTest {
     }
     TS1 = ImmutableInstantDoubleTimeSeries.of(times, x1);
     TS2 = ImmutableInstantDoubleTimeSeries.of(times, x2);
-    M1 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    M1 = new HashMap<>();
     M1.put(UnderlyingType.SPOT_PRICE, TS1);
-    M2 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    M2 = new HashMap<>();
     M2.put(UnderlyingType.SPOT_PRICE, TS2);
     DATA = new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, M1);
   }
@@ -74,14 +76,14 @@ public class SensitivityAndReturnDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKey() {
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<>();
     m.put(null, TS1);
     new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, m);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry() {
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<>();
     m.put(UnderlyingType.SPOT_PRICE, null);
     new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, m);
   }

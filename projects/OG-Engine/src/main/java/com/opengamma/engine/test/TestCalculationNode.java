@@ -7,6 +7,8 @@ package com.opengamma.engine.test;
 
 import java.util.concurrent.Executors;
 
+import org.springframework.context.Lifecycle;
+
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.security.impl.test.MockSecuritySource;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -23,7 +25,7 @@ import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 
-public class TestCalculationNode extends SimpleCalculationNode {
+public class TestCalculationNode extends SimpleCalculationNode implements Lifecycle {
 
   private static FunctionCompilationContext compilationContext() {
     final FunctionCompilationContext context = new FunctionCompilationContext();
@@ -45,6 +47,24 @@ public class TestCalculationNode extends SimpleCalculationNode {
   public TestCalculationNode(final ThreadLocalLogEventListener logEventListener) {
     super(new InMemoryViewComputationCacheSource(OpenGammaFudgeContext.getInstance()), initializedCFS(), new FunctionExecutionContext(), InetAddressUtils.getLocalHostName(), Executors
         .newCachedThreadPool(), new DiscardingInvocationStatisticsGatherer(), new CalculationNodeLogEventListener(logEventListener));
+  }
+
+  // Lifecycle
+
+  @Override
+  public void start() {
+    getFunctionCompilationService().start();
+  }
+
+  @Override
+  public void stop() {
+    getFunctionCompilationService().stop();
+    getExecutorService().shutdown();
+  }
+
+  @Override
+  public boolean isRunning() {
+    return getFunctionCompilationService().isRunning();
   }
 
 }

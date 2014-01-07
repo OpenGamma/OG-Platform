@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.cash.derivative;
@@ -19,8 +19,13 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DepositIborTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -37,13 +42,17 @@ public class DepositIborTest {
   private static final double SPOT_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, SPOT_DATE);
   private static final double END_TIME = TimeCalculator.getTimeBetween(TRADE_DATE, END_DATE);
 
-  private static final String CURVE_NAME = "Curve";
-
-  private static final DepositIbor DEPOSIT_IBOR = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+  private static final DepositIbor DEPOSIT_IBOR = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, null, CURVE_NAME);
+    new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, null);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void testGetCurveName() {
+    DEPOSIT_IBOR.getYieldCurveName();
   }
 
   @Test
@@ -67,11 +76,11 @@ public class DepositIborTest {
    */
   public void equalHash() {
     assertTrue("DepositIbor: equal hash", DEPOSIT_IBOR.equals(DEPOSIT_IBOR));
-    final DepositIbor depositIbor2 = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX, CURVE_NAME);
+    final DepositIbor depositIbor2 = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, INDEX);
     assertTrue("DepositIbor: equal hash", DEPOSIT_IBOR.equals(depositIbor2));
     assertEquals("DepositIbor: equal hash", DEPOSIT_IBOR.hashCode(), depositIbor2.hashCode());
     DepositIbor other;
-    other = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, IndexIborMaster.getInstance().getIndex("EURIBOR3M"), CURVE_NAME);
+    other = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, IndexIborMaster.getInstance().getIndex("EURIBOR3M"));
     assertFalse("DepositIbor: equal hash", DEPOSIT_IBOR.equals(other));
   }
 

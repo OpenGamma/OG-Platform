@@ -7,7 +7,6 @@ package com.opengamma.engine.value;
 
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -52,6 +51,20 @@ public class ValueSpecification implements Serializable {
    * The cached hash code.
    */
   private transient volatile int _hashCode;
+
+  /**
+   * Obtains a {@code ValueSpecification} from a target, building the target specification according to the type of object the target refers to. The properties must include the function identifier.
+   *
+   * @param valueName the name of the value created, not null
+   * @param computationTargetSpecification the ComputationTargetSpecification, not null
+   * @param properties the value properties, not null and must include the function identifier
+   * @return the created specification, not null
+   */
+  public static ValueSpecification of(final String valueName, final ComputationTargetSpecification computationTargetSpecification, final ValueProperties properties) {
+    ArgumentChecker.notNull(computationTargetSpecification, "computationTargetSpecification");
+    ArgumentChecker.notNull(properties, "uid");
+    return new ValueSpecification(valueName, computationTargetSpecification, properties);
+  }
 
   /**
    * Obtains a {@code ValueSpecification} from a target, building the target specification according to the type of object the target refers to. The properties must include the function identifier.
@@ -119,7 +132,7 @@ public class ValueSpecification implements Serializable {
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(targetSpecification, "targetSpecification");
     ArgumentChecker.notNull(properties, "properties");
-    ArgumentChecker.notNull(properties.getValues(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
+    ArgumentChecker.isTrue(properties.isDefined(ValuePropertyNames.FUNCTION), "properties.FUNCTION");
     _valueName = ValueRequirement.getInterned(valueName);
     _targetSpecification = targetSpecification;
     _properties = properties;
@@ -166,14 +179,13 @@ public class ValueSpecification implements Serializable {
    * @throws IllegalArgumentException if the property has a wild-card definition
    */
   public String getProperty(final String propertyName) {
-    final Set<String> values = _properties.getValues(propertyName);
-    if (values == null) {
-      return null;
-    } else if (values.isEmpty()) {
-      throw new IllegalArgumentException("property " + propertyName + " contains only wild-card values");
-    } else {
-      return values.iterator().next();
+    final String value = _properties.getSingleValue(propertyName);
+    if (value == null) {
+      if (_properties.isDefined(propertyName)) {
+        throw new IllegalArgumentException("property " + propertyName + " contains only wild-card values");
+      }
     }
+    return value;
   }
 
   /**
@@ -193,7 +205,7 @@ public class ValueSpecification implements Serializable {
    * @return the function identifier, not null
    **/
   public String getFunctionUniqueId() {
-    return getProperty(ValuePropertyNames.FUNCTION);
+    return _properties.getStrictValue(ValuePropertyNames.FUNCTION);
   }
 
   /**

@@ -44,14 +44,15 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
-import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
+import com.opengamma.financial.analytics.conversion.FRASecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -69,7 +70,10 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for cross-currency swap analytics
+ * 
+ * @deprecated Use functions descending from {@link DiscountingFunction}
  */
+@Deprecated
 public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(CrossCurrencySwapFunction.class);
@@ -96,15 +100,16 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
-    final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
+    final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter)
         .bondFutureSecurityVisitor(bondFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -156,7 +161,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
         curveNames.add(curveName + "_" + receiveCurveSuffix);
       }
     }
-    String[] curveNamesArray = curveNames.toArray(new String[0]);
+    final String[] curveNamesArray = curveNames.toArray(new String[0]);
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesArray, timeSeries);
     final YieldCurveBundle payCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, payCurveCalculationConfig, curveCalculationConfigSource);
     final YieldCurveBundle receiveCurveBundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, receiveCurveCalculationConfig, curveCalculationConfigSource);
@@ -216,12 +221,12 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig payCurveCalculationConfig = curveCalculationConfigSource.getConfig(payCurveCalculationConfigName);
     if (payCurveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + payCurveCalculationConfigName);
+      s_logger.info("Could not find curve calculation configuration named " + payCurveCalculationConfigName);
       return null;
     }
     final MultiCurveCalculationConfig receiveCurveCalculationConfig = curveCalculationConfigSource.getConfig(receiveCurveCalculationConfigName);
     if (receiveCurveCalculationConfig == null) {
-      s_logger.error("Could not find curve calculation configuration named " + receiveCurveCalculationConfigName);
+      s_logger.info("Could not find curve calculation configuration named " + receiveCurveCalculationConfigName);
       return null;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
@@ -237,11 +242,11 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
       }
     }
     if (!payCurrencyMatched) {
-      s_logger.error("Pay currency calculation config target {} was not found in {}", payCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
+      s_logger.info("Pay currency calculation config target {} was not found in {}", payCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
       return null;
     }
     if (!receiveCurrencyMatched) {
-      s_logger.error("Receive currency calculation config target {} was not found in {}", receiveCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
+      s_logger.info("Receive currency calculation config target {} was not found in {}", receiveCurveCalculationConfig.getTarget().getUniqueId().getValue(), currencies);
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
@@ -307,6 +312,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
 
   /**
    * Calculates the results.
+   * 
    * @param derivative The derivative
    * @param bundle The yield curves
    * @param targetSpec The target specification of the results
@@ -318,6 +324,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
 
   /**
    * Gets the value requirement names.
+   * 
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {

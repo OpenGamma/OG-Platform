@@ -22,6 +22,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -29,19 +30,23 @@ import com.opengamma.util.tuple.Pair;
 public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
 
   private static final String[] s_bondValueNames = new String[] {
-      ValueRequirementNames.CLEAN_PRICE,
-      ValueRequirementNames.DIRTY_PRICE,
-      ValueRequirementNames.MACAULAY_DURATION,
-      ValueRequirementNames.MODIFIED_DURATION,
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.YTM,
-      ValueRequirementNames.Z_SPREAD,
-      ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY
+    ValueRequirementNames.CLEAN_PRICE,
+    ValueRequirementNames.DIRTY_PRICE,
+    ValueRequirementNames.MACAULAY_DURATION,
+    ValueRequirementNames.MODIFIED_DURATION,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.YTM,
+    ValueRequirementNames.Z_SPREAD,
+    ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY,
+    ValueRequirementNames.CONVEXITY,
+    ValueRequirementNames.ACCRUED_INTEREST,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.DV01,
   };
 
   private static final String[] s_bondFutureValueNames = new String[] {
-      ValueRequirementNames.GROSS_BASIS,
-      ValueRequirementNames.NET_BASIS
+    ValueRequirementNames.GROSS_BASIS,
+    ValueRequirementNames.NET_BASIS
   };
 
   private final Map<String, Pair<String, String>> _currencyAndRiskFreeCurveNames;
@@ -52,16 +57,16 @@ public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyAndCurveConfigNames.length % 5 == 0,
         "Must have a risk-free curve name, risk-free curve config, credit curve name and credit curve config per currency");
-    _currencyAndCreditCurveNames = new HashMap<String, Pair<String, String>>();
-    _currencyAndRiskFreeCurveNames = new HashMap<String, Pair<String, String>>();
+    _currencyAndCreditCurveNames = new HashMap<>();
+    _currencyAndRiskFreeCurveNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 5) {
       final String currency = currencyAndCurveConfigNames[i];
       final String riskFreeCurve = currencyAndCurveConfigNames[i + 1];
       final String riskFreeConfig = currencyAndCurveConfigNames[i + 2];
       final String creditCurve = currencyAndCurveConfigNames[i + 3];
       final String creditConfig = currencyAndCurveConfigNames[i + 4];
-      _currencyAndRiskFreeCurveNames.put(currency, Pair.of(riskFreeCurve, riskFreeConfig));
-      _currencyAndCreditCurveNames.put(currency, Pair.of(creditCurve, creditConfig));
+      _currencyAndRiskFreeCurveNames.put(currency, Pairs.of(riskFreeCurve, riskFreeConfig));
+      _currencyAndCreditCurveNames.put(currency, Pairs.of(creditCurve, creditConfig));
     }
   }
 

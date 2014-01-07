@@ -30,12 +30,16 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the method for Forex transaction by discounting on each payment.
+ * @deprecated This tests deprecated code
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class ForexDiscountingMethodTest {
 
   private static final Currency CUR_1 = Currency.EUR;
@@ -64,7 +68,6 @@ public class ForexDiscountingMethodTest {
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
-
   private static final double TOLERANCE_PV = 1.0E-2; // one cent out of 100m
 
   @Test

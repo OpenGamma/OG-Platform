@@ -16,10 +16,12 @@ import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.CurveShiftFunctionFactory;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromCurvesAdditiveSurfaceShiftFunctionTest {
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final InterpolatedDoublesCurve NODAL = InterpolatedDoublesCurve.fromSorted(new double[] {1, 2, 3, 4}, new double[] {2, 3, 4, 5}, INTERPOLATOR, "Q");

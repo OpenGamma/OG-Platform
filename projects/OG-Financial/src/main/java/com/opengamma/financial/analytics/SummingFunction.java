@@ -122,27 +122,27 @@ public class SummingFunction extends MissingInputsFunction {
       final boolean[] homogenousProperties = new boolean[_homogenousProperties.length];
       for (final ValueSpecification input : inputs.keySet()) {
         final ValueProperties properties = input.getProperties();
-        final Set<String> inputPositionCountValues = properties.getValues(POSITION_COUNT);
-        if (inputPositionCountValues == null) {
-          positionCount++;
-        } else {
-          if (inputPositionCountValues.size() == 1) {
-            final int inputPositionCount = Integer.parseInt(inputPositionCountValues.iterator().next());
+        if (properties.isDefined(POSITION_COUNT)) {
+          final String inputPositionCountValue = properties.getStrictValue(POSITION_COUNT);
+          if (inputPositionCountValue != null) {
+            final int inputPositionCount = Integer.parseInt(inputPositionCountValue);
             if (inputPositionCount == 0) {
               // Ignore this one
               continue;
             }
             positionCount += inputPositionCount;
           }
+        } else {
+          positionCount++;
         }
         if (common == null) {
           common = properties;
           for (int i = 0; i < homogenousProperties.length; i++) {
-            homogenousProperties[i] = properties.getValues(_homogenousProperties[i]) != null;
+            homogenousProperties[i] = properties.isDefined(_homogenousProperties[i]);
           }
         } else {
           for (int i = 0; i < homogenousProperties.length; i++) {
-            if ((properties.getValues(_homogenousProperties[i]) != null) != homogenousProperties[i]) {
+            if (properties.isDefined(_homogenousProperties[i]) != homogenousProperties[i]) {
               // Either defines one of the properties that something else doesn't, or doesn't define
               // one that something else does
               return null;
@@ -157,7 +157,7 @@ public class SummingFunction extends MissingInputsFunction {
       }
       for (int i = 0; i < homogenousProperties.length; i++) {
         if (homogenousProperties[i] == Boolean.TRUE) {
-          if (common.getValues(_homogenousProperties[i]) == null) {
+          if (!common.isDefined(_homogenousProperties[i])) {
             // No common intersection of values for homogenous property
             return null;
           }

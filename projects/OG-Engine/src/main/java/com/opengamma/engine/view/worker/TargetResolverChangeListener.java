@@ -48,9 +48,16 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
    * Map of target object identifiers to be monitored, to the monitoring state (see {@link TargetState} members).
    */
   private final ConcurrentMap<ObjectId, TargetState> _targets = new ConcurrentHashMap<ObjectId, TargetState>();
+  /**
+   * Indicates that there may be at least one target in the {@link #_targets} map that has changed or needs a manual check.
+   */
+  private volatile boolean _hasPending;
 
   public void watch(final ObjectId identifier) {
-    _targets.putIfAbsent(identifier, TargetState.REQUIRED);
+    final TargetState previous = _targets.putIfAbsent(identifier, TargetState.REQUIRED);
+    if (previous != TargetState.WAITING) {
+      _hasPending = true;
+    }
   }
 
   /**
@@ -71,8 +78,45 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
     return true;
   }
 
+  /**
+   * Prunes the watch list to only include the given identifiers.
+   * 
+   * @param identifiers the identifiers to keep watching, not null and not containing null
+   */
   public void watchOnly(final Set<ObjectId> identifiers) {
     _targets.keySet().retainAll(identifiers);
+  }
+
+  /**
+   * Clears out the watch list.
+   */
+  public void watchNone() {
+    _targets.clear();
+  }
+
+  /**
+   * Indicates whether there are any objects that must be checked for updates. This is indicative only, and might not always be accurate.
+   * 
+   * @return true if there might be, false otherwise
+   */
+  public boolean hasChecksPending() {
+    return _hasPending;
+  }
+
+  /**
+   * Clears the flag that {@link #hasChecksPending} returns. Call this if there was an indication of pending checks but none were found.
+   */
+  public void clearChecksPending() {
+    _hasPending = false;
+  }
+
+  /**
+   * Resets the object to its check-pending state.
+   * 
+   * @param identifier the identifier to update, not null
+   */
+  public void setChanged(final ObjectId identifier) {
+    _targets.put(identifier, TargetState.CHANGED);
   }
 
   protected abstract void onChanged();
@@ -91,6 +135,7 @@ public abstract class TargetResolverChangeListener implements ChangeListener {
         // If the state changed to anything else, we either don't need the notification or another change message overtook
         // this one and a cycle has already been triggered.
         s_logger.info("Received change notification for {}", oid);
+        _hasPending = true;
         onChanged();
       }
     }

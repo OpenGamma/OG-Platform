@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -18,11 +19,13 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableTransactionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -37,12 +40,9 @@ public class SwapFuturesPriceDeliverableTransactionTest {
   private static final SwapFuturesPriceDeliverableSecurityDefinition SWAP_FUTURES_SECURITY_DEFINITION =
       new SwapFuturesPriceDeliverableSecurityDefinition(LAST_TRADING_DATE, SWAP_DEFINITION, NOTIONAL);
 
-  private static final String NOT_USED = "NOT USED";
-  private static final String[] NOT_USED_A = new String[] {NOT_USED, NOT_USED };
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
 
-  private static final SwapFuturesPriceDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFuturesPriceDeliverableSecurity SWAP_FUTURES_SECURITY = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double REF_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%.
   private static final int QUANTITY = 1234;
@@ -63,6 +63,19 @@ public class SwapFuturesPriceDeliverableTransactionTest {
     assertEquals("DeliverableSwapFuturesTransaction: getter", REF_PRICE, SWAP_FUTURES_TRANSACTION.getReferencePrice());
     assertEquals("DeliverableSwapFuturesTransaction: getter", QUANTITY, SWAP_FUTURES_TRANSACTION.getQuantity());
     assertEquals("DeliverableSwapFuturesTransaction: getter", USD6MLIBOR3M.getCurrency(), SWAP_FUTURES_TRANSACTION.getCurrency());
+  }
+
+  @Test
+  public void testHashCodeEquals() {
+    SwapFuturesPriceDeliverableTransaction other = new SwapFuturesPriceDeliverableTransaction(SWAP_FUTURES_SECURITY, REF_PRICE, QUANTITY);
+    assertEquals(SWAP_FUTURES_TRANSACTION, other);
+    assertEquals(SWAP_FUTURES_TRANSACTION.hashCode(), other.hashCode());
+    other = new SwapFuturesPriceDeliverableTransaction(SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1)), REF_PRICE, QUANTITY);
+    assertFalse(other.equals(SWAP_FUTURES_TRANSACTION));
+    other = new SwapFuturesPriceDeliverableTransaction(SWAP_FUTURES_SECURITY, REF_PRICE + 1, QUANTITY);
+    assertFalse(other.equals(SWAP_FUTURES_TRANSACTION));
+    other = new SwapFuturesPriceDeliverableTransaction(SWAP_FUTURES_SECURITY, REF_PRICE, QUANTITY + 1);
+    assertFalse(other.equals(SWAP_FUTURES_TRANSACTION));
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.option;
@@ -15,11 +15,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EquityIndexOptionDefinitionTest {
   private static final boolean IS_CALL = false;
   private static final double STRIKE = 100;
@@ -74,12 +76,12 @@ public class EquityIndexOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValuationDate() {
-    AMERICAN_PUT.toDerivative(null, (String[]) null);
+    AMERICAN_PUT.toDerivative(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testValuationAfterExpiry() {
-    AMERICAN_PUT.toDerivative(EXPIRY.plusDays(1), (String[]) null);
+    AMERICAN_PUT.toDerivative(EXPIRY.plusDays(1));
   }
 
   @Test
@@ -119,7 +121,7 @@ public class EquityIndexOptionDefinitionTest {
   @Test
   public void testToDerivative() {
     final ZonedDateTime valuationDate = EXPIRY.minusDays(10);
-    final EquityIndexOption derivative = AMERICAN_PUT.toDerivative(valuationDate, (String[]) null);
+    final EquityIndexOption derivative = AMERICAN_PUT.toDerivative(valuationDate);
     assertEquals(STRIKE, derivative.getStrike());
     assertEquals(10. / 365, derivative.getTimeToExpiry());
     assertEquals(13. / 365, derivative.getTimeToSettlement());

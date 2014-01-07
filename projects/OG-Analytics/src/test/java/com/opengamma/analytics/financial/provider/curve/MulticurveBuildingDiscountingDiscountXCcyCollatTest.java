@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -59,6 +59,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -66,6 +67,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Two curves in USD, two curves in EUR and one EUR curve with USD collateral (from X-Ccy swaps)
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -290,9 +292,6 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
     DSC_MAP_2.put(CURVE_NAME_EUR_DSC_USDFF, EUR);
   }
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED, NOT_USED };
-
   @SuppressWarnings("unchecked")
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, @SuppressWarnings("rawtypes") final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
@@ -306,7 +305,6 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
 
   // Calculators
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
-  //  private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
 
@@ -346,33 +344,31 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
       final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> sensitivityCalculator, final LinkedHashMap<String, Currency> dscMap,
       final LinkedHashMap<String, IborIndex[]> fwdIborMap, final LinkedHashMap<String, IndexON[]> fwdOnMap, final boolean withToday) {
-
-    final int nbUnits = curveGenerators.length;
-    final double[][] parametersGuess = new double[nbUnits][];
-    final GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];
-    final InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
-    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      generatorFinal[loopunit] = new GeneratorYDCurve[curveGenerators[loopunit].length];
-      int nbInsUnit = 0;
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        nbInsUnit += definitions[loopunit][loopcurve].length;
+    final int nUnits = definitions.length;
+    final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    for (int i = 0; i < nUnits; i++) {
+      final int nCurves = definitions[i].length;
+      final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      for (int j = 0; j < nCurves; j++) {
+        final int nInstruments = definitions[i][j].length;
+        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
+        final double[] rates = new double[nInstruments];
+        for(int k = 0; k < nInstruments; k++) {
+          derivatives[k] = convert(definitions[i][j][k], withToday);
+          rates[k] = initialGuess(definitions[i][j][k]);
+        }
+        final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final double[] initialGuess = generator.initialGuess(rates);
+        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
       }
-      parametersGuess[loopunit] = new double[nbInsUnit];
-      int startCurve = 0; // First parameter index of the curve in the unit.
-      instruments[loopunit] = convert(definitions[loopunit], withToday);
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        final double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(initialGuess(definitions[loopunit][loopcurve]));
-        System.arraycopy(guessCurve, 0, parametersGuess[loopunit], startCurve, instruments[loopunit][loopcurve].length);
-        startCurve += instruments[loopunit][loopcurve].length;
-      }
+      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, dscMap, fwdIborMap, fwdOnMap, calculator,
-        sensitivityCalculator);
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, dscMap, fwdIborMap, fwdOnMap, calculator, sensitivityCalculator);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
@@ -383,15 +379,15 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedONDefinition) {
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday), NOT_USED_A);
+          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
         } else {
           if (instrument instanceof SwapFixedIborDefinition) {
-            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday), NOT_USED_A);
+            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
           } else {
             if (instrument instanceof SwapXCcyIborIborDefinition) {
-              ird = ((SwapXCcyIborIborDefinition) instrument).toDerivative(NOW, getTSSwapXCcyIborIbor(withToday), NOT_USED_A);
+              ird = ((SwapXCcyIborIborDefinition) instrument).toDerivative(NOW, getTSSwapXCcyIborIbor(withToday));
             } else {
-              ird = instrument.toDerivative(NOW, NOT_USED_A);
+              ird = instrument.toDerivative(NOW);
             }
           }
         }
@@ -399,6 +395,24 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
       }
     }
     return instruments;
+  }
+
+  private static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, final boolean withToday) {
+    InstrumentDerivative ird;
+    if (instrument instanceof SwapFixedONDefinition) {
+      ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
+    } else {
+      if (instrument instanceof SwapFixedIborDefinition) {
+        ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
+      } else {
+        if (instrument instanceof SwapXCcyIborIborDefinition) {
+          ird = ((SwapXCcyIborIborDefinition) instrument).toDerivative(NOW, getTSSwapXCcyIborIbor(withToday));
+        } else {
+          ird = instrument.toDerivative(NOW);
+        }
+      }
+    }
+    return ird;
   }
 
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday) {
@@ -411,15 +425,6 @@ public class MulticurveBuildingDiscountingDiscountXCcyCollatTest {
 
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapXCcyIborIbor(final Boolean withToday) { // TODO: different currencies
     return withToday ? TS_FIXED_IBOR_EURUSD3M_WITH_TODAY : TS_FIXED_IBOR_EURUSD3M_WITHOUT_TODAY;
-  }
-
-  private static double[] initialGuess(final InstrumentDefinition<?>[] definitions) {
-    final double[] result = new double[definitions.length];
-    int loopr = 0;
-    for (final InstrumentDefinition<?> definition : definitions) {
-      result[loopr++] = initialGuess(definition);
-    }
-    return result;
   }
 
   private static double initialGuess(final InstrumentDefinition<?> instrument) {

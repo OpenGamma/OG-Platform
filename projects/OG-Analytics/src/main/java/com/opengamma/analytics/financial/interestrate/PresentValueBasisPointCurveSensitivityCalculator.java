@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -25,8 +25,10 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Computes the sensitivity of the par spread to the curve rates. 
+ * Computes the sensitivity of the par spread to the curve rates.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PresentValueBasisPointCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**
@@ -61,9 +63,9 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Inst
     // Backward sweep
     final double pvbpBar = 1.0;
     final double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * pvbpBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapDsc);
   }

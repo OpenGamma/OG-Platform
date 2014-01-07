@@ -13,9 +13,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RecombiningTreeTest {
   private static final Double[][] DATA1 = new Double[][] {new Double[] {1.}, new Double[] {2., 3.}, new Double[] {4., 5., 6.}, new Double[] {7., 8., 9., 10., 11.}};
   private static final Double[][] DATA2 = new Double[][] {new Double[] {1.5}, new Double[] {2.5, 3.5}, new Double[] {4.5, 5.5, 6.5}};

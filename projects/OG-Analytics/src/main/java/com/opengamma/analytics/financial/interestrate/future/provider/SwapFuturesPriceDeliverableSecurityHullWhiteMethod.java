@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPi
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -60,6 +62,10 @@ public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
    * The cash flow equivalent curve sensitivity calculator used in computations.
    */
   private static final CashFlowEquivalentCurveSensitivityCalculator CFECSC = CashFlowEquivalentCurveSensitivityCalculator.getInstance();
+  /**
+   * The present value calculator by discounting.
+   */
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
 
   /**
    * Computes the futures price.
@@ -90,12 +96,26 @@ public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
   }
 
   /**
+   * Returns the convexity adjustment, i.e. the difference between the adjusted price and the present value of the underlying swap.
+   * @param futures The swap futures.
+   * @param hwMulticurves The multi-curve and parameters provider.
+   * @return The adjustment.
+   */
+  public double convexityAdjustment(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+    ArgumentChecker.notNull(futures, "swap futures");
+    ArgumentChecker.notNull(hwMulticurves, "parameter provider");
+    MultipleCurrencyAmount pv = futures.getUnderlyingSwap().accept(PVDC, hwMulticurves.getMulticurveProvider());
+    double price = price(futures, hwMulticurves);
+    return price - (1.0d + pv.getAmount(futures.getCurrency()));
+  }
+
+  /**
    * Computes the futures price sensitivity to the curves.
    * @param futures The futures.
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The sensitivity.
-   * TODO: review Dsc sensitivity
    */
+  // TODO: review Dsc sensitivity
   public MulticurveSensitivity priceCurveSensitivity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
@@ -126,12 +146,12 @@ public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       cfeAmountBar[loopcf] = (df[loopcf] * adjustments[loopcf]) / df[0] * priceBar;
     }
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
+      final DoublesPair dfSensi = DoublesPair.of(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(multicurves.getName(ccy), listDfSensi);
     MulticurveSensitivity sensitivity = MulticurveSensitivity.ofYieldDiscounting(pvsDF);
     final Map<Double, MulticurveSensitivity> cfeCurveSensi = futures.getUnderlyingSwap().accept(CFECSC, multicurves);

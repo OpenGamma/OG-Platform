@@ -102,12 +102,8 @@
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
 
-  <bean id="dbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
-    <constructor-arg ref="batDbConnector"/>
-  </bean>
-
   <bean id="viewResultListenerFactory" class="com.opengamma.masterdb.batch.BatchDbViewResultListenerFactory">
-    <property name="batchRunMaster" ref="dbBatchMaster" />
+    <property name="batchRunMaster" ref="sharedBatchMaster" />
   </bean>
   
   <bean id="viewProcessWorkerFactory" class="com.opengamma.engine.view.worker.StaticSequencePartitioningViewProcessWorkerFactory">
@@ -150,7 +146,6 @@
     <property name="viewExecutionCache">
       <bean class="com.opengamma.engine.view.worker.cache.EHCacheViewExecutionCache">
         <constructor-arg ref="standardCacheManager" />
-        <constructor-arg ref="combinedConfigSource" />
         <constructor-arg ref="mainCompiledFunctionService" />
       </bean>
     </property>
@@ -184,6 +179,9 @@
               <value>UserCurves</value>
             </set>
           </constructor-arg>
+        </bean>
+        <bean class="com.opengamma.financial.view.ConfigDocumentWatchSetProvider">
+          <constructor-arg ref="combinedConfigSource" />
         </bean>
       </set>
     </property>

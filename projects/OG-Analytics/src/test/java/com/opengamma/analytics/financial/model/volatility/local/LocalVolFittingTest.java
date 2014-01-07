@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.local;
@@ -59,12 +59,14 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * This is a very basic attempt at PLAT-2215 (Local Volatility Calibration from Forward PDE). This does not converge. It is not clear if this is because the method is
- * unsound or the implementation is faulty 
+ * unsound or the implementation is faulty
  */
+@Test(groups = TestGroup.UNIT)
 public class LocalVolFittingTest {
   private final MatrixAlgebra _algebra = new ColtMatrixAlgebra();
   private static ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0.0, LimitType.GREATER_THAN);
@@ -99,22 +101,22 @@ public class LocalVolFittingTest {
     final int totalStrikes = temp;
 
     final ForwardCurve fwdCurve = new ForwardCurve(1.0);
-    double xL = 0.0;
-    double xH = 4;
+    final double xL = 0.0;
+    final double xH = 4;
     final BoundaryCondition lower = new DirichletBoundaryCondition(1.0, xL);
     final BoundaryCondition upper = new NeumannBoundaryCondition(0.0, xH, false);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(xL, xH, 1.0, 40, 0.05);
     final MeshingFunction timeMesh = new ExponentialMeshing(0, 2.0, 30, 0.2);
     final PDEGrid1D pdeGrid = new PDEGrid1D(timeMesh, spaceMesh);
     final Function1D<Double, Double> initialCond = INITIAL_COND_PROVIDER.getForwardCallPut(true);
-    double[] xa = new double[] {0, 0 };
-    double[] xb = new double[] {2.0, xH };
-    int[] nKnots = new int[] {3, 10 };
-    int[] degree = new int[] {3, 3 };
+    final double[] xa = new double[] {0, 0 };
+    final double[] xb = new double[] {2.0, xH };
+    final int[] nKnots = new int[] {3, 10 };
+    final int[] degree = new int[] {3, 3 };
     final double[] lambda = new double[] {1e-8, 1e-5 };
     final int[] differenceOrder = new int[] {2, 2 };
-    int dim = xa.length;
-    int[] sizes = new int[dim];
+    final int dim = xa.length;
+    final int[] sizes = new int[dim];
     for (int i = 0; i < dim; i++) {
       sizes[i] = nKnots[i] + degree[i] - 1;
     }
@@ -122,7 +124,7 @@ public class LocalVolFittingTest {
     final List<Function1D<double[], Double>> bSplines = _generator.generateSet(xa, xb, nKnots, degree);
     final int nWeights = bSplines.size();
 
-    PSplineFitter psf = new PSplineFitter();
+    final PSplineFitter psf = new PSplineFitter();
     DoubleMatrix2D ma = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(sizes, differenceOrder[0], 0), lambda[0]);
     for (int i = 1; i < dim; i++) {
       if (lambda[i] > 0.0) {
@@ -130,66 +132,66 @@ public class LocalVolFittingTest {
         ma = (DoubleMatrix2D) _algebra.add(ma, _algebra.scale(d, lambda[i]));
       }
     }
-    DoubleMatrix2D penalty = ma;//(DoubleMatrix2D) _algebra.multiply(_algebra.getTranspose(ma), ma);
+    final DoubleMatrix2D penalty = ma;//(DoubleMatrix2D) _algebra.multiply(_algebra.getTranspose(ma), ma);
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> volFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> volFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        double[] weights = new double[nWeights];
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+        final double[] weights = new double[nWeights];
         for (int i = 0; i < nWeights; i++) {
           weights[i] = TRANSFORM.inverseTransform(x.getEntry(i));
         }
 
-        LocalVolatilitySurfaceMoneyness localVolSurface = getLocalVol(bSplines, fwdCurve, weights);
-        BlackVolatilitySurfaceMoneyness impVol = solveForwardPDE(fwdCurve, lower, upper, pdeGrid, initialCond, localVolSurface);
+        final LocalVolatilitySurfaceMoneyness localVolSurface = getLocalVol(bSplines, fwdCurve, weights);
+        final BlackVolatilitySurfaceMoneyness impVol = solveForwardPDE(fwdCurve, lower, upper, pdeGrid, initialCond, localVolSurface);
 
-        double[] vols = new double[totalStrikes];
+        final double[] vols = new double[totalStrikes];
         @SuppressWarnings("unused")
         double chi2 = 0;
         int index = 0;
         for (int i = 0; i < nExp; i++) {
-          double t = EXPIRIES[i];
+          final double t = EXPIRIES[i];
           final int n = STRIKES[i].length;
           for (int j = 0; j < n; j++) {
-            double k = STRIKES[i][j];
+            final double k = STRIKES[i][j];
             vols[index] = impVol.getVolatility(t, k);
             chi2 += FunctionUtils.square(vols[index] - IMP_VOL);
             index++;
           }
         }
-        DoubleMatrix1D debug = new DoubleMatrix1D(vols);
+        final DoubleMatrix1D debug = new DoubleMatrix1D(vols);
         //  System.out.println(chi2);
         return debug;
       }
 
     };
 
-    double[] start = new double[nWeights];
+    final double[] start = new double[nWeights];
     // Arrays.fill(start, 0.4);
     for (int i = 0; i < nWeights; i++) {
       start[i] = TRANSFORM.transform(IMP_VOL + 0.05 * (random.nextDouble() - 0.5));
     }
 
     //  DoubleMatrix1D res = MINIMIZER.minimize(objective, new DoubleMatrix1D(start));
-    DoubleMatrix1D observed = new DoubleMatrix1D(totalStrikes, IMP_VOL);
-    LeastSquareResults res = NLLS.solve(observed, volFunc, new DoubleMatrix1D(start), penalty);
+    final DoubleMatrix1D observed = new DoubleMatrix1D(totalStrikes, IMP_VOL);
+    final LeastSquareResults res = NLLS.solve(observed, volFunc, new DoubleMatrix1D(start), penalty);
     System.out.println(res);
 
-    double[] weights = new double[nWeights];
+    final double[] weights = new double[nWeights];
     for (int i = 0; i < nWeights; i++) {
       weights[i] = TRANSFORM.inverseTransform(res.getFitParameters().getEntry(i));
     }
 
-    LocalVolatilitySurfaceMoneyness lv = getLocalVol(bSplines, fwdCurve, weights);
+    final LocalVolatilitySurfaceMoneyness lv = getLocalVol(bSplines, fwdCurve, weights);
     PDEUtilityTools.printSurface("lv", lv.getSurface(), 0.01, 2.0, 0.3, 3.0);
 
-    BlackVolatilitySurfaceMoneyness iv = solveForwardPDE(fwdCurve, lower, upper, pdeGrid, initialCond, lv);
+    final BlackVolatilitySurfaceMoneyness iv = solveForwardPDE(fwdCurve, lower, upper, pdeGrid, initialCond, lv);
     PDEUtilityTools.printSurface("imp vol", iv.getSurface(), 0.01, 2.0, 0.3, 3.0);
   }
 
   /**
-   * A single 
+   * A single
    */
   @Test(enabled = false)
   public void test2() {
@@ -205,8 +207,8 @@ public class LocalVolFittingTest {
     final int nKnots = bSplines.size();
 
     final ForwardCurve fwdCurve = new ForwardCurve(1.0);
-    double xL = 0.0;
-    double xH = 6;
+    final double xL = 0.0;
+    final double xH = 6;
     final BoundaryCondition lower = new DirichletBoundaryCondition(1.0, xL);
     final BoundaryCondition upper = new NeumannBoundaryCondition(0.0, xH, false);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(xL, xH, 1.0, 40, 0.05);
@@ -214,53 +216,53 @@ public class LocalVolFittingTest {
     final PDEGrid1D pdeGrid = new PDEGrid1D(timeMesh, spaceMesh);
     final Function1D<Double, Double> initialCond = INITIAL_COND_PROVIDER.getForwardCallPut(true);
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> volFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> volFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
-        double[] weights = new double[nKnots];
+        final double[] weights = new double[nKnots];
         for (int i = 0; i < nKnots; i++) {
           weights[i] = TRANSFORM.inverseTransform(x.getEntry(i));
         }
 
-        LocalVolatilitySurfaceMoneyness localVolSurface = getLocalVol1D(bSplines, fwdCurve, weights);
+        final LocalVolatilitySurfaceMoneyness localVolSurface = getLocalVol1D(bSplines, fwdCurve, weights);
 
-        BlackVolatilitySurfaceMoneyness impVol = solveForwardPDE(fwdCurve, lower, upper, pdeGrid, initialCond, localVolSurface);
+        final BlackVolatilitySurfaceMoneyness impVol = solveForwardPDE(fwdCurve, lower, upper, pdeGrid, initialCond, localVolSurface);
 
-        double[] vols = new double[totalStrikes];
+        final double[] vols = new double[totalStrikes];
         @SuppressWarnings("unused")
         double chi2 = 0;
         int index = 0;
         for (int i = 0; i < nExp; i++) {
-          double t = EXPIRIES[i];
+          final double t = EXPIRIES[i];
           final int n = STRIKES[i].length;
           for (int j = 0; j < n; j++) {
-            double k = STRIKES[i][j];
+            final double k = STRIKES[i][j];
             vols[index] = impVol.getVolatility(t, k);
             chi2 += FunctionUtils.square(vols[index] - IMP_VOL);
             index++;
           }
         }
-        DoubleMatrix1D debug = new DoubleMatrix1D(vols);
+        final DoubleMatrix1D debug = new DoubleMatrix1D(vols);
         //  System.out.println(chi2);
         return debug;
       }
 
     };
 
-    PSplineFitter psf = new PSplineFitter();
-    DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(nKnots, 2), 0.01);
+    final PSplineFitter psf = new PSplineFitter();
+    final DoubleMatrix2D penalty = (DoubleMatrix2D) _algebra.scale(psf.getPenaltyMatrix(nKnots, 2), 0.01);
 
-    double[] start = new double[nKnots];
+    final double[] start = new double[nKnots];
     // Arrays.fill(start, 0.4);
     for (int i = 0; i < nKnots; i++) {
       start[i] = TRANSFORM.transform(IMP_VOL + 0.05 * (random.nextDouble() - 0.5));
     }
 
     //  DoubleMatrix1D res = MINIMIZER.minimize(objective, new DoubleMatrix1D(start));
-    DoubleMatrix1D observed = new DoubleMatrix1D(totalStrikes, IMP_VOL);
-    LeastSquareResults res = NLLS.solve(observed, volFunc, new DoubleMatrix1D(start), penalty);
+    final DoubleMatrix1D observed = new DoubleMatrix1D(totalStrikes, IMP_VOL);
+    final LeastSquareResults res = NLLS.solve(observed, volFunc, new DoubleMatrix1D(start), penalty);
     System.out.println(res);
 
   }
@@ -308,104 +310,104 @@ public class LocalVolFittingTest {
 
     final ForwardCurve fwdCurve = new ForwardCurve(1.0);
 
-    List<double[]> tk = new ArrayList<double[]>(totalStrikes);
-    List<Double> vols = new ArrayList<Double>(totalStrikes);
-    List<Double> sigmas = new ArrayList<Double>(totalStrikes);
+    final List<double[]> tk = new ArrayList<>(totalStrikes);
+    final List<Double> vols = new ArrayList<>(totalStrikes);
+    final List<Double> sigmas = new ArrayList<>(totalStrikes);
     for (int i = 0; i < nExp; i++) {
-      double t = EXPIRIES[i];
+      final double t = EXPIRIES[i];
       for (int j = 0; j < STRIKES[i].length; j++) {
-        double[] a = new double[] {t, STRIKES[i][j] };
+        final double[] a = new double[] {t, STRIKES[i][j] };
         tk.add(a);
         vols.add(surfaceStrike.getVolatility(t, STRIKES[i][j]));
         sigmas.add(1.0);
       }
     }
 
-    int[] nKnots = new int[] {8, 20 };
-    int[] degree = new int[] {3, 3 };
-    int[] diff = new int[] {2, 2 };
-    double[] lambda = new double[] {0.1, 0.3 };
+    final int[] nKnots = new int[] {8, 20 };
+    final int[] degree = new int[] {3, 3 };
+    final int[] diff = new int[] {2, 2 };
+    final double[] lambda = new double[] {0.1, 0.3 };
 
-    PSplineFitter splineFitter = new PSplineFitter();
-    GeneralizedLeastSquareResults<double[]> res = splineFitter.solve(tk, vols, sigmas, new double[] {0.0, 0.0 }, new double[] {2.0, 3.0 }, nKnots, degree, lambda, diff);
+    final PSplineFitter splineFitter = new PSplineFitter();
+    final GeneralizedLeastSquareResults<double[]> res = splineFitter.solve(tk, vols, sigmas, new double[] {0.0, 0.0 }, new double[] {2.0, 3.0 }, nKnots, degree, lambda, diff);
 
     System.out.println(res.getChiSq());
     final Function1D<double[], Double> func = res.getFunction();
 
-    Function<Double, Double> temp2 = new Function<Double, Double>() {
+    final Function<Double, Double> temp2 = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tk) {
+      public Double evaluate(final Double... tk) {
         return func.evaluate(new double[] {tk[0], tk[1] });
       }
     };
 
     //PDEUtilityTools.printSurface("start", surfaceStrike.getSurface(), 0.01, 2.0, 0.3, 3.0);
 
-    FunctionalDoublesSurface s = FunctionalDoublesSurface.from(temp2);
+    final FunctionalDoublesSurface s = FunctionalDoublesSurface.from(temp2);
     PDEUtilityTools.printSurface("fitted", s, 0.01, 2.0, 0.3, 3.0);
 
-    DupireLocalVolatilityCalculator dCal = new DupireLocalVolatilityCalculator();
-    LocalVolatilitySurfaceStrike lv = dCal.getLocalVolatility(new BlackVolatilitySurfaceStrike(s), fwdCurve);
+    final DupireLocalVolatilityCalculator dCal = new DupireLocalVolatilityCalculator();
+    final LocalVolatilitySurfaceStrike lv = dCal.getLocalVolatility(new BlackVolatilitySurfaceStrike(s), fwdCurve);
     PDEUtilityTools.printSurface("lv", lv.getSurface(), 0.01, 2.0, 0.3, 3.0);
   }
 
   /**
-   * gets a time independent local vol 
-   * @param bSplines The basis functions (1d functions in strike) 
+   * gets a time independent local vol
+   * @param bSplines The basis functions (1d functions in strike)
    * @param fwdCurve the forward curve
-   * @param weights The weights 
-   * @return The local vol surface 
+   * @param weights The weights
+   * @return The local vol surface
    */
-  private LocalVolatilitySurfaceMoneyness getLocalVol1D(final List<Function1D<Double, Double>> bSplines, final ForwardCurve fwdCurve, double[] weights) {
-    final Function1D<Double, Double> func = new BasisFunctionAggregation<Double>(bSplines, weights);
+  private LocalVolatilitySurfaceMoneyness getLocalVol1D(final List<Function1D<Double, Double>> bSplines, final ForwardCurve fwdCurve, final double[] weights) {
+    final Function1D<Double, Double> func = new BasisFunctionAggregation<>(bSplines, weights);
 
-    Function<Double, Double> temp = new Function<Double, Double>() {
+    final Function<Double, Double> temp = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tx) {
-        double x = tx[1];
+      public Double evaluate(final Double... tx) {
+        final double x = tx[1];
         return func.evaluate(x);
       }
     };
 
-    LocalVolatilitySurfaceMoneyness localVolSurface = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(temp), fwdCurve);
+    final LocalVolatilitySurfaceMoneyness localVolSurface = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(temp), fwdCurve);
     return localVolSurface;
   }
 
-  private LocalVolatilitySurfaceMoneyness getLocalVol(final List<Function1D<double[], Double>> bSplines, final ForwardCurve fwdCurve, double[] weights) {
-    final Function1D<double[], Double> func = new BasisFunctionAggregation<double[]>(bSplines, weights);
-    Function<Double, Double> temp = new Function<Double, Double>() {
+  private LocalVolatilitySurfaceMoneyness getLocalVol(final List<Function1D<double[], Double>> bSplines, final ForwardCurve fwdCurve, final double[] weights) {
+    final Function1D<double[], Double> func = new BasisFunctionAggregation<>(bSplines, weights);
+    final Function<Double, Double> temp = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
+      public Double evaluate(final Double... x) {
         return func.evaluate(new double[] {x[0], x[1] });
       }
 
     };
 
-    Surface<Double, Double, Double> surf = FunctionalDoublesSurface.from(temp);
-    LocalVolatilitySurfaceMoneyness localVolSurface = new LocalVolatilitySurfaceMoneyness(surf, fwdCurve);
+    final Surface<Double, Double, Double> surf = FunctionalDoublesSurface.from(temp);
+    final LocalVolatilitySurfaceMoneyness localVolSurface = new LocalVolatilitySurfaceMoneyness(surf, fwdCurve);
     return localVolSurface;
   }
 
   private BlackVolatilitySurfaceMoneyness solveForwardPDE(final ForwardCurve fwdCurve, final BoundaryCondition lower, final BoundaryCondition upper, final PDEGrid1D pdeGrid,
-      final Function1D<Double, Double> initialCond, LocalVolatilitySurfaceMoneyness localVolSurface) {
-    ConvectionDiffusionPDE1DStandardCoefficients pde = PDE_PROVIDER.getForwardLocalVol(localVolSurface);
+      final Function1D<Double, Double> initialCond, final LocalVolatilitySurfaceMoneyness localVolSurface) {
+    final ConvectionDiffusionPDE1DStandardCoefficients pde = PDE_PROVIDER.getForwardLocalVol(localVolSurface);
 
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCond, lower, upper, pdeGrid);
-    PDEFullResults1D res = (PDEFullResults1D) SOLVER.solve(db);
-    Map<DoublesPair, Double> volsurf = PDEUtilityTools.modifiedPriceToImpliedVol(res, 0.1, 2.0, 0.3, 3.0, true);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCond, lower, upper, pdeGrid);
+    final PDEFullResults1D res = (PDEFullResults1D) SOLVER.solve(db);
+    final Map<DoublesPair, Double> volsurf = PDEUtilityTools.modifiedPriceToImpliedVol(res, 0.1, 2.0, 0.3, 3.0, true);
 
     final Map<Double, Interpolator1DDataBundle> idb = INTERPOLATOR.getDataBundle(volsurf);
-    Function<Double, Double> f2 = new Function<Double, Double>() {
+    final Function<Double, Double> f2 = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
-        DoublesPair data = new DoublesPair(x[0], x[1]);
+      public Double evaluate(final Double... x) {
+        final DoublesPair data = DoublesPair.of(x[0].doubleValue(), x[1].doubleValue());
         return INTERPOLATOR.interpolate(idb, data);
       }
     };
 
-    BlackVolatilitySurfaceMoneyness impVol = new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(f2), fwdCurve);
+    final BlackVolatilitySurfaceMoneyness impVol = new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(f2), fwdCurve);
     return impVol;
   }
 

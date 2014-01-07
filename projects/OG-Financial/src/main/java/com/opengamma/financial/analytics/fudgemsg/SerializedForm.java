@@ -60,11 +60,7 @@ import com.opengamma.util.ClassUtils;
         if (field.getName() == null) {
           if (field.getOrdinal() == null) {
             if (field.getValue() instanceof String) {
-              try {
-                outer = ClassUtils.loadClass((String) field.getValue());
-              } catch (final ClassNotFoundException e) {
-                throw new OpenGammaRuntimeException("Class not found", e);
-              }
+              outer = ClassUtils.loadClassRuntime((String) field.getValue());
             } else {
               outer = deserializer.fieldValueToObject(field);
             }

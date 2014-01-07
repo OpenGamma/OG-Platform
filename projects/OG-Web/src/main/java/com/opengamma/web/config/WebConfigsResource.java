@@ -27,7 +27,6 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.collect.BiMap;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.id.ObjectId;
@@ -104,14 +103,14 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   @SuppressWarnings("unchecked")
   private FlexiBean search(PagingRequest request, ConfigSearchSortOrder so, String name,
-      String type, List<String> configIdStrs, UriInfo uriInfo) {
+      String typeName, List<String> configIdStrs, UriInfo uriInfo) {
     FlexiBean out = createRootData();
     
     @SuppressWarnings("rawtypes")
     ConfigSearchRequest searchRequest = new ConfigSearchRequest();
-    type = StringUtils.trimToNull(type);
-    if (type != null) {
-      Class<?> typeClazz = data().getTypeMap().get(type);
+    typeName = StringUtils.trimToNull(typeName);
+    if (typeName != null) {
+      Class<?> typeClazz = data().getTypeMap().get(typeName);
       searchRequest.setType(typeClazz);
     } else {
       searchRequest.setType(Object.class);
@@ -120,7 +119,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setSortOrder(so);
     searchRequest.setName(StringUtils.trimToNull(name));
     out.put("searchRequest", searchRequest);
-    out.put("type", type);
+    out.put("type", typeName);
     for (String configIdStr : configIdStrs) {
       searchRequest.addConfigId(ObjectId.parse(configIdStr));
     }
@@ -146,11 +145,12 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   public Response postHTML(
       @FormParam("name") String name,
       @FormParam("configxml") String xml,
-      @FormParam("type") String type) {
+      @FormParam("type") String typeName) {
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
-    type = StringUtils.trimToNull(type);
+    typeName = StringUtils.trimToNull(typeName);
     
+    final Class<?> type = (typeName != null ? data().getTypeMap().get(typeName) : null);
     if (name == null || xml == null || type == null) {
       FlexiBean out = createRootData();
       if (name == null) {
@@ -159,34 +159,27 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (xml == null) {
         out.put("err_xmlMissing", true);
       }
-      if (type == null) {
+      if (typeName == null) {
         out.put("err_typeMissing", true);
+      } else if (type == null) {
+        out.put("err_typeInvalid", true);
       }
+      out.put("name", StringUtils.defaultString(name));
+      out.put("type", StringUtils.defaultString(typeName));
+      out.put("xml", StringUtils.defaultString(xml));
       String html = getFreemarker().build(HTML_DIR + "config-add.ftl", out);
       return Response.ok(html).build();
     }
-     
-    final Object configObj = parseXML(xml);
-    final Class<?> logicalClazz = getLogicalClazz(type);
-
+    
+    final Object configObj = parseXML(xml, type);
     ConfigItem<?> item = ConfigItem.of(configObj);
     item.setName(name);
-    item.setType(logicalClazz);
+    item.setType(type);
     ConfigDocument doc = new ConfigDocument(item);    
 
     ConfigDocument added = data().getConfigMaster().add(doc);
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
-  }
-
-  private Class<?> getLogicalClazz(final String type) {
-    final Class<?> logicalClass;
-    try {
-      logicalClass = Class.forName(type);
-    } catch (Throwable t) {
-      throw new OpenGammaRuntimeException("Invalid logical class name from form param type[" + type + "]");
-    }
-    return logicalClass;
   }
 
   @POST
@@ -196,11 +189,13 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       @FormParam("name") String name,
       @FormParam("configJSON") String json,
       @FormParam("configXML") String xml,
-      @FormParam("type") String type) {
+      @FormParam("type") String typeName) {
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
-    type = StringUtils.trimToNull(type);
+    typeName = StringUtils.trimToNull(typeName);
+    
+    final Class<?> type = (typeName != null ? data().getTypeMap().get(typeName) : null);
     Response result = null;
     if (name == null || type == null || isEmptyConfigData(json, xml)) {
       result = Response.status(Status.BAD_REQUEST).build();
@@ -209,15 +204,14 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (json != null) {
         configObj = parseJSON(json);
       } else if (xml != null) {
-        configObj = parseXML(xml);
+        configObj = parseXML(xml, type);
       }
       if (configObj == null) {
         result = Response.status(Status.BAD_REQUEST).build();
       } else {
-        final Class<?> logicalClazz = getLogicalClazz(type);
         ConfigItem<?> item = ConfigItem.of(configObj);
         item.setName(name);
-        item.setType(logicalClazz);        
+        item.setType(type);        
         ConfigDocument doc = new ConfigDocument(item);        
         ConfigDocument added = data().getConfigMaster().add(doc);
         URI uri = data().getUriInfo().getAbsolutePathBuilder().path(added.getUniqueId().toLatest().toString()).build();
@@ -257,7 +251,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     FlexiBean out = super.createRootData();
     out.put("template", template);
     if (typeClazz != null) {
-      out.put("type", typeClazz.getName());
+      out.put("type", typeClazz.getSimpleName());
     }
     return getFreemarker().build(JSON_DIR + "template.ftl", out);
   }
@@ -293,6 +287,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
     out.put("configTypes", getConfigTypesProvider().getConfigTypes());
+    out.put("configDescriptionMap", getConfigTypesProvider().getDescriptionMap());
     out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }

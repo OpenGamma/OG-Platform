@@ -5,12 +5,16 @@
  */
 package com.opengamma.analytics.financial.credit.centralcounterparty;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.sampleobligors.SampleObligors;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CentralCounterpartyTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -17,26 +17,28 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to bond futures transaction Definition construction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondFutureTransactionDefinitionTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM = false;
   private static final int SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
@@ -95,7 +97,7 @@ public class BondFutureTransactionDefinitionTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(FUTURE_TRANSACTION_DEFINITION));
-    BondFuturesTransactionDefinition other = new BondFuturesTransactionDefinition(FUTURE_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
+    final BondFuturesTransactionDefinition other = new BondFuturesTransactionDefinition(FUTURE_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertTrue(FUTURE_TRANSACTION_DEFINITION.equals(other));
     assertTrue(FUTURE_TRANSACTION_DEFINITION.hashCode() == other.hashCode());
     BondFuturesTransactionDefinition modifiedFuture;
@@ -105,26 +107,69 @@ public class BondFutureTransactionDefinitionTest {
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
     modifiedFuture = new BondFuturesTransactionDefinition(FUTURE_DEFINITION, QUANTITY, TRADE_DATE, TRADE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
-    BondFuturesSecurityDefinition otherUnderlying = new BondFuturesSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, 2 * NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
+    final BondFuturesSecurityDefinition otherUnderlying = new BondFuturesSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, 2 * NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
     modifiedFuture = new BondFuturesTransactionDefinition(otherUnderlying, QUANTITY, TRADE_DATE, TRADE_PRICE);
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(modifiedFuture));
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(QUANTITY));
     assertFalse(FUTURE_TRANSACTION_DEFINITION.equals(null));
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeOnTradeDateDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 21);
+    final String creditCruveName = "Credit";
+    final String repoCurveName = "Repo";
+    final String[] curvesName = {creditCruveName, repoCurveName };
+    final double lastMarginPrice = 1.0234;
+    final BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, curvesName);
+    final BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
+    final BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, TRADE_PRICE);
+    assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeAfterTradeDateDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 22);
+    final String creditCruveName = "Credit";
+    final String repoCurveName = "Repo";
+    final String[] curvesName = {creditCruveName, repoCurveName };
+    final double lastMarginPrice = 1.0234;
+    final BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, curvesName);
+    final BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
+    final BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, lastMarginPrice);
+    assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
+  }
+
+  /**
+   * Tests the exception of to derivative method when no reference price is provided.
+   */
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void toDerivativeNoReferencePriceDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 22);
+    final String creditCruveName = "Credit";
+    final String repoCurveName = "Repo";
+    final String[] curvesName = {creditCruveName, repoCurveName };
+    FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, curvesName);
+  }
   @Test
   /**
    * Tests the toDerivative method.
    */
   public void toDerivativeOnTradeDate() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 21);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
     final double lastMarginPrice = 1.0234;
-    BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, curvesName);
-    BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
-    BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, TRADE_PRICE);
+    final BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice);
+    final BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate);
+    final BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, TRADE_PRICE);
     assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
   }
 
@@ -134,33 +179,19 @@ public class BondFutureTransactionDefinitionTest {
    */
   public void toDerivativeAfterTradeDate() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 22);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
     final double lastMarginPrice = 1.0234;
-    BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice, curvesName);
-    BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate, curvesName);
-    BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, lastMarginPrice);
+    final BondFuturesTransaction futureConverted = FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, lastMarginPrice);
+    final BondFuturesSecurity security = FUTURE_DEFINITION.toDerivative(referenceDate);
+    final BondFuturesTransaction futureConstructed = new BondFuturesTransaction(security, QUANTITY, lastMarginPrice);
     assertEquals("Bond future transaction definition: to derivative", futureConstructed, futureConverted);
   }
 
-  @Test
   /**
    * Tests the exception of to derivative method when no reference price is provided.
    */
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void toDerivativeNoReferencePrice() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 22);
-    final String creditCruveName = "Credit";
-    final String repoCurveName = "Repo";
-    final String[] curvesName = {creditCruveName, repoCurveName };
-    try {
-      FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate, curvesName);
-      assertTrue(false);
-    } catch (UnsupportedOperationException e) {
-      assertTrue(true);
-    } catch (Exception e) {
-      assertTrue(false);
-    }
+    FUTURE_TRANSACTION_DEFINITION.toDerivative(referenceDate);
   }
-
 }

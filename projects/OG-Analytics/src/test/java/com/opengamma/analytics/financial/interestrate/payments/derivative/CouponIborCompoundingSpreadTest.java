@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
@@ -18,11 +19,14 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the building of compounded Ibor coupons.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborCompoundingSpreadTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -129,4 +133,48 @@ public class CouponIborCompoundingSpreadTest {
     assertArrayEquals("CouponIborCompoundedSpread: getter", FIXING_ACCRUAL_FACTORS, CPN.getFixingPeriodAccrualFactors(), TOLERANCE);
   }
 
+  @Test
+  public void testHashCodeEquals() {
+    CouponIborCompoundingSpread other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertEquals(CPN, other);
+    assertEquals(CPN.hashCode(), other.hashCode());
+    other = new CouponIborCompoundingSpread(Currency.AUD, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME + 1e-8, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR + 0.01, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL + 1, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.02, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    final IborIndex index = MASTER_IBOR.getIndex("USDLIBOR3M");
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, index,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        FIXING_TIMES, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, PAYMENT_ACCRUAL_FACTORS, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, FIXING_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, ACCRUAL_START_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_PERIOD_END_TIMES, SPREAD);
+    assertFalse(other.equals(CPN));
+    other = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, NOTIONAL * 1.01, USDLIBOR1M,
+        PAYMENT_ACCRUAL_FACTORS, FIXING_TIMES, ACCRUAL_START_TIMES, FIXING_PERIOD_END_TIMES, FIXING_ACCRUAL_FACTORS, SPREAD * 1.01);
+    assertFalse(other.equals(CPN));
+  }
 }

@@ -40,10 +40,9 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
-
 
 /**
  *
@@ -108,8 +107,8 @@ public class IRFutureOptionSABRYCNSFunction extends IRFutureOptionSABRFunction {
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
-        .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
+        .withAny(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingPropertyNamesAndValues.SABR)
         .withAny(ValuePropertyNames.CURVE)
         .get();
     return Collections.singleton(new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), properties));

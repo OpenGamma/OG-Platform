@@ -22,14 +22,18 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ViewCycleExecutionOptionsFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
 
-  @Test
   public void rountTrip() {
     Map<DistinctMarketDataSelector, FunctionParameters> selectors2params = Maps.newHashMap();
     Map<String, String> params = ImmutableMap.of("foo", "bar");
-    DistinctMarketDataSelector selector = YieldCurveSelector.of(new YieldCurveKey(Currency.AUD, "curveKey"));
+    DistinctMarketDataSelector selector = YieldCurveSelector.of(YieldCurveKey.of(Currency.AUD, "curveKey"));
     selectors2params.put(selector, new SimpleFunctionParameters(params));
     ViewCycleExecutionOptions options =
         ViewCycleExecutionOptions

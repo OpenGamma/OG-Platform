@@ -21,6 +21,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Creates a ViewDefinition.
@@ -174,7 +175,7 @@ public class ViewDefinitionFactoryBean extends SingletonFactoryBean<ViewDefiniti
     // NOTE -- This is not at all robust as it is just a quick measure to drop constraints into the Spring config XML
     int i = requirement.indexOf('[');
     if (i < 0) {
-      return Pair.of(requirement, ValueProperties.none());
+      return Pairs.of(requirement, ValueProperties.none());
     }
     final String valueName = requirement.substring(0, i);
     final ValueProperties.Builder builder = ValueProperties.builder();
@@ -182,7 +183,7 @@ public class ViewDefinitionFactoryBean extends SingletonFactoryBean<ViewDefiniti
       final String[] pair = constraint.split("=");
       builder.with(pair[0], pair[1]);
     }
-    return Pair.of(valueName, builder.get());
+    return Pairs.of(valueName, builder.get());
   }
 
   @Override

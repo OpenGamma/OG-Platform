@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 import org.fudgemsg.FudgeContext;
@@ -42,6 +43,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -88,6 +90,19 @@ public class DbMarketDataSnapshotMaster
    * The Fudge context.
    */
   protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
+  
+  /**
+   * SQL order by.
+   */
+  protected static final EnumMap<MarketDataSnapshotSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<MarketDataSnapshotSearchSortOrder, String>(MarketDataSnapshotSearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(MarketDataSnapshotSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(MarketDataSnapshotSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(MarketDataSnapshotSearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(MarketDataSnapshotSearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(MarketDataSnapshotSearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(MarketDataSnapshotSearchSortOrder.NAME_DESC, "name DESC");
+  }
 
   /**
    * Creates an instance.
@@ -115,7 +130,7 @@ public class DbMarketDataSnapshotMaster
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource args = createParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
     args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
@@ -129,6 +144,7 @@ public class DbMarketDataSnapshotMaster
       buf.setLength(buf.length() - 2);
       args.addValue("sql_search_object_ids", buf.toString());
     }
+    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
@@ -184,7 +200,7 @@ public class DbMarketDataSnapshotMaster
     // the arguments for inserting into the marketDataSnaphshot table
     FudgeMsgEnvelope env = FUDGE_CONTEXT.toFudgeMsg(marketDataSnaphshot);
     byte[] bytes = FUDGE_CONTEXT.toByteArray(env.getMessage());
-    final DbMapSqlParameterSource marketDataSnaphshotArgs = new DbMapSqlParameterSource().addValue("doc_id", docId)
+    final DbMapSqlParameterSource marketDataSnaphshotArgs = createParameterSource().addValue("doc_id", docId)
         .addValue("doc_oid", docOid).addTimestamp("ver_from_instant", document.getVersionFromInstant())
         .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
         .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())

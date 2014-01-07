@@ -22,7 +22,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.temptarget.ConfigItemTarget;
 
 /**
  * Function that returns the target object (UniqueIdentifiable).
@@ -48,7 +47,7 @@ public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ConfigItemTarget.TYPE; // anything really but kept short as only used in 1 case so far - expand as and when needed
+    return ComputationTargetType.ANYTHING;
   }
 
   @Override
@@ -58,7 +57,7 @@ public class TargetReturningFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.TARGET, target.toSpecification(), ValueProperties.all()));
+    return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.TARGET, target.toSpecification(), createValueProperties().get()));
   }
 
   @Override

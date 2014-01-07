@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.generator;
@@ -11,18 +11,18 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveConstant;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolatedNode;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationZeroCoupon;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedInflationMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the different inflation curve generators types.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorInflationCurveTest {
 
   private static final String CURVE_NAME_1 = "EU CPI XT";
@@ -35,8 +35,6 @@ public class GeneratorInflationCurveTest {
 
   private static final double CST = 100;
   private static final GeneratorPriceIndexCurveConstant GENERATOR_PRICE_INDEX_CONSTANT = new GeneratorPriceIndexCurveConstant();
-
-  private static final GeneratorSwapFixedInflationZeroCoupon GENERATOR_INFALTION_SWAP = GeneratorSwapFixedInflationMaster.getInstance().getGenerator("USCPI");
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullYieldNodes() {
@@ -55,15 +53,15 @@ public class GeneratorInflationCurveTest {
 
   @Test
   public void generateCurveYieldInterpolated() {
-    PriceIndexCurve curveGenerated = GENERATOR_PRICE_INDEX_INTERPOLATED_NODE.generateCurve(CURVE_NAME_1, CPI);
-    PriceIndexCurve curveExpected = new PriceIndexCurve(new InterpolatedDoublesCurve(NODES, CPI, LINEAR_FLAT, true, CURVE_NAME_1));
+    final PriceIndexCurve curveGenerated = GENERATOR_PRICE_INDEX_INTERPOLATED_NODE.generateCurve(CURVE_NAME_1, CPI);
+    final PriceIndexCurve curveExpected = new PriceIndexCurve(new InterpolatedDoublesCurve(NODES, CPI, LINEAR_FLAT, true, CURVE_NAME_1));
     assertEquals("GeneratorPriceIndexCurveInterpolatedNode: generate curve", curveExpected, curveGenerated);
   }
 
   @Test
   public void generateCurveYieldConstant() {
-    PriceIndexCurve curveGenerated = GENERATOR_PRICE_INDEX_CONSTANT.generateCurve(CURVE_NAME_1, new double[] {CST });
-    PriceIndexCurve curveExpected = new PriceIndexCurve(new ConstantDoublesCurve(CST, CURVE_NAME_1));
+    final PriceIndexCurve curveGenerated = GENERATOR_PRICE_INDEX_CONSTANT.generateCurve(CURVE_NAME_1, new double[] {CST });
+    final PriceIndexCurve curveExpected = new PriceIndexCurve(new ConstantDoublesCurve(CST, CURVE_NAME_1));
     assertEquals("GeneratorPriceIndexCurveConstant: generate curve", curveExpected, curveGenerated);
   }
 

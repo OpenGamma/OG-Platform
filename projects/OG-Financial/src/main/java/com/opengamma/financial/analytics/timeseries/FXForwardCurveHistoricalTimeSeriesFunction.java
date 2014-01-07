@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.timeseries;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +64,7 @@ public class FXForwardCurveHistoricalTimeSeriesFunction extends AbstractFunction
     final FXForwardCurveDefinition definition = (FXForwardCurveDefinition) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_DEFINITION);
     final FXForwardCurveSpecification specification = (FXForwardCurveSpecification) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_SPECIFICATION);
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-    final Tenor[] tenors = definition.getTenors();
+    final List<Tenor> tenors = definition.getTenors();
     final FXForwardCurveInstrumentProvider curveInstrumentProvider = specification.getCurveInstrumentProvider();
     for (final Tenor tenor : tenors) {
       final ExternalIdBundle id = ExternalIdBundle.of(curveInstrumentProvider.getInstrument(endDate, tenor));
@@ -77,6 +78,17 @@ public class FXForwardCurveHistoricalTimeSeriesFunction extends AbstractFunction
       } else {
         s_logger.warn("Couldn't get time series for {}", id);
       }
+    }
+    final ExternalIdBundle id = ExternalIdBundle.of(curveInstrumentProvider.getSpotInstrument());
+    final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+    if (timeSeries != null) {
+      if (timeSeries.getTimeSeries().isEmpty()) {
+        s_logger.warn("Time series for {} is empty", id);
+      } else {
+        bundle.add(dataField, id, timeSeries);
+      }
+    } else {
+      s_logger.warn("Couldn't get time series for {}", id);
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(),
         desiredValue.getConstraints()), bundle));
@@ -150,7 +162,7 @@ public class FXForwardCurveHistoricalTimeSeriesFunction extends AbstractFunction
       constraints.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE);
     }
     if (constraints == null) {
-      // We can satisfy the desired value as-is, just ask for the yield curve specification to drive our behavior
+      // We can satisfy the desired value as-is, just ask for the FX forward curve definition and specification to drive our behavior
       final ValueProperties curveConstraints;
       values = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
       if (values != null) {

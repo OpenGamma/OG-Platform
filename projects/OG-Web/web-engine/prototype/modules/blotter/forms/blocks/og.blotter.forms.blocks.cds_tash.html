@@ -193,7 +193,7 @@
         {{{item_10}}}
       </td>
     </tr>
-    {{#unless index}}
+    {{#if recrate}}
     <tr>
       <td>
         <label>
@@ -204,7 +204,7 @@
         <input name="{{prefix}}.recoveryRate" type="text" value="{{data.recoveryRate}}"/>
       </td>
     </tr>
-    {{/unless}}
+    {{/if}}
     {{#if legacy}}
     <tr>
       <td>

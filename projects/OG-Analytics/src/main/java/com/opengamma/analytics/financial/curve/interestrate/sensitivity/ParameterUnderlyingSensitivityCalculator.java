@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.sensitivity;
@@ -25,7 +25,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
  * The "underlying" curves taken into account are only to one level deep.
  * The return format is a vector (DoubleMatrix1D) with length equal to the total number of parameters in all the curves,
  * and ordered as the parameters to the different curves themselves in increasing order.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class ParameterUnderlyingSensitivityCalculator extends AbstractParameterSensitivityCalculator {
 
   /**

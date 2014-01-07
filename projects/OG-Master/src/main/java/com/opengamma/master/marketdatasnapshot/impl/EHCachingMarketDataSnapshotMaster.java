@@ -8,6 +8,8 @@ package com.opengamma.master.marketdatasnapshot.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.Bean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +27,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.ObjectsPair;
-
-import net.sf.ehcache.CacheManager;
+import com.opengamma.util.tuple.IntObjectPair;
 
 /**
  * A cache decorating a {@code MarketDataSnapshotMaster}, mainly intended to reduce the frequency and repetition of queries to
@@ -61,7 +61,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     // Create the document search cache and register a marketDataSnapshot master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "MarketDataSnapshot", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
         MarketDataSnapshotSearchResult result = ((MarketDataSnapshotMaster) getUnderlying()).search((MarketDataSnapshotSearchRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
@@ -70,7 +70,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
         EHCachingSearchCache.cacheDocuments(result.getDocuments(), getUidToDocumentCache());
 
         // Return the list of result UniqueIds
-        return new ObjectsPair<>(result.getPaging().getTotalItems(),
+        return IntObjectPair.of(result.getPaging().getTotalItems(),
                                  EHCachingSearchCache.extractUniqueIds(result.getDocuments()));
       }
     });
@@ -78,7 +78,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     // Create the history search cache and register a marketDataSnapshot master searcher
     _historySearchCache = new EHCachingSearchCache(name + "MarketDataSnapshotHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
         MarketDataSnapshotHistoryResult result = ((MarketDataSnapshotMaster) getUnderlying()).history((MarketDataSnapshotHistoryRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
@@ -87,7 +87,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
         EHCachingSearchCache.cacheDocuments(result.getDocuments(), getUidToDocumentCache());
 
         // Return the list of result UniqueIds
-        return new ObjectsPair<>(result.getPaging().getTotalItems(),
+        return IntObjectPair.of(result.getPaging().getTotalItems(),
                                  EHCachingSearchCache.extractUniqueIds(result.getDocuments()));
       }
     });
@@ -103,7 +103,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     _documentSearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
     // Fetch the paged request range; if not entirely cached then fetch and cache it in foreground
-    ObjectsPair<Integer, List<UniqueId>> pair = _documentSearchCache.search(
+    IntObjectPair<List<UniqueId>> pair = _documentSearchCache.search(
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false); // don't block until cached
 
@@ -113,7 +113,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     }
 
     MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult(documents);
-    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
+    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirstInt()));
 
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now());
     result.setVersionCorrection(vc);
@@ -141,7 +141,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     _historySearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
     // Fetch the paged request range; if not entirely cached then fetch and cache it in foreground
-    ObjectsPair<Integer, List<UniqueId>> pair = _historySearchCache.search(
+    IntObjectPair<List<UniqueId>> pair = _historySearchCache.search(
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false); // don't block until cached
 
@@ -151,7 +151,7 @@ public class EHCachingMarketDataSnapshotMaster extends AbstractEHCachingMaster<M
     }
 
     MarketDataSnapshotHistoryResult result = new MarketDataSnapshotHistoryResult(documents);
-    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
+    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirstInt()));
     return result;
   }
 

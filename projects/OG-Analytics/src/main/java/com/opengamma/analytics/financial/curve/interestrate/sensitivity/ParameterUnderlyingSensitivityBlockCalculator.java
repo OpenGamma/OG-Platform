@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.sensitivity;
@@ -22,14 +22,16 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * For an instrument, computes the sensitivity of a present value to the parameters used in the curve.
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
  * The return format is a ParameterSensitivity object, i.e. a map between Curve/Currency and the sensitivity to the parameters in the curve.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParameterSensitivityBlockCalculator {
 
   /**
@@ -160,7 +162,7 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
     }
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<>();
     for (int loopcurve = 0; loopcurve < nbSensitivityCurve; loopcurve++) {
-      result.put(new ObjectsPair<>(curveNamesArray[loopcurve], ccy), new DoubleMatrix1D(sensiClean[loopcurve]));
+      result.put(Pairs.of(curveNamesArray[loopcurve], ccy), new DoubleMatrix1D(sensiClean[loopcurve]));
     }
     return new MultipleCurrencyParameterSensitivity(result);
   }

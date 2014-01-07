@@ -33,13 +33,15 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * caplet stripping for a set of caps with the <b>same</b> (absolute) strike. The model assumes that all the forwards (that underly the caplets) 'see' a volatility
+ * Caplet stripping for a set of caps with the <b>same</b> (absolute) strike. The model assumes that all the forwards (that underly the caplets) 'see' a volatility
  * that is a function of their initial time-to-expiry only (i.e. this model is not time homogeneous - the 2y forward in one years time, with have a different volatility
  * that the current 1y forward.). This volatility curve is modeled as an interpolated curve with suitably chosen knots (the number of knots equals the number of caps).
  * Provided the market cap prices are arbitrage free (i.e. the prices of two caps do not imply the price of a forward starting cap that is below its intrinsic value)
  * it is always possible to root find for the ordinates of the knots such that every cap is exactly repriced by the model. In this way the volatility (and hence the
- *  price) of every caplet (of the fixed strike) can be inferred from the curve - this result will be highly dependent on the choice of interpolator and knot positions.
+ * price) of every caplet (of the fixed strike) can be inferred from the curve - this result will be highly dependent on the choice of interpolator and knot positions.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingAbsoluteStrike {
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   // TODO option on root finder
@@ -158,6 +160,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> volDiffFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
         final VolatilityTermStructure vol = _volModel.evaluate(x);
@@ -192,6 +195,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> weightedPriceFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
@@ -208,6 +212,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> priceJac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
 

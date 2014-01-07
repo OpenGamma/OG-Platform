@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -20,19 +20,23 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BondSecurityDEDiscountingMethodTest {
 
   // Calculators
@@ -47,8 +51,8 @@ public class BondSecurityDEDiscountingMethodTest {
 
   private static final Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT_ACTACTICMA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_ACTACTICMA = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_FIXED = true;
 
   // DBR 1 1/2 02/15/23 - ISIN: DE0001102309
@@ -71,7 +75,7 @@ public class BondSecurityDEDiscountingMethodTest {
   @Test
   public void presentValueFixedMiddle() {
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_DE_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_DE_1, CURVES_NAME);
-    AnnuityCouponFixed coupon = BOND_DE_SECURITY_DEFINITION.getCoupons().trimBefore(SPOT_DATE_DE_1).toDerivative(REFERENCE_DATE_DE_1, CURVES_NAME);
+    final AnnuityCouponFixed coupon = BOND_DE_SECURITY_DEFINITION.getCoupons().trimBefore(SPOT_DATE_DE_1).toDerivative(REFERENCE_DATE_DE_1, CURVES_NAME);
     final double pvNominal = nominal.accept(PVC, CURVES);
     final double pvCoupon = coupon.accept(PVC, CURVES);
     final double pv = METHOD.presentValue(BOND_DE_SECURITY_1, CURVES);
@@ -101,7 +105,7 @@ public class BondSecurityDEDiscountingMethodTest {
     final BondFixedSecurity bondSecurity = BOND_DE_SECURITY_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     final double yield = 0.02;
     final double dirtyPrice = METHOD.dirtyPriceFromYield(bondSecurity, yield);
-    final double dirtyPriceExpected = (1 + RATE_DE / COUPON_PER_YEAR_DE) / (1 + bondSecurity.getAccrualFactorToNextCoupon() * yield / COUPON_PER_YEAR_DE);
+    final double dirtyPriceExpected = (1 + RATE_DE / COUPON_PER_YEAR_DE) / (1 + bondSecurity.getFactorToNextCoupon() * yield / COUPON_PER_YEAR_DE);
     assertEquals("Fixed coupon bond security: dirty price from yield German bond - last period", dirtyPriceExpected, dirtyPrice, TOLERANCE_PRICE);
   }
 

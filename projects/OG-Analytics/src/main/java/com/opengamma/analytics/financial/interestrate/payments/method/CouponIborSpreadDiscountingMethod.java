@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -21,7 +21,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborSpreadDiscountingMethod}
  */
+@Deprecated
 public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
 
   /**
@@ -46,7 +48,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   /**
    * Compute the present value of a Ibor coupon with spread by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value.
    */
   public CurrencyAmount presentValue(final CouponIborSpread coupon, final YieldCurveBundle curves) {
@@ -69,7 +71,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   /**
    * Computes the present value of the coupon without the spread part and with a positive notional.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value.
    */
   public CurrencyAmount presentValueNoSpreadPositiveNotional(final CouponIborSpread coupon, final YieldCurveBundle curves) {
@@ -86,7 +88,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   /**
    * Compute the present value sensitivity to rates of a Ibor coupon by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponIborSpread coupon, final YieldCurveBundle curves) {
@@ -106,12 +108,12 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     final double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * forwardBar;
     final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * pvBar;
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     result = result.plus(coupon.getFundingCurveName(), listDiscounting);
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
-    listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    final List<DoublesPair> listForward = new ArrayList<>();
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     result = result.plus(coupon.getForwardCurveName(), listForward);
     return result;
   }
@@ -119,7 +121,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   /**
    * Compute the par rate (Ibor forward) of a Ibor coupon by discounting. The par rate is the same with or without spread.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value.
    */
   public double parRate(final CouponIborSpread coupon, final YieldCurveBundle curves) {
@@ -132,7 +134,7 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
   /**
    * Compute the par rate (Ibor forward) sensitivity to rates of a Ibor coupon by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The par rate curve sensitivity.
    */
   public InterestRateCurveSensitivity parRateCurveSensitivity(final CouponIborSpread coupon, final YieldCurveBundle curves) {
@@ -145,9 +147,9 @@ public final class CouponIborSpreadDiscountingMethod implements PricingMethod {
     final double parRateBar = 1.0;
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingAccrualFactor() * parRateBar;
     final double dfForwardStartBar = 1.0 / (coupon.getFixingAccrualFactor() * dfForwardEnd) * parRateBar;
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
-    listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    final List<DoublesPair> listForward = new ArrayList<>();
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
     result = result.plus(coupon.getForwardCurveName(), listForward);
     return result;

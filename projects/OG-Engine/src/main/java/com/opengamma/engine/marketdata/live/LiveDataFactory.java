@@ -30,10 +30,10 @@ public class LiveDataFactory {
 
   /** Underlying source of the live data. */
   private final LiveDataClient _liveDataClient;
-  /** For checking availablility of live data. */
+  /** For checking availability of live data. */
   private final MarketDataAvailabilityFilter _availabilityFilter;
   /**
-   * All providers created by this factory. They are accessed via weak references so they will be GC'd when they're
+   * All providers created by this factory. They are accessed via weak references so they will be GCd when they're
    * no longer being used by the engine. This will grow indefinitely unless {@link #resubscribe} is called. If that
    * turns out to be a problem then a periodic task to clean out empty references will be needed.
    */

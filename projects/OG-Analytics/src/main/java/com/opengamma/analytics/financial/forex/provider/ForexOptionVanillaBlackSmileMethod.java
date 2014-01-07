@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.provider;
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
@@ -28,6 +26,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -74,9 +73,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The present value. The value is in the domestic currency (currency 2).
    */
   public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -97,9 +96,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The implied volatility.
    */
   public double impliedVolatility(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -116,9 +115,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The currency exposure
    */
   public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -145,9 +144,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The delta.
    */
   public double deltaRelative(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -173,9 +172,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The delta.
    */
   public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -193,6 +192,38 @@ public final class ForexOptionVanillaBlackSmileMethod {
   }
 
   /**
+   * Computes the spot delta (first derivative with respect to spot).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The spot delta
+   */
+  public double spotDeltaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "FX option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    return forwardDeltaTheoretical(optionForex, smileMulticurves) * dfForeign;
+  }
+
+  /**
+   * Computes the forward delta (first derivative with respect to forward).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward delta
+   */
+  public double forwardDeltaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "FX option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall());
+  }
+
+  /**
    * Computes the relative gamma of the Forex option.
    * The relative gamma is the second order derivative of the pv divided by the option notional.
    * @param optionForex The Forex option.
@@ -201,9 +232,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The gamma.
    */
   public double gammaRelative(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -230,9 +261,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The gamma.
    */
   public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -251,17 +282,50 @@ public final class ForexOptionVanillaBlackSmileMethod {
 
   /**
    * Computes the gamma of the Forex option. The gamma is the second order derivative of the option present value to the spot fx rate.
-   * @param optionForex The Forex option.
-   * @param smileMulticurves The curve and smile data.
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
   public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double gammaRelative = gammaRelative(optionForex, smileMulticurves, directQuote);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+  }
+
+  /**
+   * Computes the spot gamma (second derivative with respect to spot).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The spot gamma
+   */
+  public double spotGammaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    return forwardGammaTheoretical(optionForex, smileMulticurves) * (dfForeign * dfForeign) / dfDomestic;
+  }
+
+  /**
+   * Computes the forward gamma (second derivative with respect to forward).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward gamma
+   */
+  public double forwardGammaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.gamma(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
   }
 
   /**
@@ -273,9 +337,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The gamma.
    */
   public CurrencyAmount gammaSpot(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final double gammaRelativeSpot = gammaRelativeSpot(optionForex, smileMulticurves, directQuote);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelativeSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
@@ -283,14 +347,14 @@ public final class ForexOptionVanillaBlackSmileMethod {
   /**
    * Computes the Theta (derivative with respect to the time) using the forward driftless theta in the Black formula. The theta is not scaled.
    * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
-   * @param optionForex The Forex option.
-   * @param smileMulticurves The curve and smile data.
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
    * @return The theta. In the same currency as present value.
    */
   public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -304,8 +368,46 @@ public final class ForexOptionVanillaBlackSmileMethod {
   }
 
   /**
+   * Computes the forward driftless theta (derivative with respect to the time). The theta is not scaled.
+   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward driftless theta
+   */
+  public double forwardDriftlessThetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
+  }
+
+  /**
+   * Computes the forward vega (first derivative with respect to spot).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward vega
+   */
+  public double forwardVegaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.vega(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
+  }
+
+  /**
    * Computes the Vanna (2nd order cross-sensitivity of the option present value to the spot fx and implied vol),
-   * 
+   *
    * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$
    * @param optionForex The Forex option.
    * @param smileMulticurves The curve and smile data.
@@ -313,9 +415,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    */
 
   public CurrencyAmount vanna(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -331,14 +433,14 @@ public final class ForexOptionVanillaBlackSmileMethod {
 
   /**
    * Computes the Vomma (aka Volga) (2nd order sensitivity of the option present value to the implied vol)
-   * @param optionForex The Forex option.
-   * @param smileMulticurves The curve and smile data.
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
    * @return The Volga. In the same currency as present value.
    */
   public CurrencyAmount vomma(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
@@ -369,9 +471,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The curve sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
@@ -393,10 +495,10 @@ public final class ForexOptionVanillaBlackSmileMethod {
     final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForeign = new ArrayList<>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
+    listForeign.add(DoublesPair.of(payTime, rForeignBar * factor));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listForeign);
     final List<DoublesPair> listDomestic = new ArrayList<>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
+    listDomestic.add(DoublesPair.of(payTime, rDomesticBar * factor));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDomestic);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);
@@ -410,9 +512,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
@@ -442,9 +544,9 @@ public final class ForexOptionVanillaBlackSmileMethod {
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionVanilla optionForex,
       final BlackForexSmileProviderInterface smileMulticurves) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smileMulticurves, "Smile");
-    Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smileMulticurves); // In ccy2
     final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();

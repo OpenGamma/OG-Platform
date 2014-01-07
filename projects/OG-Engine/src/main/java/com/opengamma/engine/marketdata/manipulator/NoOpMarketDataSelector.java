@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * A market data selector which never performs an extraction operation.
  */
-public class NoOpMarketDataSelector implements MarketDataSelector {
+public final class NoOpMarketDataSelector implements MarketDataSelector {
 
   private static final NoOpMarketDataSelector INSTANCE = new NoOpMarketDataSelector();
 

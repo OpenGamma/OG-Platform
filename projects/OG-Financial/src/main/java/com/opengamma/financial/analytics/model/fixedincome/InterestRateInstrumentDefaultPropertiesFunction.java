@@ -20,6 +20,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -30,7 +31,10 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
+ * @deprecated These properties are no longer needed when using {@link MultiCurvePricingFunction}
+ * and related classes.
  */
+@Deprecated
 public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentDefaultPropertiesFunction.class);
   private static final String[] s_valueNames = new String[] {
@@ -40,7 +44,11 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-    ValueRequirementNames.VALUE_THETA};
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.SWAP_PAY_LEG_DETAILS,
+    ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS,
+    ValueRequirementNames.PAY_LEG_PRESENT_VALUE,
+    ValueRequirementNames.RECEIVE_LEG_PRESENT_VALUE};
   private final boolean _includeIRFutures;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
@@ -51,7 +59,7 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
     _includeIRFutures = Boolean.parseBoolean(includeIRFutures);
-    _currencyAndCurveConfigNames = new HashMap<String, String>();
+    _currencyAndCurveConfigNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
     }
@@ -72,6 +80,9 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
       return false;
     }
     if (security instanceof SwapSecurity) {
+      if (!InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
+        return false;
+      }
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
           || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Methods for the pricing of Federal Funds futures by discounting (using average of forward rates; not convexity adjustment).
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureSecurityDiscountingMethod}
  */
+@Deprecated
 public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFundsFutureSecurityMethod {
 
   /**
@@ -112,7 +114,7 @@ public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFu
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listOIS = new ArrayList<>();
     for (int loopfix = 0; loopfix < nbFixing + 1; loopfix++) {
-      listOIS.add(new DoublesPair(future.getFixingPeriodTime()[loopfix], -future.getFixingPeriodTime()[loopfix] * df[loopfix] * dfBar[loopfix]));
+      listOIS.add(DoublesPair.of(future.getFixingPeriodTime()[loopfix], -future.getFixingPeriodTime()[loopfix] * df[loopfix] * dfBar[loopfix]));
     }
     resultMap.put(future.getOISCurveName(), listOIS);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);

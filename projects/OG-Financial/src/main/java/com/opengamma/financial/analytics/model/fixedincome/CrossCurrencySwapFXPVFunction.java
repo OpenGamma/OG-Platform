@@ -16,12 +16,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of a cross-currency swap.
  */
+@Deprecated
 public class CrossCurrencySwapFXPVFunction extends CrossCurrencySwapFunction {
 
   /** Present value calculator */

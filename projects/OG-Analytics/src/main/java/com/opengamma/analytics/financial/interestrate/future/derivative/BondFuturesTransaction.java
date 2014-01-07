@@ -1,15 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of transaction on an bond future security.
@@ -33,14 +33,14 @@ public class BondFuturesTransaction implements InstrumentDerivative {
   /**
    * The future transaction constructor.
    * @param underlyingFuture The underlying future security.
-   * @param quantity The quantity of future. 
+   * @param quantity The quantity of future.
    * @param referencePrice The reference price.
    */
-  public BondFuturesTransaction(BondFuturesSecurity underlyingFuture, int quantity, double referencePrice) {
-    Validate.notNull(underlyingFuture, "underlying future");
-    this._underlyingFuture = underlyingFuture;
-    this._quantity = quantity;
-    this._referencePrice = referencePrice;
+  public BondFuturesTransaction(final BondFuturesSecurity underlyingFuture, final int quantity, final double referencePrice) {
+    ArgumentChecker.notNull(underlyingFuture, "underlying future");
+    _underlyingFuture = underlyingFuture;
+    _quantity = quantity;
+    _referencePrice = referencePrice;
   }
 
   /**
@@ -52,8 +52,8 @@ public class BondFuturesTransaction implements InstrumentDerivative {
   }
 
   /**
-   * Gets the quantity of future. 
-   * @return The quantity of future. 
+   * Gets the quantity of future.
+   * @return The quantity of future.
    */
   public int getQuantity() {
     return _quantity;
@@ -90,7 +90,7 @@ public class BondFuturesTransaction implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -100,7 +100,7 @@ public class BondFuturesTransaction implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFuturesTransaction other = (BondFuturesTransaction) obj;
+    final BondFuturesTransaction other = (BondFuturesTransaction) obj;
     if (_quantity != other._quantity) {
       return false;
     }

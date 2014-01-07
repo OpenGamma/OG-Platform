@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatility
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.number.ComplexNumber;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GaussianFourierPricerTest {
   private static final Logger s_logger = LoggerFactory.getLogger(GaussianFourierPricerTest.class);
   private static final int WARMUP_CYCLES = 200;

@@ -31,6 +31,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -59,7 +60,7 @@ public class FXOptionBlackPnLSurfaceDefaults extends DefaultPropertyFunction {
       final String secondCurrency = surfaceNameByCurrencyPair[i + 1];
       ArgumentChecker.isFalse(firstCurrency.equals(secondCurrency), "The two currencies must not be equal; have {} and {}", firstCurrency, secondCurrency);
       final String surfaceName = surfaceNameByCurrencyPair[i + 2];
-      _surfaceNameByCurrencyPair.put(Pair.of(firstCurrency, secondCurrency), surfaceName);
+      _surfaceNameByCurrencyPair.put(Pairs.of(firstCurrency, secondCurrency), surfaceName);
     }
   }
 
@@ -79,11 +80,11 @@ public class FXOptionBlackPnLSurfaceDefaults extends DefaultPropertyFunction {
     }
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
-    final Pair<String, String> pair = Pair.of(putCurrency, callCurrency);
+    final Pair<String, String> pair = Pairs.of(putCurrency, callCurrency);
     if (_surfaceNameByCurrencyPair.containsKey(pair)) {
       return true;
     }
-    return _surfaceNameByCurrencyPair.containsKey(Pair.of(callCurrency, putCurrency));
+    return _surfaceNameByCurrencyPair.containsKey(Pairs.of(callCurrency, putCurrency));
   }
 
   @Override
@@ -109,11 +110,11 @@ public class FXOptionBlackPnLSurfaceDefaults extends DefaultPropertyFunction {
     final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
     final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      Pair<String, String> pair = Pair.of(putCurrency, callCurrency);
+      Pair<String, String> pair = Pairs.of(putCurrency, callCurrency);
       if (_surfaceNameByCurrencyPair.containsKey(pair)) {
         return Collections.singleton(_surfaceNameByCurrencyPair.get(pair));
       }
-      pair = Pair.of(callCurrency, putCurrency);
+      pair = Pairs.of(callCurrency, putCurrency);
       if (_surfaceNameByCurrencyPair.containsKey(pair)) {
         return Collections.singleton(_surfaceNameByCurrencyPair.get(pair));
       }

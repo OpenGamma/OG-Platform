@@ -7,7 +7,6 @@ package com.opengamma.financial.conversion;
 
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
@@ -15,26 +14,9 @@ import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.financial.security.cds.CDSIndexComponentBundle;
 import com.opengamma.financial.security.cds.CDSIndexTerms;
-import com.opengamma.financial.security.cds.CreditDefaultSwapIndexComponent;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
-import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -63,18 +45,13 @@ public final class JodaBeanConverters {
 
   private JodaBeanConverters() {
     StringConvert stringConvert = JodaBeanUtils.stringConverter();
-    stringConvert.register(Frequency.class, new FrequencyConverter());
-    stringConvert.register(DayCount.class, new DayCountConverter());
     stringConvert.register(ExternalIdBundle.class, new ExternalIdBundleConverter());
     stringConvert.register(Expiry.class, new ExpiryConverter());
-    stringConvert.register(ExerciseType.class, new ExerciseTypeConverter());
     stringConvert.register(Notional.class, new NotionalConverter());
-    stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
-    stringConvert.register(YieldConvention.class, new YieldConventionConverter());
     stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
     stringConvert.register(CDSIndexTerms.class, new CDSIndexTermsConverter());
   }
-  
+
   /**
    * Gets the singleton instance.
    * 
@@ -88,32 +65,6 @@ public final class JodaBeanConverters {
     @Override
     public String convertToString(T t) {
       return t.toString();
-    }
-  }
-
-  public static class FrequencyConverter implements StringConverter<Frequency> {
-
-    @Override
-    public String convertToString(Frequency frequency) {
-      return frequency.getConventionName();
-    }
-
-    @Override
-    public Frequency convertFromString(Class<? extends Frequency> cls, String conventionName) {
-      return SimpleFrequencyFactory.INSTANCE.getFrequency(conventionName);
-    }
-  }
-
-  public static class DayCountConverter implements StringConverter<DayCount> {
-
-    @Override
-    public String convertToString(DayCount dayCount) {
-      return dayCount.getConventionName();
-    }
-
-    @Override
-    public DayCount convertFromString(Class<? extends DayCount> cls, String conventionName) {
-      return DayCountFactory.INSTANCE.getDayCount(conventionName);
     }
   }
 
@@ -152,30 +103,6 @@ public final class JodaBeanConverters {
     }
   }
 
-  public static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
-
-    @Override
-    public String convertToString(ExerciseType exType) {
-      return exType.getName();
-    }
-
-    @Override
-    public ExerciseType convertFromString(Class<? extends ExerciseType> cls, String str) {
-      switch (str) {
-        case "American":
-          return new AmericanExerciseType();
-        case "Asian":
-          return new AsianExerciseType();
-        case "Bermudan":
-          return new BermudanExerciseType();
-        case "European":
-          return new EuropeanExerciseType();
-        default:
-          return new EuropeanExerciseType();
-      }
-    }
-  }
-
   private static class NotionalConverter extends AbstractConverter<Notional> {
 
     @Override
@@ -209,34 +136,6 @@ public final class JodaBeanConverters {
       }
       return null;
     }
-  }
-
-  public static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
-
-    @Override
-    public String convertToString(BusinessDayConvention object) {
-      return object.getConventionName();
-    }
-
-    @Override
-    public BusinessDayConvention convertFromString(Class<? extends BusinessDayConvention> cls, String str) {
-      return BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(str);
-    }
-    
-  }
-
-  public static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
-
-    @Override
-    public String convertToString(YieldConvention object) {
-      return object.getConventionName();
-    }
-
-    @Override
-    public YieldConvention convertFromString(Class<? extends YieldConvention> cls, String str) {
-      return YieldConventionFactory.INSTANCE.getYieldConvention(str);
-    }
-    
   }
 
   private static class BondFutureDeliverableConverter extends AbstractConverter<BondFutureDeliverable> {

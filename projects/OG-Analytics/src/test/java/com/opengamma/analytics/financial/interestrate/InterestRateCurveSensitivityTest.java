@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -21,24 +21,26 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Class to test the PresentValueSensitivity class.
+ *
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateCurveSensitivityTest {
 
-  private static final List<DoublesPair> SENSITIVITY_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
-  private static final List<DoublesPair> SENSITIVITY_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20), new DoublesPair(4, 10)});
-  private static final List<DoublesPair> SENSITIVITY_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20), new DoublesPair(14, 10)});
+  private static final List<DoublesPair> SENSITIVITY_DATA_1 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 10d), DoublesPair.of(2d, 20d), DoublesPair.of(3d, 30d), DoublesPair.of(4d, 40d)});
+  private static final List<DoublesPair> SENSITIVITY_DATA_2 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 40d), DoublesPair.of(2d, 30d), DoublesPair.of(3d, 20d), DoublesPair.of(4d, 10d)});
+  private static final List<DoublesPair> SENSITIVITY_DATA_3 = Arrays.asList(new DoublesPair[] {DoublesPair.of(11d, 40d), DoublesPair.of(12d, 30d), DoublesPair.of(13d, 20d), DoublesPair.of(14d, 10d)});
   private static final String CURVE_NAME_1 = "A";
   private static final String CURVE_NAME_2 = "B";
   private static final String CURVE_NAME_3 = "C";
-  private static final Map<String, List<DoublesPair>> SENSITIVITY_11 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<DoublesPair>> SENSITIVITY_12 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<DoublesPair>> SENSITIVITY_22 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<DoublesPair>> SENSITIVITY_33 = new HashMap<String, List<DoublesPair>>();
+  private static final Map<String, List<DoublesPair>> SENSITIVITY_11 = new HashMap<>();
+  private static final Map<String, List<DoublesPair>> SENSITIVITY_12 = new HashMap<>();
+  private static final Map<String, List<DoublesPair>> SENSITIVITY_22 = new HashMap<>();
+  private static final Map<String, List<DoublesPair>> SENSITIVITY_33 = new HashMap<>();
   private static final double EPS = 1e-12;
 
   static {
@@ -53,11 +55,10 @@ public class InterestRateCurveSensitivityTest {
     new InterestRateCurveSensitivity(null);
   }
 
-  //FIXME
-  //  @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testNullSensitivity2() {
-  //    InterestRateCurveSensitivity.of(null);
-  //  }
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSensitivity2() {
+    InterestRateCurveSensitivity.of(CURVE_NAME_1, null);
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveName() {
@@ -94,7 +95,7 @@ public class InterestRateCurveSensitivityTest {
     new InterestRateCurveSensitivity(SENSITIVITY_11).cleaned(-EPS, EPS);
   }
 
-  // FIXME 
+  // FIXME
   //  @Test(expectedExceptions = IllegalArgumentException.class)
   //  public void testCompareNull1() {
   //    InterestRateCurveSensitivity.compare(null, new InterestRateCurveSensitivity(), EPS);
@@ -138,7 +139,7 @@ public class InterestRateCurveSensitivityTest {
     // Simple add
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_22);
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     map.put(CURVE_NAME_1, SENSITIVITY_DATA_1);
     map.put(CURVE_NAME_2, SENSITIVITY_DATA_2);
     final InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(map);
@@ -152,13 +153,13 @@ public class InterestRateCurveSensitivityTest {
 
   @Test
   public void testPlusSameCurves() {
-    // Add on the same curve    
+    // Add on the same curve
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
-    final List<DoublesPair> data = new ArrayList<DoublesPair>();
+    final List<DoublesPair> data = new ArrayList<>();
     data.addAll(SENSITIVITY_DATA_1);
     data.addAll(SENSITIVITY_DATA_2);
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     map.put(CURVE_NAME_1, data);
     final InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(map);
     InterestRateCurveSensitivity actual = sensitivity1.plus(sensitivity2);
@@ -176,10 +177,10 @@ public class InterestRateCurveSensitivityTest {
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
     final InterestRateCurveSensitivity sensitivity3 = new InterestRateCurveSensitivity(SENSITIVITY_22);
     final InterestRateCurveSensitivity sensitivity4 = new InterestRateCurveSensitivity(SENSITIVITY_33);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.addAll(SENSITIVITY_DATA_1);
     list.addAll(SENSITIVITY_DATA_2);
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     map.put(CURVE_NAME_1, list);
     map.put(CURVE_NAME_2, SENSITIVITY_DATA_2);
     map.put(CURVE_NAME_3, SENSITIVITY_DATA_3);
@@ -197,21 +198,21 @@ public class InterestRateCurveSensitivityTest {
     final InterestRateCurveSensitivity sensitivity3 = new InterestRateCurveSensitivity(SENSITIVITY_22);
     final InterestRateCurveSensitivity sensitivity4 = new InterestRateCurveSensitivity(SENSITIVITY_33);
     final double factor = Math.random() - 1;
-    final List<DoublesPair> list1 = new ArrayList<DoublesPair>();
-    final List<DoublesPair> list2 = new ArrayList<DoublesPair>();
-    final List<DoublesPair> list3 = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list1 = new ArrayList<>();
+    final List<DoublesPair> list2 = new ArrayList<>();
+    final List<DoublesPair> list3 = new ArrayList<>();
     for (final DoublesPair pair : SENSITIVITY_DATA_1) {
-      list1.add(Pair.of(pair.first, pair.second * factor));
+      list1.add(DoublesPair.of(pair.first, pair.second * factor));
     }
     for (final DoublesPair pair : SENSITIVITY_DATA_2) {
-      final DoublesPair scaledPair = Pair.of(pair.first, pair.second * factor);
+      final DoublesPair scaledPair = DoublesPair.of(pair.first, pair.second * factor);
       list1.add(scaledPair);
       list2.add(scaledPair);
     }
     for (final DoublesPair pair : SENSITIVITY_DATA_3) {
-      list3.add(Pair.of(pair.first, pair.second * factor));
+      list3.add(DoublesPair.of(pair.first, pair.second * factor));
     }
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     map.put(CURVE_NAME_1, list1);
     map.put(CURVE_NAME_2, list2);
     map.put(CURVE_NAME_3, list3);
@@ -229,8 +230,8 @@ public class InterestRateCurveSensitivityTest {
   public void testCleanSameCurves() {
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
-    final List<DoublesPair> list = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> list = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 50d), DoublesPair.of(2d, 50d), DoublesPair.of(3d, 50d), DoublesPair.of(4d, 50d)});
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     map.put(CURVE_NAME_1, list);
     final InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(map);
     final InterestRateCurveSensitivity actualUncleaned = sensitivity1.plus(sensitivity2);
@@ -244,7 +245,7 @@ public class InterestRateCurveSensitivityTest {
   public void testCleanDifferentCurves() {
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_22);
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     map.put(CURVE_NAME_1, SENSITIVITY_DATA_1);
     map.put(CURVE_NAME_2, SENSITIVITY_DATA_2);
     final InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(map);
@@ -261,11 +262,11 @@ public class InterestRateCurveSensitivityTest {
     final double eps = 1e-3;
     final double eps2 = 5e-4;
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
-    final List<DoublesPair> fuzzyList = Arrays.asList(new DoublesPair[] {new DoublesPair(1, -10 - eps2), new DoublesPair(2, 30), new DoublesPair(3, -30 + eps2), new DoublesPair(4, 10)});
-    List<DoublesPair> expectedList = Arrays.asList(new DoublesPair[] {new DoublesPair(2, 50), new DoublesPair(4, 50)});
-    Map<String, List<DoublesPair>> expectedMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> fuzzyList = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, -10 - eps2), DoublesPair.of(2d, 30d), DoublesPair.of(3d, -30d + eps2), DoublesPair.of(4d, 10d)});
+    List<DoublesPair> expectedList = Arrays.asList(new DoublesPair[] {DoublesPair.of(2d, 50d), DoublesPair.of(4d, 50d)});
+    Map<String, List<DoublesPair>> expectedMap = new HashMap<>();
     expectedMap.put(CURVE_NAME_1, expectedList);
-    final Map<String, List<DoublesPair>> fuzzyMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> fuzzyMap = new HashMap<>();
     fuzzyMap.put(CURVE_NAME_1, fuzzyList);
     final InterestRateCurveSensitivity fuzzySensitivity = new InterestRateCurveSensitivity(fuzzyMap);
     InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(expectedMap);
@@ -274,8 +275,8 @@ public class InterestRateCurveSensitivityTest {
     assertFalse(actualUncleaned == actual);
     assertFalse(actualUncleaned.getSensitivities() == actual.getSensitivities());
     assertEquals(expected, actual);
-    expectedList = Arrays.asList(new DoublesPair[] {new DoublesPair(1, -eps2), new DoublesPair(2, 50), new DoublesPair(3, eps2), new DoublesPair(4, 50)});
-    expectedMap = new HashMap<String, List<DoublesPair>>();
+    expectedList = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, -eps2), DoublesPair.of(2d, 50d), DoublesPair.of(3d, eps2), DoublesPair.of(4d, 50d)});
+    expectedMap = new HashMap<>();
     expectedMap.put(CURVE_NAME_1, expectedList);
     expected = new InterestRateCurveSensitivity(expectedMap);
     actual = actualUncleaned.cleaned(eps / 1000, eps / 100);
@@ -288,11 +289,11 @@ public class InterestRateCurveSensitivityTest {
     final double eps = 1e-3;
     final double eps2 = 5e-4;
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(SENSITIVITY_11);
-    final List<DoublesPair> fuzzyList = Arrays.asList(new DoublesPair[] {new DoublesPair(1, -10 - 10 * eps2), new DoublesPair(2, 30), new DoublesPair(3, -30 + 30 * eps2), new DoublesPair(4, 10)});
-    List<DoublesPair> expectedList = Arrays.asList(new DoublesPair[] {new DoublesPair(2, 50), new DoublesPair(4, 50)});
-    Map<String, List<DoublesPair>> expectedMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> fuzzyList = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, -10d - 10 * eps2), DoublesPair.of(2d, 30d), DoublesPair.of(3d, -30d + 30 * eps2), DoublesPair.of(4d, 10d)});
+    List<DoublesPair> expectedList = Arrays.asList(new DoublesPair[] {DoublesPair.of(2d, 50d), DoublesPair.of(4d, 50d)});
+    Map<String, List<DoublesPair>> expectedMap = new HashMap<>();
     expectedMap.put(CURVE_NAME_1, expectedList);
-    final Map<String, List<DoublesPair>> fuzzyMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> fuzzyMap = new HashMap<>();
     fuzzyMap.put(CURVE_NAME_1, fuzzyList);
     final InterestRateCurveSensitivity fuzzySensitivity = new InterestRateCurveSensitivity(fuzzyMap);
     InterestRateCurveSensitivity expected = new InterestRateCurveSensitivity(expectedMap);
@@ -301,8 +302,8 @@ public class InterestRateCurveSensitivityTest {
     assertFalse(actualUncleaned == actual);
     assertFalse(actualUncleaned.getSensitivities() == actual.getSensitivities());
     assertEquals(expected, actual);
-    expectedList = Arrays.asList(new DoublesPair[] {new DoublesPair(1, -10 * eps2), new DoublesPair(2, 50), new DoublesPair(3, 30 * eps2), new DoublesPair(4, 50)});
-    expectedMap = new HashMap<String, List<DoublesPair>>();
+    expectedList = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, -10d * eps2), DoublesPair.of(2d, 50d), DoublesPair.of(3d, 30d * eps2), DoublesPair.of(4d, 50d)});
+    expectedMap = new HashMap<>();
     expectedMap.put(CURVE_NAME_1, expectedList);
     expected = new InterestRateCurveSensitivity(expectedMap);
     actual = actualUncleaned.cleaned(eps / 100, eps / 10);
@@ -317,7 +318,7 @@ public class InterestRateCurveSensitivityTest {
     final InterestRateCurveSensitivity sensitivity3 = new InterestRateCurveSensitivity(SENSITIVITY_22);
     final InterestRateCurveSensitivity sensitivity4 = new InterestRateCurveSensitivity(SENSITIVITY_33);
     final Map<String, Double> actual = sensitivity1.plus(sensitivity2).plus(sensitivity3).plus(sensitivity4).totalSensitivityByCurve();
-    final Map<String, Double> expected = new HashMap<String, Double>();
+    final Map<String, Double> expected = new HashMap<>();
     expected.put(CURVE_NAME_1, 200.);
     expected.put(CURVE_NAME_2, 100.);
     expected.put(CURVE_NAME_3, 100.);
@@ -338,16 +339,16 @@ public class InterestRateCurveSensitivityTest {
   @Test
   public void testCompareDifferentTimes() {
     AssertSensivityObjects.assertEquals("", new InterestRateCurveSensitivity(), new InterestRateCurveSensitivity(), EPS);
-    final TreeMap<String, List<DoublesPair>> sortedMap = new TreeMap<String, List<DoublesPair>>(SENSITIVITY_11);
+    final TreeMap<String, List<DoublesPair>> sortedMap = new TreeMap<>(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(sortedMap);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
     AssertSensivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity2, EPS);
     final Map<String, List<DoublesPair>> map = Maps.newTreeMap();
     final double eps = 1e-4;
     for (final Map.Entry<String, List<DoublesPair>> entry : sortedMap.entrySet()) {
-      final List<DoublesPair> list = new ArrayList<DoublesPair>();
+      final List<DoublesPair> list = new ArrayList<>();
       for (final DoublesPair pair : entry.getValue()) {
-        list.add(Pair.of(pair.first + 0.01 * eps, pair.second));
+        list.add(DoublesPair.of(pair.first + 0.01 * eps, pair.second));
       }
       map.put(entry.getKey(), list);
     }
@@ -359,16 +360,16 @@ public class InterestRateCurveSensitivityTest {
   @Test
   public void testCompareDifferentValues() {
     AssertSensivityObjects.assertEquals("", new InterestRateCurveSensitivity(), new InterestRateCurveSensitivity(), EPS);
-    final TreeMap<String, List<DoublesPair>> sortedMap = new TreeMap<String, List<DoublesPair>>(SENSITIVITY_11);
+    final TreeMap<String, List<DoublesPair>> sortedMap = new TreeMap<>(SENSITIVITY_11);
     final InterestRateCurveSensitivity sensitivity1 = new InterestRateCurveSensitivity(sortedMap);
     final InterestRateCurveSensitivity sensitivity2 = new InterestRateCurveSensitivity(SENSITIVITY_12);
     AssertSensivityObjects.assertDoesNotEqual("", sensitivity1, sensitivity2, EPS);
     final Map<String, List<DoublesPair>> map = Maps.newTreeMap();
     final double eps = 1e-4;
     for (final Map.Entry<String, List<DoublesPair>> entry : sortedMap.entrySet()) {
-      final List<DoublesPair> list = new ArrayList<DoublesPair>();
+      final List<DoublesPair> list = new ArrayList<>();
       for (final DoublesPair pair : entry.getValue()) {
-        list.add(Pair.of(pair.first, pair.second + 0.01 * eps));
+        list.add(DoublesPair.of(pair.first, pair.second + 0.01 * eps));
       }
       map.put(entry.getKey(), list);
     }
@@ -378,8 +379,8 @@ public class InterestRateCurveSensitivityTest {
   }
 
   private void assertIRCSEquals(final InterestRateCurveSensitivity expected, final InterestRateCurveSensitivity actual) {
-    final Iterator<Map.Entry<String, List<DoublesPair>>> expectedIterator = new TreeMap<String, List<DoublesPair>>(expected.getSensitivities()).entrySet().iterator();
-    final Iterator<Map.Entry<String, List<DoublesPair>>> actualIterator = new TreeMap<String, List<DoublesPair>>(actual.getSensitivities()).entrySet().iterator();
+    final Iterator<Map.Entry<String, List<DoublesPair>>> expectedIterator = new TreeMap<>(expected.getSensitivities()).entrySet().iterator();
+    final Iterator<Map.Entry<String, List<DoublesPair>>> actualIterator = new TreeMap<>(actual.getSensitivities()).entrySet().iterator();
     do {
       final Map.Entry<String, List<DoublesPair>> expectedEntry = expectedIterator.next();
       final Map.Entry<String, List<DoublesPair>> actualEntry = actualIterator.next();

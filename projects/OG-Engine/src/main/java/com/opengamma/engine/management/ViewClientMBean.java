@@ -9,7 +9,6 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 
 /**
  * A management bean for a {@link ViewClient} 
@@ -29,7 +28,7 @@ public interface ViewClientMBean {
    * 
    * @return the user, not null
    */
-  UserPrincipal getUser();
+  String getUser();
   
   /**
    * Gets the state of this view client.

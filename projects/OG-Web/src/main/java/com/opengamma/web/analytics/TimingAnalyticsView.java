@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -43,6 +44,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public String viewCompilationFailed(Throwable t) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.viewCompilationFailed");
+    String retVal = _delegate.viewCompilationFailed(t);
+    s_logger.trace("viewCompilationFailed completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results,
                                     ViewCycle viewCycle) {
     long startTime = System.currentTimeMillis();
@@ -53,10 +63,19 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getGridStructure");
-    GridStructure retVal = _delegate.getGridStructure(gridType);
+    GridStructure retVal = _delegate.getGridStructure(gridType, viewportId);
+    s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getGridStructure");
+    GridStructure retVal = _delegate.getInitialGridStructure(gridType);
     s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
@@ -66,10 +85,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                 GridType gridType,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.createViewport");
-    boolean retVal = _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+    boolean retVal = _delegate.createViewport(requestId, gridType, viewportId, callbackId, structureCallbackId, viewportDefinition);
     s_logger.trace("createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
@@ -113,6 +133,19 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public void openDependencyGraph(int requestId,
+                                  GridType gridType,
+                                  int graphId,
+                                  String callbackId,
+                                  String calcConfigName,
+                                  ValueRequirement valueRequirement) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.openDependencyGraph");
+    _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
+    s_logger.trace("openDependencyGraph completed in " + (System.currentTimeMillis() - startTime) + "ms");
+  }
+
+  @Override
   public void closeDependencyGraph(GridType gridType, int graphId) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.closeDependencyGraph");
@@ -121,10 +154,19 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getGridStructure");
-    GridStructure retVal = _delegate.getGridStructure(gridType, graphId);
+    GridStructure retVal = _delegate.getGridStructure(gridType, graphId, viewportId);
+    s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getGridStructure");
+    GridStructure retVal = _delegate.getInitialGridStructure(gridType, graphId);
     s_logger.trace("getGridStructure completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
@@ -135,6 +177,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                 int graphId,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.createViewport");
@@ -143,6 +186,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
                                               graphId,
                                               viewportId,
                                               callbackId,
+                                              structureCallbackId,
                                               viewportDefinition);
     s_logger.trace("createViewport completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
@@ -215,5 +259,21 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
     s_logger.trace("getViewDefinitionId completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
-  
+
+  @Override
+  public List<ErrorInfo> getErrors() {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getError");
+    List<ErrorInfo> retVal = _delegate.getErrors();
+    s_logger.trace("getError completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public void deleteError(long id) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.deleteError");
+    _delegate.deleteError(id);
+    s_logger.trace("deleteError completed in " + (System.currentTimeMillis() - startTime) + "ms");
+  }
 }

@@ -158,27 +158,12 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
    * @param underlyingTimeSeries Time series of underlying observations, not null
    * @param yieldCurveNames Not used
    * @return VarianceSwap derivative as of date
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(valueDate, "date");
-    ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
-    final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
-    final double timeToObsEnd = TimeCalculator.getTimeBetween(valueDate, _obsEndDate);
-    final double timeToSettlement = TimeCalculator.getTimeBetween(valueDate, _settlementDate);
-    DoubleTimeSeries<LocalDate> realizedTS;
-    if (timeToObsStart > 0) {
-      realizedTS = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
-    } else {
-      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
-    }
-    final double[] observations = realizedTS.valuesArrayFast();
-    final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.toLocalDate(), valueDate.toLocalDate(), _calendar, _obsFreq);
-    final int nObsDisrupted = nGoodBusinessDays - observations.length;
-    ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
-    return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, _varStrike, _varNotional, _currency, _annualizationFactor, _nObsExpected, nObsDisrupted,
-        observations, observationWeights);
+    return toDerivative(valueDate, underlyingTimeSeries);
   }
 
   /**

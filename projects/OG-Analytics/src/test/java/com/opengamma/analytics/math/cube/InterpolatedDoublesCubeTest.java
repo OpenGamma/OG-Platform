@@ -15,12 +15,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.InterpolatorND;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedDoublesCubeTest extends DoublesCubeTest {
   @SuppressWarnings("synthetic-access")
   private static final MyInterpolator INTERPOLATOR = new MyInterpolator();
@@ -113,8 +115,8 @@ public class InterpolatedDoublesCubeTest extends DoublesCubeTest {
     final double eps = 1e-15;
     assertEquals(CUBE.getValue(0., 1., 2.6), 2.6, eps);
     assertEquals(CUBE.getValue(3., 0., 0.01), 0.01, eps);
-    assertEquals(CUBE.getValue(new Triple<Double, Double, Double>(0., 1., 2.6)), 2.6, eps);
-    assertEquals(CUBE.getValue(new Triple<Double, Double, Double>(3., 0., 0.01)), 0.01, eps);
+    assertEquals(CUBE.getValue(new Triple<>(0., 1., 2.6)), 2.6, eps);
+    assertEquals(CUBE.getValue(new Triple<>(3., 0., 0.01)), 0.01, eps);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -51,6 +51,7 @@
     snp_snapshot main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
+    main.@VALUE(:sort_order),
     main.id
 
 
@@ -63,6 +64,7 @@
       snp_snapshot
     @INCLUDE(SearchWhere)
     ORDER BY
+      @VALUE(:sort_order),
       snp_snapshot.id
 
 
@@ -82,7 +84,7 @@
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
 
 
 -- ==========================================================================

@@ -6,12 +6,11 @@
 package com.opengamma.engine.function.resolver;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 
 /**
  * Computation target filter that applies to all nodes in the dependency graph.
  */
-public final class ApplyToAllTargets extends ComputationTargetFilter {
+public final class ApplyToAllTargets implements ComputationTargetFilter {
 
   /**
    * Standard instance, singleton not enforced.
@@ -19,25 +18,18 @@ public final class ApplyToAllTargets extends ComputationTargetFilter {
   public static final ApplyToAllTargets INSTANCE = new ApplyToAllTargets();
 
   /**
-   * Creates an instance.
-   * Use the static constant where possible.
+   * Creates an instance. Use the static constant where possible.
    */
   public ApplyToAllTargets() {
-    super(null);
   }
 
   @Override
-  protected boolean accept(ComputationTargetSpecification target) {
-    return accept((ComputationTarget) null);
-  }
-
-  @Override
-  public boolean accept(ComputationTarget target) {
+  public boolean accept(final ComputationTarget target) {
     return true;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     return obj instanceof ApplyToAllTargets;
   }
 

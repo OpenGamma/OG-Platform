@@ -8,11 +8,13 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util, cds_select,
-            cds_id = 'blotter-cds-block', prefix = 'underlying';
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {
-                data = {security: {type: 'CreditDefaultSwapOptionSecurity', externalIdBundle: "", attributes: {}}, 
-                trade: util.otc_trade, underlying: {attributes: {}}};
+                cds_id = 'blotter-cds-block', prefix = 'underlying';
+            if (config.details) {
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
+            } else {
+                data = {security: {type: 'CreditDefaultSwapOptionSecurity', externalIdBundle: "", attributes: {}},
+                    trade: util.otc_trade, underlying: {attributes: {}}};
             }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
@@ -77,24 +79,17 @@ $.register_module({
             };
             swap_cds = function (cds) {
                 var new_block;
-                if(!cds.type.length) {
-                    new_block = new form.Block({content:"<div id='" + cds_id + "'></div>"});
+                if (!cds.type.length) {
+                    new_block = new form.Block({content: "<div id='" + cds_id + "'></div>"});
                 } else {
-                    var standard = ~['StandardFixedRecoveryCDSSecurity', 'StandardVanillaCDSSecurity',
-                            'StandardRecoveryLockCDSSecurity'].indexOf(cds.type),
-                        legacy = ~['LegacyFixedRecoveryCDSSecurity', 'LegacyRecoveryLockCDSSecurity', 
-                            'LegacyVanillaCDSSecurity'].indexOf(cds.type),
-                        stdvanilla = ~cds.type.indexOf('StandardVanillaCDSSecurity'), 
-                        index = ~cds.type.indexOf('CreditDefaultSwapIndexSecurity'); 
-                    new_block = new og.blotter.forms.blocks.cds({form: form, data: data, standard: standard, 
-                        stdvanilla: stdvanilla, legacy: legacy, index: index, prefix: prefix});
+                    new_block = new og.blotter.forms.blocks.cds({form: form, data: data, prefix: prefix,
+                                                                    type: cds.type});
                 }
                 new_block.html(function (html) {
                     $('#' + cds_id).replaceWith(html);
                     util.set_cds_data(prefix, data);
                 });
                 form.children[2] = new_block;
-                
             };
             constructor.load();
             constructor.submit = function (handler) {

@@ -13,10 +13,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CombinedInterpolatorExtrapolatorTest {
   private static final LinearInterpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final FlatExtrapolator1D LEFT_EXTRAPOLATOR = new FlatExtrapolator1D();
@@ -26,8 +28,7 @@ public class CombinedInterpolatorExtrapolatorTest {
   private static final Interpolator1DDataBundle DATA;
   private static final CombinedInterpolatorExtrapolator COMBINED1 = new CombinedInterpolatorExtrapolator(INTERPOLATOR);
   private static final CombinedInterpolatorExtrapolator COMBINED2 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR);
-  private static final CombinedInterpolatorExtrapolator COMBINED3 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR,
-      RIGHT_EXTRAPOLATOR);
+  private static final CombinedInterpolatorExtrapolator COMBINED3 = new CombinedInterpolatorExtrapolator(INTERPOLATOR, LEFT_EXTRAPOLATOR, RIGHT_EXTRAPOLATOR);
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
@@ -135,5 +136,12 @@ public class CombinedInterpolatorExtrapolatorTest {
     assertEquals(COMBINED3.interpolate(DATA, x), F.evaluate(x), 1e-15);
     assertEquals(COMBINED3.interpolate(DATA, x - 100), F.evaluate(0.), 1e-15);
     assertEquals(COMBINED3.interpolate(DATA, x + 100), F.evaluate(x + 100), 1e-5);
+  }
+
+  @Test
+  public void testBoundary() {
+    for (final double value : X) {
+      assertEquals("dy/dx at " + value, 3d, COMBINED3.firstDerivative(DATA, value), 1e-4);
+    }
   }
 }

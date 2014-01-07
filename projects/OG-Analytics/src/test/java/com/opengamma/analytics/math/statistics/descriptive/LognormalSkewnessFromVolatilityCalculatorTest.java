@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LognormalSkewnessFromVolatilityCalculatorTest {
   private static final Function2D<Double, Double> F = new LognormalSkewnessFromVolatilityCalculator();
   private static final double SIGMA = 0.3;

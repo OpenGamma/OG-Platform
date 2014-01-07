@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -14,11 +14,14 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.discounting.DiscountingPVFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
- * 
+ * Function that calculated the present value.
+ * @deprecated Use {@link DiscountingPVFunction}
  */
+@Deprecated
 public class InterestRateInstrumentPresentValueFunction extends InterestRateInstrumentFunction {
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
 

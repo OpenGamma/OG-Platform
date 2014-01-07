@@ -5,59 +5,34 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
-import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import com.opengamma.component.tool.AbstractComponentTool;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter.Mode;
+import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.resource.EngineResourceReference;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.cycle.ViewCycle;
-import com.opengamma.engine.view.cycle.ViewCycleMetadata;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.financial.tool.marketdata.MarketDataSnapshotSaver;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
-import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigSearchIterator;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -65,21 +40,29 @@ import com.opengamma.scripts.Scriptable;
  * The entry point for running OpenGamma batches.
  */
 @Scriptable
-public class MarketDataSnapshotTool extends AbstractComponentTool {
+public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotTool.class);
 
-  /** Logging command line option. */
+  /** Snapshot name command line option. */
+  private static final String SNAPSHOT_NAME_OPTION = "s";
+  /** View name command line option. */
   private static final String VIEW_NAME_OPTION = "v";
+  /** Existing view process unique identifier option. */
+  private static final String VIEW_PROCESS_ID_OPTION = "p";
   /** Valuation time command line option. */
   private static final String VALUATION_TIME_OPTION = "t";
   /** Take data from historical timeseries */
   private static final String HISTORICAL_OPTION = "historical";
+  /** Take an unstructured only snapshot */
+  private static final String UNSTRUCTURED_OPTION = "u";
   /** Time format: yyyyMMdd */
   private static final DateTimeFormatter VALUATION_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
 
   private static final List<String> DEFAULT_PREFERRED_CLASSIFIERS = Arrays.asList("central", "main", "default", "shared", "combined");
+
+  private static ToolContext s_context;
 
   //-------------------------------------------------------------------------
   /**
@@ -88,91 +71,112 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new MarketDataSnapshotTool().initAndRun(args);
+    final boolean success = new MarketDataSnapshotTool().initAndRun(args, ToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
   @Override
   protected void doRun() throws Exception {
-    // REVIEW jonathan 2012-05-16 -- refactored to use AbstractComponentTool but retained the original logic. However,
-    // this needs some work:
-    // 
-    //  - the RemoteComponentFactory is probably the way forward for tools, but we need to identify the main instance
-    //    of the components rather than iterating over everything there
-    //  - it's not clear how many snapshots will be created because of the above, but only one will be saved
-    //  - since only one snapshot is eventually saved, no point creating multiple or using executor service
-    //  - needs to do some logging in the normal case to provide feedback about what's happening
-    //  - searching by view definition _name_ may not be unique enough or may pull out a deleted view definition
-
-    final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
-
-    final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
-    Instant valuationInstant;
-    if (!StringUtils.isBlank(valuationTimeArg)) {
-      final LocalTime valuationTime = LocalTime.parse(valuationTimeArg, VALUATION_TIME_FORMATTER);
-      valuationInstant = ZonedDateTime.now().with(valuationTime.truncatedTo(SECONDS)).toInstant();
-    } else {
-      valuationInstant = Instant.now();
-    }
-    final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
-
-    final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
-    final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecification, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
-
-    final List<RemoteViewProcessor> viewProcessors = getRemoteComponentFactory().getViewProcessors();
-    if (viewProcessors.size() == 0) {
-      s_logger.warn("No view processors found at {}", getRemoteComponentFactory().getBaseUri());
+    s_context = getToolContext();
+    
+    final RemoteViewProcessor viewProcessor = (RemoteViewProcessor) s_context.getViewProcessor();
+    if (viewProcessor == null) {
+      s_logger.warn("No view processors found at {}", s_context);
       return;
     }
-    final MarketDataSnapshotMaster marketDataSnapshotMaster = getRemoteComponentFactory().getMarketDataSnapshotMaster(DEFAULT_PREFERRED_CLASSIFIERS);
+    final MarketDataSnapshotMaster marketDataSnapshotMaster = s_context.getMarketDataSnapshotMaster();
     if (marketDataSnapshotMaster == null) {
-      s_logger.warn("No market data snapshot masters found at {}", getRemoteComponentFactory().getBaseUri());
+      s_logger.warn("No market data snapshot masters found at {}", s_context);
       return;
     }
-    final Collection<ConfigMaster> configMasters = getRemoteComponentFactory().getConfigMasters().values();
-    if (configMasters.size() == 0) {
-      s_logger.warn("No config masters found at {}", getRemoteComponentFactory().getBaseUri());
-      return;
+    final MarketDataSnapshotter marketDataSnapshotter;
+    if (getCommandLine().hasOption(UNSTRUCTURED_OPTION)) {
+      marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter(Mode.UNSTRUCTURED);
+    } else {
+      marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter(Mode.STRUCTURED);
     }
+    final MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster);
 
-    final int cores = Math.max(1, Runtime.getRuntime().availableProcessors());
-    final ExecutorService executor = Executors.newFixedThreadPool(cores);
-
-    final RemoteViewProcessor viewProcessor = viewProcessors.get(0);
-    final MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
-    FutureTask<List<StructuredMarketDataSnapshot>> task = null;
-    for (final ConfigMaster configMaster : configMasters) {
-      final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
-      request.setName(viewDefinitionName);
-      for (final ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
-        task = new FutureTask<List<StructuredMarketDataSnapshot>>(new SingleSnapshotter(marketDataSnapshotter, viewProcessor, (ViewDefinition) doc.getConfig().getValue(), viewExecutionOptions, task));
-        executor.execute(task);
+    if (getCommandLine().hasOption(VIEW_PROCESS_ID_OPTION)) {
+      final UniqueId viewProcessId = UniqueId.parse(getCommandLine().getOptionValue(VIEW_PROCESS_ID_OPTION));
+      s_logger.info("Creating snapshot from existing view process " + viewProcessId);
+      try {
+        snapshotSaver.createSnapshot(null, viewProcessId);
+      } catch (Exception e) {
+        endWithError(e.getMessage());
       }
-    }
-
-    if (task != null) {
-      for (final StructuredMarketDataSnapshot snapshot : task.get()) {
-        final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
-        manageableMarketDataSnapshot.setName(snapshot.getBasisViewName() + "/" + valuationInstant);
-        marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
+    } else {
+      final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
+      final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
+      Instant valuationInstant;
+      if (!StringUtils.isBlank(valuationTimeArg)) {
+        final LocalTime valuationTime = LocalTime.parse(valuationTimeArg, VALUATION_TIME_FORMATTER);
+        valuationInstant = ZonedDateTime.now().with(valuationTime.truncatedTo(SECONDS)).toInstant();
+      } else {
+        valuationInstant = Instant.now();
+      }
+      final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
+  
+      s_logger.info("Creating snapshot for view definition " + viewDefinitionName);
+      final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
+      try {
+        
+        String snapshotName;
+        if (getCommandLine().hasOption(SNAPSHOT_NAME_OPTION)) {
+          snapshotName = getCommandLine().getOptionValue(SNAPSHOT_NAME_OPTION);
+        } else {
+          snapshotName = viewDefinitionName + "/" + valuationInstant;
+        }
+        
+        snapshotSaver.createSnapshot(snapshotName, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
+      } catch (Exception e) {
+        endWithError(e.getMessage());
       }
     }
   }
 
+  private void endWithError(String message, Object... messageArgs) {
+    String formattedMessage = format(message, messageArgs);
+    System.err.println(formattedMessage);
+    s_logger.error(formattedMessage);
+    System.exit(1);
+  }
+
   //-------------------------------------------------------------------------
   @Override
-  protected Options createOptions() {
-    final Options options = super.createOptions();
-    options.addOption(createViewNameOption());
+  protected Options createOptions(boolean mandatoryConfig) {
+    final Options options = super.createOptions(mandatoryConfig);
+    options.addOptionGroup(createViewOptionGroup());
+    options.addOption(createSnapshotNameOption());
     options.addOption(createValuationTimeOption());
     options.addOption(createHistoricalOption());
+    options.addOption(createUnstructuredSnapshot());
     return options;
+  }
+  
+  private static OptionGroup createViewOptionGroup() {
+    final OptionGroup optionGroup = new OptionGroup();
+    optionGroup.addOption(createViewNameOption());
+    optionGroup.addOption(createViewProcessIdOption());
+    optionGroup.setRequired(true);
+    return optionGroup;
   }
 
   private static Option createViewNameOption() {
     final Option option = new Option(VIEW_NAME_OPTION, "viewName", true, "the view definition name");
     option.setArgName("view name");
-    option.setRequired(true);
+    return option;
+  }
+  
+  private static Option createSnapshotNameOption() {
+    final Option option = new Option(SNAPSHOT_NAME_OPTION, "snapshotName", true, "the name to use when persisting the snapshot. (defaults to '<view name>/<valuation time>' )");
+    option.setArgName("snapshot name");
+    return option;
+  }
+  
+  private static Option createViewProcessIdOption() {
+    final Option option = new Option(VIEW_PROCESS_ID_OPTION, "viewProcessId", true, "the unique identifier of an existing view process");
+    option.setArgName("unique identifier");
     return option;
   }
 
@@ -183,108 +187,11 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
   }
 
   private static Option createHistoricalOption() {
-    final Option option = new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
-    return option;
+    return new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
   }
-
-  //-------------------------------------------------------------------------
-  private static StructuredMarketDataSnapshot makeSnapshot(final MarketDataSnapshotter marketDataSnapshotter,
-      final ViewProcessor viewProcessor, final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
-    final ViewClient vc = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    vc.setResultListener(new ViewResultListener() {
-      @Override
-      public UserPrincipal getUser() {
-        String ipAddress;
-        try {
-          ipAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (final UnknownHostException e) {
-          ipAddress = "unknown";
-        }
-        return new UserPrincipal("MarketDataSnapshotterTool", ipAddress);
-      }
-
-      @Override
-      public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      }
-
-      @Override
-      public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void cycleStarted(final ViewCycleMetadata cycleMetadata) {
-      }
-
-      @Override
-      public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDeltaResultModel deltaFragment) {
-      }
-
-      @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        s_logger.info("cycle completed");
-      }
-
-      @Override
-      public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void processCompleted() {
-      }
-
-      @Override
-      public void processTerminated(final boolean executionInterrupted) {
-      }
-
-      @Override
-      public void clientShutdown(final Exception e) {
-      }
-    });
-    vc.setViewCycleAccessSupported(true);
-    vc.attachToViewProcess(viewDefinition.getUniqueId(), viewExecutionOptions);
-
-    vc.waitForCompletion();
-    vc.pause();
-    EngineResourceReference<? extends ViewCycle> cycleReference = null;
-    try {
-      cycleReference = vc.createLatestCycleReference();
-      return marketDataSnapshotter.createSnapshot(vc, cycleReference.get());
-    } finally {
-      cycleReference.release();
-      vc.shutdown();
-    }
-  }
-
-  private static class SingleSnapshotter implements Callable<List<StructuredMarketDataSnapshot>> {
-    private final ViewDefinition _viewDefinition;
-    private final MarketDataSnapshotter _marketDataSnapshotter;
-    private final ViewProcessor _viewProcessor;
-    private final ViewExecutionOptions _viewExecutionOptions;
-    private final FutureTask<List<StructuredMarketDataSnapshot>> _prev;
-
-    SingleSnapshotter(final MarketDataSnapshotter marketDataSnapshotter, final ViewProcessor viewProcessor,
-        final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions, final FutureTask<List<StructuredMarketDataSnapshot>> prev) {
-      _marketDataSnapshotter = marketDataSnapshotter;
-      _viewProcessor = viewProcessor;
-      _viewExecutionOptions = viewExecutionOptions;
-      _viewDefinition = viewDefinition;
-      _prev = prev;
-    }
-
-    @Override
-    public List<StructuredMarketDataSnapshot> call() throws Exception {
-      final StructuredMarketDataSnapshot snapshot = makeSnapshot(_marketDataSnapshotter, _viewProcessor, _viewDefinition, _viewExecutionOptions);
-      if (_prev == null) {
-        return newArrayList(snapshot);
-      } else {
-        _prev.get();
-        final List<StructuredMarketDataSnapshot> result = newArrayList(snapshot);
-        result.addAll(_prev.get());
-        return result;
-      }
-    }
+  
+  private static Option createUnstructuredSnapshot() {
+    return new Option(UNSTRUCTURED_OPTION, "unstructured", false, "if set, do not capture structures and include data for those in unstructured section");
   }
 
 }

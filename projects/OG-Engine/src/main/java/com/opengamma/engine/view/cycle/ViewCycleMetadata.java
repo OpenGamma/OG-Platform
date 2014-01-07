@@ -82,4 +82,11 @@ public interface ViewCycleMetadata {
    */
   UniqueId getViewDefinitionId();
   
+  /**
+   * Gets the name of the view cycle, if one is defined
+   * 
+   * @return the name of the view cycle. Can be null.
+   */
+  String getName();
+  
 }

@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ActualThreeSixtyFive.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualThreeSixtyFiveTest extends DayCountTestCase {
 
   private static final ActualThreeSixtyFive DC = new ActualThreeSixtyFive();
@@ -25,7 +27,7 @@ public class ActualThreeSixtyFiveTest extends DayCountTestCase {
   @Test
   public void test() {
     assertEquals(COUPON * DC.getDayCountFraction(D1, D2), DC.getAccruedInterest(D1, D2, D3, COUPON, PAYMENTS), 0);
-    assertEquals(DC.getConventionName(), "Actual/365");
+    assertEquals(DC.getName(), "Actual/365");
   }
 
 }

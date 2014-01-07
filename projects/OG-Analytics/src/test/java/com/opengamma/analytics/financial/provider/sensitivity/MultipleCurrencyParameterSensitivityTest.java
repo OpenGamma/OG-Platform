@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity;
@@ -24,11 +24,14 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to ParameterSensitivity manipulations.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultipleCurrencyParameterSensitivityTest {
 
   private static final OGMatrixAlgebra MATRIX = MatrixAlgebraFactory.OG_ALGEBRA;
@@ -37,10 +40,10 @@ public class MultipleCurrencyParameterSensitivityTest {
   private static final DoubleMatrix1D SENSITIVITY_2_1 = new DoubleMatrix1D(5.0, 1.0, 2.0, 5.0, 1.5);
   private static final String NAME_1 = "Name1";
   private static final String NAME_2 = "Name2";
-  private static final Pair<String, Currency> NAME_1_USD = Pair.of(NAME_1, USD);
-  private static final Pair<String, Currency> NAME_1_EUR = Pair.of(NAME_1, EUR);
-  private static final Pair<String, Currency> NAME_2_USD = Pair.of(NAME_2, USD);
-  private static final Pair<String, Currency> NAME_2_EUR = Pair.of(NAME_2, EUR);
+  private static final Pair<String, Currency> NAME_1_USD = Pairs.of(NAME_1, USD);
+  private static final Pair<String, Currency> NAME_1_EUR = Pairs.of(NAME_1, EUR);
+  private static final Pair<String, Currency> NAME_2_USD = Pairs.of(NAME_2, USD);
+  private static final Pair<String, Currency> NAME_2_EUR = Pairs.of(NAME_2, EUR);
 
   private static final double TOLERANCE = 1.0E-5;
 
@@ -86,7 +89,7 @@ public class MultipleCurrencyParameterSensitivityTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testAddToUnmodifiableMap() {
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<>();
     map.put(NAME_1_EUR, SENSITIVITY_1_1);
     final MultipleCurrencyParameterSensitivity sensitivities = MultipleCurrencyParameterSensitivity.of(map);
     final Map<Pair<String, Currency>, DoubleMatrix1D> unmodifiable = sensitivities.getSensitivities();
@@ -105,7 +108,7 @@ public class MultipleCurrencyParameterSensitivityTest {
 
   @Test
   public void testObject() {
-    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<>();
     map.put(NAME_1_EUR, SENSITIVITY_1_1);
     final MultipleCurrencyParameterSensitivity sensitivity = new MultipleCurrencyParameterSensitivity(map);
     assertFalse(sensitivity.getSensitivities() == map);
@@ -116,7 +119,7 @@ public class MultipleCurrencyParameterSensitivityTest {
     MultipleCurrencyParameterSensitivity other = new MultipleCurrencyParameterSensitivity(map);
     assertEquals(sensitivity, other);
     assertEquals(sensitivity.hashCode(), other.hashCode());
-    map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    map = new LinkedHashMap<>();
     assertFalse(sensitivity.getSensitivities().equals(map));
     map.put(NAME_1_EUR, SENSITIVITY_1_1);
     other = new MultipleCurrencyParameterSensitivity(map);

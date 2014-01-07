@@ -10,7 +10,6 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
@@ -105,11 +104,10 @@ public class ForwardCurve {
   protected static Curve<Double, Double> getForwardCurve(final double spot, final YieldAndDiscountCurve riskFreeCurve, final YieldAndDiscountCurve costOfCarryCurve) {
     ArgumentChecker.notNull(riskFreeCurve, "risk-free curve");
     ArgumentChecker.notNull(costOfCarryCurve, "cost-of-carry curve");
-    final Function<Double, Double> f = new Function<Double, Double>() {
+    final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double... x) {
-        final double t = x[0];
+      public Double evaluate(final Double t) {
         return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
       }
 
@@ -201,11 +199,11 @@ public class ForwardCurve {
   public ForwardCurve withFractionalShift(final double shift) {
     ArgumentChecker.isTrue(shift > -1, "shift must be > -1");
 
-    final Function<Double, Double> func = new Function<Double, Double>() {
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(final Double... t) {
-        return (1 + shift) * _fwdCurve.getYValue(t[0]);
+      public Double evaluate(final Double t) {
+        return (1 + shift) * _fwdCurve.getYValue(t);
       }
     };
     return new ForwardCurve(FunctionalDoublesCurve.from(func), _drift);

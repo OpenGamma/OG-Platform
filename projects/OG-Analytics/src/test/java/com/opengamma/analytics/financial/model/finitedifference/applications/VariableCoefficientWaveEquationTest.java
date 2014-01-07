@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
@@ -25,10 +25,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VariableCoefficientWaveEquationTest {
 
   private static final Surface<Double, Double, Double> A = ConstantDoublesSurface.from(-0.01);
@@ -52,7 +54,7 @@ public class VariableCoefficientWaveEquationTest {
     final Function1D<Double, Double> initial = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return Math.exp(-100 * (x - 1) * (x - 1));
       }
     };
@@ -60,21 +62,21 @@ public class VariableCoefficientWaveEquationTest {
     B = FunctionalDoublesSurface.from(b);
     COEFF = new ConvectionDiffusionPDE1DStandardCoefficients(A, B, C);
 
-    //Trefethen uses periodic boundary conditions 
+    //Trefethen uses periodic boundary conditions
     LOWER = new DirichletBoundaryCondition(0, 0);
     UPPER = new DirichletBoundaryCondition(0, 2 * Math.PI);
 
-    int spaceSteps = 100;
-    double h = 2 * Math.PI / spaceSteps;
-    double dt = h / 2;
-    double tMax = 8;
-    int timeSteps = (int) (tMax / dt);
+    final int spaceSteps = 100;
+    final double h = 2 * Math.PI / spaceSteps;
+    final double dt = h / 2;
+    final double tMax = 8;
+    final int timeSteps = (int) (tMax / dt);
 
     final MeshingFunction timeMesh = new ExponentialMeshing(0, tMax, timeSteps + 1, 0);
     final MeshingFunction spaceMesh = new ExponentialMeshing(LOWER.getLevel(), UPPER.getLevel(), spaceSteps + 1, 0);//new HyperbolicMeshing(LOWER.getLevel(), UPPER.getLevel(), 1.0, spaceSteps + 1, 1.0);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    DATA = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(COEFF, initial, LOWER, UPPER, grid);
+    DATA = new PDE1DDataBundle<>(COEFF, initial, LOWER, UPPER, grid);
   }
 
   @Test
@@ -82,7 +84,7 @@ public class VariableCoefficientWaveEquationTest {
       public void test() {
 
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(1.0, true);
-    PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(DATA);
     PDEUtilityTools.printSurface("wave", res);
   }
 }

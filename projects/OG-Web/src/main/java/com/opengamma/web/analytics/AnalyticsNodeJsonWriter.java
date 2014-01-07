@@ -42,7 +42,7 @@ public class AnalyticsNodeJsonWriter {
       return new Object[0];
     }
     Object[] nodeArray;
-    if (node.isCollapseByDefault()) {
+    if (node.isCollapsed()) {
       nodeArray = new Object[4];
       nodeArray[3] = 1;
     } else {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
@@ -25,13 +23,16 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.SABRExtrapolationRightFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class used to compute the price and sensitivity of a cash-settled European swaption with SABR model and extrapolation to the right. 
+ * Class used to compute the price and sensitivity of a cash-settled European swaption with SABR model and extrapolation to the right.
  * Implemented only for the SABRHaganVolatilityFunction.
  * OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborSABRExtrapolationRightMethod}
  */
+@Deprecated
 public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
 
   /**
@@ -66,8 +67,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
    * @return The present value.
    */
   public double presentValue(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
-    Validate.notNull(swaption);
-    Validate.notNull(sabrData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "SARB data");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
@@ -82,7 +83,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
       final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(swaption);
       price = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
       final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -101,8 +102,8 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueSensitivity(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
-    Validate.notNull(swaption);
-    Validate.notNull(sabrData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "SARB data");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     // Derivative of the forward with respect to the rates.
@@ -115,12 +116,12 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
     final double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final double dfDr = -swaption.getSettlementTime() * discountFactorSettle;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
-    list.add(new DoublesPair(swaption.getSettlementTime(), dfDr));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> list = new ArrayList<>();
+    list.add(DoublesPair.of(swaption.getSettlementTime(), dfDr));
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(discountCurveName, list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
@@ -143,15 +144,15 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethod {
    * @return The present value SABR sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
-    Validate.notNull(swaption);
-    Validate.notNull(sabrData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "SABR data");
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
     final double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
     final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
     final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -17,10 +17,11 @@ import com.opengamma.util.ArgumentChecker;
  * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
  * One extra node with value zero is added at the mid point between the first and second point. This extra anchor is required when two translation invariant curves descriptions
  * are added in a spread curve (two translations would create a singular system).
- * TODO Change to have the anchor point flexible.
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
+  // TODO Change to have the anchor point flexible.
 
   /**
    * Calculator of the node associated to instruments.
@@ -51,6 +52,11 @@ public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
   public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolatedAnchor");

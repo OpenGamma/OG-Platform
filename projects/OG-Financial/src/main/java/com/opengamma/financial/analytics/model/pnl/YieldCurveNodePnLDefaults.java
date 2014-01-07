@@ -23,11 +23,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
+import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -53,7 +53,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    _currencyAndCurveConfigNames = new HashMap<String, String>();
+    _currencyAndCurveConfigNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
     }
@@ -73,7 +73,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (currency == null) {
-      s_logger.error("Could not get currency for security {}", security);
+      s_logger.info("Could not get currency for security {}", security);
       return false;
     }
     final String currencyName = currency.getCode();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
@@ -14,6 +14,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
@@ -34,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  * Interpolate a smile, i.e. fit every data point (market volatility/price), by fitting a smile model (e.g. SABR) through consecutive sets of 3 strikes, so for N data points (prices) there will be N-2
  * 3-point fits. In the interior where smile fits overlap, a weighting between the two smiles is taken, which varies from giving 100% weight to the left smile at the mid point of that fit, down to 0%
  * at the mid point of the right fit.
- * 
+ *
  * @param <T> The type of the smile model data
  */
 public abstract class SmileInterpolator<T extends SmileModelData> implements GeneralSmileInterpolator {
@@ -53,7 +54,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   private final RandomEngine _random;
 
   public SmileInterpolator(final VolatilityFunctionProvider<T> model) {
-    this(MersenneTwister64.DEFAULT_SEED, model);
+    this(MersenneTwister.DEFAULT_SEED, model);
   }
 
   public SmileInterpolator(final int seed, final VolatilityFunctionProvider<T> model) {
@@ -61,7 +62,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   }
 
   public SmileInterpolator(final VolatilityFunctionProvider<T> model, final WeightingFunction weightFunction) {
-    this(MersenneTwister64.DEFAULT_SEED, model, weightFunction);
+    this(MersenneTwister.DEFAULT_SEED, model, weightFunction);
   }
 
   public SmileInterpolator(final int seed, final VolatilityFunctionProvider<T> model, final WeightingFunction weightFunction) {
@@ -150,7 +151,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
 
   /**
    * Returns the random number generator for seeding any interpolation algorithms.
-   * 
+   *
    * @return the random number generator, not null
    */
   protected RandomEngine getRandom() {
@@ -172,7 +173,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
   /**
    * Use this for models that can be expressed as having 3 parameters (e.g. SABR with beta fixed). It picks out 3 consecutive strike-volatility pairs for the 3 parameter fit (so the chi^2 should be
    * zero if the model is capable of fitting the data)
-   * 
+   *
    * @param index Index of first strike
    * @param strikes Array of all strikes
    * @param impliedVols Array of all vols
@@ -197,7 +198,7 @@ public abstract class SmileInterpolator<T extends SmileModelData> implements Gen
    * Use this for models that cannot be easily expressed as having 3 parameters (e.g. mixed log-normal). It picks out 3 consecutive strikes and gives them a small error (1bps by default), while the
    * rest of the data has a relatively large error (100bps by default). The fit is then made to all data (n > 3) which allows more than 3 parameters to be fitted (recall, the start position is set
    * from a true global fit). The chi^2 should be close to zero if the model is capable of fitting the data.
-   * 
+   *
    * @param index Index of first strike
    * @param strikes Array of all strikes
    * @param impliedVols Array of all vols

@@ -11,12 +11,16 @@ import static com.opengamma.analytics.math.minimization.MinimizationTestFunction
 import static com.opengamma.analytics.math.minimization.MinimizationTestFunctions.ROSENBROCK_GRAD;
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class MultidimensionalMinimizerWithGradientTestCase {
 
   protected void assertSolvingRosenbrock(final MinimizerWithGradient<Function1D<DoubleMatrix1D, Double>, Function1D<DoubleMatrix1D, DoubleMatrix1D>, DoubleMatrix1D> minimzer, final double tol) {

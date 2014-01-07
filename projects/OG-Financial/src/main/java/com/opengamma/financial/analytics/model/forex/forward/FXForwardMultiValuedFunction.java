@@ -10,11 +10,15 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 
 /**
- *
+ * Base class for functions that calculate values for FX forward where the currency
+ * property is not set.
+ * @deprecated Use {@link DiscountingFunction}
  */
+@Deprecated
 public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
 
   public FXForwardMultiValuedFunction(final String valueRequirementName) {

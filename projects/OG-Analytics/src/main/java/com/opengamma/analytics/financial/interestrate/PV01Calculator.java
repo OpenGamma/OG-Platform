@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Returns the change in present value of an instrument due to a parallel move of the yield curve, scaled so that the move is 1bp.
- *  
+ * @deprecated Use the calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public final class PV01Calculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, Map<String, Double>> {
 
   /**
@@ -48,7 +50,7 @@ public final class PV01Calculator extends InstrumentDerivativeVisitorSameMethodA
   }
 
   /**
-   * The size of the scaling: 1 basis point. 
+   * The size of the scaling: 1 basis point.
    */
   private static final double BP1 = 1.0E-4;
   /**
@@ -58,14 +60,14 @@ public final class PV01Calculator extends InstrumentDerivativeVisitorSameMethodA
 
   /**
    * Calculates the change in present value of an instrument due to a parallel move of each yield curve the instrument is sensitive to, scaled so that the move is 1bp.
-   * @param ird The instrument. 
+   * @param ird The instrument.
    * @param curves The bundle of relevant yield curves.
-   * @return a Map between curve name and PV01 for that curve 
+   * @return a Map between curve name and PV01 for that curve
    */
   @Override
   public Map<String, Double> visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> sense = ird.accept(_presentValueCurveSensitivityCalculator, curves);
-    final Map<String, Double> res = new HashMap<String, Double>();
+    final Map<String, Double> res = new HashMap<>();
     final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();
     while (iterator.hasNext()) {
       final Entry<String, List<DoublesPair>> entry = iterator.next();
@@ -76,7 +78,7 @@ public final class PV01Calculator extends InstrumentDerivativeVisitorSameMethodA
     return res;
   }
 
-  private double sumListPair(final List<DoublesPair> list) {
+  private static double sumListPair(final List<DoublesPair> list) {
     double sum = 0.0;
     for (final DoublesPair pair : list) {
       sum += pair.getSecond();

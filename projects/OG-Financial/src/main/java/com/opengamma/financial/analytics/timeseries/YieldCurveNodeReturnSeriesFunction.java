@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -62,6 +62,11 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -193,13 +198,13 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
       sensitivityToRate = new boolean[n];
       int i = 0;
       for (final FixedIncomeStripWithSecurity strip : strips) {
-        tenors[i] = strip.getResolvedTenor();
+        tenors[i] = strip.getTenor();
         // TODO Temporary fix as sensitivity is to rate, but historical time series is to price (= 1 - rate)
         sensitivityToRate[i] = strip.getInstrumentType() == StripInstrumentType.FUTURE;
         i++;
       }
     } else if (fxForwardCurveDefinition != null) {
-      tenors = fxForwardCurveDefinition.getTenors();
+      tenors = fxForwardCurveDefinition.getTenorsArray();
       sensitivityToRate = new boolean[tenors.length];
     } else {
       throw new OpenGammaRuntimeException("Yield curve specification and FX forward curve definition both missing. Expected one.");

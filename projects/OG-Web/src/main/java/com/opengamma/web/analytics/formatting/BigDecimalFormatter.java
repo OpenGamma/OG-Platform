@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.DISPLAY_CURRENCY;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -19,10 +21,12 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.conversion.DoubleValueDecimalPlaceFormatter;
 import com.opengamma.web.server.conversion.DoubleValueFormatter;
 import com.opengamma.web.server.conversion.DoubleValueSignificantFiguresFormatter;
 import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceFormatter;
+import com.opengamma.web.server.conversion.PercentageValueSignificantFiguresFormatter;
 
 /**
  *
@@ -38,6 +42,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     // General
     s_formatters.put(ValueRequirementNames.DISCOUNT_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.YIELD_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.INSTANTANEOUS_FORWARD_CURVE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.VOLATILITY_SURFACE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.VOLATILITY_SURFACE_DATA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.COST_OF_CARRY, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -46,6 +51,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    s_formatters.put(ValueRequirementNames.GAMMA_PV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.DV01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
     s_formatters.put(ValueRequirementNames.GAMMA_CS01, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -109,6 +115,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.FORWARD_VANNA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.FORWARD_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.IMPLIED_VOLATILITY, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.DRIFTLESS_THETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Position/value greeks
     addBulkConversion("(POSITION_|VALUE_).*", DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -151,8 +158,8 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     // Bonds
     s_formatters.put(ValueRequirementNames.CLEAN_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.DIRTY_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
-    s_formatters.put(ValueRequirementNames.YTM, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
-    s_formatters.put(ValueRequirementNames.MARKET_YTM, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.YTM, PercentageValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.MARKET_YTM, PercentageValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.MARKET_DIRTY_PRICE, DoubleValueDecimalPlaceFormatter.NON_CCY_6DP);
     s_formatters.put(ValueRequirementNames.MACAULAY_DURATION, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
     s_formatters.put(ValueRequirementNames.CONVEXITY, DoubleValueDecimalPlaceFormatter.NON_CCY_4DP);
@@ -171,8 +178,12 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.FX_PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
   }
 
-  /* package */ BigDecimalFormatter() {
+  private final ResultsFormatter.CurrencyDisplay _currencyDisplay;
+
+  /* package */ BigDecimalFormatter(ResultsFormatter.CurrencyDisplay currencyDisplay) {
     super(BigDecimal.class);
+    ArgumentChecker.notNull(currencyDisplay, "currencyDisplay");
+    _currencyDisplay = currencyDisplay;
     addFormatter(new Formatter<BigDecimal>(Format.HISTORY) {
       @Override
       Object format(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
@@ -228,23 +239,15 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
   public String formatCell(BigDecimal value, ValueSpecification valueSpec, Object inlineKey) {
     DoubleValueFormatter formatter = getFormatter(valueSpec);
     String formattedNumber = formatter.format(value);
-    String formattedValue;
-    if (formatter.isCurrencyAmount()) {
-      Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
-      String ccy;
-      if (currencyValues == null) {
-        formattedValue = formattedNumber;
-      } else if (currencyValues.isEmpty()) {
-        formattedValue = formattedNumber;
-      } else {
-        ccy = currencyValues.iterator().next();
-        formattedValue = ccy + " " + formattedNumber;
-      }
-    } else {
-      formattedValue = formattedNumber;
-    }
-    return formattedValue;
+    return formatter.isCurrencyAmount() && _currencyDisplay == DISPLAY_CURRENCY ?
+        formatWithCurrency(formattedNumber, valueSpec) :
+        formattedNumber;
   }
 
-
+  private String formatWithCurrency(String formattedNumber, ValueSpecification valueSpec) {
+    Set<String> currencyValues = valueSpec.getProperties().getValues(ValuePropertyNames.CURRENCY);
+    return currencyValues == null || currencyValues.isEmpty() ?
+        formattedNumber :
+        currencyValues.iterator().next() + " " + formattedNumber;
+  }
 }

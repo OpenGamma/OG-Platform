@@ -207,7 +207,7 @@ abstract class AbstractZonedDateTimeDoubleTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public ZonedDateTimeDoubleTimeSeries subSeries(ZonedDateTime startZonedDateTime, ZonedDateTime endZonedDateTime) {
-    return subSeriesFast(convertToLong(startZonedDateTime), convertToLong(endZonedDateTime));
+    return subSeriesFast(convertToLong(startZonedDateTime), true, convertToLong(endZonedDateTime), false);
   }
 
   @Override
@@ -216,12 +216,8 @@ abstract class AbstractZonedDateTimeDoubleTimeSeries
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries subSeriesFast(long startZonedDateTime, boolean includeStart, long endZonedDateTime, boolean includeEnd) {
-    if (startZonedDateTime != endZonedDateTime || includeStart || includeEnd) {
-      startZonedDateTime += (includeStart ? 0 : 1);
-      endZonedDateTime += (includeEnd ? 1 : 0);
-    }
-    return subSeriesFast(startZonedDateTime, endZonedDateTime);
+  public ZonedDateTimeDoubleTimeSeries subSeriesFast(long startZonedDateTime, long endZonedDateTime) {
+    return subSeriesFast(startZonedDateTime, true, endZonedDateTime, false);
   }
 
   //-------------------------------------------------------------------------

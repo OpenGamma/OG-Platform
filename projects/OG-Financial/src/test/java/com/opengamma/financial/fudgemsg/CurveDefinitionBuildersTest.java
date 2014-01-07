@@ -1,19 +1,25 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -30,6 +36,9 @@ import com.opengamma.util.time.Tenor;
 @Test(groups = TestGroup.UNIT)
 public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
 
+  /**
+   * Tests the construction of curve definitions.
+   */
   @Test
   public void testCurveDefinition() {
     final Set<CurveNode> nodes = new TreeSet<>();
@@ -43,8 +52,11 @@ public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
     assertEquals(definition, cycleObject(CurveDefinition.class, definition));
   }
 
+  /**
+   * Tests the construction of all interpolated curve definitions.
+   */
   @Test
-  public void testInterpolatedCurveDefinition() {
+  public void testInterpolatedCurveDefinitions() {
     final Set<CurveNode> nodes = new TreeSet<>();
     final String curveNodeIdMapperName = "Id mapper";
     final CashNode cash1w = new CashNode(Tenor.ONE_DAY, Tenor.ONE_WEEK, ExternalId.of("Test", "1W Cash"), curveNodeIdMapperName);
@@ -74,5 +86,18 @@ public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
     definition = new InterpolatedCurveDefinition(curveName, nodes, interpolatorName, rightExtrapolatorName, leftExtrapolatorName);
     definition.setUniqueId(UniqueId.of("test", "id3"));
     assertEquals(definition, cycleObject(InterpolatedCurveDefinition.class, definition));
+    final List<LocalDate> fixedDates = Arrays.asList(LocalDate.of(2013, 10, 1), LocalDate.of(2013, 11, 1), LocalDate.of(2014, 1, 1));
+    FixedDateInterpolatedCurveDefinition fixedDateDefinition = new FixedDateInterpolatedCurveDefinition(curveName, nodes, interpolatorName, fixedDates);
+    assertEquals(fixedDateDefinition, cycleObject(FixedDateInterpolatedCurveDefinition.class, fixedDateDefinition));
+    fixedDateDefinition = new FixedDateInterpolatedCurveDefinition(curveName, nodes, interpolatorName, rightExtrapolatorName, fixedDates);
+    assertEquals(fixedDateDefinition, cycleObject(FixedDateInterpolatedCurveDefinition.class, fixedDateDefinition));
+    fixedDateDefinition = new FixedDateInterpolatedCurveDefinition(curveName, nodes, interpolatorName, rightExtrapolatorName, leftExtrapolatorName, fixedDates);
+    assertEquals(fixedDateDefinition, cycleObject(FixedDateInterpolatedCurveDefinition.class, fixedDateDefinition));
+  }
+
+  @Test
+  public void test() {
+    final SpreadCurveDefinition temp = new SpreadCurveDefinition("Name", "Test1", "Test2", "+");
+    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(temp));
   }
 }

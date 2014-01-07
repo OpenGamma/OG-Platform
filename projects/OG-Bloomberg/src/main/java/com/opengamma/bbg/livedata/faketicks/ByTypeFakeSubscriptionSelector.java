@@ -19,7 +19,6 @@ import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Decides based of security type whether to fake out subscriptions
@@ -40,7 +39,7 @@ public class ByTypeFakeSubscriptionSelector implements FakeSubscriptionSelector 
   public ObjectsPair<Collection<LiveDataSpecification>, Collection<LiveDataSpecification>> splitShouldFake(
       FakeSubscriptionBloombergLiveDataServer server, Collection<LiveDataSpecification> specs) {
     if (specs.isEmpty()) {
-      return Pair.of((Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>(), (Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>());
+      return ObjectsPair.of((Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>(), (Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>());
     }
     
     Set<LiveDataSpecification> fakes = new HashSet<LiveDataSpecification>();
@@ -81,7 +80,7 @@ public class ByTypeFakeSubscriptionSelector implements FakeSubscriptionSelector 
       }
     }
 
-    return Pair.of((Collection<LiveDataSpecification>) underlyings, (Collection<LiveDataSpecification>) fakes);
+    return ObjectsPair.of((Collection<LiveDataSpecification>) underlyings, (Collection<LiveDataSpecification>) fakes);
   }
 
 }

@@ -27,6 +27,7 @@ import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -60,7 +61,7 @@ public class DbBatchMasterTest extends AbstractDbBatchTest {
   //-------------------------------------------------------------------------
   @Override
   protected void doSetUp() {
-    _batchMaster = new DbBatchMaster(getDbConnector());
+    _batchMaster = new DbBatchMaster(getDbConnector(), new DefaultComputationTargetResolver());
 
     final String calculationConfigName = "config_1";
 
@@ -117,6 +118,11 @@ public class DbBatchMasterTest extends AbstractDbBatchTest {
         return UniqueId.of("viewdef", "viewdef", "viewdef");
       }
 
+      @Override
+      public String getName() {
+        return "cycle_name";
+      }
+
     };
   }
 
@@ -146,6 +152,7 @@ public class DbBatchMasterTest extends AbstractDbBatchTest {
     assertNotNull(item.getObjectId());
     assertEquals(item.getValuationTime(), run.getValuationTime());
     assertEquals(true, item.isComplete());
+    assertEquals("cycle_name", item.getName());
   }
 
 
@@ -166,6 +173,7 @@ public class DbBatchMasterTest extends AbstractDbBatchTest {
     assertNotNull(item.getObjectId());
     assertEquals(item.getValuationTime(), run.getValuationTime());
     assertEquals(false, item.isComplete());
+    assertEquals("cycle_name", item.getName());
   }
 
 }

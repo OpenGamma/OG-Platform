@@ -39,16 +39,17 @@ public interface Region extends UniqueIdentifiable, ExternalBundleIdentifiable {
   UniqueId getUniqueId();
 
   /**
-   * Gets the external identifier bundle defining the region.
+   * Gets the external identifier bundle that defines the region.
    * <p>
-   * Each external system has one or more identifiers by which they refer to the region. Some of these may be unique within that system, while others may be more descriptive. This bundle stores the
-   * set of these external identifiers.
+   * Each external system has one or more identifiers by which they refer to the region.
+   * Some of these may be unique within that system, while others may be more descriptive.
+   * This bundle stores the set of these external identifiers.
    * <p>
    * This will include the country, currency and time-zone.
    * 
-   * @return the bundle, null if not applicable
+   * @return the bundle defining the region, not null
    */
-  @Override
+  @Override  // override for Javadoc
   ExternalIdBundle getExternalIdBundle();
 
   /**

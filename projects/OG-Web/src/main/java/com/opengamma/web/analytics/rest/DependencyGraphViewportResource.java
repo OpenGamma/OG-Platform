@@ -6,12 +6,15 @@
 package com.opengamma.web.analytics.rest;
 
 import com.opengamma.web.analytics.AnalyticsView;
+import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
 
 /**
  * REST resource for a viewport on a dependency graph grid. The viewport represents the visible part of the grid.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public class DependencyGraphViewportResource extends AbstractViewportResource {
 
   private final int _graphId;
@@ -34,5 +37,10 @@ public class DependencyGraphViewportResource extends AbstractViewportResource {
   @Override
   public ViewportResults getData() {
     return getView().getData(getGridType(), _graphId, getViewportId());
+  }
+
+  public GridStructure getGridStructure() {
+    GridStructure gs = getView().getGridStructure(getGridType(), _graphId, getViewportId());
+    return gs;
   }
 }

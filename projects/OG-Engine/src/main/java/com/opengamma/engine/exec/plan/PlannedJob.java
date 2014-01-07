@@ -7,6 +7,7 @@ package com.opengamma.engine.exec.plan;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -111,6 +112,10 @@ public class PlannedJob implements Serializable {
     }
     out.println(indent + id + ": " + getItems().size() + " item(s)");
     if (alloc) {
+      for (CalculationJobItem item : getItems()) {
+        out.println(indent + "  " + item.getFunctionUniqueIdentifier() + "(" + item.getComputationTargetSpecification() + "," + Arrays.asList(item.getInputs()) + ") = " +
+            Arrays.asList(item.getOutputs()));
+      }
       if (getTails() != null) {
         final String tailIndent = indent + " T ";
         for (PlannedJob tail : getTails()) {

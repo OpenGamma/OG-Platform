@@ -46,13 +46,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRFittingPropertyUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -78,8 +78,6 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureOptionSABRFunction.class);
   /** The SABR function */
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
-  /** Converts a {@link Trade} to an {@link InstrumentDefinition} */
-  private InterestRateFutureOptionTradeConverter _converter;
   /** Converts an {@link InstrumentDefinition} to {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _dataConverter;
   /** The values that the function can calculate */
@@ -93,15 +91,30 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     _valueRequirementNames = valueRequirementNames;
   }
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionExecutionContext context) {
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  private InterestRateFutureOptionTradeConverterDeprecated getConverter(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    return new InterestRateFutureOptionTradeConverterDeprecated(new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource, context
+        .getComputationTargetResolver().getVersionCorrection()));
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -133,7 +146,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get daycount");
     }
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs, dayCount), curves);
-    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
+    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) getConverter(executionContext).convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, curveNames, timeSeries);
     return getResult(executionContext, desiredValues, inputs, target, irFutureOption, data);
   }
@@ -185,7 +198,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
     if (calculationMethod != null && calculationMethod.size() == 1) {
-      if (!Iterables.getOnlyElement(calculationMethod).equals(SmileFittingProperties.SABR)) {
+      if (!Iterables.getOnlyElement(calculationMethod).equals(SmileFittingPropertyNamesAndValues.SABR)) {
         return null;
       }
     }
@@ -197,7 +210,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -221,7 +234,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       return null;
     }
      */
-    final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
+    final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(context, trade);
     if (timeSeriesRequirement == null) {
       return null;
     }
@@ -235,7 +248,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     boolean curvePropertiesSet = false;
     boolean surfacePropertiesSet = false;
     ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingPropertyNamesAndValues.SABR)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification value = entry.getKey();
@@ -255,7 +268,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
         surfaceName = fullSurfaceName.substring(0, fullSurfaceName.length() - 3);
         final ValueProperties surfaceFittingProperties = value.getProperties().copy()
             .withoutAny(ValuePropertyNames.FUNCTION)
-            .withoutAny(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL)
+            .withoutAny(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL)
             .withoutAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
             .withoutAny(ValuePropertyNames.CURRENCY)
             .withoutAny(ValuePropertyNames.SURFACE)
@@ -314,8 +327,8 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     return requirements;
   }
 
-  private Set<ValueRequirement> getTimeSeriesRequirement(final Trade trade) {
-    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
+  private Set<ValueRequirement> getTimeSeriesRequirement(final FunctionCompilationContext context, final Trade trade) {
+    return _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), getConverter(context).convert(trade));
   }
 
   private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final DayCount dayCount) {

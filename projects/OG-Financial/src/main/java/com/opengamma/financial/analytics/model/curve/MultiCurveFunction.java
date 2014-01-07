@@ -27,21 +27,22 @@ import java.util.Set;
 
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -53,17 +54,21 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
+import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -82,6 +87,8 @@ import com.opengamma.util.tuple.Pair;
 public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U, V, W> extends AbstractFunction {
   /** The curve configuration name */
   private final String _configurationName;
+  /** The maturity calculator */
+  private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
   /**
    * @param configurationName The configuration name, not null
@@ -92,14 +99,21 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   }
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
+  }
+
+  @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
-    final Instant versionTime = atZDT.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS).toInstant();
     //TODO work out a way to use dependency graph to get curve information for this config
-    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
-        VersionCorrection.of(versionTime, versionTime));
+    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName, VersionCorrection.LATEST);
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }
@@ -110,14 +124,34 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         //TODO deal with arbitrary depth
         final ValueProperties properties = ValueProperties.builder()
             .with(CURVE_CONSTRUCTION_CONFIG, name)
+            .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
             .get();
         exogenousRequirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
+        exogenousRequirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
       }
     }
     final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
     return getCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveNames, exogenousRequirements,
         curveConstructionConfiguration);
   }
+
+  /**
+   * Gets the calculator.
+   * @return The calculator
+   */
+  protected abstract InstrumentDerivativeVisitor<T, Double> getCalculator();
+
+  /**
+   * Gets the sensitivity calculator.
+   * @return The sensitivity calculator
+   */
+  protected abstract InstrumentDerivativeVisitor<T, W> getSensitivityCalculator();
+
+  /**
+   * Gets the curve type property.
+   * @return The curve type property
+   */
+  protected abstract String getCurveTypeProperty();
 
   /**
    * Gets the compiled function for this curve construction method.
@@ -147,18 +181,21 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     /**
      * @param earliestInvocation The earliest time this metadata and invoker are valid, null to indicate no lower validity bound
      * @param latestInvocation The latest time this metadata and invoker are valid, null to indicate no upper validity bound
-     * @param curveNames The curve names
-     * @param curveRequirement The curve value requirement produced by this function
-     * @param exogenousRequirements The exogenous requirements
+     * @param curveNames The curve names, not null
+     * @param curveRequirement The curve value requirement produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
      */
     protected CurveCompiledFunctionDefinition(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames,
         final String curveRequirement, final Set<ValueRequirement> exogenousRequirements) {
       super(earliestInvocation, latestInvocation);
+      ArgumentChecker.notNull(curveNames, "curve names");
+      ArgumentChecker.notNull(curveRequirement, "curve requirement");
+      ArgumentChecker.notNull(exogenousRequirements, "exogenous requirements");
       _curveNames = curveNames;
       _curveRequirement = curveRequirement;
       _exogenousRequirements = exogenousRequirements;
       _results = new HashSet<>();
-      final ValueProperties properties = getBundleProperties();
+      final ValueProperties properties = getBundleProperties(_curveNames);
       for (final String curveName : _curveNames) {
         final ValueProperties curveProperties = getCurveProperties(curveName);
         _results.add(new ValueSpecification(curveRequirement, ComputationTargetSpecification.NULL, curveProperties));
@@ -170,17 +207,14 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+      final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       final T knownData = getKnownData(inputs);
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
       ValueProperties bundleProperties = null;
       for (final ValueRequirement desiredValue : desiredValues) {
-        if (desiredValue.getValueName().equals(CURVE_BUNDLE)) {
+        if (desiredValue.getValueName().equals(CURVE_BUNDLE) || desiredValue.getValueName().equals(_curveRequirement)) {
           bundleProperties = desiredValue.getConstraints();
-          break;
-        } else if (desiredValue.getValueName().equals(_curveRequirement)) {
-          bundleProperties = desiredValue.getConstraints()
-              .withoutAny(CURVE);
           break;
         }
       }
@@ -191,10 +225,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
       final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
       final U builder = getBuilder(absoluteTolerance, relativeTolerance, maxIterations);
-      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-      final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-      final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
-      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, conventionSource, holidaySource, regionSource);
+      final Pair<T, CurveBuildingBlockBundle> pair = getCurves(inputs, now, builder, knownData, executionContext, fxMatrix);
       final ValueSpecification bundleSpec = new ValueSpecification(CURVE_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       final ValueSpecification jacobianSpec = new ValueSpecification(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, bundleProperties);
       return getResults(bundleSpec, jacobianSpec, bundleProperties, pair);
@@ -234,6 +265,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         requirements.add(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
       }
+      @SuppressWarnings("synthetic-access")
       final ValueProperties properties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
           .get();
@@ -260,25 +292,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     /**
-     * Gets the calculator.
-     * @return The calculator
-     */
-    protected abstract InstrumentDerivativeVisitor<T, Double> getCalculator();
-
-    /**
-     * Gets the sensitivity calculator.
-     * @return The sensitivity calculator
-     */
-    protected abstract InstrumentDerivativeVisitor<T, W> getSensitivityCalculator();
-
-    /**
-     * Gets the curve type property.
-     * @return The curve type property
-     */
-    protected abstract String getCurveTypeProperty();
-
-    /**
-     * Gets the known data from the function inputs.
+     * Gets the known data from the FX matrix.
      * @param inputs The inputs
      * @return The known data
      */
@@ -296,35 +310,35 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     /**
      * Gets the generator for a curve definition
      * @param definition The curve definition
+     * @param valuationDate The valuation date
      * @return The generator
      */
-    protected abstract V getGenerator(CurveDefinition definition);
+    protected abstract V getGenerator(CurveDefinition definition, LocalDate valuationDate);
 
     /**
-     * @param conventionSource The convention source
-     * @param holidaySource The holiday source
-     * @param regionSource The region source
+     * @param context The execution context
      * @param marketData The market data snapshot
      * @param dataId The market data id for a node
      * @param historicalData The historical data
      * @param valuationTime The valuation time
+     * @param fxMatrix The FX matrix
      * @return A visitor that converts curve nodes to instrument definitions
      */
-    protected abstract CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(ConventionSource conventionSource, HolidaySource holidaySource,
-        RegionSource regionSource, SnapshotDataBundle marketData, ExternalId dataId, HistoricalTimeSeriesBundle historicalData, ZonedDateTime valuationTime);
+    protected abstract CurveNodeVisitor<InstrumentDefinition<?>> getCurveNodeConverter(FunctionExecutionContext context,
+        SnapshotDataBundle marketData, ExternalId dataId, HistoricalTimeSeriesBundle historicalData, ZonedDateTime valuationTime,
+        FXMatrix fxMatrix);
 
     /**
      * @param inputs The inputs
      * @param now The valuation time
      * @param builder The builder
      * @param knownData The known data
-     * @param conventionSource The convention source
-     * @param holidaySource The holiday source
-     * @param regionSource The region source
+     * @param context The function execution context
+     * @param fx The FX matrix.
      * @return The curve provider and associated results
      */
     protected abstract Pair<T, CurveBuildingBlockBundle> getCurves(FunctionInputs inputs, ZonedDateTime now, U builder, T knownData,
-        ConventionSource conventionSource, HolidaySource holidaySource, RegionSource regionSource);
+        FunctionExecutionContext context, FXMatrix fx);
 
     /**
      * @param bundleSpec The value specification for the curve bundle
@@ -337,10 +351,30 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         ValueProperties bundleProperties, Pair<T, CurveBuildingBlockBundle> pair);
 
     /**
+     * Gets the curve node converter used to convert a node into an InstrumentDerivative.
+     * @param conventionSource the convention source, not null
+     * @return The curve node converter used to convert a node into an InstrumentDerivative.
+     */
+    protected CurveNodeConverter getCurveNodeConverter(final ConventionSource conventionSource) {
+      ArgumentChecker.notNull(conventionSource, "convention source");
+      return new CurveNodeConverter(conventionSource);
+    }
+
+    /**
+     * Gets the maturity calculator.
+     * @return The maturity calculator
+     */
+    @SuppressWarnings("synthetic-access")
+    protected InstrumentDerivativeVisitor<Object, Double> getMaturityCalculator() {
+      return MATURITY_CALCULATOR;
+    }
+
+    /**
      * Gets the result properties for a curve
      * @param curveName The curve name
      * @return The result properties
      */
+    @SuppressWarnings("synthetic-access")
     protected ValueProperties getCurveProperties(final String curveName) {
       return createValueProperties()
           .with(CURVE, curveName)
@@ -355,9 +389,11 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the result properties for a curve bundle
+     * @param curveNames All of the curves produced by this function
      * @return The result properties
      */
-    protected ValueProperties getBundleProperties() {
+    @SuppressWarnings("synthetic-access")
+    protected ValueProperties getBundleProperties(final String[] curveNames) {
       return createValueProperties()
           .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
           .with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
@@ -365,6 +401,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
           .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+          .with(CURVE, curveNames)
           .get();
     }
 

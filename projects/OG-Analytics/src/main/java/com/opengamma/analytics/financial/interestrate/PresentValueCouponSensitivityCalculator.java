@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -20,7 +20,9 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 /**
  * Calculates the change in present value (PV) when an instrument's fixed payments change (for bonds this is the coupon rate, for swaps it is the rate on the fixed leg etc) dPV/dC
  * This can be used to convert between sensitivities of PV to the yield curve and sensitivities of Par rate to the yield curve
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PresentValueCouponSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
@@ -46,7 +48,7 @@ public final class PresentValueCouponSensitivityCalculator extends InstrumentDer
     for (int i = 0; i < n; i++) {
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
-    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
+    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<>(unitCoupons);
     return unitCouponAnnuity.accept(PVC, curves);
   }
 

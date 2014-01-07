@@ -14,6 +14,7 @@ import org.threeten.bp.ZoneId;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utilities for working with Exchanges.
@@ -37,12 +38,12 @@ public class ExchangeUtils {
             (detail.getCalendarEnd() == null || detail.getCalendarEnd().equals(today) || detail.getCalendarEnd().isAfter(today))) {
           LocalTime endTime = detail.getPhaseEnd();
           if (endTime != null) {
-            return Pair.of(endTime, exchange.getTimeZone());
+            return Pairs.of(endTime, exchange.getTimeZone());
           }
         }
       }
       s_logger.warn("Couldn't find exchagne close time for {}, defaulting to supplied default", isoMic);
-      return Pair.of(defaultTime, exchange.getTimeZone());
+      return Pairs.of(defaultTime, exchange.getTimeZone());
     } else {
       return null;       
     }

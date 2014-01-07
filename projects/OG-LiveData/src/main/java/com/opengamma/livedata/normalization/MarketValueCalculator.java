@@ -17,7 +17,10 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 public class MarketValueCalculator implements NormalizationRule {
   
   private static final double TOLERANCE = 0.00001;
-  private static final double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.05;
+  /**
+   * The maximum relative bid/ask spread to use their midpoint.
+   */
+  private static final double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.20;
 
   /**
    * Calculates a best estimate of the current value of a security.
@@ -57,12 +60,9 @@ public class MarketValueCalculator implements NormalizationRule {
     if (bid != null && ask != null) {
       
       // Too big of a spread for midpoint to be meaningful?
-      if (Math.abs(bid) > TOLERANCE && (Math.abs(ask - bid) / Math.abs(bid) > MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT)) {
+      if (Math.abs(bid) > TOLERANCE && (getRelativeSpread(bid, ask) > MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT)) {
         // Try to resort to last, though if this fails use midpoint anyway.
-        Double last = lkv.getDouble(MarketDataRequirementNames.LAST);
-        if (last == null) {
-          last = msg.getDouble(MarketDataRequirementNames.LAST);
-        }
+        Double last = msg.getDouble(MarketDataRequirementNames.LAST);
         
         if (last != null) {
           // Ok, last was found. But let's make sure that it's within the bid/ask boundaries.
@@ -93,8 +93,19 @@ public class MarketValueCalculator implements NormalizationRule {
       msg.add(MarketDataRequirementNames.MARKET_VALUE, last);
       return msg;
     }
+ // Use "CLOSE" if we've been given one
+    Double close = msg.getDouble(MarketDataRequirementNames.CLOSE);
+    if (close != null) {
+      msg.add(MarketDataRequirementNames.MARKET_VALUE, close);
+      return msg;
+    }    
+    
     // Fall back to last known market value
     return lastKnownMarketValue(msg, fieldHistory);
+  }
+
+  private double getRelativeSpread(Double bid, Double ask) {
+    return Math.abs(ask - bid) / Math.abs(ask);
   }
   
   /**

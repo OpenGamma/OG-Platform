@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swap.provider;
@@ -29,11 +29,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Swap Ibor with spread in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFixedIborSpreadDiscountingMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 31);
@@ -61,12 +63,9 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
   private static final AnnuityCouponFixedDefinition ANNUITY_SPREAD_DEFINITION = AnnuityCouponFixedDefinition.from(EUR, START_DATE, SWAP_TENOR, EURIBOR3M.getTenor(), TARGET, EURIBOR3M.getDayCount(),
       EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, SPREAD, !IS_PAYER);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
-
-  private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR1Y3M = SWAP_SPREAD_EUR1Y3M_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR3M3M = SWAP_SPREAD_EUR3M3M_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final AnnuityCouponFixed ANNUITY_SPREAD = ANNUITY_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR1Y3M = SWAP_SPREAD_EUR1Y3M_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwapFixedCoupon<Coupon> SWAP_SPREAD_EUR3M3M = SWAP_SPREAD_EUR3M3M_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final AnnuityCouponFixed ANNUITY_SPREAD = ANNUITY_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final SwapFixedIborSpreadDiscountingMethod METHOD_SWAP_SPREAD = SwapFixedIborSpreadDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -112,6 +111,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     assertEquals("SwapFixedIborSpreadDiscountingMethod: forwardSwapSpreadModified", forwardExpected, forwardComputed, TOLERANCE_RATE);
   }
 
+  @SuppressWarnings("unused")
   @Test(enabled = false)
   /**
    * Test the performance of building swaps and computing their PV and delta.
@@ -129,7 +129,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     for (int loopswap = 0; loopswap <= nbSwap; loopswap++) {
       final double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
       swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER, TARGET);
-      final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE);
       pv[loopswap] = swap.accept(PVDC, MULTICURVES).getAmount(EUR);
       final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
     }
@@ -141,7 +141,7 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
     for (int loopswap = 0; loopswap <= nbSwap; loopswap++) {
       final double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
       swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER, TARGET);
-      final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE);
       pv[loopswap] = swap.accept(PVDC, MULTICURVES).getAmount(EUR);
       final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -27,7 +28,6 @@ import com.opengamma.util.ArgumentChecker;
  * For coupons, it is the discounted notional times the accrual factor.
  * For annuities, it is the sum of sensitivities of all payments.
  * For swaps it is the pvbp of the first leg.
- * @author marc
  */
 public final class PresentValueMarketQuoteSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
@@ -65,6 +65,11 @@ public final class PresentValueMarketQuoteSensitivityDiscountingCalculator exten
 
   @Override
   public Double visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
+    return visitCoupon(coupon, multicurve);
+  }
+
+  @Override
+  public Double visitCouponONSpread(final CouponONSpread coupon, final MulticurveProviderInterface multicurve) {
     return visitCoupon(coupon, multicurve);
   }
 

@@ -7,6 +7,7 @@
 package com.opengamma.masterdb.security.hibernate.swap;
 
 import com.opengamma.financial.security.swap.FloatingRateType;
+import com.opengamma.financial.security.swap.InterpolationMethod;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.VarianceSwapType;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
@@ -39,6 +40,9 @@ public class SwapLegBean {
   private ExternalIdBean _underlyingId;
   private FrequencyBean _monitoringFrequency;
   private Double _annualizationFactor;
+  private Integer _conventionalIndexationLag;
+  private Integer _actualIndexationLag;
+  private InterpolationMethod _indexInterpolationMethod;
 
   /**
    * Gets the swapLegType.
@@ -316,5 +320,52 @@ public class SwapLegBean {
   public void setAnnualizationFactor(Double annualizationFactor) {
     _annualizationFactor = annualizationFactor;
   }
+  
+  /**
+   * Gets the inflation leg conventional indexation lag. For inflation swap legs.
+   * @return lag The conventional indexation lag.
+   */
+  public Integer getConventionalIndexationLag() {
+    return _conventionalIndexationLag;
+  }
+  
+  /**
+   * Gets the conventional indexation lag. For inflation swap legs.
+   * @param conventionalIndexationLag The conventional indexation lag.
+   */
+  public void setConventionalIndexationLag(Integer conventionalIndexationLag) {
+    _conventionalIndexationLag = conventionalIndexationLag;
+  }
+  
+  /**
+   * Gets the actual indexation lag. For inflation swap legs.
+   * @return lag The actual indexation lag.
+   */
+  public Integer getActualIndexationLag() {
+    return _actualIndexationLag;
+  }
+  
+  /**
+   * Gets the actual indexation lag. For inflation swap legs.
+   * @param actualIndexationLag The actual indexation lag.
+   */
+  public void setActualIndexationLag(Integer actualIndexationLag) {
+    _actualIndexationLag = actualIndexationLag;
+  }
 
+  /**
+   * Gets the inflation leg interpolation method. For inflation swap legs.
+   * @return The inflation leg interpolation method.
+   */
+  public InterpolationMethod getIndexInterpolationMethod() {
+    return _indexInterpolationMethod;
+  }
+  
+  /**
+   * Sets the inflation leg interpolation method. For inflation swap legs.
+   * @param indexInterpolationMethod The inflation leg interpolation method.
+   */
+  public void setIndexInterpolationMethod(InterpolationMethod indexInterpolationMethod) {
+    _indexInterpolationMethod = indexInterpolationMethod;
+  }
 }

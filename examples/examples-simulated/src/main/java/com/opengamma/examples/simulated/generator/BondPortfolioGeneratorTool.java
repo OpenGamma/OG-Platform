@@ -14,7 +14,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.yield.YieldConvention;
@@ -53,7 +53,7 @@ public class BondPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
     final YieldConvention yieldConvention = YieldConventionFactory.INSTANCE.getYieldConvention("US street");
     final String couponType = "FIXED";
     final Frequency couponFrequency = PeriodFrequency.SEMI_ANNUAL;
-    final DayCount dayCountConvention = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+    final DayCount dayCountConvention = DayCounts.ACT_ACT_ICMA;
     final double totalAmountIssued = 66000000000.;
     final double minimumAmount = 100;
     final double minimumIncrement = 100;

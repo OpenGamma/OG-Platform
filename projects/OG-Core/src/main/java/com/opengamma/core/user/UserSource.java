@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Source;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
@@ -23,7 +24,7 @@ import com.opengamma.util.PublicSPI;
  * Implementations must be thread-safe.
  */
 @PublicSPI
-public interface UserSource extends Source<OGUser> {
+public interface UserSource extends Source<OGUser>, ChangeProvider {
 
   /**
    * Gets all users at the given version-correction that match the specified

@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Container for function configuration definitions. 
  */
-@Config
+@Config(description = "Function configuration definition")
 public final class FunctionConfigurationDefinition {
   
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionConfigurationDefinition.class);

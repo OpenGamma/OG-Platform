@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -36,12 +36,17 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates Present Value on FX Forward instruments.
+ * 
+ * @deprecated Deprecated
  */
+@Deprecated
 public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+
+  private static final ComputationTargetType TYPE = FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY).or(FinancialSecurityTypes.SWAP_SECURITY);
+    return TYPE;
   }
 
   @Override
@@ -62,7 +67,7 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
         if (payCurrency.equals(receiveCurrency)) {
           return false;
         }
-      } catch (UnsupportedOperationException e) {
+      } catch (final UnsupportedOperationException e) {
         return false;
       }
     }
@@ -140,11 +145,21 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
     return ImmutableSet.of(new ComputedValue(getResultSpec(target, inputSpec.getProperties().copy()), pv));
   }
 
+  /**
+   * @param target The target
+   * @param fxPresentValueProperties The properties of the FX present value input
+   * @return The result specification
+   */
   protected ValueSpecification getResultSpec(final ComputationTarget target, final ValueProperties.Builder fxPresentValueProperties) {
     final Currency currency = getPayCurrency((FinancialSecurity) target.getSecurity());
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), getResultProperties(currency, fxPresentValueProperties));
   }
 
+  /**
+   * @param currency The currency of the result
+   * @param fxPresentValueProperties The properties of the FX present value input
+   * @return The result properties
+   */
   protected ValueProperties getResultProperties(final Currency currency, final ValueProperties.Builder fxPresentValueProperties) {
     return fxPresentValueProperties.withoutAny(ValuePropertyNames.FUNCTION)
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
@@ -152,10 +167,22 @@ public class FXForwardPresentValueFunction extends AbstractFunction.NonCompiledI
         .get();
   }
 
+  /**
+   * Gets the pay currency of the security.
+   * 
+   * @param security The security
+   * @return The pay currency
+   */
   protected Currency getPayCurrency(final FinancialSecurity security) {
     return security.accept(ForexVisitors.getPayCurrencyVisitor());
   }
 
+  /**
+   * Gets the receive currency of the security.
+   * 
+   * @param security The security
+   * @return The receive currency
+   */
   protected Currency getReceiveCurrency(final FinancialSecurity security) {
     return security.accept(ForexVisitors.getReceiveCurrencyVisitor());
   }

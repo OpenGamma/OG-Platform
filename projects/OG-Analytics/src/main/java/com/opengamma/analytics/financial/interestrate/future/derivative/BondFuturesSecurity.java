@@ -1,17 +1,16 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -44,11 +43,15 @@ public class BondFuturesSecurity implements InstrumentDerivative {
    */
   private final double _notional;
   /**
-   * The basket of deliverable bonds.
+   * The basket of deliverable bonds with settlement at the futures last delivery date.
    */
-  private final BondFixedSecurity[] _deliveryBasket;
+  private final BondFixedSecurity[] _deliveryBasketAtDeliveryDate;
   /**
-   * The conversion factor of each bond in the basket.
+   * The basket of deliverable bonds with settlement at the standard spot date.
+   */
+  private final BondFixedSecurity[] _deliveryBasketAtSpotDate;
+  /**
+   * The conversion factor of each bond in the basket. Same size as _deliveryBasket.
    */
   private final double[] _conversionFactor;
 
@@ -60,23 +63,28 @@ public class BondFuturesSecurity implements InstrumentDerivative {
    * @param deliveryFirstTime The first delivery time.
    * @param deliveryLastTime The last delivery time.
    * @param notional The notional of the bond future.
-   * @param deliveryBasket The basket of deliverable bonds.
+   * @param deliveryBasketAtDeliveryDate The basket of deliverable bonds at the last delivery date.
+   * @param deliveryBasketAtSpotDate The basket of deliverable bonds at the bonds standard spot date.
    * @param conversionFactor The conversion factor of each bond in the basket.
    */
-  public BondFuturesSecurity(double tradingLastTime, double noticeFirstTime, double noticeLastTime, double deliveryFirstTime, double deliveryLastTime, double notional,
-      BondFixedSecurity[] deliveryBasket, double[] conversionFactor) {
-    Validate.notNull(deliveryBasket, "Delivery basket");
-    Validate.notNull(conversionFactor, "Conversion factors");
-    Validate.isTrue(deliveryBasket.length > 0, "At least one bond in basket");
-    Validate.isTrue(deliveryBasket.length == conversionFactor.length, "Conversion factor size");
-    this._tradingLastTime = tradingLastTime;
-    this._noticeFirstTime = noticeFirstTime;
-    this._noticeLastTime = noticeLastTime;
-    this._deliveryFirstTime = deliveryFirstTime;
-    this._deliveryLastTime = deliveryLastTime;
-    this._deliveryBasket = deliveryBasket;
-    this._conversionFactor = conversionFactor;
-    this._notional = notional;
+  public BondFuturesSecurity(final double tradingLastTime, final double noticeFirstTime, final double noticeLastTime, final double deliveryFirstTime,
+      final double deliveryLastTime, final double notional, final BondFixedSecurity[] deliveryBasketAtDeliveryDate, final BondFixedSecurity[] deliveryBasketAtSpotDate,
+      final double[] conversionFactor) {
+    ArgumentChecker.notNull(deliveryBasketAtDeliveryDate, "Delivery basket at delivery date");
+    ArgumentChecker.notNull(deliveryBasketAtSpotDate, "Delivery basket at spot date");
+    ArgumentChecker.notNull(conversionFactor, "Conversion factors");
+    ArgumentChecker.isTrue(deliveryBasketAtDeliveryDate.length > 0, "At least one bond in basket");
+    ArgumentChecker.isTrue(deliveryBasketAtDeliveryDate.length == conversionFactor.length, "Conversion factor size");
+    ArgumentChecker.isTrue(deliveryBasketAtDeliveryDate.length == deliveryBasketAtSpotDate.length, "Delivery basket size");
+    _tradingLastTime = tradingLastTime;
+    _noticeFirstTime = noticeFirstTime;
+    _noticeLastTime = noticeLastTime;
+    _deliveryFirstTime = deliveryFirstTime;
+    _deliveryLastTime = deliveryLastTime;
+    _deliveryBasketAtDeliveryDate = deliveryBasketAtDeliveryDate;
+    _deliveryBasketAtSpotDate = deliveryBasketAtSpotDate;
+    _conversionFactor = conversionFactor;
+    _notional = notional;
   }
 
   /**
@@ -128,11 +136,19 @@ public class BondFuturesSecurity implements InstrumentDerivative {
   }
 
   /**
-   * Gets the basket of deliverable bonds.
-   * @return The basket of deliverable bonds.
+   * Gets the basket of deliverable bonds with settlement at the futures last delivery date.
+   * @return The basket.
    */
-  public BondFixedSecurity[] getDeliveryBasket() {
-    return _deliveryBasket;
+  public BondFixedSecurity[] getDeliveryBasketAtDeliveryDate() {
+    return _deliveryBasketAtDeliveryDate;
+  }
+
+  /**
+   * Gets the basket of deliverable bonds with settlement at the bonds standard spot date.
+   * @return The basket.
+   */
+  public BondFixedSecurity[] getDeliveryBasketAtSpotDate() {
+    return _deliveryBasketAtSpotDate;
   }
 
   /**
@@ -148,7 +164,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
    * @return The currency.
    */
   public Currency getCurrency() {
-    return _deliveryBasket[0].getCurrency();
+    return _deliveryBasketAtDeliveryDate[0].getCurrency();
   }
 
   @Override
@@ -166,7 +182,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_conversionFactor);
-    result = prime * result + Arrays.hashCode(_deliveryBasket);
+    result = prime * result + Arrays.hashCode(_deliveryBasketAtDeliveryDate);
     long temp;
     temp = Double.doubleToLongBits(_deliveryFirstTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -184,7 +200,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -194,11 +210,11 @@ public class BondFuturesSecurity implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFuturesSecurity other = (BondFuturesSecurity) obj;
+    final BondFuturesSecurity other = (BondFuturesSecurity) obj;
     if (!Arrays.equals(_conversionFactor, other._conversionFactor)) {
       return false;
     }
-    if (!Arrays.equals(_deliveryBasket, other._deliveryBasket)) {
+    if (!Arrays.equals(_deliveryBasketAtDeliveryDate, other._deliveryBasketAtDeliveryDate)) {
       return false;
     }
     if (Double.doubleToLongBits(_deliveryFirstTime) != Double.doubleToLongBits(other._deliveryFirstTime)) {

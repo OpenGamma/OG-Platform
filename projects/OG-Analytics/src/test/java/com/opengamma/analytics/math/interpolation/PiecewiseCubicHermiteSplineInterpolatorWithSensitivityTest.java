@@ -16,10 +16,12 @@ import com.opengamma.analytics.math.function.PiecewisePolynomialWithSensitivityF
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
 
   private final static MatrixAlgebra MA = new OGMatrixAlgebra();

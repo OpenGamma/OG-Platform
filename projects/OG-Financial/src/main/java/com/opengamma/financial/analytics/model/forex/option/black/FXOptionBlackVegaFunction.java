@@ -29,7 +29,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function calculating the total Black volatility sensitivity.
+ * @deprecated The parent of this class is deprecated
  */
+@Deprecated
 public class FXOptionBlackVegaFunction extends FXOptionBlackSingleValuedFunction {
 
   /**
@@ -66,7 +68,8 @@ public class FXOptionBlackVegaFunction extends FXOptionBlackSingleValuedFunction
     final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair,
         optionalProperties);
     if (scale == null || scale.isEmpty()) {
-      return properties.with(ValuePropertyNames.SCALE, Double.toString(1));
+      // return properties.with(ValuePropertyNames.SCALE, Double.toString(1));
+      return properties.withAny(ValuePropertyNames.SCALE);
     }
     return properties.with(ValuePropertyNames.SCALE, scale);
   }

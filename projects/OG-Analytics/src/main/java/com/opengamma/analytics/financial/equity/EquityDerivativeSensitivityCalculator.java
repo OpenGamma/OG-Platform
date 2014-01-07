@@ -1,24 +1,20 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
@@ -32,13 +28,14 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedSurfaceAdditiveShiftFunction;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * This Calculator provides simple bump and reprice sensitivities for Derivatives
  */
+@SuppressWarnings("deprecation")
 public class EquityDerivativeSensitivityCalculator {
   /** The default value of the absolute shift */
   private static final double DEFAULT_ABS_SHIFT = 0.0001; // Shift used for vol, +/- 1bp == 0.01%
@@ -170,17 +167,13 @@ public class EquityDerivativeSensitivityCalculator {
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
     final YieldCurve discCrv = (YieldCurve) market.getDiscountCurve();
-    final String discCrvName = discCrv.getCurve().getName();
-    final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
-    interpolatedCurves.setCurve(discCrvName, discCrv);
 
     final double settlement = derivative.accept(SETTLEMENT_CALCULATOR);
-    final Double sens = calcDiscountRateSensitivity(derivative, market);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
-    curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
+    final double sens = calcDiscountRateSensitivity(derivative, market);
 
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-    return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
+    final List<Double> result = distributor.curveToNodeSensitivity(Arrays.asList(DoublesPair.of(settlement, sens)), discCrv);
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
   /**

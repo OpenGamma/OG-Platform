@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.inflation.generator;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -21,7 +21,7 @@ public class GeneratorPriceIndexCurveInterpolated extends GeneratorPriceIndexCur
   /**
    * Calculator of the node associated to instruments.
    */
-  private final InstrumentDerivativeVisitorAdapter<Object, Double> _nodeTimeCalculator;
+  private final InstrumentDerivativeVisitor<Object, Double> _nodeTimeCalculator;
   /**
    * The interpolator used for the discount factors.
    */
@@ -32,7 +32,7 @@ public class GeneratorPriceIndexCurveInterpolated extends GeneratorPriceIndexCur
    * @param nodeTimeCalculator Calculator of the node associated to instruments.
    * @param interpolator The interpolator used for the curve.
    */
-  public GeneratorPriceIndexCurveInterpolated(final InstrumentDerivativeVisitorAdapter<Object, Double> nodeTimeCalculator, final Interpolator1D interpolator) {
+  public GeneratorPriceIndexCurveInterpolated(final InstrumentDerivativeVisitor<Object, Double> nodeTimeCalculator, final Interpolator1D interpolator) {
     _nodeTimeCalculator = nodeTimeCalculator;
     _interpolator = interpolator;
   }
@@ -43,12 +43,12 @@ public class GeneratorPriceIndexCurveInterpolated extends GeneratorPriceIndexCur
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, double[] parameters) {
+  public PriceIndexCurve generateCurve(final String name, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot return the number of parameter for a GeneratorPriceIndexCurveInterpolated");
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
+  public PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 

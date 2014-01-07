@@ -23,6 +23,7 @@ import com.opengamma.engine.resource.EngineResourceManagerInternal;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.engine.view.permission.ViewPortfolioPermissionProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCacheLock;
@@ -37,6 +38,7 @@ public class ViewProcessContext {
   private final UniqueId _processId;
   private final ConfigSource _configSource;
   private final ViewPermissionProvider _viewPermissionProvider;
+  private final ViewPortfolioPermissionProvider _viewPortfolioPermissionProvider;
   private final CompiledFunctionService _functionCompilationService;
   private final FunctionResolver _functionResolver;
   private final ViewComputationCacheSource _computationCacheSource;
@@ -72,6 +74,7 @@ public class ViewProcessContext {
       final UniqueId processId,
       final ConfigSource configSource,
       final ViewPermissionProvider viewPermissionProvider,
+      final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider,
       final MarketDataProviderResolver marketDataProviderResolver,
       final CompiledFunctionService functionCompilationService,
       final FunctionResolver functionResolver,
@@ -88,6 +91,7 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(processId, "processId");
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
+    ArgumentChecker.notNull(viewPortfolioPermissionProvider, "viewPortfolioPermissionProvider");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
@@ -104,6 +108,7 @@ public class ViewProcessContext {
     _processId = processId;
     _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
+    _viewPortfolioPermissionProvider = viewPortfolioPermissionProvider;
     final MarketDataInjectorImpl liveDataOverrideInjector = new MarketDataInjectorImpl();
     _liveDataOverrideInjector = liveDataOverrideInjector;
     _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
@@ -144,8 +149,17 @@ public class ViewProcessContext {
   }
 
   /**
+   * Gets the view portfolio permission provider
+   *
+   * @return the view portfolio permission provider, not null
+   */
+  public ViewPortfolioPermissionProvider getViewPortfolioPermissionProvider() {
+    return _viewPortfolioPermissionProvider;
+  }
+
+  /**
    * Gets the market data provider resolver.
-   * 
+   *
    * @return the market data provider resolver, not null
    */
   public MarketDataProviderResolver getMarketDataProviderResolver() {

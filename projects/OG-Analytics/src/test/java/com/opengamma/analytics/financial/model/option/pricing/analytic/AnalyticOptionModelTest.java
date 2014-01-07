@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
@@ -24,10 +24,15 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public abstract class AnalyticOptionModelTest {
   protected static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> DUMMY_MODEL = new AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle>() {
@@ -64,7 +69,7 @@ public abstract class AnalyticOptionModelTest {
 
   @Test
   public void testFiniteDifferenceAgainstBSM() {
-    final Set<Greek> greekTypes = new HashSet<Greek>(Greek.getAllGreeks());
+    final Set<Greek> greekTypes = new HashSet<>(Greek.getAllGreeks());
     greekTypes.remove(Greek.DRIFTLESS_THETA);
     greekTypes.remove(Greek.STRIKE_DELTA);
     greekTypes.remove(Greek.STRIKE_GAMMA);

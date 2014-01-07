@@ -43,10 +43,50 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   private VersionCorrection _versionCorrection;
   private final Map<String, ViewCalculationResultModelImpl> _resultsByConfiguration = new HashMap<String, ViewCalculationResultModelImpl>();
   private final Map<ComputationTargetSpecification, ViewTargetResultModelImpl> _resultsByTarget = new HashMap<ComputationTargetSpecification, ViewTargetResultModelImpl>();
-  private final List<ViewResultEntry> _allResults = new ArrayList<ViewResultEntry>();
+
+  public InMemoryViewResultModel() {
+  }
+
+  public InMemoryViewResultModel(final ViewResultModel copyFrom) {
+    update(copyFrom);
+  }
+
+  /**
+   * Updates the data held in this model with data from (and about) a delta cycle.
+   * 
+   * @param delta the delta results, not null
+   */
+  public void update(final ViewResultModel delta) {
+    setViewProcessId(delta.getViewProcessId());
+    setViewCycleId(delta.getViewCycleId());
+    setViewCycleExecutionOptions(delta.getViewCycleExecutionOptions());
+    setCalculationTime(delta.getCalculationTime());
+    setCalculationDuration(delta.getCalculationDuration());
+    setVersionCorrection(delta.getVersionCorrection());
+    for (String calculationConfiguration : delta.getCalculationConfigurationNames()) {
+      final ViewCalculationResultModel deltaConfigResults = delta.getCalculationResult(calculationConfiguration);
+      ViewCalculationResultModelImpl calcConfigResults = _resultsByConfiguration.get(calculationConfiguration);
+      if (calcConfigResults == null) {
+        calcConfigResults = new ViewCalculationResultModelImpl();
+        _resultsByConfiguration.put(calculationConfiguration, calcConfigResults);
+      }
+      for (ComputationTargetSpecification target : deltaConfigResults.getAllTargets()) {
+        for (ComputedValueResult value : deltaConfigResults.getAllValues(target)) {
+          calcConfigResults.addValue(target, value);
+          ViewTargetResultModelImpl targetResults = _resultsByTarget.get(target);
+          if (targetResults == null) {
+            targetResults = new ViewTargetResultModelImpl();
+            _resultsByTarget.put(target, targetResults);
+          }
+          targetResults.addValue(calculationConfiguration, value);
+        }
+      }
+    }
+  }
 
   public boolean isEmpty() {
-    return _allResults.isEmpty();
+    // Adding any results makes the maps non-empty
+    return _resultsByTarget.isEmpty();
   }
 
   @Override
@@ -117,23 +157,18 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
 
   public void addValue(final String calcConfigurationName, final ComputedValueResult value) {
     final ComputationTargetSpecification target = value.getSpecification().getTargetSpecification();
-
     ViewCalculationResultModelImpl result = _resultsByConfiguration.get(calcConfigurationName);
     if (result == null) {
       result = new ViewCalculationResultModelImpl();
       _resultsByConfiguration.put(calcConfigurationName, result);
     }
     result.addValue(target, value);
-
     ViewTargetResultModelImpl targetResult = _resultsByTarget.get(target);
     if (targetResult == null) {
       targetResult = new ViewTargetResultModelImpl();
       _resultsByTarget.put(target, targetResult);
     }
-
     targetResult.addValue(calcConfigurationName, value);
-
-    _allResults.add(new ViewResultEntry(calcConfigurationName, value));
   }
 
   @Override
@@ -153,7 +188,23 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
 
   @Override
   public List<ViewResultEntry> getAllResults() {
-    return Collections.unmodifiableList(_allResults);
+    final ArrayList<ViewResultEntry> results = new ArrayList<ViewResultEntry>();
+    for (Map.Entry<String, ViewCalculationResultModelImpl> config : _resultsByConfiguration.entrySet()) {
+      final Collection<ComputationTargetSpecification> targets = config.getValue().getAllTargets();
+      int numTargets = targets.size();
+      int totalComputedValues = 0;
+      int targetsSeen = 0;
+      for (ComputationTargetSpecification target : targets) {
+        final Collection<ComputedValueResult> computedValues = config.getValue().getAllValues(target);
+        totalComputedValues += computedValues.size();
+        targetsSeen++;
+        results.ensureCapacity(numTargets * (totalComputedValues / targetsSeen));
+        for (ComputedValueResult computedValue : computedValues) {
+          results.add(new ViewResultEntry(config.getKey(), computedValue));
+        }
+      }
+    }
+    return results;
   }
 
   @Override

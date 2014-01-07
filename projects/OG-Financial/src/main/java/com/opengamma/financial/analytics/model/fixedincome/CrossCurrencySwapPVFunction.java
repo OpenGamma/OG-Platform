@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Calculates the present value of a cross-currency swap.
- * @deprecated Return a double which the sum of the values of the two legs without conversion. Should be removed.
+ * @deprecated Return a double which is the sum of the values of the two legs without conversion. Should be removed.
  */
 @Deprecated
 public class CrossCurrencySwapPVFunction extends CrossCurrencySwapFunction {

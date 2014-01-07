@@ -309,6 +309,7 @@
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.aggregators.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.blotter.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.user.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.compressor.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.configs.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.exchanges.js</fragment>
@@ -371,6 +372,8 @@
     <fragment>/scripts/og/common/og.common.timeseries_menu.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries_data.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
+    <fragment>/scripts/og/common/og.common.user.js</fragment>
+    <fragment>/scripts/og/common/og.common.error.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
@@ -410,7 +413,7 @@
     <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="blotter.js">
@@ -423,18 +426,24 @@
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.floatingleg.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.fixedleg.js</fragment>
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.inflationindexleg.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.cds.js</fragment>
     <!--OTC Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swapsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.yearonyearinflationswapsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.zerocouponinflationswapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equityvarianceswapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxbarrieroptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxforwardsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxoptionbasesecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxoptionsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxdigitaloptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.nondeliverablefxoptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cashsecurity.js</fragment>
     <!--CDS Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyfixedrecoverycdssecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.legacyrecoverylockcdssecurity.js</fragment>

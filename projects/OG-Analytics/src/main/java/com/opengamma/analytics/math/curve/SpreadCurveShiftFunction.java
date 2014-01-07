@@ -1,24 +1,25 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.curve;
 
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Shifts a {@link SpreadDoublesCurve}. Only parallel shifts are supported.
  */
 public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDoublesCurve> {
-  private static final CurveSpreadFunction SPREAD_FUNCTION = new AddCurveSpreadFunction();
+  /** An additive curve function */
+  private static final CurveSpreadFunction SPREAD_FUNCTION = AddCurveSpreadFunction.getInstance();
 
   /**
    * {@inheritDoc}
    */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     return evaluate(curve, shift, "PARALLEL_SHIFT_" + curve.getName());
   }
 
@@ -27,7 +28,7 @@ public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDouble
    */
   @Override
   public SpreadDoublesCurve evaluate(final SpreadDoublesCurve curve, final double shift, final String newName) {
-    Validate.notNull(curve, "curve");
+    ArgumentChecker.notNull(curve, "curve");
     final int n = curve.getUnderlyingCurves().length;
     final DoublesCurve[] curves = new DoublesCurve[n + 1];
     int i = 0;

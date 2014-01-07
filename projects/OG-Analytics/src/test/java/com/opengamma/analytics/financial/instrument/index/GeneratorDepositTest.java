@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -17,24 +16,26 @@ import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.index.generator.USDDeposit;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructor and method of GeneratorDeposit.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorDepositTest {
   // USD deposits
   private static final String NAME = "USD Deposit";
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.USD;
   private static final GeneratorDeposit GENERATOR_DEPOSIT_USD = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
@@ -72,7 +73,7 @@ public class GeneratorDepositTest {
 
   @Test
   public void usdDeposit() {
-    GeneratorDeposit preDefined = new USDDeposit(CALENDAR);
+    final GeneratorDeposit preDefined = new USDDeposit(CALENDAR);
     assertEquals("Generator Deposit: getter", CUR, preDefined.getCurrency());
     assertEquals("Generator Deposit: getter", CALENDAR, preDefined.getCalendar());
     assertEquals("Generator Deposit: getter", SETTLEMENT_DAYS, preDefined.getSpotLag());
@@ -84,7 +85,7 @@ public class GeneratorDepositTest {
   @Test
   public void equalHash() {
     assertEquals(GENERATOR_DEPOSIT_USD, GENERATOR_DEPOSIT_USD);
-    GeneratorDeposit duplicate = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    final GeneratorDeposit duplicate = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertEquals("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD, duplicate);
     assertEquals("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.hashCode(), duplicate.hashCode());
     GeneratorDeposit other;
@@ -94,9 +95,9 @@ public class GeneratorDepositTest {
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.equals(other));
     other = new GeneratorDeposit(NAME, CUR, CALENDAR, 1, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.equals(other));
-    other = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BUSINESS_DAY, IS_EOM);
+    other = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DayCounts.ACT_365, BUSINESS_DAY, IS_EOM);
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.equals(other));
-    other = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), IS_EOM);
+    other = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BusinessDayConventions.FOLLOWING, IS_EOM);
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.equals(other));
     other = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, !IS_EOM);
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.equals(other));
@@ -104,16 +105,16 @@ public class GeneratorDepositTest {
 
   @Test
   public void generateInstrument() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.ofMonths(6);
-    double rate = 0.01;
-    double notional = 12345;
-    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);
-    CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, rate, notional, attribute);
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
-    double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
-    CashDefinition insExpected = new CashDefinition(CUR, startDate, endDate, notional, rate, accrualFactor);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    final Period tenor = Period.ofMonths(6);
+    final double rate = 0.01;
+    final double notional = 12345;
+    final GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);
+    final CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, rate, notional, attribute);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
+    final double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
+    final CashDefinition insExpected = new CashDefinition(CUR, startDate, endDate, notional, rate, accrualFactor);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

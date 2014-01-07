@@ -51,8 +51,11 @@ public final class HistoricalTimeSeriesBundle {
         addImpl(id, hts);
       }
     }
-
-    private void lookup() {
+    
+    /*
+     * Added synchronized here because the hashmap was getting corrupted by concurrent access. 
+     */
+    private synchronized void lookup() {
       if (_lookup != null) {
         return;
       }
@@ -78,7 +81,10 @@ public final class HistoricalTimeSeriesBundle {
       return getImpl(id);
     }
 
-    public void add(final ExternalIdBundle bundle, final HistoricalTimeSeries timeSeries) {
+    /*
+     * Added synchronized here because the hashmap was getting corrupted by concurrent access. 
+     */
+    public synchronized void add(final ExternalIdBundle bundle, final HistoricalTimeSeries timeSeries) {
       _timeSeries.put(bundle, timeSeries);
       if (_lookup != null) {
         addImpl(bundle, timeSeries);

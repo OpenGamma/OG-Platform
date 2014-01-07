@@ -26,6 +26,22 @@ public class YieldCurveManipulatorBuilder {
   }
 
   /**
+   * @return the configured selector
+   */
+  public YieldCurveSelector getSelector() {
+    return _selector;
+  }
+
+  /**
+   * @return the configured scenario
+   */
+  public Scenario getScenario() {
+    return _scenario;
+  }
+
+
+
+  /**
    * Adds an action to perform a parallel shift to the scenario.
    * @param shift The size of the shift
    * @return This builder
@@ -46,5 +62,24 @@ public class YieldCurveManipulatorBuilder {
     return this;
   }
 
-  // TODO what other manipulations do we need to support?
+  
+  /**
+   * Creates a bucketed shift builder with the given type
+   * @param type the type of the shift
+   * @return the bucketed shift builder
+   */
+  public final BucketedShiftManipulatorBuilder bucketedShifts(BucketedShiftType type) {
+    return new BucketedShiftManipulatorBuilder(_selector, _scenario, type);
+  }
+  
+
+  /**
+   * Creates a point shift builder
+   * @return the point shifts builder
+   */
+  public final PointShiftManipulatorBuilder pointShifts() {
+    return new PointShiftManipulatorBuilder(_selector, _scenario);
+  }
+  
+  
 }

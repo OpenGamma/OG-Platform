@@ -1,18 +1,22 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderDiscount;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing the data required to price instruments with the volatility delta and time dependent.
+ * @deprecated Use {@link BlackForexSmileProviderDiscount}
  */
+@Deprecated
 public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<SmileDeltaTermStructureParametersStrikeInterpolation> {
 
   public static SmileDeltaTermStructureDataBundle from(final YieldCurveBundle ycBundle, final SmileDeltaTermStructureParametersStrikeInterpolation smile, final Pair<Currency, Currency> currencyPair) {
@@ -33,7 +37,7 @@ public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<Smi
   public SmileDeltaTermStructureDataBundle copy() {
     final YieldCurveBundle curves = getCurvesCopy();
     final SmileDeltaTermStructureParametersStrikeInterpolation smile = getVolatilityModel().copy();
-    final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
+    final Pair<Currency, Currency> currencyPair = Pairs.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new SmileDeltaTermStructureDataBundle(curves, smile, currencyPair);
   }
 

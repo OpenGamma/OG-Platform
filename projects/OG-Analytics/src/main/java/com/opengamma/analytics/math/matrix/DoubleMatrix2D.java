@@ -93,7 +93,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
     }
   }
 
-  private DoubleMatrix2D(final double[][] data, final boolean copy) {
+  private DoubleMatrix2D(final double[][] data, @SuppressWarnings("unused") final boolean copy) {
     _rows = data.length;
     _columns = data[0].length;
     _elements = _rows * _columns;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -28,14 +29,17 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Sets of market data used in Forex tests.
+ * @deprecated This class produces deprecated objects
  */
+@Deprecated
 public class TestsDataSetsForex {
   private static final Currency KRW = Currency.of("KRW");
   private static final String DISCOUNTING_EUR = "Discounting EUR";
@@ -93,7 +97,7 @@ public class TestsDataSetsForex {
     final String disc = "Discounting ";
     final String disc1 = disc + ccy1.toString();
     final String disc2 = disc + ccy2.toString();
-    final Map<String, Currency> map = new HashMap<String, Currency>();
+    final Map<String, Currency> map = new HashMap<>();
     map.put(disc1, ccy1);
     map.put(disc2, ccy2);
     final YieldAndDiscountCurve CURVE_1 = YieldCurve.from(ConstantDoublesCurve.from(0.0100));
@@ -129,7 +133,7 @@ public class TestsDataSetsForex {
   }
 
   public static Map<String, Currency> curveCurrency() {
-    final Map<String, Currency> map = new HashMap<String, Currency>();
+    final Map<String, Currency> map = new HashMap<>();
     map.put(DISCOUNTING_EUR, EUR);
     map.put(DISCOUNTING_USD, USD);
     map.put(DISCOUNTING_GBP, Currency.GBP);
@@ -138,7 +142,7 @@ public class TestsDataSetsForex {
   }
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final int SETTLEMENT_DAYS = 2;
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
   private static final int NB_EXP = EXPIRY_PERIOD.length;
@@ -214,7 +218,7 @@ public class TestsDataSetsForex {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    double[] atmFlat = new double[ATM.length];
+    final double[] atmFlat = new double[ATM.length];
     Arrays.fill(atmFlat, volatility);
     return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, atmFlat, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
   }

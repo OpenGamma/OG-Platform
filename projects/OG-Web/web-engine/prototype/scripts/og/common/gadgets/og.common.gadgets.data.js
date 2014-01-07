@@ -60,8 +60,9 @@ $.register_module({
                 if (!data || !data.length) return;
                 return {
                     meta: meta(dataman, data.length, ['X', 'Y'], 50),
-                    data: data
-                        .reduce(function (acc, val, idx) {return acc.concat({v: idx + 1}, val.map(cell_value));}, []),
+                    data: data.reduce(function (acc, val, idx) {
+                        return acc.concat({v: idx + 1}, val.map(cell_value));
+                    }, [])
                 };
             },
             LABELLED_MATRIX_1D: function (dataman, data) {
@@ -72,7 +73,9 @@ $.register_module({
                 );
                 return {
                     meta: meta(dataman, data.data.length, cols, fixed_width, true),
-                    data: data.data.reduce(function (acc, val) {return acc.concat(val.map(cell_value));}, []),
+                    data: data.data.reduce(function (acc, val) {
+                        return acc.concat(val.map(cell_value));
+                    }, [])
                 };
             },
             LABELLED_MATRIX_2D: function (dataman, data) {
@@ -81,8 +84,9 @@ $.register_module({
                     fixed_width = Math.max.apply(null, data.yLabels.pluck('length')) * char_width;
                 return {
                     meta: meta(dataman, rows.length, cols, fixed_width, cols.length === 1 + data.matrix[0].length),
-                    data: data.matrix
-                        .reduce(function (acc, val, idx) {return acc.concat(rows[idx], val.map(cell_value));}, []),
+                    data: data.matrix.reduce(function (acc, val, idx) {
+                        return acc.concat(rows[idx], val.map(cell_value));
+                    }, [])
                 };
             },
             MATRIX_2D: function (dataman, data) {
@@ -90,8 +94,9 @@ $.register_module({
                 var cols = col_names(data[0].length);
                 return {
                     meta: meta(dataman, data.length, cols, 50),
-                    data: data
-                        .reduce(function (acc, val, idx) {return acc.concat({v: idx + 1}, val.map(cell_value));}, []),
+                    data: data.reduce(function (acc, val, idx) {
+                        return acc.concat({v: idx + 1}, val.map(cell_value));
+                    }, [])
                 };
             },
             SURFACE_DATA: function (dataman, data) {
@@ -119,11 +124,12 @@ $.register_module({
                 };
             }
         };
-        var DataMan = function (row, col, type, source, config) {
+        var DataMan = function (req, colset, row, col, type, source, config) {
             var dataman = this, format = formatters[type].partial(dataman);
             dataman.cell = (config.parent ? config.parent.cell : new og.analytics
                 .Cells({ // TODO: stop special casing CURVE gadgets (they need nodal + interpolated)
-                    source: source, single: {row: row, col: col}, format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
+                    source: source, single: {req: req, colset: colset, row: row, col: col},
+                    format: type === 'CURVE' ? 'CELL' : 'EXPANDED'
                 }, config.label))
                 .on('title', function (row_name, col_name, name) {dataman.fire('title', row_name, col_name, name);})
                 .on('data', function (raw) {
@@ -178,11 +184,13 @@ $.register_module({
             var gadget = this;
             if (!formatters[config.type]) // return null or a primitive because this is a constructor
                 return $(config.selector).html('Data gadget cannot render ' + config.type), null;
+            // if config.req or config.colset do not exist (grids opened off a dependency graph) then null
+            // needs to be passed to DataMan.partial ignores them.
             Grid.call(gadget, {
                 selector: config.selector, child: config.child, show_sets: false, show_views: false,
                 source: config.source, dataman: config.rest_options
                     ? RestDataMan.partial(config.resource, config.rest_options, config.type)
-                    : DataMan.partial(config.row, config.col, config.type)
+                    : DataMan.partial(config.req || null, config.colset || null, config.row, config. col, config.type)
             });
             gadget.on('fatal', function (message) {$(config.selector).html(message);});
         };

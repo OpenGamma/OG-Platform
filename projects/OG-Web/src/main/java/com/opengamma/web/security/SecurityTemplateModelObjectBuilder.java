@@ -34,6 +34,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -54,6 +55,8 @@ import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationMaster;
@@ -66,7 +69,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Builds the model object used in the security freemarker templates
  */
-/*package*/ class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
+public class SecurityTemplateModelObjectBuilder extends FinancialSecurityVisitorSameValueAdapter<Void> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTemplateModelObjectBuilder.class);
   
@@ -268,6 +271,27 @@ import com.opengamma.util.time.Tenor;
         s_logger.warn("{} does not currently support CDSOption underlying lookup based on {}", WebSecuritiesResource.class, underlyingId.getScheme().getName());
       }
     }
+    return null;
+  }
+  
+  @Override
+  public Void visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+    addFutureSecurityType("FederalFundsFutureSecurity");
+    addUnderlyingSecurity(security.getUnderlyingId());
+    return null;
+  }
+  
+  @Override
+  public Void visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    _out.put("payLegType", security.getPayLeg().accept(new SwapLegClassifierVisitor()));
+    _out.put("receiveLegType", security.getReceiveLeg().accept(new SwapLegClassifierVisitor()));
+    return null;
+  }
+  
+  @Override
+  public Void visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+    _out.put("payLegType", security.getPayLeg().accept(new SwapLegClassifierVisitor()));
+    _out.put("receiveLegType", security.getReceiveLeg().accept(new SwapLegClassifierVisitor()));
     return null;
   }
 

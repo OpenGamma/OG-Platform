@@ -5,6 +5,11 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import groovy.lang.Binding;
+import groovy.lang.Closure;
+import groovy.lang.GroovyObjectSupport;
+import groovy.lang.Script;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -15,11 +20,6 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-
-import groovy.lang.Binding;
-import groovy.lang.Closure;
-import groovy.lang.GroovyObjectSupport;
-import groovy.lang.Script;
 
 /**
  * Base class for scripts that create {@link Simulation}s and {@link Scenario}s. The methods in this class are available
@@ -62,7 +62,7 @@ public abstract class SimulationScript extends Script {
    * </pre>
    * @param body The block that defines the script's parameters
    */
-  public void parameters(Closure body) {
+  public void parameters(Closure<?> body) {
     ParametersDelegate parametersDelegate = new ParametersDelegate();
     body.setDelegate(parametersDelegate);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -120,7 +120,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the simulation
    * @return The simulation
    */
-  public Simulation simulation(String name, Closure body) {
+  public Simulation simulation(String name, Closure<?> body) {
     _simulation = new Simulation(name);
     body.setDelegate(_simulation);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -134,7 +134,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the scenario
    * @return The scenario
    */
-  public Scenario scenario(String name, Closure body) {
+  public Scenario scenario(String name, Closure<?> body) {
     // scenarios can be defined as part of a simulation or stand-alone
     if (_simulation != null) {
       _scenario = _simulation.scenario(name);
@@ -151,7 +151,7 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure which defines how to select and transform a curve.
    * @param body The block that defines the selection and transformation
    */
-  public void curve(Closure body) {
+  public void curve(Closure<?> body) {
     CurveBuilder selector = new CurveBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -162,7 +162,7 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure which defines how to select and transform a market data point.
    * @param body The block that defines the selection and transformation
    */
-  public void marketData(Closure body) {
+  public void marketData(Closure<?> body) {
     PointBuilder selector = new PointBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -173,7 +173,7 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure which defines how to select and transform a volatility surface.
    * @param body The block that defines the selection and transformation
    */
-  public void surface(Closure body) {
+  public void surface(Closure<?> body) {
     SurfaceBuilder selector = new SurfaceBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -189,7 +189,8 @@ public abstract class SimulationScript extends Script {
       super(scenario);
     }
 
-    public void apply(Closure body) {
+    @SuppressWarnings("unused")
+    public void apply(Closure<?> body) {
       VolatilitySurfaceManipulatorBuilder builder = new VolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -206,7 +207,8 @@ public abstract class SimulationScript extends Script {
       super(scenario);
     }
 
-    public void apply(Closure body) {
+    @SuppressWarnings("unused")
+    public void apply(Closure<?> body) {
       PointManipulatorBuilder builder = new PointManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
@@ -223,11 +225,44 @@ public abstract class SimulationScript extends Script {
       super(scenario);
     }
 
-    public void apply(Closure body) {
-      YieldCurveManipulatorBuilder builder = new YieldCurveManipulatorBuilder(getSelector(), getScenario());
+    @SuppressWarnings("unused")
+    public void apply(Closure<?> body) {
+      YieldCurveManipulatorBuilder builder = new GroovyYieldCurveManipulatorBuilder(getSelector(), getScenario());
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }
+  
+  /**
+   * Delegate class for closures that defines closure compatible builder methods
+   * for {@link YieldCurveManipulatorBuilder} in the DSL.
+   */
+  private static final class GroovyYieldCurveManipulatorBuilder extends YieldCurveManipulatorBuilder {
+    
+    
+    GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
+      super(selector, scenario);
+    }
+    
+    @SuppressWarnings("unused")
+    public void bucketedShifts(BucketedShiftType type, Closure<?> body) {
+      BucketedShiftManipulatorBuilder builder = new BucketedShiftManipulatorBuilder(getSelector(), getScenario(), type);
+      body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
+      body.call();
+      builder.apply();
+    }
+    
+    @SuppressWarnings("unused")
+    public void pointShifts(Closure<?> body) {
+      PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario());
+      body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
+      body.call();
+      builder.apply();
+    }
+    
+  }
+  
 }

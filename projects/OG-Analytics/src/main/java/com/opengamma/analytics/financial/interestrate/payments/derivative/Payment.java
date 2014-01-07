@@ -70,13 +70,13 @@ public abstract class Payment implements InstrumentDerivative {
 
   /**
    * Gets the _fundingCurveName field.
-   * @return the funding curve name
+   * @return The funding curve name.
    * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
   @Deprecated
   public String getFundingCurveName() {
     if (_fundingCurveName == null) {
-      throw new IllegalStateException("Funding curve name was not set"); 
+      throw new IllegalStateException("Funding curve name was not set");
     }
     return _fundingCurveName;
   }

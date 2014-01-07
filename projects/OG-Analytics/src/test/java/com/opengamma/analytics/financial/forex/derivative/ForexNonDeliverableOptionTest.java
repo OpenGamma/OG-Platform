@@ -7,8 +7,13 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ForexNonDeliverableOptionTest {
 
   private static final Currency KRW = Currency.of("KRW");
@@ -22,10 +27,7 @@ public class ForexNonDeliverableOptionTest {
   private static final double FIXING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE);
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
 
-  private static final String KRW_DSC = "Discounting KRW";
-  private static final String USD_DSC = "Discounting USD";
-
-  private static final ForexNonDeliverableForward NDF = new ForexNonDeliverableForward(KRW, USD, NOMINAL_USD, STRIKE_USD_KRW, FIXING_TIME, PAYMENT_TIME, KRW_DSC, USD_DSC);
+  private static final ForexNonDeliverableForward NDF = new ForexNonDeliverableForward(KRW, USD, NOMINAL_USD, STRIKE_USD_KRW, FIXING_TIME, PAYMENT_TIME);
 
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;

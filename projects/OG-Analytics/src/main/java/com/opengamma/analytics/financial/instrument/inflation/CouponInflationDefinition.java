@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -14,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -36,11 +36,11 @@ public abstract class CouponInflationDefinition extends CouponDefinition impleme
    * @param notional Coupon notional.
    * @param priceIndex The price index.
    */
-  public CouponInflationDefinition(Currency currency, ZonedDateTime paymentDate, ZonedDateTime accrualStartDate, ZonedDateTime accrualEndDate, double paymentYearFraction, double notional,
-      IndexPrice priceIndex) {
+  public CouponInflationDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+      final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
-    Validate.notNull(priceIndex, "Price index");
-    this._indexPrice = priceIndex;
+    ArgumentChecker.notNull(priceIndex, "Price index");
+    _indexPrice = priceIndex;
   }
 
   /**
@@ -75,7 +75,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition impleme
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -85,7 +85,7 @@ public abstract class CouponInflationDefinition extends CouponDefinition impleme
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationDefinition other = (CouponInflationDefinition) obj;
+    final CouponInflationDefinition other = (CouponInflationDefinition) obj;
     if (!ObjectUtils.equals(_indexPrice, other._indexPrice)) {
       return false;
     }

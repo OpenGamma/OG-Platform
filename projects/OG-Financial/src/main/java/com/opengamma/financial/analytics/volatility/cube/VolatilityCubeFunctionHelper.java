@@ -1,6 +1,6 @@
-/*
+/**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube;
@@ -13,6 +13,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
@@ -32,7 +33,7 @@ public class VolatilityCubeFunctionHelper {
   private VolatilityCubeDefinition _definition;
 
 
-  public VolatilityCubeFunctionHelper(Currency currency, String definitionName) {
+  public VolatilityCubeFunctionHelper(final Currency currency, final String definitionName) {
     _definitionName = definitionName;
     _currency = currency;
   }
@@ -73,22 +74,17 @@ public class VolatilityCubeFunctionHelper {
     // ENG-252 expiry logic is wrong so make it valid for the current day only
     final Instant eod = atZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant();
     Instant expiry = null;
-    // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
-    // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
-    // if (expiry.isBefore(eod)) {
     expiry = eod;
-    // }
-    return new Triple<Instant, Instant, VolatilityCubeSpecification>(atZDT.with(LocalTime.MIDNIGHT).toInstant(),
+    return new Triple<>(atZDT.with(LocalTime.MIDNIGHT).toInstant(),
       expiry, specification);
   }
 
-  private VolatilityCubeDefinition getDefinition(FunctionCompilationContext context) {
-    final VolatilityCubeDefinitionSource defnSource = OpenGammaCompilationContext
-      .getVolatilityCubeDefinitionSource(context);
-    return defnSource.getDefinition(_currency, _definitionName);
+  private VolatilityCubeDefinition getDefinition(final FunctionCompilationContext context) {
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    return configSource.getLatestByName(VolatilityCubeDefinition.class, _definitionName + "_" + _currency);
   }
 
-  private VolatilityCubeSpecification buildSpecification(LocalDate curveDate) {
+  private VolatilityCubeSpecification buildSpecification(final LocalDate curveDate) {
     return null; //TODO this when we know how to resolve
   }
 

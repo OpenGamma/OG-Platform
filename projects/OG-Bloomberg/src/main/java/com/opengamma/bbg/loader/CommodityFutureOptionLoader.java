@@ -94,7 +94,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
       BBG_FOODSTUFF,
       BBG_LIVESTOCK);
 
-  private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
+  private static final ExchangeDataProvider s_exchangeData = DefaultExchangeDataProvider.getInstance();
 
   /**
    * Creates an instance.
@@ -180,7 +180,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
 
     // currently we will pick up the unified bbg exchange code - we try to map to MIC via the description
     if (exchangeDescription != null) {
-      final String exchangeMIC = exchangeData.getExchangeFromDescription(exchangeCode).getMic();
+      final String exchangeMIC = s_exchangeData.getExchangeFromDescription(exchangeCode).getMic();
       if (exchangeMIC != null) {
         exchangeCode = exchangeMIC;
       }

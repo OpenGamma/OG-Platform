@@ -32,6 +32,13 @@ public class StepUpperInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double x) {
+    Validate.notNull(x, "value");
+    Validate.notNull(data, "data bundle");
+    return 0.;
+  }
+
+  @Override
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return new ArrayInterpolator1DDataBundle(x, y);
   }

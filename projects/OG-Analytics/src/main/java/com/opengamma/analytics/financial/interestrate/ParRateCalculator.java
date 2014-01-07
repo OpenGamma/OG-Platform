@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
@@ -25,17 +24,21 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponONDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
 
 /**
  * Get the single fixed rate that makes the PV of the instrument zero. For  fixed-float swaps this is the swap rate, for FRAs it is the forward etc.
  * For instruments that cannot PV to zero, e.g. bonds, a single payment of -1.0 is assumed at zero (i.e. the bond must PV to 1.0)
+ * @deprecated Use the par rate calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
@@ -62,16 +65,14 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
 
-  private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
+  private static final CouponONDiscountingMethod METHOD_OIS = CouponONDiscountingMethod.getInstance();
   private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
-  //  private static final CouponIborGearingDiscountingMethod METHOD_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_IRFUT_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
-  private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -163,6 +164,20 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   }
 
   /**
+   * Computes the swap convention-modified par rate for a fixed coupon swap.
+   * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
+   * @param swap The swap.
+   * @param dayCount The day count convention to modify the swap rate.
+   * @param curves The curves.
+   * @param calendar The calendar
+   * @return The modified rate.
+   */
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final YieldCurveBundle curves, final Calendar calendar) {
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, calendar, curves);
+    return visitFixedCouponSwap(swap, pvbp, curves);
+  }
+
+  /**
    * Computes the swap convention-modified par rate for a fixed coupon swap with a PVBP externally provided.
    * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
    * @param swap The swap.
@@ -212,7 +227,6 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   // TODO: review
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
-   * For a bonds yield use ??????????????? //TODO
    * @param bond the bond
    * @param curves the input curves
    * @return the par rate
@@ -225,7 +239,7 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
     for (int i = 0; i < n; i++) {
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
-    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
+    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<>(unitCoupons);
     final double pvann = unitCouponAnnuity.accept(PVC, curves);
     final double matPV = bond.getNominal().accept(PVC, curves);
     return (1 - matPV) / pvann;

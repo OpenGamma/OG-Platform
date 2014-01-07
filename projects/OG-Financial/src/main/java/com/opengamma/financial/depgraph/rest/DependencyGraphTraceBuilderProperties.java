@@ -8,10 +8,11 @@ package com.opengamma.financial.depgraph.rest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.threeten.bp.Instant;
 
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.VersionCorrection;
@@ -25,7 +26,7 @@ public class DependencyGraphTraceBuilderProperties {
   private final VersionCorrection _resolutionTime;
   private final ValueProperties _defaultProperties;
   private final Collection<ValueRequirement> _requirements;
-  private final UserMarketDataSpecification _marketData;
+  private final List<MarketDataSpecification> _marketData;
 
   /**
    * Constructs a builder instance with given context and default values.
@@ -36,7 +37,7 @@ public class DependencyGraphTraceBuilderProperties {
     _resolutionTime = VersionCorrection.LATEST;
     _defaultProperties = ValueProperties.none();
     _requirements = Collections.emptyList();
-    _marketData = null;
+    _marketData = Collections.emptyList();
   }
 
   /**
@@ -90,7 +91,7 @@ public class DependencyGraphTraceBuilderProperties {
   /**
    * @return configured market data
    */
-  public UserMarketDataSpecification getMarketData() {
+  public List<MarketDataSpecification> getMarketData() {
     return _marketData;
   }
 
@@ -171,13 +172,24 @@ public class DependencyGraphTraceBuilderProperties {
    * @param marketData market data to set
    * @return a newly configured instance
    */
-  public DependencyGraphTraceBuilderProperties marketData(final UserMarketDataSpecification marketData) {
+  public DependencyGraphTraceBuilderProperties marketData(final List<MarketDataSpecification> marketData) {
     return new DependencyGraphTraceBuilderProperties(this) {
       @Override
-      public UserMarketDataSpecification getMarketData() {
+      public List<MarketDataSpecification> getMarketData() {
         return marketData;
       }
     };
+  }
+  
+  /**
+   * Add a market data spec
+   * @param marketData a market data spec
+   * @return a newly configured instance
+   */
+  public DependencyGraphTraceBuilderProperties addMarketData(MarketDataSpecification marketData) {
+    List<MarketDataSpecification> newMarketData = new ArrayList<>(getMarketData());
+    newMarketData.add(marketData);
+    return marketData(newMarketData);
   }
 
   @Override

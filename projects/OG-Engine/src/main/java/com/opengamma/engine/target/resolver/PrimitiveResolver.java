@@ -107,8 +107,6 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
     return UniqueId.of(scheme.toString(), value.toString());
   }
 
-  // TODO: Should we always do the resolution in a single thread
-
   @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
     return identifier.atLatestVersion();
@@ -116,7 +114,6 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
 
   @Override
   public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
-    // resolving an object id is so trivial, the overhead of multi-threading is never justified
     return resolveObjectIdsSingleThread(this, identifiers, versionCorrection);
   }
 
@@ -148,8 +145,8 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return false;
+  public DeepResolver deepResolver() {
+    return null;
   }
 
   @Override

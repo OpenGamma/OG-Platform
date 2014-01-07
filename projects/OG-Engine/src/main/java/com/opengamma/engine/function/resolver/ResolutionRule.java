@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -277,10 +279,68 @@ public class ResolutionRule {
 
   };
 
-  private static ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetType> s_getAdjustedTargetType = new ComputationTargetTypeVisitor<ComputationTarget, ComputationTargetType>() {
+  private static ComputationTargetTypeVisitor<Void, Class<? extends UniqueIdentifiable>> s_getLeafClass = new ComputationTargetTypeVisitor<Void, Class<? extends UniqueIdentifiable>>() {
 
     @Override
-    public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTarget target) {
+    public Class<? extends UniqueIdentifiable> visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void data) {
+      // Multiple target types will have been removed during resolution
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public Class<? extends UniqueIdentifiable> visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final Void data) {
+      return types.get(types.size() - 1).accept(this, data);
+    }
+
+    @Override
+    public Class<? extends UniqueIdentifiable> visitNullComputationTargetType(final Void data) {
+      // NULL should not be getting this far
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public Class<? extends UniqueIdentifiable> visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void data) {
+      return type;
+    }
+
+  };
+
+  private static ComputationTargetTypeVisitor<Void, ComputationTargetType> s_getLeafType = new ComputationTargetTypeVisitor<Void, ComputationTargetType>() {
+
+    @Override
+    public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void data) {
+      // Multiple target types will have been removed during resolution
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final Void data) {
+      final ComputationTargetType type = types.get(types.size() - 1);
+      final ComputationTargetType leaf = type.accept(this, data);
+      if (leaf == null) {
+        return type;
+      } else {
+        return leaf;
+      }
+    }
+
+    @Override
+    public ComputationTargetType visitNullComputationTargetType(final Void data) {
+      // NULL should not be getting this far
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void data) {
+      return null;
+    }
+
+  };
+
+  private static ComputationTargetTypeVisitor<ComputationTargetType, ComputationTargetType> s_getAdjustedTargetType = new ComputationTargetTypeVisitor<ComputationTargetType, ComputationTargetType>() {
+
+    @Override
+    public ComputationTargetType visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final ComputationTargetType target) {
       for (ComputationTargetType type : types) {
         final ComputationTargetType adjusted = type.accept(this, target);
         if (adjusted == ComputationTargetType.NULL) {
@@ -294,8 +354,8 @@ public class ResolutionRule {
     }
 
     @Override
-    public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTarget target) {
-      final List<ComputationTargetType> targetTypes = target.getType().accept(s_getNestedTargetTypes, null);
+    public ComputationTargetType visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final ComputationTargetType target) {
+      final List<ComputationTargetType> targetTypes = target.accept(s_getNestedTargetTypes, null);
       if (targetTypes == null) {
         // Target not compatible
         return null;
@@ -305,8 +365,7 @@ public class ResolutionRule {
         // Target does not match the type - not enough context
         return null;
       }
-      final ComputationTargetType leafType = targetTypes.get(length - 1);
-      final ComputationTargetType adjustedLeaf = leafType.accept(this, target);
+      final ComputationTargetType adjustedLeaf = types.get(length - 1).accept(this, targetTypes.get(length - 1));
       if (adjustedLeaf == null) {
         // Target not compatible at leaf type
         return null;
@@ -326,19 +385,24 @@ public class ResolutionRule {
     }
 
     @Override
-    public ComputationTargetType visitNullComputationTargetType(final ComputationTarget target) {
+    public ComputationTargetType visitNullComputationTargetType(final ComputationTargetType target) {
       return ComputationTargetType.NULL;
     }
 
     @Override
-    public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTarget target) {
-      final Class<? extends UniqueIdentifiable> clazz = target.getValue().getClass();
+    public ComputationTargetType visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final ComputationTargetType target) {
+      final Class<? extends UniqueIdentifiable> clazz = target.accept(s_getLeafClass, null);
       if (type.equals(clazz)) {
         // Target type is correct
         return ComputationTargetType.NULL;
       } else if (type.isAssignableFrom(clazz)) {
         // Target type is the target's leaf type
-        return target.getLeafSpecification().getType();
+        final ComputationTargetType leaf = target.accept(s_getLeafType, null);
+        if (leaf == null) {
+          return target;
+        } else {
+          return leaf;
+        }
       } else {
         // Target is not compatible with the function type
         return null;
@@ -346,6 +410,46 @@ public class ResolutionRule {
     }
 
   };
+
+  private static final ConcurrentMap<ComputationTargetType, ConcurrentMap<ComputationTargetType, ComputationTargetType>> s_adjustCache =
+      new ConcurrentHashMap<ComputationTargetType, ConcurrentMap<ComputationTargetType, ComputationTargetType>>();
+
+  private static ComputationTargetType adjustTargetType(final ComputationTargetType type, final ComputationTargetType target) {
+    if ((type == ComputationTargetType.NULL) || (type == target)) {
+      // We use NULL to mark failure in the cache, and NULL will never need adjusting
+      return target;
+    }
+    ConcurrentMap<ComputationTargetType, ComputationTargetType> functionCache = s_adjustCache.get(type);
+    if (functionCache == null) {
+      functionCache = new ConcurrentHashMap<ComputationTargetType, ComputationTargetType>();
+      final ConcurrentMap<ComputationTargetType, ComputationTargetType> existing = s_adjustCache.putIfAbsent(type, functionCache);
+      if (existing != null) {
+        functionCache = existing;
+      }
+    }
+    ComputationTargetType adjusted = functionCache.get(target);
+    if (adjusted == null) {
+      adjusted = type.accept(s_getAdjustedTargetType, target);
+      if (adjusted == null) {
+        // Not compatible
+        functionCache.put(target, ComputationTargetType.NULL);
+        return null;
+      } else if (adjusted == ComputationTargetType.NULL) {
+        // Exact match
+        functionCache.put(target, type);
+        return type;
+      } else {
+        // Type replacement
+        functionCache.put(target, adjusted);
+        return adjusted;
+      }
+    } else if (adjusted == ComputationTargetType.NULL) {
+      // Failure
+      return null;
+    } else {
+      return adjusted;
+    }
+  }
 
   /**
    * Adjusts the type on the target to match the declared type of the function.
@@ -361,17 +465,14 @@ public class ResolutionRule {
    * @return the reduced target, or null if the reduction is not possible
    */
   public static ComputationTarget adjustTarget(final ComputationTargetType type, final ComputationTarget target) {
-    final ComputationTargetType adjusted = type.accept(s_getAdjustedTargetType, target);
-    if (adjusted == null) {
-      // Not compatible
+    final ComputationTargetType newType = adjustTargetType(type, target.getType());
+    if (newType == null) {
       return null;
-    } else if (adjusted == ComputationTargetType.NULL) {
-      // Exact match
-      return target;
-    } else {
-      // Type replacement
-      return new ComputationTarget(target.toSpecification().replaceType(adjusted).getSpecification(), target.getValue());
     }
+    if (newType == target.getType()) {
+      return target;
+    }
+    return new ComputationTarget(target.toSpecification().replaceType(newType).getSpecification(), target.getValue());
   }
 
   /**

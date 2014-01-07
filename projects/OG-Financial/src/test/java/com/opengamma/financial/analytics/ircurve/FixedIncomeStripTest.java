@@ -74,7 +74,7 @@ public class FixedIncomeStripTest {
     FixedIncomeStrip strip8 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.of(Period.ofYears(4)), "Test");
     FixedIncomeStrip strip9 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.of(Period.ofYears(7)), "Test");
     FixedIncomeStrip[] array = new FixedIncomeStrip[] {strip1, strip2, strip3, strip4, strip5, strip6, strip7, strip8, strip9 };
-    Set<FixedIncomeStrip> set = new TreeSet<FixedIncomeStrip>();
+    Set<FixedIncomeStrip> set = new TreeSet<>();
     set.add(strip1);
     set.add(strip9);
     set.add(strip2);
@@ -100,7 +100,7 @@ public class FixedIncomeStripTest {
     strip8 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.of(Period.ofYears(6)), "Test");
     strip9 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.of(Period.ofYears(7)), "Test");
     array = new FixedIncomeStrip[] {strip1, strip2, strip3, strip4, strip5, strip6, strip7, strip8, strip9 };
-    set = new TreeSet<FixedIncomeStrip>();
+    set = new TreeSet<>();
     set.add(strip1);
     set.add(strip9);
     set.add(strip2);
@@ -125,7 +125,7 @@ public class FixedIncomeStripTest {
     strip8 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.of(Period.ofYears(6)), "Test");
     strip9 = new FixedIncomeStrip(StripInstrumentType.SWAP_3M, Tenor.of(Period.ofYears(7)), "Test");
     array = new FixedIncomeStrip[] {strip1, strip2, strip3, strip4, strip5, strip6, strip7, strip8, strip9 };
-    set = new TreeSet<FixedIncomeStrip>();
+    set = new TreeSet<>();
     set.add(strip1);
     set.add(strip2);
     set.add(strip3);

@@ -23,12 +23,11 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio loader tool
  */
-@Scriptable
+//@Scriptable disabled because this tool basically doesn't work properly and leaves orphaned positions.
 public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioDeleteTool.class);

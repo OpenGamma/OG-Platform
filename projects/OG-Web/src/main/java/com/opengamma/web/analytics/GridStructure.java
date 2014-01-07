@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
 
@@ -29,11 +30,28 @@ public interface GridStructure {
   GridColumnGroups getColumnStructure();
 
   /**
+   * @return Meta data for the grid's fixed columns
+   */
+  GridColumnGroup getFixedColumns();
+
+  /**
+   * @return Meta data for the grid's non fixed columns
+   */
+  GridColumnGroups getNonFixedColumns();
+
+  /**
+  * @param row The row index
+  * @param col The column index
+  * @return Pair of value spec and calculation config name
+  * by the engine
+  */
+  Pair<String, ValueSpecification> getValueSpecificationForCell(int row, int col);
+
+  /**
    * @param row The row index
    * @param col The column index
-   * @return Pair of value spec and calculation config name
-   * by the engine
+   * @return Pair of value req and calculation config name
    */
-  Pair<String, ValueSpecification> getTargetForCell(int row, int col);
-  
+  Pair<String, ValueRequirement> getValueRequirementForCell(int row, int col);
+
 }

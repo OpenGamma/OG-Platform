@@ -8,12 +8,15 @@ package com.opengamma.analytics.math.minimization;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Abstract test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class Minimizer1DTestCase {
   private static final double EPS = 1e-5;
   private static final Function1D<Double, Double> QUADRATIC = new Function1D<Double, Double>() {

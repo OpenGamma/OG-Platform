@@ -8,7 +8,6 @@ package com.opengamma.master;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;

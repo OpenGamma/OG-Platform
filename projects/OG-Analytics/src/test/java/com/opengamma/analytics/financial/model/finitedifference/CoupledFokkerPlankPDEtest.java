@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -20,12 +20,15 @@ import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 @SuppressWarnings("unused")
+@Test(groups = TestGroup.UNIT)
 public class CoupledFokkerPlankPDEtest {
 
   private static final CoupledPDEDataBundleProvider PDE_DATA_PROVIDER = new CoupledPDEDataBundleProvider();
@@ -56,8 +59,8 @@ public class CoupledFokkerPlankPDEtest {
   static {
 
     FORWARD = new ForwardCurve(SPOT, RATE);
-    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, INITIAL_PROB_STATE1);
-    ExtendedCoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledFokkerPlankPair(FORWARD, chainData);
+    final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, INITIAL_PROB_STATE1);
+    final ExtendedCoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledFokkerPlankPair(FORWARD, chainData);
     DATA1 = pdeData[0];
     DATA2 = pdeData[1];
 
@@ -119,7 +122,7 @@ public class CoupledFokkerPlankPDEtest {
           value /= norm;
           value = Math.sqrt(value);
         }
-        localVolData.put(new DoublesPair(t, k), value);
+        localVolData.put(DoublesPair.of(t, k), value);
       }
     }
 
@@ -130,7 +133,7 @@ public class CoupledFokkerPlankPDEtest {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
-        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(x[0], x[1]));
+        return GRID_INTERPOLATOR2D.interpolate(dataBundle, DoublesPair.of(x[0].doubleValue(), x[1].doubleValue()));
       }
     };
 

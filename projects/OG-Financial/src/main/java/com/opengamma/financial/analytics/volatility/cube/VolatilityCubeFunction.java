@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube;
@@ -34,9 +34,10 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
- * 
+ *
  */
 public class VolatilityCubeFunction extends AbstractFunction {
   private final VolatilityCubeFunctionHelper _helper;
@@ -70,18 +71,18 @@ public class VolatilityCubeFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         return _results;
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target,
           final ValueRequirement desiredValue) {
         return requirements;
       }
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         return _helper.getCurrency().equals(target.getValue());
       }
 
@@ -91,21 +92,21 @@ public class VolatilityCubeFunction extends AbstractFunction {
         final VolatilityCubeData data = (VolatilityCubeData) inputs.getValue(getMarketDataRequirement());
         final VolatilityCubeData normalizedData = new VolatilityCubeData();
         final Map<VolatilityPoint, Double> volatilityPoints = data.getDataPoints();
-        final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<VolatilityPoint, Double>();
+        final Map<VolatilityPoint, Double> normalizedVolatilityPoints = new HashMap<>();
         final Map<VolatilityPoint, ExternalIdBundle> volatilityPointIds = data.getDataIds();
-        final Map<VolatilityPoint, ExternalIdBundle> normalizedVolatilityPointIds = new HashMap<VolatilityPoint, ExternalIdBundle>();
+        final Map<VolatilityPoint, ExternalIdBundle> normalizedVolatilityPointIds = new HashMap<>();
         final Map<VolatilityPoint, Double> relativeStrikes = data.getRelativeStrikes();
-        final Map<VolatilityPoint, Double> normalizedRelativeStrikes = new HashMap<VolatilityPoint, Double>();
+        final Map<VolatilityPoint, Double> normalizedRelativeStrikes = new HashMap<>();
         final Map<Pair<Tenor, Tenor>, Double> atmStrikes = data.getATMStrikes();
-        final Map<Pair<Tenor, Tenor>, Double> normalizedATMStrikes = new HashMap<Pair<Tenor, Tenor>, Double>();
-        final Map<Pair<Tenor, Tenor>, Double> normalizedATMVols = new HashMap<Pair<Tenor, Tenor>, Double>();
+        final Map<Pair<Tenor, Tenor>, Double> normalizedATMStrikes = new HashMap<>();
+        final Map<Pair<Tenor, Tenor>, Double> normalizedATMVols = new HashMap<>();
         for (final Map.Entry<VolatilityPoint, Double> entry : volatilityPoints.entrySet()) {
           final VolatilityPoint oldPoint = entry.getKey();
           final Tenor swapTenor = oldPoint.getSwapTenor();
           final Tenor swaptionExpiry = oldPoint.getOptionExpiry();
           final double relativeStrike = oldPoint.getRelativeStrike();
-          if (atmStrikes.containsKey(Pair.of(swapTenor, swaptionExpiry))) {
-            final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
+          if (atmStrikes.containsKey(Pairs.of(swapTenor, swaptionExpiry))) {
+            final Pair<Tenor, Tenor> tenorPair = Pairs.of(swapTenor, swaptionExpiry);
             final double absoluteStrike = atmStrikes.get(tenorPair) + relativeStrike / 10000;
             final double vol = entry.getValue();
             final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);

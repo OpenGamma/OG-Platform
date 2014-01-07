@@ -7,6 +7,7 @@ package com.opengamma.core.organization.impl;
 
 import java.net.URI;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -16,6 +17,7 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides access to a remote {@link OrganizationSource} via a RESTful API.
@@ -57,21 +59,39 @@ public class RemoteOrganizationSource extends AbstractRemoteSource<Organization>
   public Organization getOrganizationByRedCode(String redCode) {
     ArgumentChecker.notNull(redCode, "redCode");
     URI uri = DataOrganizationSourceResource.uriSearchByRedCode(getBaseUri(), redCode);
-    return accessRemote(uri).get(Organization.class);
+    try {
+      return accessRemote(uri).get(Organization.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   @Override
   public Organization getOrganizationByTicker(String ticker) {
     ArgumentChecker.notNull(ticker, "ticker");
     URI uri = DataOrganizationSourceResource.uriSearchByTicker(getBaseUri(), ticker);
-    return accessRemote(uri).get(Organization.class);
+    try {
+      return accessRemote(uri).get(Organization.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   @Override
   public Organization get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     URI uri = DataOrganizationSourceResource.uriGet(getBaseUri(), uniqueId);
-    return accessRemote(uri).get(Organization.class);
+    try {
+      return accessRemote(uri).get(Organization.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   @Override
@@ -80,7 +100,13 @@ public class RemoteOrganizationSource extends AbstractRemoteSource<Organization>
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
 
     URI uri = DataOrganizationSourceResource.uriGet(getBaseUri(), objectId, versionCorrection);
-    return accessRemote(uri).get(Organization.class);
+    try {
+      return accessRemote(uri).get(Organization.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   // Currently no bulk api implementation - to be added if required, for the time being

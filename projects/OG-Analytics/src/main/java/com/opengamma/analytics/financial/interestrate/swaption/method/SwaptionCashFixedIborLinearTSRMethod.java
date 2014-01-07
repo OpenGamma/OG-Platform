@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -21,13 +21,16 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFor
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Method to compute the present value of cash-settled European swaptions with with the Linear Terminal Swap Rate method. 
+ * Method to compute the present value of cash-settled European swaptions with with the Linear Terminal Swap Rate method.
  * The physical swaptions are priced with SABR.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborLinearTSRMethod}
  */
+@Deprecated
 public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
 
   /**
@@ -56,6 +59,8 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final SABRInterestRateDataBundle sabrData) {
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(sabrData, "SABR data");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double nominal = Math.abs(annuityFixed.getNthPayment(0).getNotional());
     final double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
@@ -129,7 +134,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
       _timeToExpiry = swaption.getTimeToExpiry();
       final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
-      final DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(_timeToExpiry, _maturity);
       final double alpha = sabrParameter.getAlpha(expiryMaturity);
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);
@@ -144,13 +149,13 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x);
     }
 
     /**
      * The factor used in the strike part and in the integration of the replication.
-     * @param x The swap rate. 
+     * @param x The swap rate.
      * @return The factor.
      */
     private double k(final double x) {

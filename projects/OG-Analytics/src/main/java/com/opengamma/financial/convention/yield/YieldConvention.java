@@ -5,16 +5,33 @@
  */
 package com.opengamma.financial.convention.yield;
 
+import org.joda.convert.FromStringFactory;
+import org.joda.convert.ToString;
+
+import com.opengamma.financial.convention.NamedInstance;
+
 /**
  * Convention for yields.
  */
-public interface YieldConvention {
+@FromStringFactory(factory = YieldConventionFactory.class)
+public interface YieldConvention extends NamedInstance {
   // TODO: supply whatever is needed to do a proper calculation
 
   /**
    * Gets the name of the convention.
+   * 
+   * @return the name, not null
+   * @deprecated use getName()
+   */
+  @Deprecated
+  String getConventionName();
+
+  /**
+   * Gets the name of the convention.
+   * 
    * @return the name, not null
    */
-  String getConventionName();
+  @ToString
+  String getName();
 
 }

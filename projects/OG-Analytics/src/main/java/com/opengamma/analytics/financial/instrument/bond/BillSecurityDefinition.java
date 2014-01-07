@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -53,12 +54,12 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    */
   private final DayCount _dayCount;
   /**
-   * The bill issuer name.
+   * The issuer.
    */
-  private final String _issuer;
+  private final LegalEntity _issuer;
 
   /**
-   * Constructor from all details.
+   * Constructor from all details with no information about the legal entity other than the issuer name.
    * @param currency The bill currency.
    * @param endDate The bill end or maturity date.
    * @param notional The bill nominal.
@@ -70,6 +71,22 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    */
   public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional, final int settlementDays, final Calendar calendar,
       final YieldConvention yieldConvention, final DayCount dayCount, final String issuer) {
+    this(currency, endDate, notional, settlementDays, calendar, yieldConvention, dayCount, new LegalEntity(null, issuer, null, null, null));
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The bill currency.
+   * @param endDate The bill end or maturity date.
+   * @param notional The bill nominal.
+   * @param settlementDays The standard number of days between trade date and trade settlement.
+   * @param calendar The calendar used to compute the standard settlement date.
+   * @param yieldConvention The yield (to maturity) computation convention.
+   * @param dayCount The yield day count convention.
+   * @param issuer The bill issuer.
+   */
+  public BillSecurityDefinition(final Currency currency, final ZonedDateTime endDate, final double notional, final int settlementDays, final Calendar calendar,
+      final YieldConvention yieldConvention, final DayCount dayCount, final LegalEntity issuer) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(endDate, "End date");
     ArgumentChecker.notNull(calendar, "Calendar");
@@ -148,6 +165,14 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    * @return The name.
    */
   public String getIssuer() {
+    return _issuer.getShortName();
+  }
+
+  /**
+   * Gets the bill issuer.
+   * @return The name.
+   */
+  public LegalEntity getIssuerEntity() {
     return _issuer;
   }
 
@@ -173,7 +198,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     settlementTime = Math.max(settlementTime, 0.0);
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
+    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer, yieldCurveNames[1], yieldCurveNames[0]);
   }
 
@@ -190,10 +215,15 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     settlementTime = Math.max(settlementTime, 0.0);
     final double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
+    final double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate, _calendar);
     return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BillSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Reference date");
@@ -203,7 +233,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     settlementDate = (settlementDate.isAfter(_endDate)) ? _endDate : settlementDate;
     return toDerivative(date, settlementDate, yieldCurveNames);
   }
-  
+
   @Override
   public BillSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "Reference date");
@@ -247,26 +277,20 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof BillSecurityDefinition)) {
       return false;
     }
     final BillSecurityDefinition other = (BillSecurityDefinition) obj;
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
+    if (!ObjectUtils.equals(_endDate, other._endDate)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_issuer, other._issuer)) {
       return false;
     }
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
     if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_endDate, other._endDate)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_issuer, other._issuer)) {
       return false;
     }
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
@@ -276,6 +300,9 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
       return false;
     }
     if (!ObjectUtils.equals(_yieldConvention, other._yieldConvention)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }
     return true;

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -167,80 +168,6 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
     return ManageableExchange.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-      case 3373707:  // name
-        return getName();
-      case 979697809:  // regionIdBundle
-        return getRegionIdBundle();
-      case -2077180903:  // timeZone
-        return getTimeZone();
-      case -1335224239:  // detail
-        return getDetail();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 979697809:  // regionIdBundle
-        setRegionIdBundle((ExternalIdBundle) newValue);
-        return;
-      case -2077180903:  // timeZone
-        setTimeZone((ZoneId) newValue);
-        return;
-      case -1335224239:  // detail
-        setDetail((List<ManageableExchangeDetail>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableExchange other = (ManageableExchange) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getRegionIdBundle(), other.getRegionIdBundle()) &&
-          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
-          JodaBeanUtils.equal(getDetail(), other.getDetail());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDetail());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the exchange.
@@ -378,7 +305,7 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
   //-----------------------------------------------------------------------
   /**
    * Gets the detailed information about when an exchange is open or closed, not null.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ManageableExchangeDetail> getDetail() {
     return _detail;
@@ -386,9 +313,10 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
 
   /**
    * Sets the detailed information about when an exchange is open or closed, not null.
-   * @param detail  the new value of the property
+   * @param detail  the new value of the property, not null
    */
   public void setDetail(List<ManageableExchangeDetail> detail) {
+    JodaBeanUtils.notNull(detail, "detail");
     this._detail.clear();
     this._detail.addAll(detail);
   }
@@ -399,6 +327,58 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
    */
   public final Property<List<ManageableExchangeDetail>> detail() {
     return metaBean().detail().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableExchange other = (ManageableExchange) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getRegionIdBundle(), other.getRegionIdBundle()) &&
+          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+          JodaBeanUtils.equal(getDetail(), other.getDetail());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionIdBundle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDetail());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("ManageableExchange{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("regionIdBundle").append('=').append(JodaBeanUtils.toString(getRegionIdBundle())).append(',').append(' ');
+    buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
+    buf.append("detail").append('=').append(JodaBeanUtils.toString(getDetail())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -541,6 +521,57 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
      */
     public final MetaProperty<List<ManageableExchangeDetail>> detail() {
       return _detail;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableExchange) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((ManageableExchange) bean).getExternalIdBundle();
+        case 3373707:  // name
+          return ((ManageableExchange) bean).getName();
+        case 979697809:  // regionIdBundle
+          return ((ManageableExchange) bean).getRegionIdBundle();
+        case -2077180903:  // timeZone
+          return ((ManageableExchange) bean).getTimeZone();
+        case -1335224239:  // detail
+          return ((ManageableExchange) bean).getDetail();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableExchange) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((ManageableExchange) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+        case 3373707:  // name
+          ((ManageableExchange) bean).setName((String) newValue);
+          return;
+        case 979697809:  // regionIdBundle
+          ((ManageableExchange) bean).setRegionIdBundle((ExternalIdBundle) newValue);
+          return;
+        case -2077180903:  // timeZone
+          ((ManageableExchange) bean).setTimeZone((ZoneId) newValue);
+          return;
+        case -1335224239:  // detail
+          ((ManageableExchange) bean).setDetail((List<ManageableExchangeDetail>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageableExchange) bean)._detail, "detail");
     }
 
   }

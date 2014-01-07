@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cds;
@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -25,28 +26,32 @@ import com.opengamma.util.money.Currency;
 
 /**
  * ISDA definition for a CDS premium (i.e. a stream of ISDA CDS coupon payments).
- * 
+ *
  * This class encodes only the structure of the payment schedule, it does not represent
  * survival probabilities.
- * 
+ *
  * Note the dates recorded for accrual period start and end are not offset as per ISDA,
  * they are the actual start and end dates. Instead, offsetting happens when the ISDA
  * method is applied.
- * 
+ *
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
- * 
+ *
  * @see ISDACDSDefinition
  * @see AnnuityCouponFixedDefinition
  */
 public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
 
-  public ISDACDSPremiumDefinition(final ISDACDSCouponDefinition[] payments) {
-    super(payments);
+  /**
+   * @param payments The payments
+   * @param calendar The calendar
+   */
+  public ISDACDSPremiumDefinition(final ISDACDSCouponDefinition[] payments, final Calendar calendar) {
+    super(payments, calendar);
   }
 
   /**
    * An ISDA-compliant annuity builder for a CDS contract
-   * 
+   *
    * @param startDate The (original unadjusted) start of the CDS contract
    * @param maturity The (unadjusted) maturity date
    * @param frequency The payment frequency
@@ -56,11 +61,12 @@ public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
    * @param notional The notional
    * @param spread The spread (coupon rate)
    * @param currency The currency
+   * @param calendar The calendar
    * @return An ISDA-compliant definition for the CDS premium
    */
   public static ISDACDSPremiumDefinition from(final ZonedDateTime startDate, final ZonedDateTime maturity,
       final Frequency frequency, final Convention convention, final StubType stubType, final boolean protectStart,
-      final double notional, final double spread, final Currency currency) {
+      final double notional, final double spread, final Currency currency, final Calendar calendar) {
 
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(startDate, "CDS start date");
@@ -106,9 +112,14 @@ public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
           dayCount.getDayCountFraction(startDate, maturityWithOffset), notional, spread);
     }
 
-    return new ISDACDSPremiumDefinition(coupons);
+    return new ISDACDSPremiumDefinition(coupons, calendar);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not use yield curve names
+   */
+  @Deprecated
   @Override
   public ISDACDSPremium toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<ISDACDSCoupon> resultList = new ArrayList<>();

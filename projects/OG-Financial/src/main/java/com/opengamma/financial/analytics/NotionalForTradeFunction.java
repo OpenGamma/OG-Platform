@@ -35,7 +35,7 @@ public class NotionalForTradeFunction extends AbstractFunction.NonCompiledInvoke
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final Trade trade = target.getTrade();
-    final CurrencyAmount ca = FinancialSecurityUtils.getNotional(trade.getSecurity(), currencyPairs).multipliedBy(trade.getQuantity().doubleValue());
+    final CurrencyAmount ca = FinancialSecurityUtils.getNotional(trade.getSecurity(), currencyPairs, executionContext.getSecuritySource()).multipliedBy(trade.getQuantity().doubleValue());
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), createValueProperties().get());
     return Collections.singleton(new ComputedValue(spec, ca));
   }

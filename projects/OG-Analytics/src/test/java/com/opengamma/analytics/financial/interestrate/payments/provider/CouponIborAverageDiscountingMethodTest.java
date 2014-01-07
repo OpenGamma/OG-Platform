@@ -10,7 +10,6 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDef
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -23,11 +22,16 @@ import com.opengamma.analytics.financial.provider.sensitivity.parameter.Paramete
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CouponIborAverageDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -37,7 +41,7 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final DayCount DAY_COUNT_COUPON = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount DAY_COUNT_COUPON = DayCounts.ACT_365;
   private static final double NOTIONAL = 1000000; //1m
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 5, 19);
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2011, 11, 22);
@@ -55,9 +59,8 @@ public class CouponIborAverageDiscountingMethodTest {
       EURIBOR6M, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
-  private static final CouponIbor CPN_IBOR_1 = (CouponIbor) CPN_IBOR_DEFINITION_1.toDerivative(REFERENCE_DATE, NOT_USED);
-  private static final CouponIbor CPN_IBOR_2 = (CouponIbor) CPN_IBOR_DEFINITION_2.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponIbor CPN_IBOR_1 = (CouponIbor) CPN_IBOR_DEFINITION_1.toDerivative(REFERENCE_DATE);
+  private static final CouponIbor CPN_IBOR_2 = (CouponIbor) CPN_IBOR_DEFINITION_2.toDerivative(REFERENCE_DATE);
 
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -71,7 +74,7 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final double WEIGHT_2 = -0.06;
   private static final CouponIborAverageDefinition CPN_IBOR__AVERAGE_DEFINITION = CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE_2, ACCRUAL_END_DATE_2, ACCRUAL_FACTOR_2, NOTIONAL,
       FIXING_DATE, EURIBOR3M, EURIBOR6M, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
-  private static final CouponIborAverage CPN_IBOR__AVERAGE = (CouponIborAverage) CPN_IBOR__AVERAGE_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponIborAverage CPN_IBOR__AVERAGE = (CouponIborAverage) CPN_IBOR__AVERAGE_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final CouponIborAverageDiscountingMethod METHOD_CPN_IBOR__AVERAGE = CouponIborAverageDiscountingMethod.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;

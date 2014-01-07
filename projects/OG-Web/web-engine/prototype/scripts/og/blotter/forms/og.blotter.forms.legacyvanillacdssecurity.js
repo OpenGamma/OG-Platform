@@ -9,8 +9,7 @@ $.register_module({
         return function (config) {
             config.title = 'Legacy Vanilla CDS';
             config.type = 'LegacyVanillaCDSSecurity';
-            config.legacy = true;
             return new og.blotter.forms.cds(config);
-        };    
+        };
     }
 });

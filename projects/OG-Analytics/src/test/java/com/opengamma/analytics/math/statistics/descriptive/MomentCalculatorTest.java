@@ -19,10 +19,12 @@ import com.opengamma.analytics.math.statistics.distribution.ChiSquareDistributio
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.math.statistics.distribution.StudentTDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MomentCalculatorTest {
   private static final double STD = 2.;
   private static final double DOF = 10;

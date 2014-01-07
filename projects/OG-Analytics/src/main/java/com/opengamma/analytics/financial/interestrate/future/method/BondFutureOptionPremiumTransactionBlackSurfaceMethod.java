@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -16,8 +16,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class BondFutureOptionPremiumTransactionBlackSurfaceMethod {
 
   /**

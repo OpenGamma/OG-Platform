@@ -7,7 +7,7 @@ package com.opengamma.engine.view;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +30,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * The configuration for one set of calculations on a particular view.
@@ -63,7 +64,7 @@ public class ViewCalculationConfiguration implements Serializable {
    * Contains any specific outputs required, where each entry really corresponds to a single output at computation
    * time.
    */
-  private final Set<ValueRequirement> _specificRequirements = new HashSet<>();
+  private final Set<ValueRequirement> _specificRequirements = new LinkedHashSet<>();
 
   /**
    * Start with an empty delta definition which will perform simple equality comparisons. This should be customized as
@@ -318,9 +319,7 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(securityType, "securityType");
     ArgumentChecker.notNull(requiredOutput, "requiredOutput");
     ArgumentChecker.notNull(constraints, "constraints");
-    addPortfolioRequirements(securityType,
-                             Collections.singleton((Pair<String, ValueProperties>) Pair.of(requiredOutput,
-                                                                                           constraints)));
+    addPortfolioRequirements(securityType, Collections.singleton(Pairs.of(requiredOutput, constraints)));
   }
 
   /**

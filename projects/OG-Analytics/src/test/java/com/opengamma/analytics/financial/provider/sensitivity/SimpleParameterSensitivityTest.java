@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity;
@@ -20,10 +20,12 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to ParameterSensitivity manipulations.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleParameterSensitivityTest {
 
   private static final OGMatrixAlgebra MATRIX = MatrixAlgebraFactory.OG_ALGEBRA;
@@ -69,7 +71,7 @@ public class SimpleParameterSensitivityTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testAddToUnmodifiableMap() {
-    final LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<String, DoubleMatrix1D>();
+    final LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<>();
     map.put(NAME_1, SENSITIVITY_1_1);
     final SimpleParameterSensitivity sensitivities = new SimpleParameterSensitivity(map);
     final Map<String, DoubleMatrix1D> unmodifiable = sensitivities.getSensitivities();
@@ -78,7 +80,7 @@ public class SimpleParameterSensitivityTest {
 
   @Test
   public void testObject() {
-    LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<String, DoubleMatrix1D>();
+    LinkedHashMap<String, DoubleMatrix1D> map = new LinkedHashMap<>();
     map.put(NAME_1, SENSITIVITY_1_1);
     final SimpleParameterSensitivity sensitivity = new SimpleParameterSensitivity(map);
     assertFalse(sensitivity.getSensitivities() == map);
@@ -88,7 +90,7 @@ public class SimpleParameterSensitivityTest {
     SimpleParameterSensitivity other = new SimpleParameterSensitivity(map);
     assertEquals(sensitivity, other);
     assertEquals(sensitivity.hashCode(), other.hashCode());
-    map = new LinkedHashMap<String, DoubleMatrix1D>();
+    map = new LinkedHashMap<>();
     assertFalse(sensitivity.getSensitivities().equals(map));
     map.put(NAME_1, SENSITIVITY_1_1);
     other = new SimpleParameterSensitivity(map);

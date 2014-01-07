@@ -20,13 +20,16 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueVommaFXOptionFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Produces Vomma (aka Volga) for FXOption's in the Black (Garman-Kohlhagen) world.
  * This is the spot vomma, the 2nd order sensitivity of the present value to the implied vol,
  *          $\frac{\partial^2}{\partial \sigma^2} (PV) $
+ * @deprecated Use {@link BlackDiscountingValueVommaFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackVommaFunction extends FXOptionBlackSingleValuedFunction {
 
   public FXOptionBlackVommaFunction() {

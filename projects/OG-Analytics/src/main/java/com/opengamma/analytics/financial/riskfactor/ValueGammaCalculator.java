@@ -55,7 +55,7 @@ public final class ValueGammaCalculator implements ValueGreekCalculator {
     @Override
     public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle market) {
       final double spot = market.getForwardCurve().getSpot();
-      return option.getUnitAmount() * spot * spot / 2;
+      return option.getUnitAmount() * spot * spot / 20000.;
     }
 
     @Override
@@ -67,7 +67,7 @@ public final class ValueGammaCalculator implements ValueGreekCalculator {
     @Override
     public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle market) {
       final double spot = market.getForwardCurve().getSpot();
-      return option.getUnitAmount() * spot * spot / 2;
+      return option.getUnitAmount() * spot * spot / 20000.;
     }
 
     @Override

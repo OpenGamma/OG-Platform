@@ -19,6 +19,9 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -30,29 +33,30 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Visits a Trade containing a FutureSecurity (OG-Financial)
- * Converts it to an InstrumentDefinitionWithData (OG-Analytics)
+ * Visits a Trade containing a {@link FutureSecurity} (OG-Financial)
+ * Converts it to an {@link InstrumentDefinitionWithData} (OG-Analytics)
  */
 public class FutureTradeConverter {
-
   /**
    * The security converter (to convert the trade underlying).
    */
   private final FutureSecurityConverter _futureSecurityConverter;
 
   /**
-   * Constructor.
    * @param securitySource The security source.
    * @param holidaySource The holiday source.
    * @param conventionSource The convention source.
+   * @param conventionBundleSource The convention bundle source.
    * @param regionSource The region source.
    */
-  public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
-      final RegionSource regionSource) {
+  public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
+      final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, conventionBundleSource, regionSource);
+    final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter, dsfConverter);
   }
 
   /**
@@ -64,17 +68,17 @@ public class FutureTradeConverter {
     ArgumentChecker.notNull(trade, "trade");
     final Security security = trade.getSecurity();
     if (security instanceof FutureSecurity) {
-      InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
+      final InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
       double tradePremium = 0.0;
       if (trade.getPremium() != null) {
-        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
+        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium.
       }
       ZonedDateTime tradeDate = DateUtils.getUTCDate(1900, 1, 1);
-      if ((trade.getTradeDate() != null) && (trade.getTradeTime().toLocalTime() != null)) {
+      if ((trade.getTradeDate() != null) && trade.getTradeTime() != null && (trade.getTradeTime().toLocalTime() != null)) {
         tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
       }
-      int quantity = trade.getQuantity().intValue();
-      InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate, quantity);
+      final int quantity = trade.getQuantity().intValue();
+      final InstrumentDefinitionWithData<?, Double> tradeDefinition = securityToTrade(securityDefinition, tradePremium, tradeDate, quantity);
       return tradeDefinition;
     }
     throw new IllegalArgumentException("Can only handle FutureSecurity");
@@ -87,7 +91,7 @@ public class FutureTradeConverter {
    * @param tradeDate The trade date.
    * @return The tradeDefinition.
    */
-  private InstrumentDefinitionWithData<?, Double> securityToTrade(InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice,
+  private static InstrumentDefinitionWithData<?, Double> securityToTrade(final InstrumentDefinitionWithData<?, Double> securityDefinition, final Double tradePrice,
       final ZonedDateTime tradeDate, final int quantity) {
 
     final InstrumentDefinitionVisitorAdapter<InstrumentDefinitionWithData<?, Double>, InstrumentDefinitionWithData<?, Double>> visitor =
@@ -129,6 +133,11 @@ public class FutureTradeConverter {
           @Override
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
             return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, quantity);
+          }
+
+          @Override
+          public InstrumentDefinitionWithData<?, Double> visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesPriceDeliverableSecurityDefinition future) {
+            return new SwapFuturesPriceDeliverableTransactionDefinition(future, tradeDate, tradePrice, quantity);
           }
 
           @Override

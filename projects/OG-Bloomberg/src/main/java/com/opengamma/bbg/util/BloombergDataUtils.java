@@ -112,6 +112,7 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
@@ -221,7 +222,7 @@ public final class BloombergDataUtils {
     return bloombergTickerPattern;
   }
 
-  public static Collection<NormalizationRuleSet> getDefaultNormalizationRules(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager) {
+  public static Collection<NormalizationRuleSet> getDefaultNormalizationRules(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager, ExternalScheme bbgScheme) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
 
     final Collection<NormalizationRuleSet> returnValue = new ArrayList<NormalizationRuleSet>();
@@ -252,11 +253,11 @@ public final class BloombergDataUtils {
 
     // Normalize the market value
     if (referenceDataProvider != null) {
-      final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
+      final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager, bbgScheme);
       final SecurityRuleProvider quoteRuleProvider = new BloombergRateRuleProvider(rateClassifier);
       openGammaRules.add(new SecurityRuleApplier(quoteRuleProvider));
     }
-    openGammaRules.add(new UnitChange(MarketDataRequirementNames.DIVIDEND_YIELD, 0.01)); // returned as % from bbg
+    openGammaRules.add(new UnitChange(0.01, MarketDataRequirementNames.DIVIDEND_YIELD, MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID)); // returned as % from bbg
 
     // Calculate implied vol value
     openGammaRules.add(new ImpliedVolatilityCalculator());
@@ -287,7 +288,7 @@ public final class BloombergDataUtils {
 
   public static HistoricalTimeSeriesFieldAdjustmentMap createFieldAdjustmentMap(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager) {
     final HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
-    final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
+    final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager, ExternalSchemes.BLOOMBERG_BUID);
     final HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
     final BloombergFixedRateHistoricalTimeSeriesNormalizer div100 = new BloombergFixedRateHistoricalTimeSeriesNormalizer(new HistoricalTimeSeriesAdjustment.DivideBy(100.0));
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.SETTLE_PRICE, null, BloombergConstants.BBG_FIELD_SETTLE_PRICE, rateNormalizer);
@@ -341,12 +342,12 @@ public final class BloombergDataUtils {
       return valueElement.getValueAsString();
     } else if (datatype == Datatype.BOOL) {
       return valueElement.getValueAsBool();
-    } else if (datatype == Datatype.BYTEARRAY) {
+    } else if (datatype == Datatype.BYTEARRAY) {  // CSIGNORE
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.CHAR) {
       final char c = valueElement.getValueAsChar();
       return new String("" + c);
-    } else if (datatype == Datatype.CHOICE) {
+    } else if (datatype == Datatype.CHOICE) {  // CSIGNORE
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.DATE) {
       final Datetime date = valueElement.getValueAsDate();
@@ -708,7 +709,7 @@ public final class BloombergDataUtils {
     ArgumentChecker.notNull(ticker, "ticker");
     final int splitIdx = ticker.lastIndexOf(' ');
     if (splitIdx > 0) {
-      return Pair.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
+      return Pairs.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
     } else {
       return null;
     }

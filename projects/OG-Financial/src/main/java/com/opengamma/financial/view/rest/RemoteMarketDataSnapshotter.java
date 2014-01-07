@@ -16,15 +16,19 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Provides access to a remote {@link com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter}.
  */
 public class RemoteMarketDataSnapshotter extends AbstractRemoteClient implements MarketDataSnapshotter {
 
-
   public RemoteMarketDataSnapshotter(URI baseUri) {
     super(baseUri);
+  }
+
+  public RemoteMarketDataSnapshotter(URI baseUri, FudgeRestClient client) {
+    super(baseUri, client);
   }
 
   @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -30,7 +30,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * <p>Reference: The vanna-volga method for implied volatilities (2007), A. Castagna and F. Mercurio, Risk, 106-111, January 2007.
  * <p>OG implementation: Vanna-volga method for Forex options, version 1.0, June 2012.
  * <p>The reference volatility used for Black computation is the second volatility (usually corresponding to the ATM strike).
+ * @deprecated Use {@link com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaVannaVolgaMethod}
  */
+@Deprecated
 public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMethod {
 
   /**
@@ -272,12 +274,12 @@ public final class ForexOptionVanillaVannaVolgaMethod implements ForexPricingMet
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
     final List<DoublesPair> listForeign = new ArrayList<>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar));
+    listForeign.add(DoublesPair.of(payTime, rForeignBar));
     final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
     final List<DoublesPair> listDomestic = new ArrayList<>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar));
+    listDomestic.add(DoublesPair.of(payTime, rDomesticBar));
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));

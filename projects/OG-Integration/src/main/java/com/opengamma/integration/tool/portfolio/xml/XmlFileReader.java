@@ -11,13 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
-import java.util.Map;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.copier.sheet.reader.SheetReader;
 
 /**
  * Parses an XML file and if the file is valid, generates a collection

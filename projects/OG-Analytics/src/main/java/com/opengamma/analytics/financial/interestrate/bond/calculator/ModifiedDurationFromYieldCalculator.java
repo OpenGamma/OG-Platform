@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
+import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculate dirty price for bonds.
+ * Calculate modified duration from the yield.
  */
 public final class ModifiedDurationFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
@@ -37,9 +37,17 @@ public final class ModifiedDurationFromYieldCalculator extends InstrumentDerivat
 
   @Override
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final Double yield) {
-    Validate.notNull(bond);
-    Validate.notNull(yield);
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(yield, "yield");
     final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
     return method.modifiedDurationFromYield(bond, yield);
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final Double yield) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(yield, "yield");
+    final BondSecurityDiscountingMethod method = BondSecurityDiscountingMethod.getInstance();
+    return method.modifiedDurationFromYield(bond.getBondTransaction(), yield);
   }
 }

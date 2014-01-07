@@ -20,10 +20,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLo
 import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MixedBivariateLogNormalFitterTest {
   private final static double INF = 1. / 0.;
 

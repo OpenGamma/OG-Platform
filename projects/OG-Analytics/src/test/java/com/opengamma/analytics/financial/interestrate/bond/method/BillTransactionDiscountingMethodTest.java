@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -32,24 +32,28 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of bills transactions by discounting.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BillTransactionDiscountingMethodTest {
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
 
@@ -64,7 +68,7 @@ public class BillTransactionDiscountingMethodTest {
   private final static String[] NAME_CURVES = TestsDataSetsSABR.nameCurvesBond3();
   private final static BillSecurityDefinition BILL_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_CONVENTION, ACT360, ISSUER_BEL);
   private final static double QUANTITY = 123456.7;
-  private final static BillTransactionDefinition BILL_TRA_DEFINITION = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD);
+  private final static BillTransactionDefinition BILL_TRA_DEFINITION = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD, CALENDAR);
   private final static BillTransaction BILL_TRA = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES);
 
   private final static YieldCurveBundle CURVE_BUNDLE = TestsDataSetsSABR.createCurvesBond3();
@@ -109,7 +113,7 @@ public class BillTransactionDiscountingMethodTest {
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(NAME_CURVES[0]).size());
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(NAME_CURVES[1]).size());
     final double deltaTolerancePrice = 1.0E+2;
-    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move. 
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move.
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
@@ -147,7 +151,7 @@ public class BillTransactionDiscountingMethodTest {
    */
   public void parSpread() {
     final double spread = METHOD_TRANSACTION.parSpread(BILL_TRA, CURVE_BUNDLE);
-    final BillTransactionDefinition bill0Definition = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD + spread);
+    final BillTransactionDefinition bill0Definition = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD + spread, CALENDAR);
     final BillTransaction bill0 = bill0Definition.toDerivative(REFERENCE_DATE, NAME_CURVES);
     final CurrencyAmount pv0 = METHOD_TRANSACTION.presentValue(bill0, CURVE_BUNDLE);
     assertEquals("Bill Security: discounting method - par spread", 0, pv0.getAmount(), TOLERANCE_PV);
@@ -173,7 +177,7 @@ public class BillTransactionDiscountingMethodTest {
     assertEquals("Bill Transaction: par spread curve sensitivity", 2, pscsComputed.getSensitivities().size());
     assertEquals("Bill Transaction: par spread curve sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[0]).size());
     assertEquals("Bill Transaction: par spread sensitivity", 1, pscsComputed.getSensitivities().get(NAME_CURVES[1]).size());
-    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move. 
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move.
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";

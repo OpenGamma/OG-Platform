@@ -23,8 +23,13 @@ import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class PointSelectorTest {
 
   private final SelectorResolver _noOpResolver = mock(SelectorResolver.class);
@@ -42,7 +47,7 @@ public class PointSelectorTest {
   public void structureType() {
     PointSelector selector = builder().getSelector(); // will match any ExternalId
     assertNotNull(selector.findMatchingSelector(_structureId, "default", _noOpResolver));
-    StructureIdentifier<YieldCurveKey> structureId = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, "a curve"));
+    StructureIdentifier<YieldCurveKey> structureId = StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, "a curve"));
     assertNull(selector.findMatchingSelector(structureId, "default", _noOpResolver));
   }
 

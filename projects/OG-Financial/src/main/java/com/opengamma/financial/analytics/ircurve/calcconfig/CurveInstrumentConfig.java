@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve.calcconfig;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
@@ -16,6 +17,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CurveInstrumentConfig {
   private final Map<StripInstrumentType, String[]> _exposures;
+  
+  public CurveInstrumentConfig() {
+    this(Collections.<StripInstrumentType, String[]>emptyMap());
+  }
 
   public CurveInstrumentConfig(final Map<StripInstrumentType, String[]> exposures) {
     ArgumentChecker.notNull(exposures, "exposures");

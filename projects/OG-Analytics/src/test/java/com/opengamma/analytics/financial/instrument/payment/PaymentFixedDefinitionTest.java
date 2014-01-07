@@ -16,13 +16,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PaymentFixedDefinitionTest {
 
   private static final Currency CUR = Currency.EUR;
@@ -64,9 +66,10 @@ public class PaymentFixedDefinitionTest {
     assertFalse(FIXED_PAYMENT.equals(modifiedPayment));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivative() {
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  public void testToDerivativeDeprecated() {
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     final String fundingCurve = "Funding";
@@ -75,4 +78,13 @@ public class PaymentFixedDefinitionTest {
     assertEquals(paymentFixed, convertedDefinition);
   }
 
+  @Test
+  public void testToDerivative() {
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
+    final PaymentFixed paymentFixed = new PaymentFixed(CUR, paymentTime, AMOUNT);
+    final PaymentFixed convertedDefinition = FIXED_PAYMENT.toDerivative(REFERENCE_DATE);
+    assertEquals(paymentFixed, convertedDefinition);
+  }
 }

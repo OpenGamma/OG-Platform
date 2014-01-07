@@ -118,7 +118,7 @@ public class SwapSummaryFactory implements SummaryFactory<SwapSecurity> {
         .with(SummaryField.NOTIONAL, notional)
         .with(SummaryField.STRIKE, rate)
         .with(SummaryField.DIRECTION, direction)
-        .with(SummaryField.FREQUENCY, security.getPayLeg().getFrequency().getConventionName() + "/" + security.getReceiveLeg().getFrequency().getConventionName())
+        .with(SummaryField.FREQUENCY, security.getPayLeg().getFrequency().getName() + "/" + security.getReceiveLeg().getFrequency().getName())
         .with(SummaryField.UNDERLYING, getUnderlying(security));
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.method;
@@ -15,7 +15,9 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Generic calibration engine for interest rate instruments.
+ * @deprecated {@link PricingMethod} is deprecated
  */
+@Deprecated
 public abstract class CalibrationEngine {
 
   /**
@@ -37,9 +39,9 @@ public abstract class CalibrationEngine {
    * Constructor of the calibration engine. The basket and calculator list are empty.
    */
   public CalibrationEngine() {
-    _basket = new ArrayList<InstrumentDerivative>();
-    _method = new ArrayList<PricingMethod>();
-    _calibrationPrice = new ArrayList<Double>();
+    _basket = new ArrayList<>();
+    _method = new ArrayList<>();
+    _calibrationPrice = new ArrayList<>();
   }
 
   /**
@@ -60,8 +62,8 @@ public abstract class CalibrationEngine {
    */
   public void addInstrument(final InstrumentDerivative[] instrument, final PricingMethod method) {
     Validate.notNull(instrument, "Instrument");
-    for (int loopins = 0; loopins < instrument.length; loopins++) {
-      addInstrument(instrument[loopins], method);
+    for (final InstrumentDerivative element : instrument) {
+      addInstrument(element, method);
     }
   }
 
@@ -69,10 +71,10 @@ public abstract class CalibrationEngine {
    * Computes the price of the instrument in the calibration basket using the engine calculator and the yield curves.
    * @param curves The curve bundle. Should contains all the data required by the calculators.
    */
-  public void computeCalibrationPrice(YieldCurveBundle curves) {
-    int nbInstrument = _basket.size();
+  public void computeCalibrationPrice(final YieldCurveBundle curves) {
+    final int nbInstrument = _basket.size();
     for (int loopins = 0; loopins < nbInstrument; loopins++) {
-      double pv = _method.get(loopins).presentValue(_basket.get(loopins), curves).getAmount();
+      final double pv = _method.get(loopins).presentValue(_basket.get(loopins), curves).getAmount();
       _calibrationPrice.set(loopins, pv);
     }
   }

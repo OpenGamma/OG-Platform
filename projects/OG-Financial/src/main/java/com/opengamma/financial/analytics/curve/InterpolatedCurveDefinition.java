@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,7 +27,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
  * must be provided, but the left and right extrapolation methods are optional.
  */
 @BeanDefinition
-@Config
+@Config(description = "Interpolated curve definition")
 public class InterpolatedCurveDefinition extends CurveDefinition {
 
   /** Serialization version */
@@ -50,6 +51,9 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   @PropertyDefinition
   private String _leftExtrapolatorName;
 
+  /**
+   * For the builder.
+   */
   /* package*/InterpolatedCurveDefinition() {
   }
 
@@ -107,65 +111,6 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   @Override
   public InterpolatedCurveDefinition.Meta metaBean() {
     return InterpolatedCurveDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1247314958:  // interpolatorName
-        return getInterpolatorName();
-      case -556150150:  // rightExtrapolatorName
-        return getRightExtrapolatorName();
-      case -718701979:  // leftExtrapolatorName
-        return getLeftExtrapolatorName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1247314958:  // interpolatorName
-        setInterpolatorName((String) newValue);
-        return;
-      case -556150150:  // rightExtrapolatorName
-        setRightExtrapolatorName((String) newValue);
-        return;
-      case -718701979:  // leftExtrapolatorName
-        setLeftExtrapolatorName((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_interpolatorName, "interpolatorName");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      InterpolatedCurveDefinition other = (InterpolatedCurveDefinition) obj;
-      return JodaBeanUtils.equal(getInterpolatorName(), other.getInterpolatorName()) &&
-          JodaBeanUtils.equal(getRightExtrapolatorName(), other.getRightExtrapolatorName()) &&
-          JodaBeanUtils.equal(getLeftExtrapolatorName(), other.getLeftExtrapolatorName()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -242,6 +187,57 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
    */
   public final Property<String> leftExtrapolatorName() {
     return metaBean().leftExtrapolatorName().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public InterpolatedCurveDefinition clone() {
+    return (InterpolatedCurveDefinition) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      InterpolatedCurveDefinition other = (InterpolatedCurveDefinition) obj;
+      return JodaBeanUtils.equal(getInterpolatorName(), other.getInterpolatorName()) &&
+          JodaBeanUtils.equal(getRightExtrapolatorName(), other.getRightExtrapolatorName()) &&
+          JodaBeanUtils.equal(getLeftExtrapolatorName(), other.getLeftExtrapolatorName()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatorName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRightExtrapolatorName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLeftExtrapolatorName());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("InterpolatedCurveDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("interpolatorName").append('=').append(JodaBeanUtils.toString(getInterpolatorName())).append(',').append(' ');
+    buf.append("rightExtrapolatorName").append('=').append(JodaBeanUtils.toString(getRightExtrapolatorName())).append(',').append(' ');
+    buf.append("leftExtrapolatorName").append('=').append(JodaBeanUtils.toString(getLeftExtrapolatorName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -335,6 +331,42 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
      */
     public final MetaProperty<String> leftExtrapolatorName() {
       return _leftExtrapolatorName;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1247314958:  // interpolatorName
+          return ((InterpolatedCurveDefinition) bean).getInterpolatorName();
+        case -556150150:  // rightExtrapolatorName
+          return ((InterpolatedCurveDefinition) bean).getRightExtrapolatorName();
+        case -718701979:  // leftExtrapolatorName
+          return ((InterpolatedCurveDefinition) bean).getLeftExtrapolatorName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1247314958:  // interpolatorName
+          ((InterpolatedCurveDefinition) bean).setInterpolatorName((String) newValue);
+          return;
+        case -556150150:  // rightExtrapolatorName
+          ((InterpolatedCurveDefinition) bean).setRightExtrapolatorName((String) newValue);
+          return;
+        case -718701979:  // leftExtrapolatorName
+          ((InterpolatedCurveDefinition) bean).setLeftExtrapolatorName((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((InterpolatedCurveDefinition) bean)._interpolatorName, "interpolatorName");
+      super.validate(bean);
     }
 
   }

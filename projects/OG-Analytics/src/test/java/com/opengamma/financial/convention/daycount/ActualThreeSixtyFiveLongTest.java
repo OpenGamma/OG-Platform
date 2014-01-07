@@ -11,11 +11,13 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test ActualThreeSixtyFiveLong.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualThreeSixtyFiveLongTest {
 
   protected static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);
@@ -62,7 +64,7 @@ public class ActualThreeSixtyFiveLongTest {
 
   @Test
   public void test() {
-    assertEquals(DC.getConventionName(), "Actual/365L");
+    assertEquals(DC.getName(), "Actual/365L");
   }
 
 }

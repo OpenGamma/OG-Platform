@@ -6,6 +6,7 @@
 package com.opengamma.financial.depgraph.rest;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.threeten.bp.Instant;
@@ -17,13 +18,14 @@ import com.opengamma.engine.depgraph.ResolutionFailureAccumulator;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
-import com.opengamma.engine.marketdata.MarketDataProvider;
+import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.worker.SnapshottingViewExecutionDataProvider;
 import com.opengamma.financial.depgraph.provider.LocalDependencyGraphTraceProvider;
 import com.opengamma.livedata.UserPrincipal;
 
@@ -63,15 +65,15 @@ public class DependencyGraphTraceBuilder {
     builder.setFunctionResolver(functions);
     builder.setFunctionExclusionGroups(_builderContext.getFunctionExclusionGroups());
     // TODO this isn't used. is this OK?
-    // TODO it's a bit nasty to build a MarketDataProvider just to get its availability provider
     final UserPrincipal marketDataUser = UserPrincipal.getLocalUser();
     final MarketDataProviderResolver resolver = _builderContext.getMarketDataProviderResolver();
-    MarketDataSpecification marketData = properties.getMarketData();
-    if (marketData == null) {
-      marketData = MarketData.live();
+    List<MarketDataSpecification> marketData = properties.getMarketData();
+    if (marketData == null || marketData.isEmpty()) {
+      marketData = Collections.<MarketDataSpecification>singletonList(MarketData.live());
     }
-    final MarketDataProvider marketDataProvider = resolver.resolve(marketDataUser, marketData);
-    builder.setMarketDataAvailabilityProvider(marketDataProvider.getAvailabilityProvider(marketData));
+    
+    MarketDataAvailabilityProvider availabilityProvider = new SnapshottingViewExecutionDataProvider(marketDataUser, marketData, resolver).getAvailabilityProvider();
+    builder.setMarketDataAvailabilityProvider(availabilityProvider);
     final ResolutionFailureAccumulator resolutionFailureAccumulator = new ResolutionFailureAccumulator();
     builder.setResolutionFailureListener(resolutionFailureAccumulator);
     builder.setDisableFailureReporting(false);

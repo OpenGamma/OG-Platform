@@ -49,9 +49,6 @@ public class GeneratorDepositIbor extends GeneratorInstrument<GeneratorAttribute
   }
 
   @Override
-  /**
-   * startTenor and endTenor are not used. No objects required.
-   */
   public DepositIborDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
     return DepositIborDefinition.fromTrade(date, notional, marketQuote, _index, _calendar);
   }

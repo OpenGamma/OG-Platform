@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-/* package */ class NearestNPointsInterpolator extends Interpolator1D {
+/* package */class NearestNPointsInterpolator extends Interpolator1D {
   private static final long serialVersionUID = 1L;
   private final Interpolator1D _interpolator;
   private final int _n;

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.engine.value.ValueSpecification;
@@ -46,32 +46,8 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
         data.add(new Double[] {xData[i], yData[i]});
       }
       return data;
-    } else if (value.getCurve() instanceof FunctionalDoublesCurve) {
-      FunctionalDoublesCurve curve = (FunctionalDoublesCurve) value.getCurve();
-      int n = 34;
-      List<Double[]> data = new ArrayList<Double[]>();
-      double[] xData = new double[n];
-      double[] yData = new double[n];
-      for (int i = 0; i < n; i++) {
-        if (i == 0) {
-          xData[0] = 1. / 12;
-        } else if (i == 1) {
-          xData[1] = 0.25;
-        } else if (i == 2) {
-          xData[2] = 0.5;
-        } else if (i == 3) {
-          xData[3] = 0.75;
-        } else {
-          xData[i] = i - 3;
-        }
-        yData[i] = curve.getYValue(xData[i]);
-        data.add(new Double[]{xData[i], yData[i]});
-      }
-      return data;
-    } else {
-      s_logger.warn("Unable to format curve of type {}", value.getCurve().getClass());
-      return null;
-    }
+    } 
+    return getSampledCurve(value.getCurve());
   }
 
   private List<Double[]> formatExpanded(YieldCurve value) {
@@ -88,5 +64,29 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction
   @Override
   public DataType getDataType() {
     return DataType.CURVE;
+  }
+  
+  private List<Double[]> getSampledCurve(DoublesCurve curve) {
+    int n = 34;
+    List<Double[]> data = new ArrayList<Double[]>();
+    double[] xData = new double[n];
+    double[] yData = new double[n];
+    for (int i = 0; i < n; i++) {
+      if (i == 0) {
+        xData[0] = 1. / 12;
+      } else if (i == 1) {
+        xData[1] = 0.25;
+      } else if (i == 2) {
+        xData[2] = 0.5;
+      } else if (i == 3) {
+        xData[3] = 0.75;
+      } else {
+        xData[i] = i - 3;
+      }
+      yData[i] = curve.getYValue(xData[i]);
+      data.add(new Double[]{xData[i], yData[i]});
+    }
+    return data;
+
   }
 }

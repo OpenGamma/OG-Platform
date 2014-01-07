@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.SqlParameterValue;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.TestGroup;
@@ -40,7 +41,7 @@ public abstract class AbstractDbBatchMasterWorkerTest extends AbstractDbBatchTes
   //-------------------------------------------------------------------------
   @Override
   protected void doSetUp() {
-    _batchMaster = new DbBatchMaster(getDbConnector());
+    _batchMaster = new DbBatchMaster(getDbConnector(), new DefaultComputationTargetResolver());
     
     Timestamp now = toSqlTimestamp(Instant.now());
 

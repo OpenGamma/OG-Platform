@@ -16,37 +16,50 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
-import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureTransactionDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborAverageDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponArithmeticAverageONDiscountingApproxMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedAccruedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingFlatSpreadDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborSpreadDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponOISDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageDiscountingApproxMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONCompoundedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -78,7 +91,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   /**
    * The methods used by the different instruments.
    */
-  private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
+  private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
@@ -87,15 +100,22 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final CouponIborAverageDiscountingMethod METHOD_CPN_IBOR_AVERAGE = CouponIborAverageDiscountingMethod.getInstance();
   private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
   private static final CouponIborGearingDiscountingMethod METHOD_CPN_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
-  private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
-  private static final CouponOISDiscountingMethod METHOD_CPN_ON = CouponOISDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundingDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_SPREAD = CouponIborCompoundingSpreadDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingFlatSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_FLAT_SPREAD = CouponIborCompoundingFlatSpreadDiscountingMethod.getInstance();
+  private static final CouponONDiscountingMethod METHOD_CPN_ON = CouponONDiscountingMethod.getInstance();
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON_SPREAD = CouponONSpreadDiscountingMethod.getInstance();
-  private static final CouponArithmeticAverageONDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponArithmeticAverageONDiscountingApproxMethod.getInstance();
+  private static final CouponONArithmeticAverageDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponONArithmeticAverageDiscountingApproxMethod.getInstance();
+  private static final CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod METHOD_CPN_ONAA_SPREADSIMPL_APPROX =
+      CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
   private static final FederalFundsFutureTransactionDiscountingMethod METHOD_FFFUT_TRA = FederalFundsFutureTransactionDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_FOREX_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
+  private static final InterestRateFutureTransactionDiscountingMethod METHOD_STIR_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  private static final CouponFixedAccruedCompoundingDiscountingMethod METHOD_CPN_FIXED_ACCRUED_COMPOUNDING = CouponFixedAccruedCompoundingDiscountingMethod.getInstance();
+  private static final CouponONCompoundedDiscountingMethod METHOD_CPN_ON_COMPOUNDING = CouponONCompoundedDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -117,58 +137,83 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponFixed(final CouponFixed payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_FIXED.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponFixed(final CouponFixed coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_FIXED.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponFixedCompounding(final CouponFixedCompounding payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_FIXED_COMPOUNDING.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponFixedCompounding(final CouponFixedCompounding coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_COMPOUNDING.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIbor(final CouponIbor payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborAverage(final CouponIborAverage payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_AVERAGE.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIborAverage(final CouponIborAverage coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_AVERAGE.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborSpread(final CouponIborSpread payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_SPREAD.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIborSpread(final CouponIborSpread coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_SPREAD.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborGearing(final CouponIborGearing payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_GEARING.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIborGearing(final CouponIborGearing coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_GEARING.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborCompounding(final CouponIborCompounding payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_IBOR_COMP.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIborCompounding(final CouponIborCompounding coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponOIS(final CouponON payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_ON.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_SPREAD.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponONSpread(final CouponONSpread payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_ON_SPREAD.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_FLAT_SPREAD.presentValue(coupon, multicurve);
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final MulticurveProviderInterface multicurve) {
-    return METHOD_CPN_AAON_APPROX.presentValue(payment, multicurve);
+  public MultipleCurrencyAmount visitCouponOIS(final CouponON coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_ON.presentValue(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponONSpread(final CouponONSpread coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_ON_SPREAD.presentValue(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponONArithmeticAverage(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_AAON_APPROX.presentValue(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_ONAA_SPREADSIMPL_APPROX.presentValue(coupon, multicurve);
   }
 
   @Override
   public MultipleCurrencyAmount visitForwardRateAgreement(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     return METHOD_FRA.presentValue(fra, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_FIXED_ACCRUED_COMPOUNDING.presentValue(coupon, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitCouponONCompounded(final CouponONCompounded coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_ON_COMPOUNDING.presentValue(coupon, multicurve);
   }
 
   // -----     Annuity     ------
@@ -203,11 +248,26 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
     return visitSwap(swap, multicurves);
   }
 
+  @Override
+  public MultipleCurrencyAmount visitSwapMultileg(final SwapMultileg swap, final MulticurveProviderInterface multicurve) {
+    final int nbLegs = swap.getLegs().length;
+    MultipleCurrencyAmount pv = swap.getLegs()[0].accept(this, multicurve);
+    for (int loopleg = 1; loopleg < nbLegs; loopleg++) {
+      pv = pv.plus(swap.getLegs()[loopleg].accept(this, multicurve));
+    }
+    return pv;
+  }
+
   // -----     Futures     ------
 
   @Override
   public MultipleCurrencyAmount visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures, final MulticurveProviderInterface multicurves) {
     return METHOD_FFFUT_TRA.presentValue(futures, multicurves);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final MulticurveProviderInterface multicurves) {
+    return METHOD_STIR_FUTURE.presentValue(future, multicurves);
   }
 
   // -----     Forex     ------

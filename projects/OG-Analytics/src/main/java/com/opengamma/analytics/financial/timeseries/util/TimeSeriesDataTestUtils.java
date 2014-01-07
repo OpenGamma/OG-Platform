@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.timeseries.util;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -21,8 +20,8 @@ public class TimeSeriesDataTestUtils {
    * @throws IllegalArgumentException If the time series is null or empty
    */
   public static void testNotNullOrEmpty(final DoubleTimeSeries<?> ts) {
-    Validate.notNull(ts, "time series");
-    Validate.isTrue(!ts.isEmpty(), "time series");
+    ArgumentChecker.notNull(ts, "time series");
+    ArgumentChecker.isTrue(!ts.isEmpty(), "time series");
   }
 
   /**
@@ -32,16 +31,16 @@ public class TimeSeriesDataTestUtils {
    * @throws IllegalArgumentException If the time series is null, empty, or contains fewer elements than the minimum size, if the minimum size is less than zero
    */
   public static void testTimeSeriesSize(final DoubleTimeSeries<?> ts, final int minLength) {
-    testNotNullOrEmpty(ts);
-    Validate.isTrue(minLength >= 0);
-    Validate.isTrue(ts.size() >= minLength, "time series must contain at least " + minLength + " values");
+    ArgumentChecker.notNull(ts, "time series");
+    ArgumentChecker.isTrue(minLength >= 0, "Minumum length must be greater than zero");
+    ArgumentChecker.isTrue(ts.size() >= minLength, "time series must contain at least " + minLength + " values");
   }
 
   /**
    * Tests that the two time series contain the same dates
    * @param ts1 The first time series
    * @param ts2 The second time series
-   * @throws IllegalArgumentException If either time series is: null; empty; contains fewer than two data points; are not the same length; do not contain the same dates 
+   * @throws IllegalArgumentException If either time series is: null; empty; contains fewer than two data points; are not the same length; do not contain the same dates
    */
   public static void testTimeSeriesDates(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
     testNotNullOrEmpty(ts1);
@@ -58,13 +57,14 @@ public class TimeSeriesDataTestUtils {
       }
     }
   }
-  
+
   /**
    * Tests that the two time-series contain approximately-equal values.
    * @param ts1  the first time-series, not null
    * @param ts2  the second time-series, not null
+   * @param maxDifference The difference above which numbers are not equal
    */
-  public static void testCloseEquals(DoubleTimeSeries<?> ts1, DoubleTimeSeries<?> ts2, double maxDifference) {
+  public static void testCloseEquals(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2, final double maxDifference) {
     testNotNullOrEmpty(ts1);
     testNotNullOrEmpty(ts2);
     final int n = ts1.size();
@@ -81,5 +81,5 @@ public class TimeSeriesDataTestUtils {
       }
     }
   }
-  
+
 }

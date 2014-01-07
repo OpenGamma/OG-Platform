@@ -109,6 +109,11 @@ public class SyntheticFutureCurveInstrumentProvider implements CurveInstrumentPr
     throw new OpenGammaRuntimeException("Only futures supported");
   }
 
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
+    throw new UnsupportedOperationException("Only futures supported");
+  }
+
   private static ExternalId createQuarterlyIRFutureStrips(final LocalDate curveDate, final Tenor tenor, final int numQuartlyFuturesFromTenor, final String prefix) {
     final StringBuilder futureCode = new StringBuilder();
     futureCode.append(prefix);

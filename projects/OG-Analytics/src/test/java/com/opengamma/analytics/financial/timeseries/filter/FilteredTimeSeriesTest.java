@@ -13,10 +13,12 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FilteredTimeSeriesTest {
   private static final LocalDateDoubleTimeSeries FILTERED = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), 
                                                                                                                 LocalDate.ofEpochDay(4), LocalDate.ofEpochDay(5), 

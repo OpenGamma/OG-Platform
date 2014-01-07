@@ -281,6 +281,12 @@ public final class ValuePropertyNames {
    * The name of a property that provides the name of a forward curve.
    */
   public static final String FORWARD_CURVE_NAME = "ForwardCurveName";
+
+  /**
+   * The name of a property that provides the name of a discounting curve.<p>
+   * Used to differentiate this from {@link ValuePropertyNames#FORWARD_CURVE_NAME}
+   */
+  public static final String DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
   
   /**
    * A general name for a property describing a transformation method to use.
@@ -314,4 +320,32 @@ public final class ValuePropertyNames {
   
   /** The name of a property representing the exposure configuration used for pricing */
   public static final String CURVE_EXPOSURES = "CurveExposures";
+  
+  /**
+   * The name of the conversion method.
+   */
+  public static final String CONVERSION_METHOD = "ConversionMethod";
+
+  /**
+   * Property used to choose whether market data is to be snapped Live or at last Close. <p>
+   * See {@link ValuePropertyNames#SNAP_TIME_LIVE} and {@link ValuePropertyNames#SNAP_TIME_CLOSE}
+   */
+  public static final String SNAP_TIME = "SnapTime";
+  
+  /**
+   * Property used to choose whether market data is to be snapped Live or at last Close. <p>
+   * See {@link ValuePropertyNames#SNAP_TIME_LIVE} and {@link ValuePropertyNames#SNAP_TIME_CLOSE}
+   */
+  public static final String SNAP_TIME_VOL = "VolSnapTime";
+  
+  /**
+   * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at current, Live, time
+   */
+  public static final String SNAP_TIME_LIVE = "Live";
+  
+
+  /**
+   * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at time of previous Close
+   */
+  public static final String SNAP_TIME_CLOSE = "Close";
 }

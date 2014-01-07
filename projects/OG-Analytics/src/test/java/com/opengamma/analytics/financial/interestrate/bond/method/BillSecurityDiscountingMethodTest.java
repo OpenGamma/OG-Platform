@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCleanPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.calculator.YieldFromCurvesCalculator;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
@@ -27,24 +28,28 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of bills security by discounting.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class BillSecurityDiscountingMethodTest {
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_IAM = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
   private static final YieldConvention YIELD_DSC = YieldConventionFactory.INSTANCE.getYieldConvention("DISCOUNT");
@@ -70,6 +75,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private final static PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   private final static YieldFromCurvesCalculator YFCC = YieldFromCurvesCalculator.getInstance();
+  private static final YieldFromCleanPriceCalculator YFPC = YieldFromCleanPriceCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PRICE = 1.0E-8;
@@ -103,7 +109,7 @@ public class BillSecurityDiscountingMethodTest {
     final double[] yields = new double[] {0.0010, 0.0, -0.0010 };
     for (final double yield2 : yields) {
       final double priceComputed = METHOD_SECURITY.priceFromYield(BILL_IAM_SEC, yield2);
-      final double priceExpected = 1.0 / (1 + BILL_IAM_SEC.getAccralFactor() * yield2);
+      final double priceExpected = 1.0 / (1 + BILL_IAM_SEC.getAccrualFactor() * yield2);
       assertEquals("Bill Security: discounting method - price", priceExpected, priceComputed, TOLERANCE_PRICE);
     }
   }
@@ -117,10 +123,10 @@ public class BillSecurityDiscountingMethodTest {
   @Test
   public void yieldFromPrice() {
     final double yieldComputedIAM = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
-    final double yieldExpectedIAM = (1.0 / PRICE - 1.0) / BILL_IAM_SEC.getAccralFactor();
+    final double yieldExpectedIAM = (1.0 / PRICE - 1.0) / BILL_IAM_SEC.getAccrualFactor();
     assertEquals("Bill Security: discounting method - yield", yieldExpectedIAM, yieldComputedIAM, TOLERANCE_YIELD);
     final double yieldComputedDSC = METHOD_SECURITY.yieldFromPrice(BILL_DSC_SEC, PRICE);
-    final double yieldExpectedDSC = (1.0 - PRICE) / BILL_DSC_SEC.getAccralFactor();
+    final double yieldExpectedDSC = (1.0 - PRICE) / BILL_DSC_SEC.getAccrualFactor();
     assertEquals("Bill Security: discounting method - yield", yieldExpectedDSC, yieldComputedDSC, TOLERANCE_YIELD);
   }
 
@@ -191,19 +197,12 @@ public class BillSecurityDiscountingMethodTest {
   }
 
   @Test
-  public void yieldFromCurvesMethodVsCalculator() {
-    final double yieldMethod = METHOD_SECURITY.yieldFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
-    final double yieldCalculator = BILL_IAM_SEC.accept(YFCC, CURVE_BUNDLE);
-    assertEquals("Bill Security: discounting method - yield", yieldMethod, yieldCalculator, TOLERANCE_YIELD);
-  }
-
-  @Test
   public void presentValueCurveSensitivity() {
     final InterestRateCurveSensitivity pvcsComputed = METHOD_SECURITY.presentValueCurveSensitivity(BILL_IAM_SEC, CURVE_BUNDLE);
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().size());
     assertEquals("Bill Security: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(NAME_CURVES[1]).size());
     final double deltaTolerancePrice = 1.0E+2;
-    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move. 
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 0.01 unit for a 1 bp move.
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
@@ -224,5 +223,16 @@ public class BillSecurityDiscountingMethodTest {
     final InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(BILL_IAM_SEC.accept(PVCSC, CURVE_BUNDLE));
     AssertSensivityObjects.assertEquals("Bill Security: discounting method - curve sensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_PV);
   }
+
+  @Test
+  public void methodVsCalculator() {
+    double yield1 = METHOD_SECURITY.yieldFromCurves(BILL_IAM_SEC, CURVE_BUNDLE);
+    double yield2 = BILL_IAM_SEC.accept(YFCC, CURVE_BUNDLE);
+    assertEquals("Bill Security: discounting method - yield from curves", yield1, yield2, TOLERANCE_YIELD);
+    yield1 = METHOD_SECURITY.yieldFromPrice(BILL_IAM_SEC, PRICE);
+    yield2 = BILL_IAM_SEC.accept(YFPC, PRICE);
+    assertEquals("Bill Security: discounting method - yield from price", yield1, yield2, TOLERANCE_YIELD);
+  }
+
 
 }

@@ -1,13 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cash.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -22,8 +21,13 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class CashDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -77,7 +81,7 @@ public class CashDefinitionTest {
    */
   public void equalHash() {
     assertEquals("CashDefinition: equal-hash code", DEPOSIT_DEFINITION, DEPOSIT_DEFINITION);
-    CashDefinition other = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);
+    final CashDefinition other = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);
     assertEquals("CashDefinition: equal-hash code", other, DEPOSIT_DEFINITION);
     assertEquals("CashDefinition: equal-hash code", other.hashCode(), DEPOSIT_DEFINITION.hashCode());
     CashDefinition modified;
@@ -100,19 +104,33 @@ public class CashDefinitionTest {
    * Tests the builders.
    */
   public void from() {
-    CashDefinition fromTradeTenor = CashDefinition.fromTrade(TRADE_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR);
+    final CashDefinition fromTradeTenor = CashDefinition.fromTrade(TRADE_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR);
     assertEquals("CashDefinition: from", DEPOSIT_DEFINITION, fromTradeTenor);
-    CashDefinition fromStartTenor = CashDefinition.fromStart(SPOT_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR);
+    final CashDefinition fromStartTenor = CashDefinition.fromStart(SPOT_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR);
     assertEquals("CashDefinition: from", DEPOSIT_DEFINITION, fromStartTenor);
-    int start = 1;
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, start, TARGET);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, TARGET);
-    double af = GENERATOR.getDayCount().getDayCountFraction(startDate, endDate);
-    CashDefinition on = new CashDefinition(EUR, startDate, endDate, NOTIONAL, RATE, af);
-    CashDefinition fromTradeON = CashDefinition.fromTrade(TRADE_DATE, start, NOTIONAL, RATE, GENERATOR);
+    final int start = 1;
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, start, TARGET);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, TARGET);
+    final double af = GENERATOR.getDayCount().getDayCountFraction(startDate, endDate);
+    final CashDefinition on = new CashDefinition(EUR, startDate, endDate, NOTIONAL, RATE, af);
+    final CashDefinition fromTradeON = CashDefinition.fromTrade(TRADE_DATE, start, NOTIONAL, RATE, GENERATOR);
     assertEquals("CashDefinition: from", on, fromTradeON);
-    CashDefinition fromStartON = CashDefinition.fromStart(startDate, NOTIONAL, RATE, GENERATOR);
+    final CashDefinition fromStartON = CashDefinition.fromStart(startDate, NOTIONAL, RATE, GENERATOR);
     assertEquals("CashDefinition: from", on, fromStartON);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeTradeDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
+    assertEquals("CashDefinition: toDerivative", expected, converted);
   }
 
   @Test
@@ -120,11 +138,25 @@ public class CashDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF);
+    assertEquals("CashDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeBetweenTradeAndSettleDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
     assertEquals("CashDefinition: toDerivative", expected, converted);
   }
 
@@ -133,11 +165,25 @@ public class CashDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeBetweenTradeAndSettle() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
-    Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF);
+    assertEquals("CashDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeSettleDeprecated() {
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
     assertEquals("CashDefinition: toDerivative", expected, converted);
   }
 
@@ -146,11 +192,25 @@ public class CashDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeSettle() {
-    ZonedDateTime referenceDate = SPOT_DATE;
-    Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF, CURVE_NAME);
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, RATE, DEPOSIT_AF);
+    assertEquals("CashDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeBetweenSettleMaturityDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, CURVE_NAME);
     assertEquals("CashDefinition: toDerivative", expected, converted);
   }
 
@@ -159,11 +219,25 @@ public class CashDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeBetweenSettleMaturity() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = 0;
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF);
+    assertEquals("CashDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeMaturityDeprecated() {
+    final ZonedDateTime referenceDate = END_DATE;
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, CURVE_NAME);
     assertEquals("CashDefinition: toDerivative", expected, converted);
   }
 
@@ -172,12 +246,11 @@ public class CashDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeMaturity() {
-    ZonedDateTime referenceDate = END_DATE;
-    Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = 0;
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, CURVE_NAME);
+    final ZonedDateTime referenceDate = END_DATE;
+    final Cash converted = DEPOSIT_DEFINITION.toDerivative(referenceDate);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final Cash expected = new Cash(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF);
     assertEquals("CashDefinition: toDerivative", expected, converted);
   }
-
 }

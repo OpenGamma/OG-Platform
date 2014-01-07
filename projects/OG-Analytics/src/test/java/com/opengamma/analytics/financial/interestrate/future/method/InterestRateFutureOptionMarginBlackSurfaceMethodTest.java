@@ -3,10 +3,7 @@ package com.opengamma.analytics.financial.interestrate.future.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
@@ -37,9 +34,15 @@ import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
@@ -164,11 +167,11 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double priceMinus = METHOD_SECURITY_OPTION_BLACK.optionPrice(OPTION_ERU2, blackBundleMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
     final SurfaceValue priceSensiComputed = METHOD_SECURITY_OPTION_BLACK.priceBlackSensitivity(OPTION_ERU2, BLACK_BUNDLE);
-    final DoublesPair point = new DoublesPair(OPTION_ERU2.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", priceSensiExpected, priceSensiComputed.getMap().get(point), TOLERANCE_DELTA);
     assertEquals("Future option with Black volatilities: option security vol sensi", 1, priceSensiComputed.getMap().size());
   }
-  
+
   @Test
   /**
    * Test the option price Vega (a double) vs the Black sensitivity (a SurfaceValue)
@@ -176,7 +179,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
   public void priceVegaVsBlackSensitivity() {
     final SurfaceValue blackSens = METHOD_SECURITY_OPTION_BLACK.priceBlackSensitivity(OPTION_ERU2, BLACK_BUNDLE);
     final double vega = METHOD_SECURITY_OPTION_BLACK.optionPriceVega(OPTION_ERU2, BLACK_BUNDLE);
-    final DoublesPair point = new DoublesPair(OPTION_ERU2.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", vega, blackSens.getMap().get(point), TOLERANCE_DELTA);
     final SurfaceValue sensFromVega = SurfaceValue.from(point,vega);
     assertTrue("SurfaceValue produced by priceBlackSensitivity() is not equal to one from optionPriceVega()", sensFromVega.equals(blackSens));
@@ -191,7 +194,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final SurfaceValue pvbsTransactionExpected = SurfaceValue.multiplyBy(pvbsSecurity, QUANTITY * NOTIONAL * FUTURE_FACTOR);
     assertTrue("Future option with Black volatilities: option security vol sensi", SurfaceValue.compare(pvbsTransactionComputed, pvbsTransactionExpected, TOLERANCE_DELTA));
   }
-  
+
   @Test
   /**
    * Test the option delta, dOptionPrice / dFuturesPrice
@@ -200,7 +203,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double rateStrike = 1.0 - STRIKE;
     final double expiry = OPTION_ERU2.getExpirationTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, expiry, !IS_CALL);
-    
+
     final double volatility = BLACK_BUNDLE.getVolatility(expiry, STRIKE);
     final double priceFutureBase = METHOD_FUTURES.price(ERU2, BLACK_BUNDLE);
     final double shift = DELTA_SHIFT;
@@ -208,15 +211,15 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double priceFutureDown = priceFutureBase - shift;
     final BlackFunctionData dataBlackUp = new BlackFunctionData(1.0 - priceFutureUp, 1.0, volatility);
     final BlackFunctionData dataBlackDown = new BlackFunctionData(1.0 - priceFutureDown, 1.0, volatility);
-    
+
     final double priceUp = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackUp);
     final double priceDown = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackDown);
-    
+
     final double deltaExpected = (priceUp - priceDown) / (2 * shift);
     final double deltaComputed = METHOD_SECURITY_OPTION_BLACK.optionPriceDelta(OPTION_ERU2, BLACK_BUNDLE);
     assertEquals("Future option with futures price deltas: ", deltaExpected, deltaComputed, 1.0e-8);
   }
-  
+
   @Test
   /**
    * Test the option delta, dOptionPrice / dFuturesPrice vs the curve sensitivity, dOptionPrice / dDiscountRate(i).
@@ -234,25 +237,25 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double dfEnd = fwdCurve.getDiscountFactor(tEnd);
     final double dFdrStart = (tStart * dfStart) / (tau * dfEnd);
     final double dFdrEnd = (-tEnd * dfStart) / (tau * dfEnd);
-    
-    InterestRateCurveSensitivity methodSens = METHOD_SECURITY_OPTION_BLACK.priceCurveSensitivity(OPTION_ERU2, BLACK_BUNDLE);
-    double sensStart = methodSens.getSensitivities().get(future.getForwardCurveName()).get(0).getSecondDouble();
-    double sensEnd = methodSens.getSensitivities().get(future.getForwardCurveName()).get(1).getSecondDouble();
-    
+
+    final InterestRateCurveSensitivity methodSens = METHOD_SECURITY_OPTION_BLACK.priceCurveSensitivity(OPTION_ERU2, BLACK_BUNDLE);
+    final double sensStart = methodSens.getSensitivities().get(future.getForwardCurveName()).get(0).getSecondDouble();
+    final double sensEnd = methodSens.getSensitivities().get(future.getForwardCurveName()).get(1).getSecondDouble();
+
     assertEquals("dOption / dRateStart: ", sensStart, dOptionDFuture * dFdrStart, 1.0e-8);
     assertEquals("dOption / dRateEnd: ", sensEnd, dOptionDFuture * dFdrEnd, 1.0e-8);
   }
-  
+
   @Test
   /**
    * Test the option gamma
    */
   public void gammaVsBumpAndReprice() {
-    
+
     final double rateStrike = 1.0 - STRIKE;
     final double expiry = OPTION_ERU2.getExpirationTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, expiry, !IS_CALL);
-    
+
     final double volatility = BLACK_BUNDLE.getVolatility(expiry, STRIKE);
     final double priceFutureBase = METHOD_FUTURES.price(ERU2, BLACK_BUNDLE);
     final double shift = DELTA_SHIFT;
@@ -261,27 +264,27 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final BlackFunctionData dataBlackBase = new BlackFunctionData(1.0 - priceFutureBase, 1.0, volatility);
     final BlackFunctionData dataBlackUp = new BlackFunctionData(1.0 - priceFutureUp, 1.0, volatility);
     final BlackFunctionData dataBlackDown = new BlackFunctionData(1.0 - priceFutureDown, 1.0, volatility);
-    
+
     final double priceBase = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackBase);
     final double priceUp = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackUp);
     final double priceDown = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackDown);
-    
+
     final double gammaExpected = (priceUp - 2.0 * priceBase + priceDown) / (shift * shift);
     final double gammaComputed = METHOD_SECURITY_OPTION_BLACK.optionPriceGamma(OPTION_ERU2, BLACK_BUNDLE);
     assertEquals("Future option with futures price deltas: ", 0.0, (gammaExpected - gammaComputed) / gammaExpected, DELTA_SHIFT);
   }
-  
-  
+
+
   @Test
   /**
    * Test the option gamma
    */
   public void gammaVsDelta() {
-    
+
     final double rateStrike = 1.0 - STRIKE;
     final double expiry = OPTION_ERU2.getExpirationTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, expiry, !IS_CALL);
-    
+
     final double volatility = BLACK_BUNDLE.getVolatility(expiry, STRIKE);
     final double priceFutureBase = METHOD_FUTURES.price(ERU2, BLACK_BUNDLE);
     final double shift = DELTA_SHIFT;
@@ -290,29 +293,29 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final BlackFunctionData dataBlackBase = new BlackFunctionData(1.0 - priceFutureBase, 1.0, volatility);
     final BlackFunctionData dataBlackUp = new BlackFunctionData(1.0 - priceFutureUp, 1.0, volatility);
     final BlackFunctionData dataBlackDown = new BlackFunctionData(1.0 - priceFutureDown, 1.0, volatility);
-    
+
     final double priceBase = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackBase);
     final double priceUp = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackUp);
     final double priceDown = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackDown);
-    
+
     final double deltaUp = (priceUp - priceBase) / shift;
     final double deltaDown = (priceBase - priceDown) / shift;
-    
+
     final double gammaFD = (deltaUp - deltaDown) / shift;
     final double gammaComputed = METHOD_SECURITY_OPTION_BLACK.optionPriceGamma(OPTION_ERU2, BLACK_BUNDLE);
     assertEquals("Future option with futures price deltas: ", 0.0, (gammaFD - gammaComputed) / gammaComputed, DELTA_SHIFT);
   }
-  
+
   @Test
   /**
    * Test the option gamma
    */
   public void gammaVsDeltaRescaledToBasisPointShifts() {
-    
+
     final double rateStrike = 1.0 - STRIKE;
     final double expiry = OPTION_ERU2.getExpirationTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, expiry, !IS_CALL);
-    
+
     final double volatility = BLACK_BUNDLE.getVolatility(expiry, STRIKE);
     final double priceFutureBase = METHOD_FUTURES.price(ERU2, BLACK_BUNDLE);
     final double shift = 1.0e-4;
@@ -321,14 +324,14 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final BlackFunctionData dataBlackBase = new BlackFunctionData(1.0 - priceFutureBase, 1.0, volatility);
     final BlackFunctionData dataBlackUp = new BlackFunctionData(1.0 - priceFutureUp, 1.0, volatility);
     final BlackFunctionData dataBlackDown = new BlackFunctionData(1.0 - priceFutureDown, 1.0, volatility);
-    
+
     final double priceBase = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackBase);
     final double priceUp = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackUp);
     final double priceDown = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlackDown);
-    
+
     final double deltaUp = (priceUp - priceBase);
     final double deltaDown = (priceBase - priceDown);
-    
+
     final double gammaFD = (deltaUp - deltaDown);
     final double gammaComputed = METHOD_SECURITY_OPTION_BLACK.optionPriceGamma(OPTION_ERU2, BLACK_BUNDLE) * shift * shift;
     assertEquals("Future option with futures price deltas: ", 0.0, (gammaFD - gammaComputed) / gammaComputed, 1.4e-4);

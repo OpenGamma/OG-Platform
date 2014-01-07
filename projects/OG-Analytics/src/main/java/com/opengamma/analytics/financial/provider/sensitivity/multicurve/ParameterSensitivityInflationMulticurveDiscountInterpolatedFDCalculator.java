@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -25,7 +25,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * For an instrument, computes the sensitivity of a multiple currency amount (often the present value) to the parameters used in the curve including inflation curve.
@@ -68,7 +68,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
     final MultipleCurrencyAmount pvInit = instrument.accept(_valueCalculator, multicurve);
     final MultipleCurrencyAmount pvInitMinus = pvInit.multipliedBy(-1.0);
     final int nbCcy = pvInit.size();
-    final List<Currency> ccyList = new ArrayList<Currency>();
+    final List<Currency> ccyList = new ArrayList<>();
     for (int loopccy = 0; loopccy < nbCcy; loopccy++) {
       ccyList.add(pvInit.getCurrencyAmounts()[loopccy].getCurrency());
     }
@@ -95,7 +95,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
       }
       final String name = multicurve.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
 
@@ -122,7 +122,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
       }
       final String name = multicurve.getName(ccy);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward ON
@@ -148,7 +148,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
       }
       final String name = multicurve.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     // Forward Ibor
@@ -174,7 +174,7 @@ public class ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalcul
       }
       final String name = multicurve.getName(index);
       for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {
-        result = result.plus(new ObjectsPair<String, Currency>(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
+        result = result.plus(Pairs.of(name, ccyList.get(loopccypv)), new DoubleMatrix1D(sensitivity[loopccypv]));
       }
     }
     return result;

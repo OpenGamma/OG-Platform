@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResult2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewisePolynomialFunction2DTest {
 
   private static final double EPS = 1e-14;

@@ -31,7 +31,9 @@ public class LatestHistoricalMarketDataProviderFactory implements MarketDataProv
 
   @Override
   public MarketDataProvider create(final UserPrincipal marketDataUser, final MarketDataSpecification marketDataSpec) {
-    final HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new LatestHistoricalMarketDataProvider(_timeSeriesSource, _timeSeriesResolver, historicalMarketDataSpec.getTimeSeriesResolverKey());
+    if (marketDataSpec instanceof HistoricalMarketDataSpecification) {
+      return new LatestHistoricalMarketDataProvider(_timeSeriesSource, _timeSeriesResolver, ((HistoricalMarketDataSpecification) marketDataSpec).getTimeSeriesResolverKey());
+    }
+    return new LatestHistoricalMarketDataProvider(_timeSeriesSource, _timeSeriesResolver, null);
   }
 }

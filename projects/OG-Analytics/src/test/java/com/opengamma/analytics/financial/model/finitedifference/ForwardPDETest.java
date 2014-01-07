@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -22,6 +22,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test the forward parabolic PDE for a option price - i.e. gives an option price surface for maturity and strike (for a fixed "now" time and
@@ -30,6 +31,7 @@ import com.opengamma.analytics.math.surface.Surface;
  * will need to be run for each maturity and strike. However the greeks (in particular, delta, gamma and theta) can be read straight off
  * the backwards PDE.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForwardPDETest {
 
   private static final PDE1DCoefficientsProvider PDE_DATA_PROVIDER = new PDE1DCoefficientsProvider();
@@ -95,7 +97,7 @@ public class ForwardPDETest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, INT_COND, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(PDE, INT_COND, LOWER, UPPER, grid);
     final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
 
     double t, x;
@@ -157,9 +159,8 @@ public class ForwardPDETest {
         final double x = Math.log(m);
         if (Math.abs(x) > Math.sqrt(t) * 1.2) {
           return 0.0;
-        } else {
-          return 0.4;
         }
+        return 0.4;
       }
     };
     final LocalVolatilitySurfaceMoneyness lv = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(lvFunc), new ForwardCurve(1.0));

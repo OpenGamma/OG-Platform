@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import com.opengamma.engine.resource.EngineResourceManager;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.view.cycle.ViewCycle;
+import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Remote implementation of {@link EngineResourceManager} on {@link ViewCycle}.
@@ -21,9 +22,13 @@ public class RemoteViewCycleManager extends RemoteEngineResourceManager<ViewCycl
     super(baseUri, scheduler);
   }
 
+  public RemoteViewCycleManager(URI baseUri, ScheduledExecutorService scheduler, FudgeRestClient client) {
+    super(baseUri, scheduler, client);
+  }
+
   @Override
   protected EngineResourceReference<ViewCycle> getRemoteReference(URI baseUri, ScheduledExecutorService scheduler) {
-    return new RemoteViewCycleReference(baseUri, scheduler);
+    return new RemoteViewCycleReference(baseUri, scheduler, getClient());
   }
 
 }

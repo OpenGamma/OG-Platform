@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.io.Serializable;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -17,13 +19,12 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Wraps a structured object's identifier allowing comparison between them. (For instance,
- * a yield curve wil be identified by a YieldCurveKey whereas a VolatilityCube by a
- * VolatilityCubeKey but there is no common interface between the two.)
- *
+ * Wraps a structured object's identifier allowing comparison between them. (For instance, a yield curve will be identified by a YieldCurveKey whereas a VolatilityCube by a VolatilityCubeKey but there
+ * is no common interface between the two.)
+ * 
  * @param <T> the underlying type of the key used
  */
-public class StructureIdentifier<T> {
+public final class StructureIdentifier<T extends Serializable> {
 
   private static final String STRUCTURE_TYPE = "structureType";
   private static final String VALUE = "value";
@@ -38,7 +39,6 @@ public class StructureIdentifier<T> {
   private final T _value;
 
   private StructureIdentifier(StructureType structureType, T value) {
-
     ArgumentChecker.notNull(structureType, STRUCTURE_TYPE);
     ArgumentChecker.notNull(value, VALUE);
     _structureType = structureType;
@@ -47,7 +47,7 @@ public class StructureIdentifier<T> {
 
   /**
    * Creates a structured identifier for a yield curve key.
-   *
+   * 
    * @param key the yield curve key, not null
    * @return a structured identifier for the yield curve key
    */
@@ -57,7 +57,7 @@ public class StructureIdentifier<T> {
 
   /**
    * Creates a structured identifier for a volatility surface key.
-   *
+   * 
    * @param key the volatility surface key, not null
    * @return a structured identifier for the volatility surface key
    */
@@ -67,7 +67,7 @@ public class StructureIdentifier<T> {
 
   /**
    * Creates a structured identifier for a volatility cube key.
-   *
+   * 
    * @param key the volatility cube key, not null
    * @return a structured identifier for the volatility cube key
    */
@@ -77,7 +77,7 @@ public class StructureIdentifier<T> {
 
   /**
    * Creates a structured identifier for a market data point identified by an external id.
-   *
+   * 
    * @param key the market data point external id, not null
    * @return a structured identifier for the market data point external id
    */
@@ -100,8 +100,7 @@ public class StructureIdentifier<T> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    StructureIdentifier that = (StructureIdentifier) o;
+    StructureIdentifier<?> that = (StructureIdentifier<?>) o;
     return _structureType == that._structureType && _value.equals(that._value);
   }
 
@@ -121,7 +120,7 @@ public class StructureIdentifier<T> {
 
   public static StructureIdentifier<?> fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
     StructureType structureType = deserializer.fieldValueToObject(StructureType.class, msg.getByName(STRUCTURE_TYPE));
-    Object value = deserializer.fieldValueToObject(Object.class, msg.getByName(VALUE));
+    Serializable value = deserializer.fieldValueToObject(Serializable.class, msg.getByName(VALUE));
     return new StructureIdentifier<>(structureType, value);
   }
 }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Set;
  * such that when the engine compiles its dependency graph it can proxy particular market data nodes.
  * The specification does not indicate the actual manipulation to be performed.
  */
-public interface MarketDataSelector {
+public interface MarketDataSelector extends Serializable {
 
   /**
    * Indicates if the specification contains an active selection to be applied. This allows

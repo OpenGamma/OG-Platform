@@ -12,7 +12,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.id.ExternalId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -25,6 +24,7 @@ import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
 import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -97,7 +97,7 @@ public class DbOrganizationMaster
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
         .addValueNullIgnored("obligor_short_name", getDialect().sqlWildcardAdjustValue(request.getObligorShortName()))
@@ -175,7 +175,7 @@ public class DbOrganizationMaster
     final ManageableOrganization organization = document.getOrganization();
 
     // the arguments for inserting into the organization table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())

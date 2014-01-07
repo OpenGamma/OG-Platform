@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -15,10 +15,12 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class Extrapolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final Interpolator1D INTERPOLATOR = new DoubleQuadraticInterpolator1D();
@@ -110,21 +112,4 @@ public class Extrapolator1DTest {
     }
   }
 
-  @Test(enabled=false)
-  public void debugTest() {
-    final DoubleQuadraticInterpolator1D baseInterpolator = new DoubleQuadraticInterpolator1D();
-
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getExtrapolator(Interpolator1DFactory.LINEAR_EXTRAPOLATOR, baseInterpolator);
-    Interpolator1DDataBundle data = interpolator.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
-    Double y = interpolator.interpolate(data, 1.0);
-  }
-  
-  @Test(enabled=false)
-  public void debug2Test() {
-    final DoubleQuadraticInterpolator1D baseInterpolator = new DoubleQuadraticInterpolator1D();
-
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    Interpolator1DDataBundle data = interpolator.getDataBundleFromSortedArrays(X_DATA, Y_DATA);
-    Double y = interpolator.interpolate(data, 1.0);
-  }
 }

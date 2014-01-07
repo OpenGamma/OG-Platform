@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -24,7 +23,7 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
    */
   private final InterestRateFutureSecurity _underlying;
   /**
-   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
+   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.
    * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
    */
   private final double _referencePrice;
@@ -56,18 +55,42 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
    * @param name Future name.
    * @param discountingCurveName The discounting curve name.
    * @param forwardCurveName The forward curve name.
+   * @deprecated Use the constructor that does not that curve names
    */
+  @Deprecated
   public InterestRateFutureTransaction(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
       final double fixingPeriodAccrualFactor, final double referencePrice, final double notional, final double paymentAccrualFactor, final int quantity, final String name,
       final String discountingCurveName, final String forwardCurveName) {
-    Validate.notNull(iborIndex, "Ibor index");
-    Validate.notNull(name, "Name");
-    Validate.notNull(discountingCurveName, "Discounting curve name");
-    Validate.notNull(forwardCurveName, "Forward curve name");
+    ArgumentChecker.notNull(iborIndex, "Ibor index");
+    ArgumentChecker.notNull(name, "Name");
+    ArgumentChecker.notNull(discountingCurveName, "Discounting curve name");
+    ArgumentChecker.notNull(forwardCurveName, "Forward curve name");
     _quantity = quantity;
     _referencePrice = referencePrice;
     _underlying = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional, paymentAccrualFactor, name,
         discountingCurveName, forwardCurveName);
+  }
+
+  /**
+   * Constructor from all the details.
+   * @param lastTradingTime Future last trading time.
+   * @param iborIndex Ibor index associated to the future.
+   * @param fixingPeriodStartTime Fixing period of the reference Ibor starting time.
+   * @param fixingPeriodEndTime Fixing period of the reference Ibor end time.
+   * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
+   * @param referencePrice The reference price.
+   * @param notional Future notional.
+   * @param paymentAccrualFactor Future payment accrual factor.
+   * @param quantity The quantity.
+   * @param name Future name.
+   */
+  public InterestRateFutureTransaction(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
+      final double fixingPeriodAccrualFactor, final double referencePrice, final double notional, final double paymentAccrualFactor, final int quantity, final String name) {
+    ArgumentChecker.notNull(iborIndex, "Ibor index");
+    ArgumentChecker.notNull(name, "Name");
+    _quantity = quantity;
+    _referencePrice = referencePrice;
+    _underlying = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional, paymentAccrualFactor, name);
   }
 
   /**
@@ -127,8 +150,8 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
   }
 
   /**
-   * Gets the future payment accrual factor. 
-   * @return The future payment accrual factor. 
+   * Gets the future payment accrual factor.
+   * @return The future payment accrual factor.
    */
   public double getPaymentAccrualFactor() {
     return _underlying.getPaymentAccrualFactor();
@@ -144,17 +167,27 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
 
   /**
    * Gets the discounting curve name.
-   * @return The name.
+   * @return The discounting curve name.
+   * @deprecated Curve names should not be set in derivatives
    */
+  @Deprecated
   public String getDiscountingCurveName() {
+    if (_underlying.getDiscountingCurveName() == null) {
+      throw new IllegalStateException("Curve names should not be set in derivatives");
+    }
     return _underlying.getDiscountingCurveName();
   }
 
   /**
    * Gets the forward curve name.
-   * @return The name.
+   * @return The forward curve name.
+   * @deprecated Curve names should not be set in derivatives
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_underlying.getForwardCurveName() == null) {
+      throw new IllegalStateException("Curve names should not be set in derivatives");
+    }
     return _underlying.getForwardCurveName();
   }
 
@@ -196,7 +229,7 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
 
   @Override
   public String toString() {
-    String result = "Quantity: " + _quantity + " of " + _underlying.toString();
+    final String result = "Quantity: " + _quantity + " of " + _underlying.toString();
     return result;
   }
 
@@ -213,7 +246,7 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -223,7 +256,7 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureTransaction other = (InterestRateFutureTransaction) obj;
+    final InterestRateFutureTransaction other = (InterestRateFutureTransaction) obj;
     if (_quantity != other._quantity) {
       return false;
     }

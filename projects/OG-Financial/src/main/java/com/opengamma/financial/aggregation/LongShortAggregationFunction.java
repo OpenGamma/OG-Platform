@@ -18,6 +18,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -41,6 +42,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -48,12 +50,14 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -94,7 +98,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   /**
    * Creates an instance that does not use attributes.
-   * 
+   *
    * @param secSource  the security source, not null
    */
   public LongShortAggregationFunction(final SecuritySource secSource) {
@@ -103,7 +107,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param secSource  the security source, not null
    * @param useAttributes  whether to use attributes
    */
@@ -164,7 +168,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   private final class Visitor implements FinancialSecurityVisitor<String> {
     private final Position _position;
 
-    private Visitor(Position position) {
+    private Visitor(final Position position) {
       _position = position;
     }
 
@@ -180,6 +184,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
     @Override
     public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+      return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitInflationBondSecurity(final InflationBondSecurity security) {
       return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
 
@@ -200,6 +209,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
     @Override
     public String visitFRASecurity(final FRASecurity security) {
+      return security.getAmount() * _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
       return security.getAmount() * _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
 
@@ -371,6 +385,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     }
 
     @Override
+    public String visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+      return null;  //TODO implement me !
+    }
+
+    @Override
     public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
       return null;  //TODO implement me !
     }
@@ -451,12 +470,17 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     }
 
     @Override
-    public String visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    public String visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
       return NOT_LONG_SHORT;
     }
 
     @Override
-    public String visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+    public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
       return NOT_LONG_SHORT;
     }
   }

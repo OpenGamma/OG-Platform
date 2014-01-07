@@ -20,14 +20,18 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.multicurve.MultiCurvePricingFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Dummy function for injecting default values into the dependency graph.
+ * Dummy function for injecting default curve names into the dependency graph.
+ * @deprecated These properties are no longer needed when using {@link MultiCurvePricingFunction}
+ * and related classes.
  */
+@Deprecated
 public class InterestRateFutureDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureDefaults.class);
   private static final String[] s_valueNames = new String[] {
@@ -43,7 +47,7 @@ public class InterestRateFutureDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
-    _currencyAndCurveConfigNames = new HashMap<String, String>();
+    _currencyAndCurveConfigNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
     }

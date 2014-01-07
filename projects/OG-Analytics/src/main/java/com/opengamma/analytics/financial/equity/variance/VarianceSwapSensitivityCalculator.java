@@ -1,27 +1,23 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
-import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -32,14 +28,13 @@ import com.opengamma.util.tuple.DoublesPair;
  * Equity Spot contracts,<p>
  * Equity Forward contracts,<p>
  */
+@SuppressWarnings("deprecation")
 public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSensitivityCalculator {
 
   private static final VarianceSwapSensitivityCalculator INSTANCE = new VarianceSwapSensitivityCalculator();
 
   public static VarianceSwapSensitivityCalculator getInstance() {
-
     return INSTANCE;
-
   }
 
   private VarianceSwapSensitivityCalculator() {
@@ -60,8 +55,8 @@ public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSen
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
   public Double calcDiscountRateSensitivity(final VarianceSwap swap, final StaticReplicationDataBundle market, final double shift) {
-    Validate.notNull(market);
-    Validate.notNull(swap);
+    ArgumentChecker.notNull(market, "market");
+    ArgumentChecker.notNull(swap, "swap");
     // Sensitivity from the discounting
     final VarianceSwapStaticReplication pricer = new VarianceSwapStaticReplication();
     final double pv = pricer.presentValue(swap, market);
@@ -112,30 +107,22 @@ public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSen
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
   public DoubleMatrix1D calcDeltaBucketed(final VarianceSwap swap, final StaticReplicationDataBundle market) {
-    Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null EquityOptionDataBundle");
+    ArgumentChecker.notNull(swap, "null VarianceSwap");
+    ArgumentChecker.notNull(market, "null EquityOptionDataBundle");
 
     // We know that the VarianceSwap only has true sensitivity to one maturity on one curve.
     // A function written for interestRate sensitivities spreads this sensitivity across yield nodes
-    // NodeSensitivityCalculator.curveToNodeSensitivities(curveSensitivities, interpolatedCurves)
 
-    // 2nd arg = LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves
     final YieldAndDiscountCurve discCrv = market.getDiscountCurve();
     if (!(discCrv instanceof YieldCurve)) {
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
-    final String discCrvName = ((YieldCurve) discCrv).getCurve().getName();
-    final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
-    interpolatedCurves.setCurve(discCrvName, discCrv);
-
-    // 1st arg = Map<String, List<DoublesPair>> curveSensitivities = <curveName, List<(maturity,sensitivity)>>
     final double settlement = swap.getTimeToSettlement();
-    final Double sens = calcDiscountRateSensitivity(swap, market);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
-    curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
+    final double sens = calcDiscountRateSensitivity(swap, market);
 
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-    return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
+    final List<Double> result = distributor.curveToNodeSensitivity(Arrays.asList(DoublesPair.of(settlement, sens)), (YieldCurve) discCrv);
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
   /**
@@ -150,8 +137,8 @@ public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSen
    * @return A Double representing the number of spot-starting VarianceSwaps required to hedge the variance exposure
    */
   public Double calcSensitivityToFairVariance(final VarianceSwap swap, final StaticReplicationDataBundle market) {
-    Validate.notNull(swap, "null VarianceSwap");
-    Validate.notNull(market, "null EquityOptionDataBundle");
+    ArgumentChecker.notNull(swap, "null VarianceSwap");
+    ArgumentChecker.notNull(market, "null EquityOptionDataBundle");
 
     final int nObsExpected = swap.getObsExpected();
     final int nObsSoFar = swap.getObservations().length;

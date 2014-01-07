@@ -5,14 +5,20 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the implied volatility for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class ImpliedVolatilityBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
@@ -34,14 +40,25 @@ public class ImpliedVolatilityBlackForexCalculator extends InstrumentDerivativeV
   ImpliedVolatilityBlackForexCalculator() {
   }
 
-  /**
-   * The methods used by the different instruments.
-   */
+  /** Vanilla option calculator */
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
+  /** Digital option calculator */
+  private static final ForexOptionDigitalBlackMethod METHOD_FXDIGITAL = ForexOptionDigitalBlackMethod.getInstance();
+  /** Single barrier option calculator */
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
   public Double visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
     return METHOD_FXOPTIONVANILLA.impliedVolatility(derivative, data);
   }
 
+  @Override
+  public Double visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
+    return METHOD_FXDIGITAL.impliedVolatility(derivative, data);
+  }
+
+  @Override
+  public Double visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
+    return METHOD_FXBARRIER.impliedVolatility(derivative, data);
+  }
 }

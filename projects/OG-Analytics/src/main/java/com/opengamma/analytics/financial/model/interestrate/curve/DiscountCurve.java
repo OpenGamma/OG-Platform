@@ -25,7 +25,7 @@ public class DiscountCurve extends YieldAndDiscountCurve {
    * The curve storing the required data as discount factors.
    */
   private final DoublesCurve _curve;
-
+  /** Constant representing a small time increment */
   private static final double SMALL_TIME = 1.0E-6;
 
   /**
@@ -82,6 +82,11 @@ public class DiscountCurve extends YieldAndDiscountCurve {
   @Override
   public double getDiscountFactor(final double t) {
     return _curve.getYValue(t);
+  }
+
+  @Override
+  public double getForwardRate(final double t) {
+    return -_curve.getDyDx(t) / _curve.getYValue(t);
   }
 
   @Override

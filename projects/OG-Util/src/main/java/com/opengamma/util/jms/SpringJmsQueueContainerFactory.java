@@ -8,6 +8,9 @@ package com.opengamma.util.jms;
 import javax.jms.ConnectionFactory;
 
 import org.springframework.jms.listener.AbstractMessageListenerContainer;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Container used to receive JMS messages.
@@ -27,6 +30,18 @@ public class SpringJmsQueueContainerFactory extends AbstractSpringContainerFacto
   @Override
   public JmsQueueContainer create(String queueName, Object listener) {
     AbstractMessageListenerContainer jmsContainer = doCreate(getConnectionFactory(), queueName, false, listener);
+    return new OpenGammaSpringJmsContainer(jmsContainer);
+  }
+
+  @Override
+  public JmsQueueContainer create(String queueName, Object listener, int concurrentConsumers, int maxConcurrentConsumers) {
+
+    ArgumentChecker.notNegativeOrZero(concurrentConsumers, "concurrentConsumers");
+    ArgumentChecker.notNegativeOrZero(maxConcurrentConsumers, "maxConcurrentConsumers");
+
+    DefaultMessageListenerContainer jmsContainer = doCreate(getConnectionFactory(), queueName, false, listener);
+    jmsContainer.setConcurrentConsumers(concurrentConsumers);
+    jmsContainer.setMaxConcurrentConsumers(maxConcurrentConsumers);
     return new OpenGammaSpringJmsContainer(jmsContainer);
   }
 

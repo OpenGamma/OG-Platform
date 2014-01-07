@@ -13,10 +13,12 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleNetRelativeTimeSeriesReturnCalculatorTest {
   private static final TimeSeriesReturnCalculator STRICT_CALCULATOR = TimeSeriesReturnCalculatorFactory
       .getReturnCalculator(TimeSeriesReturnCalculatorFactory.SIMPLE_NET_RELATIVE_STRICT);

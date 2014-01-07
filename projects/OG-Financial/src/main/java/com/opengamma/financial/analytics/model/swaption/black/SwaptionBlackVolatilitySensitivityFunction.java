@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.black;
@@ -17,14 +17,21 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueVegaSwaptionFunction;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Calculates the value vega for swaptions using the Black method
+ * @deprecated Use {@link BlackDiscountingValueVegaSwaptionFunction}
  */
+@Deprecated
 public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
+  /** The value vega calculator */
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_VEGA}
+   */
   public SwaptionBlackVolatilitySensitivityFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
   }

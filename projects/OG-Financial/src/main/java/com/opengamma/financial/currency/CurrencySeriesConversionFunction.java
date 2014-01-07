@@ -15,7 +15,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -25,12 +27,17 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.LabelledObjectMatrix1D;
+import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Converts a series of values from one currency to another, preserving all other properties.
@@ -38,6 +45,8 @@ import com.opengamma.util.ArgumentChecker;
 public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
+
+  private static final String CONVERSION_METHOD_VALUE = "Series";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencySeriesConversionFunction.class);
 
@@ -69,8 +78,11 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(CURRENCY_INJECTION_PROPERTY)
-        .withAny(ValuePropertyNames.CURRENCY).get());
+    Builder properties = desiredValue.getConstraints().copy()
+        .withoutAny(CURRENCY_INJECTION_PROPERTY)
+        .withoutAny(ValuePropertyNames.CONVERSION_METHOD)
+        .withAny(ValuePropertyNames.CURRENCY);
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, properties.get());
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
@@ -90,6 +102,15 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     return values.divide(conversionRates);
   }
 
+  @VisibleForTesting
+  /* package */ TenorLabelledLocalDateDoubleTimeSeriesMatrix1D convertLabelledMatrix(final LabelledObjectMatrix1D<Tenor, LocalDateDoubleTimeSeries, Period> values, final DoubleTimeSeries<LocalDate> conversionRates) {
+    LocalDateDoubleTimeSeries[] convertedValues = new LocalDateDoubleTimeSeries[values.size()];
+    for (int i = 0; i < values.size(); i++) {
+      convertedValues[i] = (LocalDateDoubleTimeSeries) convertTimeSeries(values.getValues()[i], conversionRates);
+    }
+    return new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(values.getKeys(), values.getLabels(), values.getLabelsTitle(), convertedValues, values.getValuesTitle());
+  }
+
   protected DoubleTimeSeries<LocalDate> convertTimeSeries(final DoubleTimeSeries<LocalDate> values, final double conversionRate) {
     return values.divide(conversionRate);
   }
@@ -102,6 +123,9 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     } else if (value instanceof DoubleTimeSeries) {
       // TODO: Note the unchecked cast. We'll either get a zero intersection and empty result if the rates aren't the same type or a class cast exception.
       return convertTimeSeries((DoubleTimeSeries) value, conversionRates);
+    } else if (value instanceof TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) {
+      // Try to make this more generic
+      return convertLabelledMatrix((TenorLabelledLocalDateDoubleTimeSeriesMatrix1D) value, conversionRates);
     } else {
       s_logger.error("Can't convert object with type {} to {}", inputValue.getValue().getClass(), desiredValue);
       return null;
@@ -216,7 +240,10 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
       // Resolved output is the input with the currency wild-carded, and the function ID the same (this is so that after composition the node might
       // be removed from the graph)
       final ValueSpecification value = input.getKey();
-      return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), value.getProperties().copy().withAny(ValuePropertyNames.CURRENCY).get()));
+      Builder properties = value.getProperties().copy()
+          .withAny(ValuePropertyNames.CURRENCY)
+          .with(ValuePropertyNames.CONVERSION_METHOD, CONVERSION_METHOD_VALUE);
+      return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), properties.get()));
     }
     // The input was requested with the converted currency, so return the same specification to remove this node from the graph
     return Collections.singleton(input.getKey());

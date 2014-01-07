@@ -66,6 +66,8 @@ public class RemoteComponentFactoryToolContextAdapter extends ToolContext {
     
     // this may need customizing per-project
     setConventionBundleSource(new DefaultConventionBundleSource(new InMemoryConventionBundleMaster()));
+    
+    setFunctionConfigSource(remoteComponentFactory.getFunctionConfigurationSource(classifierPreferences));
   }
 
   @Override

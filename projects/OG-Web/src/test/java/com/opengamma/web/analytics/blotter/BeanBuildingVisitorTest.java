@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.Map;
 
@@ -14,6 +14,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.testng.annotations.Test;
+
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -25,6 +26,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.beancompare.BeanCompare;
 
 /**
  * Test.
@@ -62,7 +64,7 @@ public class BeanBuildingVisitorTest {
     BeanBuilder<ManageableSecurity> beanBuilder =
         (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
     ManageableSecurity security = beanBuilder.build();
-    assertEquals(BlotterTestUtils.FX_FORWARD, security);
+    assertTrue(BeanCompare.equalIgnoring(BlotterTestUtils.FX_FORWARD, security, ManageableSecurity.meta().uniqueId()));
   }
 
   /**
@@ -77,6 +79,6 @@ public class BeanBuildingVisitorTest {
     BeanBuilder<ManageableSecurity> beanBuilder =
         (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
     ManageableSecurity security = beanBuilder.build();
-    assertEquals(BlotterTestUtils.SWAP, security);
+    assertTrue(BeanCompare.equalIgnoring(BlotterTestUtils.SWAP, security, ManageableSecurity.meta().uniqueId()));
   }
 }

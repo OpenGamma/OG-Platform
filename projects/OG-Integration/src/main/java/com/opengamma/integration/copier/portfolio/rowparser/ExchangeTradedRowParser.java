@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
@@ -25,6 +27,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * A row parser that reads in a ticker for an exchange-traded security, a quantity for a position, and
@@ -32,10 +35,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ExchangeTradedRowParser extends RowParser {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ExchangeTradedRowParser.class);
+  
   private static final String TICKER = "ticker";
   private static final String QUANTITY = "quantity";
   private static final String TRADE_DATE = "trade date";
   private static final String PREMIUM = "premium";
+  private static final String PREMIUM_CURRENCY = "premiumcurrency";
+  private static final String PREMIUM_DATE = "premiumdate";
   private static final String COUNTERPARTY = "counterparty";
   
   private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
@@ -59,14 +66,27 @@ public class ExchangeTradedRowParser extends RowParser {
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
     ArgumentChecker.notNull(row, "row");
-    
-    for (ExternalScheme scheme : s_schemeWaterfall) {
-      ExternalIdBundle id = ExternalId.of(scheme, getWithException(row, TICKER)).toBundle();
+    String idStr = getWithException(row, TICKER);
+    if (idStr == null) {
+      s_logger.error("Ticker column contained no value, skipping row");
+      return new ManageableSecurity[] {};
+    }
+    try {
+      ExternalIdBundle id = ExternalId.parse(idStr).toBundle();
       Security security = _securityProvider.getSecurity(id);
       if (security != null && security instanceof ManageableSecurity) {
         return new ManageableSecurity[] {(ManageableSecurity) security};
       }
+    } catch (IllegalArgumentException iae) {
+      for (ExternalScheme scheme : s_schemeWaterfall) {
+        ExternalIdBundle id = ExternalId.of(scheme, idStr).toBundle();
+        Security security = _securityProvider.getSecurity(id);
+        if (security != null && security instanceof ManageableSecurity) {
+          return new ManageableSecurity[] {(ManageableSecurity) security};
+        }
+      }
     }
+
     return new ManageableSecurity[] {};
   }
 
@@ -108,6 +128,13 @@ public class ExchangeTradedRowParser extends RowParser {
               tradeDate, 
               LocalTime.of(11, 11).atOffset(ZoneOffset.UTC), 
               counterpartyId);
+      result.setPremium(Double.parseDouble(row.get(PREMIUM)));
+      if (row.containsKey(PREMIUM_CURRENCY)) {
+        result.setPremiumCurrency(Currency.parse(getWithException(row, PREMIUM_CURRENCY)));
+      } 
+      if (row.containsKey(PREMIUM_DATE)) {
+        result.setPremiumDate(getDateWithException(row, PREMIUM_DATE));
+      }
       return result;
      
     } else {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr;
@@ -16,10 +16,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StandardSmileSurfaceDataBundleTest {
   private static final double SPOT = 1.0;
   private static final double[] FORWARDS = new double[] {1.1, 1.15, 1.3 };
@@ -38,15 +40,14 @@ public class StandardSmileSurfaceDataBundleTest {
       new double[] {0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001 },
       new double[] {0.11, 0.011, 0.0011, 0.00011, 0.000011, 0.0000011 },
       new double[] {0.12, 0.00012, 0.00012, 0.00012, 0.000012, 0.0000012 } };
-  private static final boolean IS_CALL_DATA = true;
   private static final Interpolator1D INTERPOLATOR = Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE;
   private static final ForwardCurve FORWARD_CURVE;
   private static final StandardSmileSurfaceDataBundle DATA;
   private static final double EPS = 1e-15;
 
   static {
-    double[] t = ArrayUtils.add(EXPIRIES, 0, 0.0);
-    double[] f = ArrayUtils.add(FORWARDS, 0, SPOT);
+    final double[] t = ArrayUtils.add(EXPIRIES, 0, 0.0);
+    final double[] f = ArrayUtils.add(FORWARDS, 0, SPOT);
 
     FORWARD_CURVE = new ForwardCurve(InterpolatedDoublesCurve.from(t, f, INTERPOLATOR));
     DATA = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS);

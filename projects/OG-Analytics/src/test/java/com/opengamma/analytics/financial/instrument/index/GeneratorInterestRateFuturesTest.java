@@ -15,11 +15,13 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTra
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the generator of interest rate futures.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorInterestRateFuturesTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

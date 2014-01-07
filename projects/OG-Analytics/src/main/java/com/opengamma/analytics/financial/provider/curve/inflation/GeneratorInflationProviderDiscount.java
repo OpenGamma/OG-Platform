@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.inflation;
@@ -63,10 +63,10 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
       final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsInflationMap) {
     ArgumentChecker.notNull(inflationMap, "Inflation curves names map");
     _knownData = knownData;
-    _discountingMap = new LinkedHashMap<String, Currency>();
-    _forwardONMap = new LinkedHashMap<String, IndexON[]>();
+    _discountingMap = new LinkedHashMap<>();
+    _forwardONMap = new LinkedHashMap<>();
     _inflationMap = inflationMap;
-    _generatorsMap = new LinkedHashMap<String, GeneratorCurve>();
+    _generatorsMap = new LinkedHashMap<>();
     _generatorsMap.putAll(generatorsInflationMap);
   }
 
@@ -78,7 +78,7 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
    * @param inflationMap The inflation curves names map.
    * @param generatorsMap The inflation generators map.
    */
-  public GeneratorInflationProviderDiscount(final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, LinkedHashMap<String, IndexON[]> forwardONMap,
+  public GeneratorInflationProviderDiscount(final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
       final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorCurve> generatorsMap) {
     ArgumentChecker.notNull(inflationMap, "Inflation curves names map");
     ArgumentChecker.notNull(discountingMap, "Discount curves names map");
@@ -106,37 +106,37 @@ public class GeneratorInflationProviderDiscount extends Function1D<DoubleMatrix1
   }
 
   @Override
-  public InflationProviderDiscount evaluate(DoubleMatrix1D x) {
-    InflationProviderDiscount provider = _knownData.copy();
-    Set<String> nameSet = _generatorsMap.keySet();
+  public InflationProviderDiscount evaluate(final DoubleMatrix1D x) {
+    final InflationProviderDiscount provider = _knownData.copy();
+    final Set<String> nameSet = _generatorsMap.keySet();
     int indexParam = 0;
-    for (String name : nameSet) {
-      GeneratorCurve generator = _generatorsMap.get(name);
+    for (final String name : nameSet) {
+      final GeneratorCurve generator = _generatorsMap.get(name);
 
-      double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + generator.getNumberOfParameter());
+      final double[] paramCurve = Arrays.copyOfRange(x.getData(), indexParam, indexParam + generator.getNumberOfParameter());
       indexParam += generator.getNumberOfParameter();
 
       if (generator instanceof GeneratorYDCurve) {
-        GeneratorYDCurve discountGenerator = (GeneratorYDCurve) generator;
-        YieldAndDiscountCurve curve = discountGenerator.generateCurve(name, provider.getMulticurveProvider(), paramCurve);
+        final GeneratorYDCurve discountGenerator = (GeneratorYDCurve) generator;
+        final YieldAndDiscountCurve curve = discountGenerator.generateCurve(name, provider.getMulticurveProvider(), paramCurve);
         if (_discountingMap.containsKey(name)) {
           provider.getMulticurveProvider().setCurve(_discountingMap.get(name), curve);
         }
         if (_forwardONMap.containsKey(name)) {
-          IndexON[] indexes = _forwardONMap.get(name);
-          for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
-            provider.setCurve(indexes[loopindex], curve);
+          final IndexON[] indexes = _forwardONMap.get(name);
+          for (final IndexON indexe : indexes) {
+            provider.setCurve(indexe, curve);
           }
         }
       }
       if (generator instanceof GeneratorPriceIndexCurve) {
-        GeneratorPriceIndexCurve inflationGenerator = (GeneratorPriceIndexCurve) generator;
-        PriceIndexCurve inflationCurve = inflationGenerator.generateCurve(name, provider, paramCurve);
+        final GeneratorPriceIndexCurve inflationGenerator = (GeneratorPriceIndexCurve) generator;
+        final PriceIndexCurve inflationCurve = inflationGenerator.generateCurve(name, provider, paramCurve);
 
         if (_inflationMap.containsKey(name)) {
-          IndexPrice[] indexes = _inflationMap.get(name);
-          for (int loopindex = 0; loopindex < indexes.length; loopindex++) {
-            provider.setCurve(indexes[loopindex], inflationCurve);
+          final IndexPrice[] indexes = _inflationMap.get(name);
+          for (final IndexPrice indexe : indexes) {
+            provider.setCurve(indexe, inflationCurve);
           }
 
         }

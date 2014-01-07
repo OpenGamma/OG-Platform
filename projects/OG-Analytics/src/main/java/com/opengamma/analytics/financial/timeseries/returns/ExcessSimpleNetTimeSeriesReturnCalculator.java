@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.returns;
@@ -53,6 +53,6 @@ public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnC
     }
     final LocalDateDoubleTimeSeries assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 0, 2));
     final LocalDateDoubleTimeSeries referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 2, 4));
-    return (LocalDateDoubleTimeSeries) assetReturn.subtract(referenceReturn);
+    return assetReturn.subtract(referenceReturn);
   }
 }

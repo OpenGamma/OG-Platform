@@ -52,6 +52,30 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(value, "value");
+    Validate.notNull(data, "data bundle");
+    Validate.isTrue(data instanceof Interpolator1DCubicSplineDataBundle);
+    Interpolator1DCubicSplineDataBundle splineData = (Interpolator1DCubicSplineDataBundle) data;
+    final int low = data.getLowerBoundIndex(value);
+    final int high = low + 1;
+    final int n = data.size() - 1;
+    final double[] xData = data.getKeys();
+    final double[] yData = data.getValues();
+    if (data.getLowerBoundIndex(value) == n) {
+      return yData[n];
+    }
+    final double delta = xData[high] - xData[low];
+    if (Math.abs(delta) < _eps) {
+      throw new MathException("x data points were not distinct");
+    }
+    final double a = (xData[high] - value) / delta;
+    final double b = (value - xData[low]) / delta;
+    final double[] y2 = splineData.getSecondDerivatives();
+    return (yData[high] - yData[low]) / delta + ((-3. * a * a + 1.) * y2[low] + (3. * b * b - 1.) * y2[high]) * delta / 6.;
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.isTrue(data instanceof Interpolator1DCubicSplineDataBundle);
@@ -78,7 +102,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     result[high] += b;
     return result;
   }
-  
+
   @Override
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return new Interpolator1DCubicSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));

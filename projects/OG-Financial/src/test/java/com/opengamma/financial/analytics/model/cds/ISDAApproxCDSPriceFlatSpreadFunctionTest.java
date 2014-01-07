@@ -22,8 +22,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CDSSecurity;
@@ -40,7 +40,7 @@ public class ISDAApproxCDSPriceFlatSpreadFunctionTest {
   private static MockSecuritySource securitySource;
   private static FunctionCompilationContext functionCompilationContext;
   private static final CDSSecurity CDS_SECURITY = new CDSSecurity(1.0, 0.6, 0.0025, Currency.GBP, zdt(2020, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC), ZonedDateTime.now(), SimpleFrequency.ANNUAL,
-    DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), StubType.SHORT_START, 3,
+    DayCounts.ACT_360, BusinessDayConventions.FOLLOWING, StubType.SHORT_START, 3,
     "US Treasury", Currency.USD, "Senior", "No Restructuring");
   private ISDAApproxCDSPriceFlatSpreadFunction testItem;
 

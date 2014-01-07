@@ -92,7 +92,7 @@ public class MathCurveTest extends AnalyticsTestBase {
   @Test
   public void testFunctionalCurve_NS() {
     final NelsonSiegelBondCurveModel curveBondModel = new NelsonSiegelBondCurveModel();
-    final Function<Double, Double> func = curveBondModel.getParameterizedFunction().asFunctionOfArguments(new DoubleMatrix1D(new double[] {1, 2, 3, 4 }));
+    final Function1D<Double, Double> func = curveBondModel.getParameterizedFunction().asFunctionOfArguments(new DoubleMatrix1D(new double[] {1, 2, 3, 4 }));
     Curve<Double, Double> c1 = FunctionalDoublesCurve.from(func);
     Curve<Double, Double> c2 = cycleObject(Curve.class, c1);
     assertCurveEquals(c1, c2);

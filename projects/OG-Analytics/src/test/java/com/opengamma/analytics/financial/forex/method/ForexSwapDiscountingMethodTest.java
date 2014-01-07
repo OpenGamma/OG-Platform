@@ -32,12 +32,16 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the method for Forex Swap transaction by discounting on each payment.
+ * @deprecated The class tests deprecated code
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class ForexSwapDiscountingMethodTest {
 
   private static final Currency CUR_1 = Currency.EUR;
@@ -254,7 +258,6 @@ public class ForexSwapDiscountingMethodTest {
       result[loopnode] = (psBumped - ps) / deltaShift;
       final DoublesPair pairPv = sensi2.get(loopnode);
       assertEquals("Sensitivity par spread to curve: Node " + loopnode, nodeTimesExtended[loopnode + 1], pairPv.getFirst(), TOLERANCE_TIME);
-      //      assertEquals("Sensitivity par spread to curve: Node " + loopnode, pairPv.second, result[loopnode], TOLERANCE_SPREAD_DELTA); //TODO: Why commented?
     }
     CURVES_FX.replaceCurve(CURVES_NAME[1], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = fxSwap.accept(PSCSC, CURVES_FX);

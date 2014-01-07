@@ -47,25 +47,24 @@ public class GeneratorPriceIndexCurveAddSeasonality extends GeneratorPriceIndexC
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, double[] parameters) {
-    PriceIndexCurve newCurve = _generator.generateCurve(name, parameters);
-    /* return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);*/
+  public PriceIndexCurve generateCurve(final String name, final double[] parameters) {
+    final PriceIndexCurve newCurve = _generator.generateCurve(name, parameters);
     return new PriceIndexCurve(SpreadDoublesCurve.from(new AddCurveSpreadFunction(), name, newCurve.getCurve(), _seasonalCurve));
   }
 
   @Override
-  public PriceIndexCurve generateCurve(String name, InflationProviderInterface inflation, double[] parameters) {
-    PriceIndexCurve newCurve = _generator.generateCurve(name, inflation, parameters);
+  public PriceIndexCurve generateCurve(final String name, final InflationProviderInterface inflation, final double[] parameters) {
+    final PriceIndexCurve newCurve = _generator.generateCurve(name, inflation, parameters);
     return new PriceIndexCurveAddSeasonalCurve(name, newCurve, _seasonalCurve);
   }
 
   @Override
-  public GeneratorPriceIndexCurve finalGenerator(Object data) {
+  public GeneratorPriceIndexCurve finalGenerator(final Object data) {
     return new GeneratorPriceIndexCurveAddSeasonality(_generator.finalGenerator(data), _seasonalCurve);
   }
 
   @Override
-  public double[] initialGuess(double[] rates) {
+  public double[] initialGuess(final double[] rates) {
     return _generator.initialGuess(rates);
   }
 

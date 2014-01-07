@@ -19,7 +19,7 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
  * A MarketDataSelector which specifies a yield curve to be shifted. Note that this
  * class is not responsible for specifying the actual manipulation to be done.
  */
-public class YieldCurveSelector extends ExactMatchMarketDataSelector<YieldCurveKey> {
+public final class YieldCurveSelector extends ExactMatchMarketDataSelector<YieldCurveKey> {
 
   private static final String STRUCTURE_ID = "structureId";
 
@@ -48,7 +48,7 @@ public class YieldCurveSelector extends ExactMatchMarketDataSelector<YieldCurveK
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessage(msg, STRUCTURE_ID, null, _structureId);
+    serializer.addToMessage(msg, STRUCTURE_ID, null, getStructureId());
     return msg;
   }
 

@@ -13,10 +13,12 @@ import java.util.TreeMap;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ExponentialInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
@@ -53,7 +55,7 @@ public class ExponentialInterpolator1DTest {
 
   @Test
   public void test() {
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<>();
     final double t1 = 3;
     final double t2 = 4;
     final double df1 = 0.8325;

@@ -12,11 +12,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SemiAnnualScheduleCalculatorTest extends ScheduleCalculatorTestCase {
   private static final SemiAnnualScheduleCalculator CALCULATOR = new SemiAnnualScheduleCalculator();
 

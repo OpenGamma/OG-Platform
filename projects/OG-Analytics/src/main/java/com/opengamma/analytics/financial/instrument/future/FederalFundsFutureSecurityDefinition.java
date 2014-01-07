@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -67,11 +67,11 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   /**
    * The preceding business day convention.
    */
-  private static final BusinessDayConvention BUSINESS_DAY_PRECEDING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  private static final BusinessDayConvention BUSINESS_DAY_PRECEDING = BusinessDayConventions.PRECEDING;
   /**
    * The following business day convention.
    */
-  private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventions.FOLLOWING;
 
   /** Constructor from all details.
    * @param lastTradingDate The future last trading date. Usually the last business day of the month.
@@ -130,7 +130,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     final ZonedDateTime[] fixingDate = fixingList.toArray(new ZonedDateTime[fixingList.size()]);
     final double[] fixingAccrualFactor = new double[fixingDate.length - 1];
     for (int loopfix = 0; loopfix < fixingDate.length - 1; loopfix++) {
-      fixingAccrualFactor[loopfix] = index.getDayCount().getDayCountFraction(fixingDate[loopfix], fixingDate[loopfix + 1]);
+      fixingAccrualFactor[loopfix] = index.getDayCount().getDayCountFraction(fixingDate[loopfix], fixingDate[loopfix + 1], calendar);
     }
     return new FederalFundsFutureSecurityDefinition(last, index, fixingDate, fixingAccrualFactor, notional, paymentAccrualFactor, name);
   }
@@ -226,6 +226,11 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     return _name + " - index: " + _index.toString() + " - start date: " + _fixingPeriodDate[0].toString(DateTimeFormatter.ofPattern("ddMMMyy"));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Date");
@@ -238,11 +243,14 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
         yieldCurveNames[0]);
   }
 
-  @Override
   /**
    * @param indexFixingTimeSeries The time series of the ON index. It is used if the date is in the future month.
    * The date of the time series is the publication date (for Fed Funds, it is the end date of the period).
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
+  @Override
   public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Date");
     if (date.isBefore(_fixingPeriodDate[1])) { // Fixing period not started
@@ -293,11 +301,12 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     return new FederalFundsFutureSecurity(_index, 0.0, fixingPeriodTime, _fixingPeriodAccrualFactor, _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name);
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * @param indexFixingTimeSeries The time series of the ON index. It is used if the date is in the future month.
    * The date of the time series is the publication date (for Fed Funds, it is the end date of the period).
    */
+  @Override
   public FederalFundsFutureSecurity toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(date, "Date");
     if (date.isBefore(_fixingPeriodDate[1])) { // Fixing period not started

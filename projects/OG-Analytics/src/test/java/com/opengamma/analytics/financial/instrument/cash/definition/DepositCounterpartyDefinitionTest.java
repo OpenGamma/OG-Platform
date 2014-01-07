@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cash.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -21,8 +20,13 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DepositCounterpartyDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -73,19 +77,89 @@ public class DepositCounterpartyDefinitionTest {
    * Tests the builders.
    */
   public void from() {
-    DepositCounterpartDefinition fromTradeTenor = DepositCounterpartDefinition.fromTrade(TRADE_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR, COUNTERPART);
+    final DepositCounterpartDefinition fromTradeTenor = DepositCounterpartDefinition.fromTrade(TRADE_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR, COUNTERPART);
     assertEquals("DepositDefinition: from", DEPOSIT_CTP_DEFINITION, fromTradeTenor);
-    DepositCounterpartDefinition fromStartTenor = DepositCounterpartDefinition.fromStart(SPOT_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR, COUNTERPART);
+    final DepositCounterpartDefinition fromStartTenor = DepositCounterpartDefinition.fromStart(SPOT_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR, COUNTERPART);
     assertEquals("DepositDefinition: from", DEPOSIT_CTP_DEFINITION, fromStartTenor);
-    int start = 1;
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, start, TARGET);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, TARGET);
-    double af = GENERATOR.getDayCount().getDayCountFraction(startDate, endDate);
-    DepositCounterpartDefinition on = new DepositCounterpartDefinition(EUR, startDate, endDate, NOTIONAL, RATE, af, COUNTERPART);
-    DepositCounterpartDefinition fromTradeON = DepositCounterpartDefinition.fromTrade(TRADE_DATE, start, NOTIONAL, RATE, GENERATOR, COUNTERPART);
+    final int start = 1;
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, start, TARGET);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, TARGET);
+    final double af = GENERATOR.getDayCount().getDayCountFraction(startDate, endDate);
+    final DepositCounterpartDefinition on = new DepositCounterpartDefinition(EUR, startDate, endDate, NOTIONAL, RATE, af, COUNTERPART);
+    final DepositCounterpartDefinition fromTradeON = DepositCounterpartDefinition.fromTrade(TRADE_DATE, start, NOTIONAL, RATE, GENERATOR, COUNTERPART);
     assertEquals("DepositDefinition: from", on, fromTradeON);
-    DepositCounterpartDefinition fromStartON = DepositCounterpartDefinition.fromStart(startDate, NOTIONAL, RATE, GENERATOR, COUNTERPART);
+    final DepositCounterpartDefinition fromStartON = DepositCounterpartDefinition.fromStart(startDate, NOTIONAL, RATE, GENERATOR, COUNTERPART);
     assertEquals("DepositDefinition: from", on, fromStartON);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeTradeDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeBetweenTradeAndSettleDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeSettleDeprecated() {
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeBetweenSettleMaturityDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests toDerivative.
+   */
+  public void toDerivativeMaturityDeprecated() {
+    final ZonedDateTime referenceDate = END_DATE;
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
   @Test
@@ -93,11 +167,11 @@ public class DepositCounterpartyDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeTrade() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
-    DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 12);
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -106,11 +180,11 @@ public class DepositCounterpartyDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeBetweenTradeAndSettle() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
-    DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 13);
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -119,11 +193,11 @@ public class DepositCounterpartyDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeSettle() {
-    ZonedDateTime referenceDate = SPOT_DATE;
-    DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    final ZonedDateTime referenceDate = SPOT_DATE;
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate);
+    final double startTime = TimeCalculator.getTimeBetween(referenceDate, SPOT_DATE);
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, COUNTERPART);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -132,11 +206,11 @@ public class DepositCounterpartyDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeBetweenSettleMaturity() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
-    DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = 0;
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
 
@@ -145,12 +219,11 @@ public class DepositCounterpartyDefinitionTest {
    * Tests toDerivative.
    */
   public void toDerivativeMaturity() {
-    ZonedDateTime referenceDate = END_DATE;
-    DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
-    double startTime = 0;
-    double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
-    DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART, CURVE_NAME);
+    final ZonedDateTime referenceDate = END_DATE;
+    final DepositCounterpart converted = DEPOSIT_CTP_DEFINITION.toDerivative(referenceDate);
+    final double startTime = 0;
+    final double endTime = TimeCalculator.getTimeBetween(referenceDate, END_DATE);
+    final DepositCounterpart expected = new DepositCounterpart(EUR, startTime, endTime, NOTIONAL, 0, RATE, DEPOSIT_AF, COUNTERPART);
     assertEquals("DepositDefinition: toDerivative", expected, converted);
   }
-
 }

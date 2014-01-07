@@ -14,10 +14,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHag
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BlackVolatilitySurfaceConverterTest {
 
   private static final BlackVolatilitySurfaceDelta DELTA_SURFACE;

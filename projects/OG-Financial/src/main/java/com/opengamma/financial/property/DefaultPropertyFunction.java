@@ -91,6 +91,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
 
   private final ComputationTargetType _targetType;
   private final boolean _permitWithout;
+  private volatile PropertyDefaults _defaults;
 
   protected DefaultPropertyFunction(final ComputationTargetType targetType, final boolean permitWithout) {
     _targetType = targetType;
@@ -111,13 +112,21 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
    */
   public static final class PropertyDefaults {
 
-    private final Map<String, Set<String>> _valueName2PropertyNames = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> _valueName2PropertyNames;
     private final FunctionCompilationContext _context;
     private final ComputationTarget _target;
+    private boolean _targetUsed;
 
     private PropertyDefaults(final FunctionCompilationContext context, final ComputationTarget target) {
+      _valueName2PropertyNames = new HashMap<String, Set<String>>();
       _context = context;
       _target = target;
+    }
+
+    private PropertyDefaults(final PropertyDefaults copyFrom) {
+      _valueName2PropertyNames = copyFrom._valueName2PropertyNames;
+      _context = null;
+      _target = null;
     }
 
     public FunctionCompilationContext getContext() {
@@ -125,6 +134,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     }
 
     public ComputationTarget getTarget() {
+      _targetUsed = true;
       return _target;
     }
 
@@ -160,6 +170,10 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
       return _valueName2PropertyNames;
     }
 
+    private boolean isTargetUsed() {
+      return _targetUsed;
+    }
+
   }
 
   /**
@@ -170,13 +184,22 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   protected abstract void getDefaults(PropertyDefaults defaults);
 
   private PropertyDefaults getDefaults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final PropertyDefaults defaults = new PropertyDefaults(context, target);
+    PropertyDefaults defaults = _defaults;
+    if (defaults != null) {
+      return defaults;
+    }
+    defaults = new PropertyDefaults(context, target);
     getDefaults(defaults);
     if (defaults.getValueName2PropertyNames().isEmpty()) {
       s_logger.debug("No default properties for {}", target);
       return null;
     } else {
       s_logger.debug("Found {} value(s) with default properties for {}", defaults.getValueName2PropertyNames().size(), target);
+      if (!defaults.isTargetUsed()) {
+        s_logger.info("Caching target agnostic default values for {}", getClass());
+        defaults = new PropertyDefaults(defaults);
+        _defaults = defaults;
+      }
       return defaults;
     }
   }
@@ -224,6 +247,17 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     return getDefaults(context, target) != null;
   }
 
+  /**
+   * Offers sub-classes a chance to modify the constraints that will be ejected, or to abort the application.
+   * 
+   * @param constraints the constraint set that will be used to form the input requirement, not null
+   * @return true to proceed, false to abort the application
+   */
+  protected boolean verifyConstraints(final ValueProperties.Builder constraints) {
+    // No-op
+    return true;
+  }
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final PropertyDefaults defaults = getDefaults(context, target);
@@ -254,6 +288,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
                 constraints.withoutAny(propertyName).with(propertyName, defaultValues);
                 matched = true;
               } else {
+                // REVIEW 2013-11-06 Andrew -- This can be quite inefficient; the isEmpty will create iterators on the underlyings, as will then the with operation if the intersection is non-empty
                 final Set<String> intersect = Sets.intersection(existingValues, defaultValues);
                 if (intersect.isEmpty()) {
                   s_logger.debug("Default {} incompatible with {}", defaultValues, existingValues);
@@ -274,7 +309,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
         s_logger.debug("Does not match on property {} for {}", propertyName, desiredValue);
       }
     }
-    if (!matched) {
+    if (!matched || !verifyConstraints(constraints)) {
       // No default values were found
       s_logger.debug("No matched values");
       return null;

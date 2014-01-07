@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -14,6 +14,12 @@ import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -81,35 +87,42 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
- * 
+ *
  * @param <DATA_TYPE> The type of the data
  * @param <RESULT_TYPE> The return type of the calculation
  */
+@SuppressWarnings("deprecation")
 public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   @Override
@@ -303,6 +316,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
+  public RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(final SwaptionCashFixedCompoundedONCompounded swaption, final DATA_TYPE data) {
+    return getException(swaption, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(final SwaptionCashFixedCompoundedONCompounded swaption) {
+    return getException(swaption);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final DATA_TYPE data) {
+    return getException(swaption, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption) {
+    return getException(swaption);
+  }
+
+  @Override
   public RESULT_TYPE visitFixedCouponSwap(final SwapFixedCoupon<?> swap) {
     return getException(swap);
   }
@@ -341,6 +374,16 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitCouponFixedCompounding(final CouponFixedCompounding payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
     return getException(payment);
   }
 
@@ -405,6 +448,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONCompounded(final CouponONCompounded payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONCompounded(final CouponONCompounded payment) {
+    return getException(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponOIS(final CouponON payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
@@ -425,32 +488,32 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
     return getException(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
     return getException(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
     return getException(payment);
   }
 
@@ -788,8 +851,6 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(option);
   }
 
-  // -----     Annuity     -----
-
   // -----     Swap     -----
 
   @Override
@@ -799,6 +860,16 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitSwap(final Swap<?, ?> swap) {
+    return getException(swap);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapMultileg(final SwapMultileg swap, final DATA_TYPE data) {
+    return getException(swap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapMultileg(final SwapMultileg swap) {
     return getException(swap);
   }
 
@@ -998,6 +1069,66 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(future);
   }
 
+  @Override
+  public RESULT_TYPE visitAgricultureFutureSecurity(final AgricultureFutureSecurity future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureSecurity(final AgricultureFutureSecurity future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureTransaction(final AgricultureFutureTransaction future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureTransaction(final AgricultureFutureTransaction future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureSecurity(final EnergyFutureSecurity future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureSecurity(final EnergyFutureSecurity future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureTransaction(final EnergyFutureTransaction future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureTransaction(final EnergyFutureTransaction future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureSecurity(final MetalFutureSecurity future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureSecurity(final MetalFutureSecurity future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureTransaction(final MetalFutureTransaction future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureTransaction(final MetalFutureTransaction future) {
+    return getException(future);
+  }
+
   //  -----     Equity     -----
 
   @Override
@@ -1114,17 +1245,30 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(fx);
   }
 
-  private RESULT_TYPE getException(final InstrumentDerivative definition, final DATA_TYPE data) {
-    if (definition != null && data != null) {
-      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + definition.getClass().getSimpleName() + " with data of type "
+  /**
+   * Default result of calling a visit method, which is to throw an {@link UnsupportedOperationException}
+   * @param derivative The derivative
+   * @param data The data
+   * @return Throws an exception
+   * @throws UnsupportedOperationException
+   */
+  private RESULT_TYPE getException(final InstrumentDerivative derivative, final DATA_TYPE data) {
+    if (derivative != null && data != null) {
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + derivative.getClass().getSimpleName() + " with data of type "
           + data.getClass().getSimpleName());
     }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
-  private RESULT_TYPE getException(final InstrumentDerivative definition) {
-    if (definition != null) {
-      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + definition.getClass().getSimpleName());
+  /**
+   * Default result of calling a visit method, which is to throw an {@link UnsupportedOperationException}
+   * @param derivative The derivative
+   * @return Throws an exception
+   * @throws UnsupportedOperationException
+   */
+  private RESULT_TYPE getException(final InstrumentDerivative derivative) {
+    if (derivative != null) {
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + derivative.getClass().getSimpleName() + " without data");
     }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }

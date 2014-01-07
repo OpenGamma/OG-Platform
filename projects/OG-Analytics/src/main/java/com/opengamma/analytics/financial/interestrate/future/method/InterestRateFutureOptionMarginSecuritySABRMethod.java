@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * Method for the pricing of interest rate future options with margin process. The pricing is done with a SABR approach on the future rate (1.0-price).
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecuritySABRMethod}
  */
+@Deprecated
 public final class InterestRateFutureOptionMarginSecuritySABRMethod extends InterestRateFutureOptionMarginSecurityMethod {
 
   /**
@@ -146,7 +148,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod extends Inte
     // Backward sweep
     final double priceBar = 1.0;
     final double volatilityBar = priceAdjoint[2] * priceBar;
-    final DoublesPair expiryDelay = new DoublesPair(security.getExpirationTime(), delay);
+    final DoublesPair expiryDelay = DoublesPair.of(security.getExpirationTime(), delay);
     sensi.addAlpha(expiryDelay, volatilityAdjoint[3] * volatilityBar);
     sensi.addBeta(expiryDelay, volatilityAdjoint[4] * volatilityBar);
     sensi.addRho(expiryDelay, volatilityAdjoint[5] * volatilityBar);
@@ -155,7 +157,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod extends Inte
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     throw new UnsupportedOperationException("The InterestRateFutureOptionMarginSecurity don't have a present value, only a price.");
   }
 

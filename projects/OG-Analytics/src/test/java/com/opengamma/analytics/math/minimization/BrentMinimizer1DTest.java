@@ -7,9 +7,12 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BrentMinimizer1DTest extends Minimizer1DTestCase {
   private static final ScalarMinimizer MINIMIZER = new BrentMinimizer1D();
 //  private static final Function1D<Double, Double> NO_MIN = new Function1D<Double, Double>() {

@@ -164,7 +164,7 @@ public class DbTool {
       ds.setPassword(getPassword());
       ds.setAcquireIncrement(1);
       ds.setPartitionCount(1);
-      ds.setMaxConnectionsPerPartition(1);
+      ds.setMaxConnectionsPerPartition(2);
       ds.setAcquireRetryAttempts(2);
       ds.setAcquireRetryDelayInMs(2000);
       _dataSource = dataSource = ds;  // CSIGNORE
@@ -651,6 +651,16 @@ public class DbTool {
   private static void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java com.opengamma.util.db.tool.DbTool [args]", options);
+  }
+
+  /**
+   * Returns collection of table names.
+   *
+   * @return a list of table names, not null
+   */
+  public List<String> listTables() {
+    initialize();
+    return _dialect.listTables(getCatalog());
   }
 
   //-------------------------------------------------------------------------

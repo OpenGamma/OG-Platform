@@ -10,6 +10,9 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -35,7 +38,7 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecur
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDbSecurityMasterWorkerTest.class);
 
-  private static DbConnector _dbConnector;  // local cache for Hibernate reasons, closed in DbTest
+  private static ConcurrentMap<String, DbConnector> _dbConnectors = new ConcurrentHashMap<>();  // local cache for Hibernate reasons, closed in DbTest
   protected DbSecurityMaster _secMaster;
   protected Instant _version1Instant;
   protected Instant _version2Instant;
@@ -60,15 +63,17 @@ public abstract class AbstractDbSecurityMasterWorkerTest extends AbstractDbSecur
   @Override
   protected void doTearDownClass() {
     _secMaster = null;
-    _dbConnector = null;
+    _dbConnectors.clear();
   }
 
   //-------------------------------------------------------------------------
   private void init() {
-    if (_dbConnector == null) {
-      _dbConnector = getDbConnector();
+    DbConnector dbConnector = _dbConnectors.get(getDatabaseType());
+    if (dbConnector == null) {
+      dbConnector = getDbConnector();
+      _dbConnectors.put(getDatabaseType(), dbConnector);
     }
-    _secMaster = new DbSecurityMaster(_dbConnector);
+    _secMaster = new DbSecurityMaster(dbConnector);
     _secMaster.setDetailProvider(new HibernateSecurityMasterDetailProvider());
     
 //    id bigint not null,

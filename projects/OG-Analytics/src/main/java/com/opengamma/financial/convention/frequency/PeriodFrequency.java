@@ -6,8 +6,10 @@
 package com.opengamma.financial.convention.frequency;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Map;
 
+import org.joda.convert.FromString;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
@@ -97,6 +99,10 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * A frequency with a period of eighteen months
    */
   public static final PeriodFrequency EIGHTEEN_MONTHS = new PeriodFrequency(EIGHTEEN_MONTH_NAME, Period.ofMonths(18));
+  /**
+   * A frequency with a period of never
+   */
+  public static final PeriodFrequency NEVER = new PeriodFrequency(NEVER_NAME, Period.ZERO);
 
   /** A map containing all of the frequency */
   public static final Map<PeriodFrequency, PeriodFrequency> s_cache =
@@ -130,6 +136,27 @@ public final class PeriodFrequency implements Frequency, Serializable {
   private final Period _period;
 
   /**
+   * Gets a frequency from a string.
+   * <p>
+   * This parses the known {@code PeriodFrequency} instances by name.
+   * Name matching is case insensitive.
+   * 
+   * @param name  the name of the convention, not null
+   * @return the period frequency matching the name, not null
+   * @throws IllegalArgumentException if the name is unknown
+   */
+  @FromString
+  public static PeriodFrequency of(final String name) {
+    String nameLower = name.toLowerCase(Locale.ENGLISH);
+    for (PeriodFrequency freq : s_cache.keySet()) {
+      if (freq.getName().toLowerCase(Locale.ENGLISH).equals(nameLower)) {
+        return freq;
+      }
+    }
+    throw new IllegalArgumentException("Unknown PeriodFrequency: " + name);
+  }
+
+  /**
    * Obtains an instance.
    * 
    * @param name  the name of the convention, not null
@@ -145,7 +172,8 @@ public final class PeriodFrequency implements Frequency, Serializable {
   }
 
   /**
-   * Constructs a frequency from a period
+   * Constructs a frequency from a period.
+   * 
    * @param period The period, not null
    * @return a period frequency, not null
    */
@@ -162,6 +190,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
   /**
    * Given a {@link PeriodFrequency} or {@link SimpleFrequency}, returns a {@link PeriodFrequency}.
    * If the input is already a {@link PeriodFrequency}, then the original object is returned.
+   * 
    * @param frequency The frequency, not null
    * @return A frequency based on {@link Period}
    * @throws IllegalArgumentException if the input is not a {@link PeriodFrequency} or {@link SimpleFrequency}
@@ -175,6 +204,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
     }
     throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
   }
+
   /**
    * Creates an instance.
    * 
@@ -189,11 +219,20 @@ public final class PeriodFrequency implements Frequency, Serializable {
   }
 
   // -------------------------------------------------------------------------
+  /**
+   * @deprecated use getName()
+   * @return the name of the convention
+   */
   @Override
+  @Deprecated
   public String getConventionName() {
-    return _name;
+    return getName();
   }
 
+  @Override
+  public String getName() {
+    return _name;
+  }
   /**
    * Gets the length of the period defining the convention.
    * 

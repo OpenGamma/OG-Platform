@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -28,12 +28,16 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.analytics.model.fx.FXForwardPointsFCNSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Calculates the sensitivity of an FX forward to the FX forward rates used in
+ * pricing.
+ * @deprecated Use {@link FXForwardPointsFCNSFunction}
  */
+@Deprecated
 public class FXForwardPointsMethodFCNSFunction extends FXForwardPointsMethodFunction {
   private static final ForexForwardPointsMethod CALCULATOR = ForexForwardPointsMethod.getInstance();
 
@@ -46,7 +50,7 @@ public class FXForwardPointsMethodFCNSFunction extends FXForwardPointsMethodFunc
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final FunctionExecutionContext executionContext,
       final FXForwardCurveDefinition fxForwardCurveDefinition) {
     final double[] sensitivities = CALCULATOR.presentValueForwardPointsSensitivity(fxForward, data, forwardPoints);
-    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenorsArray();
     final int n = sensitivities.length;
     if (tenors.length != n) {
       throw new OpenGammaRuntimeException("Number of sensitivities did not match number of tenors in curve");

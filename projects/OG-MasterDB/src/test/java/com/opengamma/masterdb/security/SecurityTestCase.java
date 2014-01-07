@@ -23,7 +23,6 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -39,9 +38,10 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
@@ -137,15 +137,17 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Creates random securities.
  */
 @SuppressWarnings("unchecked")
+@Test(groups = TestGroup.UNIT)
 public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
@@ -412,17 +414,17 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     s_dataProviders.put(DayCount.class, new TestDataProvider<DayCount>() {
       @Override
       public void getValues(final Collection<DayCount> values) {
-        values.add(DayCountFactory.INSTANCE.getDayCount("Act/Act"));
-        values.add(DayCountFactory.INSTANCE.getDayCount("1/1"));
-        values.add(DayCountFactory.INSTANCE.getDayCount("Bond Basis"));
+        values.add(DayCounts.ACT_ACT_ISDA);
+        values.add(DayCountFactory.of("1/1"));
+        values.add(DayCountFactory.of("Bond Basis"));
       }
     });
     s_dataProviders.put(BusinessDayConvention.class, new TestDataProvider<BusinessDayConvention>() {
       @Override
       public void getValues(final Collection<BusinessDayConvention> values) {
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"));
-        values.add(BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding"));
+        values.add(BusinessDayConventions.FOLLOWING);
+        values.add(BusinessDayConventions.MODIFIED_FOLLOWING);
+        values.add(BusinessDayConventions.PRECEDING);
       }
     });
     s_dataProviders.put(GICSCode.class, new TestDataProvider<GICSCode>() {
@@ -432,8 +434,8 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(GICSCode.of(Integer.toString(code)));
       }
     });
-    s_dataProviders.put(Pair.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
-    s_dataProviders.put(Pair.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pairs.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pairs.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
@@ -567,9 +569,9 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     } else {
       final Object key;
       if (Collection.class.equals(clazz)) {
-        key = Pair.of(parent, clazz);
+        key = Pairs.of(parent, clazz);
       } else if (List.class.equals(clazz)) {
-        key = Pair.of(parent, clazz);
+        key = Pairs.of(parent, clazz);
       } else {
         key = clazz;
       }
@@ -669,7 +671,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
           MetaProperty<?> metaProperty = mps.get(j);
-          if (metaProperty.readWrite() != PropertyReadWrite.READ_ONLY) {
+          if (metaProperty.style().isSerializable() && metaProperty.name().equals("securityType") == false) {
             builder.set(metaProperty.name(), value);
           }
         }
@@ -755,241 +757,201 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   // SecurityMasterTestCaseMethods
 
   @Override
-  @Test
   public void testAgricultureFutureSecurity() {
     assertSecurities(AgricultureFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testBondFutureSecurity() {
     assertSecurities(BondFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testCashSecurity() {
     assertSecurities(CashSecurity.class);
   }
 
   @Override
-  @Test
   public void testCorporateBondSecurity() {
     assertSecurities(CorporateBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testEnergyFutureSecurity() {
     assertSecurities(EnergyFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityOptionSecurity() {
     assertSecurities(EquityOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testEquityBarrierOptionSecurity() {
     assertSecurities(EquityBarrierOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquitySecurity() {
     assertSecurities(EquitySecurity.class);
   }
 
   @Override
-  @Test
   public void testFRASecurity() {
     assertSecurities(FRASecurity.class);
   }
 
   @Override
-  @Test
   public void testFXFutureSecurity() {
     assertSecurities(FXFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testFXOptionSecurity() {
     assertSecurities(FXOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testNonDeliverableFXOptionSecurity() {
     assertSecurities(NonDeliverableFXOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testFXBarrierOptionSecurity() {
     assertSecurities(FXBarrierOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testForwardSwapSecurity() {
     assertSecurities(ForwardSwapSecurity.class);
   }
 
   @Override
-  @Test
   public void testIRFutureOptionSecurity() {
     assertSecurities(IRFutureOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityIndexDividendFutureOptionSecurity() {
     assertSecurities(EquityIndexDividendFutureOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testGovernmentBondSecurity() {
     assertSecurities(GovernmentBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testIndexFutureSecurity() {
     assertSecurities(IndexFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testInterestRateFutureSecurity() {
     assertSecurities(InterestRateFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testMetalFutureSecurity() {
     assertSecurities(MetalFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testMunicipalBondSecurity() {
     assertSecurities(MunicipalBondSecurity.class);
   }
 
   @Override
-  @Test
   public void testStockFutureSecurity() {
     assertSecurities(StockFutureSecurity.class);
   }
 
   @Override
-  @Test
   public void testSwaptionSecurity() {
     assertSecurities(SwaptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testSwapSecurity() {
     assertSecurities(SwapSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityIndexOptionSecurity() {
     assertSecurities(EquityIndexOptionSecurity.class);
   }
   
   @Override
-  @Test
   public void testFXDigitalOptionSecurity() {
     assertSecurities(FXDigitalOptionSecurity.class);
   }
 
   @Override
-  @Test
   public void testFXForwardSecurity() {
     assertSecurities(FXForwardSecurity.class);
   }
   
   @Override
-  @Test
   public void testNonDeliverableFXForwardSecurity() {
     assertSecurities(NonDeliverableFXForwardSecurity.class);
   }
   
   @Override
-  @Test
   public void testCapFloorSecurity() {
     assertSecurities(CapFloorSecurity.class);
   }
 
   @Override
-  @Test
   public void testCapFloorCMSSpreadSecurity() {
     assertSecurities(CapFloorCMSSpreadSecurity.class);
   }
   
   @Override
-  @Test
   public void testRawSecurity() {
     assertSecurities(RawSecurity.class);
   }
 
   @Override
-  @Test
   public void testEquityVarianceSwapSecurity() {
     assertSecurities(EquityVarianceSwapSecurity.class);
   }
   
   @Override
-  @Test
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testStandardFixedRecoveryCDSSecurity() {
     assertSecurities(StandardFixedRecoveryCDSSecurity.class);
   }
   
   @Override
-  @Test
   public void testStandardRecoveryLockCDSSecurity() {
     assertSecurities(StandardRecoveryLockCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testStandardVanillaCDSSecurity() {
     assertSecurities(StandardVanillaCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyFixedRecoveryCDSSecurity() {
     assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyRecoveryLockCDSSecurity() {
     assertSecurities(LegacyRecoveryLockCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testLegacyVanillaCDSSecurity() {
     assertSecurities(LegacyVanillaCDSSecurity.class);
   }
 
   @Override
-  @Test
   public void testCashFlowSecurity() {
     assertSecurities(CashFlowSecurity.class);
   }

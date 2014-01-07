@@ -9,6 +9,7 @@ import static java.lang.String.format;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
@@ -16,7 +17,7 @@ import org.threeten.bp.Instant;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.value.ValueProperties;
@@ -67,7 +68,7 @@ public class RemoteDependencyGraphTraceProvider extends AbstractRemoteClient imp
     ValueProperties defaultProperties = properties.getDefaultProperties();
     uri = DependencyGraphTraceProviderResource.uriDefaultProperties(uri, defaultProperties);
 
-    UserMarketDataSpecification marketData = properties.getMarketData();
+    List<MarketDataSpecification> marketData = properties.getMarketData();
     if (marketData != null) {
       uri = DependencyGraphTraceProviderResource.uriMarketData(uri, marketData);
     }

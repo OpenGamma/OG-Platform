@@ -9,6 +9,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -62,9 +63,17 @@ public class LiveDataMetaData extends DirectBean {
   private URI _jmsBrokerUri;
   /**
    * The name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    */
   @PropertyDefinition
+  @Deprecated
   private String _jmsSubscriptionTopic;
+  /**
+   * The name of the subscription queue, null if not used.
+   */
+  @PropertyDefinition
+  private String _jmsSubscriptionQueue;
   /**
    * The name of the entitlement topic, null if not used.
    */
@@ -114,105 +123,10 @@ public class LiveDataMetaData extends DirectBean {
     return LiveDataMetaData.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -842906912:  // supportedSchemes
-        return getSupportedSchemes();
-      case -1825908451:  // serverType
-        return getServerType();
-      case -1724546052:  // description
-        return getDescription();
-      case -513214034:  // connectionUri
-        return getConnectionUri();
-      case 2047189283:  // jmsBrokerUri
-        return getJmsBrokerUri();
-      case -102439838:  // jmsSubscriptionTopic
-        return getJmsSubscriptionTopic();
-      case -59808846:  // jmsEntitlementTopic
-        return getJmsEntitlementTopic();
-      case -326199997:  // jmsHeartbeatTopic
-        return getJmsHeartbeatTopic();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -842906912:  // supportedSchemes
-        setSupportedSchemes((List<ExternalScheme>) newValue);
-        return;
-      case -1825908451:  // serverType
-        setServerType((LiveDataServerType) newValue);
-        return;
-      case -1724546052:  // description
-        setDescription((String) newValue);
-        return;
-      case -513214034:  // connectionUri
-        setConnectionUri((URI) newValue);
-        return;
-      case 2047189283:  // jmsBrokerUri
-        setJmsBrokerUri((URI) newValue);
-        return;
-      case -102439838:  // jmsSubscriptionTopic
-        setJmsSubscriptionTopic((String) newValue);
-        return;
-      case -59808846:  // jmsEntitlementTopic
-        setJmsEntitlementTopic((String) newValue);
-        return;
-      case -326199997:  // jmsHeartbeatTopic
-        setJmsHeartbeatTopic((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_serverType, "serverType");
-    JodaBeanUtils.notNull(_description, "description");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LiveDataMetaData other = (LiveDataMetaData) obj;
-      return JodaBeanUtils.equal(getSupportedSchemes(), other.getSupportedSchemes()) &&
-          JodaBeanUtils.equal(getServerType(), other.getServerType()) &&
-          JodaBeanUtils.equal(getDescription(), other.getDescription()) &&
-          JodaBeanUtils.equal(getConnectionUri(), other.getConnectionUri()) &&
-          JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
-          JodaBeanUtils.equal(getJmsSubscriptionTopic(), other.getJmsSubscriptionTopic()) &&
-          JodaBeanUtils.equal(getJmsEntitlementTopic(), other.getJmsEntitlementTopic()) &&
-          JodaBeanUtils.equal(getJmsHeartbeatTopic(), other.getJmsHeartbeatTopic());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSupportedSchemes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getServerType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConnectionUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the external identifier schemes that are supported, in order of preference.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<ExternalScheme> getSupportedSchemes() {
     return _supportedSchemes;
@@ -220,9 +134,10 @@ public class LiveDataMetaData extends DirectBean {
 
   /**
    * Sets the external identifier schemes that are supported, in order of preference.
-   * @param supportedSchemes  the new value of the property
+   * @param supportedSchemes  the new value of the property, not null
    */
   public void setSupportedSchemes(List<ExternalScheme> supportedSchemes) {
+    JodaBeanUtils.notNull(supportedSchemes, "supportedSchemes");
     this._supportedSchemes.clear();
     this._supportedSchemes.addAll(supportedSchemes);
   }
@@ -343,26 +258,60 @@ public class LiveDataMetaData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the value of the property
    */
+  @Deprecated
   public String getJmsSubscriptionTopic() {
     return _jmsSubscriptionTopic;
   }
 
   /**
    * Sets the name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @param jmsSubscriptionTopic  the new value of the property
    */
+  @Deprecated
   public void setJmsSubscriptionTopic(String jmsSubscriptionTopic) {
     this._jmsSubscriptionTopic = jmsSubscriptionTopic;
   }
 
   /**
    * Gets the the {@code jmsSubscriptionTopic} property.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the property, not null
    */
+  @Deprecated
   public final Property<String> jmsSubscriptionTopic() {
     return metaBean().jmsSubscriptionTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the subscription queue, null if not used.
+   * @return the value of the property
+   */
+  public String getJmsSubscriptionQueue() {
+    return _jmsSubscriptionQueue;
+  }
+
+  /**
+   * Sets the name of the subscription queue, null if not used.
+   * @param jmsSubscriptionQueue  the new value of the property
+   */
+  public void setJmsSubscriptionQueue(String jmsSubscriptionQueue) {
+    this._jmsSubscriptionQueue = jmsSubscriptionQueue;
+  }
+
+  /**
+   * Gets the the {@code jmsSubscriptionQueue} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsSubscriptionQueue() {
+    return metaBean().jmsSubscriptionQueue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -416,6 +365,82 @@ public class LiveDataMetaData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public LiveDataMetaData clone() {
+    BeanBuilder<? extends LiveDataMetaData> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LiveDataMetaData other = (LiveDataMetaData) obj;
+      return JodaBeanUtils.equal(getSupportedSchemes(), other.getSupportedSchemes()) &&
+          JodaBeanUtils.equal(getServerType(), other.getServerType()) &&
+          JodaBeanUtils.equal(getDescription(), other.getDescription()) &&
+          JodaBeanUtils.equal(getConnectionUri(), other.getConnectionUri()) &&
+          JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionTopic(), other.getJmsSubscriptionTopic()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionQueue(), other.getJmsSubscriptionQueue()) &&
+          JodaBeanUtils.equal(getJmsEntitlementTopic(), other.getJmsEntitlementTopic()) &&
+          JodaBeanUtils.equal(getJmsHeartbeatTopic(), other.getJmsHeartbeatTopic());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSupportedSchemes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getServerType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConnectionUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("LiveDataMetaData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("supportedSchemes").append('=').append(JodaBeanUtils.toString(getSupportedSchemes())).append(',').append(' ');
+    buf.append("serverType").append('=').append(JodaBeanUtils.toString(getServerType())).append(',').append(' ');
+    buf.append("description").append('=').append(JodaBeanUtils.toString(getDescription())).append(',').append(' ');
+    buf.append("connectionUri").append('=').append(JodaBeanUtils.toString(getConnectionUri())).append(',').append(' ');
+    buf.append("jmsBrokerUri").append('=').append(JodaBeanUtils.toString(getJmsBrokerUri())).append(',').append(' ');
+    buf.append("jmsSubscriptionTopic").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionTopic())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueue").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueue())).append(',').append(' ');
+    buf.append("jmsEntitlementTopic").append('=').append(JodaBeanUtils.toString(getJmsEntitlementTopic())).append(',').append(' ');
+    buf.append("jmsHeartbeatTopic").append('=').append(JodaBeanUtils.toString(getJmsHeartbeatTopic())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code LiveDataMetaData}.
    */
@@ -457,6 +482,11 @@ public class LiveDataMetaData extends DirectBean {
     private final MetaProperty<String> _jmsSubscriptionTopic = DirectMetaProperty.ofReadWrite(
         this, "jmsSubscriptionTopic", LiveDataMetaData.class, String.class);
     /**
+     * The meta-property for the {@code jmsSubscriptionQueue} property.
+     */
+    private final MetaProperty<String> _jmsSubscriptionQueue = DirectMetaProperty.ofReadWrite(
+        this, "jmsSubscriptionQueue", LiveDataMetaData.class, String.class);
+    /**
      * The meta-property for the {@code jmsEntitlementTopic} property.
      */
     private final MetaProperty<String> _jmsEntitlementTopic = DirectMetaProperty.ofReadWrite(
@@ -477,6 +507,7 @@ public class LiveDataMetaData extends DirectBean {
         "connectionUri",
         "jmsBrokerUri",
         "jmsSubscriptionTopic",
+        "jmsSubscriptionQueue",
         "jmsEntitlementTopic",
         "jmsHeartbeatTopic");
 
@@ -501,6 +532,8 @@ public class LiveDataMetaData extends DirectBean {
           return _jmsBrokerUri;
         case -102439838:  // jmsSubscriptionTopic
           return _jmsSubscriptionTopic;
+        case -105041852:  // jmsSubscriptionQueue
+          return _jmsSubscriptionQueue;
         case -59808846:  // jmsEntitlementTopic
           return _jmsEntitlementTopic;
         case -326199997:  // jmsHeartbeatTopic
@@ -567,10 +600,20 @@ public class LiveDataMetaData extends DirectBean {
 
     /**
      * The meta-property for the {@code jmsSubscriptionTopic} property.
+     * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<String> jmsSubscriptionTopic() {
       return _jmsSubscriptionTopic;
+    }
+
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsSubscriptionQueue() {
+      return _jmsSubscriptionQueue;
     }
 
     /**
@@ -587,6 +630,74 @@ public class LiveDataMetaData extends DirectBean {
      */
     public final MetaProperty<String> jmsHeartbeatTopic() {
       return _jmsHeartbeatTopic;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -842906912:  // supportedSchemes
+          return ((LiveDataMetaData) bean).getSupportedSchemes();
+        case -1825908451:  // serverType
+          return ((LiveDataMetaData) bean).getServerType();
+        case -1724546052:  // description
+          return ((LiveDataMetaData) bean).getDescription();
+        case -513214034:  // connectionUri
+          return ((LiveDataMetaData) bean).getConnectionUri();
+        case 2047189283:  // jmsBrokerUri
+          return ((LiveDataMetaData) bean).getJmsBrokerUri();
+        case -102439838:  // jmsSubscriptionTopic
+          return ((LiveDataMetaData) bean).getJmsSubscriptionTopic();
+        case -105041852:  // jmsSubscriptionQueue
+          return ((LiveDataMetaData) bean).getJmsSubscriptionQueue();
+        case -59808846:  // jmsEntitlementTopic
+          return ((LiveDataMetaData) bean).getJmsEntitlementTopic();
+        case -326199997:  // jmsHeartbeatTopic
+          return ((LiveDataMetaData) bean).getJmsHeartbeatTopic();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -842906912:  // supportedSchemes
+          ((LiveDataMetaData) bean).setSupportedSchemes((List<ExternalScheme>) newValue);
+          return;
+        case -1825908451:  // serverType
+          ((LiveDataMetaData) bean).setServerType((LiveDataServerType) newValue);
+          return;
+        case -1724546052:  // description
+          ((LiveDataMetaData) bean).setDescription((String) newValue);
+          return;
+        case -513214034:  // connectionUri
+          ((LiveDataMetaData) bean).setConnectionUri((URI) newValue);
+          return;
+        case 2047189283:  // jmsBrokerUri
+          ((LiveDataMetaData) bean).setJmsBrokerUri((URI) newValue);
+          return;
+        case -102439838:  // jmsSubscriptionTopic
+          ((LiveDataMetaData) bean).setJmsSubscriptionTopic((String) newValue);
+          return;
+        case -105041852:  // jmsSubscriptionQueue
+          ((LiveDataMetaData) bean).setJmsSubscriptionQueue((String) newValue);
+          return;
+        case -59808846:  // jmsEntitlementTopic
+          ((LiveDataMetaData) bean).setJmsEntitlementTopic((String) newValue);
+          return;
+        case -326199997:  // jmsHeartbeatTopic
+          ((LiveDataMetaData) bean).setJmsHeartbeatTopic((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LiveDataMetaData) bean)._supportedSchemes, "supportedSchemes");
+      JodaBeanUtils.notNull(((LiveDataMetaData) bean)._serverType, "serverType");
+      JodaBeanUtils.notNull(((LiveDataMetaData) bean)._description, "description");
     }
 
   }

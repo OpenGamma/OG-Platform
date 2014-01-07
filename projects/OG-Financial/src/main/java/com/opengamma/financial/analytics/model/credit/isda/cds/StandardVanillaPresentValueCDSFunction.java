@@ -27,12 +27,15 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndHazardRateCurveProvider;
-import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACreditDefaultSwapPVCalculator;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -48,31 +51,51 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
  */
 public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFunction {
-  private static final ISDACreditDefaultSwapPVCalculator CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
+  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+  private static final MarketQuoteConverter POINTS_UP_FRONT_CONVERTER = new MarketQuoteConverter();
 
   public StandardVanillaPresentValueCDSFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDADateCurve yieldCurve, final ZonedDateTime[] times,
-      final double[] marketSpreads, final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties,
-      final FunctionInputs inputs) {
-    final Object hazardRateCurveObject = inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
-    if (hazardRateCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get hazard rate curve");
-    }
-    final HazardRateCurve hazardRateCurve = (HazardRateCurve) hazardRateCurveObject;
-    final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final ISDAYieldCurveAndHazardRateCurveProvider curves = new ISDAYieldCurveAndHazardRateCurveProvider(yieldCurve, hazardRateCurve);
-    final double pv = CALCULATOR.getPresentValue(definition, curves, valuationDate, priceType);
+  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition,
+                                                final ISDACompliantYieldCurve yieldCurve,
+                                                final ZonedDateTime[] times,
+                                                final double[] marketSpreads,
+                                                final ZonedDateTime valuationDate,
+                                                final ComputationTarget target,
+                                                final ValueProperties properties,
+                                                final FunctionInputs inputs,
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+
+    double pv = presentValue(definition, yieldCurve, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, pv));
+  }
+
+  public static double presentValue(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve,
+                              ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+    double pv;
+    if (definition instanceof LegacyCreditDefaultSwapDefinition) {
+      pv = PRICER.pv(analytic, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
+    } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
+      pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(analytic,
+                                                       ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(),
+                                                       yieldCurve,
+                                                       ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread() * 1e-4) * definition.getNotional();
+    } else {
+      throw new OpenGammaRuntimeException("Unexpected cds type: " + definition.getClass().getSimpleName());
+    }
+
+    // SELL protection reverses directions of legs
+   return (definition.getBuySellProtection() == BuySellProtection.SELL) ? -pv : pv;
   }
 
   @Override
@@ -147,6 +170,7 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
         }
       }
     }
+    //propertiesBuilder.withoutAny(PROPERTY_CDS_PRICE_TYPE);
     if (labelResultWithCurrency()) {
       propertiesBuilder.with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     }
@@ -167,4 +191,13 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
     return true;
   }
 
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
 }

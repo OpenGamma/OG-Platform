@@ -44,10 +44,6 @@ import com.opengamma.util.tuple.Triple;
  */
 public class PortfolioGridStructure extends MainGridStructure {
 
-  /** The root node of the portfolio structure. */
-  private final AnalyticsNode _rootNode;
-  /** For mapping cells to values in the results. */
-  private final ValueMappings _valueMappings;
   /** Definition of the view driving the grid. */
   private final ViewDefinition _viewDef;
   /** Meta data for exploded child columns, keyed by the specification of the parent column. */
@@ -60,7 +56,7 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        GridColumnGroups nonFixedColumns,
                                        AnalyticsNode rootNode,
                                        TargetLookup targetLookup,
-                                       ValueMappings valueMappings,
+                                       UnversionedValueMappings valueMappings,
                                        ViewDefinition viewDef) {
     this(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup, valueMappings, viewDef,
          Collections.<ColumnSpecification, SortedSet<ColumnMeta>>emptyMap());
@@ -71,25 +67,23 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        GridColumnGroups nonFixedColumns,
                                        AnalyticsNode rootNode,
                                        TargetLookup targetLookup,
-                                       ValueMappings valueMappings,
+                                       UnversionedValueMappings valueMappings,
                                        ViewDefinition viewDef,
                                        Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta) {
-    super(fixedColumns, nonFixedColumns, targetLookup);
+    super(fixedColumns, nonFixedColumns, targetLookup, rootNode, valueMappings);
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(inlineColumnMeta, "inlineColumnCounts");
     _inlineColumnMeta = inlineColumnMeta;
     _rows = rows;
-    _rootNode = rootNode;
-    _valueMappings = valueMappings;
     _viewDef = viewDef;
   }
 
-  /* package */ static PortfolioGridStructure create(Portfolio portfolio, ValueMappings valueMappings) {
+  /* package */ static PortfolioGridStructure create(Portfolio portfolio, UnversionedValueMappings valueMappings) {
     ArgumentChecker.notNull(valueMappings, "valueMappings");
     // TODO these can be empty, not used any more
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     return new PortfolioGridStructure(rows,
                                       GridColumnGroup.empty(),
                                       GridColumnGroups.empty(),
@@ -99,28 +93,22 @@ public class PortfolioGridStructure extends MainGridStructure {
                                       new ViewDefinition("empty", "dummy"));
   }
 
-  /**
-   * @return The root node of the portfolio structure.
-   */
-  public AnalyticsNode getRootNode() {
-    return _rootNode;
-  }
-
   /* package */ PortfolioGridStructure withUpdatedRows(Portfolio portfolio) {
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
-    TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
+    TargetLookup targetLookup = new TargetLookup(super.getValueMappings(), rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
     GridColumnGroups nonFixedColumns = new GridColumnGroups(analyticsColumns);
-    return new PortfolioGridStructure(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup, _valueMappings, _viewDef);
+    return new PortfolioGridStructure(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup,
+                                      super.getValueMappings(), _viewDef);
   }
 
   /* package */ PortfolioGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
-    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
+    UnversionedValueMappings valueMappings = new UnversionedValueMappings(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);
@@ -156,7 +144,7 @@ public class PortfolioGridStructure extends MainGridStructure {
       return new PortfolioGridStructure(_rows,
                                         buildFixedColumns(_rows),
                                         new GridColumnGroups(analyticsColumns),
-                                        _rootNode,
+                                        getRootNode(),
                                         getTargetLookup(),
                                         getValueMappings(),
                                         _viewDef,
@@ -164,6 +152,11 @@ public class PortfolioGridStructure extends MainGridStructure {
     } else {
       return this;
     }
+  }
+
+  /* package */ PortfolioGridStructure withNode(AnalyticsNode node) {
+    return new PortfolioGridStructure(_rows, getFixedColumns(), getNonFixedColumns(), node, getTargetLookup(),
+                                      super.getValueMappings(), _viewDef);
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
@@ -296,18 +289,10 @@ public class PortfolioGridStructure extends MainGridStructure {
    * @return true if the security is fungible, false if OTC
    */
   private static boolean isFungible(Security security) {
-    if (security instanceof FinancialSecurity) {      
-      Boolean isOTC = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
-      if (isOTC == null) {
-        return false;
-      }
-      return !isOTC;
+    if (security instanceof FinancialSecurity) {
+      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }
-  }
-
-  /* package */ ValueMappings getValueMappings() {
-    return _valueMappings;
   }
 }

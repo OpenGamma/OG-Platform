@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.montecarlo;
@@ -24,12 +24,14 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EuropeanMonteCarloOptionModelTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);
@@ -42,7 +44,7 @@ public class EuropeanMonteCarloOptionModelTest {
   private static final OptionDefinition PUT2 = new EuropeanVanillaOptionDefinition(90, EXPIRY, false);
   private static final int N = 10000;
   private static final double EPS = 0.05;
-  private static final EuropeanMonteCarloOptionModel MODEL = new EuropeanMonteCarloOptionModel(N, 1, new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(),
+  private static final EuropeanMonteCarloOptionModel MODEL = new EuropeanMonteCarloOptionModel(N, 1, new BlackScholesGeometricBrownianMotionProcess<>(),
       GENERATOR);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 

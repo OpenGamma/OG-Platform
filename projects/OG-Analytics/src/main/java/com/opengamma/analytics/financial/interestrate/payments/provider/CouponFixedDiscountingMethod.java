@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -68,7 +68,7 @@ public final class CouponFixedDiscountingMethod {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(multicurves, "multicurve");
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    double pv = coupon.getPaymentYearFraction() * Math.abs(coupon.getNotional()) * coupon.getFixedRate() * df;
+    final double pv = coupon.getPaymentYearFraction() * Math.abs(coupon.getNotional()) * coupon.getFixedRate() * df;
     return CurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
@@ -78,11 +78,11 @@ public final class CouponFixedDiscountingMethod {
    * @param multicurve The multi-curve provider.
    * @return The sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(CouponFixed cpn, final MulticurveProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponFixed cpn, final MulticurveProviderInterface multicurve) {
     final double time = cpn.getPaymentTime();
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final DoublesPair s = new DoublesPair(time, -time * cpn.getAmount() * multicurve.getDiscountFactor(cpn.getCurrency(), time));
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final DoublesPair s = DoublesPair.of(time, -time * cpn.getAmount() * multicurve.getDiscountFactor(cpn.getCurrency(), time));
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     mapDsc.put(multicurve.getName(cpn.getCurrency()), list);
     MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();

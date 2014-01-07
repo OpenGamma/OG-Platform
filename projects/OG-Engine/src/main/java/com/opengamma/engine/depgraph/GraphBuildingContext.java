@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -32,6 +33,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Algorithm state. A context object is used by a single job thread. The root context is not used by any builder thread. The synchronization on the collation methods only is therefore sufficient.
@@ -70,6 +72,10 @@ import com.opengamma.util.tuple.Pair;
 
   public FunctionExclusionGroups getFunctionExclusionGroups() {
     return getBuilder().getFunctionExclusionGroups();
+  }
+
+  public CompiledFunctionDefinition getFunctionDefinition(final String functionId) {
+    return getBuilder().getFunctionResolver().getFunction(functionId);
   }
 
   // Operations
@@ -305,7 +311,7 @@ import com.opengamma.util.tuple.Pair;
             task.getValue().addRef(); // We're holding the task lock
           }
         }
-        return Pair.of(resultTasks, resultProducers);
+        return Pairs.of(resultTasks, resultProducers);
       } else {
         return null;
       }
@@ -488,11 +494,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
-    final ComputationTargetSpecification specification = getBuilder().resolveTargetReference(reference);
-    if (specification == null) {
-      s_logger.warn("Couldn't resolve {}", reference);
-    }
-    return specification;
+    return getBuilder().resolveTargetReference(reference);
   }
 
   /**

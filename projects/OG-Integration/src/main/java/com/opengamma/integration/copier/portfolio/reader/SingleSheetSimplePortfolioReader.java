@@ -87,11 +87,11 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
           position.addTrade(trade);
         }
       }
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);
+      return ObjectsPair.of(position, securities);
       
     } else {
       s_logger.warn("Row parser was unable to construct a security from row " + row);
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+      return ObjectsPair.of(null, null);
     }
     
   }

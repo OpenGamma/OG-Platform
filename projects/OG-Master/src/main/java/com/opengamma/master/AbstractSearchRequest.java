@@ -7,6 +7,7 @@ package com.opengamma.master;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -35,7 +36,7 @@ import com.opengamma.util.paging.PagingRequest;
  */
 @PublicSPI
 @BeanDefinition
-public abstract class AbstractSearchRequest extends DirectBean {
+public abstract class AbstractSearchRequest extends DirectBean implements PagedRequest {
 
   /**
    * The request for paging.
@@ -108,51 +109,6 @@ public abstract class AbstractSearchRequest extends DirectBean {
     return AbstractSearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        return getPagingRequest();
-      case -2031293866:  // versionCorrection
-        return getVersionCorrection();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2092032669:  // pagingRequest
-        setPagingRequest((PagingRequest) newValue);
-        return;
-      case -2031293866:  // versionCorrection
-        setVersionCorrection((VersionCorrection) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractSearchRequest other = (AbstractSearchRequest) obj;
-      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
-          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the request for paging.
@@ -196,6 +152,61 @@ public abstract class AbstractSearchRequest extends DirectBean {
    */
   public final Property<VersionCorrection> versionCorrection() {
     return metaBean().versionCorrection().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public AbstractSearchRequest clone() {
+    BeanBuilder<? extends AbstractSearchRequest> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractSearchRequest other = (AbstractSearchRequest) obj;
+      return JodaBeanUtils.equal(getPagingRequest(), other.getPagingRequest()) &&
+          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPagingRequest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("AbstractSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -273,6 +284,31 @@ public abstract class AbstractSearchRequest extends DirectBean {
      */
     public final MetaProperty<VersionCorrection> versionCorrection() {
       return _versionCorrection;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          return ((AbstractSearchRequest) bean).getPagingRequest();
+        case -2031293866:  // versionCorrection
+          return ((AbstractSearchRequest) bean).getVersionCorrection();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2092032669:  // pagingRequest
+          ((AbstractSearchRequest) bean).setPagingRequest((PagingRequest) newValue);
+          return;
+        case -2031293866:  // versionCorrection
+          ((AbstractSearchRequest) bean).setVersionCorrection((VersionCorrection) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

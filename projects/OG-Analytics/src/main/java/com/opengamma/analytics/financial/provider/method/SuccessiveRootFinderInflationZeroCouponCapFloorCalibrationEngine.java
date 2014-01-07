@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -26,17 +26,17 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<DA
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentExpiryIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentExpiryIndex = new ArrayList<>();
 
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentStrikeIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentStrikeIndex = new ArrayList<>();
 
   /**
    * The list of calibration times.
    */
-  private final List<Double> _calibrationTimes = new ArrayList<Double>();
+  private final List<Double> _calibrationTimes = new ArrayList<>();
 
   /**
    * The calibration objective.
@@ -127,9 +127,6 @@ public class SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<DA
       objective.setStrikeIndex(_instrumentStrikeIndex.get(loopins + 1));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
-      if (loopins < nbInstruments - 1) {
-        ((SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
-      }
     }
   }
 

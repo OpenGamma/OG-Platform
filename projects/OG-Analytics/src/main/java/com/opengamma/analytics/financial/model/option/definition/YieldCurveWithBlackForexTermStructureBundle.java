@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -9,10 +9,13 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing a yield curve bundle with Black term structure volatility for Forex options.
+ * @deprecated Parent class is deprecated
  */
+@Deprecated
 public class YieldCurveWithBlackForexTermStructureBundle extends ForexOptionDataBundle<BlackForexTermStructureParameters> {
 
   public static YieldCurveWithBlackForexTermStructureBundle from(final YieldCurveBundle ycBundle, final BlackForexTermStructureParameters termStructure, final Pair<Currency, Currency> currencyPair) {
@@ -33,7 +36,7 @@ public class YieldCurveWithBlackForexTermStructureBundle extends ForexOptionData
   public YieldCurveWithBlackForexTermStructureBundle copy() {
     final YieldCurveBundle curves = getCurvesCopy();
     final BlackForexTermStructureParameters termStructure = new BlackForexTermStructureParameters(getVolatilityModel().getVolatilityCurve());
-    final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
+    final Pair<Currency, Currency> currencyPair = Pairs.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new YieldCurveWithBlackForexTermStructureBundle(curves, termStructure, currencyPair);
   }
 

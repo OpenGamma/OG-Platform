@@ -114,7 +114,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
     } else {
       s_logger.warn("Could not identify a suitable parser for position: " + position.getName());
-      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+      return ObjectsPair.of(null, null);
     }
   }
 

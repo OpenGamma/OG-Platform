@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -14,6 +14,12 @@ import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.CashSettledFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
@@ -81,36 +87,43 @@ import com.opengamma.analytics.financial.interestrate.payments.ForexForward;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapMultileg;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  * @param <DATA_TYPE> The type of the data
  * @param <RESULT_TYPE> The return type of the calculation
  */
+@SuppressWarnings("deprecation")
 public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   /** The delegate visitor */
   private final InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> _delegate;
@@ -329,6 +342,26 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(final SwaptionCashFixedCompoundedONCompounded swaption, final DATA_TYPE data) {
+    return _delegate.visitSwaptionCashFixedCompoundedONCompounded(swaption, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(final SwaptionCashFixedCompoundedONCompounded swaption) {
+    return _delegate.visitSwaptionCashFixedCompoundedONCompounded(swaption);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final DATA_TYPE data) {
+    return _delegate.visitSwaptionPhysicalFixedCompoundedONCompounded(swaption, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption) {
+    return _delegate.visitSwaptionPhysicalFixedCompoundedONCompounded(swaption);
+  }
+
+  @Override
   public RESULT_TYPE visitSwaptionBermudaFixedIbor(final SwaptionBermudaFixedIbor swaption) {
     return _delegate.visitSwaptionBermudaFixedIbor(swaption);
   }
@@ -414,6 +447,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment, final DATA_TYPE data) {
+    return _delegate.visitCouponFixedAccruedCompounding(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
+    return _delegate.visitCouponFixedAccruedCompounding(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponIbor(final CouponIbor payment, final DATA_TYPE data) {
     return _delegate.visitCouponIbor(payment, data);
   }
@@ -474,6 +517,26 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment) {
+    return _delegate.visitCouponIborCompoundingFlatSpread(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborCompoundingFlatSpread(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONCompounded(final CouponONCompounded payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONCompounded(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONCompounded(final CouponONCompounded payment) {
+    return _delegate.visitCouponONCompounded(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponOIS(final CouponON payment, final DATA_TYPE data) {
     return _delegate.visitCouponOIS(payment, data);
   }
@@ -494,33 +557,33 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment, final DATA_TYPE data) {
-    return _delegate.visitCouponArithmeticAverageON(payment, data);
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONArithmeticAverage(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageON(final CouponArithmeticAverageON payment) {
-    return _delegate.visitCouponArithmeticAverageON(payment);
+  public RESULT_TYPE visitCouponONArithmeticAverage(final CouponONArithmeticAverage payment) {
+    return _delegate.visitCouponONArithmeticAverage(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment, final DATA_TYPE data) {
-    return _delegate.visitCouponArithmeticAverageONSpread(payment, data);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONArithmeticAverageSpread(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpread(final CouponArithmeticAverageONSpread payment) {
-    return _delegate.visitCouponArithmeticAverageONSpread(payment);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpread(final CouponONArithmeticAverageSpread payment) {
+    return _delegate.visitCouponONArithmeticAverageSpread(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment, final DATA_TYPE data) {
-    return _delegate.visitCouponArithmeticAverageONSpreadSimplified(payment, data);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONArithmeticAverageSpreadSimplified(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponArithmeticAverageONSpreadSimplified(final CouponArithmeticAverageONSpreadSimplified payment) {
-    return _delegate.visitCouponArithmeticAverageONSpreadSimplified(payment);
+  public RESULT_TYPE visitCouponONArithmeticAverageSpreadSimplified(final CouponONArithmeticAverageSpreadSimplified payment) {
+    return _delegate.visitCouponONArithmeticAverageSpreadSimplified(payment);
   }
 
   @Override
@@ -531,6 +594,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitSwap(final Swap<?, ?> swap) {
     return _delegate.visitSwap(swap);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapMultileg(final SwapMultileg swap, final DATA_TYPE data) {
+    return _delegate.visitSwapMultileg(swap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwapMultileg(final SwapMultileg swap) {
+    return _delegate.visitSwapMultileg(swap);
   }
 
   @Override
@@ -1064,43 +1137,102 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future, DATA_TYPE data) {
+  public RESULT_TYPE visitCashSettledFuture(final CashSettledFuture future, final DATA_TYPE data) {
     return _delegate.visitCashSettledFuture(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitCashSettledFuture(CashSettledFuture future) {
+  public RESULT_TYPE visitCashSettledFuture(final CashSettledFuture future) {
     return _delegate.visitCashSettledFuture(future);
   }
 
   @Override
-  public RESULT_TYPE visitIndexFuture(IndexFuture future, DATA_TYPE data) {
+  public RESULT_TYPE visitIndexFuture(final IndexFuture future, final DATA_TYPE data) {
     return _delegate.visitIndexFuture(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitIndexFuture(IndexFuture future) {
+  public RESULT_TYPE visitIndexFuture(final IndexFuture future) {
     return _delegate.visitIndexFuture(future);
   }
 
   @Override
-  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future, DATA_TYPE data) {
+  public RESULT_TYPE visitEquityIndexFuture(final EquityIndexFuture future, final DATA_TYPE data) {
     return _delegate.visitEquityIndexFuture(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitEquityIndexFuture(EquityIndexFuture future) {
+  public RESULT_TYPE visitEquityIndexFuture(final EquityIndexFuture future) {
     return _delegate.visitEquityIndexFuture(future);
   }
 
   @Override
-  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future, DATA_TYPE data) {
+  public RESULT_TYPE visitVolatilityIndexFuture(final VolatilityIndexFuture future, final DATA_TYPE data) {
     return _delegate.visitVolatilityIndexFuture(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitVolatilityIndexFuture(VolatilityIndexFuture future) {
+  public RESULT_TYPE visitVolatilityIndexFuture(final VolatilityIndexFuture future) {
     return _delegate.visitVolatilityIndexFuture(future);
   }
 
+  @Override
+  public RESULT_TYPE visitAgricultureFutureSecurity(final AgricultureFutureSecurity future, final DATA_TYPE data) {
+    return _delegate.visitAgricultureFutureSecurity(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureSecurity(final AgricultureFutureSecurity future) {
+    return _delegate.visitAgricultureFutureSecurity(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureTransaction(final AgricultureFutureTransaction future, final DATA_TYPE data) {
+    return _delegate.visitAgricultureFutureTransaction(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitAgricultureFutureTransaction(final AgricultureFutureTransaction future) {
+    return _delegate.visitAgricultureFutureTransaction(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureSecurity(final EnergyFutureSecurity future, final DATA_TYPE data) {
+    return _delegate.visitEnergyFutureSecurity(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureSecurity(final EnergyFutureSecurity future) {
+    return _delegate.visitEnergyFutureSecurity(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureTransaction(final EnergyFutureTransaction future, final DATA_TYPE data) {
+    return _delegate.visitEnergyFutureTransaction(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEnergyFutureTransaction(final EnergyFutureTransaction future) {
+    return _delegate.visitEnergyFutureTransaction(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureSecurity(final MetalFutureSecurity future, final DATA_TYPE data) {
+    return _delegate.visitMetalFutureSecurity(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureSecurity(final MetalFutureSecurity future) {
+    return _delegate.visitMetalFutureSecurity(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureTransaction(final MetalFutureTransaction future, final DATA_TYPE data) {
+    return _delegate.visitMetalFutureTransaction(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitMetalFutureTransaction(final MetalFutureTransaction future) {
+    return _delegate.visitMetalFutureTransaction(future);
+  }
 }

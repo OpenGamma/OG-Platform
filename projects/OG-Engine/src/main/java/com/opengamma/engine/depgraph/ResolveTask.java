@@ -90,6 +90,8 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().getValueRequirement();
     }
 
+    // TODO: Profile how much time is spent calling getTargetSpecification. If it is a costly op, would holding the resolved specification in the task object be justified?
+
     protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
       return context.resolveTargetReference(getValueRequirement().getTargetReference());
     }

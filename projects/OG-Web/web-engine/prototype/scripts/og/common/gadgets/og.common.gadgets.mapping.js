@@ -20,39 +20,52 @@ $.register_module({
         var available_types = function (data_type, depgraph, gadget_type) {
             var types_array = mapping.data_type_map[data_type], i, current, gadget,
                 types = {simple_gadgets: [], complex_gadgets: []};
-            for (i = 0; i < types_array.length; i++){
+            for (i = 0; i < types_array.length; i++) {
                 current = mapping.gadgets[types_array[i]];
-                if (depgraph && current === 'Depgraph') continue;
+                if (depgraph && current === 'Depgraph') {
+                    continue;
+                }
                 gadget = {name: current, gadget_name: gadget_names[current]};
-                if (current === gadget_type) gadget.default_type = true;
+                if (current === gadget_type) {
+                    gadget.default_type = true;
+                }
                 !is_complex(current) ? types.complex_gadgets.push(gadget) : types.simple_gadgets.push(gadget);
             }
             return types;
         };
-        var is_complex = function (name) {return ~[0, 6, 8].indexOf(mapping.gadgets.indexOf(name));}; // if not simple
-        var options = function (cell, grid, panel) {
+        var is_complex = function (name) {return ~[0, 6, 8].indexOf(mapping.gadgets.indexOf(name)); }; // if not simple
+        var options = function (cell, grid, panel, req) {
             var gadget_type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options;
             gadget_options = {
                 gadget: 'og.common.gadgets.' + gadget_type,
-                options: {
-                    source: source, child: true, col: cell.col, row: cell.row, type: cell.type,
+                options: {source: source, child: true, type: cell.type, row: cell.row, col: cell.col,
                     menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
-                    value: cell.value.v, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
-                },
-                row_name: cell.row_name, col_name: cell.col_name,
+                    value: cell.value.v, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */},
+                row_name: cell.row_name,
+                col_name: cell.col_name,
                 gadget_name: gadget_names[gadget_type],
                 gadget_type: gadget_type,
                 data_type: cell.type
             };
+            if (req) {
+                gadget_options.options.req = req.valueRequirement;
+                gadget_options.options.colset = req.columnSet;
+            }
             return gadget_options;
         };
         var type = function (cell, panel) {
-            var order = mapping.panel_preference[panel || 'new-window'],
-                type_map = mapping.data_type_map[cell.type], i, k;
-            if (!type_map) throw new Error(module.name + ': no type information available for ' + cell.type);
-            for (i = 0; i < order.length; i++)
-                for (k = 0; k < type_map.length; k++)
-                    if (order[i] === type_map[k]) return mapping.gadgets[order[i]];
+            var order = mapping.panel_preference[panel || 'new-window'], i, k,
+                type_map = mapping.data_type_map[cell.type];
+            if (!type_map) {
+                throw new Error(module.name + ': no type information available for ' + cell.type);
+            }
+            for (i = 0; i < order.length; i++) {
+                for (k = 0; k < type_map.length; k++) {
+                    if (order[i] === type_map[k]) {
+                        return mapping.gadgets[order[i]];
+                    }
+                }
+            }
         };
         return mapping = {
             data_type_map: {

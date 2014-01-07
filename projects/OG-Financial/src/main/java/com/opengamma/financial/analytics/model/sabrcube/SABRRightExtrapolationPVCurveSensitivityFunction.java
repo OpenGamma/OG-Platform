@@ -10,10 +10,13 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivi
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 
 /**
- *
+ * Calculates the sensitivities to curve points.
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public class SABRRightExtrapolationPVCurveSensitivityFunction extends SABRRightExtrapolationFunction {
 
   @Override

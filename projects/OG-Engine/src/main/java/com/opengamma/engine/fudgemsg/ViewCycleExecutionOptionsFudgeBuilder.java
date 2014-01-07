@@ -31,6 +31,7 @@ import com.opengamma.id.VersionCorrection;
 @FudgeBuilderFor(ViewCycleExecutionOptions.class)
 public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewCycleExecutionOptions> {
 
+  private static final String NAME = "name";
   private static final String VALUATION_TIME_FIELD = "valuation";
   private static final String RESOLVER_VERSION_CORRECTION = "resolverVersionCorrection";
   private static final String MARKET_DATA_SPECIFICATION = "marketDataSpecification";
@@ -41,6 +42,7 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ViewCycleExecutionOptions object) {
     final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessage(msg, NAME, null, object.getName());
     serializer.addToMessage(msg, VALUATION_TIME_FIELD, null, object.getValuationTime());
     for (final MarketDataSpecification spec : object.getMarketDataSpecifications()) {
       serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATION, null, spec);
@@ -64,6 +66,10 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
   public ViewCycleExecutionOptions buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder();
     FudgeField field;
+    field = msg.getByName(NAME);
+    if (field != null) {
+      builder.setName(deserializer.fieldValueToObject(String.class, field));
+    }
     field = msg.getByName(VALUATION_TIME_FIELD);
     if (field != null) {
       builder.setValuationTime(deserializer.fieldValueToObject(Instant.class, field));

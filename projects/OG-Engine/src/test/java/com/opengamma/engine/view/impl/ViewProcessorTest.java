@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,7 @@ import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 import com.opengamma.util.test.Timeout;
 
 /**
@@ -69,30 +71,36 @@ public class ViewProcessorTest {
   }
 
   public void testCreateViewProcessor() {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-
-    assertFalse(vp.isRunning());
-
-    vp.start();
-
-    assertTrue(vp.isRunning());
-    assertTrue(vp.getViewProcesses().isEmpty());
-    vp.stop();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      assertTrue(vp.isRunning());
+      assertTrue(vp.getViewProcesses().isEmpty());
+      vp.stop();
+      assertFalse(vp.isRunning());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testAttachToView() {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
 
-    vp.stop();
+      vp.stop();
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   private void waitForCompletionAndShutdown(final ViewProcessorImpl vp, final ViewClient client, final ViewProcessorTestEnvironment env) throws InterruptedException {
@@ -105,146 +113,172 @@ public class ViewProcessorTest {
 
   @Test
   public void testSuspend_viewExists() throws InterruptedException, ExecutionException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-
-    final Runnable resume = vp.suspend(Executors.newCachedThreadPool()).get();
-    assertNotNull(resume);
-
-    final CountDownLatch latch = new CountDownLatch(1);
-    final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final Thread tryAttach = new Thread() {
-      @Override
-      public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
-        client2.shutdown();
-        latch.countDown();
-      }
-    };
-    tryAttach.start();
-    assertFalse(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
-    resume.run();
-    assertTrue(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
-    vp.stop();
+    TestLifecycle.begin();
+    final ExecutorService executor = Executors.newCachedThreadPool();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
+      final Runnable resume;
+      resume = vp.suspend(executor).get();
+      assertNotNull(resume);
+      final CountDownLatch latch = new CountDownLatch(1);
+      final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      executor.submit(new Runnable() {
+        @Override
+        public void run() {
+          client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+          client2.shutdown();
+          latch.countDown();
+        }
+      });
+      assertFalse(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+      resume.run();
+      assertTrue(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+      vp.stop();
+    } finally {
+      executor.shutdown();
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testSuspend_viewNotExists() throws InterruptedException, ExecutionException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
-    final Runnable resume = vp.suspend(Executors.newCachedThreadPool()).get();
-    assertNotNull(resume);
-
-    final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final CountDownLatch latch = new CountDownLatch(1);
-    final Thread tryAttach = new Thread() {
-      @Override
-      public void run() {
-        client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
-        client2.shutdown();
-        latch.countDown();
-      }
-    };
-    tryAttach.start();
-    assertFalse(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
-    resume.run();
-    assertTrue(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
-    vp.stop();
+    TestLifecycle.begin();
+    final ExecutorService executor = Executors.newCachedThreadPool();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
+      final Runnable resume = vp.suspend(executor).get();
+      assertNotNull(resume);
+      final ViewClient client2 = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final CountDownLatch latch = new CountDownLatch(1);
+      executor.submit(new Runnable() {
+        @Override
+        public void run() {
+          client2.attachToViewProcess(env.getViewDefinition().getUniqueId(), ExecutionOptions.infinite(MarketData.live()));
+          client2.shutdown();
+          latch.countDown();
+        }
+      });
+      assertFalse(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+      resume.run();
+      assertTrue(latch.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS));
+      vp.stop();
+    } finally {
+      executor.shutdown();
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testCycleManagement_realTimeInterrupted() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
-    client.setResultListener(listener);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live())
-        .create(),
-        ExecutionFlags.none().runAsFastAsPossible().get());
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-    listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
+      client.setResultListener(listener);
+      final ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(),
+          ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create(), ExecutionFlags.none().runAsFastAsPossible().get());
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
 
-    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
+      final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      final ViewProcessWorker worker = env.getCurrentWorker(viewProcess);
 
-    client.shutdown();
-    worker.join();
+      client.shutdown();
+      worker.join();
 
-    assertEquals(0, vp.getViewCycleManager().getResourceCount());
+      assertEquals(0, vp.getViewCycleManager().getResourceCount());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   @Test
   public void testCycleManagement_processCompletes() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.setViewResultListenerFactory(viewResultListenerFactoryStub);
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+      env.setViewResultListenerFactory(viewResultListenerFactoryStub);
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-    waitForCompletionAndShutdown(vp, client, env);
-    assertEquals(0, vp.getViewCycleManager().getResourceCount());
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live())
+          .create());
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+      waitForCompletionAndShutdown(vp, client, env);
+      assertEquals(0, vp.getViewCycleManager().getResourceCount());
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void testCycleManagement_processCompletesWithReferences() throws InterruptedException {
-    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    TestLifecycle.begin();
+    try {
+      final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
 
-    env.setViewResultListenerFactory(viewResultListenerFactoryStub);
-    env.init();
-    final ViewProcessorImpl vp = env.getViewProcessor();
-    vp.start();
+      env.setViewResultListenerFactory(viewResultListenerFactoryStub);
+      env.init();
+      final ViewProcessorImpl vp = env.getViewProcessor();
+      vp.start();
 
-    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    client.setViewCycleAccessSupported(true);
-    final List<EngineResourceReference<? extends ViewCycle>> references = new ArrayList<EngineResourceReference<? extends ViewCycle>>();
-    final ViewResultListener resultListener = new AbstractViewResultListener() {
+      final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+      client.setViewCycleAccessSupported(true);
+      final List<EngineResourceReference<? extends ViewCycle>> references = new ArrayList<EngineResourceReference<? extends ViewCycle>>();
+      final ViewResultListener resultListener = new AbstractViewResultListener() {
 
-      @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        final EngineResourceReference<? extends ViewCycle> reference = client.createLatestCycleReference();
-        if (reference != null) {
-          references.add(reference);
+        @Override
+        public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
+          final EngineResourceReference<? extends ViewCycle> reference = client.createLatestCycleReference();
+          if (reference != null) {
+            references.add(reference);
+          }
         }
+
+        @Override
+        public UserPrincipal getUser() {
+          return UserPrincipal.getTestUser();
+        }
+
+      };
+      client.setResultListener(resultListener);
+      final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live())
+          .create());
+      client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
+
+      final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+      final UniqueId viewProcessId = viewProcess.getUniqueId();
+
+      waitForCompletionAndShutdown(vp, client, env);
+
+      assertEquals(10, references.size());
+      assertEquals(10, vp.getViewCycleManager().getResourceCount());
+
+      final Set<UniqueId> cycleIds = new HashSet<UniqueId>();
+      for (final EngineResourceReference<? extends ViewCycle> reference : references) {
+        assertEquals(viewProcessId, reference.get().getViewProcessId());
+        cycleIds.add(reference.get().getUniqueId());
+        reference.release();
       }
 
-      @Override
-      public UserPrincipal getUser() {
-        return UserPrincipal.getTestUser();
-      }
-
-    };
-    client.setResultListener(resultListener);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
-    client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
-
-    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
-    final UniqueId viewProcessId = viewProcess.getUniqueId();
-
-    waitForCompletionAndShutdown(vp, client, env);
-
-    assertEquals(10, references.size());
-    assertEquals(10, vp.getViewCycleManager().getResourceCount());
-
-    final Set<UniqueId> cycleIds = new HashSet<UniqueId>();
-    for (final EngineResourceReference<? extends ViewCycle> reference : references) {
-      assertEquals(viewProcessId, reference.get().getViewProcessId());
-      cycleIds.add(reference.get().getUniqueId());
-      reference.release();
+      // Expect distinct cycles
+      assertEquals(10, cycleIds.size());
+      assertEquals(0, vp.getViewCycleManager().getResourceCount());
+    } finally {
+      TestLifecycle.end();
     }
-
-    // Expect distinct cycles
-    assertEquals(10, cycleIds.size());
-    assertEquals(0, vp.getViewCycleManager().getResourceCount());
   }
 
   private ViewCycleExecutionSequence generateExecutionSequence(final int cycleCount) {

@@ -39,6 +39,7 @@ import com.opengamma.util.async.AsynchronousOperation;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = TestGroup.UNIT_SLOW)
 public class WriteBehindViewComputationCacheTest {
@@ -195,9 +196,9 @@ public class WriteBehindViewComputationCacheTest {
     _cache.putValue(new ComputedValue(s_valueSpec3, "cow"), _filter);
     final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
     assertEquals(valueSpec.size(), values.size());
-    assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
-    assertTrue(values.contains(Pair.of(s_valueSpec2, "bar")));
-    assertTrue(values.contains(Pair.of(s_valueSpec3, "cow")));
+    assertTrue(values.contains(Pairs.of(s_valueSpec1, "foo")));
+    assertTrue(values.contains(Pairs.of(s_valueSpec2, "bar")));
+    assertTrue(values.contains(Pairs.of(s_valueSpec3, "cow")));
     assertNull(_underlying._putValue);
     assertNull(_underlying._putValues);
     assertNull(_underlying._getValues);
@@ -222,7 +223,7 @@ public class WriteBehindViewComputationCacheTest {
     _cache.putValue(new ComputedValue(s_valueSpec1, "foo"), _filter);
     final Collection<Pair<ValueSpecification, Object>> values = _cache.getValues(valueSpec);
     assertEquals(1, values.size());
-    assertTrue(values.contains(Pair.of(s_valueSpec1, "foo")));
+    assertTrue(values.contains(Pairs.of(s_valueSpec1, "foo")));
     assertNull(_underlying._putValue);
     assertNull(_underlying._putValues);
     assertEquals(Arrays.asList(s_valueSpec2, s_valueSpec3), _underlying._getValues);
@@ -337,7 +338,6 @@ public class WriteBehindViewComputationCacheTest {
       }
     }.start();
     flush(_cache);
-    System.out.println(Timeout.standardTimeoutMillis());
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)

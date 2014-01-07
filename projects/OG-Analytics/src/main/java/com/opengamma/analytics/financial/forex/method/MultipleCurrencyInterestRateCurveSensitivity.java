@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a the sensitivity of some value (present value, par rate, etc) to a family of yield curves.
+ * Class describing the sensitivity of some value (present value, par rate, etc) to a family of yield curves.
  * The currency in which the sensitivity is expressed is indicated through a map.
  */
 public final class MultipleCurrencyInterestRateCurveSensitivity {

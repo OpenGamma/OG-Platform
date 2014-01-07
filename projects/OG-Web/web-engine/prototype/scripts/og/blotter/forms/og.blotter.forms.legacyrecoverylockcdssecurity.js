@@ -9,8 +9,7 @@ $.register_module({
         return function (config) {
             config.title = 'Legacy Recovery Lock CDS';
             config.type = 'LegacyRecoveryLockCDSSecurity';
-            config.legacy = true;
             return new og.blotter.forms.cds(config);
-        };    
+        };
     }
 });

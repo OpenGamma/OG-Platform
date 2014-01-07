@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * A special case of function with special meaning to the engine.
  */
-/* package */abstract class IntrinsicFunction implements FunctionDefinition, CompiledFunctionDefinition, FunctionInvoker {
+public abstract class IntrinsicFunction implements FunctionDefinition, CompiledFunctionDefinition, FunctionInvoker {
 
   private final String _uid;
 

@@ -20,6 +20,7 @@ public abstract class FunctionND<S, T> implements Function<S, T> {
    * @return The value of the function
    * @throws IllegalArgumentException If the number of arguments is not equal to the dimension
    */
+  @SuppressWarnings("unchecked")
   @Override
   public T evaluate(final S... x) {
     ArgumentChecker.noNulls(x, "x");

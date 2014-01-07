@@ -13,9 +13,12 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests for the MarketDataPointRandomizingManipulator.
  */
+@Test(groups = TestGroup.UNIT)
 public class MarketDataPointRandomizingManipulatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -41,12 +44,6 @@ public class MarketDataPointRandomizingManipulatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeBoundsRejected() {
     createManipulator(-1.1, 0.9);
-  }
-
-  @Test
-  public void testNullValueProducesNullResult() {
-    StructureManipulator<Double> manipulator = createManipulator(0.9, 1.1);
-    assertNull(manipulator.execute(null));
   }
 
   @Test

@@ -11,6 +11,7 @@ import java.util.List;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -35,6 +36,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -42,12 +44,14 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
@@ -131,6 +135,11 @@ public class RegionExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return null;
   }
 
@@ -225,6 +234,11 @@ public class RegionExposureFunction implements ExposureFunction {
   }
 
   @Override
+  public List<ExternalId> visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return null; // ForwardRateAgreementSecurity does not hold region
+  }
+
+  @Override
   public List<ExternalId> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
     return null;
   }
@@ -266,6 +280,11 @@ public class RegionExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
     return null;
   }
 
@@ -404,6 +423,11 @@ public class RegionExposureFunction implements ExposureFunction {
       return Arrays.asList(payLeg.getRegionId());
     }
     return Arrays.asList(payLeg.getRegionId(), receiveLeg.getRegionId());
+  }
+
+  @Override
+  public List<ExternalId> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return null; // region not currently held in swap legs
   }
 
 }

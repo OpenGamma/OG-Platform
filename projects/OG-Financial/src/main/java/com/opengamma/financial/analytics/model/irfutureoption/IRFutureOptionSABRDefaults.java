@@ -20,7 +20,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -86,7 +86,7 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
-      defaults.addValuePropertyName(valueRequirement, SmileFittingProperties.PROPERTY_FITTING_METHOD);
+      defaults.addValuePropertyName(valueRequirement, SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     }
   }
 
@@ -100,7 +100,7 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfacePerCurrency.get(currency));
     }
-    if (SmileFittingProperties.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethodPerCurrency.get(currency));
     }
     s_logger.error("Could not get default value for {}", propertyName);

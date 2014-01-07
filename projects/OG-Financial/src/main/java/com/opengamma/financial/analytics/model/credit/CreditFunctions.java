@@ -11,28 +11,18 @@ import java.util.Map;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.bumpers.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCreditCurveFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantAccruedDaysCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantAccruedPremiumCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCleanPriceCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantBucketedCS01CDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCleanPresentValueCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantParallelCS01CDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantPointsUpfrontCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantUpfrontAmountCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSHazardRateCurveFunction;
-import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSOptionHazardRateCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDXAsSingleNameHazardRateCurveFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaAccruedCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedGammaCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedIR01CDSFunction;
@@ -42,28 +32,28 @@ import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCD
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSIR01Defaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSPriceTypeDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSRR01Defaults;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaHedgeNotionalCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaJumpToDefaultCDSFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParSpreadCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelGammaCS01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelIR01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaPresentValueCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaRR01CDSFunction;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionBucketedCS01Function;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionBucketedGammaCS01Function;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionPVFunction;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionParallelCS01Function;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionParallelGammaCS01Function;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionRR01Function;
-import com.opengamma.financial.analytics.model.credit.isda.cdsoption.ISDACreditDefaultSwapOptionVegaFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameAccruedCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedGammaCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedIR01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameJumpToDefaultFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParSpreadFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelGammaCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelIR01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNamePresentValueFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameRR01Function;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCDSFunction;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCreditCurveFunction;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -293,7 +283,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(ISDAYieldCurveDefaults.class, args));
     }
 
-
     protected void addISDALegacyVanillaCDSDefaults(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(ISDALegacyVanillaCDSDefaults.class, Integer.toString(getNIntegrationPoints())));
     }
@@ -421,21 +410,12 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(ISDACreditSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDACreditSpreadCurveShiftFunction.class));
-    functions.add(functionConfiguration(ISDALegacyVanillaCDSCleanPriceFunction.class));
-    functions.add(functionConfiguration(ISDALegacyVanillaCDSDirtyPriceFunction.class));
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSHazardRateCurveFunction.class));
-    functions.add(functionConfiguration(ISDACDSOptionHazardRateCurveFunction.class));
+
     functions.add(functionConfiguration(ISDACDXAsSingleNameHazardRateCurveFunction.class));
     functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDACompliantCreditCurveFunction.class));
-    functions.add(functionConfiguration(ISDAParallelCS01VanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDACleanPresentValueVanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDADirtyPresentValueVanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDAPointsUpfrontVanillaCDSFunction.class));
-    //functions.add(functionConfiguration(ISDARiskMetricsVanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDAUpfrontAmountVanillaCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaParallelCS01CDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaBucketedCS01CDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaParallelGammaCS01CDSFunction.class));
@@ -445,13 +425,10 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(StandardVanillaRR01CDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaJumpToDefaultCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaPresentValueCDSFunction.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionPVFunction.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionParallelCS01Function.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionBucketedCS01Function.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionParallelGammaCS01Function.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionBucketedGammaCS01Function.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionRR01Function.class));
-    functions.add(functionConfiguration(ISDACreditDefaultSwapOptionVegaFunction.class));
+    functions.add(functionConfiguration(StandardVanillaAccruedCDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaParSpreadCDSFunction.class));
+    functions.add(functionConfiguration(StandardVanillaHedgeNotionalCDSFunction.class));
+
     functions.add(functionConfiguration(ISDACDXAsSingleNameParallelCS01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedCS01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameParallelGammaCS01Function.class));
@@ -461,16 +438,12 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACDXAsSingleNameRR01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameJumpToDefaultFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNamePresentValueFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameAccruedCDSFunction.class));
+    functions.add(functionConfiguration(ISDACDXAsSingleNameParSpreadFunction.class));
 
+    functions.add(functionConfiguration(ISDACompliantCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantYieldCurveFunction.class));
-    functions.add(functionConfiguration(ISDACompliantCleanPresentValueCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantParallelCS01CDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantBucketedCS01CDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantUpfrontAmountCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantPointsUpfrontCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantAccruedDaysCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantAccruedPremiumCDSFunction.class));
-    functions.add(functionConfiguration(ISDACompliantCleanPriceCDSFunction.class));
+    functions.add(functionConfiguration(ISDACompliantCreditCurveFunction.class));
   }
 
 }

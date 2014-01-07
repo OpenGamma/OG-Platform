@@ -13,6 +13,12 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class DoubleMatrix1DTest {
   private static final DoubleMatrix1D PRIMITIVES = new DoubleMatrix1D(new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
   private static final DoubleMatrix1D OBJECTS = new DoubleMatrix1D(new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.});

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -21,7 +21,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for Forex swap transactions by discounting each payment.
+ * @deprecated Use {@link com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMethod}
  */
+@Deprecated
 public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
 
   /**
@@ -126,7 +128,7 @@ public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
     final MultipleCurrencyInterestRateCurveSensitivity pv2DrMC = presentValueCurveSensitivity(fx, curves);
     final InterestRateCurveSensitivity pv2Dr = pv2DrMC.converted(ccy2, curves.getFxRates()).getSensitivity(ccy2);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(payTime, -payTime * dfEnd * dfEndBar));
+    list.add(DoublesPair.of(payTime, -payTime * dfEnd * dfEndBar));
     final InterestRateCurveSensitivity dfEndDr = InterestRateCurveSensitivity.of(name2, list);
     return pv2Dr.multipliedBy(pv2Bar).plus(dfEndDr);
   }

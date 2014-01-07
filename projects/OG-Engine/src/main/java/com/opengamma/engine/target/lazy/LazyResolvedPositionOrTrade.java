@@ -7,6 +7,7 @@ package com.opengamma.engine.target.lazy;
 
 import java.math.BigDecimal;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityLink;
@@ -50,7 +51,10 @@ import com.opengamma.id.UniqueId;
     if (_resolved) {
       return link.getTarget();
     } else {
-      Security target = getLazyResolveContext().resolveLink(getSecurityLink());
+      Security target = getLazyResolveContext().resolveLink(link);
+      if (target == null) {
+        throw new OpenGammaRuntimeException("Couldn't resolve " + link);
+      }
       _resolved = true;
       return target;
     }

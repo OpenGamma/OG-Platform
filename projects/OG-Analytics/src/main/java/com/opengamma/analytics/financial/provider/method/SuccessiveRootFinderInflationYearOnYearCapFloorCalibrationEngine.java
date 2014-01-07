@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
@@ -21,22 +22,23 @@ import com.opengamma.util.ArgumentChecker;
  * Specific calibration engine for the price index (inflation) market model with year on year cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DATA_TYPE extends InflationProviderInterface> extends CalibrationEngineWithPrices<DATA_TYPE> {
+public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DATA_TYPE extends InflationProviderInterface>
+    extends CalibrationEngineWithPrices<DATA_TYPE> {
 
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentExpiryIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentExpiryIndex = new ArrayList<>();
 
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentStrikeIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentStrikeIndex = new ArrayList<>();
 
   /**
    * The list of calibration times.
    */
-  private final List<Double> _calibrationTimes = new ArrayList<Double>();
+  private final List<Double> _calibrationTimes = new ArrayList<>();
 
   /**
    * The calibration objective.
@@ -61,7 +63,7 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
    */
   @Override
   public void addInstrument(final InstrumentDerivative instrument, final double calibrationPrice) {
-    ArgumentChecker.isTrue((instrument instanceof CapFloorInflationYearOnYearInterpolation) || (instrument instanceof CapFloorInflationYearOnYearMonthly),
+    ArgumentChecker.isTrue((instrument instanceof CapFloorInflationYearOnYearInterpolation) || (instrument instanceof CapFloorInflationYearOnYearMonthly) || (instrument instanceof Annuity),
         "Instrument should be cap inflation year on year.");
     getBasket().add(instrument);
     getCalibrationPrices().add(calibrationPrice);
@@ -82,6 +84,32 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
           cap.getStrike()));
     }
 
+    if (instrument instanceof Annuity) {
+      final Annuity<?> annuity = (Annuity<?>) instrument;
+      ArgumentChecker.isTrue((annuity.getNthPayment(annuity.getNumberOfPayments() - 1) instanceof CapFloorInflationYearOnYearInterpolation) ||
+          (annuity.getNthPayment(annuity.getNumberOfPayments() - 1) instanceof CapFloorInflationYearOnYearMonthly),
+          "Instrument should be cap inflation year on year.");
+
+      if (annuity.getNthPayment(annuity.getNumberOfPayments() - 1) instanceof CapFloorInflationYearOnYearInterpolation) {
+        final CapFloorInflationYearOnYearInterpolation cap = (CapFloorInflationYearOnYearInterpolation) annuity.getNthPayment(annuity.getNumberOfPayments() - 1);
+        _calibrationTimes.add(cap.getPaymentTime());
+        _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters()
+            .getExpiryTimes(), cap.getReferenceEndTime()[1]));
+        _instrumentStrikeIndex.add(Arrays.binarySearch(
+            ((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters().getStrikes(),
+            cap.getStrike()));
+      }
+      if (annuity.getNthPayment(annuity.getNumberOfPayments() - 1) instanceof CapFloorInflationYearOnYearMonthly) {
+        final CapFloorInflationYearOnYearMonthly cap = (CapFloorInflationYearOnYearMonthly) annuity.getNthPayment(annuity.getNumberOfPayments() - 1);
+        _calibrationTimes.add(cap.getPaymentTime());
+        _instrumentExpiryIndex.add(Arrays.binarySearch(((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters()
+            .getExpiryTimes(), cap.getReferenceEndTime()));
+        _instrumentStrikeIndex.add(Arrays.binarySearch(
+            ((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).getInflationCapYearOnYearParameters().getStrikes(),
+            cap.getStrike()));
+      }
+
+    }
   }
 
   /**
@@ -127,9 +155,6 @@ public class SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<DA
       objective.setStrikeIndex(_instrumentStrikeIndex.get(loopins + 1));
       final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
       rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
-      if (loopins < nbInstruments - 1) {
-        ((SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
-      }
     }
   }
 

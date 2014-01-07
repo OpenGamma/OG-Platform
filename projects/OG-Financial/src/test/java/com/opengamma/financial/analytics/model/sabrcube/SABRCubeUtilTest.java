@@ -34,10 +34,10 @@ public class SABRCubeUtilTest {
     for (int loopx = 0; loopx < x.length; loopx++) {
       for (int loopy = 0; loopy < y.length; loopy++) {
         vIn[loopy][loopx] = x[loopx] * y[loopy];
-        surf.add(new DoublesPair(x[loopx], y[loopy]), vIn[loopy][loopx]);
+        surf.add(DoublesPair.of(x[loopx], y[loopy]), vIn[loopy][loopx]);
       }
     }
-    DoubleLabelledMatrix2D vOut = SABRCubeUtil.toDoubleLabelledMatrix2D(surf);
+    DoubleLabelledMatrix2D vOut = SABRCubeUtils.toDoubleLabelledMatrix2D(surf);
     for (int loopx = 0; loopx < x.length; loopx++) {
       for (int loopy = 0; loopy < y.length; loopy++) {
         assertEquals("Surface value - toArray", vIn[loopy][loopx], vOut.getValues()[loopy][loopx], TOLERANCE);
@@ -62,9 +62,9 @@ public class SABRCubeUtilTest {
     SurfaceValue surf = new SurfaceValue();
     for (int loopx = 0; loopx < x.length; loopx++) {
       vIn[loopx][loopx] = x[loopx] * y[loopx];
-      surf.add(new DoublesPair(x[loopx], y[loopx]), vIn[loopx][loopx]);
+      surf.add(DoublesPair.of(x[loopx], y[loopx]), vIn[loopx][loopx]);
     }
-    DoubleLabelledMatrix2D vOut = SABRCubeUtil.toDoubleLabelledMatrix2D(surf);
+    DoubleLabelledMatrix2D vOut = SABRCubeUtils.toDoubleLabelledMatrix2D(surf);
     for (int loopx = 0; loopx < x.length; loopx++) {
       assertEquals("Surface value - toArray", vIn[loopx][loopx], vOut.getValues()[loopx][loopx], TOLERANCE);
     }

@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -40,21 +41,25 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
    * The swaption expiry.
    */
   private final Expiry _expiry;
+  /**
+   * The currency.
+   */
+  private final Currency _currency;
 
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flag.
    * @param expiryDate The expiry date.
-   * @param strike The strike
    * @param underlyingSwap The underlying swap.
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionCashFixedIborDefinition(final ZonedDateTime expiryDate, final double strike, final SwapFixedIborDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
+  private SwaptionCashFixedIborDefinition(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     //TODO do we need to check that the swaption expiry is consistent with the underlying swap?
     _underlyingSwap = underlyingSwap;
+    _currency = underlyingSwap.getCurrency();
     _isLong = isLong;
     _settlementDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
     _expiry = new Expiry(expiryDate);
@@ -70,11 +75,15 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
   public static SwaptionCashFixedIborDefinition from(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
-    final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
     // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
-    return new SwaptionCashFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
+    return new SwaptionCashFixedIborDefinition(expiryDate, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwaptionCashFixedIbor toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -129,6 +138,14 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
    */
   public Expiry getExpiry() {
     return _expiry;
+  }
+
+  /**
+   * Gets the currency.
+   * @return The currency
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   @Override

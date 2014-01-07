@@ -7,6 +7,7 @@ package com.opengamma.engine.view.execution;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.threeten.bp.Instant;
 
@@ -65,9 +66,27 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * 
    * @param marketDataSpec the market data specification, not null
    * @return the execution sequence, not null
+   * @deprecated use list variant
    */
+  @Deprecated
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec) {
     return infinite(marketDataSpec, ExecutionFlags.triggersEnabled().get());
+  }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data and all triggers enabled. Execution will continue for as long as there is demand.
+   * <p>
+   * For the classic execution sequence for real-time calculations against live market data, use
+   * 
+   * <pre>
+   * ExecutionOptions.infinite(Lists.asList(MarketData.live(),...));
+   * </pre>
+   * 
+   * @param marketDataSpecs a list of market data specifications, not null
+   * @return the execution sequence, not null
+   */
+  public static ViewExecutionOptions infinite(List<MarketDataSpecification> marketDataSpecs) {
+    return infinite(marketDataSpecs, ExecutionFlags.triggersEnabled().get());
   }
 
   /**
@@ -76,11 +95,26 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param marketDataSpec the market data specification, not null
    * @param flags the execution flags, not null
    * @return the execution sequence, not null
+   * @deprecated use list variant
    */
+  @Deprecated
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ViewCycleExecutionOptions defaultExecutionOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(marketDataSpec).create();
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
   }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue for as long as there is demand.
+   * 
+   * @param marketDataSpecs a list of market data specifications, not null
+   * @param flags the execution flags, not null
+   * @return the execution sequence, not null
+   */
+  public static ViewExecutionOptions infinite(List<MarketDataSpecification> marketDataSpecs, EnumSet<ViewExecutionFlags> flags) {
+    ViewCycleExecutionOptions defaultExecutionOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecifications(marketDataSpecs).create();
+    return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
+  }
+
 
   /**
    * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue for as long as there is demand.
@@ -89,9 +123,24 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param flags the execution flags, not null
    * @param versionCorrection the version-correction instants, not null
    * @return the execution sequence, not null
+   * @deprecated use list variant
    */
+  @Deprecated
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags, VersionCorrection versionCorrection) {
     ViewCycleExecutionOptions defaultExecutionOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecification(marketDataSpec).setResolverVersionCorrection(versionCorrection).create();
+    return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
+  }
+  
+  /**
+   * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue for as long as there is demand.
+   * 
+   * @param marketDataSpecs a list of market data specifications, not null
+   * @param flags the execution flags, not null
+   * @param versionCorrection the version-correction instants, not null
+   * @return the execution sequence, not null
+   */
+  public static ViewExecutionOptions infinite(List<MarketDataSpecification> marketDataSpecs, EnumSet<ViewExecutionFlags> flags, VersionCorrection versionCorrection) {
+    ViewCycleExecutionOptions defaultExecutionOptions = ViewCycleExecutionOptions.builder().setMarketDataSpecifications(marketDataSpecs).setResolverVersionCorrection(versionCorrection).create();
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
   }
 
@@ -103,9 +152,25 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param marketDataSpec the market data specification, not null
    * @param defaultCycleOptions the default view cycle execution options, may be null
    * @return the execution sequence, not null
+   * @deprecated use list variant
    */
+  @Deprecated
   public static ViewExecutionOptions batch(Instant valuationTimeProvider, MarketDataSpecification marketDataSpec, ViewCycleExecutionOptions defaultCycleOptions) {
     ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTimeProvider).setMarketDataSpecification(marketDataSpec).create();
+    ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
+    return of(sequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
+  }
+  
+  /**
+   * Creates an execution sequence designed for batch-mode operation. The typical next-cycle triggers are disabled; the sequence is instead configured to run as fast as possible.
+   * 
+   * @param valuationTimeProvider the valuation time provider, or null to use the market data time
+   * @param marketDataSpecs the market data specification, not null
+   * @param defaultCycleOptions the default view cycle execution options, may be null
+   * @return the execution sequence, not null
+   */
+  public static ViewExecutionOptions batch(Instant valuationTimeProvider, List<MarketDataSpecification> marketDataSpecs, ViewCycleExecutionOptions defaultCycleOptions) {
+    ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTimeProvider).setMarketDataSpecifications(marketDataSpecs).create();
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
     return of(sequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
   }
@@ -128,9 +193,22 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param valuationTimeProvider the valuation time provider, or null to use the market data time
    * @param marketDataSpec the market data specification, not null
    * @return an execution sequence representing the single cycle, not null
+   * @deprecated use list version
    */
+  @Deprecated
   public static ViewExecutionOptions singleCycle(Instant valuationTimeProvider, MarketDataSpecification marketDataSpec) {
     return singleCycle(valuationTimeProvider, marketDataSpec, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
+  }
+  
+  /**
+   * Creates an execution sequence to run a single cycle.
+   * 
+   * @param valuationTimeProvider the valuation time provider, or null to use the market data time
+   * @param marketDataSpecs a list of the market data specifications, not null
+   * @return an execution sequence representing the single cycle, not null
+   */
+  public static ViewExecutionOptions singleCycle(Instant valuationTimeProvider, List<MarketDataSpecification> marketDataSpecs) {
+    return singleCycle(valuationTimeProvider, marketDataSpecs, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
   }
 
   /**
@@ -140,11 +218,29 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param marketDataSpec the market data specification, not null
    * @param flags the execution flags, not null
    * @return an execution sequence representing the single cycle, not null
+   * @deprecated use list version
    */
+  @Deprecated
   public static ViewExecutionOptions singleCycle(Instant valuationTimeProvider, MarketDataSpecification marketDataSpec, EnumSet<ViewExecutionFlags> flags) {
     ArgumentChecker.notNull(marketDataSpec, "marketDataSpec");
     ArgumentChecker.notNull(flags, "flags");
     ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTimeProvider).setMarketDataSpecification(marketDataSpec).create();
+    ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
+    return of(sequence, flags);
+  }
+  
+  /**
+   * Creates an execution sequence to run a single cycle.
+   * 
+   * @param valuationTimeProvider the valuation time provider, or null to use the market data time
+   * @param marketDataSpecs a list of the market data specification, not null
+   * @param flags the execution flags, not null
+   * @return an execution sequence representing the single cycle, not null
+   */
+  public static ViewExecutionOptions singleCycle(Instant valuationTimeProvider, List<MarketDataSpecification> marketDataSpecs, EnumSet<ViewExecutionFlags> flags) {
+    ArgumentChecker.notNull(marketDataSpecs, "marketDataSpec");
+    ArgumentChecker.notNull(flags, "flags");
+    ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTimeProvider).setMarketDataSpecifications(marketDataSpecs).create();
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
     return of(sequence, flags);
   }

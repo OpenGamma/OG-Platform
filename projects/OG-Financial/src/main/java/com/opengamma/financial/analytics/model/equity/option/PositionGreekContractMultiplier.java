@@ -7,8 +7,10 @@ package com.opengamma.financial.analytics.model.equity.option;
 
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -50,29 +52,39 @@ public final class PositionGreekContractMultiplier extends FinancialSecurityVisi
   
   @Override
   public Double visitEquityFutureSecurity(final EquityFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitIndexFutureSecurity(final IndexFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitStockFutureSecurity(final StockFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitMetalFutureSecurity(final MetalFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
   @Override
   public Double visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
-    return 1.0;
+    return security.getUnitAmount();
   }
   
+  @Override
+  public Double visitBondFutureSecurity(final BondFutureSecurity security) {
+    return security.getUnitAmount();
+  }
+
+  @Override
+  public Double visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
+    return security.getUnitAmount();
+  }
+
   @Override
   public Double visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
     return security.getPointValue();

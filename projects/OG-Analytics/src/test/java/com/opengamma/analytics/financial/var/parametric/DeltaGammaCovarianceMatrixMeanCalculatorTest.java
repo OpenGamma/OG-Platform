@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.var.parametric;
@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DeltaGammaCovarianceMatrixMeanCalculatorTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
   private static final DeltaGammaCovarianceMatrixMeanCalculator F = new DeltaGammaCovarianceMatrixMeanCalculator(ALGEBRA);
@@ -51,7 +53,7 @@ public class DeltaGammaCovarianceMatrixMeanCalculatorTest {
   public void test() {
     final ParametricVaRDataBundle deltaData = new ParametricVaRDataBundle(DELTA_VECTOR, COVARIANCE_MATRIX, 1);
     final ParametricVaRDataBundle gammaData = new ParametricVaRDataBundle(GAMMA_MATRIX, COVARIANCE_MATRIX, 2);
-    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<Integer, ParametricVaRDataBundle>();
+    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<>();
     m.put(1, deltaData);
     assertEquals(F.evaluate(m), 0, 0);
     m.put(2, new ParametricVaRDataBundle(new DoubleMatrix2D(new double[0][0]), new DoubleMatrix2D(new double[0][0]), 2));

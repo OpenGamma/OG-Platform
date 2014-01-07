@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackGammaCalculator extends InstrumentD
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackGammaCalculator() {
   }
 

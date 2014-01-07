@@ -12,10 +12,12 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests to verify the correct construction of an underlying pool object 
  */
+@Test(groups = TestGroup.UNIT)
 public class UnderlyingPoolTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

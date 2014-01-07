@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -10,11 +10,14 @@ import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method for the pricing of interest rate future options with margin process. Abstract class with methods valid for all pricing methods.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class InterestRateFutureOptionMarginSecurityMethod implements PricingMethod {
 
   /**
@@ -44,7 +47,7 @@ public abstract class InterestRateFutureOptionMarginSecurityMethod implements Pr
   public abstract InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves);
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     throw new UnsupportedOperationException("The InterestRateFutureOptionMarginSecurity don't have a present value, only a price.");
   }
 

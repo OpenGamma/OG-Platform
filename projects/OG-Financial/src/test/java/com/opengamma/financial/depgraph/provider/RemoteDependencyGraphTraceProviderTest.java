@@ -1,5 +1,11 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.depgraph.provider;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.UnsupportedEncodingException;
@@ -10,10 +16,12 @@ import java.net.URLDecoder;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Throwables;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -23,7 +31,12 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperti
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class RemoteDependencyGraphTraceProviderTest {
 
   private RemoteDependencyGraphTraceProvider _provider;
@@ -82,13 +95,13 @@ public class RemoteDependencyGraphTraceProviderTest {
   }
 
   @Test
-  public void getTraceMarketData() {
+  public void getTraceMarketDataUser() {
     DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
 
     String snapshotId = "Foo~1";
     UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
 
-    properties = properties.marketData(marketData);
+    properties = properties.addMarketData(marketData);
 
     URI uri = _provider.buildUri(properties);
 
@@ -97,6 +110,52 @@ public class RemoteDependencyGraphTraceProviderTest {
 
   }
 
+  @Test
+  public void getTraceMarketDataLiveDefault() {
+    DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
+
+    MarketDataSpecification marketData = MarketData.live();
+
+    properties = properties.addMarketData(marketData);
+
+    URI uri = _provider.buildUri(properties);
+
+    String uriStr = decode(uri);
+    assertTrue(uriStr.contains("marketDataLiveDefault"));
+
+  }
+
+  @Test
+  public void getTraceMarketDataLive() {
+    DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
+
+    MarketDataSpecification marketData = MarketData.live("BB");
+
+    properties = properties.addMarketData(marketData);
+
+    URI uri = _provider.buildUri(properties);
+
+    String uriStr = decode(uri);
+    assertTrue(uriStr.contains("marketDataLive/BB"));
+
+  }
+
+  @Test
+  public void getTraceMarketDataHistorical() {
+    DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();
+    LocalDate now = LocalDate.now();
+    MarketDataSpecification marketData = MarketData.historical(now, "timeseries");
+
+    properties = properties.addMarketData(marketData);
+
+    URI uri = _provider.buildUri(properties);
+
+    String uriStr = decode(uri);
+    assertTrue(uriStr.contains("marketDataHistorical/" + now.toString() + "/timeseries"));
+    assertEquals(now, LocalDate.parse(now.toString()));
+
+  }
+  
   @Test
   public void getTraceResolutionTime() {
     DependencyGraphTraceBuilderProperties properties = new DependencyGraphTraceBuilderProperties();

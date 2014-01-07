@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -37,7 +36,7 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
   /**
    * The discounting curve name.
    */
-  private final String _discountingCurveName;
+  private String _discountingCurveName;
 
   /**
    * Constructor of the option future from the details.
@@ -46,13 +45,18 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
+  @SuppressWarnings("deprecation")
   public BondFutureOptionPremiumSecurity(final BondFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
-    Validate.notNull(underlyingFuture, "underlying future");
-    this._underlyingFuture = underlyingFuture;
-    this._expirationTime = expirationTime;
-    this._strike = strike;
+    ArgumentChecker.notNull(underlyingFuture, "underlying future");
+    _underlyingFuture = underlyingFuture;
+    _expirationTime = expirationTime;
+    _strike = strike;
     _isCall = isCall;
-    _discountingCurveName = underlyingFuture.getDiscountingCurveName();
+    try {
+      _discountingCurveName = underlyingFuture.getDiscountingCurveName();
+    } catch (final IllegalStateException e) {
+      _discountingCurveName = null;
+    }
   }
 
   /**
@@ -119,7 +123,7 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_expirationTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));

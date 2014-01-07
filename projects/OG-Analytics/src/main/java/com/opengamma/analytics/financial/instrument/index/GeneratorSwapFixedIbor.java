@@ -195,10 +195,11 @@ public class GeneratorSwapFixedIbor extends GeneratorInstrument<GeneratorAttribu
     return _fromEnd;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
+  @Override
   public SwapFixedIborDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");

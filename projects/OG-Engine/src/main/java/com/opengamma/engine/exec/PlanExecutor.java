@@ -72,10 +72,7 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
   }
 
   private enum State {
-    NOT_STARTED,
-    EXECUTING,
-    CANCELLED,
-    FINISHED;
+    NOT_STARTED, EXECUTING, CANCELLED, FINISHED;
   }
 
   private final SingleComputationCycle _cycle;
@@ -179,8 +176,13 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
       _state = State.EXECUTING;
       _startTime = System.nanoTime();
     }
-    s_logger.info("Starting executing {}", this);
-    submitExecutableJobs();
+    if (getGraph().isFinished()) {
+      s_logger.info("Execution plan {} is empty", this);
+      notifyComplete();
+    } else {
+      s_logger.info("Starting executing {}", this);
+      submitExecutableJobs();
+    }
   }
 
   protected long notifyComplete() {
@@ -255,8 +257,13 @@ public class PlanExecutor implements JobResultReceiver, Cancelable, DependencyGr
     getCycle().jobCompleted(job.getJob(), result);
     if (_notifyLock.decrementAndGet() == 0) {
       if (graph.isFinished()) {
-        final long duration = notifyComplete();
-        getStatisticsGatherer().graphExecuted(graph.getCalculationConfiguration(), _nodeCount, _executionTime, duration);
+        // If the lock count is still 0, then we will notify completion. If another thread caused graph completion, and is still notifying
+        // the job completion, the count will be positive. If another thread caused graph completion and got here before us then the count
+        // will already be -1.
+        if (_notifyLock.compareAndSet(0, -1)) {
+          final long duration = notifyComplete();
+          getStatisticsGatherer().graphExecuted(graph.getCalculationConfiguration(), _nodeCount, _executionTime, duration);
+        }
       }
     }
   }

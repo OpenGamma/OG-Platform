@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -13,8 +13,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @deprecated {@link SmileDeltaTermStructureDataBundle} is deprecated
  */
+@Deprecated
 public class FXVolatilityUtils {
 
   public static double getVolatility(final SmileDeltaTermStructureDataBundle data, final Currency ccy1, final Currency ccy2, final double time, final double strike, final double forward) {

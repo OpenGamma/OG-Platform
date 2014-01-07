@@ -33,7 +33,7 @@ public class TwoStateMarkovChainLocalVolCalculator {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... ts) {
-        return GRID_INTERPOLATOR2D.interpolate(interpolatorDB, new DoublesPair(ts[0], ts[1]));
+        return GRID_INTERPOLATOR2D.interpolate(interpolatorDB, DoublesPair.of(ts[0].doubleValue(), ts[1].doubleValue()));
       }
     };
 
@@ -61,7 +61,7 @@ public class TwoStateMarkovChainLocalVolCalculator {
           if (lvOverlay != null) {
             ol = lvOverlay.getVolatility(t, s);
           }
-          lv.put(new DoublesPair(t, s), ol * Math.sqrt((nu1 * p1 + nu2 * p2) / p));
+          lv.put(DoublesPair.of(t, s), ol * Math.sqrt((nu1 * p1 + nu2 * p2) / p));
         }
       }
     }

@@ -22,4 +22,16 @@ public class TianLatticeSpecification extends LatticeSpecification {
     return new double[] {upFactor, downFactor, upProbability, 1 - upProbability };
   }
 
+  @Override
+  public double[] getParametersTrinomial(final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final int nSteps, final double dt) {
+    final double m = Math.exp(interestRate * dt);
+    final double v = Math.exp(volatility * volatility * dt);
+    final double k = m * (v + 3.) / 4.;
+    final double middleFactor = 0.5 * m * (3. - v);
+    final double part = Math.sqrt(k * k - middleFactor * middleFactor);
+    final double upFactor = k + part;
+    final double downFactor = k - part;
+
+    return new double[] {upFactor, middleFactor, downFactor, 1. / 3., 1. / 3., 1. / 3. };
+  }
 }

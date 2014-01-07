@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.management;
 
-
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Set;
@@ -31,13 +30,14 @@ import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the exposed MBeans and ManagementServiceTest can register MBeans
  */
 @Test(groups = TestGroup.INTEGRATION)
 public class ManagementServiceTest {
-  
+
   private static final String ANOTHER_TEST_VIEW = "ANOTHER_TEST_VIEW";
   private static final Logger s_logger = LoggerFactory.getLogger(ManagementServiceTest.class);
   private static final int MBEANS_IN_TEST_VIEWPROCESSOR = 1;
@@ -50,34 +50,39 @@ public class ManagementServiceTest {
    */
   @BeforeMethod
   public void setUp() throws Exception {
+    TestLifecycle.begin();
     _env = new ViewProcessorTestEnvironment();
     _env.init();
     _mBeanServer = createMBeanServer();
     _statisticsProvider = new TotallingGraphStatisticsGathererProvider();
   }
-  
+
   /**
    * @throws java.lang.Exception
    */
   @AfterMethod
   public void tearDown() throws Exception {
-    ViewProcessorImpl viewProcessor = _env.getViewProcessor();
-    viewProcessor.stop();
-    //Ensure the ViewProcessor stop clears all mbeans from the MBeanServer
-    assertMBeanCount(0);
+    try {
+      ViewProcessorImpl viewProcessor = _env.getViewProcessor();
+      viewProcessor.stop();
+      //Ensure the ViewProcessor stop clears all mbeans from the MBeanServer
+      assertMBeanCount(0);
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   private MBeanServer createMBeanServer() {
     return MBeanServerFactory.createMBeanServer("SimpleAgent");
   }
-  
+
   public void testRegistrationService() throws Exception {
     ViewProcessorImpl vp = _env.getViewProcessor();
     vp.start();
     ManagementService.registerMBeans(vp, _statisticsProvider, _mBeanServer);
     assertMBeanCount(MBEANS_IN_TEST_VIEWPROCESSOR);
   }
-  
+
   public void testRegistrationServiceListensForViewProcessAdded() throws Exception {
     ViewProcessorImpl viewProcessor = _env.getViewProcessor();
     viewProcessor.start();
@@ -87,7 +92,7 @@ public class ManagementServiceTest {
     s_logger.debug("after adding new views");
     assertMBeanCount(MBEANS_IN_TEST_VIEWPROCESSOR + 3);
   }
-  
+
   public void testRegistrationServiceListenersForViewClientAdded() throws Exception {
     ViewProcessorImpl viewProcessor = _env.getViewProcessor();
     viewProcessor.start();
@@ -114,25 +119,23 @@ public class ManagementServiceTest {
     ViewClient client = viewprocessor.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.attachToViewProcess(anotherDefinition.getUniqueId(), ExecutionOptions.infinite(MarketData.live()), false);
   }
-  
-  
+
   @SuppressWarnings("unused")
   private void dumpMBeans() {
     Set<ObjectName> registeredObjectNames = null;
     try {
       // ViewProcessor MBean
-      registeredObjectNames = _mBeanServer.queryNames(ViewProcessorMBeanImpl.createObjectName(_env.getViewProcessor()), null);
+      registeredObjectNames = _mBeanServer.queryNames(ViewProcessorMBeanImpl.createObjectName(_env.getViewProcessor(), true), null);
       // Other MBeans for this ViewProcessor
       registeredObjectNames.addAll(_mBeanServer.queryNames(new ObjectName("com.opengamma:*,ViewProcessor=" + _env.getViewProcessor().toString()), null));
     } catch (MalformedObjectNameException e) {
       // this should not happen
       s_logger.warn("Error querying MBeanServer. Error was " + e.getMessage(), e);
     }
-    
+
     for (ObjectName objectName : registeredObjectNames) {
       s_logger.debug(objectName.toString());
     }
   }
-  
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -39,23 +39,34 @@ public class BondCapitalIndexedTransactionDefinition<C extends CouponDefinition>
    * @param settlementDate Transaction settlement date.
    * @param price The (clean quoted) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondCapitalIndexedTransactionDefinition(final BondSecurityDefinition<C, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
+  public BondCapitalIndexedTransactionDefinition(final BondSecurityDefinition<C, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate,
+      final double price) {
     super(underlyingBond, quantity, settlementDate, price);
     ArgumentChecker.isTrue(underlyingBond instanceof BondCapitalIndexedSecurityDefinition, "Capital Indexed bond");
   }
 
   //TODO: from clean price adjusted monthly (for UK linked-gilts pre-2005).
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
     return toDerivative(date, data);
   }
-  
+
   @Override
   public BondCapitalIndexedTransaction<Coupon> toDerivative(final ZonedDateTime date) {
     final ImmutableZonedDateTimeDoubleTimeSeries series = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(ZoneOffset.UTC);

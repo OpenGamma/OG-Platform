@@ -43,7 +43,7 @@ public class ActualActualAFB extends ActualTypeDayCount {
   }
 
   @Override
-  public String getConventionName() {
+  public String getName() {
     return "Actual/Actual AFB";
   }
 

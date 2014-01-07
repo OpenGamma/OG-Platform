@@ -9,8 +9,8 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.expirycalc.SoybeanFutureExpiryCalculator;
 
 /**
  *

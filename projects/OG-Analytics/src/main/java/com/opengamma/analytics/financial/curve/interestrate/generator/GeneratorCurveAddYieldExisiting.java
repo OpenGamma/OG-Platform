@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -13,10 +13,11 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is the sum (or difference) of two curves 
- * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve. 
+ * Store the details and generate the required curve. The curve is the sum (or difference) of two curves
+ * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve.
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveAddYieldExisiting extends GeneratorYDCurve {
 
   /**
@@ -52,22 +53,27 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot create the curve form the generator without an existing curve");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
-    YieldAndDiscountCurve existingCurve = bundle.getCurve(_existingCurveName);
-    YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", bundle, parameters);
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
+    final YieldAndDiscountCurve existingCurve = bundle.getCurve(_existingCurveName);
+    final YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", bundle, parameters);
     return new YieldAndDiscountAddZeroSpreadCurve(name, _substract, existingCurve, newCurve);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     if (multicurve instanceof MulticurveProviderDiscount) { // TODO: improve the way the curves are generated
-      YieldAndDiscountCurve existingCurve = ((MulticurveProviderDiscount) multicurve).getCurve(_existingCurveName);
-      YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", multicurve, parameters);
+      final YieldAndDiscountCurve existingCurve = ((MulticurveProviderDiscount) multicurve).getCurve(_existingCurveName);
+      final YieldAndDiscountCurve newCurve = _generator.generateCurve(name + "-0", multicurve, parameters);
       return new YieldAndDiscountAddZeroSpreadCurve(name, _substract, existingCurve, newCurve);
 
     }
@@ -75,14 +81,14 @@ public class GeneratorCurveAddYieldExisiting extends GeneratorYDCurve {
   }
 
   @Override
-  public GeneratorYDCurve finalGenerator(Object data) {
+  public GeneratorYDCurve finalGenerator(final Object data) {
     return new GeneratorCurveAddYieldExisiting(_generator.finalGenerator(data), _substract, _existingCurveName);
   }
 
   @Override
-  public double[] initialGuess(double[] rates) {
+  public double[] initialGuess(final double[] rates) {
     ArgumentChecker.isTrue(rates.length == _generator.getNumberOfParameter(), "Rates of incorrect length.");
-    double[] spread = new double[rates.length];
+    final double[] spread = new double[rates.length];
     // Implementation note: The AddYieldExisting generator is used for spread. The initial guess is a spread of 0.
     return spread;
   }

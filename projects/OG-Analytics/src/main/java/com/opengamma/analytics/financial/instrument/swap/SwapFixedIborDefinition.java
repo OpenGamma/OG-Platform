@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
@@ -199,7 +199,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Creates a new swap containing the coupons with start accrual date strictly before the given date.
+   * Creates a new swap. The coupon in the new swap have start accrual date after or on the given date.
    * @param trimDate The date.
    * @return The trimmed swap.
    */
@@ -209,6 +209,11 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     return new SwapFixedIborDefinition(fixedLegTrimmed, iborLegTrimmed);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @SuppressWarnings("unchecked")
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
@@ -217,6 +222,11 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @SuppressWarnings("unchecked")
   @Override
   public SwapFixedCoupon<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
@@ -242,7 +252,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
     final Annuity<? extends Coupon> iborLeg = getIborLeg().toDerivative(date, indexDataTS[0]);
     return new SwapFixedCoupon<>(fixedLeg, (Annuity<Coupon>) iborLeg);
   }
-  
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

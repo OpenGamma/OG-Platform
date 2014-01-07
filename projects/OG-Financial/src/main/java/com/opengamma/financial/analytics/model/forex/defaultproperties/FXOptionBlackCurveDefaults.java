@@ -25,10 +25,13 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default properties for FX options priced using the Black functions.
+ * @deprecated These defaults are used by deprecated functions.
  */
+@Deprecated
 public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackCurveDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
@@ -55,7 +58,8 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.GAMMA,
     ValueRequirementNames.FORWARD_GAMMA,
     ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA,
+    ValueRequirementNames.THETA
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
@@ -74,7 +78,7 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have one curve config and discounting curve name per currency");
     _currencyCurveConfigAndDiscountingCurveNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
+      final Pair<String, String> pair = Pairs.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
       _currencyCurveConfigAndDiscountingCurveNames.put(currencyCurveConfigAndDiscountingCurveNames[i], pair);
     }
   }

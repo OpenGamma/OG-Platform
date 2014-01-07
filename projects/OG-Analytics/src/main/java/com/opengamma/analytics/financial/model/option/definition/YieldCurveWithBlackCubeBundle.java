@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -13,7 +13,9 @@ import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Class describing the data required to price instruments by using a Black volatility cube and curves.
+ * @deprecated The parent class is deprecated
  */
+@Deprecated
 public class YieldCurveWithBlackCubeBundle extends YieldCurveBundle {
 
   /**

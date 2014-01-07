@@ -26,9 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Takes as input the result of a function that acts on ComputationTargetType.SECURITY, applies unit scaling ( * 1.0 )
- * and outputs the result for ComputationTargetType.POSITION_OR_TRADE. <p>
- * Closely related to UnitPositionTradeScalingFunction but with different requirement target.
+ * Takes as input the result of a function that acts on ComputationTargetType.SECURITY, applies unit scaling ( * 1.0 ) and outputs the result for ComputationTargetType.POSITION_OR_TRADE.
  */
 public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -47,11 +45,6 @@ public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonComp
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION_OR_TRADE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
   }
 
   @Override
@@ -79,9 +72,10 @@ public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonComp
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ComputedValue value = inputs.getAllValues().iterator().next();
-    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(value.getSpecification()));
-    return Sets.newHashSet(new ComputedValue(specification, value.getValue()));
+    final ValueRequirement outputValue = desiredValues.iterator().next();
+    final ComputedValue inputValue = inputs.getAllValues().iterator().next();
+    final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), outputValue.getConstraints());
+    return Sets.newHashSet(new ComputedValue(specification, inputValue.getValue()));
   }
 
 }

@@ -116,7 +116,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(SimpleFuturePnLFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(SimpleFXFuturePnLFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, getHtsResolutionKey()));
-      functions.add(functionConfiguration(MarkToMarketPnLFunction.class, getHtsResolutionKey(), getMark2MarketField(), getCostOfCarryField()));
+      functions.add(functionConfiguration(MarkToMarketPnLFunction.class, getValueFieldName(), getCostOfCarryField()));
       functions.add(functionConfiguration(HistoricalValuationPnLFunction.class));
       functions.add(functionConfiguration(VolatilityWeightedHistoricalValuationPnLFunction.class));
     }
@@ -197,13 +197,13 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     private String _payCurveName;
     private String _receiveCurveName;
     private String _returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
-    
+
     @Deprecated
     private String _samplingPeriodName = "P2Y";
-    
+
     private String _start = "-P2Y";
     private String _end = "Now";
-    
+
     private String _scheduleName = ScheduleCalculatorFactory.DAILY;
     private String _samplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     private String _interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
@@ -287,7 +287,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     }
 
     /**
-     * 
+     *
      * @return the sampling period name
      * @deprecated  use start and end instead
      */
@@ -295,12 +295,12 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     public String getSamplingPeriodName() {
       return _samplingPeriodName;
     }
-    
+
     public String getStart() {
       return _start;
     }
 
-    public void setStart(String start) {
+    public void setStart(final String start) {
       _start = start;
     }
 
@@ -308,7 +308,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
       return _end;
     }
 
-    public void setEnd(String end) {
+    public void setEnd(final String end) {
       _end = end;
     }
 
@@ -565,6 +565,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, MissingInputsFunction.AGGREGATION_STYLE_FULL));
     functions.add(functionConfiguration(PnLPeriodTranslationFunction.class, ValueRequirementNames.PNL_SERIES));
     functions.add(functionConfiguration(PnLPeriodTranslationFunction.class, ValueRequirementNames.YIELD_CURVE_PNL_SERIES));
+    functions.add(functionConfiguration(PnLPeriodTranslationFunction.class, ValueRequirementNames.CURVE_PNL_SERIES));
   }
 
 }

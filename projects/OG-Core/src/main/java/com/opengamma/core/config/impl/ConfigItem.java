@@ -181,73 +181,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     return ConfigItem.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 111972721:  // value
-        return getValue();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case 3575610:  // type
-        return getType();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 111972721:  // value
-        setValue((T) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 3575610:  // type
-        setType((Class<?>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_value, "value");
-    JodaBeanUtils.notNull(_name, "name");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigItem<?> other = (ConfigItem<?>) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getType(), other.getType());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying value.
@@ -340,6 +273,68 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    */
   public final Property<Class<?>> type() {
     return metaBean().type().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  @SuppressWarnings("unchecked")
+  public ConfigItem<T> clone() {
+    BeanBuilder<?> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return (ConfigItem<T>) builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigItem<?> other = (ConfigItem<?>) obj;
+      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getType(), other.getType());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ConfigItem{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -455,6 +450,48 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
       return _type;
     }
 
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          return ((ConfigItem<?>) bean).getValue();
+        case -294460212:  // uniqueId
+          return ((ConfigItem<?>) bean).getUniqueId();
+        case 3373707:  // name
+          return ((ConfigItem<?>) bean).getName();
+        case 3575610:  // type
+          return ((ConfigItem<?>) bean).getType();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 111972721:  // value
+          ((ConfigItem<T>) bean).setValue((T) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((ConfigItem<T>) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((ConfigItem<T>) bean).setName((String) newValue);
+          return;
+        case 3575610:  // type
+          ((ConfigItem<T>) bean).setType((Class<?>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConfigItem<?>) bean)._value, "value");
+      JodaBeanUtils.notNull(((ConfigItem<?>) bean)._name, "name");
+    }
+
   }
 
   ///CLOVER:ON
@@ -468,12 +505,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   }
 
   public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final Class<?> type;
-    try {
-      type = ClassUtils.loadClass(msg.getString(Meta.INSTANCE.type().name()));
-    } catch (final Exception e) {
-      throw new IllegalArgumentException("Invalid type", e);
-    }
+    final Class<?> type = ClassUtils.loadClassRuntime(msg.getString(Meta.INSTANCE.type().name()));
     final String name = msg.getString(Meta.INSTANCE.name().name());
     final Object value = deserializer.fieldValueToObject(type, msg.getByName(Meta.INSTANCE.value().name()));
     final ConfigItem<?> item = ConfigItem.of(value, name, type);

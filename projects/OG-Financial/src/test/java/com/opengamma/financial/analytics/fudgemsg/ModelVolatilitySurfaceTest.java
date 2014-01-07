@@ -27,7 +27,6 @@ import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Test ConstantVolatilitySurface/InterpolatedVolatilitySurface.
@@ -48,10 +47,10 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     final Interpolator1D linear = new LinearInterpolator1D();
     final Interpolator2D interpolator = new GridInterpolator2D(linear, linear);
     final Map<DoublesPair, Double> data = new HashMap<>();
-    data.put(Pair.of(0., 1.), sigma);
-    data.put(Pair.of(1., 0.), sigma);
-    data.put(Pair.of(0., 0.), sigma);
-    data.put(Pair.of(1., 1.), sigma);
+    data.put(DoublesPair.of(0., 1.), sigma);
+    data.put(DoublesPair.of(1., 0.), sigma);
+    data.put(DoublesPair.of(0., 0.), sigma);
+    data.put(DoublesPair.of(1., 1.), sigma);
     final VolatilitySurface vs1 = new VolatilitySurface(InterpolatedDoublesSurface.from(data, interpolator));
     final VolatilitySurface vs2 = cycleObject(VolatilitySurface.class, vs1);
     assertEquals(vs1, vs2);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve;
@@ -18,7 +18,13 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Test(groups = TestGroup.UNIT)
+@Deprecated
 public class PresentValueParameterUnderlyingSensitivityCalculatorTest extends ParameterUnderlyingSensitivityCalculatorTest {
 
   private static PresentValueCalculator VALUE_CALCULATOR = PresentValueCalculator.getInstance();

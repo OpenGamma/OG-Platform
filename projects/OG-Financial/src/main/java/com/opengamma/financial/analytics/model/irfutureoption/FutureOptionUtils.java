@@ -11,21 +11,19 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.temporal.TemporalAdjuster;
 import org.threeten.bp.temporal.TemporalAdjusters;
 
-import com.opengamma.analytics.financial.schedule.WeeklyScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.CalendarFactory;
-import com.opengamma.financial.convention.calendar.CalendarNoHoliday;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
+import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 
 /**
  * Utility Class for computing Expiries of IR Future Options from ordinals (i.e. nth future after valuationDate)
  */
 public class FutureOptionUtils {
   private static final TemporalAdjuster THIRD_WED_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
+  /** Calendar containing weekdays */
+  public static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
   /**
    * Compute time between now and future or future option's settlement date,
    * typically two business days before the third Wednesday of the expiry month.
@@ -76,7 +74,7 @@ public class FutureOptionUtils {
 
   public static LocalDate getIRFutureMonthlyExpiry(final int nthMonth, final LocalDate valDate) {
     Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
-    LocalDate expiry = valDate.with(THIRD_WED_ADJUSTER); // Compute the 3rd Wednesday of valuationDate's month
+    LocalDate expiry = valDate.with(THIRD_WED_ADJUSTER);
     if (!expiry.isAfter(valDate)) { // If it is not strictly after valuationDate...
       expiry = (valDate.plusMonths(1)).with(THIRD_WED_ADJUSTER);  // nextExpiry is third Wednesday of next month
     }
@@ -93,13 +91,13 @@ public class FutureOptionUtils {
   public static LocalDate getApproximateIRFutureQuarterlyExpiry(final int nthFuture, final LocalDate valDate) {
     return IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, WEEKDAYS);
   }
-  
+
   public static LocalDate getIRFutureMonthlyExpiryDate(final int nthFuture, final LocalDate valDate, final Calendar holidayCalendar) {
     return IMMFutureAndFutureOptionMonthlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, holidayCalendar);
   }
 
   public static LocalDate getApproximateIRFutureMonth(final int nthFuture, final LocalDate valDate) {
     return IMMFutureAndFutureOptionMonthlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, WEEKDAYS);
-  }  
+  }
 
 }

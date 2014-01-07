@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -21,7 +21,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  *  Pricing and sensitivities of a CMS coupon by discounting (no convexity adjustment).
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class CouponCMSDiscountingMethod implements PricingMethod {
 
   /**
@@ -46,7 +48,7 @@ public final class CouponCMSDiscountingMethod implements PricingMethod {
   /**
    * Compute the present value of a CMS coupon by discounting (no convexity adjustment).
    * @param cmsCoupon The CMS coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The coupon price.
    */
   public CurrencyAmount presentValue(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
@@ -70,7 +72,7 @@ public final class CouponCMSDiscountingMethod implements PricingMethod {
   /**
    * Compute the present value sensitivity to the yield curves of a CMS coupon by discounting (no convexity adjustment).
    * @param cmsCoupon The CMS coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueSensitivity(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {

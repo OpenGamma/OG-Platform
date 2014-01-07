@@ -1,10 +1,10 @@
-package com.opengamma.financial.analytics.model.curve;
-
 /*
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
+
+package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
@@ -16,17 +16,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurveBuild;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAInstrumentTypes;
+import com.opengamma.core.convention.Convention;
+import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -46,35 +47,32 @@ import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
-import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.SwapFixedLegConvention;
+import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Produces an ISDA compatible yield curve
  */
-// non compiled for now to allow dynamic configdb lookup
+// non compiled for now to allow dynamic config db lookup
 public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final Period swapIvl = Period.ofMonths(6); //FIXME: hardcoded
-  private static final BusinessDayConvention badDayConv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(
-      "Modified Following");
-  //private static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter();
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final DayCount DCC_30_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final DayCount MONEY_MARKET_DCC = ACT_360;
-  private static final DayCount SWAP_DCC = DCC_30_360;
-  private static final DayCount CURVE_DCC = ACT_365;
-  private static final ISDACompliantYieldCurveBuild BUILDER = new ISDACompliantYieldCurveBuild();
+  /** ISDA fixes yield curve daycout to Act/365 */
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
 
   /** the curve configuration name */
-  private String _curveName;
+  private final String _curveName;
 
+  /**
+   * The name of the curve produced by this function.
+   * @param curveName The curve name, not null
+   */
   public ISDACompliantCurveFunction(final String curveName) {
     ArgumentChecker.notNull(curveName, "curve name");
     _curveName = curveName;
@@ -84,18 +82,28 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
                                     final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Clock snapshotClock = executionContext.getValuationClock();
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
+    final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
 
     final CurveSpecification specification = (CurveSpecification) inputs.getValue(ValueRequirementNames.CURVE_SPECIFICATION);
     final SnapshotDataBundle snapshot = (SnapshotDataBundle) inputs.getValue(ValueRequirementNames.CURVE_MARKET_DATA);
+    final LocalDate spotDate = (!desiredValue.getConstraints().getValues(ISDAFunctionConstants.ISDA_CURVE_DATE).isEmpty())
+        ? LocalDate.parse(desiredValue.getConstraint(ISDAFunctionConstants.ISDA_CURVE_DATE))
+        : now.toLocalDate();
+
+    DepositConvention cashConvention = null;
+    VanillaIborLegConvention floatLegConvention = null;
+    SwapFixedLegConvention fixLegConvention = null;
+    IborIndexConvention liborConvention = null;
 
     final int nNodes = specification.getNodes().size();
     final double[] marketDataForCurve = new double[nNodes];
     final ISDAInstrumentTypes[] instruments = new ISDAInstrumentTypes[nNodes];
     final Period[] tenors = new Period[nNodes];
     int k = 0;
-    for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
-      final Double marketData = snapshot.getDataPoint(node.getIdentifier()); //FIXME
+    for (final CurveNodeWithIdentifier node : specification.getNodes()) {
+      final Double marketData = snapshot.getDataPoint(node.getIdentifier());
       if (marketData == null) {
         throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
       }
@@ -103,22 +111,71 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
       tenors[k] = node.getCurveNode().getResolvedMaturity().getPeriod();
       if (node.getCurveNode() instanceof CashNode) {
         instruments[k] = ISDAInstrumentTypes.MoneyMarket;
+        final ExternalId cashConventionId = ((CashNode) node.getCurveNode()).getConvention();
+        if (cashConvention == null) {
+          try {
+            cashConvention = conventionSource.getSingle(cashConventionId, DepositConvention.class);
+          } catch (DataNotFoundException ex) {
+            // ignore, continue around loop
+          }
+        } else if (!cashConvention.getExternalIdBundle().contains(cashConventionId)) {
+          throw new OpenGammaRuntimeException("Got 2 types of cash convention: " + cashConvention.getExternalIdBundle() + " " + cashConventionId);
+        }
       } else if (node.getCurveNode() instanceof SwapNode) {
         instruments[k] = ISDAInstrumentTypes.Swap;
+        final ExternalId payConventionId = ((SwapNode) node.getCurveNode()).getPayLegConvention();
+        final Convention payConvention = conventionSource.getSingle(payConventionId);
+        final ExternalId receiveConventionId = ((SwapNode) node.getCurveNode()).getReceiveLegConvention();
+        final Convention receiveConvention = conventionSource.getSingle(receiveConventionId);
+        if (payConvention instanceof VanillaIborLegConvention) {  // float leg
+          if (floatLegConvention == null) {
+            floatLegConvention = (VanillaIborLegConvention) payConvention;
+          } else if (!floatLegConvention.getExternalIdBundle().contains(payConventionId)) {
+            throw new OpenGammaRuntimeException("Got 2 types of float leg convention: " + payConvention.getExternalIdBundle() + " " + payConventionId);
+          }
+        } else if (payConvention instanceof SwapFixedLegConvention) {
+          if (fixLegConvention == null) {
+            fixLegConvention = (SwapFixedLegConvention) payConvention;
+          } else if (!fixLegConvention.getExternalIdBundle().contains(payConventionId)) {
+            throw new OpenGammaRuntimeException("Got 2 types of fixed leg convention: " + payConvention.getExternalIdBundle() + " " + payConventionId);
+          }
+        } else {
+          throw new OpenGammaRuntimeException("Unexpected swap convention type: " + payConvention);
+        }
+        if (receiveConvention instanceof VanillaIborLegConvention) {  // float leg
+          if (floatLegConvention == null) {
+            floatLegConvention = (VanillaIborLegConvention) receiveConvention;
+          } else if (!floatLegConvention.getExternalIdBundle().contains(receiveConventionId)) {
+            throw new OpenGammaRuntimeException("Got 2 types of float leg convention: " + receiveConvention.getExternalIdBundle() + " " + receiveConventionId);
+          }
+        } else if (receiveConvention instanceof SwapFixedLegConvention) {
+          if (fixLegConvention == null) {
+            fixLegConvention = (SwapFixedLegConvention) receiveConvention;
+          } else if (!fixLegConvention.getExternalIdBundle().contains(receiveConventionId)) {
+            throw new OpenGammaRuntimeException("Got 2 types of fixed leg convention: " + receiveConvention.getExternalIdBundle() + " " + receiveConventionId);
+          }
+        } else {
+          throw new OpenGammaRuntimeException("Unexpected swap convention type: " + receiveConvention);
+        }
       } else {
         throw new OpenGammaRuntimeException("Can't handle node type " + node.getCurveNode().getClass().getSimpleName() + " at node " + node);
       }
       k++;
     }
 
-    // TODO: Fix spot date
-    final ISDACompliantYieldCurve yieldCurve = BUILDER.build(now.toLocalDate(), now.toLocalDate(), instruments, tenors, marketDataForCurve, MONEY_MARKET_DCC, SWAP_DCC, swapIvl, CURVE_DCC, badDayConv);
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, _curveName)
-        //.with(ISDAFunctionConstants.ISDA_CURVE_OFFSET, offsetString)
-        //.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
-        .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_NEW).get();
+    ArgumentChecker.notNull(cashConvention, "Cash convention");
+    ArgumentChecker.notNull(floatLegConvention, "Floating leg convention");
+    ArgumentChecker.notNull(fixLegConvention, "Fixed leg convention");
+    liborConvention = conventionSource.getSingle(floatLegConvention.getIborIndexConvention(), IborIndexConvention.class);
+    ArgumentChecker.notNull(liborConvention, floatLegConvention.getIborIndexConvention().toString());
+
+    final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(spotDate, spotDate, instruments, tenors, marketDataForCurve, cashConvention.getDayCount(),
+        fixLegConvention.getDayCount(), fixLegConvention.getPaymentTenor().getPeriod(), ACT_365, liborConvention.getBusinessDayConvention());
+
+    final ValueProperties properties = desiredValue.getConstraints().copy()
+        .with(ISDAFunctionConstants.ISDA_CURVE_DATE, spotDate.toString())
+        .get();
+
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, yieldCurve));
   }
@@ -129,18 +186,12 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
-        //.withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        //.withAny(ISDAFunctionConstants.ISDA_CURVE_OFFSET)
+        .with(ValuePropertyNames.CURVE, _curveName)
         .with(ISDAFunctionConstants.ISDA_IMPLEMENTATION, ISDAFunctionConstants.ISDA_IMPLEMENTATION_NEW)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
+        .withAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE,
                                                         target.toSpecification(),
@@ -156,24 +207,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
     requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
     requirements.add(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
     requirements.add(new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
-    // Exogenous needed?
-    //final ValueProperties properties = ValueProperties.builder()
-    //    .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
-    //    .get();
-    //requirements.add(new ValueRequirement(CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
-    //requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, properties));
-    //requirements.addAll(_exogenousRequirements);
     return requirements;
   }
-
-  //@Override
-  //public boolean canHandleMissingInputs() {
-  //  return true;
-  //}
-  //
-  //@Override
-  //public boolean canHandleMissingRequirements() {
-  //  return true;
-  //}
 
 }

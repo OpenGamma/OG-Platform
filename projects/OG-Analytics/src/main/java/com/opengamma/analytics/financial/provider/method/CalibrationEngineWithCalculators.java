@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -44,7 +44,7 @@ public abstract class CalibrationEngineWithCalculators<DATA_TYPE extends Paramet
    */
   public CalibrationEngineWithCalculators(final FXMatrix fxMatrix, final Currency ccy) {
     super(fxMatrix, ccy);
-    _calculators = new ArrayList<InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount>>();
+    _calculators = new ArrayList<>();
     _fxMatrix = fxMatrix;
     _ccy = ccy;
   }
@@ -53,11 +53,11 @@ public abstract class CalibrationEngineWithCalculators<DATA_TYPE extends Paramet
    * Computes the price of the instrument in the calibration basket using the engine calculator and the yield curves.
    * @param data Data.
    */
-  public void computeCalibrationPrice(DATA_TYPE data) {
-    int nbInstrument = getBasket().size();
+  public void computeCalibrationPrice(final DATA_TYPE data) {
+    final int nbInstrument = getBasket().size();
     for (int loopins = 0; loopins < nbInstrument; loopins++) {
-      MultipleCurrencyAmount pvMCA = getBasket().get(loopins).accept(_calculators.get(loopins), data);
-      double pv = _fxMatrix.convert(pvMCA, _ccy).getAmount();
+      final MultipleCurrencyAmount pvMCA = getBasket().get(loopins).accept(_calculators.get(loopins), data);
+      final double pv = _fxMatrix.convert(pvMCA, _ccy).getAmount();
       getCalibrationPrices().set(loopins, pv);
     }
   }
@@ -80,8 +80,8 @@ public abstract class CalibrationEngineWithCalculators<DATA_TYPE extends Paramet
    */
   public void addInstrument(final InstrumentDerivative[] instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
     Validate.notNull(instrument, "Instrument");
-    for (int loopins = 0; loopins < instrument.length; loopins++) {
-      addInstrument(instrument[loopins], calculator);
+    for (final InstrumentDerivative element : instrument) {
+      addInstrument(element, calculator);
     }
   }
 

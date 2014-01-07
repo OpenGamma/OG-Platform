@@ -82,8 +82,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodePnLFunction.class);
   // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about this constant.
-  /** Property name of the contribution to the P&L (e.g. yield curve, FX rate)
-   * @deprecated Use {@link ValuePropertyNames#PROPERTY_PNL_CONTRIBUTIONS} instead*/
+  /**
+   * Property name of the contribution to the P&L (e.g. yield curve, FX rate)
+   * 
+   * @deprecated Use {@link ValuePropertyNames#PROPERTY_PNL_CONTRIBUTIONS} instead
+   */
   @Deprecated
   public static final String PROPERTY_PNL_CONTRIBUTIONS = ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS;
   /** Removes holidays from schedule */
@@ -92,6 +95,11 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   /** Calculates the first difference of a time series */
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -36,15 +36,17 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class NettedFixedCashFlowVisitorTest {
   private static final InstrumentDefinitionVisitor<DoubleTimeSeries<LocalDate>, Map<LocalDate, MultipleCurrencyAmount>> VISITOR = NettedFixedCashFlowVisitor.getVisitor();
-  private static final Set<InstrumentDefinition<?>> NO_NETTING_PAY_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
-  private static final Set<InstrumentDefinition<?>> NO_NETTING_RECEIVE_INSTRUMENTS = new HashSet<InstrumentDefinition<?>>();
-  private static final Set<InstrumentDefinition<?>> NO_NETTING_MULTIPLE_CASHFLOWS = new HashSet<InstrumentDefinition<?>>();
+  private static final Set<InstrumentDefinition<?>> NO_NETTING_PAY_INSTRUMENTS = new HashSet<>();
+  private static final Set<InstrumentDefinition<?>> NO_NETTING_RECEIVE_INSTRUMENTS = new HashSet<>();
+  private static final Set<InstrumentDefinition<?>> NO_NETTING_MULTIPLE_CASHFLOWS = new HashSet<>();
   private static final FixedPayCashFlowVisitor PAY_CASH_FLOWS = FixedPayCashFlowVisitor.getInstance();
   private static final FixedReceiveCashFlowVisitor RECEIVE_CASH_FLOWS = FixedReceiveCashFlowVisitor.getInstance();
 
@@ -70,8 +72,8 @@ public class NettedFixedCashFlowVisitorTest {
   @Test
   public void testPayCashFlowsNoNetting() {
     for (final InstrumentDefinition<?> definition : NO_NETTING_PAY_INSTRUMENTS) {
-      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(PAY_CASH_FLOWS));
-      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(VISITOR));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<>(definition.accept(PAY_CASH_FLOWS));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<>(definition.accept(VISITOR));
       assertEquals(pay.size(), netted.size());
       assertEquals(pay.keySet(), netted.keySet());
       final Iterator<Map.Entry<LocalDate, MultipleCurrencyAmount>> nettedIterator = netted.entrySet().iterator();
@@ -92,8 +94,8 @@ public class NettedFixedCashFlowVisitorTest {
   @Test
   public void testReceiveCashFlowsNoNetting() {
     for (final InstrumentDefinition<?> definition : NO_NETTING_RECEIVE_INSTRUMENTS) {
-      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(RECEIVE_CASH_FLOWS));
-      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(VISITOR));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<>(definition.accept(RECEIVE_CASH_FLOWS));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<>(definition.accept(VISITOR));
       assertEquals(pay.size(), netted.size());
       assertEquals(pay.keySet(), netted.keySet());
       final Iterator<Map.Entry<LocalDate, MultipleCurrencyAmount>> nettedIterator = netted.entrySet().iterator();
@@ -114,10 +116,10 @@ public class NettedFixedCashFlowVisitorTest {
   @Test
   public void testMultipleCashFlowsNoNetting() {
     for (final InstrumentDefinition<?> definition : NO_NETTING_MULTIPLE_CASHFLOWS) {
-      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(PAY_CASH_FLOWS, IBOR_FIXING_SERIES));
-      final TreeMap<LocalDate, MultipleCurrencyAmount> receive = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(RECEIVE_CASH_FLOWS, IBOR_FIXING_SERIES));
-      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<LocalDate, MultipleCurrencyAmount>(definition.accept(VISITOR, IBOR_FIXING_SERIES));
-      final Set<LocalDate> combinedDates = new HashSet<LocalDate>();
+      final TreeMap<LocalDate, MultipleCurrencyAmount> pay = new TreeMap<>(definition.accept(PAY_CASH_FLOWS, IBOR_FIXING_SERIES));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> receive = new TreeMap<>(definition.accept(RECEIVE_CASH_FLOWS, IBOR_FIXING_SERIES));
+      final TreeMap<LocalDate, MultipleCurrencyAmount> netted = new TreeMap<>(definition.accept(VISITOR, IBOR_FIXING_SERIES));
+      final Set<LocalDate> combinedDates = new HashSet<>();
       combinedDates.addAll(pay.keySet());
       combinedDates.addAll(receive.keySet());
       assertEquals(combinedDates.size(), netted.size());

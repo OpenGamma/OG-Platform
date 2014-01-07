@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -69,12 +69,13 @@ public class CouponIborGearing extends CouponFloating {
    * @deprecated Use the constructor that does not take yield curve names.
    */
   @Deprecated
-  public CouponIborGearing(Currency currency, double paymentTime, String discountingCurveName, double paymentYearFraction, double notional, double fixingTime, IborIndex index,
-      double fixingPeriodStartTime, double fixingPeriodEndTime, double fixingAccrualFactor, double spread, double factor, String forwardCurveName) {
+  public CouponIborGearing(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentYearFraction,
+      final double notional, final double fixingTime, final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
+      final double fixingAccrualFactor, final double spread, final double factor, final String forwardCurveName) {
     super(currency, paymentTime, discountingCurveName, paymentYearFraction, notional, fixingTime);
-    Validate.notNull(index, "Index");
-    Validate.notNull(forwardCurveName, "Forward curve");
-    Validate.isTrue(currency.equals(index.getCurrency()));
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(forwardCurveName, "Forward curve");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "currency does not match index currency");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
@@ -99,11 +100,11 @@ public class CouponIborGearing extends CouponFloating {
    * @param spread The spread paid above the Ibor rate.
    * @param factor The gearing (multiplicative) factor applied to the Ibor rate.
    */
-  public CouponIborGearing(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, IborIndex index,
-      double fixingPeriodStartTime, double fixingPeriodEndTime, double fixingAccrualFactor, double spread, double factor) {
+  public CouponIborGearing(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime, final IborIndex index,
+      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingAccrualFactor, final double spread, final double factor) {
     super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
-    Validate.notNull(index, "Index");
-    Validate.isTrue(currency.equals(index.getCurrency()));
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "currency does not match index currency");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
@@ -113,7 +114,7 @@ public class CouponIborGearing extends CouponFloating {
     _forwardCurveName = null;
     _spreadAmount = getNotional() * getPaymentYearFraction() * spread;
   }
-  
+
   /**
    * Gets the Ibor index.
    * @return The index.
@@ -183,10 +184,16 @@ public class CouponIborGearing extends CouponFloating {
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public CouponIborGearing withNotional(double notional) {
-    return new CouponIborGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
-        _fixingAccrualFactor, _spread, _factor, _forwardCurveName);
+  public CouponIborGearing withNotional(final double notional) {
+    try {
+      return new CouponIborGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+          _fixingAccrualFactor, _spread, _factor, _forwardCurveName);
+    } catch (final IllegalStateException e) {
+      return new CouponIborGearing(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
+          _fixingAccrualFactor, _spread, _factor);
+    }
   }
 
   @Override
@@ -228,7 +235,7 @@ public class CouponIborGearing extends CouponFloating {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -238,7 +245,7 @@ public class CouponIborGearing extends CouponFloating {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborGearing other = (CouponIborGearing) obj;
+    final CouponIborGearing other = (CouponIborGearing) obj;
     if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
       return false;
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -16,22 +16,24 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of bills transaction.
  */
+@Test(groups = TestGroup.UNIT)
 public class BillTransactionTest {
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 16);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
 
@@ -44,11 +46,8 @@ public class BillTransactionTest {
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 3, CALENDAR);
   private final static double SETTLE_AMOUT = -NOTIONAL * QUANTITY * 99.95;
 
-  private final static String DSC_NAME = "EUR Discounting";
-  private final static String CREDIT_NAME = "EUR BELGIUM GOVT";
-
-  private final static BillSecurity BILL_PURCHASE = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
-  private final static BillSecurity BILL_STANDARD = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, DSC_NAME, CREDIT_NAME);
+  private final static BillSecurity BILL_PURCHASE = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
+  private final static BillSecurity BILL_STANDARD = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
   private final static BillTransaction BILL_TRA = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -78,7 +77,7 @@ public class BillTransactionTest {
    */
   public void equalHash() {
     assertEquals("Bill transaction: equal-hash code", BILL_TRA, BILL_TRA);
-    BillTransaction other = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
+    final BillTransaction other = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
     assertEquals("Bill transaction: equal-hash code", BILL_TRA, other);
     assertEquals("Bill transaction: equal-hash code", BILL_TRA.hashCode(), other.hashCode());
     BillTransaction modified;

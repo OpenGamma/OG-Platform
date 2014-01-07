@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
+import com.opengamma.engine.target.resolver.DeepResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -21,6 +22,10 @@ import com.opengamma.id.VersionCorrection;
 /* package */final class NullComputationTargetType extends ComputationTargetType implements ObjectResolver<UniqueIdentifiable> {
 
   private static final long serialVersionUID = 1L;
+
+  public NullComputationTargetType() {
+    super(NullComputationTargetType.class.getName().hashCode());
+  }
 
   // ComputationTargetType
 
@@ -110,11 +115,6 @@ import com.opengamma.id.VersionCorrection;
     return false;
   }
 
-  @Override
-  public int hashCode() {
-    return NullComputationTargetType.class.hashCode();
-  }
-
   // ObjectResolver
 
   @Override
@@ -128,8 +128,8 @@ import com.opengamma.id.VersionCorrection;
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return false;
+  public DeepResolver deepResolver() {
+    return null;
   }
 
 }

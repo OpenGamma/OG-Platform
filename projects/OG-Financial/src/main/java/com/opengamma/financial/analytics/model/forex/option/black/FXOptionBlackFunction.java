@@ -42,6 +42,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingFXOptionFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -54,9 +55,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for FX option calculations that use the Black model.
+ * @deprecated Use classes that extends from {@link BlackDiscountingFXOptionFunction}
  */
+@Deprecated
 public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackFunction.class);
   /** Property name for the put curve */
   public static final String PUT_CURVE = "PutCurve";

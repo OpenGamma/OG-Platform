@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HestonVolatilityFunctionTest {
 
   private static final double KAPPA = 0.1;
@@ -45,7 +47,7 @@ public class HestonVolatilityFunctionTest {
 
   static {
     final int n = 11;
-    VOL_FUNC_LIST = new ArrayList<Function1D<HestonModelData, Double>>(n);
+    VOL_FUNC_LIST = new ArrayList<>(n);
     STRIKES = new double[n];
     for (int i = 0; i < n; i++) {
       final double m = -1 + 2.0 * i / (n - 1);

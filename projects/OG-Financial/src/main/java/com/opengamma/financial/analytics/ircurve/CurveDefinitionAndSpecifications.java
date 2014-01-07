@@ -681,46 +681,46 @@ public class CurveDefinitionAndSpecifications {
     final CurveSpecificationBuilderConfiguration usdConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("US"),
         buildStandardBloomberg3MFRAInstrumentProvider("US"), buildStandardBloomberg6MFRAInstrumentProvider("US"), buildStandardBloombergLiborInstrumentProvider("US", "O/N", "T/N"), null, null, null,
         null, buildStandardBloombergFutureInstrumentProvider("ED"), null, buildStandardBloomberg3MSwapInstrumentProvider("US", ""), null, null,
-        buildStandardBloombergOISSwapInstrumentProvider("USSO"), null, null, null, null);
+        buildStandardBloombergOISSwapInstrumentProvider("USSO"), null, null, null, null, null);
     configurations.put(Currency.USD, usdConfig);
     final CurveSpecificationBuilderConfiguration eurConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("EU"),
         buildStandardBloomberg3MFRAInstrumentProvider("EU"), buildStandardBloomberg6MFRAInstrumentProvider("EU"), buildStandardBloombergLiborInstrumentProvider("EU", "O/N", "T/N"),
         buildStandardBloombergEuriborInstrumentProvider(), null, null, null, buildStandardBloombergFutureInstrumentProvider("ER"), buildStandardBloomberg6MSwapInstrumentProvider("EUSA"),
-        buildStandardBloomberg3MSwapInstrumentProvider("EU", "V3"), null, null, buildStandardBloombergOISSwapInstrumentProvider("EUSWE"), null, null, null, null);
+        buildStandardBloomberg3MSwapInstrumentProvider("EU", "V3"), null, null, buildStandardBloombergOISSwapInstrumentProvider("EUSWE"), null, null, null, null, null);
     configurations.put(Currency.EUR, eurConfig);
     final CurveSpecificationBuilderConfiguration gbpConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("BP"),
         buildStandardBloomberg3MFRAInstrumentProvider("BP"), buildStandardBloomberg6MFRAInstrumentProvider("BP"), buildStandardBloombergLiborInstrumentProvider("BP", "O/N", "T/N"), null, null, null,
         null, buildStandardBloombergFutureInstrumentProvider("L "), buildStandardBloomberg6MSwapInstrumentProvider("BPSW"), null, null, null, buildStandardBloombergOISSwapInstrumentProvider("BPSWS"),
-        null, null, null, null);
+        null, null, null, null, null);
     configurations.put(Currency.GBP, gbpConfig);
     final CurveSpecificationBuilderConfiguration jpyConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("JY"), null,
         buildStandardBloombergJPY6MFRAInstrumentProvider(), buildStandardBloombergLiborInstrumentProvider("JY", "S/N", "T/N"), null, null, null, null,
         buildStandardBloombergFutureInstrumentProvider("EF"), buildStandardBloomberg6MSwapInstrumentProvider("JYSW"), null, null, null, buildStandardBloombergOISSwapInstrumentProvider("JYSO"),
-        null, null, null, null);
+        null, null, null, null, null);
     configurations.put(Currency.JPY, jpyConfig);
     final CurveSpecificationBuilderConfiguration chfConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("SF"),
         buildStandardBloomberg3MFRAInstrumentProvider("SF"), buildStandardBloomberg6MFRAInstrumentProvider("SF"), buildStandardBloombergLiborInstrumentProvider("SF", "S/N", "T/N"), null, null, null,
         null, buildStandardBloombergFutureInstrumentProvider("ES"), buildStandardBloomberg6MSwapInstrumentProvider("SFSW"), null, null, null, buildStandardBloombergOISSwapInstrumentProvider("SFSWT"),
-        null, null, null, null);
+        null, null, null, null, null);
     configurations.put(Currency.CHF, chfConfig);
     final CurveSpecificationBuilderConfiguration cadConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("CD"),
         buildStandardBloomberg3MFRAInstrumentProvider("CD"), buildStandardBloomberg6MFRAInstrumentProvider("CD"), null, null, buildStandardBloombergCDORInstrumentProvider(), null, null,
         buildStandardBloombergFutureInstrumentProvider("BA"), buildStandardBloomberg6MSwapInstrumentProvider("CDSW"), null, null, null, buildStandardBloombergOISSwapInstrumentProvider("CDSO"),
-        null, null, null, null);
+        null, null, null, null, null);
     configurations.put(Currency.CAD, cadConfig);
     final CurveSpecificationBuilderConfiguration audConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("AD"),
         buildStandardBloomberg3MFRAInstrumentProvider("AD"), buildStandardBloomberg6MFRAInstrumentProvider("AD"), buildStandardBloombergLiborInstrumentProvider("AU", "O/N", "T/N"), null, null, null,
         null, null, buildStandardBloomberg6MSwapInstrumentProvider("ADSW"), null, null, null, buildStandardBloombergOISSwapInstrumentProvider("ADSO"),
-        null, null, null, null);
+        null, null, null, null, null);
     configurations.put(Currency.AUD, audConfig);
     final CurveSpecificationBuilderConfiguration nzdConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("ND"),
         buildStandardBloomberg3MFRAInstrumentProvider("ND"), buildStandardBloomberg6MFRAInstrumentProvider("ND"), buildStandardBloombergLiborInstrumentProvider("NZ", "O/N", "T/N"), null, null, null,
         null, null, null, buildStandardBloomberg3MSwapInstrumentProvider("ND", ""), null, null, buildStandardBloombergOISSwapInstrumentProvider("NDSO"),
-        null, null, null, null);
+        null, null, null, null, null);
     configurations.put(Currency.NZD, nzdConfig);
     final CurveSpecificationBuilderConfiguration dkkConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("DK"), null, null, null, null, null,
         buildStandardBloombergCiborInstrumentProvider(), null, null, buildStandardBloomberg6MSwapInstrumentProvider("DKSW"), null, null, null,
-        buildStandardBloombergOISSwapInstrumentProvider("DKSWTN"), null, null, null, null);
+        buildStandardBloombergOISSwapInstrumentProvider("DKSWTN"), null, null, null, null, null);
     configurations.put(Currency.DKK, dkkConfig);
     return configurations;
   }
@@ -762,7 +762,7 @@ public class CurveDefinitionAndSpecifications {
       basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.BASIS_SWAP, scheme));
     }
     return new CurveSpecificationBuilderConfiguration(null, fraInstrumentProviders, null, null, null, null, null, null, null, null,
-        swapInstrumentProviders, basisSwapInstrumentProviders, null, null, null, null, null, null);
+        swapInstrumentProviders, basisSwapInstrumentProviders, null, null, null, null, null, null, null);
   }
 
   public static CurveSpecificationBuilderConfiguration buildSyntheticAUD6MCurveSpecification() {
@@ -778,7 +778,7 @@ public class CurveDefinitionAndSpecifications {
       basisSwapInstrumentProviders.put(tenor, new SyntheticIdentifierCurveInstrumentProvider(Currency.AUD, StripInstrumentType.BASIS_SWAP, scheme));
     }
     return new CurveSpecificationBuilderConfiguration(null, null, fraInstrumentProviders, null, null, null, null, null, null,
-        swapInstrumentProviders, null, basisSwapInstrumentProviders, null, null, null, null, null, null);
+        swapInstrumentProviders, null, basisSwapInstrumentProviders, null, null, null, null, null, null, null);
   }
 
   private static CurveSpecificationBuilderConfiguration buildSyntheticCurveSpecificationBuilderConfiguration(final Currency ccy, final ExternalScheme scheme) {
@@ -818,7 +818,7 @@ public class CurveDefinitionAndSpecifications {
     }
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders,
         liborInstrumentProviders, euriborInstrumentProviders, cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, null, swap6MInstrumentProviders,
-        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
+        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null, null);
     return config;
   }
 
@@ -862,7 +862,7 @@ public class CurveDefinitionAndSpecifications {
     }
     final CurveSpecificationBuilderConfiguration config = new CurveSpecificationBuilderConfiguration(cashInstrumentProviders, fra3MInstrumentProviders, fra6MInstrumentProviders,
         liborInstrumentProviders, euriborInstrumentProviders, cdorInstrumentProviders, ciborInstrumentProviders, stiborInstrumentProviders, futureInstrumentProviders, swap6MInstrumentProviders,
-        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null);
+        swap3MInstrumentProviders, basisSwapInstrumentProviders, tenorSwapInstrumentProviders, oisSwapInstrumentProviders, null, null, null, null, null);
     return config;
   }
 

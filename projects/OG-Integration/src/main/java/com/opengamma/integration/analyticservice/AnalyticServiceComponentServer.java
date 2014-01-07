@@ -20,7 +20,9 @@ public class AnalyticServiceComponentServer extends OpenGammaComponentServer {
    * @param args  the arguments
    */
   public static void main(String[] args) { // CSIGNORE
-    new AnalyticServiceComponentServer().run(args);
+    if (!new AnalyticServiceComponentServer().run(args)) {
+      System.exit(-1);
+    }
   }
 
 }

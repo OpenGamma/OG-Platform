@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -30,11 +30,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing methods for overnight indexed coupon with spread in the discounting method.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponONSpreadDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -53,8 +55,7 @@ public class CouponONSpreadDiscountingMethodTest {
   private static final double SPREAD_AMOUNT = SPREAD * NOTIONAL * CPN_OIS_DEFINITION.getPaymentYearFraction();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
-  private static final CouponONSpread CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponONSpread CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON = CouponONSpreadDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();

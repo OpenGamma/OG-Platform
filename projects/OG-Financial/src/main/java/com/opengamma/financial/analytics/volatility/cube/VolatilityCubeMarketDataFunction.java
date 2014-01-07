@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -36,8 +36,8 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -84,9 +84,8 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     return new CompiledImpl(compile.getFirst(), compile.getSecond(), reqs, pointsById, strikesById);
   }
 
-  private Set<ValueRequirement> buildRequirements(final Map<ExternalId, VolatilityPoint> pointsById,
-      final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
-    final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+  private static Set<ValueRequirement> buildRequirements(final Map<ExternalId, VolatilityPoint> pointsById, final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
+    final HashSet<ValueRequirement> ret = new HashSet<>();
     ret.addAll(getMarketValueReqs(pointsById.keySet()));
     ret.addAll(getMarketValueReqs(strikesById.keySet()));
     ret.addAll(getOtherRequirements());
@@ -94,7 +93,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private Map<ExternalId, VolatilityPoint> getPointsById() {
-    final Map<ExternalId, VolatilityPoint> pointsById = new HashMap<ExternalId, VolatilityPoint>();
+    final Map<ExternalId, VolatilityPoint> pointsById = new HashMap<>();
 
     final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (final VolatilityPoint point : allPoints) {
@@ -109,14 +108,14 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   }
 
   private Map<ExternalId, Pair<Tenor, Tenor>> getStrikesById() {
-    final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = new HashMap<ExternalId, Pair<Tenor, Tenor>>();
+    final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = new HashMap<>();
 
     final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
     for (final VolatilityPoint point : allPoints) {
 
       final ExternalId strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getCurrency(), point);
       if (strikeInstruments != null) {
-        final ObjectsPair<Tenor, Tenor> strikePoint = Pair.of(point.getSwapTenor(), point.getOptionExpiry());
+        final Pair<Tenor, Tenor> strikePoint = Pairs.of(point.getSwapTenor(), point.getOptionExpiry());
         final Pair<Tenor, Tenor> previous = strikesById.put(strikeInstruments, strikePoint);
         if (previous != null && !previous.equals(strikePoint)) {
           throw new OpenGammaRuntimeException("Mismatched volatility strike rate instrument");
@@ -127,13 +126,13 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     return strikesById;
   }
 
-  private Set<ValueRequirement> getOtherRequirements() {
+  private static Set<ValueRequirement> getOtherRequirements() {
     //TODO this
-    return new HashSet<ValueRequirement>();
+    return new HashSet<>();
   }
 
-  private Set<ValueRequirement> getMarketValueReqs(final Set<ExternalId> instruments) {
-    final HashSet<ValueRequirement> ret = new HashSet<ValueRequirement>();
+  private static Set<ValueRequirement> getMarketValueReqs(final Set<ExternalId> instruments) {
+    final HashSet<ValueRequirement> ret = new HashSet<>();
     if (instruments != null) {
       for (final ExternalId id : instruments) {
         ret.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id));
@@ -198,11 +197,16 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       return true;
     }
 
+    @Override
+    public boolean canHandleMissingRequirements() {
+      return true;
+    }
+
     private VolatilityCubeData buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
-      final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
-      final HashMap<VolatilityPoint, ExternalIdBundle> dataIds = new HashMap<VolatilityPoint, ExternalIdBundle>();
-      final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<VolatilityPoint, Double>();
-      final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();
+      final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<>();
+      final HashMap<VolatilityPoint, ExternalIdBundle> dataIds = new HashMap<>();
+      final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<>();
+      final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<>();
       final SnapshotDataBundle otherData = new SnapshotDataBundle();
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
       for (final ComputedValue value : inputs.getAllValues()) {

@@ -20,6 +20,9 @@
       <property name="zone" type="string" column="forwardstart_zone" />
     </component>
     <property name="counterparty" column="counterparty" type="string" not-null="true" />
+    <property name="exchangeInitialNotional" column="exchange_initial_notional" type="boolean" not-null="true" />
+    <property name="exchangeFinalNotional" column="exchange_final_notional" type="boolean" not-null="true" />
+    <many-to-one name="maturityTenor" class="com.opengamma.masterdb.security.hibernate.TenorBean" column="maturity_tenor_id" />
     <component name="payLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="pay_legtype" not-null="true" />
       <many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="pay_daycount_id" not-null="true" />
@@ -57,6 +60,9 @@
       </component>
       <many-to-one name="monitoringFrequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="pay_monitoring_frequency_id" />
       <property name="annualizationFactor" type="double" column="pay_annualization_factor" />
+      <property name="conventionalIndexationLag" type="int" column="pay_conventional_indexation_lag" />
+      <property name="actualIndexationLag" type="int" column="pay_actual_indexation_lag" />
+      <property name="indexInterpolationMethod" type="com.opengamma.masterdb.security.hibernate.swap.InterpolationMethodUserType" column="pay_index_interpolation_method" />
     </component>
     <component name="receiveLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="receive_legtype" not-null="true" />
@@ -95,6 +101,9 @@
       </component>
       <many-to-one name="monitoringFrequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="receive_monitoring_frequency_id" />
       <property name="annualizationFactor" type="double" column="receive_annualization_factor" />
+      <property name="conventionalIndexationLag" type="int" column="receive_conventional_indexation_lag" />
+      <property name="actualIndexationLag" type="int" column="receive_actual_indexation_lag" />
+      <property name="indexInterpolationMethod" type="com.opengamma.masterdb.security.hibernate.swap.InterpolationMethodUserType" column="receive_index_interpolation_method" />
     </component>
   </union-subclass>
 

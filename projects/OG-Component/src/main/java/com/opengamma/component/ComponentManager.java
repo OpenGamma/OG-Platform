@@ -137,7 +137,7 @@ public class ComponentManager {
    * This may be populated before calling {@link #start()} if desired.
    * This is an alternative to using a separate properties file.
    * 
-   * @return the map of key-value properties, not null
+   * @return the map of key-value properties which may be directly edited, not null
    */
   public ConcurrentMap<String, String> getProperties() {
     return _properties;
@@ -288,12 +288,17 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Initializes the repository from the config.
+   * Initializes the repository from the configuration that has been loaded.
+   * <p>
+   * Call {@code load(...)} before this method.
+   * 
+   * @return this manager, for chaining, not null
    */
-  public void init() {
+  public ComponentManager init() {
     getRepository().pushThreadLocal();
     initGlobal();
     initComponents();
+    return this;
   }
 
   /**
@@ -555,7 +560,9 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Starts the components.
+   * Starts the initialized components.
+   * <p>
+   * Call {@code load(...)} and {@code init()} before this method.
    */
   public void start() {
     _logger.logInfo("--- Starting Lifecycle ---");

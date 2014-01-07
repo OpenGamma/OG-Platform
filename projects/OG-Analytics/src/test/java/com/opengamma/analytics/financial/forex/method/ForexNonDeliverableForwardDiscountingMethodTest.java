@@ -26,11 +26,15 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the valuation of non-deliverable forward by discounting.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
+@Test(groups = TestGroup.UNIT)
 public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   private static final Currency KRW = Currency.of("KRW");

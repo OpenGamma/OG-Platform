@@ -14,7 +14,9 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 
 /**
- *
+ * Base class for the {@link CalculationPropertyNamesAndValues#BJERKSUND_STENSLAND_METHOD}<p>
+ * This form requires a {@link ValueRequirementNames#BLACK_VOLATILITY_SURFACE}. 
+ * See {@link ListedEquityOptionBjerksundStenslandFunction} for a simpler version that instead requires a market price. 
  */
 public abstract class EquityOptionBjerksundStenslandFunction extends EquityOptionFunction {
 

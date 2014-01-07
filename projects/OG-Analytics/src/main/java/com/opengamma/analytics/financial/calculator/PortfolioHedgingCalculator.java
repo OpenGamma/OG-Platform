@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.calculator;
@@ -30,6 +30,9 @@ public class PortfolioHedgingCalculator {
    * The matrix algebra used (mainly multiplying matrices and solving systems).
    */
   private static final CommonsMatrixAlgebra MATRIX = new CommonsMatrixAlgebra();
+  /**
+   * The decomposition method used.
+   */
   private static final SVDecompositionCommons DECOMPOSITION = new SVDecompositionCommons();
 
   /**
@@ -81,7 +84,7 @@ public class PortfolioHedgingCalculator {
     final Currency ccy = sensi.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: all the currencies are supposed to be the same, we choose any of them.
     for (final Pair<String, Integer> nameSize : order) {
-      if (sensi.getSensitivities().containsKey(new ObjectsPair<>(nameSize.getFirst(), ccy))) {
+      if (sensi.getSensitivities().containsKey(ObjectsPair.of(nameSize.getFirst(), ccy))) {
         psArray = ArrayUtils.addAll(psArray, sensi.getSensitivity(nameSize.getFirst(), ccy).getData());
       } else { // When curve is not in the sensitivity, add zeros.
         psArray = ArrayUtils.addAll(psArray, new double[nameSize.getSecond()]);

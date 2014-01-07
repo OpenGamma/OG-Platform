@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.var.parametric;
@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class DeltaGammaCovarianceMatrixSkewnessCalculatorTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
   private static final DeltaGammaCovarianceMatrixSkewnessCalculator F = new DeltaGammaCovarianceMatrixSkewnessCalculator(ALGEBRA);
@@ -43,7 +45,7 @@ public class DeltaGammaCovarianceMatrixSkewnessCalculatorTest {
     final ParametricVaRDataBundle deltaData = new ParametricVaRDataBundle(DELTA_VECTOR, COVARIANCE_MATRIX, 1);
     final ParametricVaRDataBundle gammaData = new ParametricVaRDataBundle(new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}}),
         new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}}), 2);
-    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<Integer, ParametricVaRDataBundle>();
+    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<>();
     m.put(1, deltaData);
     m.put(2, gammaData);
     F.evaluate(m);
@@ -61,7 +63,7 @@ public class DeltaGammaCovarianceMatrixSkewnessCalculatorTest {
   @Test
   public void testNoGamma() {
     final ParametricVaRDataBundle deltaData = new ParametricVaRDataBundle(DELTA_VECTOR, COVARIANCE_MATRIX, 1);
-    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<Integer, ParametricVaRDataBundle>();
+    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<>();
     m.put(1, deltaData);
     assertEquals(F.evaluate(m), 0, 0);
     final ParametricVaRDataBundle gammaData = new ParametricVaRDataBundle(new DoubleMatrix2D(new double[0][0]), new DoubleMatrix2D(new double[0][0]), 2);
@@ -73,7 +75,7 @@ public class DeltaGammaCovarianceMatrixSkewnessCalculatorTest {
   public void test() {
     final ParametricVaRDataBundle deltaData = new ParametricVaRDataBundle(DELTA_VECTOR, COVARIANCE_MATRIX, 1);
     final ParametricVaRDataBundle gammaData = new ParametricVaRDataBundle(GAMMA_MATRIX, COVARIANCE_MATRIX, 1);
-    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<Integer, ParametricVaRDataBundle>();
+    final Map<Integer, ParametricVaRDataBundle> m = new HashMap<>();
     m.put(1, deltaData);
     m.put(2, gammaData);
     assertEquals(F.evaluate(m), 1.913, 1e-3);

@@ -91,7 +91,9 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
   /**
    * {@inheritDoc}
    * @param lastMarginPrice The price on which the last margining was done.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public SwapFuturesPriceDeliverableTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
@@ -144,7 +146,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
 
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the one argument method (without margin price data).");
   }
 
   @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -58,8 +58,8 @@ public final class InterestRateFutureOptionMarginTransactionBlackSmileMethod ext
       final double priceFuture) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(blackData, "Black / multi-curves provider");
-    double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingOption(), blackData, priceFuture);
-    MultipleCurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
+    final double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingOption(), blackData, priceFuture);
+    final MultipleCurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
 
@@ -92,6 +92,37 @@ public final class InterestRateFutureOptionMarginTransactionBlackSmileMethod ext
     final double txnGamma = securityGamma * transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
     return txnGamma;
+  }
+
+  /**
+   * Computes the present value delta of a transaction.
+   * This is with respect to futures price
+   * @param transaction The future option transaction.
+   * @param blackData The curve and Black volatility data.
+   * @return The present value curve sensitivity.
+   */
+  public double presentValueDelta(final InterestRateFutureOptionMarginTransaction transaction, final BlackSTIRFuturesSmileProviderInterface blackData) {
+    final double securityDelta = getSecurityMethod().priceDelta(transaction.getUnderlyingOption(), blackData);
+    final double txnDelta = securityDelta
+        * transaction.getQuantity()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+    return txnDelta;
+  }
+
+  /**
+   * Computes the present value volatility sensitivity of a transaction.
+   * @param transaction The future option transaction.
+   * @param blackData The curve and Black volatility data.
+   * @return The present value curve sensitivity.
+   */
+  public double presentValueVega(final InterestRateFutureOptionMarginTransaction transaction, final BlackSTIRFuturesSmileProviderInterface blackData) {
+    final double securitySensitivity = getSecurityMethod().priceVega(transaction.getUnderlyingOption(), blackData);
+    final double txnSensitivity = securitySensitivity
+        * transaction.getQuantity()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
+        * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor();
+    return txnSensitivity;
   }
 
 }

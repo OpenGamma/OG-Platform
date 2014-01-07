@@ -16,19 +16,21 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForwardCurveTest {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D = new CombinedInterpolatorExtrapolator(INTERPOLATOR_1D, new FlatExtrapolator1D());
   private static double DRIFT = 0.05;
-  private static final double[] EXPIRIES = new double[] {0.0, 7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10};
+  private static final double[] EXPIRIES = new double[] {0.0, 7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
   private static final double SPOT = 1.34;
   private static final double[] FORWARDS;
   private static final ForwardCurve FORWARD_CURVE;
@@ -59,11 +61,10 @@ public class ForwardCurveTest {
 
   @Test
   public void testFunctional() {
-    final Function<Double, Double> f = new Function<Double, Double>() {
+    final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double... x) {
-        final double t = x[0];
+      public Double evaluate(final Double t) {
         return SPOT * (1 + 0.1 * t);
       }
     };

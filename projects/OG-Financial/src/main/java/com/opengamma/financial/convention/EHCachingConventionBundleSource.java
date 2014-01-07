@@ -23,7 +23,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class EHCachingConventionBundleSource implements ConventionBundleSource {
 
-  private static final String CONVENTION_CACHE_NAME = "convention";
+  private static final String CONVENTION_CACHE_NAME = "conventionBundle";
 
   private final ConventionBundleSource _underlying;
   private final CacheManager _cacheManager;
@@ -73,7 +73,9 @@ public class EHCachingConventionBundleSource implements ConventionBundleSource {
   protected ConventionBundle frontCache(final ConventionBundle bundle) {
     final ConventionBundle existing = _frontCache.putIfAbsent(bundle.getUniqueId(), bundle);
     if (existing == null) {
-      _frontCache.put(bundle.getIdentifiers(), bundle);
+      if (bundle.getIdentifiers() != null) {
+        _frontCache.put(bundle.getIdentifiers(), bundle);
+      }
       return bundle;
     }
     return existing;

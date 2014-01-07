@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance;
@@ -16,13 +16,13 @@ import cern.jet.random.engine.MersenneTwister64;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.RealizedVariance;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.FunctionUtils;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -31,10 +31,12 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VarianceSwapPresentValueTest {
 
   // Setup ------------------------------------------
@@ -48,10 +50,7 @@ public class VarianceSwapPresentValueTest {
   // The pricing method
   private static final VarianceSwapStaticReplication PRICER = new VarianceSwapStaticReplication();
 
-  @SuppressWarnings("unused")
-  private static final double TEST_VOL = 0.25;
-  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
+  private static final YieldAndDiscountCurve DISCOUNT = new YieldCurve("Discount", ConstantDoublesCurve.from(0.05));
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0 };
   private static final double[] STRIKES = new double[] {40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120 };
@@ -88,7 +87,6 @@ public class VarianceSwapPresentValueTest {
   private static final ZonedDateTime today = ZonedDateTime.now();
   private static final ZonedDateTime tomorrow = today.plusDays(1);
   private static final double tPlusOne = TimeCalculator.getTimeBetween(today, tomorrow);
-  private static final VarianceSwap swapStartsTomorrow = new VarianceSwap(tPlusOne, expiry5, expiry5, varStrike, varNotional, Currency.EUR, annualization, nObsExpected, noObsDisrupted, noObservations, noObsWeights);
 
   // Tests ------------------------------------------
 
@@ -98,7 +96,7 @@ public class VarianceSwapPresentValueTest {
   /**
    * Compare presentValue with impliedVariance, ensuring that spot starting varianceSwaps equal that coming only from implied part <p>
    * Ensure we handle the one underlying observation correctly. i.e. no *returns* yet
-   * 
+   *
    */
   public void onFirstObsDateWithOneObs() {
 

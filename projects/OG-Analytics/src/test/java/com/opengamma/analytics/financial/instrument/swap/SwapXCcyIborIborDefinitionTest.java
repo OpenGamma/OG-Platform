@@ -15,14 +15,16 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpr
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapXCcyIborIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
-import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the swap Ibor+spread to Ibor+spread constructor and to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapXCcyIborIborDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -44,7 +46,8 @@ public class SwapXCcyIborIborDefinitionTest {
   private static final double SPREAD_2 = 0.0;
   private static final ZonedDateTime MATURITY_DATE = SETTLEMENT_DATE.plus(ANNUITY_TENOR);
 
-  private static final SwapXCcyIborIborDefinition SWAP_XCCY_IBOR_IBOR = SwapXCcyIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, XCCY_GENERATOR, NOTIONAL1, NOTIONAL2, SPREAD_1, IS_PAYER_1, CALENDAR, CALENDAR);
+  private static final SwapXCcyIborIborDefinition SWAP_XCCY_IBOR_IBOR = SwapXCcyIborIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, XCCY_GENERATOR, NOTIONAL1, NOTIONAL2, SPREAD_1, IS_PAYER_1,
+      CALENDAR, CALENDAR);
 
   private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_1 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL1, EURIBOR3M, SPREAD_1, IS_PAYER_1, CALENDAR);
   private static final AnnuityCouponIborSpreadDefinition IBOR_LEG_2 = AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL2, USDLIBOR3M, SPREAD_2, IS_PAYER_2, CALENDAR);
@@ -67,11 +70,13 @@ public class SwapXCcyIborIborDefinitionTest {
   @Test
   public void leg1() {
     // The first payment is a fixed payment with -notional
-    final PaymentFixedDefinition exchangeNotionalStart = new PaymentFixedDefinition(XCCY_GENERATOR.getIborIndex1().getCurrency(), SETTLEMENT_DATE, -NOTIONAL1 * SIGN_1);
+    final CouponFixedDefinition exchangeNotionalStart = new CouponFixedDefinition(XCCY_GENERATOR.getIborIndex1().getCurrency(), SETTLEMENT_DATE, SETTLEMENT_DATE,
+        SETTLEMENT_DATE, 1.0, -NOTIONAL1 * SIGN_1, 1.0);
     assertEquals("SwapXCcyIborIborDefinition", exchangeNotionalStart, SWAP_XCCY_IBOR_IBOR.getFirstLeg().getNthPayment(0));
     // The last payment is a fixed payment with notional
     final int nbPayments = SWAP_XCCY_IBOR_IBOR.getFirstLeg().getNumberOfPayments();
-    final PaymentFixedDefinition exchangeNotionalEnd = new PaymentFixedDefinition(XCCY_GENERATOR.getIborIndex1().getCurrency(), MATURITY_DATE, NOTIONAL1 * SIGN_1);
+    final CouponFixedDefinition exchangeNotionalEnd = new CouponFixedDefinition(XCCY_GENERATOR.getIborIndex1().getCurrency(), MATURITY_DATE, MATURITY_DATE,
+        MATURITY_DATE, 1.0, NOTIONAL1 * SIGN_1, 1.0);
     assertEquals("SwapXCcyIborIborDefinition", exchangeNotionalEnd, SWAP_XCCY_IBOR_IBOR.getFirstLeg().getNthPayment(nbPayments - 1));
     // The intermediary payments are coupons from the floating leg
     for (int loopcpn = 0; loopcpn < nbPayments - 2; loopcpn++) {
@@ -82,11 +87,13 @@ public class SwapXCcyIborIborDefinitionTest {
   @Test
   public void leg2() {
     // The first payment is a fixed payment with -notional
-    final PaymentFixedDefinition exchangeNotionalStart = new PaymentFixedDefinition(XCCY_GENERATOR.getIborIndex2().getCurrency(), SETTLEMENT_DATE, NOTIONAL2 * SIGN_1);
+    final CouponFixedDefinition exchangeNotionalStart = new CouponFixedDefinition(XCCY_GENERATOR.getIborIndex2().getCurrency(), SETTLEMENT_DATE, SETTLEMENT_DATE,
+        SETTLEMENT_DATE, 1.0, NOTIONAL2 * SIGN_1, 1.0);
     assertEquals("SwapXCcyIborIborDefinition", exchangeNotionalStart, SWAP_XCCY_IBOR_IBOR.getSecondLeg().getNthPayment(0));
     // The last payment is a fixed payment with notional
     final int nbPayments = SWAP_XCCY_IBOR_IBOR.getSecondLeg().getNumberOfPayments();
-    final PaymentFixedDefinition exchangeNotionalEnd = new PaymentFixedDefinition(XCCY_GENERATOR.getIborIndex2().getCurrency(), MATURITY_DATE, -NOTIONAL2 * SIGN_1);
+    final CouponFixedDefinition exchangeNotionalEnd = new CouponFixedDefinition(XCCY_GENERATOR.getIborIndex2().getCurrency(), MATURITY_DATE, MATURITY_DATE,
+        MATURITY_DATE, 1.0, -NOTIONAL2 * SIGN_1, 1.0);
     assertEquals("SwapXCcyIborIborDefinition", exchangeNotionalEnd, SWAP_XCCY_IBOR_IBOR.getSecondLeg().getNthPayment(nbPayments - 1));
     // The intermediary payments are coupons from the floating leg
     for (int loopcpn = 0; loopcpn < nbPayments - 2; loopcpn++) {

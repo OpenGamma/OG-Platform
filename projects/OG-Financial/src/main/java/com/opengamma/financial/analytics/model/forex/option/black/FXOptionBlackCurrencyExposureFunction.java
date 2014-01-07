@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -20,11 +20,14 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingCurrencyExposureFXOptionFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the currency exposure for FX options.
+ * @deprecated Use {@link BlackDiscountingCurrencyExposureFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackCurrencyExposureFunction extends FXOptionBlackMultiValuedFunction {
   private static final CurrencyExposureBlackSmileForexCalculator SMILE_CALCULATOR = CurrencyExposureBlackSmileForexCalculator.getInstance();
   private static final CurrencyExposureBlackTermStructureForexCalculator FLAT_CALCULATOR = CurrencyExposureBlackTermStructureForexCalculator.getInstance();

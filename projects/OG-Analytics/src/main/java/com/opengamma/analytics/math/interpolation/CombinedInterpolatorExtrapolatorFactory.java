@@ -51,6 +51,12 @@ public final class CombinedInterpolatorExtrapolatorFactory {
     if (extrapolatorName.equals(Interpolator1DFactory.LINEAR_EXTRAPOLATOR)) {
       return new LinearExtrapolator1D(interpolator);
     }
+    if (extrapolatorName.equals(Interpolator1DFactory.LOG_LINEAR_EXTRAPOLATOR)) {
+      return new LogLinearExtrapolator1D(interpolator);
+    }
+    if (extrapolatorName.equals(Interpolator1DFactory.QUADRATIC_LEFT_EXTRAPOLATOR)) {
+      return new QuadraticPolynomialLeftExtrapolator(interpolator);
+    }
     return Interpolator1DFactory.getInterpolator(extrapolatorName);
   }
 }
