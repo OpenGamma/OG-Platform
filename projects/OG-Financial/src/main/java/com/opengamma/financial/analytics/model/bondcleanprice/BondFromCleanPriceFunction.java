@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.BondFunctionUtils;
+import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -61,7 +61,7 @@ public abstract class BondFromCleanPriceFunction<T> extends AbstractFunction.Non
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final Double cleanPrice = (Double) inputs.getValue(MARKET_VALUE);
-    final InstrumentDerivative bond = BondFunctionUtils.getDerivative(executionContext, target, now);
+    final InstrumentDerivative bond = BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, null);
     final T result = bond.accept(_calculator, cleanPrice);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), getResultProperties());
     return Collections.singleton(new ComputedValue(spec, result));

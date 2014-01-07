@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import static com.opengamma.financial.analytics.conversion.BondTradeWithEntityConverter.MARKET_STRING;
+import static com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeWithEntityConverter.MARKET_STRING;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.threeten.bp.Period;
