@@ -40,7 +40,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
+import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -74,10 +74,10 @@ public class CurveMarketDataFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, CurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
   }
 
   @Override

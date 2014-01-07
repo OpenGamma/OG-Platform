@@ -84,13 +84,13 @@ import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -127,8 +127,8 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, MultiCurveCalculationConfig.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, YieldCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, MultiCurveCalculationConfig.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, YieldCurveDefinition.class);
   }
 
   @Override

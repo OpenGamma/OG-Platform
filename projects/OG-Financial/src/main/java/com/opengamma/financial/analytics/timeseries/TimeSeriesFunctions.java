@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.DynamicFunctionConfigurationSource;
@@ -21,6 +20,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFunction;
+import com.opengamma.financial.config.ConfigMasterChangeProvider;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -48,12 +48,7 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
    * @return A function configuration source
    */
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationSource() {
-
-      @Override
-      public ChangeManager getUnderlyingChangeManager() {
-        return configMaster.changeManager();
-      }
+    return new DynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
 
       @Override
       protected VersionedFunctionConfigurationBean createConfiguration() {
@@ -64,8 +59,7 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
 
       @Override
       protected boolean isPropogateEvent(ChangeEvent event) {
-        // TODO: Filter the events
-        return true;
+        return Providers.isMonitoredType(event.getObjectId().getValue());
       }
 
     };
@@ -119,6 +113,11 @@ public class TimeSeriesFunctions extends AbstractFunctionConfigurationBean {
         functions.add(functionConfiguration(YieldCurveConversionSeriesFunction.class, excludedCurvesArray));
       }
     }
+
+    public static boolean isMonitoredType(final String type) {
+      return MultiCurveCalculationConfig.class.getName().equals(type);
+    }
+
   }
 
   @Override

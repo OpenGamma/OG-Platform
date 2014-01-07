@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.DynamicFunctionConfigurationSource;
@@ -27,6 +26,7 @@ import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.model.curve.forward.InstantaneousForwardCurveFunction;
 import com.opengamma.financial.analytics.parameters.G2ppParameters;
 import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters;
+import com.opengamma.financial.config.ConfigMasterChangeProvider;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -55,12 +55,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
    * @return A populated configuration
    */
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationSource() {
-
-      @Override
-      public ChangeManager getUnderlyingChangeManager() {
-        return configMaster.changeManager();
-      }
+    return new DynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
 
       @Override
       protected VersionedFunctionConfigurationBean createConfiguration() {
@@ -70,9 +65,8 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       @Override
-      protected boolean isPropogateEvent(ChangeEvent event) {
-        // TODO: Filter the events
-        return true;
+      protected boolean isPropogateEvent(final ChangeEvent event) {
+        return Providers.isMonitoredType(event.getObjectId().getValue());
       }
 
     };
@@ -85,12 +79,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
    * @return A populated configuration
    */
   public static FunctionConfigurationSource parameterProviders(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationSource() {
-
-      @Override
-      public ChangeManager getUnderlyingChangeManager() {
-        return configMaster.changeManager();
-      }
+    return new DynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
 
       @Override
       protected VersionedFunctionConfigurationBean createConfiguration() {
@@ -100,9 +89,8 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       @Override
-      protected boolean isPropogateEvent(ChangeEvent event) {
-        // TODO: Filter the events
-        return true;
+      protected boolean isPropogateEvent(final ChangeEvent event) {
+        return ParameterProviders.isMonitoredType(event.getObjectId().getValue());
       }
 
     };
@@ -288,6 +276,10 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       }
     }
 
+    private static boolean isMonitoredType(final String type) {
+      return CurveConstructionConfiguration.class.getName().equals(type) || CurveDefinition.class.getName().equals(type);
+    }
+
     /**
      * Extracts the CurveTypeConfiguration classes from a given CurveConstructionConfiguration.
      * <p>
@@ -356,6 +348,11 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         functions.add(functionConfiguration(G2ppParametersFunction.class, configurationName, currency.getCode()));
       }
     }
+
+    private static boolean isMonitoredType(final String type) {
+      return HullWhiteOneFactorParameters.class.getName().equals(type) || G2ppParameters.class.getName().equals(type);
+    }
+
   }
 
   @Override

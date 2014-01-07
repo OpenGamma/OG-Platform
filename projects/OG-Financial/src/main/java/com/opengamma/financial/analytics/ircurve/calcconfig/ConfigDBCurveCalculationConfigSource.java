@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.ircurve.calcconfig;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
+import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,7 +27,7 @@ public class ConfigDBCurveCalculationConfigSource implements CurveCalculationCon
   }
 
   public static void reinitOnChanges(final FunctionCompilationContext context, final FunctionDefinition function) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, function, MultiCurveCalculationConfig.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, function, MultiCurveCalculationConfig.class);
   }
 
   @Override

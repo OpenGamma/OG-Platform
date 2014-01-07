@@ -13,6 +13,7 @@ import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -23,6 +24,8 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class DynamicFunctionConfigurationSource implements FunctionConfigurationSource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DynamicFunctionConfigurationSource.class);
+
+  private final ChangeManager _underlying;
 
   private final ChangeListener _changeListener = new ChangeListener() {
     @Override
@@ -43,7 +46,7 @@ public abstract class DynamicFunctionConfigurationSource implements FunctionConf
       ArgumentChecker.notNull(listener, "listener");
       if (getListeners().isEmpty()) {
         s_logger.info("Registering listener for {}", DynamicFunctionConfigurationSource.this);
-        addListenerToUnderlyings(_changeListener);
+        _underlying.addChangeListener(_changeListener);
       }
       super.addChangeListener(listener);
     }
@@ -53,21 +56,19 @@ public abstract class DynamicFunctionConfigurationSource implements FunctionConf
       super.removeChangeListener(listener);
       if (getListeners().isEmpty()) {
         s_logger.info("Removing listener for {}", DynamicFunctionConfigurationSource.this);
-        removeListenerFromUnderlyings(_changeListener);
+        _underlying.removeChangeListener(_changeListener);
       }
     }
 
   };
 
-  protected void addListenerToUnderlyings(ChangeListener listener) {
-    getUnderlyingChangeManager().addChangeListener(listener);
+  public DynamicFunctionConfigurationSource(final ChangeManager underlying) {
+    _underlying = ArgumentChecker.notNull(underlying, "underlying");
   }
 
-  protected void removeListenerFromUnderlyings(ChangeListener listener) {
-    getUnderlyingChangeManager().removeChangeListener(listener);
+  public DynamicFunctionConfigurationSource(final ChangeProvider underlying) {
+    this(underlying.changeManager());
   }
-
-  protected abstract ChangeManager getUnderlyingChangeManager();
 
   protected abstract boolean isPropogateEvent(ChangeEvent event);
 

@@ -45,7 +45,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
+import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -92,7 +92,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, HullWhiteOneFactorParameters.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, this, HullWhiteOneFactorParameters.class);
   }
 
   @Override

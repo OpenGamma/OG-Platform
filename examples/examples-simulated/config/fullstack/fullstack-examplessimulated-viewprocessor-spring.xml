@@ -159,11 +159,14 @@
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
     <property name="viewProcessor" ref="mainViewProcessor" />
-    <property name="mastersAndSources">
-      <map>
-        <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
-        <entry key-ref="userInterpolatedYieldCurveDefinitionMaster" value-ref="userInterpolatedYieldCurveDefinitionSource" />
-      </map>
+    <property name="masters">
+      <list>
+        <ref bean="sharedConfigSource" />
+        <ref bean="userInterpolatedYieldCurveDefinitionSource" />
+        <bean class="com.opengamma.financial.config.ConfigSourceChangeProvider">
+          <constructor-arg ref="sharedConfigSource" />
+        </bean>
+      </list>
     </property>
     <property name="watchSetProviders">
       <set>
@@ -175,9 +178,6 @@
               <value>UserCurves</value>
             </set>
           </constructor-arg>
-        </bean>
-        <bean class="com.opengamma.financial.view.ConfigDocumentWatchSetProvider">
-          <constructor-arg ref="combinedConfigSource" />
         </bean>
       </set>
     </property>

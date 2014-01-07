@@ -8,12 +8,12 @@ package com.opengamma.financial.analytics.fxforwardcurve;
 import java.util.List;
 
 import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.DynamicFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.VersionedFunctionConfigurationBean;
+import com.opengamma.financial.config.ConfigMasterChangeProvider;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -34,12 +34,7 @@ public class FXForwardCurveFunctions extends AbstractFunctionConfigurationBean {
   }
 
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationSource() {
-
-      @Override
-      public ChangeManager getUnderlyingChangeManager() {
-        return configMaster.changeManager();
-      }
+    return new DynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
 
       @Override
       protected VersionedFunctionConfigurationBean createConfiguration() {
@@ -49,9 +44,8 @@ public class FXForwardCurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       @Override
-      protected boolean isPropogateEvent(ChangeEvent event) {
-        // TODO: Filter the events
-        return true;
+      protected boolean isPropogateEvent(final ChangeEvent event) {
+        return Providers.isMonitoredType(event.getObjectId().getValue());
       }
 
     };
@@ -101,6 +95,10 @@ public class FXForwardCurveFunctions extends AbstractFunctionConfigurationBean {
         String ccy2 = currencies.substring(3);
         addFXForwardCurveFunctions(functions, ccy1, ccy2, curveName);
       }
+    }
+
+    private static boolean isMonitoredType(final String type) {
+      return FXForwardCurveDefinition.class.getName().equals(type);
     }
 
   }

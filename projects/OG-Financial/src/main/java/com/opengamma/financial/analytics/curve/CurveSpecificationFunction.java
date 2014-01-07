@@ -29,7 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
+import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -59,10 +59,10 @@ public class CurveSpecificationFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, CurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
+    AbstractConfigChangeProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
   }
 
   @Override

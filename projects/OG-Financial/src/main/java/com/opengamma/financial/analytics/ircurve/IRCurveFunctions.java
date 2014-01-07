@@ -6,10 +6,11 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.DynamicFunctionConfigurationSource;
@@ -28,6 +29,7 @@ import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveSeriesFunction;
+import com.opengamma.financial.config.ConfigMasterChangeProvider;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -48,12 +50,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
   }
 
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
-    return new DynamicFunctionConfigurationSource() {
-
-      @Override
-      public ChangeManager getUnderlyingChangeManager() {
-        return configMaster.changeManager();
-      }
+    return new DynamicFunctionConfigurationSource(ConfigMasterChangeProvider.of(configMaster)) {
 
       @Override
       protected VersionedFunctionConfigurationBean createConfiguration() {
@@ -63,9 +60,8 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       @Override
-      protected boolean isPropogateEvent(ChangeEvent event) {
-        // TODO: Filter the events
-        return true;
+      protected boolean isPropogateEvent(final ChangeEvent event) {
+        return Providers.isMonitoredType(event.getObjectId().getValue());
       }
 
     };
@@ -75,6 +71,18 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
    * Function repository configuration source for yield curve functions based on the items defined in a Config Master.
    */
   public static class Providers extends VersionedFunctionConfigurationBean {
+
+    private static final Class<?>[] s_curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class, ConstantCurveDefinition.class, SpreadCurveDefinition.class };
+    private static final Set<String> s_monitoredTypes;
+
+    static {
+      s_monitoredTypes = new HashSet<String>();
+      s_monitoredTypes.add(MultiCurveCalculationConfig.class.getName());
+      s_monitoredTypes.add(YieldCurveDefinition.class.getName());
+      for (Class<?> curveClass : s_curveClasses) {
+        s_monitoredTypes.add(curveClass.getName());
+      }
+    }
 
     private ConfigMaster _configMaster;
 
@@ -137,8 +145,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
       }
 
       // new curves
-      final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class, ConstantCurveDefinition.class, SpreadCurveDefinition.class };
-      for (final Class klass : curveClasses) {
+      for (final Class<?> klass : s_curveClasses) {
         searchRequest.setType(klass);
         searchRequest.setVersionCorrection(getVersionCorrection());
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
@@ -146,6 +153,10 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
           addCurveFunctions(functions, documentName);
         }
       }
+    }
+
+    public static boolean isMonitoredType(final String type) {
+      return s_monitoredTypes.contains(type);
     }
 
   }
