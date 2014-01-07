@@ -69,7 +69,7 @@ import com.opengamma.util.money.Currency;
  * classes in analytics library. The legal entity of the bond(s) is populated with as much
  * information as is currently available from the securities.
  */
-public class BondTradeWithEntityConverter {
+public class BondAndBondFutureTradeWithEntityConverter {
   /** Excluded coupon types */
   private static final Set<String> EXCLUDED_TYPES = Sets.newHashSet("TOGGLE PIK NOTES");
   /** Floating rate note coupon type strings */
@@ -95,8 +95,8 @@ public class BondTradeWithEntityConverter {
    * @param regionSource The region source, not null
    * @param securitySource The security source, not null
    */
-  public BondTradeWithEntityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
-      final SecuritySource securitySource) {
+  public BondAndBondFutureTradeWithEntityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
+      final RegionSource regionSource, final SecuritySource securitySource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(regionSource, "region source");
