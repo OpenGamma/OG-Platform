@@ -393,8 +393,15 @@ $.register_module({
             meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             verify_state.call(grid);
-            if (!reorder_cols.call(grid)) populate_cols.call(grid);
-            if (grid.elements.empty) init_elements.call(grid); else grid.clipboard.clear(), grid.selector.clear();
+            if (!reorder_cols.call(grid)) {
+                populate_cols.call(grid);
+            }
+            if (grid.elements.empty) {
+                init_elements.call(grid);
+            } else {
+                grid.clipboard.clear();
+                grid.selector.clear();
+            }
             grid.resize(config[has]('collapse_level'));
             render_rows.call(grid, null, true);
         };
@@ -468,6 +475,8 @@ $.register_module({
         })();
         var render_rows = (function () {
             var row_data = function (grid, fixed, loading) {
+                var result = {rows: [], loading: loading};
+                if (loading) return result;
                 var data = grid.data, meta = grid.meta, state = grid.state, fixed_len = meta.fixed_length, row, col,
                     index, data_row, data_col, inner = meta.inner, prefix,
                     cols = meta.viewport.cols, rows = meta.viewport.rows, highlight = state.highlight,
@@ -475,7 +484,6 @@ $.register_module({
                     total_cols = cols.length, formatter = grid.formatter, col_end, row_len = rows.length,
                     col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
                     widths = meta.columns.widths, result = {rows: [], loading: loading};
-                if (loading) return result;
                 for (row = 0; row < row_len; row += 1) {
                     result.rows
                         .push({top: row_height * grid_row++, cells: (cells = []), data_row: data_row = rows[row]});
@@ -504,7 +512,11 @@ $.register_module({
             };
             return function (data, loading, quiet) { // TODO handle scenario where grid was busy when data stopped
                 var grid = this, meta = grid.meta;
-                if (grid.busy()) return; else grid.busy(true); // don't accept more data if rendering
+                if (grid.busy() || grid_elements_empty(grid.elements)) {
+                    return;
+                } else {
+                    grid.busy(true); // don't accept more data if rendering
+                }
                 grid.data = data;
                 grid.elements.fixed_body[0][HTML] = templates.row(row_data(grid, true, loading));
                 grid.elements.scroll_body
@@ -520,6 +532,11 @@ $.register_module({
                 if (!quiet) grid.fire('render');
             };
         })();
+        var grid_elements_empty = function (elements) {
+            var empty = !(elements.fixed_body.length && elements.fixed_head.length
+                && elements.scroll_body.length && elements.scroll_head.length);
+            return empty;
+        };
         var set_css = function (id, sets, offset) {
             var partial = 0, total_width = sets.reduce(function (acc, set) {return acc.concat(set.columns);}, [])
                 .reduce(function (acc, val) {return val.width + acc;}, 0);
@@ -610,6 +627,9 @@ $.register_module({
                 scroll_position = left_position + inner.width, buffer = viewport_buffer.call(grid), lcv, reorder,
                 row_end = Math.min(row_start + meta.visible_rows + buffer.row, grid.state.available.length),
                 scroll_cols = meta.columns.scroll.reduce(function (acc, set) {return acc.concat(set.columns);}, []);
+            if (row_end < 0) {
+                return; // bail if number of rows is negative, occurs if you drag a grid before the grid loads
+            }
             lcv = Math.max(0, row_start - buffer.row);
             viewport.rows = [];
             while (lcv < row_end) {
