@@ -13,6 +13,7 @@ To 2.2.0-M6
 API compatibility
 - [PLAT-3807] Regenerate curve/surface functions when new config objects added
   The method signature in FunctionConfigurationSource has changed - see Javadoc for detailed guidance.
+  The VersionedSource SPI interface has been removed to support assumptions made by caching layers.
 
 Configuration compatibility
 - [PLAT-3807] Regenerate curve/surface functions when new config objects added
