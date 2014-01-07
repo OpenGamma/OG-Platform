@@ -99,7 +99,7 @@ public class YieldCurveDataFunction extends AbstractFunction {
         final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
             OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
         final SnapshotDataBundle marketData = _helper.getMarketDataMap(inputs);
-        final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(getCurveSpecification(), marketData);
+        final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(_curveSpecification, marketData);
         YieldCurveData curveData = new YieldCurveData(curveSpecificationWithSecurities, marketData.getDataPoints());
         return ImmutableSet.of(new ComputedValue(_curveSpec, curveSpecificationWithSecurities),
                                new ComputedValue(_curveDataSpec, curveData));
