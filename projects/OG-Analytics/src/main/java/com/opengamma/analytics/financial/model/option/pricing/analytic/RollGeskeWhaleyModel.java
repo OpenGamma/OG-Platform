@@ -191,12 +191,17 @@ public class RollGeskeWhaleyModel {
     final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
     final double modSpot = spot - pVal;
 
-    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount < EPS || dividendTime < EPS) {
+    if (dividendAmount < EPS || dividendAmount < (1. - 1. / factor) * strike + EPS) {
       return BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
     }
 
     final double discountFactor = Math.exp(-interestRate * timeToExpiry);
     final double sStar = sStarFinder(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
+    if (dividendTime < EPS) {
+      final double res = modSpot >= sStar ? spot - strike : BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+      return res;
+    }
+
     final double corr = -Math.sqrt(dividendTime / timeToExpiry);
 
     final double sigRootT1 = volatility * Math.sqrt(dividendTime);
@@ -237,21 +242,29 @@ public class RollGeskeWhaleyModel {
 
     final double[] res = new double[8];
 
-    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount < EPS || dividendTime < EPS) {
-      res[0] = BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
-      res[1] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
-      res[2] = BlackScholesFormulaRepository.dualDelta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
-      res[3] = BlackScholesFormulaRepository.rho(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) +
-          BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * dividendTime;
-      res[4] = -BlackScholesFormulaRepository.theta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
-      res[5] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * interestRate;
-      res[6] = BlackScholesFormulaRepository.vega(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
-      res[7] = BlackScholesFormulaRepository.gamma(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
-      return res;
+    if (dividendAmount < EPS || dividendAmount < (1. - 1. / factor) * strike + EPS) {
+      return bsPriceAdjoint(modSpot, strike, timeToExpiry, volatility, interestRate, pVal, dividendTime);
     }
 
     final double discountFactor = Math.exp(-interestRate * timeToExpiry);
     final double[] sStarAdjoint = getSStarAdjoint(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
+    if (dividendTime < EPS) {
+      if (modSpot > sStarAdjoint[0]) {
+        res[0] = spot - strike;
+        res[1] = 1.;
+        res[2] = -1.;
+        res[3] = 0.;
+        res[4] = 0.;
+        res[5] = interestRate * (strike - dividendAmount);
+        res[6] = 0.;
+        res[7] = 0.;
+        return res;
+      }
+      final double[] resLocal = bsPriceAdjoint(modSpot, strike, timeToExpiry, volatility, interestRate, pVal, dividendTime);
+      resLocal[5] += interestRate * dividendAmount * resLocal[1];
+      return resLocal;
+    }
+
     final double dscStrike = strike * discountFactor;
     final double corr = -Math.sqrt(dividendTime / timeToExpiry);
 
@@ -291,6 +304,21 @@ public class RollGeskeWhaleyModel {
       final double dividendTime) {
     final Function1D<Double, double[]> func = getPriceAndVegaFunction(spot, strike, interestRate, timeToExpiry, dividendAmount, dividendTime);
     return GenericImpliedVolatiltySolver.impliedVolatility(price, func, 0.15);
+  }
+
+  private double[] bsPriceAdjoint(final double modSpot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final double pVal,
+      final double dividendTime) {
+    final double[] res = new double[8];
+    res[0] = BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+    res[1] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+    res[2] = BlackScholesFormulaRepository.dualDelta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+    res[3] = BlackScholesFormulaRepository.rho(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) +
+        BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * dividendTime;
+    res[4] = -BlackScholesFormulaRepository.theta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
+    res[5] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * interestRate;
+    res[6] = BlackScholesFormulaRepository.vega(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
+    res[7] = BlackScholesFormulaRepository.gamma(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
+    return res;
   }
 
   private double[] getCdfAdjoint(final double[] d1Adjoint, final double[] d2Adjoint, final double[] corrAdjoint, final double[] factorAdjoint) {

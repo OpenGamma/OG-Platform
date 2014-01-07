@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.model.option.pricing.tree.LatticeSpecif
 import com.opengamma.analytics.financial.model.option.pricing.tree.LeisenReimerLatticeSpecification;
 import com.opengamma.analytics.financial.model.option.pricing.tree.OptionFunctionProvider1D;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
 /**
  * 
@@ -43,7 +44,7 @@ public class RollGeskeWhaleyModelTest {
     final int nStrikes = STRIKES_INPUT.length;
     final int nVols = VOLS.length;
     final int nInt = INTEREST_RATES.length;
-    final double eps = 1.e-3;
+    final double eps = 1.e-5;
 
     for (int i = 0; i < nStrikes; ++i) {
       for (int j = 0; j < nVols; ++j) {
@@ -58,14 +59,15 @@ public class RollGeskeWhaleyModelTest {
           //            System.out.println(i + "\t" + j + "\t" + k);
           final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], dividend, dividendTimes);
           final double priceZeroDiv = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], 0., dividendTimes);
-          final double priceZeroTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], dividend, 0.);
+          final double priceZeroTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[0], 0.);
+          final double priceSmallTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[0], eps);
 
           final double bs = BlackScholesFormulaRepository.price(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
           final double bsMod = BlackScholesFormulaRepository.price(SPOT - dividend, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
 
-          assertEquals(bs, price, Math.max(eps, Math.abs(bs) * eps));
+          assertEquals(bsMod, price, Math.max(eps, Math.abs(bs) * eps));
           assertEquals(bs, priceZeroDiv, 1.e-14);
-          assertEquals(bsMod, priceZeroTime, 1.e-14);
+          assertEquals(priceSmallTime, priceZeroTime, Math.max(eps, Math.abs(priceZeroTime) * eps));
         }
       }
     }
@@ -142,12 +144,19 @@ public class RollGeskeWhaleyModelTest {
     }
   }
 
+  @Test(enabled = false)
+  public void test() {
+    final double[] divLocal = new double[] {5., 12., 0. };
+    final double[] divTimeLocal = new double[] {0.1, 0.85, 0.4, 0.7, 0. };
+    System.out.println(new DoubleMatrix1D(MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[0], INTEREST_RATES[5], TIME_TO_EXPIRY, VOLS[0], divLocal[0], divTimeLocal[4])));
+  }
+
   /**
    * Analytic Greeks are tested 
    */
   @Test
   public void greeksFiniteDiffTest() {
-    final double[] divLocal = new double[] {5., 12. };
+    final double[] divLocal = new double[] {5., 12., 0. };
     final double[] divTimeLocal = new double[] {0.1, 0.85, 0.4, 0.7 };
 
     final int nStrikes = STRIKES_INPUT.length;
@@ -220,15 +229,17 @@ public class RollGeskeWhaleyModelTest {
 
               //TODO dividendTime -> 0 limit needs to be tested, PLAT-5460
               final boolean zeroTime = divTimeLocal[m] == 0.;
-              final double base = zeroTime ? .1 : divTimeLocal[m];
-              final double divTimeLocalUp = zeroTime ? DELTA * 1.e-8 : base * (1. + DELTA);
-              final double divTimeLocalDw = zeroTime ? 0. : base * (1. - DELTA);
+              final double base = zeroTime ? 1. : divTimeLocal[m];
+              final double delta = zeroTime ? 1.e-7 : DELTA;
+              final double divTimeLocalUp = zeroTime ? delta : divTimeLocal[m] * (1. + delta);
+              final double divTimeLocalDw = zeroTime ? 0. : divTimeLocal[m] * (1. - delta);
               final double coeff = zeroTime ? 1. : 0.5;
 
               final double priceDivTimeUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocalUp);
               final double priceDivTimeDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocalDw);
+              //              System.out.println(divTimeLocalUp + "\t" + divTimeLocalDw);
               //              System.out.println(priceDivTimeUp + "\t" + priceDivTimeDw);
-              final double thetaDivFin = coeff * (priceDivTimeUp - priceDivTimeDw) / base / DELTA;
+              final double thetaDivFin = coeff * (priceDivTimeUp - priceDivTimeDw) / base / delta;
               assertEquals(thetaDivFin, greeks[5], Math.max(DELTA, Math.abs(thetaDivFin) * DELTA));
 
             }
