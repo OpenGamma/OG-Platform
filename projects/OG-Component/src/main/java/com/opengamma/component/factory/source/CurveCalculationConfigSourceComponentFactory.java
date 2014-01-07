@@ -75,7 +75,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code CurveCalculationConfigSourceComponentFactory}.
-   * 
    * @return the meta-bean, not null
    */
   public static CurveCalculationConfigSourceComponentFactory.Meta meta() {
@@ -94,7 +93,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
-   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -103,8 +101,7 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
 
   /**
    * Sets the classifier that the factory should publish under.
-   * 
-   * @param classifier the new value of the property, not null
+   * @param classifier  the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -113,7 +110,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
 
   /**
    * Gets the the {@code classifier} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -123,7 +119,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
   //-----------------------------------------------------------------------
   /**
    * Gets the config source to wrap.
-   * 
    * @return the value of the property, not null
    */
   public ConfigSource getConfigSource() {
@@ -132,8 +127,7 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
 
   /**
    * Sets the config source to wrap.
-   * 
-   * @param configSource the new value of the property, not null
+   * @param configSource  the new value of the property, not null
    */
   public void setConfigSource(ConfigSource configSource) {
     JodaBeanUtils.notNull(configSource, "configSource");
@@ -142,7 +136,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
 
   /**
    * Gets the the {@code configSource} property.
-   * 
    * @return the property, not null
    */
   public final Property<ConfigSource> configSource() {
@@ -162,7 +155,9 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CurveCalculationConfigSourceComponentFactory other = (CurveCalculationConfigSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) && JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) && super.equals(obj);
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -208,15 +203,20 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
     /**
      * The meta-property for the {@code classifier} property.
      */
-    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(this, "classifier", CurveCalculationConfigSourceComponentFactory.class, String.class);
+    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
+        this, "classifier", CurveCalculationConfigSourceComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code configSource} property.
      */
-    private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(this, "configSource", CurveCalculationConfigSourceComponentFactory.class, ConfigSource.class);
+    private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
+        this, "configSource", CurveCalculationConfigSourceComponentFactory.class, ConfigSource.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "classifier", "configSource");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "classifier",
+        "configSource");
 
     /**
      * Restricted constructor.
@@ -227,9 +227,9 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return _classifier;
-        case 195157501: // configSource
+        case 195157501:  // configSource
           return _configSource;
       }
       return super.metaPropertyGet(propertyName);
@@ -253,7 +253,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -262,7 +261,6 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
 
     /**
      * The meta-property for the {@code configSource} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigSource> configSource() {
@@ -273,9 +271,9 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           return ((CurveCalculationConfigSourceComponentFactory) bean).getClassifier();
-        case 195157501: // configSource
+        case 195157501:  // configSource
           return ((CurveCalculationConfigSourceComponentFactory) bean).getConfigSource();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -284,10 +282,10 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -281470431: // classifier
+        case -281470431:  // classifier
           ((CurveCalculationConfigSourceComponentFactory) bean).setClassifier((String) newValue);
           return;
-        case 195157501: // configSource
+        case 195157501:  // configSource
           ((CurveCalculationConfigSourceComponentFactory) bean).setConfigSource((ConfigSource) newValue);
           return;
       }
