@@ -65,7 +65,7 @@ public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedE
     }
     // Get details of option for impliedVol Call
     // If market price is not available. compute from model instead
-     double optionPrice;
+    final double optionPrice;
     final double strike;
     final double timeToExpiry;
     final boolean isCall;
@@ -121,7 +121,7 @@ public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedE
         divTime = new double[] {0. };
         divAmount = new double[] {0. };
       }
-    
+
       try {
         impliedVol = model.impliedVolatility(optionPrice, spot, strike, discountRate, timeToExpiry, divAmount, divTime);
       } catch (final IllegalArgumentException e) {

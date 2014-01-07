@@ -73,9 +73,9 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100.);
     result.put(Greek.CARRY_RHO, 0.);
-    result.put(Greek.THETA, -greeks[4] / 365.);
-    result.put(Greek.VEGA, greeks[5] / 100.);
-    result.put(Greek.GAMMA, greeks[6]);
+    result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    result.put(Greek.GAMMA, greeks[7]);
     return result;
   }
 
@@ -115,9 +115,9 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100.);
     result.put(Greek.CARRY_RHO, 0.);
-    result.put(Greek.THETA, -greeks[4] / 365.);
-    result.put(Greek.VEGA, greeks[5] / 100.);
-    result.put(Greek.GAMMA, greeks[6]);
+    result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    result.put(Greek.GAMMA, greeks[7]);
     return result;
   }
 
@@ -155,9 +155,9 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100.);
     result.put(Greek.CARRY_RHO, 0.);
-    result.put(Greek.THETA, -greeks[4] / 365.);
-    result.put(Greek.VEGA, greeks[5] / 100.);
-    result.put(Greek.GAMMA, greeks[6]);
+    result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    result.put(Greek.GAMMA, greeks[7]);
     return result;
   }
 
@@ -192,11 +192,17 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
 
       final ForwardCurve fCurve = data.getForwardCurve();
       double[] divTime = null;
+      double[] divTimeUp = null;
+      double[] divTimeDw = null;
       double[] divAmount = null;
       if (fCurve instanceof ForwardCurveAffineDividends) {
         final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
         divTime = div.getTau();
+        divTimeUp = div.getTau();
+        divTimeDw = div.getTau();
         divAmount = div.getAlpha();
+        divTimeUp[0] += 1.e-7;
+        divTimeDw[0] -= 1.e-7;
       } else {
         divTime = new double[] {0. };
         divAmount = new double[] {0. };
@@ -207,11 +213,10 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
       result.put(Greek.DUAL_DELTA, greeks[2]);
       result.put(Greek.RHO, greeks[3] / 100.);
       result.put(Greek.CARRY_RHO, 0.);
-      result.put(Greek.THETA, -greeks[4] / 365.);
-      result.put(Greek.VEGA, greeks[5] / 100.);
-      result.put(Greek.GAMMA, greeks[6]);
+      result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+      result.put(Greek.VEGA, greeks[6] / 100.);
+      result.put(Greek.GAMMA, greeks[7]);
     }
     return result;
   }
-
 }

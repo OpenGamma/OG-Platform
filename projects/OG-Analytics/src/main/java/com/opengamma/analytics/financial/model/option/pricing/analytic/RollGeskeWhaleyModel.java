@@ -24,7 +24,7 @@ public class RollGeskeWhaleyModel {
 
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  private static final double EPS = 1.e-10;
+  private static final double EPS = 1.e-12;
 
   /**
    * Default constructor
@@ -99,27 +99,32 @@ public class RollGeskeWhaleyModel {
 
     double[] res = null;
     if (dividendTimes[0] > timeToExpiry) {
-      res = new double[7];
+      res = new double[8];
       res[0] = BlackScholesFormulaRepository.price(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[1] = BlackScholesFormulaRepository.delta(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[2] = BlackScholesFormulaRepository.dualDelta(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[3] = BlackScholesFormulaRepository.rho(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[4] = -BlackScholesFormulaRepository.theta(spot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
-      res[5] = BlackScholesFormulaRepository.vega(spot, strike, timeToExpiry, volatility, interestRate, interestRate);
-      res[6] = BlackScholesFormulaRepository.gamma(spot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      res[5] = 0.;
+      res[6] = BlackScholesFormulaRepository.vega(spot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      res[7] = BlackScholesFormulaRepository.gamma(spot, strike, timeToExpiry, volatility, interestRate, interestRate);
       return res;
     }
 
     final int position = FunctionUtils.getLowerBoundIndex(dividendTimes, timeToExpiry);
     double modSpot = spot;
-    double diffSum = 0.;
+    double diffRateSum = 0.;
+    double diffDivSum = 0.;
     for (int i = 0; i < position; ++i) {
-      modSpot -= (dividends[i] * Math.exp(-interestRate * dividendTimes[i]));
-      diffSum += (dividends[i] * dividendTimes[i] * Math.exp(-interestRate * dividendTimes[i]));
+      final double df = Math.exp(-interestRate * dividendTimes[i]);
+      modSpot -= (dividends[i] * df);
+      diffRateSum += (dividends[i] * dividendTimes[i] * df);
+      diffDivSum += (dividends[i] * df);
     }
 
     res = getPriceAdjoint(modSpot, strike, interestRate, timeToExpiry, volatility, dividends[position], dividendTimes[position]);
-    res[3] += (res[1] * diffSum);
+    res[3] += (res[1] * diffRateSum);
+    res[5] += (res[1] * interestRate * diffDivSum);
 
     return res;
   }
@@ -186,13 +191,13 @@ public class RollGeskeWhaleyModel {
     final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
     final double modSpot = spot - pVal;
 
-    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount == 0. || dividendTime == 0.) {
+    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount < EPS || dividendTime < EPS) {
       return BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
     }
 
     final double discountFactor = Math.exp(-interestRate * timeToExpiry);
-    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
     final double sStar = sStarFinder(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
+    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
 
     final double sigRootT1 = volatility * Math.sqrt(dividendTime);
     final double sigRootT2 = volatility * Math.sqrt(timeToExpiry);
@@ -230,31 +235,32 @@ public class RollGeskeWhaleyModel {
     final double pVal = dividendAmount * Math.exp(-interestRate * dividendTime);
     final double modSpot = spot - pVal;
 
-    final double[] res = new double[7];
+    final double[] res = new double[8];
 
-    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount == 0. || dividendTime == 0.) {
+    if (dividendAmount < (1. - 1. / factor) * strike + EPS || dividendAmount < EPS || dividendTime < EPS) {
       res[0] = BlackScholesFormulaRepository.price(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[1] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[2] = BlackScholesFormulaRepository.dualDelta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
       res[3] = BlackScholesFormulaRepository.rho(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) +
           BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * dividendTime;
       res[4] = -BlackScholesFormulaRepository.theta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true);
-      res[5] = BlackScholesFormulaRepository.vega(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
-      res[6] = BlackScholesFormulaRepository.gamma(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      res[5] = BlackScholesFormulaRepository.delta(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate, true) * pVal * interestRate;
+      res[6] = BlackScholesFormulaRepository.vega(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
+      res[7] = BlackScholesFormulaRepository.gamma(modSpot, strike, timeToExpiry, volatility, interestRate, interestRate);
       return res;
     }
 
     final double discountFactor = Math.exp(-interestRate * timeToExpiry);
-    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
-    final double dscStrike = strike * discountFactor;
     final double[] sStarAdjoint = getSStarAdjoint(spot, strike, interestRate, timeToExpiry, volatility, dividendAmount, dividendTime);
+    final double dscStrike = strike * discountFactor;
+    final double corr = -Math.sqrt(dividendTime / timeToExpiry);
 
     final double[][] d1Adjoint = getD1Adjoint(interestRate, volatility, dividendTime, pVal, modSpot, sStarAdjoint);
     final double[][] d2Adjoint = getD2Adjoint(strike, interestRate, timeToExpiry, volatility, dividendTime, pVal, modSpot);
 
-    final double[] factorAdjoint = new double[] {factor, 0., 0., factor * (timeToExpiry - dividendTime), factor * interestRate, 0., 0. };
-    final double[] corrAdjoint = new double[] {corr, 0., 0., 0., -0.5 * corr / timeToExpiry, 0., 0. };
-    final double[] cdf1Adjoint = getCdfAdjoint(d1Adjoint[0], d2Adjoint[0], corrAdjoint, new double[] {1., 0., 0., 0., 0., 0., 0. });
+    final double[] factorAdjoint = new double[] {factor, 0., 0., factor * (timeToExpiry - dividendTime), factor * interestRate, -factor * interestRate, 0., 0. };
+    final double[] corrAdjoint = new double[] {corr, 0., 0., 0., -0.5 * corr / timeToExpiry, 0.5 * corr / dividendTime, 0., 0. };
+    final double[] cdf1Adjoint = getCdfAdjoint(d1Adjoint[0], d2Adjoint[0], corrAdjoint, new double[] {1., 0., 0., 0., 0., 0., 0., 0. });
     final double[] cdf2Adjoint = getCdfAdjoint(d1Adjoint[1], d2Adjoint[1], corrAdjoint, factorAdjoint);
     final double[] cdfFracAdjoint = getNormalCdfAdjoint(d1Adjoint[1][0]);
 
@@ -264,8 +270,9 @@ public class RollGeskeWhaleyModel {
     res[3] = dividendTime * pVal * cdf1Adjoint[0] + modSpot * cdf1Adjoint[3] + timeToExpiry * dscStrike * cdf2Adjoint[0] - dscStrike * cdf2Adjoint[3] - dividendTime * pVal * cdfFracAdjoint[0] + pVal *
         cdfFracAdjoint[1] * d1Adjoint[1][3];
     res[4] = modSpot * cdf1Adjoint[4] + interestRate * dscStrike * cdf2Adjoint[0] - dscStrike * cdf2Adjoint[4] + pVal * cdfFracAdjoint[1] * d1Adjoint[1][4];
-    res[5] = modSpot * cdf1Adjoint[5] - dscStrike * cdf2Adjoint[5] + pVal * cdfFracAdjoint[1] * d1Adjoint[1][5];
-    res[6] = 2. * cdf1Adjoint[1] + modSpot * cdf1Adjoint[6] - dscStrike * cdf2Adjoint[6] + pVal * cdfFracAdjoint[1] * d1Adjoint[1][6] + pVal * cdfFracAdjoint[2] * d1Adjoint[1][1] * d1Adjoint[1][1];
+    res[5] = modSpot * cdf1Adjoint[5] + interestRate * pVal * cdf1Adjoint[0] - dscStrike * cdf2Adjoint[5] - interestRate * pVal * cdfFracAdjoint[0] + pVal * cdfFracAdjoint[1] * d1Adjoint[1][5];
+    res[6] = modSpot * cdf1Adjoint[6] - dscStrike * cdf2Adjoint[6] + pVal * cdfFracAdjoint[1] * d1Adjoint[1][6];
+    res[7] = 2. * cdf1Adjoint[1] + modSpot * cdf1Adjoint[7] - dscStrike * cdf2Adjoint[7] + pVal * cdfFracAdjoint[1] * d1Adjoint[1][7] + pVal * cdfFracAdjoint[2] * d1Adjoint[1][1] * d1Adjoint[1][1];
 
     return res;
   }
@@ -287,15 +294,15 @@ public class RollGeskeWhaleyModel {
   }
 
   private double[] getCdfAdjoint(final double[] d1Adjoint, final double[] d2Adjoint, final double[] corrAdjoint, final double[] factorAdjoint) {
-    final double[] res = new double[7];
+    final double[] res = new double[8];
     final double[] normAdj = getNormalCdfAdjoint(d1Adjoint[0]);
     final double[] biAdj = getBivariateNormalCdfAdjoint(d2Adjoint[0], -d1Adjoint[0], corrAdjoint[0]);
 
     res[0] = factorAdjoint[0] * normAdj[0] + biAdj[0];
-    for (int i = 1; i < 6; ++i) {
+    for (int i = 1; i < 7; ++i) {
       res[i] = factorAdjoint[i] * normAdj[0] + factorAdjoint[0] * normAdj[1] * d1Adjoint[i] + biAdj[1] * d2Adjoint[i] - biAdj[2] * d1Adjoint[i] + biAdj[3] * corrAdjoint[i];
     }
-    res[6] = factorAdjoint[0] * normAdj[1] * d1Adjoint[6] + factorAdjoint[0] * normAdj[2] * d1Adjoint[1] * d1Adjoint[1] + biAdj[1] * d2Adjoint[6] - biAdj[2] * d1Adjoint[6] + biAdj[4] * d2Adjoint[1] *
+    res[7] = factorAdjoint[0] * normAdj[1] * d1Adjoint[7] + factorAdjoint[0] * normAdj[2] * d1Adjoint[1] * d1Adjoint[1] + biAdj[1] * d2Adjoint[7] - biAdj[2] * d1Adjoint[7] + biAdj[4] * d2Adjoint[1] *
         d2Adjoint[1] + biAdj[5] * d1Adjoint[1] * d1Adjoint[1] - 2. * biAdj[6] * d1Adjoint[1] * d2Adjoint[1];
     return res;
   }
@@ -323,12 +330,14 @@ public class RollGeskeWhaleyModel {
 
   private double[][] getD1Adjoint(final double interestRate, final double volatility, final double dividendTime, final double pVal, final double modSpot,
       final double[] sStarAdjoint) {
-    final double[][] res = new double[2][7];
+    final double[][] res = new double[2][8];
 
     final double rootT1 = Math.sqrt(dividendTime);
     final double sigRootT1 = volatility * rootT1;
 
-    final double part = (Math.log(modSpot / sStarAdjoint[0]) + interestRate * dividendTime) / sigRootT1;
+    final double part1 = Math.log(modSpot / sStarAdjoint[0]) / sigRootT1;
+    final double part2 = interestRate * rootT1 / volatility;
+    final double part = part1 + part2;
     final double d11 = part + 0.5 * sigRootT1;
     final double d12 = part - 0.5 * sigRootT1;
 
@@ -336,19 +345,22 @@ public class RollGeskeWhaleyModel {
     final double dualDelta = -sStarAdjoint[2] / sigRootT1 / sStarAdjoint[0];
     final double rho = rootT1 * pVal / volatility / modSpot - sStarAdjoint[3] / sStarAdjoint[0] / sigRootT1 + rootT1 / volatility;
     final double theta = -sStarAdjoint[4] / sStarAdjoint[0] / sigRootT1;
-    final double vegaPart = -part / volatility - sStarAdjoint[5] / sStarAdjoint[0] / sigRootT1;
+    final double divTheta1 = interestRate * pVal / sigRootT1 / modSpot - sStarAdjoint[5] / sStarAdjoint[0] / sigRootT1 - 0.5 * part1 / dividendTime + 0.5 *
+        (interestRate + 0.5 * volatility * volatility) / sigRootT1;
+    final double divTheta2 = divTheta1 - 0.5 * volatility / rootT1;
+    final double vegaPart = -part / volatility - sStarAdjoint[6] / sStarAdjoint[0] / sigRootT1;
     final double vega1 = vegaPart + 0.5 * rootT1;
     final double vega2 = vegaPart - 0.5 * rootT1;
     final double gamma = -delta / modSpot;
 
-    res[0] = new double[] {d11, delta, dualDelta, rho, theta, vega1, gamma };
-    res[1] = new double[] {d12, delta, dualDelta, rho, theta, vega2, gamma };
+    res[0] = new double[] {d11, delta, dualDelta, rho, theta, divTheta1, vega1, gamma };
+    res[1] = new double[] {d12, delta, dualDelta, rho, theta, divTheta2, vega2, gamma };
     return res;
   }
 
   private double[][] getD2Adjoint(final double strike, final double interestRate, final double timeToExpiry, final double volatility, final double dividendTime, final double pVal,
       final double modSpot) {
-    final double[][] res = new double[2][7];
+    final double[][] res = new double[2][8];
 
     final double rootT2 = Math.sqrt(timeToExpiry);
     final double sigRootT2 = volatility * rootT2;
@@ -362,12 +374,13 @@ public class RollGeskeWhaleyModel {
     final double rho = dividendTime * pVal / sigRootT2 / modSpot + rootT2 / volatility;
     final double theta1 = -0.5 * part / timeToExpiry + 0.5 * (interestRate + 0.5 * volatility * volatility) / sigRootT2;
     final double theta2 = theta1 - 0.5 * volatility / rootT2;
+    final double divTheta = interestRate * pVal / sigRootT2 / modSpot;
     final double vega1 = -part / volatility + 0.5 * rootT2;
     final double vega2 = vega1 - rootT2;
     final double gamma = -delta / modSpot;
 
-    res[0] = new double[] {d21, delta, dualDelta, rho, theta1, vega1, gamma };
-    res[1] = new double[] {d22, delta, dualDelta, rho, theta2, vega2, gamma };
+    res[0] = new double[] {d21, delta, dualDelta, rho, theta1, divTheta, vega1, gamma };
+    res[1] = new double[] {d22, delta, dualDelta, rho, theta2, divTheta, vega2, gamma };
     return res;
   }
 
@@ -381,7 +394,7 @@ public class RollGeskeWhaleyModel {
     final double theta = BlackScholesFormulaRepository.theta(sStar, strike, timeToExpiry - dividendTime, volatility, interestRate, interestRate, true) / blackDeltaBar;
     final double vega = BlackScholesFormulaRepository.vega(sStar, strike, timeToExpiry - dividendTime, volatility, interestRate, interestRate) / blackDeltaBar;
 
-    return new double[] {sStar, 0., dualDelta, rho, theta, vega, 0. };
+    return new double[] {sStar, 0., dualDelta, rho, -theta, theta, vega, 0. };
   }
 
   private Function1D<Double, double[]> getPriceAndVegaFunction(final double spot, final double strike, final double interestRate, final double timeToExpiry, final double dividendAmount,
@@ -391,7 +404,7 @@ public class RollGeskeWhaleyModel {
       @Override
       public double[] evaluate(final Double sigma) {
         final double[] greeks = getPriceAdjoint(spot, strike, interestRate, timeToExpiry, sigma, dividendAmount, dividendTime);
-        return new double[] {greeks[0], greeks[5] };
+        return new double[] {greeks[0], greeks[6] };
       }
     };
   }
