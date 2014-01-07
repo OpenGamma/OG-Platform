@@ -255,14 +255,12 @@ public class RollGeskeWhaleyModel {
         res[2] = -1.;
         res[3] = 0.;
         res[4] = 0.;
-        res[5] = interestRate * (strike - dividendAmount);
+        res[5] = interestRate * strike;
         res[6] = 0.;
         res[7] = 0.;
         return res;
       }
-      final double[] resLocal = bsPriceAdjoint(modSpot, strike, timeToExpiry, volatility, interestRate, pVal, dividendTime);
-      resLocal[5] += interestRate * dividendAmount * resLocal[1];
-      return resLocal;
+      return bsPriceAdjoint(modSpot, strike, timeToExpiry, volatility, interestRate, pVal, dividendTime);
     }
 
     final double dscStrike = strike * discountFactor;
