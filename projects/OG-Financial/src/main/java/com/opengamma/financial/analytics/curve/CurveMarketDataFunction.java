@@ -35,7 +35,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
@@ -79,7 +78,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
-    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(OpenGammaCompilationContext.getConfigSource(context));
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
   }
 
   @Override

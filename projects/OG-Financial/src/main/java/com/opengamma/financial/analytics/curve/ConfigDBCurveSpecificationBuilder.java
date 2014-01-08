@@ -15,11 +15,14 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -31,18 +34,36 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuilder {
-  /** The config source */
-  private final ConfigSource _configSource;
+
+  /** The curve node id mapper */
+  private final ConfigSourceQuery<CurveNodeIdMapper> _queryCurveNodeIdMapper;
   /** The curve definition source */
   private final CurveDefinitionSource _definitionSource;
 
   /**
    * @param configSource The config source, not null
+   * @deprecated Use {@link #ConfigDBCurveSpecificationBuilder(ConfigSource,VersionCorrection)} or {@link #init} instead
    */
+  @Deprecated
   public ConfigDBCurveSpecificationBuilder(final ConfigSource configSource) {
-    ArgumentChecker.notNull(configSource, "config source");
-    _configSource = configSource;
-    _definitionSource = new ConfigDBCurveDefinitionSource(configSource);
+    this(configSource, VersionCorrection.LATEST);
+  }
+
+  /**
+   * @param configSource the config source, not null
+   * @param versionCorrection the version/correction timestamp, not null
+   */
+  public ConfigDBCurveSpecificationBuilder(final ConfigSource configSource, final VersionCorrection versionCorrection) {
+    this(new ConfigSourceQuery<>(configSource, CurveNodeIdMapper.class, versionCorrection), new ConfigDBCurveDefinitionSource(configSource, versionCorrection));
+  }
+
+  private ConfigDBCurveSpecificationBuilder(final ConfigSourceQuery<CurveNodeIdMapper> queryCurveNodeIdMapper, CurveDefinitionSource definitionSource) {
+    _queryCurveNodeIdMapper = queryCurveNodeIdMapper;
+    _definitionSource = definitionSource;
+  }
+
+  public static ConfigDBCurveSpecificationBuilder init(final FunctionCompilationContext context, final FunctionDefinition function) {
+    return new ConfigDBCurveSpecificationBuilder(ConfigSourceQuery.init(context, function, CurveNodeIdMapper.class), ConfigDBCurveDefinitionSource.init(context, function));
   }
 
   @Override
@@ -75,6 +96,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link CurveSpecification}.
+   * 
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
@@ -98,6 +120,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link InterpolatedCurveSpecification}.
+   * 
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
@@ -124,6 +147,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link ConstantCurveSpecification}.
+   * 
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
@@ -136,14 +160,15 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Creates a {@link SpreadCurveSpecification}
+   * 
    * @param valuationTime The valuation time
    * @param curveDate The curve date
    * @param curveDefinition The curve definition
    * @return The curve specification
    */
   private AbstractCurveSpecification getSpreadCurveSpecification(final Instant valuationTime, final LocalDate curveDate, final SpreadCurveDefinition curveDefinition) {
-    final AbstractCurveDefinition firstDefinition = _definitionSource.getDefinition(curveDefinition.getFirstCurve(), VersionCorrection.LATEST);
-    final AbstractCurveDefinition secondDefinition = _definitionSource.getDefinition(curveDefinition.getSecondCurve(), VersionCorrection.LATEST);
+    final AbstractCurveDefinition firstDefinition = _definitionSource.getDefinition(curveDefinition.getFirstCurve());
+    final AbstractCurveDefinition secondDefinition = _definitionSource.getDefinition(curveDefinition.getSecondCurve());
     final AbstractCurveSpecification firstSpecification = buildSpecification(valuationTime, curveDate, firstDefinition);
     final AbstractCurveSpecification secondSpecification = buildSpecification(valuationTime, curveDate, secondDefinition);
     return new SpreadCurveSpecification(curveDate, curveDefinition.getName(), firstSpecification, secondSpecification, curveDefinition.getOperationName());
@@ -151,6 +176,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
 
   /**
    * Gets a {@link CurveNodeIdMapper} from the config source.
+   * 
    * @param valuationTime The valuation time
    * @param cache A cache of names to curve node id mappers
    * @param curveSpecificationName The curve specification name
@@ -161,7 +187,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     if (builderSpecDoc != null) {
       return builderSpecDoc;
     }
-    builderSpecDoc = _configSource.getSingle(CurveNodeIdMapper.class, curveSpecificationName, VersionCorrection.LATEST);
+    builderSpecDoc = _queryCurveNodeIdMapper.get(curveSpecificationName);
     if (builderSpecDoc != null) {
       cache.put(curveSpecificationName, builderSpecDoc);
     }
