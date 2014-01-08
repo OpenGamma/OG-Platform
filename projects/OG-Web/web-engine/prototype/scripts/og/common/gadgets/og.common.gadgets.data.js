@@ -23,12 +23,15 @@ $.register_module({
             };
             return function (len) {
                 var lcv, result = [];
-                for (lcv = 0; lcv < len; lcv += 1) result.push(letter(lcv));
+                for (lcv = 0; lcv < len; lcv += 1) {
+                    result.push(letter(lcv));
+                }
                 return result;
             };
         })();
         var get_viewport_data = function (dataman) {
             var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
+            if (!viewport.rows) return; // clipboard.clear ends up in this state
             return viewport.rows.reduce(function (acc, row) {
                 var start = row * rows;
                 return acc.concat(viewport.cols.map(function (col) {return start + col;}));
@@ -36,7 +39,11 @@ $.register_module({
         };
         var meta = function (dataman, rows, cols, fixed_width, first) {
             var dimensions = rows + '|' + cols.length, meta;
-            if (dataman.dimensions === dimensions) return null; else dataman.dimensions = dimensions;
+            if (dataman.dimensions === dimensions) {
+                return null;
+            } else {
+                dataman.dimensions = dimensions;
+            }
             return {
                 structure: [], data_rows: rows,
                 columns: {
@@ -50,9 +57,15 @@ $.register_module({
         };
         var viewport = function (new_viewport) {
             var dataman = this;
-            if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
+            if (!new_viewport) {
+                dataman.meta.viewport.cols = [];
+                dataman.meta.viewport.rows = [];
+                return dataman;
+            }
             dataman.meta.viewport = new_viewport;
-            if (dataman.formatted.data) setTimeout(function () {dataman.fire('data', get_viewport_data(dataman));});
+            if (dataman.formatted.data) {
+                setTimeout(function () {dataman.fire('data', get_viewport_data(dataman)); });
+            }
             return dataman;
         }
         formatters = {
@@ -145,7 +158,7 @@ $.register_module({
                             .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});
                         dataman.fire('meta', dataman.meta);
                     }
-                    if (dataman.formatted.data && viewport && viewport.cols.length && viewport.rows.length)
+                    if (dataman.formatted.data && viewport && viewport.cols && viewport.cols.length && viewport.rows.length)
                         dataman.fire('data', get_viewport_data(dataman));
                 })
                 .on('fatal', function (message) {
