@@ -26,7 +26,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -61,10 +60,9 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
-import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
+import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -92,6 +90,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
   private final String[] _valueRequirements;
 
   private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+  private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**
    * @param valueRequirements The value requirements, not null
@@ -104,7 +103,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, ExposureFunctions.class);
+    _instrumentExposuresProvider = ConfigDBInstrumentExposuresProvider.init(context, this);
   }
 
   /**
@@ -220,14 +219,11 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
       final Set<String> curveExposureConfigs = constraints.getValues(CURVE_EXPOSURES);
       try {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
-        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource,
-            context.getFunctionInitializationVersionCorrection(), context.getComputationTargetResolver().getVersionCorrection());
         final Set<ValueRequirement> requirements = new HashSet<>();
         final ValueProperties.Builder commonCurveProperties = getCurveProperties(target, constraints);
         for (final String curveExposureConfig : curveExposureConfigs) {
-          final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+          final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
           for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
             final ValueProperties properties = commonCurveProperties.get().copy().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
             requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));

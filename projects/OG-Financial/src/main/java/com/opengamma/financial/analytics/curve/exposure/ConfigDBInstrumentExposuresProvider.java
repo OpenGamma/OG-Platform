@@ -12,9 +12,10 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.VersionLockedConfigSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.impl.VersionLockedSecuritySource;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
@@ -25,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresProvider {
   /** The configuration source */
-  private final ConfigSource _configSource;
+  private final ConfigSourceQuery<ExposureFunctions> _query;
   /** The security source */
   private final SecuritySource _securitySource;
 
@@ -36,28 +37,33 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
    */
   @Deprecated
   public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource, final SecuritySource securitySource) {
-    this(configSource, securitySource, VersionCorrection.LATEST, VersionCorrection.LATEST);
+    this(configSource, securitySource, VersionCorrection.LATEST);
   }
 
   /**
    * @param configSource The config source, not null
    * @param securitySource The security source, not null
    * @param configVersionCorrection The version/correction timestamp to make queries to the configuration with, not null
-   * @param securityVersionCorrection The version/correction timestamp to make queries to the security source with, not null
    */
-  public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource, final SecuritySource securitySource, final VersionCorrection configVersionCorrection,
-      final VersionCorrection securityVersionCorrection) {
-    ArgumentChecker.notNull(configSource, "config source");
+  public ConfigDBInstrumentExposuresProvider(final ConfigSource configSource, final SecuritySource securitySource, final VersionCorrection configVersionCorrection) {
+    this(new ConfigSourceQuery<>(configSource, ExposureFunctions.class, configVersionCorrection), securitySource);
+  }
+
+  private ConfigDBInstrumentExposuresProvider(final ConfigSourceQuery<ExposureFunctions> query, final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
-    _configSource = new VersionLockedConfigSource(configSource, ArgumentChecker.notNull(configVersionCorrection, "configVersionCorrection"));
-    _securitySource = new VersionLockedSecuritySource(securitySource, ArgumentChecker.notNull(securityVersionCorrection, "securityVersionCorrection"));
+    _query = query;
+    _securitySource = securitySource;
+  }
+
+  public static ConfigDBInstrumentExposuresProvider init(final FunctionCompilationContext context, final FunctionDefinition function) {
+    return new ConfigDBInstrumentExposuresProvider(ConfigSourceQuery.init(context, function, ExposureFunctions.class), context.getSecuritySource());
   }
 
   @Override
   public Set<String> getCurveConstructionConfigurationsForConfig(final String instrumentExposureConfigurationName, final FinancialSecurity security) {
     ArgumentChecker.notNull(instrumentExposureConfigurationName, "instrument exposure configuration name");
     ArgumentChecker.notNull(security, "security");
-    final ExposureFunctions exposures = _configSource.getLatestByName(ExposureFunctions.class, instrumentExposureConfigurationName);
+    final ExposureFunctions exposures = _query.get(instrumentExposureConfigurationName);
     if (exposures == null) {
       throw new OpenGammaRuntimeException("Could not get instrument exposure configuration called " + instrumentExposureConfigurationName);
     }

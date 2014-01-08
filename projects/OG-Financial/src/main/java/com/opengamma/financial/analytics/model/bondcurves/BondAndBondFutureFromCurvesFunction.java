@@ -28,9 +28,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -44,6 +42,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -66,6 +65,8 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   /** The calculator */
   private final InstrumentDerivativeVisitor<S, T> _calculator;
 
+  private InstrumentExposuresProvider _instrumentExposuresProvider;
+
   /**
    * @param valueRequirementName The value requirement name, not null
    * @param calculator The calculator
@@ -74,6 +75,11 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
     _calculator = calculator;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _instrumentExposuresProvider = ConfigDBInstrumentExposuresProvider.init(context, this);
   }
 
   @Override
@@ -124,12 +130,8 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
     final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<>();
     try {
-      final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-      final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-      final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource, context.getFunctionInitializationVersionCorrection(),
-          context.getComputationTargetResolver().getVersionCorrection());
       for (final String curveExposureConfig : curveExposureConfigs) {
-        final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+        final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
           final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
               .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))

@@ -47,7 +47,6 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
@@ -64,7 +63,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
@@ -320,7 +318,6 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     if (domesticCurveCalculationConfigName == null) {
       return null;
     }
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final MultiCurveCalculationConfig domesticCurveCalculationConfig = _curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
     if (domesticCurveCalculationConfig == null) {
       s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);

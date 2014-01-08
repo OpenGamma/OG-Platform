@@ -18,7 +18,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
@@ -70,12 +69,11 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
+  public final void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     _curveConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);

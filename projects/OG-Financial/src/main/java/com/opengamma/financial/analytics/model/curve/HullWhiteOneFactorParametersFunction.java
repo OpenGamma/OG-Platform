@@ -27,7 +27,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -41,7 +40,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters;
 import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.ExternalId;
@@ -100,7 +98,6 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
     final ValueProperties properties = createValueProperties().with(PROPERTY_HULL_WHITE_PARAMETERS, _name).with(PROPERTY_HULL_WHITE_CURRENCY, _currency.getCode()).get();
     final ValueSpecification result = new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final HullWhiteOneFactorParameters parameters = _hullWhiteOneFactorParameters.get(_name);
     if (parameters == null) {
       throw new OpenGammaRuntimeException("HullWhiteOneFactorParameter configuration called " + _name + " was null");

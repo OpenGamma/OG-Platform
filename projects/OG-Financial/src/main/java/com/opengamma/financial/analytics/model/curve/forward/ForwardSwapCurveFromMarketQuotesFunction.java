@@ -30,7 +30,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -46,7 +45,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.forwardcurve.ConfigDBForwardSwapCurveDefinitionSource;
 import com.opengamma.financial.analytics.forwardcurve.ConfigDBForwardSwapCurveSpecificationSource;
@@ -69,12 +67,18 @@ import com.opengamma.util.time.Tenor;
 public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(ForwardSwapCurveFromMarketQuotesFunction.class);
 
+  private ConfigDBForwardSwapCurveDefinitionSource _forwardSwapCurveDefinitionSource;
+  private ConfigDBForwardSwapCurveSpecificationSource _forwardSwapCurveSpecificationSource;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _forwardSwapCurveDefinitionSource = ConfigDBForwardSwapCurveDefinitionSource.init(context, this);
+    _forwardSwapCurveSpecificationSource = ConfigDBForwardSwapCurveSpecificationSource.init(context, this);
+  }
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBForwardSwapCurveDefinitionSource curveDefinitionSource = new ConfigDBForwardSwapCurveDefinitionSource(configSource);
-    final ConfigDBForwardSwapCurveSpecificationSource curveSpecificationSource = new ConfigDBForwardSwapCurveSpecificationSource(configSource);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
@@ -84,12 +88,8 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        final ValueProperties properties = createValueProperties()
-            .withAny(ValuePropertyNames.CURVE)
-            .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
-            .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
-            .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
-            .withAny(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR)
+        final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CURVE).withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
+            .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR).withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR).withAny(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR)
             .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardSwapCurveMarketDataFunction.FORWARD_SWAP_QUOTES).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(spec);
@@ -122,14 +122,14 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         }
         final String curveName = curveNames.iterator().next();
         final String forwardTenor = forwardTenors.iterator().next();
-        final ValueProperties properties = ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR, forwardTenor).get();
+        final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).with(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR, forwardTenor)
+            .get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.FORWARD_SWAP_CURVE_MARKET_DATA, target.toSpecification(), properties));
       }
 
       @Override
-      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) {
         final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
         final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
         final Clock snapshotClock = executionContext.getValuationClock();
@@ -139,11 +139,11 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         final DoubleArrayList expiries = new DoubleArrayList();
         final DoubleArrayList forwards = new DoubleArrayList();
         final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
-        final ForwardSwapCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currency.toString());
+        final ForwardSwapCurveDefinition definition = _forwardSwapCurveDefinitionSource.getDefinition(curveName, currency.toString());
         if (definition == null) {
           throw new OpenGammaRuntimeException("Couldn't find a forward swap curve definition called " + curveName + " for target " + target);
         }
-        final ForwardSwapCurveSpecification specification = curveSpecificationSource.getSpecification(curveName, currency.toString());
+        final ForwardSwapCurveSpecification specification = _forwardSwapCurveSpecificationSource.getSpecification(curveName, currency.toString());
         if (specification == null) {
           throw new OpenGammaRuntimeException("Couldn't find a forward swap curve specification called " + curveName + " for target " + target);
         }
@@ -194,11 +194,8 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
 
       private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName, final String interpolatorName, final String leftExtrapolatorName,
           final String rightExtrapolatorName, final String forwardTenor) {
-        final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
-            .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
-            .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
+        final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, curveName).with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
+            .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName).with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
             .with(ForwardSwapCurveMarketDataFunction.PROPERTY_FORWARD_TENOR, forwardTenor)
             .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardSwapCurveMarketDataFunction.FORWARD_SWAP_QUOTES).get();
         return new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);

@@ -28,8 +28,6 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -41,8 +39,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -58,12 +56,19 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
   /** The value requirement name */
   private final String _valueRequirementName;
 
+  private InstrumentExposuresProvider _instrumentExposuresProvider;
+
   /**
    * @param valueRequirementName The value requirement name, not null
    */
   public BondFromYieldAndCurvesFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement");
     _valueRequirementName = valueRequirementName;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _instrumentExposuresProvider = ConfigDBInstrumentExposuresProvider.init(context, this);
   }
 
   @Override
@@ -115,12 +120,8 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(new ValueRequirement(MARKET_YTM, ComputationTargetSpecification.of(security), ValueProperties.builder().get()));
     try {
-      final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-      final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-      final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource, context.getFunctionInitializationVersionCorrection(),
-          context.getComputationTargetResolver().getVersionCorrection());
       for (final String curveExposureConfig : curveExposureConfigs) {
-        final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+        final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
         for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
           final ValueProperties properties = ValueProperties.builder().with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName)
               .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE))

@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -35,7 +34,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
@@ -138,7 +136,6 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
     requirements.add(HistoricalTimeSeriesFunctionUtils.createFXForwardCurveHTSRequirement(currencyPair, curveName, MarketDataRequirementNames.MARKET_VALUE, null, start, includeStart, end,
         includeEnd));
 
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (FXImpliedYieldCurveFunction.FX_IMPLIED.equals(curveCalculationConfig.getCalculationMethod())) {
       final Currency impliedCcy = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());

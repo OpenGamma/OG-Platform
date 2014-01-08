@@ -45,7 +45,6 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
@@ -79,6 +78,7 @@ import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.InstrumentExposuresProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -111,6 +111,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
   private final String[] _valueRequirements;
 
   private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+  private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**
    * @param valueRequirements The value requirement names, not null
@@ -123,6 +124,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
   @Override
   public void init(final FunctionCompilationContext context) {
     _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
+    _instrumentExposuresProvider = ConfigDBInstrumentExposuresProvider.init(context, this);
   }
 
   /**
@@ -238,13 +240,10 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
       }
       try {
         final FinancialSecurity security = (FinancialSecurity) target.getTrade().getSecurity();
-        final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-        final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource,
-            context.getFunctionInitializationVersionCorrection(), context.getComputationTargetResolver().getVersionCorrection());
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final String curveExposureConfig : curveExposureConfigs) {
-          final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
+          final Set<String> curveConstructionConfigurationNames = _instrumentExposuresProvider.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
           for (final String curveConstructionConfigurationName : curveConstructionConfigurationNames) {
             final ValueProperties properties = ValueProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
             requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
