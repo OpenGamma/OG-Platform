@@ -26,6 +26,11 @@ public class ConfigDBCurveCalculationConfigSource implements CurveCalculationCon
     _lockedVersionCorrection = versionCorrection;
   }
 
+  @Deprecated
+  public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource) {
+    this(configSource, VersionCorrection.LATEST);
+  }
+
   public static void reinitOnChanges(final FunctionCompilationContext context, final FunctionDefinition function) {
     AbstractConfigChangeProvider.reinitOnChanges(context, function, MultiCurveCalculationConfig.class);
   }
