@@ -235,7 +235,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebComputationTargetTypeResource.class, getTargetTypes());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebLegalEntityResource.class, getLegalEntityMaster());
+    resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, 
         getMarketDataSnapshotMaster(), getConfigMaster(), getLiveMarketDataProviderFactory(), getMarketDataSpecificationRepository(),
