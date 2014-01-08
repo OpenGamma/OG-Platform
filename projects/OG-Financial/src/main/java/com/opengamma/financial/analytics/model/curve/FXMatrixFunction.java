@@ -20,7 +20,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -41,8 +40,9 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveNodeCurrencyVisitor;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.util.ArgumentChecker;
@@ -55,6 +55,9 @@ import com.opengamma.util.money.Currency;
 public class FXMatrixFunction extends AbstractFunction {
   /** The configuration name */
   private final String _configurationName;
+
+  private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+  private CurveDefinitionSource _curveDefinitionSource;
 
   /**
    * @param configurationName The configuration name, not null
@@ -75,16 +78,15 @@ public class FXMatrixFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
+    _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
     //TODO work out a way to use dependency graph to get curve information for this config
-    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
+    final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(_configurationName,
         context.getFunctionInitializationVersionCorrection());
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
@@ -92,7 +94,7 @@ public class FXMatrixFunction extends AbstractFunction {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     try {
       final CurveNodeVisitor<Set<Currency>> visitor = new CurveNodeCurrencyVisitor(conventionSource);
-      final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, configSource, context.getFunctionInitializationVersionCorrection(), visitor);
+      final Set<Currency> currencies = CurveUtils.getCurrencies(curveConstructionConfiguration, _curveDefinitionSource, _curveConstructionConfigurationSource, visitor);
       final ValueProperties properties = createValueProperties().with(CURVE_CONSTRUCTION_CONFIG, _configurationName).get();
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), spec, currencies);

@@ -16,7 +16,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -30,8 +29,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -39,8 +36,11 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Pulls a {@link CurveConstructionConfiguration} from the config database.
  */
 public class CurveConstructionConfigurationFunction extends AbstractFunction {
+
   /** The configuration name */
   private final String _configurationName;
+
+  private ConfigDBCurveConstructionConfigurationSource _curveConstructionConfigurationSource;
 
   /**
    * @param configurationName The configuration name, not null
@@ -52,16 +52,13 @@ public class CurveConstructionConfigurationFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
+    _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
-    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
-        context.getFunctionInitializationVersionCorrection());
+    final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(_configurationName);
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);
     }

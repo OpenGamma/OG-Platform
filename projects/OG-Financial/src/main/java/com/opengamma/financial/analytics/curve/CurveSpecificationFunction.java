@@ -13,7 +13,6 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,7 +28,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -39,6 +40,9 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class CurveSpecificationFunction extends AbstractFunction {
   /** The curve name */
   private final String _curveName;
+
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   /**
    * @param curveName The curve name, not null
@@ -59,18 +63,14 @@ public class CurveSpecificationFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, InterpolatedCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, ConstantCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, SpreadCurveDefinition.class);
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(OpenGammaCompilationContext.getConfigSource(context));
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName,
-        context.getFunctionInitializationVersionCorrection());
+    final AbstractCurveSpecification curveSpecification = CurveUtils.getSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), _curveName);
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties);
     return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), curveSpecification, spec);

@@ -19,6 +19,10 @@ public class ConfigDBCurveCalculationConfigSource implements CurveCalculationCon
 
   private final ConfigSourceQuery<MultiCurveCalculationConfig> _query;
 
+  /**
+   * @param configSource the config source, not null
+   * @deprecated Use {@link #ConfigDBCurveCalculationConfigSource(ConfigSource,VersionCorrection)}, {@link #ConfigDBCurveCalculationConfigSource(ConfigSourceQuery)} or {@link #init} instead
+   */
   @Deprecated
   public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource) {
     this(configSource, VersionCorrection.LATEST);

@@ -51,6 +51,10 @@ public class ConfigSourceQuery<T> {
     return new ConfigSourceQuery<T>(OpenGammaCompilationContext.getConfigSource(context), clazz, context.getFunctionInitializationVersionCorrection());
   }
 
+  public void reinitOnChange(final FunctionCompilationContext context, final FunctionDefinition function) {
+    AbstractConfigChangeProvider.reinitOnChanges(context, function, getType());
+  }
+
   public ConfigSource getConfigSource() {
     return _configSource;
   }

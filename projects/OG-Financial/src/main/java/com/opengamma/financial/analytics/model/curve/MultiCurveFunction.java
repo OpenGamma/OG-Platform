@@ -40,7 +40,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.generic.LastTimeCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
@@ -56,19 +55,14 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CurveNodeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
-import com.opengamma.financial.analytics.curve.ConstantCurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveUtils;
-import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
-import com.opengamma.financial.analytics.curve.SpreadCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -88,6 +82,8 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   /** The maturity calculator */
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
 
+  private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+
   /**
    * @param configurationName The configuration name, not null
    */
@@ -98,20 +94,14 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, InterpolatedCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, ConstantCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, SpreadCurveDefinition.class);
+    _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final CurveConstructionConfigurationSource curveConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
     //TODO work out a way to use dependency graph to get curve information for this config
-    final CurveConstructionConfiguration curveConstructionConfiguration = curveConfigurationSource.getCurveConstructionConfiguration(_configurationName,
+    final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(_configurationName,
         context.getFunctionInitializationVersionCorrection());
     if (curveConstructionConfiguration == null) {
       throw new OpenGammaRuntimeException("Could not get curve construction configuration called " + _configurationName);

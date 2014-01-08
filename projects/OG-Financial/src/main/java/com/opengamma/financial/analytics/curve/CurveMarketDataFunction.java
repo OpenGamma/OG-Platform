@@ -18,7 +18,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -37,10 +36,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -54,6 +55,9 @@ public class CurveMarketDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(CurveMarketDataFunction.class);
   /** The curve name */
   private final String _curveName;
+
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   /**
    * @param curveName The curve name, not null
@@ -74,10 +78,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, CurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, InterpolatedCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, ConstantCurveDefinition.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, SpreadCurveDefinition.class);
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = new ConfigDBCurveSpecificationBuilder(OpenGammaCompilationContext.getConfigSource(context));
   }
 
   @Override
@@ -85,10 +87,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     try {
-      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName,
-          context.getFunctionInitializationVersionCorrection());
+      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), _curveName);
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), specification, spec);
     } catch (final Exception e) {
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveDefinition called " + _curveName);

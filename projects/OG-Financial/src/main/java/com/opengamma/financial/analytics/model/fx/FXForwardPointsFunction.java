@@ -73,6 +73,7 @@ import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecur
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
+import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveUtils;
@@ -109,12 +110,19 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
   /** The value requirements */
   private final String[] _valueRequirements;
 
+  private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+
   /**
    * @param valueRequirements The value requirement names, not null
    */
   public FXForwardPointsFunction(final String... valueRequirements) {
     ArgumentChecker.notNull(valueRequirements, "value requirements");
     _valueRequirements = valueRequirements;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _curveConstructionConfigurationSource = ConfigDBCurveConstructionConfigurationSource.init(context, this);
   }
 
   /**
@@ -234,7 +242,6 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
         final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
         final ConfigDBInstrumentExposuresProvider exposureSource = new ConfigDBInstrumentExposuresProvider(configSource, securitySource,
             context.getFunctionInitializationVersionCorrection(), context.getComputationTargetResolver().getVersionCorrection());
-        final ConfigDBCurveConstructionConfigurationSource constructionConfigurationSource = new ConfigDBCurveConstructionConfigurationSource(configSource);
         final Set<ValueRequirement> requirements = new HashSet<>();
         for (final String curveExposureConfig : curveExposureConfigs) {
           final Set<String> curveConstructionConfigurationNames = exposureSource.getCurveConstructionConfigurationsForConfig(curveExposureConfig, security);
@@ -242,7 +249,7 @@ public abstract class FXForwardPointsFunction extends AbstractFunction {
             final ValueProperties properties = ValueProperties.with(CURVE_CONSTRUCTION_CONFIG, curveConstructionConfigurationName).get();
             requirements.add(new ValueRequirement(CURVE_BUNDLE, ComputationTargetSpecification.NULL, properties));
             requirements.add(new ValueRequirement(JACOBIAN_BUNDLE, ComputationTargetSpecification.NULL, properties));
-            final CurveConstructionConfiguration curveConstructionConfiguration = constructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
+            final CurveConstructionConfiguration curveConstructionConfiguration = _curveConstructionConfigurationSource.getCurveConstructionConfiguration(curveConstructionConfigurationName);
             final String[] curveNames = CurveUtils.getCurveNamesForConstructionConfiguration(curveConstructionConfiguration);
             for (final String curveName : curveNames) {
               final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
