@@ -31,7 +31,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -52,8 +51,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -67,7 +70,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyCDSSecurity;
 import com.opengamma.financial.security.cds.StandardCDSSecurity;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -84,11 +86,13 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
   /** Calculates the first difference of a time series */
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
-  private VersionCorrection _configVersion;
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _configVersion = context.getFunctionInitializationVersionCorrection();
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
   }
 
   @Override
@@ -112,13 +116,12 @@ public class CreditInstrumentCS01PnLFunction extends AbstractFunction.NonCompile
     final Schedule scheduleCalculator = getScheduleCalculator(desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR));
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION));
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaExecutionContext.getSecuritySource(executionContext));
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
     //TODO
     final String curveName = getCurvePrefix() + "_" + spreadCurveName;
-    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(snapshotClock.instant(), configSource, now, curveName, _configVersion);
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(snapshotClock.instant(), _curveDefinitionSource, _curveSpecificationBuilder, now, curveName);
     DoubleTimeSeries<?> fxSeries = null;
     boolean isInverse = true;
     if (!desiredCurrency.equals(currency)) {

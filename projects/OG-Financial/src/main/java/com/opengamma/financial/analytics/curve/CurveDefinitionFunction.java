@@ -58,7 +58,7 @@ public class CurveDefinitionFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final AbstractCurveDefinition curveDefinition = _curveDefinitionSource.getDefinition(_curveName, context.getFunctionInitializationVersionCorrection());
+    final AbstractCurveDefinition curveDefinition = _curveDefinitionSource.getDefinition(_curveName);
     if (curveDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get curve definition called " + _curveName);
     }

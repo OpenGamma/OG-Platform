@@ -14,20 +14,17 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionReinitializer;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.id.ObjectId;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -55,19 +52,9 @@ public class YieldCurveFunctionHelper {
     if (_curveSpecificationBuilder == null) {
       throw new UnsupportedOperationException("An interpolated yield curve specification builder is required");
     }
-    _definition = getDefinition(context);
+    _definition = ConfigSourceQuery.init(context, defnToReInit, YieldCurveDefinition.class).get(_curveName + "_" + _currency.getCode());
     if (_definition == null) {
       throw new UnsupportedOperationException("No curve definition for " + _curveName + " on " + _currency);
-    } else {
-      if (_definition.getUniqueId() != null) {
-        final FunctionReinitializer functionReinitializer = context.getFunctionReinitializer();
-        if (functionReinitializer != null) { // this step won't happen during a compile.
-          final ObjectId objectId = _definition.getUniqueId().getObjectId();
-          functionReinitializer.reinitializeFunction(defnToReInit, objectId);
-        }
-      } else {
-        s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
-      }
     }
     return _definition;
   }
@@ -81,11 +68,6 @@ public class YieldCurveFunctionHelper {
     final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
     final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant());
     return new Triple<>((expiry != null) ? atInstantZDT.with(LocalTime.MIDNIGHT).toInstant() : null, expiry, specification);
-  }
-
-  private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    return configSource.getSingle(YieldCurveDefinition.class, _curveName + "_" + _currency.getCode(), context.getFunctionInitializationVersionCorrection());
   }
 
   private Instant findCurveExpiryDate(final SecuritySource securitySource, final Instant curveDate, final InterpolatedYieldCurveSpecification specification, final Instant eod) {

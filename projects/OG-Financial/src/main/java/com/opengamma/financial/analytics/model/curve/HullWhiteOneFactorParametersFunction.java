@@ -10,7 +10,6 @@ import static com.opengamma.financial.analytics.model.curve.CurveCalculationProp
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -29,7 +28,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -45,7 +43,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -79,6 +77,8 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
   /** The currency for which these parameters are valid */
   private final Currency _currency;
 
+  private ConfigSourceQuery<HullWhiteOneFactorParameters> _hullWhiteOneFactorParameters;
+
   /**
    * @param name The name of the Hull-White parameter set, not null
    * @param currency The currency for which the parameters are valid, not null
@@ -92,7 +92,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, HullWhiteOneFactorParameters.class);
+    _hullWhiteOneFactorParameters = ConfigSourceQuery.init(context, this, HullWhiteOneFactorParameters.class);
   }
 
   @Override
@@ -101,11 +101,10 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
     final ValueSpecification result = new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final Collection<ConfigItem<HullWhiteOneFactorParameters>> configs = configSource.get(HullWhiteOneFactorParameters.class, _name, context.getFunctionInitializationVersionCorrection());
-    if (configs == null) {
+    final HullWhiteOneFactorParameters parameters = _hullWhiteOneFactorParameters.get(_name);
+    if (parameters == null) {
       throw new OpenGammaRuntimeException("HullWhiteOneFactorParameter configuration called " + _name + " was null");
     }
-    final HullWhiteOneFactorParameters parameters = configs.iterator().next().getValue();
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getMeanReversionId()));
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
     final Map<Tenor, ExternalId> volatilityTermStructure = parameters.getVolatilityTermStructure();

@@ -13,11 +13,10 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -38,15 +37,9 @@ public class VolatilityCubeFunctionHelper {
   }
 
   public VolatilityCubeDefinition init(final FunctionCompilationContext context, final FunctionDefinition defnToReInit) {
-    _definition = getDefinition(context);
+    _definition = ConfigSourceQuery.init(context, defnToReInit, VolatilityCubeDefinition.class).get(_definitionName + "_" + _currency);
     if (_definition == null) {
       s_logger.warn("No cube definition for {} on {}", _definitionName, _currency);
-    } else {
-      if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
-      } else {
-        s_logger.warn("Cube {} on {} has no identifier - cannot subscribe to updates", _definitionName, _currency);
-      }
     }
     return _definition;
   }
@@ -74,11 +67,6 @@ public class VolatilityCubeFunctionHelper {
     Instant expiry = null;
     expiry = eod;
     return new Triple<>(atZDT.with(LocalTime.MIDNIGHT).toInstant(), expiry, specification);
-  }
-
-  private VolatilityCubeDefinition getDefinition(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    return configSource.getSingle(VolatilityCubeDefinition.class, _definitionName + "_" + _currency, context.getFunctionInitializationVersionCorrection());
   }
 
   private VolatilityCubeSpecification buildSpecification(final LocalDate curveDate) {

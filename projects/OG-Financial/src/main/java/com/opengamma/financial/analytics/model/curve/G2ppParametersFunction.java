@@ -9,7 +9,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.G2PP_PARAMETERS;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_G2PP_PARAMETERS;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -27,8 +26,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -42,9 +39,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.parameters.G2ppParameters;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
@@ -93,6 +89,8 @@ public class G2ppParametersFunction extends AbstractFunction {
   /** The currency for which these parameters are valid */
   private final Currency _currency;
 
+  private ConfigSourceQuery<G2ppParameters> _g2ppParameters;
+
   /**
    * @param name The name of the G2++ parameter set, not null
    * @param currency The currency for which the parameters are valid, not null
@@ -106,7 +104,7 @@ public class G2ppParametersFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, G2ppParameters.class);
+    _g2ppParameters = ConfigSourceQuery.init(context, this, G2ppParameters.class);
   }
 
   @Override
@@ -114,12 +112,10 @@ public class G2ppParametersFunction extends AbstractFunction {
     final ValueProperties properties = createValueProperties().with(PROPERTY_G2PP_PARAMETERS, _name).get();
     final ValueSpecification result = new ValueSpecification(G2PP_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final Collection<ConfigItem<G2ppParameters>> configs = configSource.get(G2ppParameters.class, _name, context.getFunctionInitializationVersionCorrection());
-    if (configs == null) {
+    final G2ppParameters parameters = _g2ppParameters.get(_name);
+    if (parameters == null) {
       throw new OpenGammaRuntimeException("G2ppParameter configuration called " + _name + " was null");
     }
-    final G2ppParameters parameters = configs.iterator().next().getValue();
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getFirstMeanReversionId()));
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getSecondMeanReversionId()));
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getFirstInitialVolatilityId()));

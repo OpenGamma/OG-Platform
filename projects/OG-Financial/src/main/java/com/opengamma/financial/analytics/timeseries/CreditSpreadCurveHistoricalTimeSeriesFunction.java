@@ -16,7 +16,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -33,12 +32,15 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
@@ -47,11 +49,14 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CreditSpreadCurveHistoricalTimeSeriesFunction.class);
-  private VersionCorrection _configVersion;
+
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _configVersion = context.getFunctionInitializationVersionCorrection();
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
   }
 
   @Override
@@ -60,10 +65,9 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final String idName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveName = idName;
-    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName, _configVersion);
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), _curveDefinitionSource, _curveSpecificationBuilder, now.toLocalDate(), curveName);
     final String dataField = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     final String resolutionKey;
     final Set<String> resolutionKeyConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);

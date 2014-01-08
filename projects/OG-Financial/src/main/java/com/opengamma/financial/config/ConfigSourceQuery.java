@@ -72,7 +72,7 @@ public class ConfigSourceQuery<T> {
    * compilation/execution sequence).
    * 
    * @param name the name of the item to query
-   * @return the config item
+   * @return the config item, null if not found
    */
   public T get(final String name) {
     return get(name, getVersionCorrection());
@@ -83,7 +83,7 @@ public class ConfigSourceQuery<T> {
    * 
    * @param name the name of the item to query
    * @param versionCorrection the version/correction timestamp to query at, not null
-   * @return the config item
+   * @return the config item, null if not found
    */
   public T get(final String name, final VersionCorrection versionCorrection) {
     return getConfigSource().getSingle(getType(), name, versionCorrection);

@@ -68,7 +68,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -87,7 +86,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
@@ -98,7 +96,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
@@ -134,6 +132,9 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
   /** The curve name */
   private final String _impliedCurveCalculationConfig;
 
+  private ConfigSourceQuery<MultiCurveCalculationConfig> _multiCurveCalculationConfig;
+  private ConfigSourceQuery<YieldCurveDefinition> _yieldCurveDefinition;
+
   /**
    * @param curveCalculationConfig The curve name, not null
    */
@@ -144,15 +145,13 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, MultiCurveCalculationConfig.class);
-    AbstractConfigChangeProvider.reinitOnChanges(context, this, YieldCurveDefinition.class);
+    _multiCurveCalculationConfig = ConfigSourceQuery.init(context, this, MultiCurveCalculationConfig.class);
+    _yieldCurveDefinition = ConfigSourceQuery.init(context, this, YieldCurveDefinition.class);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    final ConfigSource configurationSource = OpenGammaCompilationContext.getConfigSource(context);
-    final MultiCurveCalculationConfig impliedConfiguration = configurationSource.getSingle(MultiCurveCalculationConfig.class, _impliedCurveCalculationConfig,
-        context.getFunctionInitializationVersionCorrection());
+    final MultiCurveCalculationConfig impliedConfiguration = _multiCurveCalculationConfig.get(_impliedCurveCalculationConfig);
     if (impliedConfiguration == null) {
       throw new OpenGammaRuntimeException("Multi-curve calculation called " + _impliedCurveCalculationConfig + " was null");
     }
@@ -177,8 +176,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     if (originalCurveNames.length != 1) {
       s_logger.warn("Found more than one exogenous configuration name; using only the first");
     }
-    final MultiCurveCalculationConfig originalConfiguration = configurationSource.getSingle(MultiCurveCalculationConfig.class, entry.getKey(),
-        context.getFunctionInitializationVersionCorrection());
+    final MultiCurveCalculationConfig originalConfiguration = _multiCurveCalculationConfig.get(entry.getKey());
     if (originalConfiguration == null) {
       throw new OpenGammaRuntimeException("Multi-curve calculation called " + entry.getKey() + " was null");
     }
@@ -190,7 +188,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     if (!originalCurrency.equals(impliedCurrency)) {
       throw new OpenGammaRuntimeException("Currency targets for configurations " + _impliedCurveCalculationConfig + " and " + entry.getKey() + " did not match");
     }
-    final YieldCurveDefinition impliedDefinition = configurationSource.getLatestByName(YieldCurveDefinition.class, impliedCurveNames[0] + "_" + impliedCurrency.getCode());
+    final YieldCurveDefinition impliedDefinition = _yieldCurveDefinition.get(impliedCurveNames[0] + "_" + impliedCurrency.getCode());
     if (impliedDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get implied definition called " + impliedCurveNames[0] + "_" + impliedCurrency.getCode());
     }
@@ -368,7 +366,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
             bundle.add(MarketDataRequirementNames.MARKET_VALUE, id, ts);
           } catch (final Exception e) {
-            s_logger.error("Exception building implied deposit curve series when adding timeseries to bundle for " + strip.getSecurityIdentifier() , e);
+            s_logger.error("Exception building implied deposit curve series when adding timeseries to bundle for " + strip.getSecurityIdentifier(), e);
             break;
           }
         }
