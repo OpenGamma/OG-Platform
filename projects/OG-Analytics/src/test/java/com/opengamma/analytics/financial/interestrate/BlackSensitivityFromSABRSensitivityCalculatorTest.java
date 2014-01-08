@@ -102,7 +102,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
   private static final Period MATURITY_1_SWPT = Period.ofYears(6);
   private static final double STRIKE_1 = 0.0250;
   private static final SwapFixedIborDefinition SWAP_1_DEFINITION = SwapFixedIborDefinition.from(SETTLE_1_SWPT_DATE, MATURITY_1_SWPT, USD6MLIBOR3M, NOTIONAL, STRIKE_1, true);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_1_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, SWAP_1_DEFINITION, true);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_1_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, SWAP_1_DEFINITION, true, true);
 
   private static final Period EXPIRY_2_SWPT = Period.ofMonths(9);
   private static final ZonedDateTime EXPIRY_2_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_2_SWPT, USD6MLIBOR3M.getIborIndex(), NYC);
@@ -110,7 +110,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
   private static final Period MATURITY_2_SWPT = Period.ofYears(4);
   private static final double STRIKE_2 = 0.0300;
   private static final SwapFixedIborDefinition SWAP_2_DEFINITION = SwapFixedIborDefinition.from(SETTLE_2_SWPT_DATE, MATURITY_2_SWPT, USD6MLIBOR3M, NOTIONAL, STRIKE_2, true);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_2_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_2_SWPT_DATE, SWAP_2_DEFINITION, true);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_2_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_2_SWPT_DATE, SWAP_2_DEFINITION, true, true);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
@@ -240,7 +240,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     for (int loopswpt = 0; loopswpt <= nbStrikeSwapt; loopswpt++) {
       strikes[loopswpt] = strikeStart + loopswpt * strikeRange / nbStrikeSwapt;
       final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLE_1_SWPT_DATE, MATURITY_1_SWPT, USD6MLIBOR3M, NOTIONAL, strikes[loopswpt], true);
-      final SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, swapDefinition, true);
+      final SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, swapDefinition, true, true);
       swaptions[loopswpt] = swaptionDefinition.toDerivative(REFERENCE_DATE, CURVE_NAMES);
       pv[loopswpt] = METHOD_SWAPTION_SABR.presentValue(swaptions[loopswpt], sabrBundle).getAmount();
       final PresentValueSABRSensitivityDataBundle sensiPoint = swaptions[loopswpt].accept(PVSSC_SABR, sabrBundle);

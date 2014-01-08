@@ -59,7 +59,7 @@ public class SwaptionInstrumentsDescriptionDataSet {
   }
 
   public static SwaptionPhysicalFixedIborDefinition createSwaptionPhysicalFixedIborDefinition() {
-    return SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+    return SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, true, IS_LONG);
   }
 
   public static SwaptionPhysicalFixedIbor createSwaptionPhysicalFixedIbor() {

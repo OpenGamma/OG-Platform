@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFix
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -48,15 +49,17 @@ public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<I
     ArgumentChecker.notNull(swaptionSecurity, "swaption security");
     final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
-    final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
+    final SwapSecurity underlyingSecurity = (SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier));
+    final InstrumentDefinition<?> underlyingSwap = underlyingSecurity.accept(_swapConverter);
     final SwapDefinition swapDefinition = (SwapDefinition) underlyingSwap;
     final boolean isCashSettled = swaptionSecurity.isCashSettled();
     final boolean isLong = swaptionSecurity.isLong();
+    final boolean isCall = underlyingSecurity.getPayLeg() instanceof FixedInterestRateLeg;
     if (swaptionSecurity.getCurrency().equals(Currency.BRL)) {
       if (!(swapDefinition instanceof SwapFixedCompoundedONCompoundedDefinition)) {
         throw new OpenGammaRuntimeException("Underlying BRL swap must be fixed compounded / overnight compounded");
       }
-      return isCashSettled ? SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong) :
+      return isCashSettled ? SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isCall, isLong) :
         SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong);
     }
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
@@ -66,7 +69,7 @@ public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<I
       throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");
     }
     final SwapFixedIborDefinition fixedIbor = (SwapFixedIborDefinition) swapDefinition;
-    return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedIbor, isLong)
-        : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedIbor, isLong);
+    return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedIbor, isCall, isLong)
+        : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedIbor, isCall, isLong);
   }
 }
