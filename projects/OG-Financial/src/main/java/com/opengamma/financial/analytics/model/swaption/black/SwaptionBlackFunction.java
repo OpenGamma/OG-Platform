@@ -96,8 +96,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override

@@ -78,8 +78,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    _curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource, context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override

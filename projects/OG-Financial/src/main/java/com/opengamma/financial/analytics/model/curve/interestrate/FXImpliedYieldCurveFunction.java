@@ -112,11 +112,14 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+  private ConfigDBFXForwardCurveSpecificationSource _fxForwardCurveSpecificationSource;
+  private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
+    _fxForwardCurveSpecificationSource = ConfigDBFXForwardCurveSpecificationSource.init(context, this);
+    _fxForwardCurveDefinitionSource = ConfigDBFXForwardCurveDefinitionSource.init(context, this);
   }
 
   @Override
@@ -159,9 +162,6 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String interpolatorName = desiredValue.getConstraint(InterpolatedDataProperties.X_INTERPOLATOR_NAME);
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
-    final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
     final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     final Currency baseCurrency = currencyPairs.getCurrencyPair(domesticCurrency, foreignCurrency).getBase();
     boolean invertFXQuotes;
@@ -178,11 +178,11 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       domesticCurveName = curveNames[0];
     }
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency);
-    final FXForwardCurveDefinition definition = fxCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
+    final FXForwardCurveDefinition definition = _fxForwardCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
     if (definition == null) {
       throw new OpenGammaRuntimeException("Couldn't find FX forward curve definition called " + domesticCurveName + " for target " + currencyPair);
     }
-    final FXForwardCurveSpecification specification = fxCurveSpecificationSource.getSpecification(domesticCurveName, currencyPair.toString());
+    final FXForwardCurveSpecification specification = _fxForwardCurveSpecificationSource.getSpecification(domesticCurveName, currencyPair.toString());
     if (specification == null) {
       throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + domesticCurveName + " for target " + currencyPair);
     }
@@ -321,8 +321,6 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
-    final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
     final MultiCurveCalculationConfig domesticCurveCalculationConfig = _curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
     if (domesticCurveCalculationConfig == null) {
       s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
@@ -396,12 +394,12 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final Set<ValueRequirement> requirements = new HashSet<>();
     final Currency foreignCurrency = ComputationTargetType.CURRENCY.resolve(foreignCurrencySpec.getUniqueId());
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency);
-    final FXForwardCurveDefinition definition = fxCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
+    final FXForwardCurveDefinition definition = _fxForwardCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
     if (definition == null) {
       s_logger.error("Couldn't find FX forward curve definition called " + domesticCurveName + " with target " + currencyPair);
       return null;
     }
-    final FXForwardCurveSpecification fxForwardCurveSpec = fxCurveSpecificationSource.getSpecification(domesticCurveName, currencyPair.toString());
+    final FXForwardCurveSpecification fxForwardCurveSpec = _fxForwardCurveSpecificationSource.getSpecification(domesticCurveName, currencyPair.toString());
     if (fxForwardCurveSpec == null) {
       s_logger.error("Couldn't find FX forward curve specification called " + domesticCurveName + " with target " + currencyPair);
       return null;

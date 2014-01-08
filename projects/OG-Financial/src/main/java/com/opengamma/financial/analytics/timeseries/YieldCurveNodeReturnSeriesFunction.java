@@ -22,7 +22,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -37,7 +36,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
@@ -63,9 +61,11 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
 
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
@@ -140,9 +140,7 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.add(HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, curveName, MarketDataRequirementNames.MARKET_VALUE, null, start, includeStart, end, includeEnd));
 
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource, context.getFunctionInitializationVersionCorrection());
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not get curve calculation config called " + curveCalculationConfigName);
       return null;
@@ -150,7 +148,7 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
     if (FXImpliedYieldCurveFunction.FX_IMPLIED.equals(curveCalculationConfig.getCalculationMethod())) {
       final Currency impliedCcy = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
       final String baseCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfig.getExogenousConfigData().entrySet()).getKey();
-      final MultiCurveCalculationConfig baseCurveCalculationConfig = curveCalculationConfigSource.getConfig(baseCalculationConfigName);
+      final MultiCurveCalculationConfig baseCurveCalculationConfig = _curveCalculationConfigSource.getConfig(baseCalculationConfigName);
       final Currency baseCcy = ComputationTargetType.CURRENCY.resolve(baseCurveCalculationConfig.getTarget().getUniqueId());
       requirements.add(getFXForwardCurveDefinitionRequirement(UnorderedCurrencyPair.of(impliedCcy, baseCcy), curveName));
     } else {

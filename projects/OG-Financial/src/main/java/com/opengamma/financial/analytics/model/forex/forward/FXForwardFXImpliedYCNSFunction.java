@@ -30,7 +30,6 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivi
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -42,8 +41,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -79,6 +76,7 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
       PresentValueCurveSensitivityIRSCalculator.getInstance()));
 
   private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+  private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
 
   public FXForwardFXImpliedYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
@@ -86,8 +84,8 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
+    _fxForwardCurveDefinitionSource = ConfigDBFXForwardCurveDefinitionSource.init(context, this);
   }
 
   @Override
@@ -111,10 +109,8 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final String fullCurveName = curveName + "_" + curveCurrency;
     if (curveCalculationConfig.getCalculationMethod().equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
-      final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-      final ConfigDBFXForwardCurveDefinitionSource definitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
       final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
-      final FXForwardCurveDefinition definition = definitionSource.getDefinition(curveName, currencyPair.toString());
+      final FXForwardCurveDefinition definition = _fxForwardCurveDefinitionSource.getDefinition(curveName, currencyPair.toString());
       if (definition == null) {
         throw new OpenGammaRuntimeException("Could not get FX forward curve definition called " + curveName + " for currency pair " + currencyPair);
       }

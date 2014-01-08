@@ -41,6 +41,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
+import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
@@ -67,8 +69,18 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
 
+  private ConfigDBFXForwardCurveSpecificationSource _fxForwardCurveSpecificationSource;
+  private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
+
   public InterestRateInstrumentYieldCurveNodeSensitivitiesFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    super.init(context);
+    _fxForwardCurveSpecificationSource = ConfigDBFXForwardCurveSpecificationSource.init(context, this);
+    _fxForwardCurveDefinitionSource = ConfigDBFXForwardCurveDefinitionSource.init(context, this);
   }
 
   @Override
@@ -124,8 +136,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       final Currency domesticCurrency = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
       final Currency foreignCurrency = ComputationTargetType.CURRENCY.resolve(getCurveCalculationConfigSource()
           .getConfig(curveCalculationConfig.getExogenousConfigData().keySet().iterator().next()).getTarget().getUniqueId());
-      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves, configSource, localNow,
-          resultSpec);
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(sensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves,
+          _fxForwardCurveSpecificationSource, _fxForwardCurveDefinitionSource, localNow, resultSpec);
     }
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName, curveCalculationMethod);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);

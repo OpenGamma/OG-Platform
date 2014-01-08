@@ -95,8 +95,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .interestRateFutureSecurityVisitor(irFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override

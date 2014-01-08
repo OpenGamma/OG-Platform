@@ -87,8 +87,7 @@ public abstract class BondTradeCurveSpecificFunction extends AbstractFunction.No
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().bondSecurityVisitor(bondConverter).bondFutureSecurityVisitor(bondFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
-    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override

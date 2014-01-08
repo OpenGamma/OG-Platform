@@ -159,6 +159,13 @@
             </set>
           </constructor-arg>
         </bean>
+        <bean class="com.opengamma.financial.view.StaticWatchSetProvider">
+          <constructor-arg>
+            <map>
+              <entry key="OpenGamma~InterpolatedYieldCurveSpecification" value="ConfigItemType~CurveSpecificationBuilderConfiguration" />
+            </map>
+          </constructor-arg>
+        </bean>
       </set>
     </property>
   </bean>

@@ -70,8 +70,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(OpenGammaCompilationContext.getConfigSource(context), context.getFunctionInitializationVersionCorrection());
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override

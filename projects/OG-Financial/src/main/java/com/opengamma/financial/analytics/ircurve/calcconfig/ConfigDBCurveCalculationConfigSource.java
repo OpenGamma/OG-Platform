@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.ircurve.calcconfig;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.financial.config.AbstractConfigChangeProvider;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -17,32 +17,33 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ConfigDBCurveCalculationConfigSource implements CurveCalculationConfigSource {
 
-  private final ConfigSource _configSource;
-  private final VersionCorrection _lockedVersionCorrection;
-
-  public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource, final VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(configSource, "configuration source");
-    _configSource = configSource;
-    _lockedVersionCorrection = versionCorrection;
-  }
+  private final ConfigSourceQuery<MultiCurveCalculationConfig> _query;
 
   @Deprecated
   public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource) {
     this(configSource, VersionCorrection.LATEST);
   }
 
-  public static void reinitOnChanges(final FunctionCompilationContext context, final FunctionDefinition function) {
-    AbstractConfigChangeProvider.reinitOnChanges(context, function, MultiCurveCalculationConfig.class);
+  public ConfigDBCurveCalculationConfigSource(final ConfigSource configSource, final VersionCorrection versionCorrection) {
+    this(new ConfigSourceQuery<MultiCurveCalculationConfig>(configSource, MultiCurveCalculationConfig.class, versionCorrection));
+  }
+
+  public ConfigDBCurveCalculationConfigSource(final ConfigSourceQuery<MultiCurveCalculationConfig> query) {
+    _query = ArgumentChecker.notNull(query, "query");
+  }
+
+  public static ConfigDBCurveCalculationConfigSource init(final FunctionCompilationContext context, final FunctionDefinition function) {
+    return new ConfigDBCurveCalculationConfigSource(ConfigSourceQuery.init(context, function, MultiCurveCalculationConfig.class));
   }
 
   @Override
   public MultiCurveCalculationConfig getConfig(final String name) {
-    return getConfig(name, _lockedVersionCorrection);
+    return _query.get(name);
   }
 
   @Override
   public MultiCurveCalculationConfig getConfig(final String name, final VersionCorrection versionCorrection) {
-    return _configSource.getSingle(MultiCurveCalculationConfig.class, name, versionCorrection);
+    return _query.get(name, versionCorrection);
   }
 
 }

@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -41,8 +40,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
+import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
+import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
@@ -66,8 +66,18 @@ public class BondTradeYCNSFunction extends BondTradeCurveSpecificFunction {
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
 
+  private ConfigDBFXForwardCurveSpecificationSource _fxForwardCurveSpecificationSource;
+  private ConfigDBFXForwardCurveDefinitionSource _fxForwardCurveDefinitionSource;
+
   public BondTradeYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    super.init(context);
+    _fxForwardCurveSpecificationSource = ConfigDBFXForwardCurveSpecificationSource.init(context, this);
+    _fxForwardCurveDefinitionSource = ConfigDBFXForwardCurveDefinitionSource.init(context, this);
   }
 
   @Override
@@ -86,7 +96,6 @@ public class BondTradeYCNSFunction extends BondTradeCurveSpecificFunction {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfigSource().getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
@@ -126,8 +135,8 @@ public class BondTradeYCNSFunction extends BondTradeCurveSpecificFunction {
       final Currency domesticCurrency = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
       final Currency foreignCurrency = ComputationTargetType.CURRENCY.resolve(getCurveCalculationConfigSource()
           .getConfig(curveCalculationConfig.getExogenousConfigData().keySet().iterator().next()).getTarget().getUniqueId());
-      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(scaledSensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves, configSource,
-          localNow, resultSpec);
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(scaledSensitivities, domesticCurrency, foreignCurrency, fullCurveNames, curves,
+          _fxForwardCurveSpecificationSource, _fxForwardCurveDefinitionSource, localNow, resultSpec);
     }
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(currency, curveName, curveCalculationMethod);
     final Object curveSpecObject = inputs.getValue(curveSpecRequirement);

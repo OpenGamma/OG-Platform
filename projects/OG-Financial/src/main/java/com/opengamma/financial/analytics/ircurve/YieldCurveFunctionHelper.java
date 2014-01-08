@@ -39,7 +39,7 @@ public class YieldCurveFunctionHelper {
 
   private final Currency _currency;
   private final String _curveName;
-  private InterpolatedYieldCurveSpecificationBuilder _curveSpecificationBuilder;
+  private InterpolatedYieldCurveSpecificationBuilder.AtVersionCorrection _curveSpecificationBuilder;
   private YieldCurveDefinition _definition;
 
   public YieldCurveFunctionHelper(final Currency currency, final String curveName) {
@@ -51,7 +51,7 @@ public class YieldCurveFunctionHelper {
   }
 
   public YieldCurveDefinition init(final FunctionCompilationContext context, final FunctionDefinition defnToReInit) {
-    _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
+    _curveSpecificationBuilder = InterpolatedYieldCurveSpecificationBuilder.AtVersionCorrection.init(context, defnToReInit);
     if (_curveSpecificationBuilder == null) {
       throw new UnsupportedOperationException("An interpolated yield curve specification builder is required");
     }

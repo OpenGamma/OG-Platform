@@ -58,9 +58,11 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
 
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
+
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
@@ -137,12 +139,11 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
         includeEnd));
 
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource, context.getFunctionInitializationVersionCorrection());
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (FXImpliedYieldCurveFunction.FX_IMPLIED.equals(curveCalculationConfig.getCalculationMethod())) {
       final Currency impliedCcy = ComputationTargetType.CURRENCY.resolve(curveCalculationConfig.getTarget().getUniqueId());
       final String baseCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfig.getExogenousConfigData().entrySet()).getKey();
-      final MultiCurveCalculationConfig baseCurveCalculationConfig = curveCalculationConfigSource.getConfig(baseCalculationConfigName);
+      final MultiCurveCalculationConfig baseCurveCalculationConfig = _curveCalculationConfigSource.getConfig(baseCalculationConfigName);
       final Currency baseCcy = ComputationTargetType.CURRENCY.resolve(baseCurveCalculationConfig.getTarget().getUniqueId());
       requirements.add(getFXForwardCurveDefinitionRequirement(UnorderedCurrencyPair.of(impliedCcy, baseCcy), curveName));
     } else {
