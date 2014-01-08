@@ -44,7 +44,9 @@ public interface InterpolatedYieldCurveSpecificationBuilder {
     }
 
     public static AtVersionCorrection init(final FunctionCompilationContext context, final FunctionDefinition function) {
-      context.getFunctionReinitializer().reinitializeFunction(function, SYNTHETIC_CHANGE_ID);
+      if (context.getFunctionReinitializer() != null) {
+        context.getFunctionReinitializer().reinitializeFunction(function, SYNTHETIC_CHANGE_ID);
+      }
       return new AtVersionCorrection(OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context), context.getFunctionInitializationVersionCorrection());
     }
 
