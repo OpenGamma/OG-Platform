@@ -40,7 +40,7 @@ public class ConfigDbOverrideWatchSetProvider implements WatchSetProvider {
       for (ObjectId watch : watchSet) {
         if (_configScheme.equals(watch.getScheme())) {
           try {
-            final ConfigDocument doc = _configMaster.get(watch, VersionCorrection._safe_latest_dont_commit());
+            final ConfigDocument doc = _configMaster.get(watch, VersionCorrection.LATEST);
             result.add(ObjectId.of(scheme, doc.getName()));
           } catch (DataNotFoundException ex) {
             // ignore
