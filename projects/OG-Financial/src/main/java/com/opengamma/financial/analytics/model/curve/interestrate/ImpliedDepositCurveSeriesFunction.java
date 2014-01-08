@@ -68,6 +68,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -310,7 +312,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
             final Tenor tenor = strip.getCurveNodePointTime();
             final ZonedDateTime paymentDate = spotDate.plus(tenor.getPeriod()); // ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
             final double startTime = 0.0; // TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
-            final double endTime = tenor.getPeriod().toTotalMonths() / 12.0d; // TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
+            final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
             final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
             final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
             final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
