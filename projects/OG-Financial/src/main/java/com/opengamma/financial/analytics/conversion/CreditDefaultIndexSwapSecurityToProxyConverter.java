@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.StubType;
@@ -37,15 +37,15 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
   private final SecuritySource _securitySource;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
-  private final OrganizationSource _orgSource;
+  private final LegalEntitySource _orgSource;
   private final ZonedDateTime _vaulationTime;
 
-  public CreditDefaultIndexSwapSecurityToProxyConverter(final HolidaySource holidaySource, final RegionSource regionSource, final OrganizationSource organizationSource,
+  public CreditDefaultIndexSwapSecurityToProxyConverter(final HolidaySource holidaySource, final RegionSource regionSource, final LegalEntitySource legalEntitySource,
                                                         final SecuritySource securitySource, final ZonedDateTime valuationTime) {
     _securitySource = securitySource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
-    _orgSource = organizationSource;
+    _orgSource = legalEntitySource;
     _vaulationTime = valuationTime;
 
   }

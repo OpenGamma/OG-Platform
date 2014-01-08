@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,7 +10,7 @@ import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -264,12 +264,12 @@ public final class OpenGammaCompilationContext {
     set(compilationContext, HOLIDAY_SOURCE_NAME, holidaySource);
   }
 
-  public static OrganizationSource getOrganizationSource(final FunctionCompilationContext compilationContext) {
-    return compilationContext.getOrganizationSource();
+  public static LegalEntitySource getLegalEntitySource(final FunctionCompilationContext compilationContext) {
+    return compilationContext.getLegalEntitySource();
   }
 
-  public static void setOrganizationSource(final FunctionCompilationContext compilationContext, final OrganizationSource organizationSource) {
-    compilationContext.setOrganizationSource(organizationSource);
+  public static void setLegalEntitySource(final FunctionCompilationContext compilationContext, final LegalEntitySource legalEntitySource) {
+    compilationContext.setLegalEntitySource(legalEntitySource);
   }
 
   public static ExchangeSource getExchangeSource(final FunctionCompilationContext compilationContext) {

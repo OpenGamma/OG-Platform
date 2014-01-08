@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -73,10 +73,10 @@ public class PortfolioAggregationTool extends AbstractTool<IntegrationToolContex
     _aggregationFunctions.put("Currency", new CurrencyAggregationFunction());
     _aggregationFunctions.put("DetailedAssetClass", new DetailedAssetClassAggregationFunction());
     _aggregationFunctions.put("Underlying", new UnderlyingAggregationFunction(secSource, "BLOOMBERG_TICKER"));
-    _aggregationFunctions.put("ReferenceEntityName", new CdsObligorNameAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
-    _aggregationFunctions.put("ReferenceEntityTicker", new CdsObligorTickerAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getOrganizationSource()));
+    _aggregationFunctions.put("ReferenceEntityName", new CdsObligorNameAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getLegalEntitySource()));
+    _aggregationFunctions.put("ReferenceEntityTicker", new CdsObligorTickerAggregationFunction(getToolContext().getSecuritySource(), getToolContext().getLegalEntitySource()));
     _aggregationFunctions.put("Sector", new GICSAggregationFunction(getToolContext().getSecuritySource(),
-                                                                    getToolContext().getOrganizationSource(),
+                                                                    getToolContext().getLegalEntitySource(),
                                                                     GICSAggregationFunction.Level.SECTOR, false, false));
     _aggregationFunctions.put("RedCode", new CdsRedCodeAggregationFunction(getToolContext().getSecuritySource()));
     _aggregationFunctions.put("Seniority", new CdsSeniorityAggregationFunction(getToolContext().getSecuritySource()));

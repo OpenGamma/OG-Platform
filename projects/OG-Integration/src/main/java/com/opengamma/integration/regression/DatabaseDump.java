@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -41,12 +41,12 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.LegalEntitySearchRequest;
+import com.opengamma.master.legalentity.LegalEntitySearchResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
-import com.opengamma.master.orgs.OrganizationMaster;
-import com.opengamma.master.orgs.OrganizationSearchRequest;
-import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -76,7 +76,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final HolidayMaster _holidayMaster;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
-  private final OrganizationMaster _organizationMaster;
+  private final LegalEntityMaster _legalEntityMaster;
   private final IdMappings _idMappings;
   private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
   private final FudgeSerializer _serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
@@ -92,14 +92,14 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                              HolidayMaster holidayMaster,
                              ExchangeMaster exchangeMaster,
                              MarketDataSnapshotMaster snapshotMaster,
-                             OrganizationMaster organizationMaster) {
+                             LegalEntityMaster legalEntityMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(outputDir, "outputDir");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    _organizationMaster = organizationMaster;
+    _legalEntityMaster = legalEntityMaster;
     _snapshotMaster = snapshotMaster;
     _exchangeMaster = exchangeMaster;
     _holidayMaster = holidayMaster;
@@ -144,7 +144,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                                    server.getHolidayMaster(),
                                                    server.getExchangeMaster(),
                                                    server.getMarketDataSnapshotMaster(),
-                                                   server.getOrganizationMaster());
+                                                   server.getLegalEntityMaster());
       databaseDump.dumpDatabase();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
@@ -222,8 +222,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, Integer> writeOrganizations() throws IOException {
-    OrganizationSearchResult result = _organizationMaster.search(new OrganizationSearchRequest());
-    return writeToDirectory(result.getOrganizations(), "organizations", "org");
+    LegalEntitySearchResult result = _legalEntityMaster.search(new LegalEntitySearchRequest());
+    return writeToDirectory(result.getLegalEntities(), "legalentities", "org");
   }
 
   private Map<ObjectId, Integer> writeToDirectory(List<? extends UniqueIdentifiable> objects,

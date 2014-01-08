@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -37,7 +37,7 @@ public class DatabaseRestoreTool extends AbstractTool<ToolContext> {
                                                           getToolContext().getHolidayMaster(),
                                                           getToolContext().getExchangeMaster(),
                                                           getToolContext().getMarketDataSnapshotMaster(),
-                                                          getToolContext().getOrganizationMaster());
+                                                          getToolContext().getLegalEntityMaster());
     databaseRestore.restoreDatabase();
   }
 

@@ -1,9 +1,13 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.underlyingpool;
+
+import static com.google.common.collect.Sets.newHashSet;
+
+import java.util.HashSet;
 
 import org.testng.annotations.Test;
 
@@ -18,6 +22,7 @@ import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -45,7 +50,7 @@ public class UnderlyingPoolDummyPool {
   private static final int numberOfObligors = 5;
   private static final int numberOfTenors = 4;
 
-  private static final Obligor[] obligors = new Obligor[numberOfObligors];
+  private static final LegalEntity[] obligors = new LegalEntity[numberOfObligors];
 
   private static final double[] notionals = new double[numberOfObligors];
   private static final double[] coupons = new double[numberOfObligors];
@@ -94,19 +99,14 @@ public class UnderlyingPoolDummyPool {
     for (int i = 0; i < numberOfObligors; i++) {
 
       // Build obligor i
-      final Obligor obligor = new Obligor(
+
+      final LegalEntity obligor = new LegalEntity(
           obligorTickers[i],
           obligorShortName[i],
-          obligorREDCode[i],
-          obligorCompositeRating[i],
-          obligorImpliedRating[i],
-          obligorCreditRatingMoodys[i],
-          obligorCreditRatingStandardAndPoors[i],
-          obligorCreditRatingFitch[i],
-          obligorHasDefaulted[i],
-          obligorSector[i],
-          obligorRegion[i],
-          obligorCountry[i]);
+          newHashSet(obligorCompositeRating[i].toCreditRating(), obligorCreditRatingMoodys[i].toCreditRating(), obligorCreditRatingFitch[i].toCreditRating(), obligorCreditRatingStandardAndPoors[i].toCreditRating(), obligorImpliedRating[i].toCreditRating()),
+          obligorSector[i].toSector(),
+          obligorRegion[i].toRegion(),
+          obligorHasDefaulted[i]);
 
       // Assign obligor i
       obligors[i] = obligor;

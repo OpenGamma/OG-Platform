@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -33,7 +33,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -131,7 +131,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private HistoricalTimeSeriesSource _historicalSource;
   private HistoricalTimeSeriesMaster _htsMaster;
   private RegionSource _regionSource;
-  private OrganizationSource _organizationSource;
+  private LegalEntitySource _legalEntitySource;
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
   private String _currencyCurveName;
@@ -246,12 +246,12 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     _regionSource = regionSource;
   }
 
-  public OrganizationSource getOrganizationSource() {
-    return _organizationSource;
+  public LegalEntitySource getLegalEntitySource() {
+    return _legalEntitySource;
   }
 
-  public void setOrganizationSource(final OrganizationSource organizationSource) {
-    _organizationSource = organizationSource;
+  public void setLegalEntitySource(final LegalEntitySource legalEntitySource) {
+    _legalEntitySource = legalEntitySource;
   }
 
   public SecurityMaster getSecurityMaster() {
@@ -309,7 +309,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
     OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
-    OpenGammaExecutionContext.setOrganizationSource(context, getOrganizationSource());
+    OpenGammaExecutionContext.setLegalEntitySource(context, getLegalEntitySource());
     return context;
   }
 
@@ -320,7 +320,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     context.setFunctionReinitializer(new DummyFunctionReinitializer());
     OpenGammaCompilationContext.setHolidaySource(context, getHolidaySource());
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
-    OpenGammaCompilationContext.setOrganizationSource(context, getOrganizationSource());
+    OpenGammaCompilationContext.setLegalEntitySource(context, getLegalEntitySource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionBundleSource());
     OpenGammaCompilationContext.setConventionSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));

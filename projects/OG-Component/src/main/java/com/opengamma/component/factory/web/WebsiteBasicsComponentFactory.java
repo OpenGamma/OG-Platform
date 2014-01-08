@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -43,7 +43,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
@@ -58,8 +57,8 @@ import com.opengamma.web.function.WebFunctionsResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
 import com.opengamma.web.legalentity.WebLegalEntitiesResource;
+import com.opengamma.web.legalentity.WebLegalEntityResource;
 import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotsResource;
-import com.opengamma.web.orgs.WebOrganizationsResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;
 import com.opengamma.web.region.WebRegionsResource;
@@ -155,11 +154,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private ComputationTargetTypeProvider _targetTypes = new DefaultComputationTargetTypeProvider();
   /**
-   * The organization master.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private OrganizationMaster _organizationMaster;
-  /**
    * The market data snapshot master.
    */
   @PropertyDefinition(validate = "notNull")
@@ -230,7 +224,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getOrganizationMaster());
+    resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
     repo.getRestComponents().publishResource(resource);
@@ -241,7 +235,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebComputationTargetTypeResource.class, getTargetTypes());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebOrganizationsResource.class, getOrganizationMaster());
+    resource = new JerseyRestResourceFactory(WebLegalEntityResource.class, getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, 
         getMarketDataSnapshotMaster(), getConfigMaster(), getLiveMarketDataProviderFactory(), getMarketDataSpecificationRepository(),
@@ -703,32 +697,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the organization master.
-   * @return the value of the property, not null
-   */
-  public OrganizationMaster getOrganizationMaster() {
-    return _organizationMaster;
-  }
-
-  /**
-   * Sets the organization master.
-   * @param organizationMaster  the new value of the property, not null
-   */
-  public void setOrganizationMaster(OrganizationMaster organizationMaster) {
-    JodaBeanUtils.notNull(organizationMaster, "organizationMaster");
-    this._organizationMaster = organizationMaster;
-  }
-
-  /**
-   * Gets the the {@code organizationMaster} property.
-   * @return the property, not null
-   */
-  public final Property<OrganizationMaster> organizationMaster() {
-    return metaBean().organizationMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the market data snapshot master.
    * @return the value of the property, not null
    */
@@ -970,7 +938,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getFunctionConfigurationSource(), other.getFunctionConfigurationSource()) &&
           JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
@@ -1003,7 +970,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigurationSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
@@ -1017,7 +983,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(832);
+    StringBuilder buf = new StringBuilder(800);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1047,7 +1013,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
     buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
     buf.append("targetTypes").append('=').append(JodaBeanUtils.toString(getTargetTypes())).append(',').append(' ');
-    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
     buf.append("functionConfigurationSource").append('=').append(JodaBeanUtils.toString(getFunctionConfigurationSource())).append(',').append(' ');
     buf.append("batchMaster").append('=').append(JodaBeanUtils.toString(getBatchMaster())).append(',').append(' ');
@@ -1149,11 +1114,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<ComputationTargetTypeProvider> _targetTypes = DirectMetaProperty.ofReadWrite(
         this, "targetTypes", WebsiteBasicsComponentFactory.class, ComputationTargetTypeProvider.class);
     /**
-     * The meta-property for the {@code organizationMaster} property.
-     */
-    private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
-        this, "organizationMaster", WebsiteBasicsComponentFactory.class, OrganizationMaster.class);
-    /**
      * The meta-property for the {@code marketDataSnapshotMaster} property.
      */
     private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
@@ -1214,7 +1174,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesLoader",
         "scheduler",
         "targetTypes",
-        "organizationMaster",
         "marketDataSnapshotMaster",
         "functionConfigurationSource",
         "batchMaster",
@@ -1265,8 +1224,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _scheduler;
         case -2094577304:  // targetTypes
           return _targetTypes;
-        case -1158737547:  // organizationMaster
-          return _organizationMaster;
         case 2090650860:  // marketDataSnapshotMaster
           return _marketDataSnapshotMaster;
         case -1059254855:  // functionConfigurationSource
@@ -1432,14 +1389,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code organizationMaster} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<OrganizationMaster> organizationMaster() {
-      return _organizationMaster;
-    }
-
-    /**
      * The meta-property for the {@code marketDataSnapshotMaster} property.
      * @return the meta-property, not null
      */
@@ -1541,8 +1490,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getScheduler();
         case -2094577304:  // targetTypes
           return ((WebsiteBasicsComponentFactory) bean).getTargetTypes();
-        case -1158737547:  // organizationMaster
-          return ((WebsiteBasicsComponentFactory) bean).getOrganizationMaster();
         case 2090650860:  // marketDataSnapshotMaster
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSnapshotMaster();
         case -1059254855:  // functionConfigurationSource
@@ -1614,9 +1561,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         case -2094577304:  // targetTypes
           ((WebsiteBasicsComponentFactory) bean).setTargetTypes((ComputationTargetTypeProvider) newValue);
           return;
-        case -1158737547:  // organizationMaster
-          ((WebsiteBasicsComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
-          return;
         case 2090650860:  // marketDataSnapshotMaster
           ((WebsiteBasicsComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
           return;
@@ -1663,7 +1607,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._scheduler, "scheduler");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._targetTypes, "targetTypes");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._organizationMaster, "organizationMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSnapshotMaster, "marketDataSnapshotMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._functionConfigurationSource, "functionConfigurationSource");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._viewProcessor, "viewProcessor");

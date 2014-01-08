@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -43,8 +43,9 @@ import com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSo
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.holiday.impl.CachedHolidaySource;
 import com.opengamma.core.holiday.impl.RemoteHolidaySource;
-import com.opengamma.core.organization.OrganizationSource;
-import com.opengamma.core.organization.impl.RemoteOrganizationSource;
+import com.opengamma.core.legalentity.LegalEntitySource;
+import com.opengamma.core.legalentity.impl.EHCachingLegalEntitySource;
+import com.opengamma.core.legalentity.impl.RemoteLegalEntitySource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.EHCachingPositionSource;
 import com.opengamma.core.position.impl.RemotePositionSource;
@@ -76,7 +77,6 @@ import com.opengamma.master.exchange.impl.EHCachingExchangeSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
-import com.opengamma.master.organization.impl.EHCachingOrganizationSource;
 import com.opengamma.master.region.impl.EHCachingRegionSource;
 import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
@@ -220,11 +220,11 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     }
   }
 
-  protected OrganizationSource cache(final OrganizationSource organizationSource) {
+  protected LegalEntitySource cache(final LegalEntitySource legalEntitySource) {
     if (getCacheManager() != null) {
-      return new EHCachingOrganizationSource(organizationSource, getCacheManager());
+      return new EHCachingLegalEntitySource(legalEntitySource, getCacheManager());
     } else {
-      return organizationSource;
+      return legalEntitySource;
     }
   }
 
@@ -326,9 +326,9 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
     }
   }
 
-  protected OrganizationSource createOrganizationSource(final URI uri) {
+  protected LegalEntitySource createLegalEntitySource(final URI uri) {
     if (uri != null) {
-      return cache(new RemoteOrganizationSource(uri/*, TODO: change manager */));
+      return cache(new RemoteLegalEntitySource(uri/*, TODO: change manager */));
     } else {
       return null;
     }
@@ -492,8 +492,8 @@ public class RemoteEngineContextsComponentFactory extends AbstractComponentFacto
       case "interpolatedYieldCurveSpecificationBuilder":
         remoteComponent(repo, property, template, createInterpolatedYieldCurveSpecificationBuilder(fetchURI(remoteConfiguration, "interpolatedYieldCurveSpecificationBuilder")));
         break;
-      case "organizationSource":
-        remoteComponent(repo, property, template, createOrganizationSource(fetchURI(remoteConfiguration, "organizationSource")));
+      case "legalEntitySource":
+        remoteComponent(repo, property, template, createLegalEntitySource(fetchURI(remoteConfiguration, "legalEntitySource")));
         break;
       case "positionSource":
         remoteComponent(repo, property, template, createPositionSource(fetchURI(remoteConfiguration, "positionSource")));

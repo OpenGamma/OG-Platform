@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -43,11 +43,11 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.master.legalentity.LegalEntityDocument;
+import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.legalentity.ManageableLegalEntity;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.orgs.ManageableOrganization;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -81,7 +81,7 @@ public class DatabaseRestore {
   private final HolidayMaster _holidayMaster;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
-  private final OrganizationMaster _organizationMaster;
+  private final LegalEntityMaster _legalEntityMaster;
   private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
   private final FudgeDeserializer _deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
 
@@ -94,7 +94,7 @@ public class DatabaseRestore {
                          HolidayMaster holidayMaster,
                          ExchangeMaster exchangeMaster,
                          MarketDataSnapshotMaster snapshotMaster,
-                         OrganizationMaster organizationMaster) {
+                         LegalEntityMaster legalEntityMaster) {
     ArgumentChecker.notNull(dataDir, "dataDir");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
@@ -104,7 +104,7 @@ public class DatabaseRestore {
     ArgumentChecker.notNull(holidayMaster, "holidayMaster");
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -113,7 +113,7 @@ public class DatabaseRestore {
     _holidayMaster = holidayMaster;
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
-    _organizationMaster = organizationMaster;
+    _legalEntityMaster = legalEntityMaster;
     _dataDir = dataDir;
   }
 
@@ -126,7 +126,7 @@ public class DatabaseRestore {
       HolidayMaster holidayMaster,
       ExchangeMaster exchangeMaster,
       MarketDataSnapshotMaster snapshotMaster,
-      OrganizationMaster organizationMaster) {
+      LegalEntityMaster legalEntityMaster) {
     ArgumentChecker.notEmpty(dataDir, "dataDir");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
@@ -136,7 +136,7 @@ public class DatabaseRestore {
     ArgumentChecker.notNull(holidayMaster, "holidayMaster");
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -145,7 +145,7 @@ public class DatabaseRestore {
     _holidayMaster = holidayMaster;
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
-    _organizationMaster = organizationMaster;
+    _legalEntityMaster = legalEntityMaster;
     _dataDir = new File(dataDir);
     // TODO check data dir is an existing directory
   }
@@ -167,7 +167,7 @@ public class DatabaseRestore {
                                                             server.getHolidayMaster(),
                                                             server.getExchangeMaster(),
                                                             server.getMarketDataSnapshotMaster(),
-                                                            server.getOrganizationMaster());
+                                                            server.getLegalEntityMaster());
       databaseRestore.restoreDatabase();
     }
   }
@@ -354,11 +354,11 @@ public class DatabaseRestore {
   }
 
   private void loadOrganizations() throws IOException {
-    List<?> organizations = readFromDirectory("organizations");
-    for (Object o : organizations) {
-      ManageableOrganization organization = (ManageableOrganization) o;
-      organization.setUniqueId(null);
-      _organizationMaster.add(new OrganizationDocument(organization));
+    List<?> legalEntities = readFromDirectory("legalentities");
+    for (Object o : legalEntities) {
+      ManageableLegalEntity legalEntity = (ManageableLegalEntity) o;
+      legalEntity.setUniqueId(null);
+      _legalEntityMaster.add(new LegalEntityDocument(legalEntity));
     }
   }
 
