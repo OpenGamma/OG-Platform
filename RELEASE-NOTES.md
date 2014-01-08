@@ -127,6 +127,11 @@ To 2.1.15
 To 2.1.16
 ---------
     [PLAT-5345] Remove hard coded tolerance in FXImpliedYieldCurveSeriesFunction
+	
+To 2.1.17
+---------
+	[PLAT-5472] Implied deposit curve series tenors of less than 1M resolve to 0
+	[PLAT-5138] Catch failures for individual valuation dates in FXImpliedYieldCurveSeriesFunction
 
 
 OpenGamma Platform 2.1
