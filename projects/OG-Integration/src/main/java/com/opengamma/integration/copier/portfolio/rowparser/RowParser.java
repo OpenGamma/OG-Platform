@@ -168,7 +168,7 @@ public abstract class RowParser {
   public LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
     return getDateWithException(fieldValueMap, fieldName, CSV_DATE_FORMATTER, SECONDARY_CSV_DATE_FORMATTER);
   }
-
+  
   public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName, DateTimeFormatter formatter, DateTimeFormatter alternativeFormatter) {
     try {
       return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
@@ -176,7 +176,10 @@ public abstract class RowParser {
       return LocalDate.parse(getWithException(fieldValueMap, fieldName), alternativeFormatter);
     }
   }
-
+  
+  public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName, DateTimeFormatter formatter) {
+    return LocalDate.parse(getWithException(fieldValueMap, fieldName), formatter);
+  }
 
   public static void addValueIfNotNull(Map<String, String> map, String key, Object value) {
     if (value != null) {
