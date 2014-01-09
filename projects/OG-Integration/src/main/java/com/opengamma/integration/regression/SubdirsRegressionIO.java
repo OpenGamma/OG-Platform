@@ -70,14 +70,7 @@ public class SubdirsRegressionIO extends RegressionIO {
     }
   }
 
-  protected String createFilename(final String identifier) {
-    final String ext = getFormat().getLogicalFileExtension(getFormatContext());
-    if (ext != null) {
-      return identifier + ext;
-    } else {
-      return identifier;
-    }
-  }
+  
 
   // RegressionIO
 

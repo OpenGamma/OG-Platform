@@ -7,10 +7,7 @@ package com.opengamma.integration.regression;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
-import org.apache.ant.compress.taskdefs.Unzip;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +53,7 @@ public class RegressionTestToolContextManager {
   public void init() {
     
     PlatformConfigUtils.configureSystemProperties();
+    //TODO use logger
     System.out.println("Initializing DB");
     try {
       initialiseDB();
@@ -90,40 +88,23 @@ public class RegressionTestToolContextManager {
   }
 
   private void restoreFromZipfile(ToolContext toolContext, File zipFile) throws IOException {
-    File tmpDumpDir = Files.createTempDirectory("DB-Restore").toFile();
-    s_logger.info("Extracting zipped dump to " + tmpDumpDir.getAbsolutePath());
-    Unzip unzip = new Unzip();
-    unzip.setSrc(zipFile);
-    unzip.setDest(tmpDumpDir);
-    unzip.execute();
-    s_logger.info("Successfully extracted dump to " + tmpDumpDir.getAbsolutePath());
-    
-    try {
-      restoreFromDirectory(toolContext, tmpDumpDir);
-    } finally {
-      FileUtils.deleteDirectory(tmpDumpDir);
-    }
-  }
-    
-
-  private void restoreFromDirectory(ToolContext toolContext, File dumpDirectory) {
+    ZipFileRegressionIO io = new ZipFileRegressionIO(zipFile, new FudgeXMLFormat(), true);
     DatabaseRestore restore = new DatabaseRestore(
-          dumpDirectory, 
-          toolContext.getSecurityMaster(),
-          toolContext.getPositionMaster(),
-          toolContext.getPortfolioMaster(),
-          toolContext.getConfigMaster(),
-          toolContext.getHistoricalTimeSeriesMaster(),
-          toolContext.getHolidayMaster(),
-          toolContext.getExchangeMaster(),
-          toolContext.getMarketDataSnapshotMaster(),
-          toolContext.getOrganizationMaster()
+        io,
+        toolContext.getSecurityMaster(),
+        toolContext.getPositionMaster(),
+        toolContext.getPortfolioMaster(),
+        toolContext.getConfigMaster(),
+        toolContext.getHistoricalTimeSeriesMaster(),
+        toolContext.getHolidayMaster(),
+        toolContext.getExchangeMaster(),
+        toolContext.getMarketDataSnapshotMaster(),
+        toolContext.getOrganizationMaster()
     );
-    
+
     System.out.println("Initializing DB state...");
     restore.restoreDatabase();
   }
-  
   
   public void close() {
     if (_toolContext != null) {

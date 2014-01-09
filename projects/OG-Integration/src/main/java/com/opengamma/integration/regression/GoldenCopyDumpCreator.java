@@ -35,6 +35,8 @@ import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
  */
 class GoldenCopyDumpCreator {
 
+  public static final String DB_DUMP_ZIP = "dbdump.zip";
+  
   private final RegressionIO _regressionIO;
   private final DataTrackingSecurityMaster _securityMaster;
   private final DataTrackingPositionMaster _positionMaster;

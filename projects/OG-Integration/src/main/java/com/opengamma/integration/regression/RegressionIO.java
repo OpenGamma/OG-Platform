@@ -237,4 +237,13 @@ public abstract class RegressionIO {
     _formatContext = getFormat().closeRead(_formatContext);
   }
 
+  protected String createFilename(final String identifier) {
+    final String ext = getFormat().getLogicalFileExtension(getFormatContext());
+    if (ext != null) {
+      return identifier + ext;
+    } else {
+      return identifier;
+    }
+  }
+
 }

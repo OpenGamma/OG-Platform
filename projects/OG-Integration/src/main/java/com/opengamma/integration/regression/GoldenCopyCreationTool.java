@@ -6,7 +6,6 @@
 package com.opengamma.integration.regression;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
@@ -50,7 +49,7 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
     
     DataTrackingToolContext tc = getToolContext();
     
-    RegressionIO io = new SubdirsRegressionIO(new File(regressionDirectory), new FudgeXMLFormat(), false);
+    RegressionIO io = new ZipFileRegressionIO(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat(), false);
     
     GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
         tc.getSecurityMaster(),
