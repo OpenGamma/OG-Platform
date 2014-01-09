@@ -28,15 +28,12 @@ public abstract class AbstractRegressionTest {
   
   /**
    * @param regressionRoot the root for this set of tests (i.e. the directory
-   * containing the dbdump and golden_copy folders)
-   * @param dumpFile path to the dump. Either a zipfile or the root directory of
-   * a directory-based dump.
+   * containing the dbdump zip and golden_copy folder)
    */
-  public AbstractRegressionTest(File regressionRoot, File dumpFile) {
-    _contextManager = new RegressionTestToolContextManager(dumpFile);
+  public AbstractRegressionTest(File regressionRoot) {
+    _contextManager = new RegressionTestToolContextManager(new File(regressionRoot, GoldenCopyDumpCreator.DB_DUMP_ZIP));
     _goldenCopyPersistenceHelper = new GoldenCopyPersistenceHelper(regressionRoot);
   }
-
   
   
   @BeforeTest

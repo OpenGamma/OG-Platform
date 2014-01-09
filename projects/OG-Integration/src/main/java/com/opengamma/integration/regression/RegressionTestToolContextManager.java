@@ -83,12 +83,8 @@ public class RegressionTestToolContextManager {
     System.out.println("Creating tool context for DB...");
     ToolContext toolContext = ToolContextUtils.getToolContext(s_toolContext, ToolContext.class);
     
-    if (_dumpFile.isDirectory()) {
-      restoreFromDirectory(toolContext, _dumpFile);
-    } else {
-      //assume this is a zipfile:
-      restoreFromZipfile(toolContext, _dumpFile);
-    }
+    //assume this is a zipfile:
+    restoreFromZipfile(toolContext, _dumpFile);
     
     toolContext.close();
   }

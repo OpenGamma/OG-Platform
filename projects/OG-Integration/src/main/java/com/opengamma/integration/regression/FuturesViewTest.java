@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 public class FuturesViewTest extends AbstractRegressionTest {
   
   public FuturesViewTest() {
-    super(new File("regression/multiview"), new File("regression/multiview/dbdump/dumpzip.zip"));
+    super(new File("regression/multiview"));
   }
   
   @Test
