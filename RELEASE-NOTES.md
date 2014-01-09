@@ -132,6 +132,10 @@ To 2.1.17
 ---------
 	[PLAT-5472] Implied deposit curve series tenors of less than 1M resolve to 0
 	[PLAT-5138] Catch failures for individual valuation dates in FXImpliedYieldCurveSeriesFunction
+	
+To 2.1.18
+---------
+	[PLAT-5502] Spot and payment dates are incorrectly calculated in ImpliedDepositCurveSeriesFunction
 
 
 OpenGamma Platform 2.1
