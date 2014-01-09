@@ -11,7 +11,6 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +50,6 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
@@ -73,6 +71,7 @@ import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeO
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
+import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
@@ -82,6 +81,8 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  * Constructs yield curves and the Jacobian from {@link YieldCurveDefinition}s. Multiple curves can be constructed simultaneously using root-finding. The configuration object that control the
@@ -150,7 +151,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
       }
       int nInstruments = 0;
       final Interpolator1D interpolator = spec.getInterpolator();
-      final SnapshotDataBundle marketData = getMarketData(inputs, targetSpec, curveName);
+      final YieldCurveData marketData = getMarketData(inputs, targetSpec, curveName);
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       FixedIncomeStripWithSecurity previousStrip = null;
       for (final FixedIncomeStripWithSecurity strip : spec.getStrips()) {

@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -18,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 public class YieldCurveData {
 
   private final InterpolatedYieldCurveSpecificationWithSecurities _curveSpec;
-  private final Map<ExternalIdBundle, Double> _dataPoints = Maps.newHashMap();
+  private final Map<ExternalIdBundle, Double> _dataPoints;
   private final Map<ExternalId, ExternalIdBundle> _index = Maps.newHashMap();
 
   public YieldCurveData(InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
@@ -26,7 +27,7 @@ public class YieldCurveData {
     ArgumentChecker.notNull(curveSpec, "curveSpec");
     ArgumentChecker.notEmpty(dataPoints, "dataPoints");
     _curveSpec = curveSpec;
-    _dataPoints.putAll(dataPoints);
+    _dataPoints = ImmutableMap.copyOf(dataPoints);
     for (ExternalIdBundle bundle : dataPoints.keySet()) {
       for (ExternalId id : bundle) {
         _index.put(id, bundle);
@@ -54,6 +55,13 @@ public class YieldCurveData {
       }
     }
     return null;
+  }
+
+  /**
+   * @return The data points in the curve keyed by ID bundle
+   */
+  public Map<ExternalIdBundle, Double> getDataPoints() {
+    return _dataPoints;
   }
 
   /**
