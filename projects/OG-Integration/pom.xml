@@ -42,15 +42,15 @@
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
     </dependency>
+		<dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-compress</artifactId>
+		  <version>1.0</version>
+		</dependency>
     <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-bloomberg</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.saxon</groupId>
-      <artifactId>Saxon-HE</artifactId>
-      <version>9.4</version>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
