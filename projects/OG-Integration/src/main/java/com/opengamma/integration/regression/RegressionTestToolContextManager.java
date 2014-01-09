@@ -16,7 +16,7 @@ public class RegressionTestToolContextManager {
 
   private ToolContext _toolContext;
   
-  private static String s_toolContextFile = "classpath:toolcontext/toolcontext-examplessimulated.properties";
+  private static String s_toolContext = "classpath:regression/regression-toolcontext.properties";
   private static String s_regressionPropertiesFile = "classpath:regression/regression-examplessimulated.properties";
   
   public void init() {
@@ -38,9 +38,11 @@ public class RegressionTestToolContextManager {
    * Create a new DB, schema, and populate tables.
    */
   private void initialiseDB() {
-    EmptyDatabaseCreator.createForConfig(s_toolContextFile);
+    System.out.println("Creating empty DB...");
+    EmptyDatabaseCreator.createForConfig(s_toolContext);
     
-    ToolContext toolContext = ToolContextUtils.getToolContext(s_toolContextFile, ToolContext.class);
+    System.out.println("Creating tool context for DB...");
+    ToolContext toolContext = ToolContextUtils.getToolContext(s_toolContext, ToolContext.class);
     
 
     DatabaseRestore restore = new DatabaseRestore(
@@ -56,6 +58,7 @@ public class RegressionTestToolContextManager {
           toolContext.getOrganizationMaster()
     );
     
+    System.out.println("Initializing DB state...");
     restore.restoreDatabase();
     
     toolContext.close();

@@ -5,28 +5,13 @@
  */
 package com.opengamma.integration.regression;
 
-import java.io.File;
-import java.io.FileWriter;
-
-import net.sf.saxon.event.StreamWriterToReceiver;
-import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.Serializer;
-import net.sf.saxon.s9api.Serializer.Property;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.wire.FudgeMsgWriter;
-import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
-import com.google.common.base.Throwables;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * 
@@ -40,7 +25,9 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
 
   @Override
   protected void doRun() throws Exception {
-
+    
+    //TODO - make this in-process
+    
     CommandLine commandLine = getCommandLine();
 
     String viewName = commandLine.getOptionValue("view-name");
@@ -49,9 +36,9 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
     RegressionIdPreProcessor preProcessor = new RegressionIdPreProcessor(getToolContext().getPositionMaster());
     preProcessor.execute();
     
-    GoldenCopyCreator goldenCopySaver = new GoldenCopyCreator(getToolContext());
+    GoldenCopyCreator goldenCopyCreator = new GoldenCopyCreator(getToolContext());
 
-    GoldenCopy goldenCopy = goldenCopySaver.run(viewName, snapshotName, snapshotName);
+    GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, snapshotName);
     
     new GoldenCopyPersistenceHelper().save(goldenCopy);
     
