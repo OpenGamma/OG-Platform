@@ -19,12 +19,12 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
-import com.opengamma.financial.security.irs.CompoundingMethod;
-import com.opengamma.financial.security.irs.PeriodRelationship;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -87,7 +87,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * The payment is relative to the beginning or end of the period.
    */
   @PropertyDefinition(validate = "notNull")
-  private PeriodRelationship _paymentRelativeTo = PeriodRelationship.BEGINNING;
+  private DateRelativeTo _paymentRelativeTo = DateRelativeTo.START;
   /**
    * Should the accrual be adjusted.
    */
@@ -158,7 +158,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
       DayCount dayCountConvention,
       Frequency paymentFrequency,
       Frequency calculationFrequency,
-      PeriodRelationship paymentRelativeTo,
+      DateRelativeTo paymentRelativeTo,
       boolean adjustedAccrual,
       int settlementDays,
       RollConvention rollConvention,
@@ -451,7 +451,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the payment is relative to the beginning or end of the period.
    * @return the value of the property, not null
    */
-  public PeriodRelationship getPaymentRelativeTo() {
+  public DateRelativeTo getPaymentRelativeTo() {
     return _paymentRelativeTo;
   }
 
@@ -459,7 +459,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Sets the payment is relative to the beginning or end of the period.
    * @param paymentRelativeTo  the new value of the property, not null
    */
-  public void setPaymentRelativeTo(PeriodRelationship paymentRelativeTo) {
+  public void setPaymentRelativeTo(DateRelativeTo paymentRelativeTo) {
     JodaBeanUtils.notNull(paymentRelativeTo, "paymentRelativeTo");
     this._paymentRelativeTo = paymentRelativeTo;
   }
@@ -468,7 +468,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
    * Gets the the {@code paymentRelativeTo} property.
    * @return the property, not null
    */
-  public final Property<PeriodRelationship> paymentRelativeTo() {
+  public final Property<DateRelativeTo> paymentRelativeTo() {
     return metaBean().paymentRelativeTo().createProperty(this);
   }
 
@@ -714,8 +714,8 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
     /**
      * The meta-property for the {@code paymentRelativeTo} property.
      */
-    private final MetaProperty<PeriodRelationship> _paymentRelativeTo = DirectMetaProperty.ofReadWrite(
-        this, "paymentRelativeTo", InterestRateSwapLegConvention.class, PeriodRelationship.class);
+    private final MetaProperty<DateRelativeTo> _paymentRelativeTo = DirectMetaProperty.ofReadWrite(
+        this, "paymentRelativeTo", InterestRateSwapLegConvention.class, DateRelativeTo.class);
     /**
      * The meta-property for the {@code adjustedAccrual} property.
      */
@@ -889,7 +889,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
      * The meta-property for the {@code paymentRelativeTo} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PeriodRelationship> paymentRelativeTo() {
+    public final MetaProperty<DateRelativeTo> paymentRelativeTo() {
       return _paymentRelativeTo;
     }
 
@@ -993,7 +993,7 @@ public abstract class InterestRateSwapLegConvention extends FinancialConvention 
           ((InterestRateSwapLegConvention) bean).setCalculationFrequency((Frequency) newValue);
           return;
         case -1357627123:  // paymentRelativeTo
-          ((InterestRateSwapLegConvention) bean).setPaymentRelativeTo((PeriodRelationship) newValue);
+          ((InterestRateSwapLegConvention) bean).setPaymentRelativeTo((DateRelativeTo) newValue);
           return;
         case 1362995553:  // adjustedAccrual
           ((InterestRateSwapLegConvention) bean).setAdjustedAccrual((Boolean) newValue);

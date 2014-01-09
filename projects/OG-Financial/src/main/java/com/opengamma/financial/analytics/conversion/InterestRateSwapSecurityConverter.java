@@ -18,12 +18,21 @@ import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.NotionalProvider;
+import com.opengamma.analytics.financial.instrument.annuity.AbstractAnnuityDefinitionBuilder.CouponStub;
+import com.opengamma.analytics.financial.instrument.annuity.AdjustedDateParameters;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
+import com.opengamma.analytics.financial.instrument.annuity.FixedAnnuityDefinitionBuilder;
+import com.opengamma.analytics.financial.instrument.annuity.FloatingAnnuityDefinitionBuilder;
+import com.opengamma.analytics.financial.instrument.annuity.OffsetAdjustedDateParameters;
+import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborON;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -42,22 +51,28 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.irs.CompoundingMethod;
 import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapNotional;
 import com.opengamma.financial.security.irs.InterestRateSwapNotionalVisitor;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
+import com.opengamma.financial.security.irs.NotionalExchange;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.security.irs.PeriodRelationship;
+import com.opengamma.financial.security.irs.StubCalculationMethod;
 import com.opengamma.financial.security.lookup.irs.InterestRateSwapNotionalAmountVisitor;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -131,30 +146,30 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final Currency currency = iborLeg.getNotional().getCurrency();
     int nbNotional = getNbNotionalPayments(swapSecurity);
     final StubType stubType = iborLeg.getStubCalculationMethod() != null ? iborLeg.getStubCalculationMethod().getType() : StubType.SHORT_START;
-    final RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(iborLeg.getConvention().getRollConvention());
-    final boolean floatIsEOM = iborLeg.getConvention().getRollConvention() == RollConvention.EOM;
-    final Frequency paymentFreqIbor = iborLeg.getConvention().getPaymentFrequency();
+    final RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(iborLeg.getRollConvention());
+    final boolean floatIsEOM = iborLeg.getRollConvention() == RollConvention.EOM;
+    final Frequency paymentFreqIbor = iborLeg.getPaymentDateFrequency();
     final Period paymentTenorIbor;
     if (Frequency.NEVER_NAME.equals(paymentFreqIbor.getName())) {
       paymentTenorIbor = Period.between(swapSecurity.getEffectiveDate(), swapSecurity.getUnadjustedMaturityDate());
     } else {
       paymentTenorIbor = getTenor(paymentFreqIbor);
     }
-    final int spotLag = iborLeg.getConvention().getSettlementDays();
-    Frequency resetFreqIbor = iborLeg.getConvention().getResetFrequency();
+    final int spotLag = iborLeg.getFixingDateOffset();
+    Frequency resetFreqIbor = iborLeg.getResetPeriodFrequency();
     Period resetTenorIbor = getTenor(resetFreqIbor);
-    DayCount floatDayCount = iborLeg.getConvention().getDayCountConvention();
+    DayCount floatDayCount = iborLeg.getDayCountConvention();
     final IborIndex indexIbor = new IborIndex(iborLeg.getNotional().getCurrency(), resetTenorIbor, spotLag, floatDayCount,
-                                              iborLeg.getConvention().getPaymentDayConvention(),
+                                              iborLeg.getPaymentDateBusinessDayConvention(),
                                               floatIsEOM, iborLeg.getFloatingReferenceRateId().getValue());
-    BusinessDayConvention floatLegAccrualPeriodBusinessDayConvention = iborLeg.getConvention().getCalculationBusinessDayConvention();
+    BusinessDayConvention floatLegAccrualPeriodBusinessDayConvention = iborLeg.getAccrualPeriodBusinessDayConvention();
     ZonedDateTime effectiveDateTime = getZonedDateTime(swapSecurity.getEffectiveDate());
     ZonedDateTime maturityDateTime = getZonedDateTime(swapSecurity.getUnadjustedMaturityDate());
-    final ExternalId[] floatResetCalendarIds = iborLeg.getConvention().getResetCalendars().toArray(new ExternalId[iborLeg.getConvention().getResetCalendars().size()]);
+    final ExternalId[] floatResetCalendarIds = iborLeg.getResetPeriodCalendars().toArray(new ExternalId[iborLeg.getResetPeriodCalendars().size()]);
     final Calendar floatResetCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatResetCalendarIds);
-    final ExternalId[] floatCalcCalendarIds = iborLeg.getConvention().getCalculationCalendars().toArray(new ExternalId[iborLeg.getConvention().getCalculationCalendars().size()]);
+    final ExternalId[] floatCalcCalendarIds = iborLeg.getAccrualPeriodCalendars().toArray(new ExternalId[iborLeg.getAccrualPeriodCalendars().size()]);
     final Calendar floatCalcCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatCalcCalendarIds);
-    NotionalProvider notional = getNotionalProvider(iborLeg.getNotional(), iborLeg.getConvention().getCalculationBusinessDayConvention(), floatCalcCalendar);
+    NotionalProvider notional = getNotionalProvider(iborLeg.getNotional(), iborLeg.getAccrualPeriodBusinessDayConvention(), floatCalcCalendar);
 
     if (Frequency.NEVER_NAME.equals(paymentFreqIbor.getName())) {
       CouponDefinition[] payments = new CouponDefinition[nbNotional + 1];
@@ -177,7 +192,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       }
       secondLeg = new AnnuityDefinition<>(payments, floatResetCalendar);
     } else {
-      if (iborLeg.getConvention().getCompoundingMethod() == CompoundingMethod.NONE) {
+      if (iborLeg.getCompoundingMethod() == CompoundingMethod.NONE) {
         if (iborLeg.getSpreadSchedule() != null && !Double.isNaN(iborLeg.getSpreadSchedule().getInitialRate())) {
           secondLeg = AnnuityDefinitionBuilder.couponIborSpread(effectiveDateTime, maturityDateTime, paymentTenorIbor,
               notional, parseFlatSpread(iborLeg), indexIbor, isPay, floatDayCount,
@@ -190,7 +205,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
               floatResetCalendar, // period and payment dates are generated from these
               stubType, 0, rollDateAdjuster); // TODO payment lag
         }
-      } else if (iborLeg.getConvention().getCompoundingMethod()  == CompoundingMethod.FLAT) {
+      } else if (iborLeg.getCompoundingMethod()  == CompoundingMethod.FLAT) {
         secondLeg = AnnuityDefinitionBuilder.couponIborCompoundingFlatSpread(effectiveDateTime, maturityDateTime,
             paymentTenorIbor, // period and payment dates are generated from these
             notional, parseFlatSpread(iborLeg), indexIbor,
@@ -198,12 +213,12 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             isPay, floatLegAccrualPeriodBusinessDayConvention,
             floatIsEOM, floatResetCalendar, // period and payment dates are generated from these
             stubType, rollDateAdjuster); // TODO stub periods
-      } else if (iborLeg.getConvention().getCompoundingMethod() == CompoundingMethod.SPREAD_EXCLUSIVE) {
+      } else if (iborLeg.getCompoundingMethod() == CompoundingMethod.SPREAD_EXCLUSIVE) {
         secondLeg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(effectiveDateTime, maturityDateTime,
             paymentTenorIbor, notional, parseFlatSpread(iborLeg), indexIbor,
             StubType.SHORT_START, // TODO stub compounding period
             isPay, floatLegAccrualPeriodBusinessDayConvention, floatIsEOM, floatResetCalendar, stubType, rollDateAdjuster);
-      } else if (iborLeg.getConvention().getCompoundingMethod() == CompoundingMethod.STRAIGHT) {
+      } else if (iborLeg.getCompoundingMethod() == CompoundingMethod.STRAIGHT) {
         secondLeg = AnnuityDefinitionBuilder.couponIborCompounding(effectiveDateTime, maturityDateTime,
             paymentTenorIbor, // period and payment dates are generated from these
             notional, indexIbor, StubType.SHORT_START, // TODO stub compounding period
@@ -211,7 +226,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
             floatResetCalendar, // period and payment dates are generated from these
             stubType, rollDateAdjuster); // TODO stub compounding period
       } else {
-        throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + iborLeg.getConvention().getCompoundingMethod());
+        throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + iborLeg.getCompoundingMethod());
       }
     }
     return secondLeg;
@@ -221,18 +236,18 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
                                                                               FixedInterestRateSwapLeg fixedLeg) {
     AnnuityDefinition<? extends PaymentDefinition> firstLeg = null;
 
-    final Frequency payFreq = fixedLeg.getConvention().getPaymentFrequency();
+    final Frequency payFreq = fixedLeg.getPaymentDateFrequency();
     final Currency currency = fixedLeg.getNotional().getCurrency();
     final boolean isPay = fixedLeg.getPayReceiveType() == PayReceiveType.PAY;
     final double signFixed = (isPay ? -1.0 : 1.0);
     int nbNotional = getNbNotionalPayments(swapSecurity);
-    final boolean fixedIsEOM = RollConvention.EOM == fixedLeg.getConvention().getRollConvention();
-    DayCount fixedLegDayCount = fixedLeg.getConvention().getDayCountConvention();
-    Collection<ExternalId> fixedLegPaymentCalendarIds = fixedLeg.getConvention().getPaymentCalendars();
-    final ExternalId[] fixCalcCalendarIds = fixedLeg.getConvention().getCalculationCalendars().toArray(new ExternalId[fixedLeg.getConvention().getCalculationCalendars().size()]);
+    final boolean fixedIsEOM = RollConvention.EOM == fixedLeg.getRollConvention();
+    DayCount fixedLegDayCount = fixedLeg.getDayCountConvention();
+    Collection<ExternalId> fixedLegPaymentCalendarIds = fixedLeg.getPaymentDateCalendars();
+    final ExternalId[] fixCalcCalendarIds = fixedLeg.getAccrualPeriodCalendars().toArray(new ExternalId[fixedLeg.getAccrualPeriodCalendars().size()]);
     final Calendar fixCalcCalendar = new HolidaySourceCalendarAdapter(_holidaySource, fixCalcCalendarIds);
     Calendar fixedLegPaymentCalendar = new HolidaySourceCalendarAdapter(_holidaySource, fixedLegPaymentCalendarIds.toArray(new ExternalId[fixedLegPaymentCalendarIds.size()]));
-    BusinessDayConvention fixedLegFixingBusinessDayConvention = fixedLeg.getConvention().getCalculationBusinessDayConvention();
+    BusinessDayConvention fixedLegFixingBusinessDayConvention = fixedLeg.getAccrualPeriodBusinessDayConvention();
     ZonedDateTime effectiveDateTime = getZonedDateTime(swapSecurity.getEffectiveDate());
     ZonedDateTime maturityDateTime = getZonedDateTime(swapSecurity.getUnadjustedMaturityDate());
 
@@ -240,19 +255,15 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
       firstLeg = generateZCFixedAnnuity(swapSecurity, currency, signFixed, nbNotional, fixedLeg.getNotional().getInitialAmount(),
                                         fixedLegPaymentCalendar, effectiveDateTime, maturityDateTime);
     } else {
-      if (fixedLeg.getConvention().getCompoundingMethod() == CompoundingMethod.NONE) {
-        RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(fixedLeg.getConvention().getRollConvention());
-        final StubType stub = fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START;
-        firstLeg = AnnuityDefinitionBuilder.couponFixed(currency, effectiveDateTime, maturityDateTime,
-            getTenor(payFreq), // period and payment dates are generated from these
-            fixedLegPaymentCalendar, // period and payment dates are generated from these
-            fixedLegDayCount, fixedLegFixingBusinessDayConvention, fixedIsEOM, getNotionalProvider(fixedLeg.getNotional(), fixedLeg.getConvention().getCalculationBusinessDayConvention(), fixCalcCalendar),
-            fixedLeg.getRate().getInitialRate(), isPay,
-            stub,
-            fixedLeg.getConvention().getPaymentLag(), rollDateAdjuster);
-      } else {
-        throw new OpenGammaRuntimeException("Unsupported compounding method for fixed leg: " + fixedLeg.getConvention().getCompoundingMethod());
-      }
+      RollDateAdjuster rollDateAdjuster = getRollDateAdjuster(fixedLeg.getRollConvention());
+      final StubType stub = fixedLeg.getStubCalculationMethod() != null ? fixedLeg.getStubCalculationMethod().getType() : StubType.SHORT_START;
+      firstLeg = AnnuityDefinitionBuilder.couponFixed(currency, effectiveDateTime, maturityDateTime,
+          getTenor(payFreq), // period and payment dates are generated from these
+          fixedLegPaymentCalendar, // period and payment dates are generated from these
+          fixedLegDayCount, fixedLegFixingBusinessDayConvention, fixedIsEOM, getNotionalProvider(fixedLeg.getNotional(), fixedLeg.getAccrualPeriodBusinessDayConvention(), fixCalcCalendar),
+          fixedLeg.getRate().getInitialRate(), isPay,
+          stub,
+          fixedLeg.getPaymentOffset(), rollDateAdjuster);
     }
     return firstLeg;
   }
@@ -298,26 +309,26 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     final FloatingInterestRateSwapLeg floatLeg = Iterables.getOnlyElement(swapSecurity.getLegs(FloatingInterestRateSwapLeg.class));
 
     final Currency currency = floatLeg.getNotional().getCurrency();
-    final boolean isEOM = RollConvention.EOM == fixedLeg.getConvention().getRollConvention();
-    final int publicationLag = PeriodRelationship.BEGINNING == floatLeg.getConvention().getResetRelativeTo() ? 0 : 1; // end of period == 1 day
-    final IndexON index = new IndexON(floatLeg.getConvention().getName(), currency, floatLeg.getConvention().getDayCountConvention(), publicationLag);
-    final ExternalId[] floatFixingCalendarIds = floatLeg.getConvention().getFixingCalendars().toArray(new ExternalId[floatLeg.getConvention().getFixingCalendars().size()]);
+    final boolean isEOM = RollConvention.EOM == fixedLeg.getRollConvention();
+    final int publicationLag = DateRelativeTo.START == floatLeg.getResetDateRelativeTo() ? 0 : 1; // end of period == 1 day
+    final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, floatLeg.getDayCountConvention(), publicationLag);
+    final ExternalId[] floatFixingCalendarIds = floatLeg.getFixingDateCalendars().toArray(new ExternalId[floatLeg.getFixingDateCalendars().size()]);
     final Calendar floatFixingCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatFixingCalendarIds);
-    final ExternalId[] floatCalcCalendarIds = floatLeg.getConvention().getCalculationCalendars().toArray(new ExternalId[floatLeg.getConvention().getCalculationCalendars().size()]);
+    final ExternalId[] floatCalcCalendarIds = floatLeg.getAccrualPeriodCalendars().toArray(new ExternalId[floatLeg.getAccrualPeriodCalendars().size()]);
     final Calendar floatCalcCalendar = new HolidaySourceCalendarAdapter(_holidaySource, floatCalcCalendarIds);
-    final ExternalId[] fixCalcCalendarIds = fixedLeg.getConvention().getCalculationCalendars().toArray(new ExternalId[fixedLeg.getConvention().getCalculationCalendars().size()]);
+    final ExternalId[] fixCalcCalendarIds = fixedLeg.getAccrualPeriodCalendars().toArray(new ExternalId[fixedLeg.getAccrualPeriodCalendars().size()]);
     final Calendar fixCalcCalendar = new HolidaySourceCalendarAdapter(_holidaySource, fixCalcCalendarIds);
 
-    Period paymentTenor = PeriodFrequency.convertToPeriodFrequency(floatLeg.getConvention().getPaymentFrequency()).getPeriod();
+    Period paymentTenor = PeriodFrequency.convertToPeriodFrequency(floatLeg.getPaymentDateFrequency()).getPeriod();
     // If calc period == Term (aka 0D) - replace with length of swap  -- possible this should be 1Y for compounding OIS
     if (Period.ZERO.equals(paymentTenor)) {
       paymentTenor = Period.between(swapSecurity.getEffectiveDate(), swapSecurity.getUnadjustedMaturityDate());
     }
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currency.getCode() + "_OIS_Convention", index, paymentTenor,
-        fixedLeg.getConvention().getDayCountConvention(), floatLeg.getConvention().getFixingBusinessDayConvention(),
-        isEOM, floatLeg.getConvention().getSettlementDays(), publicationLag, floatFixingCalendar);
-    final NotionalProvider notionalFixed = getNotionalProvider(fixedLeg.getNotional(), fixedLeg.getConvention().getCalculationBusinessDayConvention(), fixCalcCalendar);
-    final NotionalProvider notionalOIS = getNotionalProvider(floatLeg.getNotional(), floatLeg.getConvention().getCalculationBusinessDayConvention(), floatCalcCalendar);
+        fixedLeg.getDayCountConvention(), floatLeg.getFixingDateBusinessDayConvention(),
+        isEOM, floatLeg.getFixingDateOffset(), publicationLag, floatFixingCalendar);
+    final NotionalProvider notionalFixed = getNotionalProvider(fixedLeg.getNotional(), fixedLeg.getAccrualPeriodBusinessDayConvention(), fixCalcCalendar);
+    final NotionalProvider notionalOIS = getNotionalProvider(floatLeg.getNotional(), floatLeg.getAccrualPeriodBusinessDayConvention(), floatCalcCalendar);
     return SwapFixedONDefinition.from(effectiveDateTime, maturityDateTime, notionalFixed, notionalOIS,
                                       generator, fixedLeg.getRate().getInitialRate(), fixedLeg.getPayReceiveType() == PayReceiveType.PAY);
   }
@@ -331,9 +342,9 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     FloatingInterestRateSwapLeg iborLeg = null;
     FloatingInterestRateSwapLeg oisLeg = null;
     for (FloatingInterestRateSwapLeg leg : swapSecurity.getLegs(FloatingInterestRateSwapLeg.class)) {
-      if (leg.getConvention().getRateType().isIbor()) {
+      if (leg.getFloatingRateType().isIbor()) {
         iborLeg = leg;
-      } else if (leg.getConvention().getRateType().isOis()) {
+      } else if (leg.getFloatingRateType().isOis()) {
         oisLeg = leg;
       } else {
         throw new OpenGammaRuntimeException("Unexpected leg type in IBOR_OIS swap: " + leg);
@@ -343,33 +354,33 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     ArgumentChecker.notNull(oisLeg, "ois leg in IBOR_OIS swap");
 
     // Ibor
-    final boolean floatIsEOM = iborLeg.getConvention().getRollConvention() == RollConvention.EOM;
+    final boolean floatIsEOM = iborLeg.getRollConvention() == RollConvention.EOM;
     final boolean isPay = iborLeg.getPayReceiveType() == PayReceiveType.PAY;
-    final int spotLag = iborLeg.getConvention().getSettlementDays();
-    Frequency resetFreqIbor = iborLeg.getConvention().getResetFrequency();
+    final int spotLag = iborLeg.getFixingDateOffset();
+    Frequency resetFreqIbor = iborLeg.getResetPeriodFrequency();
     Period resetTenorIbor = getTenor(resetFreqIbor);
-    DayCount floatDayCount = iborLeg.getConvention().getDayCountConvention();
+    DayCount floatDayCount = iborLeg.getDayCountConvention();
     final Currency currency = iborLeg.getNotional().getCurrency();
     final IborIndex indexIbor = new IborIndex(currency, resetTenorIbor, spotLag, floatDayCount,
-                                              iborLeg.getConvention().getPaymentDayConvention(),
+                                              iborLeg.getPaymentDateBusinessDayConvention(),
                                               floatIsEOM, iborLeg.getFloatingReferenceRateId().getValue());
-    final ExternalId[] iborCalcCalendarIds = iborLeg.getConvention().getCalculationCalendars().toArray(new ExternalId[iborLeg.getConvention().getCalculationCalendars().size()]);
+    final ExternalId[] iborCalcCalendarIds = iborLeg.getAccrualPeriodCalendars().toArray(new ExternalId[iborLeg.getAccrualPeriodCalendars().size()]);
     final Calendar iborCalcCalendar = new HolidaySourceCalendarAdapter(_holidaySource, iborCalcCalendarIds);
 
     // OIS
-    final boolean isEOM = RollConvention.EOM == iborLeg.getConvention().getRollConvention();
-    final int publicationLag = PeriodRelationship.BEGINNING == oisLeg.getConvention().getResetRelativeTo() ? 0 : 1; // end of period == 1 day
-    final IndexON indexON = new IndexON(oisLeg.getConvention().getName(), currency, oisLeg.getConvention().getDayCountConvention(), publicationLag);
-    final ExternalId[] oisFixingCalendarIds = oisLeg.getConvention().getFixingCalendars().toArray(new ExternalId[oisLeg.getConvention().getFixingCalendars().size()]);
+    final boolean isEOM = RollConvention.EOM == iborLeg.getRollConvention();
+    final int publicationLag = DateRelativeTo.START == oisLeg.getResetDateRelativeTo() ? 0 : 1; // end of period == 1 day
+    final IndexON indexON = new IndexON(oisLeg.getFloatingReferenceRateId().getValue(), currency, oisLeg.getDayCountConvention(), publicationLag);
+    final ExternalId[] oisFixingCalendarIds = oisLeg.getResetPeriodCalendars().toArray(new ExternalId[oisLeg.getResetPeriodCalendars().size()]);
     final Calendar oisFixingCalendar = new HolidaySourceCalendarAdapter(_holidaySource, oisFixingCalendarIds);
-    final ExternalId[] iborFixingCalendarIds = iborLeg.getConvention().getFixingCalendars().toArray(new ExternalId[iborLeg.getConvention().getFixingCalendars().size()]);
+    final ExternalId[] iborFixingCalendarIds = iborLeg.getResetPeriodCalendars().toArray(new ExternalId[iborLeg.getResetPeriodCalendars().size()]);
     final Calendar iborFixingCalendar = new HolidaySourceCalendarAdapter(_holidaySource, iborFixingCalendarIds);
-    final ExternalId[] oisCalcCalendarIds = iborLeg.getConvention().getCalculationCalendars().toArray(new ExternalId[oisLeg.getConvention().getCalculationCalendars().size()]);
+    final ExternalId[] oisCalcCalendarIds = iborLeg.getAccrualPeriodCalendars().toArray(new ExternalId[oisLeg.getAccrualPeriodCalendars().size()]);
     final Calendar oisCalcCalendar = new HolidaySourceCalendarAdapter(_holidaySource, oisCalcCalendarIds);
     final GeneratorSwapIborON generator = new GeneratorSwapIborON(currency.getCode() + "_OIS_Convention", indexIbor, indexON,
-      oisLeg.getConvention().getFixingBusinessDayConvention(), isEOM, spotLag, publicationLag, iborFixingCalendar, oisFixingCalendar);
-    final NotionalProvider notionalIbor = getNotionalProvider(iborLeg.getNotional(), iborLeg.getConvention().getCalculationBusinessDayConvention(), iborCalcCalendar);
-    final NotionalProvider notionalOIS = getNotionalProvider(oisLeg.getNotional(), oisLeg.getConvention().getCalculationBusinessDayConvention(), oisCalcCalendar);
+      oisLeg.getResetPeriodBusinessDayConvention(), isEOM, spotLag, publicationLag, iborFixingCalendar, oisFixingCalendar);
+    final NotionalProvider notionalIbor = getNotionalProvider(iborLeg.getNotional(), iborLeg.getAccrualPeriodBusinessDayConvention(), iborCalcCalendar);
+    final NotionalProvider notionalOIS = getNotionalProvider(oisLeg.getNotional(), oisLeg.getAccrualPeriodBusinessDayConvention(), oisCalcCalendar);
     return SwapIborONDefinition.from(effectiveDateTime, maturityDateTime, notionalIbor, notionalOIS, generator,
                                      parseFlatSpread(iborLeg), isPay);
   }
@@ -390,7 +401,9 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   }
 
   private static Period getTenor(final Frequency freq) {
-    if (freq instanceof PeriodFrequency) {
+    if (Frequency.NEVER_NAME.equals(freq.getName())) {
+      return Period.ZERO;
+    } else if (freq instanceof PeriodFrequency) {
       Period period = ((PeriodFrequency) freq).getPeriod();
       if (period.getYears() == 1) {
         return Period.ofMonths(12);
