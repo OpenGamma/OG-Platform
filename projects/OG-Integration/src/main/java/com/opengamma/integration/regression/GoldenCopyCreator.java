@@ -12,6 +12,7 @@ import org.threeten.bp.Instant;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
@@ -55,15 +56,14 @@ public class GoldenCopyCreator {
     
   }
 
-
   private Instant getValuationTime(String snapshotName) {
-    //FIXME - this should come from the snapshot itself
     MarketDataSnapshotMaster snapshotMaster = getToolContext().getMarketDataSnapshotMaster();
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
     searchRequest.setName(snapshotName);
+    searchRequest.setVersionCorrection(VersionCorrection.LATEST);
     List<MarketDataSnapshotDocument> documents = snapshotMaster.search(searchRequest).getDocuments();
     Preconditions.checkArgument(documents.size() == 1, "Only one snapshot should exist for given name '%s'. Found %s records: %s", snapshotName, documents.size(), documents);
-    return Iterables.getOnlyElement(documents).getVersionFromInstant(); //TODO - should be stored on the snapshot
+    return Iterables.getOnlyElement(documents).getValue().getValuationTime();
   }
   
   

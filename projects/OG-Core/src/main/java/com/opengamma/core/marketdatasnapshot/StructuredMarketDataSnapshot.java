@@ -7,6 +7,8 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.util.Map;
 
+import org.threeten.bp.Instant;
+
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
@@ -67,5 +69,15 @@ public interface StructuredMarketDataSnapshot extends UniqueIdentifiable {
    * @return the volatility surfaces
    */
   Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> getVolatilitySurfaces();
+
+  /**
+   * Gets the valuation time of the snapshot
+   * 
+   * @return the valuation time of the snapshot, or null if
+   * no valuation time could be inferred from the snapshot
+   */
+  Instant getValuationTime();
+  
+  
 
 }

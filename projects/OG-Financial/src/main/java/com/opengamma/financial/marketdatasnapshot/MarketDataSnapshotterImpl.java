@@ -122,6 +122,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
     final ManageableMarketDataSnapshot ret = new ManageableMarketDataSnapshot();
     ret.setBasisViewName(basisViewName);
     ret.setGlobalValues(globalValues);
+    ret.setValuationTime(viewCycle.getExecutionOptions().getValuationTime());
     if (_mode == Mode.STRUCTURED) {
       final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _yieldCurveSnapper.getValues(results, graphs, viewCycle);
       final Map<CurveKey, CurveSnapshot> curves = _curveSnapper.getValues(results, graphs, viewCycle);

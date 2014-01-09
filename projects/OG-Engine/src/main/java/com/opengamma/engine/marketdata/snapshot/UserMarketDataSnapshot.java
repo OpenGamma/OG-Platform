@@ -229,29 +229,13 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public Instant getSnapshotTime() {
-    // TODO [PLAT-1393] should explicitly store a snapshot time, which the user might choose to customise
-    Instant latestTimestamp = null;
-    Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = _snapshot.getYieldCurves();
-    if (yieldCurves != null) {
-      for (YieldCurveSnapshot yieldCurveSnapshot : yieldCurves.values()) {
-        if (latestTimestamp == null || latestTimestamp.isBefore(yieldCurveSnapshot.getValuationTime())) {
-          latestTimestamp = yieldCurveSnapshot.getValuationTime();
-        }
-      }
+    Instant snapshotTime = _snapshot.getValuationTime();
+    if (snapshotTime == null) {
+      //older snapshots do not always contain valuation times,
+      //so default to now if none can be inferred.
+      snapshotTime = Instant.now();
     }
-    Map<CurveKey, CurveSnapshot> curves = _snapshot.getCurves();
-    if (curves != null) {
-      for (CurveSnapshot curveSnapshot : curves.values()) {
-        if (latestTimestamp == null || latestTimestamp.isBefore(curveSnapshot.getValuationTime())) {
-          latestTimestamp = curveSnapshot.getValuationTime();
-        }
-      }
-    }
-    if (latestTimestamp == null) {
-      // What else can we do until one is guaranteed to be stored with the snapshot?
-      latestTimestamp = Instant.now();
-    }
-    return latestTimestamp;
+    return snapshotTime;
   }
 
   @Override
