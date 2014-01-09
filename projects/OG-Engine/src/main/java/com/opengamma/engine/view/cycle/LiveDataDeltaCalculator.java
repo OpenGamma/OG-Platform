@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view.cycle;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +27,7 @@ public class LiveDataDeltaCalculator {
   private final DependencyGraph _graph;
   private final ViewComputationCache _cache;
   private final ViewComputationCache _previousCache;
+  private final Set<ValueSpecification> _changedSpecifications;
 
   private final Set<DependencyNode> _changedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _unchangedNodes = new HashSet<DependencyNode>();
@@ -41,28 +41,31 @@ public class LiveDataDeltaCalculator {
    * @param graph Dependency graph
    * @param cache Contains CurrentLiveDataInputs (for the given graph)
    * @param previousCache Contains PreviousLiveDataInputs (for the given graph)
+   * @param dirtySpecifications Value specifications that are to be considered "changed"
    */
-  public LiveDataDeltaCalculator(final DependencyGraph graph, final ViewComputationCache cache, final ViewComputationCache previousCache) {
+  public LiveDataDeltaCalculator(final DependencyGraph graph, final ViewComputationCache cache, final ViewComputationCache previousCache, final Set<ValueSpecification> dirtySpecifications) {
     ArgumentChecker.notNull(graph, "Graph");
     ArgumentChecker.notNull(cache, "Cache");
     ArgumentChecker.notNull(previousCache, "Previous cache");
+    ArgumentChecker.notNull(dirtySpecifications, "dirtySpecifications");
     _graph = graph;
     _cache = cache;
     _previousCache = previousCache;
+    _changedSpecifications = dirtySpecifications.isEmpty() ? null : dirtySpecifications;
   }
 
   public Set<DependencyNode> getChangedNodes() {
     if (!_done) {
       throw new IllegalStateException("Call computeDelta() first");
     }
-    return Collections.unmodifiableSet(_changedNodes);
+    return _changedNodes;
   }
 
   public Set<DependencyNode> getUnchangedNodes() {
     if (!_done) {
       throw new IllegalStateException("Call computeDelta() first");
     }
-    return Collections.unmodifiableSet(_unchangedNodes);
+    return _unchangedNodes;
   }
 
   public void computeDelta() {
@@ -100,11 +103,19 @@ public class LiveDataDeltaCalculator {
           }
         }
       }
-      // Note: an "else" branch here is where we'd support "volatile" functions
     } else {
       for (int i = 0; i < count; i++) {
         // if any children changed, this node requires recalculation
         hasChanged |= computeDelta(node.getInputNode(i));
+      }
+      if (!hasChanged && (_changedSpecifications != null)) {
+        count = node.getOutputCount();
+        for (int i = 0; i < count; i++) {
+          if (_changedSpecifications.contains(node.getOutputValue(i))) {
+            hasChanged = true;
+            break;
+          }
+        }
       }
     }
     if (hasChanged) {
