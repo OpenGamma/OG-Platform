@@ -140,7 +140,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     } else {
       paymentTenorIbor = getTenor(paymentFreqIbor);
     }
-    final int spotLag = iborLeg.getFixingDateOffset();
+    final int spotLag = -iborLeg.getFixingDateOffset();
     Frequency resetFreqIbor = iborLeg.getResetPeriodFrequency();
     Period resetTenorIbor = getTenor(resetFreqIbor);
     DayCount floatDayCount = iborLeg.getDayCountConvention();
@@ -311,7 +311,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     }
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currency.getCode() + "_OIS_Convention", index, paymentTenor,
         fixedLeg.getDayCountConvention(), floatLeg.getFixingDateBusinessDayConvention(),
-        isEOM, floatLeg.getFixingDateOffset(), publicationLag, floatFixingCalendar);
+        isEOM, -floatLeg.getFixingDateOffset(), publicationLag, floatFixingCalendar);
     final NotionalProvider notionalFixed = getNotionalProvider(fixedLeg.getNotional(), fixedLeg.getAccrualPeriodBusinessDayConvention(), fixCalcCalendar);
     final NotionalProvider notionalOIS = getNotionalProvider(floatLeg.getNotional(), floatLeg.getAccrualPeriodBusinessDayConvention(), floatCalcCalendar);
     return SwapFixedONDefinition.from(effectiveDateTime, maturityDateTime, notionalFixed, notionalOIS,
@@ -341,7 +341,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
     // Ibor
     final boolean floatIsEOM = iborLeg.getRollConvention() == RollConvention.EOM;
     final boolean isPay = iborLeg.getPayReceiveType() == PayReceiveType.PAY;
-    final int spotLag = iborLeg.getFixingDateOffset();
+    final int spotLag = -iborLeg.getFixingDateOffset();
     Frequency resetFreqIbor = iborLeg.getResetPeriodFrequency();
     Period resetTenorIbor = getTenor(resetFreqIbor);
     DayCount floatDayCount = iborLeg.getDayCountConvention();
