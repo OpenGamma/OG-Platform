@@ -6,7 +6,6 @@
 package com.opengamma.integration.regression;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -42,31 +41,21 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
     new GoldenCopyPersistenceHelper().save(goldenCopy);
     DataTrackingToolContext tc = getToolContext();
     
-    try (DatabaseDumpWriter writer = createDumpWriter(outputDir)) {
-      GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(writer, 
-          tc.getSecurityMaster(),
-          tc.getPositionMaster(),
-          tc.getPortfolioMaster(),
-          tc.getConfigMaster(),
-          tc.getHistoricalTimeSeriesMaster(),
-          tc.getHolidayMaster(),
-          tc.getExchangeMaster(),
-          tc.getMarketDataSnapshotMaster(),
-          tc.getOrganizationMaster());
-      
-      goldenCopyDumpCreator.execute();
+    RegressionIO io = new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), false);
     
-    }
-  }
-
-  private DatabaseDumpWriter createDumpWriter(String outputDir) throws IOException {
-    CommandLine commandLine = getCommandLine();
-    if (commandLine.hasOption("zipfile-name")) {
-      String zipfileName = commandLine.getOptionValue("zipfile-name");
-      return DatabaseDumpWriter.createZipWriter(new File(outputDir), zipfileName);
-    } else {
-      return DatabaseDumpWriter.createFileWriter(new File(outputDir));
-    }
+    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
+        tc.getSecurityMaster(),
+        tc.getPositionMaster(),
+        tc.getPortfolioMaster(),
+        tc.getConfigMaster(),
+        tc.getHistoricalTimeSeriesMaster(),
+        tc.getHolidayMaster(),
+        tc.getExchangeMaster(),
+        tc.getMarketDataSnapshotMaster(),
+        tc.getOrganizationMaster());
+    
+    goldenCopyDumpCreator.execute();
+    
   }
 
   @Override

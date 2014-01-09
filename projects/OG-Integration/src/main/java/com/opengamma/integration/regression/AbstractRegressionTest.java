@@ -5,6 +5,13 @@
  */
 package com.opengamma.integration.regression;
 
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.io.File;
+
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+
 import com.opengamma.financial.tool.ToolContext;
 
 /**
@@ -13,17 +20,30 @@ import com.opengamma.financial.tool.ToolContext;
 public abstract class AbstractRegressionTest {
   
   
-  private static RegressionTestToolContextManager s_contextManager;
+  private RegressionTestToolContextManager _contextManager;
   
-  static {
-    s_contextManager = new RegressionTestToolContextManager();
-    s_contextManager.init();
+  
+  /**
+   * @param dumpDir dump source directory 
+   */
+  public AbstractRegressionTest(File dumpDir) {
+    _contextManager = new RegressionTestToolContextManager(dumpDir);
+  }
+
+  @BeforeTest
+  public void initContext() {
+    _contextManager.init();
+  }
+  
+  @AfterTest
+  public void closeContext() {
+    _contextManager.close();
   }
   
   
   protected void runTestForView(String viewName, String snapshotName) {
     
-    ToolContext toolContext = s_contextManager.getToolContext();
+    ToolContext toolContext = _contextManager.getToolContext();
     GoldenCopy original = new GoldenCopyPersistenceHelper().load(viewName, snapshotName);
     
     ViewRunner viewRunner = new ViewRunner(toolContext.getConfigMaster(),
@@ -41,6 +61,9 @@ public abstract class AbstractRegressionTest {
     System.out.println("Only base: " + result.getOnlyBase().size());
     System.out.println("Only test: " + result.getOnlyTest().size());
     
+    assertTrue("Found results only in base", result.getOnlyBase().isEmpty());
+    assertTrue("Found results only in base", result.getOnlyTest().isEmpty());
+    assertTrue("Found results only in base", result.getDifferent().isEmpty());
     
   }
   
