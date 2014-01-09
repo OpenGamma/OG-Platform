@@ -16,8 +16,12 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.AgricultureFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CouponCommodityCashSettle;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CouponCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.EnergyFutureTransaction;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityCashSettle;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.ForwardCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureSecurity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.MetalFutureTransaction;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
@@ -1234,5 +1238,47 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitMetalFutureTransaction(final MetalFutureTransaction future) {
     return _delegate.visitMetalFutureTransaction(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityCashSettle(final CouponCommodityCashSettle coupon, final DATA_TYPE data) {
+
+    return _delegate.visitCouponCommodityCashSettle(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityCashSettle(final CouponCommodityCashSettle coupon) {
+    return _delegate.visitCouponCommodityCashSettle(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityPhysicalSettle(final CouponCommodityPhysicalSettle coupon, final DATA_TYPE data) {
+    return _delegate.visitCouponCommodityPhysicalSettle(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityPhysicalSettle(final CouponCommodityPhysicalSettle coupon) {
+
+    return _delegate.visitCouponCommodityPhysicalSettle(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityCashSettle(final ForwardCommodityCashSettle forward, final DATA_TYPE data) {
+    return _delegate.visitForwardCommodityCashSettle(forward, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityCashSettle(final ForwardCommodityCashSettle forward) {
+    return _delegate.visitForwardCommodityCashSettle(forward);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityPhysicalSettle(final ForwardCommodityPhysicalSettle forward, final DATA_TYPE data) {
+    return _delegate.visitForwardCommodityPhysicalSettle(forward, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityPhysicalSettle(final ForwardCommodityPhysicalSettle forward) {
+    return _delegate.visitForwardCommodityPhysicalSettle(forward);
   }
 }

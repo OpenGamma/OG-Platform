@@ -8,9 +8,12 @@ package com.opengamma.analytics.financial.commodity.multicurvecommodity.definiti
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CouponCommodity;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CouponCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -47,6 +50,7 @@ public class CouponCommodityPhysicalSettleDefinition extends CouponCommodityDefi
    * @param paymentYearFraction The last trading date, not null
    * @param underlying The commodity underlying, not null
    * @param unitName name of the unit of the commodity delivered, not null
+   * @param notional notional
    * @param settlementDate The settlement date, not null
    * @param calendar The holiday calendar, not null
    * @param noticeFirstDate  The notice first date, can be null 
@@ -54,10 +58,10 @@ public class CouponCommodityPhysicalSettleDefinition extends CouponCommodityDefi
    * @param firstDeliveryDate The first delivery date, not null for physical contract
    * @param lastDeliveryDate The last delivery date, not null for physical contract
    */
-  public CouponCommodityPhysicalSettleDefinition(final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final ZonedDateTime settlementDate,
-      final Calendar calendar,
-      final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate) {
-    super(paymentYearFraction, underlying, unitName, settlementDate, calendar);
+  public CouponCommodityPhysicalSettleDefinition(final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final double notional,
+      final ZonedDateTime settlementDate, final Calendar calendar, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, final ZonedDateTime firstDeliveryDate,
+      final ZonedDateTime lastDeliveryDate) {
+    super(paymentYearFraction, underlying, unitName, notional, settlementDate, calendar);
     _noticeFirstDate = noticeFirstDate;
     _noticeLastDate = noticeLastDate;
     _firstDeliveryDate = firstDeliveryDate;
@@ -93,27 +97,37 @@ public class CouponCommodityPhysicalSettleDefinition extends CouponCommodityDefi
   }
 
   @Override
+  public double getReferenceAmount() {
+    return getNotional();
+  }
+
+  @Override
   public CouponCommodity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    // TODO Auto-generated method stub
-    return null;
+    return toDerivative(date);
   }
 
   @Override
   public CouponCommodity toDerivative(final ZonedDateTime date) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.inOrderOrEqual(date, getSettlementDate(), "date", "expiry date");
+    final double settlementTime = TimeCalculator.getTimeBetween(date, getSettlementDate());
+    final double noticeFirstTime = TimeCalculator.getTimeBetween(date, _noticeFirstDate);
+    final double noticeLastTime = TimeCalculator.getTimeBetween(date, _noticeLastDate);
+    final double firstDeliveryTime = TimeCalculator.getTimeBetween(date, _firstDeliveryDate);
+    final double lastDeliveryTime = TimeCalculator.getTimeBetween(date, _lastDeliveryDate);
+    return new CouponCommodityPhysicalSettle(getPaymentYearFractione(), getUnderlying(), getUnitName(), getNotional(), settlementTime, getCalendar(), noticeFirstTime, noticeLastTime,
+        firstDeliveryTime, lastDeliveryTime);
   }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponCommodityPhysicalSettleDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponCommodityPhysicalSettleDefinition(this);
   }
 
   /* (non-Javadoc)

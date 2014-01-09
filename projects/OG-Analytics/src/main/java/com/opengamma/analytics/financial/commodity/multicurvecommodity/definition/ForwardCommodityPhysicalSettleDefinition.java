@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ForwardCommodityCashSettleDefinition extends CouponCommodityCashSettleDefinition {
+public class ForwardCommodityPhysicalSettleDefinition extends CouponCommodityPhysicalSettleDefinition {
 
   /**
    * The Forward rate.
@@ -24,18 +24,22 @@ public class ForwardCommodityCashSettleDefinition extends CouponCommodityCashSet
 
   /**
    * Constructor with all details.
-   * @param rate The Forward rate. 
-   * @param paymentYearFraction payment year fraction, positive
+   * @param rate The Forward rate.
+   * @param paymentYearFraction The last trading date, not null
    * @param underlying The commodity underlying, not null
    * @param unitName name of the unit of the commodity delivered, not null
    * @param notional notional
    * @param settlementDate The settlement date, not null
    * @param calendar The holiday calendar, not null
-   * @param fixingDate the fixing date
+   * @param noticeFirstDate  The notice first date, can be null 
+   * @param noticeLastDate  The notice last date, can be null 
+   * @param firstDeliveryDate The first delivery date, not null for physical contract
+   * @param lastDeliveryDate The last delivery date, not null for physical contract
    */
-  public ForwardCommodityCashSettleDefinition(final double rate, final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final double notional,
-      final ZonedDateTime settlementDate, final Calendar calendar, final ZonedDateTime fixingDate) {
-    super(paymentYearFraction, underlying, unitName, notional, settlementDate, calendar, fixingDate);
+  public ForwardCommodityPhysicalSettleDefinition(final double rate, final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final double notional,
+      final ZonedDateTime settlementDate, final Calendar calendar, final ZonedDateTime noticeFirstDate, final ZonedDateTime noticeLastDate, final ZonedDateTime firstDeliveryDate,
+      final ZonedDateTime lastDeliveryDate) {
+    super(paymentYearFraction, underlying, unitName, notional, settlementDate, calendar, noticeFirstDate, noticeLastDate, firstDeliveryDate, lastDeliveryDate);
     _rate = rate;
   }
 
@@ -49,21 +53,13 @@ public class ForwardCommodityCashSettleDefinition extends CouponCommodityCashSet
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitForwardCommodityCashSettleDefinition(this, data);
+    return visitor.visitForwardCommodityPhysicalSettleDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitForwardCommodityCashSettleDefinition(this);
-  }
-
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "ForwardCommodityCashSettleDefinition [_rate=" + _rate + "]";
+    return visitor.visitForwardCommodityPhysicalSettleDefinition(this);
   }
 
   /* (non-Javadoc)
@@ -93,7 +89,7 @@ public class ForwardCommodityCashSettleDefinition extends CouponCommodityCashSet
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final ForwardCommodityCashSettleDefinition other = (ForwardCommodityCashSettleDefinition) obj;
+    final ForwardCommodityPhysicalSettleDefinition other = (ForwardCommodityPhysicalSettleDefinition) obj;
     if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
       return false;
     }

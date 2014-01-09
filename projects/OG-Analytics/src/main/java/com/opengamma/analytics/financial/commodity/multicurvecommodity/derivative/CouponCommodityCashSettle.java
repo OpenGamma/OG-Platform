@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.commodity.multicurvecommodity.derivati
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a cash settle commodity coupon.
@@ -31,14 +32,19 @@ public class CouponCommodityCashSettle extends CouponCommodity {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponCommodityCashSettle(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponCommodityCashSettle(this);
+  }
+
+  @Override
+  public double getReferenceAmount() {
+    return getNotional();
   }
 
 }

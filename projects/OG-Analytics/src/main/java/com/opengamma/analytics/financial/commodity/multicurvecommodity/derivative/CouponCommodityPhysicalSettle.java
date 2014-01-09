@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.commodity.multicurvecommodity.derivati
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a physical settle commodity coupon.
@@ -28,16 +29,29 @@ public class CouponCommodityPhysicalSettle extends CouponCommodity {
   private final double _noticeLastTime;
 
   /** 
-   * time of first delivery 
-   *   
+   * The first delivery time
    */
   private final double _firstDeliveryTime;
 
   /** 
-   * Date of last delivery 
+   * The last  delivery time 
    * The delivery is usually done during a month. 
    */
   private final double _lastDeliveryTime;
+
+  /**
+   * Constructor with all details.
+   * @param paymentYearFraction The payment year fraction, positive
+   * @param underlying The commodity underlying, not null
+   * @param unitName name of the unit of the commodity delivered, not null
+   * @param notional notional The number of unit
+   * @param settlementTime The settlement time, , positive
+   * @param calendar The holiday calendar, not null
+   * @param noticeFirstTime The first notice time.
+   * @param noticeLastTime The last notice time.
+   * @param firstDeliveryTime The first delivery time
+   * @param lastDeliveryTime The last  delivery time 
+   */
 
   public CouponCommodityPhysicalSettle(final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final double notional, final double settlementTime,
       final Calendar calendar, final double noticeFirstTime, final double noticeLastTime, final double firstDeliveryTime, final double lastDeliveryTime) {
@@ -77,15 +91,20 @@ public class CouponCommodityPhysicalSettle extends CouponCommodity {
   }
 
   @Override
+  public double getReferenceAmount() {
+    return getNotional();
+  }
+
+  @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponCommodityPhysicalSettle(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponCommodityPhysicalSettle(this);
   }
 
   /* (non-Javadoc)

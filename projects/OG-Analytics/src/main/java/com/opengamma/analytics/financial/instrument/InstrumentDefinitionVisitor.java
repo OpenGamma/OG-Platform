@@ -16,8 +16,12 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
@@ -1645,6 +1649,66 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitEnergyFutureTransactionDefinition(EnergyFutureTransactionDefinition future);
+
+  /**
+   * Forward commodity cash settle method that takes data.
+   * @param forward A forward
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityCashSettleDefinition(ForwardCommodityCashSettleDefinition forward, DATA_TYPE data);
+
+  /**
+   * Forward commodity cash settle  method.
+   * @param forward A forward
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityCashSettleDefinition(ForwardCommodityCashSettleDefinition forward);
+
+  /**
+   * Forward commodity Physical settle method that takes data.
+   * @param forward A forward
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(ForwardCommodityPhysicalSettleDefinition forward, DATA_TYPE data);
+
+  /**
+   * Forward commodity Physical settle  method.
+   * @param forward A forward
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(ForwardCommodityPhysicalSettleDefinition forward);
+
+  /**
+   * Coupon commodity cash settle method that takes data.
+   * @param coupon A coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityCashSettleDefinition(CouponCommodityCashSettleDefinition coupon, DATA_TYPE data);
+
+  /**
+   * Coupon commodity cash settle  method.
+   * @param coupon A coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityCashSettleDefinition(CouponCommodityCashSettleDefinition coupon);
+
+  /**
+   * Coupon commodity Physical settle method that takes data.
+   * @param coupon A coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(CouponCommodityPhysicalSettleDefinition coupon, DATA_TYPE data);
+
+  /**
+   * Coupon commodity Physical settle  method.
+   * @param coupon A coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(CouponCommodityPhysicalSettleDefinition coupon);
 
   // -----     Equity    -----
 

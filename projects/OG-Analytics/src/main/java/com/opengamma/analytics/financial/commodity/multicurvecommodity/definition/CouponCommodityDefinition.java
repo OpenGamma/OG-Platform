@@ -7,17 +7,16 @@ package com.opengamma.analytics.financial.commodity.multicurvecommodity.definiti
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CouponCommodity;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Class describing a generic commodity coupon.
  */
-public abstract class CouponCommodityDefinition implements InstrumentDefinition<CouponCommodity> {
+public abstract class CouponCommodityDefinition extends PaymentDefinition {
 
   /**
    * The payment period year fraction (or accrual factor).
@@ -34,7 +33,12 @@ public abstract class CouponCommodityDefinition implements InstrumentDefinition<
   private final String _unitName;
 
   /** 
-   * Settlement date. Usually one day after the last trading date.
+   * Notional which is a number of  unit 
+   */
+  private final double _notional;
+
+  /** 
+   * Settlement date. 
    */
   private final ZonedDateTime _settlementDate;
 
@@ -48,11 +52,13 @@ public abstract class CouponCommodityDefinition implements InstrumentDefinition<
    * @param paymentYearFraction payment year fraction, positive
    * @param underlying The commodity underlying, not null
    * @param unitName name of the unit of the commodity delivered, not null
+   * @param notional the notional
    * @param settlementDate The settlement date, not null
    * @param calendar The holiday calendar, not null
    */
-  public CouponCommodityDefinition(final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName,
+  public CouponCommodityDefinition(final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final double notional,
       final ZonedDateTime settlementDate, final Calendar calendar) {
+    super(underlying.getCurrency(), settlementDate);
     ArgumentChecker.notNegativeOrZero(paymentYearFraction, "payment year fraction");
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notEmpty(unitName, "unit name");
@@ -61,8 +67,16 @@ public abstract class CouponCommodityDefinition implements InstrumentDefinition<
     _paymentYearFraction = paymentYearFraction;
     _underlying = underlying;
     _unitName = unitName;
+    _notional = notional;
     _settlementDate = settlementDate;
     _calendar = calendar;
+  }
+
+  /**
+   * @return the _paymentYearFraction
+   */
+  public double getPaymentYearFractione() {
+    return _paymentYearFraction;
   }
 
   /**
@@ -81,6 +95,13 @@ public abstract class CouponCommodityDefinition implements InstrumentDefinition<
   }
 
   /**
+   * @return the _notional
+   */
+  public double getNotional() {
+    return _notional;
+  }
+
+  /**
    * @return the _settlementDate
    */
   public ZonedDateTime getSettlementDate() {
@@ -91,6 +112,7 @@ public abstract class CouponCommodityDefinition implements InstrumentDefinition<
    * The future currency.
    * @return The currency.
    */
+  @Override
   public Currency getCurrency() {
     return _underlying.getCurrency();
   }
