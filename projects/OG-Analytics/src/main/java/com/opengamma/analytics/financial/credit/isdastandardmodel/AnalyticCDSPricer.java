@@ -12,7 +12,6 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
 import org.apache.commons.lang.NotImplementedException;
-
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -53,13 +52,13 @@ public class AnalyticCDSPricer {
   }
 
   /**
-   * Present value for the payer of premiums (i.e. the buyer of protection)
-  * @param cds analytic description of a CDS traded at a certain time
+   * CDS value for the payer of premiums (i.e. the buyer of protection) at the cash-settle date
+   * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
    * @param fractionalSpread The <b>fraction</b> spread
-  * @param cleanOrDirty Clean or dirty price
-   * @return The PV on unit notional
+   * @param cleanOrDirty Clean or dirty price
+   * @return  Value of a unit notional payer CDS on the cash-settle date 
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread, final PriceType cleanOrDirty) {
     ArgumentChecker.notNull(cds, "cds");
@@ -73,12 +72,35 @@ public class AnalyticCDSPricer {
   }
 
   /**
+   * CDS value for the payer of premiums (i.e. the buyer of protection) at the specified valuation time 
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param fractionalSpread The <b>fraction</b> spread
+   * @param cleanOrDirty Clean or dirty price
+   * @param valuationTime The valuation time. If time is zero, leg is valued today. Value often quoted for cash-settlement date. 
+   * @return Value of a unit notional payer CDS at the specified valuation time
+   */
+  public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread, final PriceType cleanOrDirty,
+      double valuationTime) {
+    ArgumentChecker.notNull(cds, "cds");
+    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
+      return 0.0;
+    }
+
+    final double rpv01 = annuity(cds, yieldCurve, creditCurve, cleanOrDirty, 0.0);
+    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve, 0.0);
+    final double df = yieldCurve.getDiscountFactor(valuationTime);
+    return (proLeg - fractionalSpread * rpv01) / df;
+  }
+
+  /**
    * Present value (clean price) for the payer of premiums (i.e. the buyer of protection)
   * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
    * @param fractionalSpread The <b>fraction</b> spread
-   * @return The PV
+   * @return The PV 
    */
   public double pv(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double fractionalSpread) {
     return pv(cds, yieldCurve, creditCurve, fractionalSpread, PriceType.CLEAN);
@@ -97,8 +119,8 @@ public class AnalyticCDSPricer {
       throw new IllegalArgumentException("CDSs has expired - cannot compute a par spread for it");
     }
 
-    final double rpv01 = annuity(cds, yieldCurve, creditCurve, PriceType.CLEAN);
-    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve);
+    final double rpv01 = annuity(cds, yieldCurve, creditCurve, PriceType.CLEAN, 0.0);
+    final double proLeg = protectionLeg(cds, yieldCurve, creditCurve, 0.0);
     return proLeg / rpv01;
   }
 
@@ -113,6 +135,21 @@ public class AnalyticCDSPricer {
    * @return The value of the protection leg (on a unit notional)
    */
   public double protectionLeg(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+    return protectionLeg(cds, yieldCurve, creditCurve, cds.getCashSettleTime());
+  }
+
+  /**
+   * Compute the present value of the protection leg with a notional of 1, which is given by the integral
+   * $\frac{1-R}{P(T_{v})} \int_{T_a} ^{T_b} P(t) \frac{dQ(t)}{dt} dt$ where $P(t)$ and $Q(t)$ are the discount and survival curves
+   * respectively, $T_a$ and $T_b$ are the start and end of the protection respectively, $T_v$ is the valuation time (all measured
+   * from $t = 0$, 'today') and $R$ is the recovery rate.
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param valuationTime The valuation time. If time is zero, leg is valued today. Leg is usually quoted valued on cash-settlement date. 
+   * @return The value of the protection leg (on a unit notional)
+   */
+  public double protectionLeg(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double valuationTime) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
@@ -154,13 +191,23 @@ public class AnalyticCDSPricer {
     }
     pv *= cds.getLGD();
 
-    // Compute the discount factor discounting the upfront payment made on the cash settlement date back to the valuation date
-    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
+    // roll to the valuation date
+    final double df = yieldCurve.getDiscountFactor(valuationTime);
     pv /= df;
 
     return pv;
   }
 
+  /**
+   * The value of the full (or dirty) annuity (or RPV01 - the premium leg per unit of coupon) today (t=0). 
+   * The cash flows from premium payments and accrual-on-default are risky discounted to t=0
+   * The actual value of the leg is this multiplied by the notional and the fractional coupon (i.e. coupon in basis points divided by 10,000). <br>
+   * This is valid for both spot and forward starting CDS.
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @return The full (or dirty) annuity valued today. <b>Note</b> what is usually quoted is the clean annuity  
+   */
   public double dirtyAnnuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.notNull(cds, "null cds");
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
@@ -193,6 +240,15 @@ public class AnalyticCDSPricer {
     return pv;
   }
 
+  /**
+   * The clean value of annuity (or RPV01 - the premium leg per unit of coupon) today (t=0).  This is calculated as the dirty annuity value minus the 
+   * value of the accrued premium; the accrued amount is simply the year fraction from the accrual start to the stepin date (protection start), this is 
+   * risk-free discounted to the effective protection start, then risky discounted to today.   
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @return The clean annuity valued today.
+   */
   public double cleanAnnuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     final double da = dirtyAnnuity(cds, yieldCurve, creditCurve);
     if (cds.getCashSettleTime() < cds.getEffectiveProtectionStart()) {
@@ -211,9 +267,10 @@ public class AnalyticCDSPricer {
   }
 
   /**
-   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
-   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis
-   * points divided by 10,000)
+   * This is the present value of the premium leg per unit coupon, seen at the cash-settlement date. It is equal to 10,000 times the RPV01
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. coupon in basis
+   * points divided by 10,000)<br>
+   * @see annuity, cleanAnnuity, dirtyAnnuity
    * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
@@ -221,28 +278,26 @@ public class AnalyticCDSPricer {
    * @return 10,000 times the RPV01 (on a notional of 1)
    */
   public double annuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
-
-    double pv = dirtyAnnuity(cds, yieldCurve, creditCurve);
-    final double csTime = cds.getCashSettleTime();
-    final double protStart = cds.getEffectiveProtectionStart();
-
-    final double df = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
-    pv /= df;
-
-    if (cleanOrDirty == PriceType.CLEAN) {
-      pv -= cds.getAccruedPremiumPerUnitSpread();
-    }
-    return pv;
+    return annuity(cds, yieldCurve, creditCurve, cleanOrDirty, cds.getCashSettleTime());
   }
 
   /**
-   * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
-   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis
-   * points divided by 10,000)
+   * The value of the annuity (or RPV01 - the premium leg per unit of coupon) at a specified valuation time. The actual value of the leg is this
+   * multiplied by the notional and the fractional coupon (i.e. coupon in basis points divided by 10,000). <br>
+   * If this is a spot starting CDS (effective protection start = 0) then cash flows from premium payments and accrual-on-default are risky discounted to t=0
+   * ('today'), then rolled forward (risk-free) to the valuation time; if the annuity is requested clean, the accrued premium (paid at the cash-settle time) is
+   * rolled (again risk-free) to the valuation time; the absolute value of this amount is subtracted from the other cash flows to give the clean annuity<br>
+   * If this is a forward starting CDS (effective protection start > 0), then the premium payments are again risky discounted to t=0; if the annuity is requested
+   * clean, the accrued premium is risk-free discounted to the effective protection start, then risky discounted to t=0 - this gives the t=0 value of the annuity
+   * including the chance that a default occurs before protection starts. 
+   * If valuationTime > 0, the value of the annuity is rolled forward (risk-free) to that time. To compute the expected value of the annuity conditional on
+   * no default before the valuationTime, one must divide this number by the survival probability to the valuationTime.
+   *  (for unit coupon)
    * @param cds analytic description of a CDS traded at a certain time
    * @param yieldCurve The yield (or discount) curve
    * @param creditCurve the credit (or survival) curve
    * @param cleanOrDirty Clean or dirty price
+   * @param valuationTime 
    * @return 10,000 times the RPV01 (on a notional of 1)
    */
   public double annuity(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty, final double valuationTime) {
@@ -258,7 +313,7 @@ public class AnalyticCDSPricer {
     final double csDF = yieldCurve.getDiscountFactor(csTime);
     final double acc = cds.getAccruedPremiumPerUnitSpread();
 
-    if (protStart == 0) {
+    if (protStart == 0) { //spot starting CDS
       if (valuationTime == csTime) { //this is the standard CDS case
         pv /= csDF;
         pv -= acc;
@@ -268,7 +323,7 @@ public class AnalyticCDSPricer {
         pv -= acc * csDF;
         return pv;
       }
-    } else {
+    } else { //forward starting CDS
       pv -= acc * yieldCurve.getDiscountFactor(csTime) * creditCurve.getSurvivalProbability(protStart);
       pv /= yieldCurve.getDiscountFactor(valuationTime);
       return pv;

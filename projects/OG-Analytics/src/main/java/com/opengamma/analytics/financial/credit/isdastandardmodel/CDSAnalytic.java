@@ -104,7 +104,7 @@ public class CDSAnalytic {
 
   /**
    * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer
-   * @param tradeDate The trade date
+   * @param tradeDate The trade date or 'today', this is the date other times are measured from (i.e. t = 0)
    * @param stepinDate (aka Protection Effective date or assignment date). Date when party assumes ownership. This is usually T+1. This is when protection
    * (and risk) starts in terms of the model. Note, this is sometimes just called the Effective Date, however this can cause
    * confusion with the legal effective date which is T-60 or T-90.
@@ -140,6 +140,9 @@ public class CDSAnalytic {
     ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
     ArgumentChecker.isFalse(valueDate.isBefore(tradeDate), "Require valueDate >= today");
     ArgumentChecker.isFalse(stepinDate.isBefore(tradeDate), "Require stepin >= today");
+    //TODO should not allow the accrual start to be after the stepin (protection start), since this is 'free' protection. Currently some tests have this
+    //and need to be changed 
+    //ArgumentChecker.isFalse(stepinDate.isBefore(accStartDate), "Require stepin >= accStartDate");
     ArgumentChecker.isFalse(tradeDate.isAfter(endDate), "CDS has expired");
 
     _payAccOnDefault = payAccOnDefault;
