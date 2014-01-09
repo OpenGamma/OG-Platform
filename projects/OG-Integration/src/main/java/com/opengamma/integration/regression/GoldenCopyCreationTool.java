@@ -11,36 +11,45 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.tool.DataTrackingToolContext;
 
 /**
  * 
  */
-public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
+public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext> {
 
   public static void main(String[] args) {
-    new GoldenCopyCreationTool().initAndRun(args, ToolContext.class);
+    new GoldenCopyCreationTool().initAndRun(args, DataTrackingToolContext.class);
     System.exit(0);
   }
 
   @Override
   protected void doRun() throws Exception {
     
-    //TODO - make this in-process
-    
     CommandLine commandLine = getCommandLine();
 
     String viewName = commandLine.getOptionValue("view-name");
     String snapshotName = commandLine.getOptionValue("snapshot-name");
+    String outputDir = commandLine.getOptionValue("db-dump-output-dir");
 
-    RegressionIdPreProcessor preProcessor = new RegressionIdPreProcessor(getToolContext().getPositionMaster());
-    preProcessor.execute();
-    
     GoldenCopyCreator goldenCopyCreator = new GoldenCopyCreator(getToolContext());
 
     GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, snapshotName);
     
     new GoldenCopyPersistenceHelper().save(goldenCopy);
+    DataTrackingToolContext tc = getToolContext();
+    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(outputDir, 
+        tc.getSecurityMaster(),
+        tc.getPositionMaster(),
+        tc.getPortfolioMaster(),
+        tc.getConfigMaster(),
+        tc.getHistoricalTimeSeriesMaster(),
+        tc.getHolidayMaster(),
+        tc.getExchangeMaster(),
+        tc.getMarketDataSnapshotMaster(),
+        tc.getOrganizationMaster());
+    
+    goldenCopyDumpCreator.execute();
     
   }
 
@@ -49,7 +58,7 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
     Options options = super.createOptions(mandatoryConfig);
     options.addOption(createViewOption());
     options.addOption(createSnapshotOption());
-    options.addOption(createGoldenCopyNameOption());
+    options.addOption(createDbDumpOutputDirectory());
     return options;
   }
 
@@ -72,12 +81,12 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
   }
 
   @SuppressWarnings("static-access")
-  private static Option createGoldenCopyNameOption() {
-    return OptionBuilder.isRequired(false)
+  private static Option createDbDumpOutputDirectory() {
+    return OptionBuilder.isRequired(true)
         .hasArg(true)
         .withDescription("The snapshot to run the view off")
-        .withLongOpt("golden-copy-name")
-        .create("n");
+        .withLongOpt("db-dump-output-dir")
+        .create("o");
   }
 
 }

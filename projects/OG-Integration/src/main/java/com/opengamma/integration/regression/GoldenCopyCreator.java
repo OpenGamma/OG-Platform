@@ -17,7 +17,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 
 /**
- * 
+ * Creates a golden copy instance, managing view execution.
  */
 public class GoldenCopyCreator {
 
@@ -33,6 +33,13 @@ public class GoldenCopyCreator {
   }
 
 
+  /**
+   * Run the view, building a golden copy from the result.
+   * @param viewName view name
+   * @param snapshotName snapshot name
+   * @param version version
+   * @return a new golden copy
+   */
   public GoldenCopy run(String viewName, String snapshotName, String version) {
     
     Instant valuationTime = getValuationTime(snapshotName);
@@ -50,6 +57,7 @@ public class GoldenCopyCreator {
 
 
   private Instant getValuationTime(String snapshotName) {
+    //FIXME - this should come from the snapshot itself
     MarketDataSnapshotMaster snapshotMaster = getToolContext().getMarketDataSnapshotMaster();
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
     searchRequest.setName(snapshotName);

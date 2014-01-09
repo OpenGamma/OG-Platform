@@ -34,7 +34,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
@@ -160,7 +159,7 @@ public final class CalculationResults implements ImmutableBean {
         UniqueId positionId = targetSpec.getUniqueId();
         String idAttr = positionSource.getPosition(positionId).getAttributes().get(DatabaseRestore.REGRESSION_ID);
         if (idAttr == null) {
-          throw new OpenGammaRuntimeException("No ID attribute found for " + positionId);
+          idAttr = positionId.getObjectId().toString();
         }
         // position targets can have a parent node but it's not guaranteed
         if (nodeRef != null) {
@@ -188,6 +187,9 @@ public final class CalculationResults implements ImmutableBean {
         UniqueId tradeId = targetSpec.getUniqueId();
         Trade trade = positionSource.getTrade(tradeId);
         String idAttr = trade.getAttributes().get(DatabaseRestore.REGRESSION_ID);
+        if (idAttr == null) {
+          idAttr = tradeId.getObjectId().toString();
+        }
         key = CalculationResultKey.forTrade(entry.getCalculationConfiguration(),
                                             valueName,
                                             properties,

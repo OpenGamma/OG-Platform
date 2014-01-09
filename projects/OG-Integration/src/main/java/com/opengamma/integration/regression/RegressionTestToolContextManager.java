@@ -17,7 +17,7 @@ public class RegressionTestToolContextManager {
   private ToolContext _toolContext;
   
   private static String s_toolContext = "classpath:regression/regression-toolcontext.properties";
-  private static String s_regressionPropertiesFile = "classpath:regression/regression-examplessimulated.properties";
+  private static String s_regressionPropertiesFile = "classpath:regression/regression-testdb.properties";
   
   public void init() {
     

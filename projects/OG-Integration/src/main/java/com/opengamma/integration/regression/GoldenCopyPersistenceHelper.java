@@ -1,10 +1,13 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.regression;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import net.sf.saxon.event.StreamWriterToReceiver;
 import net.sf.saxon.s9api.Processor;
@@ -58,6 +61,13 @@ public class GoldenCopyPersistenceHelper {
     String snapshotName = goldenCopy.getSnapshotName();
     String name = buildFilename(viewName, snapshotName);
     Processor p = new Processor(false);
+    
+    File goldenCopyDir = new File(GOLDEN_COPY_DIR);
+    boolean createdDirOk = goldenCopyDir.mkdirs();
+    if (!createdDirOk) {
+      throw new IllegalStateException("Unable to create dir: " + GOLDEN_COPY_DIR);
+    }
+    
     try (FileWriter writer = new FileWriter(new File(GOLDEN_COPY_DIR + name));
         FudgeMsgWriter fudgeMsgWriter = createMsgWriter(p, writer);
         ) {

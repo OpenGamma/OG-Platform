@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 
 /**
  * 
@@ -72,7 +73,6 @@ public final class GoldenCopy implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static GoldenCopy.Builder builder() {
@@ -235,7 +235,7 @@ public final class GoldenCopy implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -332,7 +332,7 @@ public final class GoldenCopy implements ImmutableBean {
   /**
    * The bean-builder for {@code GoldenCopy}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<GoldenCopy> {
+  public static final class Builder extends DirectFieldsBeanBuilder<GoldenCopy> {
 
     private String _snapshotName;
     private String _viewName;
@@ -343,7 +343,6 @@ public final class GoldenCopy implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(GoldenCopy.Meta.INSTANCE);
     }
 
     /**
@@ -351,7 +350,6 @@ public final class GoldenCopy implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(GoldenCopy beanToCopy) {
-      super(GoldenCopy.Meta.INSTANCE);
       this._snapshotName = beanToCopy.getSnapshotName();
       this._viewName = beanToCopy.getViewName();
       this._valuationTime = beanToCopy.getValuationTime();
@@ -377,6 +375,30 @@ public final class GoldenCopy implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -435,10 +457,10 @@ public final class GoldenCopy implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("GoldenCopy.Builder{");
-      buf.append("snapshotName").append('=').append(_snapshotName).append(',').append(' ');
-      buf.append("viewName").append('=').append(_viewName).append(',').append(' ');
-      buf.append("valuationTime").append('=').append(_valuationTime).append(',').append(' ');
-      buf.append("calculationResults").append('=').append(_calculationResults);
+      buf.append("snapshotName").append('=').append(JodaBeanUtils.toString(_snapshotName)).append(',').append(' ');
+      buf.append("viewName").append('=').append(JodaBeanUtils.toString(_viewName)).append(',').append(' ');
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
+      buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(_calculationResults));
       buf.append('}');
       return buf.toString();
     }
