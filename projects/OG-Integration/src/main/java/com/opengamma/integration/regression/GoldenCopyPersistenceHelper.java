@@ -63,9 +63,11 @@ public class GoldenCopyPersistenceHelper {
     Processor p = new Processor(false);
     
     File goldenCopyDir = new File(GOLDEN_COPY_DIR);
-    boolean createdDirOk = goldenCopyDir.mkdirs();
-    if (!createdDirOk) {
-      throw new IllegalStateException("Unable to create dir: " + GOLDEN_COPY_DIR);
+    if (!goldenCopyDir.exists()) {
+      boolean createdDirOk = goldenCopyDir.mkdirs();
+      if (!createdDirOk) {
+        throw new IllegalStateException("Unable to create dir: " + GOLDEN_COPY_DIR);
+      }
     }
     
     try (FileWriter writer = new FileWriter(new File(GOLDEN_COPY_DIR + name));

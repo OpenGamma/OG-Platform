@@ -35,7 +35,7 @@ import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
  */
 class GoldenCopyDumpCreator {
 
-  private final String _outputDir;
+  private final DatabaseDumpWriter _databaseDumpWriter;
   private final DataTrackingSecurityMaster _securityMaster;
   private final DataTrackingPositionMaster _positionMaster;
   private final DataTrackingPortfolioMaster _portfolioMaster;
@@ -48,10 +48,10 @@ class GoldenCopyDumpCreator {
   
   
   
-  public GoldenCopyDumpCreator(String outputDir, DataTrackingSecurityMaster securityMaster, DataTrackingPositionMaster positionMaster, DataTrackingPortfolioMaster portfolioMaster,
+  public GoldenCopyDumpCreator(DatabaseDumpWriter databaseDumpWriter, DataTrackingSecurityMaster securityMaster, DataTrackingPositionMaster positionMaster, DataTrackingPortfolioMaster portfolioMaster,
       DataTrackingConfigMaster configMaster, DataTrackingHistoricalTimeSeriesMaster timeSeriesMaster, DataTrackingHolidayMaster holidayMaster, DataTrackingExchangeMaster exchangeMaster,
       DataTrackingMarketDataSnapshotMaster snapshotMaster, DataTrackingOrganizationMaster organizationMaster) {
-    _outputDir = outputDir;
+    _databaseDumpWriter = databaseDumpWriter;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -72,7 +72,7 @@ class GoldenCopyDumpCreator {
     
     MasterFilterManager filterManager = buildFilterManager();
     
-    DatabaseDump databaseDump = new DatabaseDump(_outputDir, 
+    DatabaseDump databaseDump = new DatabaseDump(_databaseDumpWriter, 
                                                 _securityMaster, 
                                                 _positionMaster, 
                                                 _portfolioMaster, 

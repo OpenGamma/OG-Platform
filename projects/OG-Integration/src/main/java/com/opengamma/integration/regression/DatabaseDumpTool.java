@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.regression;
 
+import java.io.File;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
@@ -28,7 +30,8 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
   @Override
   protected void doRun() throws Exception {
     String dataDir = getCommandLine().getOptionValue(DATA_DIRECTORY);
-    DatabaseDump databaseDump = new DatabaseDump(dataDir,
+    DatabaseDumpWriter fileWriter = DatabaseDumpWriter.createFileWriter(new File(dataDir));
+    DatabaseDump databaseDump = new DatabaseDump(fileWriter,
                                                  getToolContext().getSecurityMaster(),
                                                  getToolContext().getPositionMaster(),
                                                  getToolContext().getPortfolioMaster(),

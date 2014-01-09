@@ -5,6 +5,9 @@
  */
 package com.opengamma.integration.regression;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
@@ -31,26 +34,39 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
     String viewName = commandLine.getOptionValue("view-name");
     String snapshotName = commandLine.getOptionValue("snapshot-name");
     String outputDir = commandLine.getOptionValue("db-dump-output-dir");
-
+    
     GoldenCopyCreator goldenCopyCreator = new GoldenCopyCreator(getToolContext());
 
     GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, snapshotName);
     
     new GoldenCopyPersistenceHelper().save(goldenCopy);
     DataTrackingToolContext tc = getToolContext();
-    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(outputDir, 
-        tc.getSecurityMaster(),
-        tc.getPositionMaster(),
-        tc.getPortfolioMaster(),
-        tc.getConfigMaster(),
-        tc.getHistoricalTimeSeriesMaster(),
-        tc.getHolidayMaster(),
-        tc.getExchangeMaster(),
-        tc.getMarketDataSnapshotMaster(),
-        tc.getOrganizationMaster());
     
-    goldenCopyDumpCreator.execute();
+    try (DatabaseDumpWriter writer = createDumpWriter(outputDir)) {
+      GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(writer, 
+          tc.getSecurityMaster(),
+          tc.getPositionMaster(),
+          tc.getPortfolioMaster(),
+          tc.getConfigMaster(),
+          tc.getHistoricalTimeSeriesMaster(),
+          tc.getHolidayMaster(),
+          tc.getExchangeMaster(),
+          tc.getMarketDataSnapshotMaster(),
+          tc.getOrganizationMaster());
+      
+      goldenCopyDumpCreator.execute();
     
+    }
+  }
+
+  private DatabaseDumpWriter createDumpWriter(String outputDir) throws IOException {
+    CommandLine commandLine = getCommandLine();
+    if (commandLine.hasOption("zipfile-name")) {
+      String zipfileName = commandLine.getOptionValue("zipfile-name");
+      return DatabaseDumpWriter.createZipWriter(new File(outputDir), zipfileName);
+    } else {
+      return DatabaseDumpWriter.createFileWriter(new File(outputDir));
+    }
   }
 
   @Override
@@ -59,6 +75,7 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
     options.addOption(createViewOption());
     options.addOption(createSnapshotOption());
     options.addOption(createDbDumpOutputDirectory());
+    options.addOption(createZipfileNameOption());
     return options;
   }
 
@@ -87,6 +104,15 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
         .withDescription("The snapshot to run the view off")
         .withLongOpt("db-dump-output-dir")
         .create("o");
+  }
+  
+  @SuppressWarnings("static-access")
+  private static Option createZipfileNameOption() {
+    return OptionBuilder.isRequired(false)
+        .hasArg(true)
+        .withDescription("The zip file to write the dump to")
+        .withLongOpt("zipfile-name")
+        .create("z");
   }
 
 }
