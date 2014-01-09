@@ -111,44 +111,90 @@ public final class CalculationDifference implements ImmutableBean {
     }
   }
 
-  public static CalculationDifference between(CalculationResults results1, CalculationResults results2, double delta) {
-    Set<CalculationResultKey> only1Keys = Sets.difference(results1.getValues().keySet(), results2.getValues().keySet());
-    Set<CalculationResultKey> only2Keys = Sets.difference(results2.getValues().keySet(), results1.getValues().keySet());
-    Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> diffs = Maps.newHashMap();
-    Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> differentProps = Maps.newHashMap();
-    Set<CalculationResultKey> bothKeys = Sets.intersection(results1.getValues().keySet(), results2.getValues().keySet());
-    int equalResultCount = 0;
-    for (CalculationResultKey key : bothKeys) {
-      CalculatedValue value1 = results1.getValues().get(key);
-      CalculatedValue value2 = results2.getValues().get(key);
-      if (!EqualityChecker.equals(value1.getValue(), value2.getValue(), delta)) {
-        diffs.put(key, Pairs.of(value1, value2));
-      } else {
-        if (!value1.getSpecificationProperties().equals(value2.getSpecificationProperties())) {
-          differentProps.put(key, Pairs.of(value1, value2));
+  
+  
+  /**
+   * Generates differences between two {@link CalculationResults} objects.
+   */
+  public static final class Generator {
+    private final double _delta;
+    private boolean _compareValueProperties = true;
+    
+    private Generator(double delta) {
+      this._delta = delta;
+    }
+    
+    /**
+     * Whether to consider differences between value properties.
+     * @param compareValueProperties boolean
+     * @return this generator
+     */
+    public Generator compareValueProperties(boolean compareValueProperties) {
+      this._compareValueProperties = compareValueProperties; return this;
+    }
+    
+    public CalculationDifference between(CalculationResults results1, CalculationResults results2) {
+      Set<CalculationResultKey> only1Keys = Sets.difference(results1.getValues().keySet(), results2.getValues().keySet());
+      Set<CalculationResultKey> only2Keys = Sets.difference(results2.getValues().keySet(), results1.getValues().keySet());
+      Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> diffs = Maps.newHashMap();
+      Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> differentProps = Maps.newHashMap();
+      Set<CalculationResultKey> bothKeys = Sets.intersection(results1.getValues().keySet(), results2.getValues().keySet());
+      int equalResultCount = 0;
+      for (CalculationResultKey key : bothKeys) {
+        CalculatedValue value1 = results1.getValues().get(key);
+        CalculatedValue value2 = results2.getValues().get(key);
+        if (!EqualityChecker.equals(value1.getValue(), value2.getValue(), _delta)) {
+          diffs.put(key, Pairs.of(value1, value2));
         } else {
-          equalResultCount++;
+          if (_compareValueProperties && !value1.getSpecificationProperties().equals(value2.getSpecificationProperties())) {
+            differentProps.put(key, Pairs.of(value1, value2));
+          } else {
+            equalResultCount++;
+          }
         }
       }
+      Map<CalculationResultKey, CalculatedValue> only1 = getValues(only1Keys, results1.getValues());
+      Map<CalculationResultKey, CalculatedValue> only2 = getValues(only2Keys, results2.getValues());
+      String viewDefName = results1.getViewDefinitionName();
+      String snapshotName = results1.getSnapshotName();
+      Instant valuationTime = results1.getValuationTime();
+      if (!valuationTime.equals(results2.getValuationTime())) {
+        throw new IllegalArgumentException("The results must have the same valuation time");
+      }
+      return new CalculationDifference(equalResultCount,
+                                       viewDefName,
+                                       snapshotName,
+                                       valuationTime,
+                                       results1.getVersion(),
+                                       results2.getVersion(),
+                                       only1,
+                                       only2,
+                                       diffs,
+                                       differentProps);
     }
-    Map<CalculationResultKey, CalculatedValue> only1 = getValues(only1Keys, results1.getValues());
-    Map<CalculationResultKey, CalculatedValue> only2 = getValues(only2Keys, results2.getValues());
-    String viewDefName = results1.getViewDefinitionName();
-    String snapshotName = results1.getSnapshotName();
-    Instant valuationTime = results1.getValuationTime();
-    if (!valuationTime.equals(results2.getValuationTime())) {
-      throw new IllegalArgumentException("The results must have the same valuation time");
-    }
-    return new CalculationDifference(equalResultCount,
-                                     viewDefName,
-                                     snapshotName,
-                                     valuationTime,
-                                     results1.getVersion(),
-                                     results2.getVersion(),
-                                     only1,
-                                     only2,
-                                     diffs,
-                                     differentProps);
+    
+  }
+  
+  
+  /**
+   * Returns a generator object which can be used to generate a comparison.
+   * @param delta the delta to use for comparisons
+   * @return a {@link Generator} object
+   */
+  public static Generator generatorWithDelta(double delta) {
+    return new Generator(delta);
+  }
+  
+  
+  /**
+   * Convenience method for comparing two result sets. Simply calls through to a {@link Generator} using default settings.
+   * @param results1 The first set of results
+   * @param results2 The second set of results
+   * @param delta the delta to use
+   * @return the CalculationDifference
+   */
+  public static CalculationDifference between(CalculationResults results1, CalculationResults results2, double delta) {
+    return generatorWithDelta(delta).between(results1, results2);
   }
 
   /**

@@ -65,17 +65,28 @@ public abstract class AbstractRegressionTest {
 
     CalculationResults thisRun = viewRunner.run("Test", viewName, snapshotName, original.getValuationTime());
     
-    CalculationDifference result = CalculationDifference.between(original.getCalculationResults(), thisRun, getAcceptableDelta());
+    evaluateDifferences(original, thisRun);
+    
+  }
+
+
+  private void evaluateDifferences(GoldenCopy original, CalculationResults thisRun) {
+    CalculationDifference result = CalculationDifference.generatorWithDelta(getAcceptableDelta()).
+                                                        compareValueProperties(compareValueProperties()).
+                                                        between(original.getCalculationResults(), thisRun);
     
     System.out.println("Equal: " + result.getEqualResultCount());
     System.out.println("Different: " + result.getDifferent().size());
+    if (compareValueProperties()) {
+      System.out.println("Different properties: " + result.getDifferentProperties().size());
+    }
     System.out.println("Only base: " + result.getOnlyBase().size());
     System.out.println("Only test: " + result.getOnlyTest().size());
     
     assertTrue("Found results only in base", result.getOnlyBase().isEmpty());
-    assertTrue("Found results only in base", result.getOnlyTest().isEmpty());
-    assertTrue("Found results only in base", result.getDifferent().isEmpty());
-    
+    assertTrue("Found results only in test", result.getOnlyTest().isEmpty());
+    assertTrue("Found differing results", result.getDifferent().isEmpty());
+    assertTrue("Found differing result properties", result.getDifferentProperties().isEmpty());
   }
   
   
@@ -89,6 +100,15 @@ public abstract class AbstractRegressionTest {
    */
   protected double getAcceptableDelta() {
     return s_defaultAcceptableDelta;
+  }
+  
+  /**
+   * Whether to compare value properties. Not normally significant if numbers match ok. 
+   * False unless overridden.
+   * @return a boolean
+   */
+  protected boolean compareValueProperties() {
+    return false;
   }
   
 }
