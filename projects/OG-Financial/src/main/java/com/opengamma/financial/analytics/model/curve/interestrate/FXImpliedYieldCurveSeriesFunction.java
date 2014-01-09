@@ -39,6 +39,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -145,7 +146,6 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String domesticCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final Currency domesticCurrency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
@@ -216,7 +216,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : foreignCurves.entrySet()) {
       final LocalDate valuationDate = entry.getKey();
       try {
-        final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
+        final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, LocalTime.MIDNIGHT, executionContext.getValuationClock().getZone());
         final Double spotValue = spotTS.getValue(valuationDate);
         if (spotValue == null) {
           continue;
@@ -244,9 +244,9 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
           final ZonedDateTime paymentDate;
 
           if (spotLag == 0 && conventionSettlementRegion == null) {
-            paymentDate = now.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
+            paymentDate = spotDate.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
           } else {
-            paymentDate = ScheduleCalculator.getAdjustedDate(now, tenor.getPeriod(), MOD_FOL, calendar, true);
+            paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
           }
 
           final Double forwardValue = forwardTS.getValue(valuationDate);
@@ -266,7 +266,7 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
           }
           forwardFX = invertFXQuotes ? 1 / forwardFX : forwardFX;
           final double quotedSpotFX = invertFXQuotes ? 1 / spotFX : spotFX;
-          final double paymentTime = TimeCalculator.getTimeBetween(now, paymentDate);
+          final double paymentTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
           derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, quotedSpotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));
           marketValues.add(forwardFX);
           nodeTimes.add(paymentTime);
