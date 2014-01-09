@@ -93,7 +93,9 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addDEFixedIncomeInstruments();
     addFRFixedIncomeInstruments();
     addSEFixedIncomeInstruments();
+    addATTreasuryBondConvention();
     addBETreasuryBondConvention();
+    addIETreasuryBondConvention();
     addLUTreasuryBondConvention();
     addLUCorporateBondConvention();
     addBHTreasuryBondConvention();
@@ -336,8 +338,18 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
+  private void addATTreasuryBondConvention() { // Government Austria
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "AT_TREASURY_BOND_CONVENTION")), "AT_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
   private void addBETreasuryBondConvention() { // Government Belgium
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "BE_TREASURY_BOND_CONVENTION")), "BE_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
+  }
+
+  //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc
+  private void addIETreasuryBondConvention() { // Government Ireland
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "IE_TREASURY_BOND_CONVENTION")), "IE_TREASURY_BOND_CONVENTION", true, true, 0, 3, true);
   }
 
   //TODO all of the conventions named treasury need to be changed - after we can differentiate T-bills, Treasuries, etc

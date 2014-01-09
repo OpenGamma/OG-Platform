@@ -49,6 +49,8 @@ public class PerCurrencyConventionHelper {
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
   /** Ibor leg convention string **/
   public static final String IBOR_LEG = "Ibor Leg";
+  /** Libor leg convention string **/
+  public static final String LIBOR_LEG = "Libor Leg";
   /** Compounding Ibor leg convention string **/
   public static final String IBOR_CMP_LEG = "Comp Ibor Leg";
   /** Flat Compounding Ibor leg convention string **/
