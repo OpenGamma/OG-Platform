@@ -26,6 +26,17 @@ public class RegressionTestToolContextManager {
 
   private ToolContext _toolContext;
   
+  private static String s_logbackPropertyName = "logback.configurationFile";
+  private static String s_logbackDefaultValue = "com/opengamma/util/warn-logback.xml";
+  
+  static {
+    if (System.getProperty(s_logbackPropertyName) == null) {
+      //if not explicitly set, default to a quieter setting.
+      System.setProperty(s_logbackPropertyName, s_logbackDefaultValue);
+    }
+  }
+  
+  //TODO - these probably need to be configurable
   private static String s_toolContext = "classpath:regression/regression-toolcontext.properties";
   private static String s_regressionPropertiesFile = "classpath:regression/regression-testdb.properties";
   

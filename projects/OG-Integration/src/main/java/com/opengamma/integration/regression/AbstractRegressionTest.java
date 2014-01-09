@@ -20,16 +20,25 @@ import com.opengamma.financial.tool.ToolContext;
 public abstract class AbstractRegressionTest {
   
   
+  private static final double s_defaultAcceptableDelta = 0.0000001;
+  
   private RegressionTestToolContextManager _contextManager;
+  private GoldenCopyPersistenceHelper _goldenCopyPersistenceHelper;
   
   
   /**
-   * @param dumpDir dump source directory 
+   * @param regressionRoot the root for this set of tests (i.e. the directory
+   * containing the dbdump and golden_copy folders)
+   * @param dumpFile path to the dump. Either a zipfile or the root directory of
+   * a directory-based dump.
    */
-  public AbstractRegressionTest(File dumpDir) {
-    _contextManager = new RegressionTestToolContextManager(dumpDir);
+  public AbstractRegressionTest(File regressionRoot, File dumpFile) {
+    _contextManager = new RegressionTestToolContextManager(dumpFile);
+    _goldenCopyPersistenceHelper = new GoldenCopyPersistenceHelper(regressionRoot);
   }
 
+  
+  
   @BeforeTest
   public void initContext() {
     _contextManager.init();
@@ -41,10 +50,15 @@ public abstract class AbstractRegressionTest {
   }
   
   
-  protected void runTestForView(String viewName, String snapshotName) {
+  /**
+   * Executes viewName against snapshotName in the running engine context.
+   * @param viewName name of the view to run
+   * @param snapshotName name of the snapshot to run
+   */
+  protected final void runTestForView(String viewName, String snapshotName) {
     
     ToolContext toolContext = _contextManager.getToolContext();
-    GoldenCopy original = new GoldenCopyPersistenceHelper().load(viewName, snapshotName);
+    GoldenCopy original = _goldenCopyPersistenceHelper.load(viewName, snapshotName);
     
     ViewRunner viewRunner = new ViewRunner(toolContext.getConfigMaster(),
         toolContext.getViewProcessor(),
@@ -54,7 +68,7 @@ public abstract class AbstractRegressionTest {
 
     CalculationResults thisRun = viewRunner.run("Test", viewName, snapshotName, original.getValuationTime());
     
-    CalculationDifference result = CalculationDifference.between(original.getCalculationResults(), thisRun, 0.0000001);
+    CalculationDifference result = CalculationDifference.between(original.getCalculationResults(), thisRun, getAcceptableDelta());
     
     System.out.println("Equal: " + result.getEqualResultCount());
     System.out.println("Different: " + result.getDifferent().size());
@@ -68,5 +82,16 @@ public abstract class AbstractRegressionTest {
   }
   
   
+  //---------------------------------------------------------------------------------------------------------
+  //default test settings for overriding
+  //---------------------------------------------------------------------------------------------------------
+  
+  /**
+   * The smallest acceptable delta when comparing outputs.
+   * @return a double
+   */
+  protected double getAcceptableDelta() {
+    return s_defaultAcceptableDelta;
+  }
   
 }

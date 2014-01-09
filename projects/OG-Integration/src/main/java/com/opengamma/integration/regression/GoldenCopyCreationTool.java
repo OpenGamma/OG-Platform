@@ -6,12 +6,14 @@
 package com.opengamma.integration.regression;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
+import com.google.common.base.Preconditions;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.tool.DataTrackingToolContext;
 
@@ -20,6 +22,7 @@ import com.opengamma.integration.tool.DataTrackingToolContext;
  */
 public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext> {
 
+  
   public static void main(String[] args) {
     new GoldenCopyCreationTool().initAndRun(args, DataTrackingToolContext.class);
     System.exit(0);
@@ -29,19 +32,24 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
   protected void doRun() throws Exception {
     
     CommandLine commandLine = getCommandLine();
-
-    String viewName = commandLine.getOptionValue("view-name");
-    String snapshotName = commandLine.getOptionValue("snapshot-name");
-    String outputDir = commandLine.getOptionValue("db-dump-output-dir");
     
+    String regressionDirectory = commandLine.getOptionValue("db-dump-output-dir");
+
     GoldenCopyCreator goldenCopyCreator = new GoldenCopyCreator(getToolContext());
-
-    GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, snapshotName);
     
-    new GoldenCopyPersistenceHelper().save(goldenCopy);
+    String[] viewSnapshotPairs = commandLine.getArgs();
+    Preconditions.checkArgument(viewSnapshotPairs.length % 2 == 0, "Should be an even number of view/snapshot pairs. Found %s", Arrays.toString(viewSnapshotPairs));
+    
+    for (int i = 0; i < viewSnapshotPairs.length; i += 2) {
+      String viewName = viewSnapshotPairs[i];
+      String snapshotName = viewSnapshotPairs[i + 1];
+      GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, "Base");
+      new GoldenCopyPersistenceHelper(new File(regressionDirectory)).save(goldenCopy);
+    }
+    
     DataTrackingToolContext tc = getToolContext();
     
-    RegressionIO io = new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), false);
+    RegressionIO io = new SubdirsRegressionIO(new File(regressionDirectory), new FudgeXMLFormat(), false);
     
     GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
         tc.getSecurityMaster(),
@@ -61,36 +69,18 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
   @Override
   protected Options createOptions(boolean mandatoryConfig) {
     Options options = super.createOptions(mandatoryConfig);
-    options.addOption(createViewOption());
-    options.addOption(createSnapshotOption());
     options.addOption(createDbDumpOutputDirectory());
     options.addOption(createZipfileNameOption());
     return options;
   }
 
-  @SuppressWarnings("static-access")
-  private static Option createViewOption() {
-    return OptionBuilder.isRequired(true)
-        .hasArg(true)
-        .withDescription("The view to create the golden copy for")
-        .withLongOpt("view-name")
-        .create("v");
-  }
-
-  @SuppressWarnings("static-access")
-  private static Option createSnapshotOption() {
-    return OptionBuilder.isRequired(true)
-        .hasArg(true)
-        .withDescription("The snapshot to run the view off")
-        .withLongOpt("snapshot-name")
-        .create("s");
-  }
 
   @SuppressWarnings("static-access")
   private static Option createDbDumpOutputDirectory() {
     return OptionBuilder.isRequired(true)
         .hasArg(true)
-        .withDescription("The snapshot to run the view off")
+        .withArgName("outputdir")
+        .withDescription("Where to write the golden copy(ies) and the corresponding dump.")
         .withLongOpt("db-dump-output-dir")
         .create("o");
   }
@@ -99,6 +89,7 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
   private static Option createZipfileNameOption() {
     return OptionBuilder.isRequired(false)
         .hasArg(true)
+        .withArgName("zipfile")
         .withDescription("The zip file to write the dump to")
         .withLongOpt("zipfile-name")
         .create("z");

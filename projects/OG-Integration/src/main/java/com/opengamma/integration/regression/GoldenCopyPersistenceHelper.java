@@ -9,11 +9,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
-import net.sf.saxon.event.StreamWriterToReceiver;
+import javax.xml.stream.XMLStreamWriter;
+
 import net.sf.saxon.s9api.Processor;
-import net.sf.saxon.s9api.SaxonApiException;
-import net.sf.saxon.s9api.Serializer;
-import net.sf.saxon.s9api.Serializer.Property;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -27,6 +25,7 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
 import com.google.common.base.Throwables;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.xml.FormattingXmlStreamWriter;
 
 /**
  * 
@@ -36,14 +35,25 @@ public class GoldenCopyPersistenceHelper {
   /**
    * Relative path to golden copy dir
    */
-  private static final String GOLDEN_COPY_DIR = "regression/golden_copy/";
   private static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
 
+  private static final String GOLDEN_COPY_SUBDIR = "golden_copy";
   
+  private final File _goldenCopyDir;
+  
+  /**
+   * Create a persistence helper, specifying the root of the regression dir.
+   * @param regressionDir the root of the regression directory. (i.e. the one
+   * holding the dbdump and golden_copy directories).
+   */
+  public GoldenCopyPersistenceHelper(File regressionDir) {
+    _goldenCopyDir = new File(regressionDir, GOLDEN_COPY_SUBDIR);
+  }
+
   public GoldenCopy load(String viewName, String snapshotName) {
     String name = buildFilename(viewName, snapshotName);
     
-    try (FileReader reader = new FileReader(new File(GOLDEN_COPY_DIR + name));
+    try (FileReader reader = new FileReader(new File(_goldenCopyDir, name));
         FudgeMsgReader fudgeMessageReader = new FudgeMsgReader(new FudgeXMLStreamReader(FUDGE_CONTEXT, reader));) {
       FudgeMsg nextMessage = fudgeMessageReader.nextMessage();
       FudgeDeserializer deser = new FudgeDeserializer(FUDGE_CONTEXT);
@@ -62,15 +72,14 @@ public class GoldenCopyPersistenceHelper {
     String name = buildFilename(viewName, snapshotName);
     Processor p = new Processor(false);
     
-    File goldenCopyDir = new File(GOLDEN_COPY_DIR);
-    if (!goldenCopyDir.exists()) {
-      boolean createdDirOk = goldenCopyDir.mkdirs();
+    if (!_goldenCopyDir.exists()) {
+      boolean createdDirOk = _goldenCopyDir.mkdirs();
       if (!createdDirOk) {
-        throw new IllegalStateException("Unable to create dir: " + GOLDEN_COPY_DIR);
+        throw new IllegalStateException("Unable to create dir: " + _goldenCopyDir);
       }
     }
     
-    try (FileWriter writer = new FileWriter(new File(GOLDEN_COPY_DIR + name));
+    try (FileWriter writer = new FileWriter(new File(_goldenCopyDir, name));
         FudgeMsgWriter fudgeMsgWriter = createMsgWriter(p, writer);
         ) {
       MutableFudgeMsg msg = serializer.objectToFudgeMsg(goldenCopy);
@@ -84,17 +93,14 @@ public class GoldenCopyPersistenceHelper {
   }
 
   private FudgeMsgWriter createMsgWriter(Processor p, FileWriter writer) {
-    Serializer xmlSerializer = p.newSerializer(writer);
-    xmlSerializer.setOutputProperty(Property.INDENT, "yes");
-    StreamWriterToReceiver xmlStreamWriter;
-    try {
-      xmlStreamWriter = xmlSerializer.getXMLStreamWriter();
-    } catch (SaxonApiException ex) {
-      throw Throwables.propagate(ex);
-    }
+    
+    XMLStreamWriter xmlStreamWriter = FormattingXmlStreamWriter.builder(writer)
+                                                               .indent(true)
+                                                               .build();
+    
     FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(FUDGE_CONTEXT, xmlStreamWriter);
-
     FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
+    
     return fudgeMsgWriter;
   }
 
