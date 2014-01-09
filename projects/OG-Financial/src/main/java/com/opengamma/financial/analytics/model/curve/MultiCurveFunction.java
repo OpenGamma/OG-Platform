@@ -201,19 +201,10 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final T knownData = getKnownData(inputs);
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-      ValueProperties bundleProperties = null;
-      for (final ValueRequirement desiredValue : desiredValues) {
-        if (desiredValue.getValueName().equals(CURVE_BUNDLE) || desiredValue.getValueName().equals(_curveRequirement)) {
-          bundleProperties = desiredValue.getConstraints().copy()
-              .withoutAny(CURVE)
-              .with(CURVE, Arrays.asList(_curveNames))
-              .get();
-          break;
-        }
-      }
-      if (bundleProperties == null) {
-        throw new OpenGammaRuntimeException("Could not get bundle properties from desired values");
-      }
+      ValueProperties bundleProperties = desiredValues.iterator().next().getConstraints().copy()
+          .withoutAny(CURVE)
+          .with(CURVE, Arrays.asList(_curveNames))
+          .get();
       final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
       final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
       final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
@@ -282,6 +273,15 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       return _curveNames;
     }
 
+    /**
+     * Gets the curve construction configuration name.
+     * 
+     * @return The curve construction configuration name
+     */
+    protected String getCurveConstructionConfigurationName() {
+      return _configurationName;
+    }
+    
     /**
      * Gets the known data from the FX matrix.
      *
