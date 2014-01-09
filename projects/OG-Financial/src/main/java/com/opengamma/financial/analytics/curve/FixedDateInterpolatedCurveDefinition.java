@@ -22,13 +22,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 
 /**
  * Definition for interpolated curves where some of the node dates are fixed.
  */
 @BeanDefinition
-@Config(description = "Fixed date interpolated curve definition")
+@Config(description = "Fixed date interpolated curve definition", group = ConfigGroups.CURVES)
 public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefinition {
 
   /** Serialization verison. */

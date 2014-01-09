@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -33,7 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 @BeanDefinition
-@Config(description = "Exposure functions")
+@Config(description = "Exposure functions", group = ConfigGroups.CURVES)
 public class ExposureFunctions extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */

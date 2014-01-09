@@ -31,4 +31,9 @@ public @interface Config {
    */
   String description() default "";
 
+  /**
+   * A way to categorize configurations to enable meaningful grouping used in GUIs.
+   */
+  String group() default ConfigGroups.MISC;
+
 }

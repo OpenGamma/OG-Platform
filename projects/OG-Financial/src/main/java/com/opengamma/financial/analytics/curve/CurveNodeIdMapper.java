@@ -21,6 +21,7 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
@@ -32,7 +33,7 @@ import com.opengamma.util.time.Tenor;
  * Contains maps of tenors to curve instrument providers (which generates market data tickers) for {@link CurveNode} types. These
  * maps are then used to generate market data requests in curve construction.
  */
-@Config(description = "Cuve node ID mapper")
+@Config(description = "Curve node ID mapper", group = ConfigGroups.CURVES)
 public class CurveNodeIdMapper {
   /**
    * The names of the curve instrument providers.

@@ -18,6 +18,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * Note that
  */
-@Config(description = "Function configuration definition")
+@Config(description = "Function configuration definition", group = ConfigGroups.MISC)
 public final class FunctionConfigurationDefinition {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionConfigurationDefinition.class);

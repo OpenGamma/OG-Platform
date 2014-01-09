@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -32,7 +33,7 @@ import com.opengamma.id.UniqueIdentifiable;
  * exogenous curve configurations that are required.
  */
 @BeanDefinition
-@Config(description = "Curve construction configuration")
+@Config(description = "Curve construction configuration", group = ConfigGroups.CURVES)
 public class CurveConstructionConfiguration extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */

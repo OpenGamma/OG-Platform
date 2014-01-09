@@ -6,13 +6,14 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-@Config(description = "Future price curve specification")
+@Config(description = "Future price curve specification", group = ConfigGroups.VOL)
 public class FuturePriceCurveSpecification {
   private final String _name;
   private final UniqueIdentifiable _target;
