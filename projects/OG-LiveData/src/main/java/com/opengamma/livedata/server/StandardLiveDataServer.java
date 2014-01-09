@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import net.sf.ehcache.CacheManager;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +52,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
 import com.opengamma.util.PublicAPI;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * The base class from which most OpenGamma Live Data feed servers should extend. Handles most common cases for distributed contract management.
  */
@@ -84,6 +84,13 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
 
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
+
+  /**
+   * The entitlement checker to be used for subscription requests. If null,
+   * then {@link #_entitlementChecker} will be used.
+   */
+  private LiveDataEntitlementChecker _subscriptionEntitlementChecker;
+
   private LastKnownValueStoreProvider _lkvStoreProvider = new MapLastKnownValueStoreProvider();
 
   private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
@@ -216,6 +223,17 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   }
 
   /**
+   * Sets the entitlement checker to be used when a subscription is being made. If a checker
+   * has not been specified then the standard entitlement checker will be used. If null is
+   * passed then the standard one is used.
+   *
+   * @param subscriptionEntitlementChecker the entitlement checker to be used for subscriptions
+   */
+  public void setSubscriptionEntitlementChecker(LiveDataEntitlementChecker subscriptionEntitlementChecker) {
+    _subscriptionEntitlementChecker = subscriptionEntitlementChecker;
+  }
+
+  /**
    * Gets the default normalization rule set identifier.
    *
    * @return the identifier, not null
@@ -313,6 +331,12 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
   protected boolean canSatisfySnapshotFromEmptySubscription(MarketDataDistributor distributior) {
     //NOTE simon 28/11/2011: Only in the case of requiring a snapshot is it safe to use an empty snapshot from a subscription, since in the other case we may still be waiting for values
     return snapshotOnSubscriptionStartRequired(distributior.getSubscription());
+  }
+
+  public LiveDataEntitlementChecker getSubscriptionEntitlementChecker() {
+    return _subscriptionEntitlementChecker != null ?
+        _subscriptionEntitlementChecker :
+        _entitlementChecker;
   }
 
   //-------------------------------------------------------------------------
@@ -764,6 +788,7 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
       return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
     }
   }
+
   /**
    * Handles a subscription request.
    *
@@ -775,7 +800,8 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     final ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<>();
 
     // build and check the distribution specifications
-    Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(subscriptionRequest.getSpecifications());
+    Map<LiveDataSpecification, DistributionSpecification> distributionSpecifications = getDistributionSpecificationResolver().resolve(
+        subscriptionRequest.getSpecifications());
     ArrayList<LiveDataSpecification> distributable = new ArrayList<>();
     for (LiveDataSpecification requestedSpecification : subscriptionRequest.getSpecifications()) {
       try {
@@ -784,7 +810,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         if (spec == null) {
           String errorMsg = "Could not build distribution specification for " + requestedSpecification;
           s_logger.debug(errorMsg);
-          responses.add(buildErrorMessageResponse(requestedSpecification, LiveDataSubscriptionResult.NOT_PRESENT, errorMsg));
+          responses.add(buildErrorMessageResponse(requestedSpecification,
+                                                  LiveDataSubscriptionResult.NOT_PRESENT,
+                                                  errorMsg));
         } else {
           distributable.add(requestedSpecification);
         }
@@ -798,7 +826,8 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
     // check entitlement and sort into snapshots/subscriptions
     ArrayList<LiveDataSpecification> snapshots = new ArrayList<>();
     ArrayList<LiveDataSpecification> subscriptions = new ArrayList<>();
-    Map<LiveDataSpecification, Boolean> entitled = getEntitlementChecker().isEntitled(subscriptionRequest.getUser(), distributable);
+    Map<LiveDataSpecification, Boolean> entitled = getSubscriptionEntitlementChecker().isEntitled(subscriptionRequest.getUser(),
+                                                                                                  distributable);
     for (Entry<LiveDataSpecification, Boolean> entry : entitled.entrySet()) {
       LiveDataSpecification requestedSpecification = entry.getKey();
       try {
@@ -806,7 +835,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         if (!entitlement) {
           String errorMsg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
           s_logger.info(errorMsg);
-          responses.add(buildErrorMessageResponse(requestedSpecification, LiveDataSubscriptionResult.NOT_AUTHORIZED, errorMsg));
+          responses.add(buildErrorMessageResponse(requestedSpecification,
+                                                  LiveDataSubscriptionResult.NOT_AUTHORIZED,
+                                                  errorMsg));
           continue;
         }
 
@@ -837,7 +868,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         // but we have no way to discriminate in the response from doSnapshot at the moment.
         for (LiveDataSpecification requestedSpecification : snapshots) {
           String errorMsg = "Problem obtaining snapshot: " + ex.getMessage();
-          responses.add(buildErrorMessageResponse(requestedSpecification, LiveDataSubscriptionResult.INTERNAL_ERROR, errorMsg));
+          responses.add(buildErrorMessageResponse(requestedSpecification,
+                                                  LiveDataSubscriptionResult.INTERNAL_ERROR,
+                                                  errorMsg));
         }
       }
     }
@@ -848,7 +881,9 @@ public abstract class StandardLiveDataServer implements LiveDataServer, Lifecycl
         responses.addAll(subscribe(subscriptions, persistent));
 
       } catch (Exception ex) {
-        s_logger.error("Error obtaining subscriptions for {}: {}", subscriptions, (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getName()));
+        s_logger.error("Error obtaining subscriptions for {}: {}",
+                       subscriptions,
+                       (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getName()));
         if (s_logger.isDebugEnabled()) {
           s_logger.debug("Underlying exception in subscription error " + subscriptions, ex);
         }
