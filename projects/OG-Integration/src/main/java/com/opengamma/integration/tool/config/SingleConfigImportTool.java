@@ -93,6 +93,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
                 Class<?> type = Class.forName(types.get(0));
                 try {
                   configLoader.loadConfig(inputStream, type);
+                  s_logger.info("Config loaded successfully");
                 } catch (Exception e) {
                   // try loading it as fudge!
                   try {
@@ -100,6 +101,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
                     inputStream.close();
                     inputStream = new FileInputStream(fileName);
                     configLoader.loadFudgeConfig(inputStream);
+                    s_logger.info("Config loaded successfully");
                   } catch (Exception fe) {
                     s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
                     s_logger.error("JodaXML trace", e);
@@ -110,16 +112,17 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
                 s_logger.error("Class {} not found", types.get(0));
                 System.exit(1);
               }
-
             } else {
               try {
                 configLoader.loadConfig(inputStream);
+                s_logger.info("Config loaded successfully as JodaXML");
               } catch (Exception e) {
                 try {
                   // close it - we could use mark/reset, but this is simpler.
                   inputStream.close();
                   inputStream = new FileInputStream(fileName);                  
                   configLoader.loadFudgeConfig(inputStream);
+                  s_logger.info("Config loaded successfully as FudgeXML");
                 } catch (Exception fe) {
                   s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
                   s_logger.error("JodaXML trace", e);
