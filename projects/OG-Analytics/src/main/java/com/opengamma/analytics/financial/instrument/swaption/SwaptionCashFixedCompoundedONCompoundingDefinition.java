@@ -171,6 +171,7 @@ public final class SwaptionCashFixedCompoundedONCompoundingDefinition implements
         _underlyingSwap.toDerivative(dateTime, new ZonedDateTimeDoubleTimeSeries[] {ts});
     return SwaptionCashFixedCompoundedONCompounded.from(expiryTime, underlyingSwap, settlementTime, _isLong, _strike, _isCall);
   }
+
   /**
    * Gets the underlying swap field.
    * @return The underlying swap.
@@ -180,11 +181,19 @@ public final class SwaptionCashFixedCompoundedONCompoundingDefinition implements
   }
 
   /**
-   * Gets the isLong flag.
-   * @return The Long (true)/Short (false) flag.
+   * Gets the long / short flag.
+   * @return True if the option is long
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the call / put flag.
+   * @return True if the option is a call
+   */
+  public boolean isCall() {
+    return _isCall;
   }
 
   /**
@@ -237,6 +246,7 @@ public final class SwaptionCashFixedCompoundedONCompoundingDefinition implements
     int result = 1;
     result = prime * result + _expiry.hashCode();
     result = prime * result + (_isLong ? 1231 : 1237);
+    result = prime * result + (_isCall ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
   }
@@ -257,6 +267,9 @@ public final class SwaptionCashFixedCompoundedONCompoundingDefinition implements
       return false;
     }
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (_isCall != other._isCall) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {

@@ -86,8 +86,8 @@ public final class SwaptionCashFixedCompoundedONCompounded extends EuropeanVanil
   }
 
   /**
-   * Gets the _isLong field.
-   * @return The Long (true)/Short (false) flag.
+   * Gets the long / short flag.
+   * @return True if the option is long
    */
   public boolean isLong() {
     return _isLong;

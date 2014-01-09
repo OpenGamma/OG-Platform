@@ -37,7 +37,6 @@ public class Swap<P1 extends Payment, P2 extends Payment> implements InstrumentD
   public Swap(final Annuity<P1> firstLeg, final Annuity<P2> secondLeg) {
     ArgumentChecker.notNull(firstLeg, "first leg");
     ArgumentChecker.notNull(secondLeg, "second leg");
-    ArgumentChecker.isTrue((firstLeg.isPayer() != secondLeg.isPayer()), "both legs have same payer flag");
     _firstLeg = firstLeg;
     _secondLeg = secondLeg;
   }

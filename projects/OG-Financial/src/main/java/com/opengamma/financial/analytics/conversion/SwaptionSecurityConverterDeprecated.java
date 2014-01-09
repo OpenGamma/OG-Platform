@@ -62,7 +62,7 @@ public class SwaptionSecurityConverterDeprecated extends FinancialSecurityVisito
         throw new OpenGammaRuntimeException("Underlying BRL swap must be fixed compounded / overnight compounded");
       }
       return isCashSettled ? SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isCall, isLong) :
-        SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong);
+        SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isCall, isLong);
     }
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");
