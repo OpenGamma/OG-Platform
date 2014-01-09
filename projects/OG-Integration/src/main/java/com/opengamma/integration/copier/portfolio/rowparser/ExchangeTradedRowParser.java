@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
@@ -49,9 +50,10 @@ public class ExchangeTradedRowParser extends RowParser {
   
   private SecurityProvider _securityProvider;
 
-  public ExchangeTradedRowParser(SecurityProvider securityProvider) {
+  public ExchangeTradedRowParser(SecurityProvider securityProvider, DateTimeFormatter dateFormatter) {
+    super(dateFormatter);
     ArgumentChecker.notNull(securityProvider, "securityProvider");
-    _securityProvider = securityProvider;
+   _securityProvider = securityProvider;
   }
 
   private static final ExternalScheme[] s_schemeWaterfall = {

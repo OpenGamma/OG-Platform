@@ -12,6 +12,8 @@ import java.io.InputStream;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
@@ -53,6 +55,8 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
   private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
   /** Time series data field option flag*/
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
+  /** Date format option flag */
+  private static final String DATE_FORMAT_OPT = "df";
   
   //-------------------------------------------------------------------------
   /**
@@ -82,11 +86,24 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
         getCommandLine().hasOption(WRITE_OPT),
         getCommandLine().hasOption(OVERWRITE_OPT)
     );
-
+    
+    String dateFormat = "yyyy-MM-dd";
+    if (getCommandLine().hasOption(DATE_FORMAT_OPT)) {
+      dateFormat = getCommandLine().getOptionValue(DATE_FORMAT_OPT);
+    }
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+    try {
+      builder.appendPattern(dateFormat);
+    } catch (IllegalArgumentException iae) {
+      System.err.println("Cannot parse date format " + dateFormat);
+      System.exit(1);
+    }
+    
     // Construct portfolio reader
     PortfolioReader portfolioReader = constructPortfolioReader(
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        context.getSecurityProvider()
+        context.getSecurityProvider(),
+        builder.toFormatter()
     );
     
     // Create portfolio copier
@@ -137,7 +154,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
   }
   
   // TODO take a stream as well as the file name, BBG master
-  private static PortfolioReader constructPortfolioReader(String filename, SecurityProvider securityProvider) {
+  private static PortfolioReader constructPortfolioReader(String filename, SecurityProvider securityProvider, DateTimeFormatter dateFormatter) {
     InputStream stream;
     try {
       stream = new BufferedInputStream(new FileInputStream(filename));
@@ -150,7 +167,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
       case XLS:
       case CSV:
         // Check that the asset class was specified on the command line
-        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(securityProvider));
+        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(securityProvider, dateFormatter));
 
       default:
         throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
@@ -199,6 +216,10 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
     Option timeSeriesDataFieldOption = new Option(
         TIME_SERIES_DATAFIELD_OPT, "field", true, "The name of the time series data field");
     options.addOption(timeSeriesDataFieldOption);
+    
+    Option dateFormatter = new Option(
+        DATE_FORMAT_OPT, "dateFormat", true, "The dateFormat (e.g MM/dd/yyyy) if not ISO (yyyy-MM-dd)");
+    options.addOption(dateFormatter);
     
     return options;
   }

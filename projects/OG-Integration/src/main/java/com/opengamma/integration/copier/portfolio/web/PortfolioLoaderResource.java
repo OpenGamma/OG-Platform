@@ -22,6 +22,8 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
 
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.integration.copier.portfolio.ResolvingPortfolioCopier;
@@ -126,6 +128,7 @@ public class PortfolioLoaderResource {
       String dataField = getString(formData, "dataField");
       String dataProvider = getString(formData, "dataProvider");
       String portfolioName = getString(formData, "portfolioName");
+      String dateFormatter = getString(formData, "dateFormat");
       // fields can be separated by whitespace or a comma with whitespace
       String[] dataFields = dataField.split("(\\s*,\\s*|\\s+)");
 
@@ -143,7 +146,14 @@ public class PortfolioLoaderResource {
       final PortfolioWriter portfolioWriter =
           new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster, _securityMaster, false, false, true);
       SheetFormat format = getFormatForFileName(fileName);
-      RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
+      DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+      try {
+        builder.appendPattern(dateFormatter);
+      } catch (IllegalArgumentException iae) {
+        throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      }
+      DateTimeFormatter dateTimeFormatter = builder.toFormatter();
+      RowParser rowParser = new ExchangeTradedRowParser(_securityProvider, dateTimeFormatter);
       final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
       StreamingOutput streamingOutput = new StreamingOutput() {
         @Override
