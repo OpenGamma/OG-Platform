@@ -23,25 +23,30 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityCouponIborDefinitionTest {
   //Libor3m
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final PeriodFrequency INDEX_FREQUENCY = PeriodFrequency.QUARTERLY;
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
@@ -126,7 +131,7 @@ public class AnnuityCouponIborDefinitionTest {
   public void testFrom() {
     final ZonedDateTime settleDate = DateUtils.getUTCDate(2014, 3, 20);
     final Period indexTenor = Period.ofMonths(3);
-    final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final DayCount dayCount = DayCounts.ACT_360;
     final IborIndex index = new IborIndex(CUR, indexTenor, SETTLEMENT_DAYS, dayCount, BUSINESS_DAY, IS_EOM, "Ibor");
     final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, index, IS_PAYER, CALENDAR);
     final ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2014, 12, 22),

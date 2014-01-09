@@ -43,7 +43,7 @@ public class CalculationNodeUtils {
   }
 
   public static void configureTestCalcNode(final TestCalculationNode calcNode, final MockFunction mockFunction) {
-    final InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepository();
+    final InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepositoryFactory().constructRepository(Instant.now());
     functionRepo.addFunction(mockFunction);
     calcNode.getFunctionCompilationService().initialize();
   }
@@ -61,8 +61,8 @@ public class CalculationNodeUtils {
     final Set<ValueRequirement> requirements = function.getRequirements();
     final Set<ValueSpecification> inputs = Sets.newHashSetWithExpectedSize(requirements.size());
     for (final ValueRequirement requirement : requirements) {
-      inputs.add(new ValueSpecification(requirement.getValueName(), requirement.getTargetReference().getSpecification(), requirement.getConstraints().copy().with(ValuePropertyNames.FUNCTION, "mock")
-          .get()));
+      inputs.add(new ValueSpecification(requirement.getValueName(), requirement.getTargetReference().getSpecification(), requirement.getConstraints().copy()
+          .with(ValuePropertyNames.FUNCTION, "mock").get()));
     }
     return inputs;
   }

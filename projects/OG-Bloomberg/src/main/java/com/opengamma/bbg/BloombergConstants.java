@@ -128,6 +128,7 @@ public final class BloombergConstants {
 
   //bonds
   public static final String FIELD_INDUSTRY_GROUP = "INDUSTRY_GROUP";
+  public static final String FIELD_INDUSTRY_SECTOR = "INDUSTRY_SECTOR";
   public static final String FIELD_CNTRY_ISSUE_ISO = "CNTRY_ISSUE_ISO";
   public static final String FIELD_SECURITY_TYP = "SECURITY_TYP";
   public static final String FIELD_CALC_TYP_DES = "CALC_TYP_DES";
@@ -154,6 +155,10 @@ public final class BloombergConstants {
   public static final String FIELD_PAR_AMT = "PAR_AMT";
   public static final String FIELD_REDEMP_VAL = "REDEMP_VAL";
   public static final String FIELD_FLOATER = "FLOATER";
+  public static final String FIELD_RTG_FITCH = "RTG_FITCH";
+  public static final String FIELD_RTG_MOODY = "RTG_MOODY";
+  public static final String FIELD_RTG_SP = "RTG_SP";
+  public static final String FIELD_BB_COMPOSITE = "BB_COMPOSITE";
 
   public static final String BLOOMBERG_FIELDS_REQUEST = "fields";
   public static final String BLOOMBERG_SECURITIES_REQUEST = "securities";

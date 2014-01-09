@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of ForexSwapDefinition and it conversion to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class ForexSwapDefinitionTest {
 
   private static final Currency CUR_1 = Currency.EUR;

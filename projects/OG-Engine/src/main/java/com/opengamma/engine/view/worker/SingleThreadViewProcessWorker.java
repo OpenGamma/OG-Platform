@@ -21,6 +21,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -226,6 +227,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
 
   private volatile boolean _cycleRequested;
   private volatile boolean _forceTriggerCycle;
+
   /**
    * An updated view definition pushed in by the execution coordinator. When the next cycle runs, this should be used instead of the previous one.
    */
@@ -252,13 +254,13 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   /**
    * The manipulator for structured market data.
    */
-  private final MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
+  private MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
 
   /**
    * The market data selectors and function parameters which have been passed in via the ViewDefinition, which are applicable to a specific dependency graph. There will be an entry for each graph in
    * the view, even if the only contents are an empty map.
    */
-  private final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
+  private Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
 
   private final MarketDataManager _marketDataManager;
 
@@ -276,8 +278,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
    */
   private Timer _fullCycleTimer;
 
-  /** Forces a rebuild on the next cycle. */
-  private volatile boolean _forceGraphRebuild;
+  /**
+   * An invalidation call is made by the market data layer to request that a full graph rebuild take place on the next cycle. This is to allow for resolutions that might differ because data
+   * availability has changed.
+   */
+  private final AtomicBoolean _forceGraphRebuild = new AtomicBoolean();
 
   public SingleThreadViewProcessWorker(final ViewProcessWorkerContext context, final ViewExecutionOptions executionOptions, final ViewDefinition viewDefinition) {
     ArgumentChecker.notNull(context, "context");
@@ -341,7 +346,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
    * @param specificSelectors the graph-specific selectors
    * @return a market data manipulator combined those found in the execution context and the view defintion
    */
-  private MarketDataSelectionGraphManipulator createMarketDataManipulator(ViewCycleExecutionOptions executionOptions, Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors) {
+  private MarketDataSelectionGraphManipulator createMarketDataManipulator(ViewCycleExecutionOptions executionOptions,
+      Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificSelectors) {
 
     MarketDataSelector executionOptionsMarketDataSelector = executionOptions != null ? executionOptions.getMarketDataSelector() : NoOpMarketDataSelector.getInstance();
 
@@ -434,6 +440,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       try {
         cycleType = waitForNextCycle();
       } catch (final InterruptedException e) {
+        s_logger.debug("Interrupted during wait");
         return;
       }
       ViewCycleExecutionOptions executionOptions = null;
@@ -500,7 +507,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           } else {
             compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
             if (compiledViewDefinition == null) {
-              s_logger.warn("Job terminated during view compilation");
+              s_logger.info("Job terminated during view compilation");
               return;
             }
             if ((previous == null) || !previous.getCompilationIdentifier().equals(compiledViewDefinition.getCompilationIdentifier())) {
@@ -575,7 +582,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 return;
               }
               cycleStarted(new DefaultViewCycleMetadata(cycleReference.get().getUniqueId(), marketDataSnapshot.getUniqueId(), compiledViewDefinition.getViewDefinition().getUniqueId(),
-                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs));
+                  versionCorrection, executionOptions.getValuationTime(), singleComputationCycle.getAllCalculationConfigurationNames(), configToComputationTargets, configToTerminalOutputs,
+                  executionOptions.getName()));
               if (isTerminated()) {
                 return;
               }
@@ -588,7 +596,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
               s_logger.info("View cycle execution interrupted for {}", getWorkerContext());
               return;
             } catch (final Exception e) {
-              // Execution failed
+              // Execution failed; might be a result of shutdown
               s_logger.error("View cycle execution failed for " + getWorkerContext(), e);
               cycleExecutionFailed(executionOptions, e);
               return;
@@ -784,7 +792,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
             final UniqueId oldId = check.getValue();
             if (oldId.equals(resolution.getUniqueId())) {
               // Target resolves the same
-              s_logger.debug("No change resolving {}", check.getKey());
+              s_logger.trace("No change resolving {}", check.getKey());
               continue;
             }
           }
@@ -798,7 +806,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     }
   }
 
-  private void executeViewCycle(final ViewCycleType cycleType, final EngineResourceReference<SingleComputationCycle> cycleReference, final MarketDataSnapshot marketDataSnapshot) throws Exception {
+  private void executeViewCycle(final ViewCycleType cycleType, final EngineResourceReference<SingleComputationCycle> cycleReference, final MarketDataSnapshot marketDataSnapshot)
+      throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -871,7 +880,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         cycleFragmentCompleted(result);
       }
     };
-    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, versionCorrection);
+    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, executionOptions.getName(), streamingResultListener, getProcessContext(), compiledViewDefinition,
+        executionOptions, versionCorrection);
     return getProcessContext().getCycleManager().manage(cycle);
   }
 
@@ -1014,8 +1024,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     }
   }
 
-  private static DependencyNode remapNode(final DependencyNode node, final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs, final ComputationTargetIdentifierRemapVisitor remapper,
-      final Map<DependencyNode, DependencyNode> remapped) {
+  private static DependencyNode remapNode(final DependencyNode node, final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs,
+      final ComputationTargetIdentifierRemapVisitor remapper, final Map<DependencyNode, DependencyNode> remapped) {
     DependencyNode newNode = remapped.get(node);
     if (newNode != null) {
       return newNode;
@@ -1208,7 +1218,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       final ComputationTargetSpecification resolved = specifications.get(target.getKey());
       if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
         // No change
-        s_logger.debug("No change resolving {}", target);
+        s_logger.trace("No change resolving {}", target);
       } else if (toCheck.contains(target.getKey())) {
         // Identifier no longer resolved, or resolved differently
         s_logger.info("New resolution of {} to {}", target, resolved);
@@ -1329,7 +1339,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         Set<UniqueId> changedPositions = null;
         Set<UniqueId> unchangedNodes = null;
         ViewCompilationServices compilationServices = null;
-        if (!_forceGraphRebuild) {
+        if (!_forceGraphRebuild.getAndSet(false)) {
           compiledViewDefinition = getCachedCompiledViewDefinition(valuationTime, versionCorrection);
           boolean marketDataProviderDirty = _marketDataManager.isMarketDataProviderDirty();
           _marketDataManager.markMarketDataProviderClean();
@@ -1440,6 +1450,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
             executionCacheLocks.getFirst().lock();
             broadLock = true;
           }
+        } else {
+          s_logger.debug("Full graph rebuild requested");
         }
         if (compilationServices == null) {
           // TODO: The relationship between ViewProcessContext, ViewCompilationContext, ViewCompilationServices and ViewDefinitionCompiler is starting to feel a bit cumbersome. It might
@@ -1476,7 +1488,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           } else {
             // Nothing to invalidate - force a full rebuild
             s_logger.error("Nothing to invalidate following illegal compilation state, forcing a full rebuild");
-            _forceGraphRebuild = true;
+            _forceGraphRebuild.set(true);
           }
           continue;
         } finally {
@@ -1485,11 +1497,15 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         break;
       } while (true);
     } catch (final Exception e) {
-      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
-      viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
-      throw new OpenGammaRuntimeException(message, e);
+      if (!getJob().isTerminated()) {
+        final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewDefinition().getUniqueId(), valuationTime);
+        viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
+        throw new OpenGammaRuntimeException(message, e);
+      } else {
+        s_logger.debug("Caught exception during termination", e);
+        return null;
+      }
     } finally {
-      _forceGraphRebuild = false;
       if (broadLock) {
         executionCacheLocks.getFirst().unlock();
       }
@@ -1512,7 +1528,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     return compiledViewDefinition;
   }
 
-  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ComputationTargetResolver.AtVersionCorrection resolver) {
+  private CompiledViewDefinitionWithGraphs initialiseMarketDataManipulation(final CompiledViewDefinitionWithGraphs compiledViewDefinition,
+      final ComputationTargetResolver.AtVersionCorrection resolver) {
     if (_marketDataSelectionGraphManipulator.hasManipulationsDefined()) {
       s_logger.info("Initialising market data manipulation");
       final Map<String, DependencyGraph> newGraphsByConfig = new HashMap<>();
@@ -1561,8 +1578,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   public CompiledViewDefinitionWithGraphs getCachedCompiledViewDefinition(final Instant valuationTime, final VersionCorrection resolverVersionCorrection) {
     CompiledViewDefinitionWithGraphs cached = _latestCompiledViewDefinition;
     if (cached != null) {
-      boolean resolverMatch = resolverVersionCorrection.equals(cached.getResolverVersionCorrection());
-      boolean valuationMatch = CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime);
+      final VersionCorrection lastResolution = cached.getResolverVersionCorrection();
+      final boolean resolverMatch = resolverVersionCorrection.equals(lastResolution);
+      final boolean valuationMatch = CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime);
       if (!resolverMatch || !valuationMatch) {
         // Query the cache in case there is a newer one
         cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
@@ -1571,8 +1589,25 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
           if (resolverVersionCorrection.equals(cached.getResolverVersionCorrection())) {
             _latestCompiledViewDefinition = cached;
           } else {
-            if (!resolverMatch && !valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
-              _latestCompiledViewDefinition = cached;
+            if (!resolverMatch) {
+              if (_targetResolverChanges != null) {
+                if (!cached.getResolverVersionCorrection().getVersionAsOf().isBefore(lastResolution.getVersionAsOf()) &&
+                    !cached.getResolverVersionCorrection().getCorrectedTo().isBefore(lastResolution.getCorrectedTo())) {
+                  // Cached form was created while we were change subscribed so we can verify it
+                  _latestCompiledViewDefinition = cached;
+                } else {
+                  // Cached form is outside of our change subscription window so verifying changes we've heard about won't help
+                  cached = _latestCompiledViewDefinition;
+                }
+              } else {
+                if (!valuationMatch && CompiledViewDefinitionWithGraphsImpl.isValidFor(cached, valuationTime)) {
+                  // Cached form is at least valid for the valuation time
+                  _latestCompiledViewDefinition = cached;
+                } else {
+                  // Cached one is no better than the one we used last time
+                  cached = _latestCompiledViewDefinition;
+                }
+              }
             }
           }
         } else {
@@ -1584,6 +1619,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       // Query the cache
       cached = getProcessContext().getExecutionCache().getCompiledViewDefinitionWithGraphs(_executionCacheKey);
       if (cached != null) {
+        // This would have to be the "first" cycle, so ant target resolver listener will be empty
         _latestCompiledViewDefinition = cached;
       }
     }
@@ -1617,8 +1653,14 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     final ViewDefinition newViewDefinition = _newViewDefinition.getAndSet(null);
     if (newViewDefinition != null) {
       _viewDefinition = newViewDefinition;
+      _specificMarketDataSelectors = extractSpecificSelectors(newViewDefinition);
+      _marketDataSelectionGraphManipulator = createMarketDataManipulator(_executionOptions.getDefaultExecutionOptions(), _specificMarketDataSelectors);
+
       // TODO [PLAT-3215] Might not need to discard the entire compilation at this point
       cacheCompiledViewDefinition(null);
+      if (_targetResolverChanges != null) {
+        _targetResolverChanges.watchNone();
+      }
 
       // A change in view definition might mean a change in market data user which could invalidate the resolutions
       _marketDataManager.replaceMarketDataProviderIfRequired(newViewDefinition.getMarketDataUser());
@@ -1702,6 +1744,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   @Override
   @Deprecated
   public void forceGraphRebuild() {
-    _forceGraphRebuild = true;
+    s_logger.debug("Requesting graph rebuild on next cycle");
+    _forceGraphRebuild.set(true);
   }
 }

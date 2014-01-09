@@ -22,35 +22,24 @@ import com.opengamma.master.user.UserSearchRequest;
 /**
  * A {@code UserSource} implemented using an underlying {@code UserMaster}.
  * <p>
- * The {@link UserSource} interface provides exchanges to the application via a narrow API.
- * This class provides the source on top of a standard {@link UserMaster}.
+ * The {@link UserSource} interface provides exchanges to the application via a narrow API. This class provides the source on top of a standard {@link UserMaster}.
  */
 public class MasterUserSource extends AbstractMasterSource<OGUser, UserDocument, UserMaster> implements UserSource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
-   * @param master  the master, not null
+   * @param master the master, not null
    */
   public MasterUserSource(final UserMaster master) {
     super(master);
-  }
-
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master  the master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
-   */
-  public MasterUserSource(final UserMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Collection<? extends OGUser> getUsers(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     UserSearchRequest searchRequest = new UserSearchRequest(bundle);
-    searchRequest.setVersionCorrection(getVersionCorrection());
+    searchRequest.setVersionCorrection(versionCorrection);
     return getMaster().search(searchRequest).getUsers();
   }
 

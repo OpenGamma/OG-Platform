@@ -1,17 +1,23 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class ISDABaseTest {
 
   protected static final AccrualOnDefaultFormulae ORIGINAL_ISDA = AccrualOnDefaultFormulae.OrignalISDA;
@@ -31,13 +37,13 @@ public class ISDABaseTest {
 
   protected static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
   protected static final Calendar NO_HOLIDAY_CALENDAR = new NoHolidayCalendar();
-  protected static final DayCount ACT365F = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  protected static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  protected static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-  protected static final DayCount ACT_ACT_ISDA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  protected static final DayCount ACT365F = DayCounts.ACT_365;
+  protected static final DayCount ACT360 = DayCounts.ACT_360;
+  protected static final DayCount D30360 = DayCounts.THIRTY_U_360;
+  protected static final DayCount ACT_ACT_ISDA = DayCounts.ACT_ACT_ISDA;
 
-  protected static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  protected static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  protected static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
+  protected static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   //standard CDS settings 
   protected static final boolean PAY_ACC_ON_DEFAULT = true;

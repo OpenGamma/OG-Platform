@@ -16,7 +16,12 @@ import com.opengamma.engine.marketdata.manipulator.MarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
 import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveSelectorTest {
 
   private final SelectorResolver _resolver = mock(SelectorResolver.class);

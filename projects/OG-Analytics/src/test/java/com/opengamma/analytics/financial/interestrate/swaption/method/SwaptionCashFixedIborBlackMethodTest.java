@@ -43,6 +43,7 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -50,6 +51,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborBlackMethodTest {
   // Data
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 10);
@@ -70,7 +72,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   private static final double NOTIONAL = 123456789.0;
   private static final double RATE = 0.02;
   private static final SwapFixedIborDefinition SWAP_DEFINITION_REC = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, false);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, true);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, false, true);
   private static final SwaptionCashFixedIbor SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAME[0], CURVES_NAME[2] });
   // Method - calculator
   private static final double TOLERANCE_PRICE = 1.0E-2;

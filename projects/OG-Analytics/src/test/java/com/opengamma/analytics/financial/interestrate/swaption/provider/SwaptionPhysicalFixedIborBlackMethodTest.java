@@ -24,8 +24,8 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -45,9 +45,14 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborBlackMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -72,7 +77,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
   private static final double NOTIONAL = 123456789.0;
   private static final double RATE = 0.02;
   private static final SwapFixedIborDefinition SWAP_DEFINITION_REC = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, false);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, true);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, false, true);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE);
   // Method - calculator
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -114,7 +119,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
    */
   public void presentValuePayerReceiverParity() {
     final SwapFixedIborDefinition swapDefinitionPay = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, true);
-    final SwaptionPhysicalFixedIborDefinition swaptionDefinitionShortPayer = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinitionPay, false);
+    final SwaptionPhysicalFixedIborDefinition swaptionDefinitionShortPayer = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinitionPay, true, false);
     final SwaptionPhysicalFixedIbor swaptionShortPayer = swaptionDefinitionShortPayer.toDerivative(REFERENCE_DATE);
     final InstrumentDerivative swapRec = SWAP_DEFINITION_REC.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount pvLR = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, BLACK_MULTICURVES);

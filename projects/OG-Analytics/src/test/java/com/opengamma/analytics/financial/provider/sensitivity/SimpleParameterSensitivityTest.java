@@ -20,10 +20,12 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to ParameterSensitivity manipulations.
  */
+@Test(groups = TestGroup.UNIT)
 public class SimpleParameterSensitivityTest {
 
   private static final OGMatrixAlgebra MATRIX = MatrixAlgebraFactory.OG_ALGEBRA;

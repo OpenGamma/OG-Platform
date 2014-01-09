@@ -10,12 +10,15 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.snapshot.copier.SimpleSnapshotCopier;
 import com.opengamma.integration.copier.snapshot.copier.SnapshotCopier;
-import com.opengamma.integration.copier.snapshot.reader.FileSnapshotReader;
+import com.opengamma.integration.copier.snapshot.reader.CsvSnapshotReader;
 import com.opengamma.integration.copier.snapshot.reader.SnapshotReader;
+import com.opengamma.integration.copier.snapshot.reader.XlsSnapshotReader;
 import com.opengamma.integration.copier.snapshot.writer.MasterSnapshotWriter;
 import com.opengamma.integration.copier.snapshot.writer.SnapshotWriter;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -62,7 +65,13 @@ public class MarketDataSnapshotImportTool extends AbstractTool<ToolContext> {
   }
 
   private static SnapshotReader constructSnapshotReader(String filename) {
-    return new FileSnapshotReader(filename);
+    if (SheetFormat.of(filename) == SheetFormat.CSV) {
+      return new CsvSnapshotReader(filename);
+    } else if (SheetFormat.of(filename) == SheetFormat.XLS) {
+      return new XlsSnapshotReader(filename);
+    } else {
+      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
+    }
   }
 
   private static SnapshotWriter constructSnapshotWriter() {

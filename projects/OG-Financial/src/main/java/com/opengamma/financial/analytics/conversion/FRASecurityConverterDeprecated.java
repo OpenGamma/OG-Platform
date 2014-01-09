@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -16,9 +18,13 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -55,6 +61,19 @@ public class FRASecurityConverterDeprecated extends FinancialSecurityVisitorAdap
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, ExternalSchemes.currencyRegionId(currency)); //TODO exchange region?
     final IborIndex iborIndex = new IborIndex(currency, fraConvention.getPeriod(), fraConvention.getSettlementDays(), fraConvention.getDayCount(), fraConvention.getBusinessDayConvention(),
         fraConvention.isEOMConvention());
+    return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate(), calendar);
+  }
+
+  @Override
+  public ForwardRateAgreementDefinition visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    ArgumentChecker.notNull(security, "security");
+    final Currency currency = security.getCurrency();
+    final Period period = PeriodFrequency.of(security.getIndexFrequency().getName()).getPeriod();
+    final ZonedDateTime accrualStartDate = security.getStartDate().atStartOfDay(ZoneId.systemDefault());
+    final ZonedDateTime accrualEndDate = security.getEndDate().atStartOfDay(ZoneId.systemDefault());
+    final double notional = security.getAmount();
+    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, security.getCalendars().toArray(new ExternalId[security.getCalendars().size()]));
+    final IborIndex iborIndex = new IborIndex(currency, period, security.getFixingLag(), security.getDayCount(), security.getFixingBusinessDayConvention(), false);
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate(), calendar);
   }
 

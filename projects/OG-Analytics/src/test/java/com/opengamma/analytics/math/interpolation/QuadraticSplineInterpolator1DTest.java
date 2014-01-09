@@ -5,10 +5,15 @@
  */
 package com.opengamma.analytics.math.interpolation;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class QuadraticSplineInterpolator1DTest {
   //  private static final Interpolator1D INTERPOLATOR = new QuadraticSplineInterpolator1D();
   //

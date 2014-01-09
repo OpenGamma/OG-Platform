@@ -8,13 +8,12 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import java.util.List;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Interface for issuer specific
+ * Interface for issuer-specific curves.
  */
 public interface IssuerProviderInterface extends ParameterIssuerProviderInterface {
   // TODO: Can probably be merged with MulticurveProvider if the Currency is replaced by a UniqueIdentifiable.
@@ -24,18 +23,25 @@ public interface IssuerProviderInterface extends ParameterIssuerProviderInterfac
 
   /**
    * Gets the discount factor for one issuer in one currency.
-   * @param issuerCcy The issuer name/currency pair.
+   * @param issuer The issuer.
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time);
+  double getDiscountFactor(LegalEntity issuer, Double time);
 
   /**
-   * Return the name associated to the discounting for a issuer/currency.
-   * @param issuerCcy The issuer/currency.
-   * @return The name.
-   */
-  String getName(Pair<String, Currency> issuerCcy);
+  * Return the name associated to the discounting for an issuer.
+  * @param issuer The issuer.
+  * @return The name.
+  */
+  String getName(Pair<Object, LegalEntityFilter<LegalEntity>> issuer);
+
+  /**
+  * Return the name associated to the discounting for an issuer.
+  * @param issuer The issuer.
+  * @return The name.
+  */
+  String getName(LegalEntity issuer);
 
   /**
    * Gets the names of all curves (discounting, forward, and issuers).
@@ -50,14 +56,23 @@ public interface IssuerProviderInterface extends ParameterIssuerProviderInterfac
   @Override
   MulticurveProviderInterface getMulticurveProvider();
 
-  double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);
-
-  double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
-
+  /**
+   * Gets the number of parameters for the named curve
+   * @param name The name
+   * @return The number of parameters
+   */
   Integer getNumberOfParameters(String name);
 
+  /**
+   * Gets the underlying curve names for a curve.
+   * @param name The name
+   * @return The underlying curve names
+   */
   List<String> getUnderlyingCurvesNames(String name);
 
-  Set<Pair<String, Currency>> getIssuersCurrencies();
-
+  /**
+   * Gets all issuers represented in this bundle.
+   * @return The issuers
+   */
+  Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers();
 }

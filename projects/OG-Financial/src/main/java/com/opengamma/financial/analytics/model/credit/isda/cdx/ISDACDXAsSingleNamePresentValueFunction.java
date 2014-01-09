@@ -50,8 +50,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -66,7 +68,7 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
 
   @Override
   protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDACompliantYieldCurve yieldCurve, final ZonedDateTime[] times, final double[] marketSpreads,
-      final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+      final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
     final Object hazardRateCurveObject = inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
     if (hazardRateCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get hazard rate curve");
@@ -79,7 +81,7 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
     double pv;
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationDate.toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      pv = PRICER.pv(pricingCDS, yieldCurve, hazardRateCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread()) * definition.getNotional();
+      pv = PRICER.pv(pricingCDS, yieldCurve, hazardRateCurve, StandardVanillaCDSFunction.getCoupon(definition)) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
       pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(pricingCDS, ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(), yieldCurve,
           ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread()) * definition.getNotional();

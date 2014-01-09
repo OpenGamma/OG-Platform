@@ -10,11 +10,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the methods of RollDateAdjusterUtils
  */
+@Test(groups = TestGroup.UNIT)
 public class RollDateAdjusterUtilsTest {
 
   private static final RollDateAdjuster QUARTERLY_IMM_ADJUSTER = RollDateAdjusterFactory.getAdjuster(RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);

@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -19,10 +21,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Function that returns the quantity of a position or trade.
+ * Function that returns the quantity of a position or trade. In the case of bonds,
+ * this is the quantity / par amount. For all other security types, the quantity is
+ * read from the trade or position.
  */
 public class QuantityFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -30,7 +35,15 @@ public class QuantityFunction extends AbstractFunction.NonCompiledInvoker {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final BigDecimal quantity = target.getPositionOrTrade().getQuantity();
+    final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
+    final Security security = positionOrTrade.getSecurity();
+    final BigDecimal quantity;
+    if (security instanceof BondSecurity) {
+      final BondSecurity bondSecurity = (BondSecurity) security;
+      quantity = new BigDecimal(positionOrTrade.getQuantity().doubleValue() / bondSecurity.getParAmount());
+    } else {
+      quantity = target.getPositionOrTrade().getQuantity();
+    }
     final ValueSpecification valueSpec = new ValueSpecification(ValueRequirementNames.QUANTITY, target.toSpecification(), desiredValue.getConstraints());
     return Collections.singleton(new ComputedValue(valueSpec, quantity));
   }

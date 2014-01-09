@@ -19,11 +19,13 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultiAnalyticPricerTest extends ISDABaseTest {
 
   private static final MultiAnalyticCDSPricer MULTI_PRICER_ISDA = new MultiAnalyticCDSPricer();
@@ -56,12 +58,11 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
       temp = temp.plus(PAYMENT_INTERVAL);
     }
     final LocalDate maturity = temp;
-    final double coupon = 0.0075;
     final Tenor paymentInt = Tenor.of(PAYMENT_INTERVAL);
 
     final CDSAnalytic cdsS = FACTORY.makeCDS(tradeDate, effectiveDate, maturity);
-    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, new int[] {matIndex }, new double[] {coupon }, PAY_ACC_ON_DEFAULT, paymentInt, STUB,
-        PROCTECTION_START, RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
+    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, new int[] {matIndex }, PAY_ACC_ON_DEFAULT, paymentInt, STUB, PROCTECTION_START,
+        RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
 
     final double proLegS = PRICER.protectionLeg(cdsS, YIELD_CURVE, CREDIT_CURVE);
     final double proLegM = MULTI_PRICER_ISDA.protectionLeg(cdsM, YIELD_CURVE, CREDIT_CURVE)[0];
@@ -100,10 +101,10 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final Tenor paymentInt = Tenor.of(PAYMENT_INTERVAL);
 
     final CDSAnalytic[] cdsS = FACTORY.makeCDS(tradeDate, effectiveDate, maturities);
-    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, matIndex, coupons, PAY_ACC_ON_DEFAULT, paymentInt, STUB, PROCTECTION_START,
-        RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
+    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, matIndex, PAY_ACC_ON_DEFAULT, paymentInt, STUB, PROCTECTION_START, RECOVERY_RATE,
+        FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
 
-    final double[] pvM = MULTI_PRICER_ISDA.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+    final double[] pvM = MULTI_PRICER_ISDA.pv(cdsM, YIELD_CURVE, CREDIT_CURVE, coupons);
     //    final double[] proLegM = MULTI_PRICER.protectionLeg(cdsM, YIELD_CURVE, CREDIT_CURVE);
     //    final double[] rpv01M = MULTI_PRICER.pvPremiumLegPerUnitSpread(cdsM, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
 
@@ -118,7 +119,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     }
 
     //check to correct integral prices 
-    final double[] pvMC = MULTI_PRICER_MARKIT_FIX.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+    final double[] pvMC = MULTI_PRICER_MARKIT_FIX.pv(cdsM, YIELD_CURVE, CREDIT_CURVE, coupons);
     final double[] pvSC = new double[nMat];
     for (int i = 0; i < nMat; i++) {
       pvSC[i] = PRICER_MARKIT_FIX.pv(cdsS[i], YIELD_CURVE, CREDIT_CURVE, coupons[i]);
@@ -141,7 +142,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final double[] coupons = new double[nValDates];
     Arrays.fill(coupons, ONE_PC);
     final CDSAnalytic[] cds = FACTORY.makeCDS(tradeDate, accStartDate, maturityDates);
-    final MultiCDSAnalytic multiCDS = FACTORY.makeMultiIMMCDS(tradeDate, 0, 40, coupons);
+    final MultiCDSAnalytic multiCDS = FACTORY.makeMultiIMMCDS(tradeDate, 0, 40);
     final MultiAnalyticCDSPricer mPricer = new MultiAnalyticCDSPricer(MARKIT_FIX);
     final double[] mRPV01 = mPricer.pvPremiumLegPerUnitSpread(multiCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN);
     for (int i = 0; i < nValDates; i++) {
@@ -188,7 +189,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final LocalDate nextIMM = isIMMDate(tradeDate) ? tradeDate : getNextIMMDate(tradeDate);
     final LocalDate[] maturities = getIMMDateSet(nextIMM, nVals);
     final CDSAnalytic[] cdsArray = FACTORY.makeCDS(tradeDate, accStart, maturities);
-    final MultiCDSAnalytic multiCDS = FACTORY.makeMultiIMMCDS(tradeDate, 0, nVals - 1, new double[nVals]);
+    final MultiCDSAnalytic multiCDS = FACTORY.makeMultiIMMCDS(tradeDate, 0, nVals - 1);
 
     final double[] proLeg1 = new double[nVals];
     final double[] premLeg1 = new double[nVals];
@@ -237,8 +238,8 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     final Tenor paymentInt = Tenor.of(PAYMENT_INTERVAL);
 
     final CDSAnalytic[] cdsS = FACTORY.makeCDS(tradeDate, effectiveDate, maturities);
-    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, matIndex, coupons, PAY_ACC_ON_DEFAULT, paymentInt, STUB, PROCTECTION_START,
-        RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
+    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, matIndex, PAY_ACC_ON_DEFAULT, paymentInt, STUB, PROCTECTION_START, RECOVERY_RATE,
+        FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365F);
 
     final double[] pvSC = new double[nMat];
     double[] pvMC = null;
@@ -247,7 +248,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
       for (int i = 0; i < nMat; i++) {
         pvSC[i] = PRICER_MARKIT_FIX.pv(cdsS[i], YIELD_CURVE, CREDIT_CURVE, coupons[i]);
       }
-      pvMC = MULTI_PRICER_MARKIT_FIX.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+      pvMC = MULTI_PRICER_MARKIT_FIX.pv(cdsM, YIELD_CURVE, CREDIT_CURVE, coupons);
     }
 
     //These take different paths, so the match will not be exact 
@@ -265,7 +266,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     System.out.println("Time for " + hotspot + " single CDS prices " + (nextTime - time) / 1e6 + "ms");
     time = nextTime;
     for (int h = 0; h < hotspot; h++) {
-      pvMC = MULTI_PRICER_MARKIT_FIX.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+      pvMC = MULTI_PRICER_MARKIT_FIX.pv(cdsM, YIELD_CURVE, CREDIT_CURVE, coupons);
     }
     nextTime = System.nanoTime();
     System.out.println("Time for " + hotspot + " multi CDS prices " + (nextTime - time) / 1e6 + "ms");

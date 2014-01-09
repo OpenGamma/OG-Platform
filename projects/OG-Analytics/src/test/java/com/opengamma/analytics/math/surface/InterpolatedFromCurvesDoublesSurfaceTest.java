@@ -24,11 +24,13 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.interpolation.StepInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedFromCurvesDoublesSurfaceTest {
   private static final String NAME = "L";
   private static final ConstantDoublesCurve C1 = ConstantDoublesCurve.from(3.);

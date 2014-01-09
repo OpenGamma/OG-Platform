@@ -225,7 +225,7 @@ public class MockConvention implements Bean, Convention {
   //-----------------------------------------------------------------------
   /**
    * Gets the map of attributes, which can be used for attaching additional application-level information.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -233,9 +233,10 @@ public class MockConvention implements Bean, Convention {
 
   /**
    * Sets the map of attributes, which can be used for attaching additional application-level information.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -512,6 +513,7 @@ public class MockConvention implements Bean, Convention {
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((MockConvention) bean)._conventionType, "conventionType");
       JodaBeanUtils.notNull(((MockConvention) bean)._externalIdBundle, "externalIdBundle");
+      JodaBeanUtils.notNull(((MockConvention) bean)._attributes, "attributes");
       JodaBeanUtils.notNull(((MockConvention) bean)._name, "name");
     }
 

@@ -19,6 +19,7 @@ import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
@@ -126,6 +127,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security);
 
   T visitFRASecurity(FRASecurity security);
+
+  T visitForwardRateAgreementSecurity(ForwardRateAgreementSecurity security);
 
   T visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security);
 

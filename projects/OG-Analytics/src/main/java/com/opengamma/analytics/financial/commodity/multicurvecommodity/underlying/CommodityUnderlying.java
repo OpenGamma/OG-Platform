@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 public class CommodityUnderlying {
 
   /**
-   * Identifier of the underlying commodity
+   * Identifier of the underlying commodity. For cash settle (or physical settle with cash settle optionality) commodity contract this identifier should be used to 
    */
   private final ExternalId _identifier;
 

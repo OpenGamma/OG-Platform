@@ -22,7 +22,8 @@ import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionQua
  */
 public class FutureOptionUtils {
   private static final TemporalAdjuster THIRD_WED_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
+  /** Calendar containing weekdays */
+  public static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
   /**
    * Compute time between now and future or future option's settlement date,
    * typically two business days before the third Wednesday of the expiry month.

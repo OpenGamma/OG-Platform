@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinitio
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.util.ArgumentChecker;
 
@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative> {
   /** The day count used by ISDA */
-  private static final DayCount ACT_365F = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  private static final DayCount ACT_365F = DayCounts.ACT_365;
 
   /** The start date of the CDS */
   private final ZonedDateTime _startDate;

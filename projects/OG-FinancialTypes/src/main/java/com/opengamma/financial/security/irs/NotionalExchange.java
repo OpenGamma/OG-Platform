@@ -16,7 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -64,7 +64,6 @@ public final class NotionalExchange implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static NotionalExchange.Builder builder() {
@@ -210,7 +209,7 @@ public final class NotionalExchange implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -295,7 +294,7 @@ public final class NotionalExchange implements ImmutableBean {
   /**
    * The bean-builder for {@code NotionalExchange}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<NotionalExchange> {
+  public static final class Builder extends DirectFieldsBeanBuilder<NotionalExchange> {
 
     private boolean _exchangeFinalNotional;
     private boolean _exchangeInitialNotional;
@@ -305,7 +304,6 @@ public final class NotionalExchange implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(NotionalExchange.Meta.INSTANCE);
     }
 
     /**
@@ -313,7 +311,6 @@ public final class NotionalExchange implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(NotionalExchange beanToCopy) {
-      super(NotionalExchange.Meta.INSTANCE);
       this._exchangeFinalNotional = beanToCopy.isExchangeFinalNotional();
       this._exchangeInitialNotional = beanToCopy.isExchangeInitialNotional();
       this._exchangeInterimNotional = beanToCopy.isExchangeInterimNotional();
@@ -335,6 +332,30 @@ public final class NotionalExchange implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -385,9 +406,9 @@ public final class NotionalExchange implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("NotionalExchange.Builder{");
-      buf.append("exchangeFinalNotional").append('=').append(_exchangeFinalNotional).append(',').append(' ');
-      buf.append("exchangeInitialNotional").append('=').append(_exchangeInitialNotional).append(',').append(' ');
-      buf.append("exchangeInterimNotional").append('=').append(_exchangeInterimNotional);
+      buf.append("exchangeFinalNotional").append('=').append(JodaBeanUtils.toString(_exchangeFinalNotional)).append(',').append(' ');
+      buf.append("exchangeInitialNotional").append('=').append(JodaBeanUtils.toString(_exchangeInitialNotional)).append(',').append(' ');
+      buf.append("exchangeInterimNotional").append('=').append(JodaBeanUtils.toString(_exchangeInterimNotional));
       buf.append('}');
       return buf.toString();
     }

@@ -22,8 +22,8 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.BlackDataSets;
@@ -44,9 +44,14 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionCashFixedIborBlackMethodTest {
   // Data
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -68,7 +73,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
   private static final double NOTIONAL = 123456789.0;
   private static final double RATE = 0.02;
   private static final SwapFixedIborDefinition SWAP_DEFINITION_REC = SwapFixedIborDefinition.from(SETTLE_DATE, SWAP_TENOR, GENERATOR_EUR1YEURIBOR6M, NOTIONAL, RATE, false);
-  private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, true);
+  private static final SwaptionCashFixedIborDefinition SWAPTION_DEFINITION_LONG_REC = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, false, true);
   private static final SwaptionCashFixedIbor SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE);
 
   private static final PresentValueBlackSwaptionCalculator PVBSC = PresentValueBlackSwaptionCalculator.getInstance();

@@ -5,19 +5,16 @@
  */
 package com.opengamma.integration.regression;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.wire.FudgeMsgReader;
-import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +27,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -60,19 +58,20 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Loads the data required to run views from Fudge XML files into an empty database. TODO split this up to allow a subset of data to be dumped and restored?
+ * Loads the data required to run views from Fudge XML files into an empty database.
+ * <p>
+ * TODO split this up to allow a subset of data to be dumped and restored?
  */
-/* package */class DatabaseRestore {
+public class DatabaseRestore {
 
   /** Attribute name holding a position's original unique ID from the source database. */
   public static final String REGRESSION_ID = "regressionId";
 
   private static final Logger s_logger = LoggerFactory.getLogger(DatabaseRestore.class);
 
-  private final File _dataDir;
+  private final RegressionIO _io;
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
   private final PortfolioMaster _portfolioMaster;
@@ -82,20 +81,21 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
-  private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
-  private final FudgeDeserializer _deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
 
-  public DatabaseRestore(String dataDir,
-      SecurityMaster securityMaster,
-      PositionMaster positionMaster,
-      PortfolioMaster portfolioMaster,
-      ConfigMaster configMaster,
-      HistoricalTimeSeriesMaster timeSeriesMaster,
-      HolidayMaster holidayMaster,
-      ExchangeMaster exchangeMaster,
-      MarketDataSnapshotMaster snapshotMaster,
-      OrganizationMaster organizationMaster) {
-    ArgumentChecker.notEmpty(dataDir, "dataDir");
+  public DatabaseRestore(String dataDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    this(new File(dataDir), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster, snapshotMaster, organizationMaster);
+  }
+
+  public DatabaseRestore(File dataDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    this(new SubdirsRegressionIO(dataDir, new FudgeXMLFormat(), false), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster, exchangeMaster,
+        snapshotMaster, organizationMaster);
+  }
+
+  public DatabaseRestore(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -105,6 +105,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    _io = io;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -114,8 +115,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
     _organizationMaster = organizationMaster;
-    _dataDir = new File(dataDir);
-    // TODO check data dir is an existing directory
   }
 
   public static void main(String[] args) throws IOException {
@@ -126,25 +125,25 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     String dataDir = args[0];
     String serverUrl = args[1];
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
-      DatabaseRestore databaseRestore = new DatabaseRestore(dataDir,
-                                                            server.getSecurityMaster(),
-                                                            server.getPositionMaster(),
-                                                            server.getPortfolioMaster(),
-                                                            server.getConfigMaster(),
-                                                            server.getHistoricalTimeSeriesMaster(),
-                                                            server.getHolidayMaster(),
-                                                            server.getExchangeMaster(),
-                                                            server.getMarketDataSnapshotMaster(),
-                                                            server.getOrganizationMaster());
+      DatabaseRestore databaseRestore = new DatabaseRestore(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
       databaseRestore.restoreDatabase();
+    }
+  }
+
+  private IdMappings loadIdMappings() throws IOException {
+    try {
+      return (IdMappings) _io.read(null, RegressionUtils.ID_MAPPINGS_IDENTIFIER);
+    } catch (FileNotFoundException e) {
+      return null;
     }
   }
 
   public void restoreDatabase() {
     try {
-      File idMappingsFile = new File(_dataDir, RegressionUtils.ID_MAPPINGS_FILE);
-      if (idMappingsFile.exists()) {
-        IdMappings idMappings = (IdMappings) readFromFudge(idMappingsFile);
+      _io.beginRead();
+      final IdMappings idMappings = loadIdMappings();
+      if (idMappings != null) {
         ConfigItem<IdMappings> mappingsItem = RegressionUtils.loadIdMappings(_configMaster);
         if (mappingsItem == null) {
           _configMaster.add(new ConfigDocument(ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS)));
@@ -163,6 +162,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       loadExchanges();
       loadSnapshots();
       loadOrganizations();
+      _io.endRead();
       s_logger.info("Successfully restored database");
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Failed to restore database", e);
@@ -170,10 +170,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
-    List<?> securities = readFromDirectory("securities");
+    List<ManageableSecurity> securities = readAll(RegressionUtils.SECURITY_MASTER_DATA);
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(securities.size());
-    for (Object o : securities) {
-      ManageableSecurity security = (ManageableSecurity) o;
+    for (ManageableSecurity security : securities) {
       ObjectId oldId = security.getUniqueId().getObjectId();
       security.setUniqueId(null);
       SecurityDocument doc = _securityMaster.add(new SecurityDocument(security));
@@ -183,10 +182,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, ObjectId> loadPositions(Map<ObjectId, ObjectId> securityIdMappings) throws IOException {
-    List<?> positions = readFromDirectory("positions");
+    List<ManageablePosition> positions = readAll(RegressionUtils.POSITION_MASTER_DATA);
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(positions.size());
-    for (Object o : positions) {
-      ManageablePosition position = (ManageablePosition) o;
+    for (ManageablePosition position : positions) {
       ObjectId oldId = position.getUniqueId().getObjectId();
       position.setUniqueId(null);
       ObjectId securityObjectId = position.getSecurityLink().getObjectId();
@@ -213,10 +211,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, ObjectId> loadPortfolios(Map<ObjectId, ObjectId> positionIdMappings) throws IOException {
-    List<?> portfolios = readFromDirectory("portfolios");
+    List<ManageablePortfolio> portfolios = readAll(RegressionUtils.PORTFOLIO_MASTER_DATA);
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMapWithExpectedSize(portfolios.size());
-    for (Object o : portfolios) {
-      ManageablePortfolio portfolio = (ManageablePortfolio) o;
+    for (ManageablePortfolio portfolio : portfolios) {
       UniqueId oldId = portfolio.getUniqueId();
       portfolio.setUniqueId(null);
       replacePositionIds(portfolio.getRootNode(), positionIdMappings);
@@ -228,12 +225,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadConfigs(Map<ObjectId, ObjectId> portfolioIdMappings) throws IOException {
-    List<?> configs = readFromDirectory("configs");
+    List<ConfigItem<?>> configs = readAll(RegressionUtils.CONFIG_MASTER_DATA);
     List<ViewDefinition> viewDefs = Lists.newArrayList();
     // view definitions refer to other config items by unique ID
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMap();
-    for (Object o : configs) {
-      ConfigItem<?> config = (ConfigItem<?>) o;
+    for (ConfigItem<?> config : configs) {
       Object configValue = config.getValue();
       if (configValue instanceof ViewDefinition) {
         viewDefs.add((ViewDefinition) configValue);
@@ -282,9 +278,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadTimeSeries() throws IOException {
-    List<?> objects = readFromDirectory("timeseries");
-    for (Object o : objects) {
-      TimeSeriesWithInfo timeSeriesWithInfo = (TimeSeriesWithInfo) o;
+    List<TimeSeriesWithInfo> objects = readAll(RegressionUtils.HISTORICAL_TIME_SERIES_MASTER_DATA);
+    for (TimeSeriesWithInfo timeSeriesWithInfo : objects) {
       ManageableHistoricalTimeSeriesInfo info = timeSeriesWithInfo.getInfo();
       ManageableHistoricalTimeSeries timeSeries = timeSeriesWithInfo.getTimeSeries();
       info.setUniqueId(null);
@@ -295,36 +290,32 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadHolidays() throws IOException {
-    List<?> holidays = readFromDirectory("holidays");
-    for (Object o : holidays) {
-      ManageableHoliday holiday = (ManageableHoliday) o;
+    List<ManageableHoliday> holidays = readAll(RegressionUtils.HOLIDAY_MASTER_DATA);
+    for (ManageableHoliday holiday : holidays) {
       holiday.setUniqueId(null);
       _holidayMaster.add(new HolidayDocument(holiday));
     }
   }
 
   private void loadExchanges() throws IOException {
-    List<?> exchanges = readFromDirectory("exchanges");
-    for (Object o : exchanges) {
-      ManageableExchange exchange = (ManageableExchange) o;
+    List<ManageableExchange> exchanges = readAll(RegressionUtils.EXCHANGE_MASTER_DATA);
+    for (ManageableExchange exchange : exchanges) {
       exchange.setUniqueId(null);
       _exchangeMaster.add(new ExchangeDocument(exchange));
     }
   }
 
   private void loadSnapshots() throws IOException {
-    List<?> snapshots = readFromDirectory("snapshots");
-    for (Object o : snapshots) {
-      ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) o;
+    List<ManageableMarketDataSnapshot> snapshots = readAll(RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA);
+    for (ManageableMarketDataSnapshot snapshot : snapshots) {
       snapshot.setUniqueId(null);
       _snapshotMaster.add(new MarketDataSnapshotDocument(snapshot));
     }
   }
 
   private void loadOrganizations() throws IOException {
-    List<?> organizations = readFromDirectory("organizations");
-    for (Object o : organizations) {
-      ManageableOrganization organization = (ManageableOrganization) o;
+    List<ManageableOrganization> organizations = readAll(RegressionUtils.ORGANIZATION_MASTER_DATA);
+    for (ManageableOrganization organization : organizations) {
       organization.setUniqueId(null);
       _organizationMaster.add(new OrganizationDocument(organization));
     }
@@ -350,34 +341,20 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     }
   }
 
-  private List<?> readFromDirectory(String subDirName) throws IOException {
-    File subDir = new File(_dataDir, subDirName);
-    if (!subDir.exists()) {
-      s_logger.info("Directory {} doesn't exist", subDir);
-      return Collections.emptyList();
-    }
-    s_logger.info("Reading from {}", subDir.getAbsolutePath());
-    List<Object> objects = Lists.newArrayList();
-    File[] files = subDir.listFiles();
-    if (files == null) {
-      throw new OpenGammaRuntimeException("No files found in " + subDir);
-    }
-    for (File file : files) {
-      objects.add(readFromFudge(file));
-    }
-    s_logger.info("Read {} objects from {}", objects.size(), subDir.getAbsolutePath());
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  private <T extends UniqueIdentifiable> List<T> readAll(final String type) throws IOException {
+    final List objects = new ArrayList(_io.readAll(type).values());
+    // [PLAT-5410] The objects are sorted by unique ID to give a consistent load; this is probably hiding other faults
+    Collections.sort(objects, new Comparator() {
+      @Override
+      public int compare(final Object o1, final Object o2) {
+        final UniqueId id1 = ((T) o1).getUniqueId();
+        final UniqueId id2 = ((T) o2).getUniqueId();
+        return ObjectUtils.compare(id1, id2);
+      }
+    });
+    s_logger.info("Read {} {}", objects.size(), type);
     return objects;
   }
 
-  private Object readFromFudge(File file) throws IOException {
-    Object object;
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-      FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(_ctx, reader);
-      FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
-      FudgeMsg msg = fudgeMsgReader.nextMessage();
-      object = _deserializer.fudgeMsgToObject(msg);
-      s_logger.debug("Read object {}", object);
-    }
-    return object;
-  }
 }

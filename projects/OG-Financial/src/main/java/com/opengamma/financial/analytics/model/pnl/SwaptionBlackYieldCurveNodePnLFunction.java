@@ -28,7 +28,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -46,8 +45,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
@@ -76,16 +73,16 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
+  private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+    _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = ZonedDateTime.now(snapshotClock).toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
@@ -100,9 +97,8 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     final Schedule scheduleCalculator = getScheduleCalculator(constraints.getValues(ValuePropertyNames.SCHEDULE_CALCULATOR));
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION));
     final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     DoubleTimeSeries<?> result = null;
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     for (final String yieldCurveName : yieldCurveNames) {
       final ValueRequirement ycnsRequirement = getYCNSRequirement(currencyString, curveCalculationConfigName, yieldCurveName, surfaceName, target);
       final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) inputs.getValue(ycnsRequirement);
@@ -156,9 +152,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
       return null;
     }
     final String samplingPeriod = samplingPeriods.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = _curveCalculationConfigSource.getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
@@ -179,17 +173,10 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Position position = target.getPosition();
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
-        .get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode()).withAny(ValuePropertyNames.SURFACE).withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).withAny(ValuePropertyNames.SAMPLING_PERIOD).withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION).with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
@@ -202,16 +189,10 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
       }
     }
     final Position position = target.getPosition();
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .with(ValuePropertyNames.CURVE, curveNames)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode()).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .with(ValuePropertyNames.CURVE, curveNames).withAny(ValuePropertyNames.SURFACE).withAny(ValuePropertyNames.SAMPLING_PERIOD).withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION).with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
     return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
@@ -221,17 +202,14 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   }
 
   private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURRENCY, currency)
+    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD).with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE))
         .with(ValuePropertyNames.SURFACE, desiredValue.getConstraint(ValuePropertyNames.SURFACE))
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG))
         .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
         .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)
-        .get();
+        .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
   }
 
   private String getPropertyName(final Set<String> propertyName) {
@@ -312,26 +290,21 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   }
 
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, curveName).get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
   private ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfig, final String curveName, final String surfaceName,
       final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currencyString)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.SURFACE, surfaceName).get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .with(ValuePropertyNames.CURRENCY, currencyString).with(ValuePropertyNames.CURVE_CURRENCY, currencyString).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+        .with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.SURFACE, surfaceName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   }
 
   private ValueRequirement getYCHTSRequirement(final Currency currency, final String yieldCurveName, final String samplingPeriod) {
-    return HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, yieldCurveName, MarketDataRequirementNames.MARKET_VALUE, null, DateConstraint.VALUATION_TIME.minus(samplingPeriod), true,
-        DateConstraint.VALUATION_TIME, true);
+    return HistoricalTimeSeriesFunctionUtils.createYCHTSRequirement(currency, yieldCurveName, MarketDataRequirementNames.MARKET_VALUE, null,
+        DateConstraint.VALUATION_TIME.minus(samplingPeriod), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

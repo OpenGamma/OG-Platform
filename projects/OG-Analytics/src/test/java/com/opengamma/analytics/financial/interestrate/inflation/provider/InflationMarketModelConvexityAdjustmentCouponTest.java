@@ -37,7 +37,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.test.TestGroup;
@@ -56,7 +56,7 @@ public class InflationMarketModelConvexityAdjustmentCouponTest {
   private static final IndexPrice PRICE_INDEX_EUR = PRICE_INDEXES[0];
   private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
   private static final Calendar CALENDAR_EUR = MulticurveProviderDiscountDataSets.getEURCalendar();
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final Period COUPON_TENOR = Period.ofYears(10);
   private static final double NOTIONAL = 10000;
   private static final int MONTH_LAG = 3;

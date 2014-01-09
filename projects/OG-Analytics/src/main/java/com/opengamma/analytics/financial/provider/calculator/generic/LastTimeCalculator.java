@@ -366,4 +366,5 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
     return coupon.getPaymentTime();
   }
 
+  //-----     Commodity     -----
 }

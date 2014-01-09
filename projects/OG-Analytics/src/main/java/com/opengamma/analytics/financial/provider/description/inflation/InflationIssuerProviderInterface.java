@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
@@ -11,6 +11,8 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -56,19 +58,28 @@ public interface InflationIssuerProviderInterface {
    * @param time The time.
    * @return The discount factor.
    */
-  double getDiscountFactor(Pair<String, Currency> issuerCcy, Double time);
+  double getDiscountFactor(Pair<Object, LegalEntityFilter<LegalEntity>> issuerCcy, Double time);
 
   /**
    * Gets the set of issuer names by currency defined in the market.
    * @return The set of issuers names/currencies.
    */
-  Set<Pair<String, Currency>> getIssuersCcy();
+  Set<Pair<Object, LegalEntityFilter<LegalEntity>>> getIssuers();
 
   /**
    * Gets the names of all curves (discounting, forward, price index and issuers).
    * @return The names.
+   * @deprecated Use {@link #getAllNames()}
    */
+  @Deprecated
   Set<String> getAllNames();
+
+  /**
+   * Gets an unmodifiable sorted set of the names of all curves. An empty set of is returned
+   * if there are no curves in this provider.
+   * @return The names.
+   */
+  Set<String> getAllCurveNames();
 
   /**
    * Returns the MulticurveProvider from which the InflationProvider is composed.
@@ -169,6 +180,19 @@ public interface InflationIssuerProviderInterface {
 
   //     =====     Convenience methods     =====
 
-  InflationProviderInterface withDiscountFactor(Currency ccy, Pair<String, Currency> replacement);
+  /**
+   * Replaces the identifier / issuer pair for a particular currency.
+   * @param ccy The currency
+   * @param replacement The replacement identifier / issuer pair
+   * @return A new provider with the appropriate pair replaced
+   */
+  InflationProviderInterface withDiscountFactor(Currency ccy, Pair<Object, LegalEntityFilter<LegalEntity>> replacement);
 
+  /**
+   * Replaces an issuer for a particular currency.
+   * @param ccy The currency The currency
+   * @param replacement The replacement issuer
+   * @return A new provider with the appropriate issuer replaced
+   */
+  InflationProviderInterface withDiscountFactor(Currency ccy, LegalEntity replacement);
 }

@@ -16,10 +16,12 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MixedLogNormalVolatilityModelTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final MixedLogNormalModelData LEPTOKURTIC1;

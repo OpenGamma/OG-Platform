@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.GenericImpliedVolatiltySolver;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
@@ -122,7 +123,7 @@ public class BjerksundStenslandModel {
           }
           return price(s, k, r, b, t, sigma, false);
         }
-        return getCallPrice(s, k, r, b, t, sigma);
+        return price(s, k, r, b, t, sigma, true);
       }
     };
     return pricingFunction;
@@ -147,10 +148,8 @@ public class BjerksundStenslandModel {
     final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
 
     if (isCall) {
-      if (b >= r) { //no early exercise in this case
-        return bsPrice;
-      }
-      return Math.max(bsPrice, getCallPrice(s0, k, r, b, t, sigma));
+      final double minPrice = Math.max(s0 - k, bsPrice);
+      return Math.max(minPrice, getCallPrice(s0, k, r, b, t, sigma, bsPrice));
     }
     //min price is  maximum of immediate exercise and Black-Scholes price 
     final double minPrice = Math.max(k - s0, bsPrice);
@@ -162,7 +161,7 @@ public class BjerksundStenslandModel {
       return minPrice;
     }
     //put using put-call transformation 
-    return Math.max(minPrice, getCallPrice(k, s0, r - b, -b, t, sigma));
+    return Math.max(minPrice, getCallPrice(k, s0, r - b, -b, t, sigma, bsPrice));
   }
 
   /**
@@ -173,9 +172,14 @@ public class BjerksundStenslandModel {
    * @param b The cost-of-carry
    * @param t The time-to-expiry
    * @param sigma The volatility
+   * @param bsPrice Black-Scholes price
    * @return The American option price
    */
-  protected double getCallPrice(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
+  protected double getCallPrice(final double s0, final double k, final double r, final double b, final double t, final double sigma, final double bsPrice) {
+
+    if (b >= r) { //no early exercise in this case
+      return bsPrice;
+    }
 
     final double sigmaSq = sigma * sigma;
 
@@ -206,11 +210,6 @@ public class BjerksundStenslandModel {
       x2 = getX(b0, bInfinity, h2);
     }
 
-    //s0 above the excise boundary - immediate excise 
-    if (s0 >= x2) {
-      return s0 - k;
-    }
-
     final double alpha1 = getAlpha(x1, beta, k);
     final double alpha2 = getAlpha(x2, beta, k);
     return alpha2 * Math.pow(s0, beta) - alpha2 * getPhi(s0, t1, beta, x2, x2, r, b, sigma) + getPhi(s0, t1, 1, x2, x2, r, b, sigma)
@@ -239,6 +238,7 @@ public class BjerksundStenslandModel {
     final double y = getY(t, b, sigmaSq, gamma, denom);
     final double d1 = getD(s / h, denom, y);
     final double d2 = getD(x * x / (s * h), denom, y);
+
     return Math.exp(lambda * t) * Math.pow(s, gamma) * (NORMAL.getCDF(d1) - Math.pow(x / s, kappa) * NORMAL.getCDF(d2));
   }
 
@@ -260,6 +260,7 @@ public class BjerksundStenslandModel {
     final double lambda = getLambda(gamma, r, b, sigmaSq);
     final double kappa = getKappa(gamma, b, sigmaSq);
     final double rho = Math.sqrt(t1 / t2);
+
     return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
         * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho }) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho }) - Math.pow(x1 / s, kappa)
@@ -304,15 +305,39 @@ public class BjerksundStenslandModel {
    */
   public double[] getPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      //European option case
-      if (b >= r) {
-        final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
-        return mod.getPriceAdjoint(s0, k, r, b, t, sigma, true);
-      }
-      return getCallPriceAdjoint(s0, k, r, b, t, sigma);
+      final double[] priceAdj = getCallPriceAdjoint(s0, k, r, b, t, sigma);
+      return priceAdjModifier(s0, k, r, b, t, sigma, true, priceAdj);
     }
+    final double[] priceAdj = getPutPriceAdjoint(s0, k, r, b, t, sigma);
+    return priceAdjModifier(s0, k, r, b, t, sigma, false, priceAdj);
+  }
 
-    return getPutPriceAdjoint(s0, k, r, b, t, sigma);
+  private double[] priceAdjModifier(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final double[] priceAdj) {
+    final double sign = isCall ? 1. : -1.;
+    final double fwd = s0 * Math.exp(b * t);
+    final double df = Math.exp(-r * t);
+    final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
+    final double intrinsic = sign * (s0 - k);
+    final boolean bsIsMin = intrinsic <= bsPrice;
+    final double minPrice = bsIsMin ? bsPrice : intrinsic;
+    if (priceAdj[0] < minPrice) {
+      final double[] res = new double[7];
+      res[0] = minPrice;
+      if (bsIsMin) {
+        final double expbt = Math.exp(b * t);
+        res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, isCall);
+        res[2] = df * BlackFormulaRepository.dualDelta(fwd, k, t, sigma, isCall);
+        res[3] = -t * minPrice;
+        res[4] = BlackScholesFormulaRepository.carryRho(s0, k, t, sigma, r, b, isCall);
+        res[5] = -BlackScholesFormulaRepository.theta(s0, k, t, sigma, r, b, isCall);
+        res[6] = df * BlackFormulaRepository.vega(fwd, k, t, sigma);
+        return res;
+      }
+      res[1] = sign;
+      res[2] = -sign;
+      return res;
+    }
+    return priceAdj;
   }
 
   /**
@@ -329,9 +354,35 @@ public class BjerksundStenslandModel {
    */
   public double[] getPriceDeltaGamma(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      return getCallDeltaGamma(s0, k, r, b, t, sigma);
+      final double[] deltaGamma = getCallDeltaGamma(s0, k, r, b, t, sigma);
+      return deltaGammaModifier(s0, k, r, b, t, sigma, true, deltaGamma);
     }
-    return getPutDeltaGamma(s0, k, r, b, t, sigma);
+    final double[] deltaGamma = getPutDeltaGamma(s0, k, r, b, t, sigma);
+    return deltaGammaModifier(s0, k, r, b, t, sigma, false, deltaGamma);
+  }
+
+  private double[] deltaGammaModifier(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final double[] deltaGamma) {
+    final double sign = isCall ? 1. : -1.;
+    final double fwd = s0 * Math.exp(b * t);
+    final double df = Math.exp(-r * t);
+    final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
+    final double intrinsic = sign * (s0 - k);
+    final boolean bsIsMin = intrinsic <= bsPrice;
+    final double minPrice = bsIsMin ? bsPrice : intrinsic;
+    if (deltaGamma[0] < minPrice) {
+      final double[] res = new double[3];
+      res[0] = minPrice;
+      if (bsIsMin) {
+        final double expbt = Math.exp(b * t);
+        res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, isCall);
+        res[2] = expbt * expbt * df * BlackFormulaRepository.gamma(fwd, k, t, sigma);
+        return res;
+      }
+      res[1] = sign;
+      res[2] = 0.0;
+      return res;
+    }
+    return deltaGamma;
   }
 
   /**
@@ -396,16 +447,16 @@ public class BjerksundStenslandModel {
 
   protected double[] getCallPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
 
+    //European option case
+    if (b >= r) {
+      final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
+      final double[] priceAdj = mod.getPriceAdjoint(s0, k, r, b, t, sigma, true);
+      return priceAdj;
+    }
+
     final double[] res = new double[7];
 
     final double[] x2Adj = getI2Adjoint(k, r, b, sigma, t);
-    //early exercise
-    if (s0 >= x2Adj[0]) {
-      res[0] = s0 - k;
-      res[1] = 1.0;
-      res[2] = -1.0;
-      return res;
-    }
 
     final double[] x1Adj = getI1Adjoint(k, r, b, sigma, t);
     final double sigmaSq = sigma * sigma;
@@ -504,6 +555,21 @@ public class BjerksundStenslandModel {
     final double df = Math.exp(-r * t);
     final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, false);
 
+    //European option case
+    if (0. >= r) {
+      final double[] res = new double[7];
+      final double expbt = Math.exp(b * t);
+      //TODO these calls have a lot of repeat calculations - could move in-house
+      res[0] = bsPrice;
+      res[1] = expbt * df * BlackFormulaRepository.delta(fwd, k, t, sigma, false);
+      res[2] = df * BlackFormulaRepository.dualDelta(fwd, k, t, sigma, false);
+      res[3] = -t * bsPrice;
+      res[4] = BlackScholesFormulaRepository.carryRho(s0, k, t, sigma, r, b, false);
+      res[5] = -BlackScholesFormulaRepository.theta(s0, k, t, sigma, r, b, false);
+      res[6] = df * BlackFormulaRepository.vega(fwd, k, t, sigma);
+      return res;
+    }
+
     final double temp = (2 * b + sigma * sigma) / 2 / sigma;
     final double minR = b - 0.5 * temp * temp;
     if (r <= minR) { // this will correspond to a complex beta - i.e. the model breaks down. The best we can do is return min price
@@ -561,12 +627,12 @@ public class BjerksundStenslandModel {
     final double x2 = getX(b0, bInfinity, h2);
 
     //early exercise
-    if (s0 >= x2) {
-      res[0] = s0 - k;
-      res[1] = 1.0;
-      res[2] = 0.0;
-      return res;
-    }
+    //    if (s0 >= x2) {
+    //      res[0] = s0 - k;
+    //      res[1] = 1.0;
+    //      res[2] = 0.0;
+    //      return res;
+    //    }
 
     final double t1 = RHO2 * t;
     final double h1 = getH(b, t1, sigma, k, b0, bInfinity);

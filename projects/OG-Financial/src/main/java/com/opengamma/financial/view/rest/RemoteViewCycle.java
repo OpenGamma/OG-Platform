@@ -32,8 +32,18 @@ public class RemoteViewCycle implements ViewCycle {
   private final FudgeRestClient _client;
 
   public RemoteViewCycle(URI baseUri) {
+    this(baseUri, FudgeRestClient.create());
+  }
+
+  public RemoteViewCycle(URI baseUri, FudgeRestClient client) {
     _baseUri = baseUri;
-    _client = FudgeRestClient.create();
+    _client = client;
+  }
+
+  @Override
+  public String getName() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_NAME).build();
+    return _client.accessFudge(uri).get(String.class);
   }
 
   @Override
@@ -59,7 +69,7 @@ public class RemoteViewCycle implements ViewCycle {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_DURATION).build();
     return _client.accessFudge(uri).get(Duration.class);
   }
-  
+
   @Override
   public ViewCycleExecutionOptions getExecutionOptions() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_EXECUTION_OPTIONS).build();

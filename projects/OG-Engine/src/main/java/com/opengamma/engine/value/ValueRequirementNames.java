@@ -62,9 +62,21 @@ public final class ValueRequirementNames {
   //  public static final String DAILY_VOLUME_AVG_20D = "Last Volume Avg 20D";
   //  public static final String DAILY_CALL_IMP_VOL_30D = "Last Call Implied Vol 30D";
   /**
-   * The mark as of the previous close (e.g. equity price)
+   * The mark as of the previous close (e.g. equity price) <p>
+   * Used in {@link ExternallyProvidedSecurityMarkFunction} 
    */
   public static final String MARK = "Mark";
+  /** 
+   * Current value of a security. 
+   * This is typically the mid of bid/ask prices, but if these are not available, may be formed in another fashion
+   */
+  public static final String MARK_CURRENT = "Mark - Current";
+  
+  /** 
+   * Previous value of a security. 
+   * This is typically the mid of previous bid/ask prices, but if these are not available, may be formed in another fashion
+   */
+  public static final String MARK_PREVIOUS = "Mark - Previous";
   /**
    * Spot - General name for current value of underlying asset / index
    */
@@ -528,6 +540,11 @@ public final class ValueRequirementNames {
    * The pillar spreads used for pricing a credit default swap.
    */
   public static final String PILLAR_SPREADS = "Pillar Spreads";
+
+  /**
+   * The hedge notional, a matrix of notionals and tenors required to hedge an instrument.
+   */
+  public static final String HEDGE_NOTIONAL = "Hedge Notional";
 
   /**
    * The dividend yield of an equity or equity index.
@@ -1118,6 +1135,10 @@ public final class ValueRequirementNames {
    * The attributes of a security
    */
   public static final String ATTRIBUTES = "Attributes";
+  /**
+   * An ExternalId of a security
+   */
+  public static final String EXTERNAL_ID = "ExternalId";
 
   ///// Value At Risk
 
@@ -1246,6 +1267,10 @@ public final class ValueRequirementNames {
    * The convexity of a bond.
    */
   public static final String CONVEXITY = "Convexity";
+  /** 
+   * The accrued interest of a bond.
+   */
+  public static final String ACCRUED_INTEREST = "Accrued Interest";
   /**
    * The current yield of a bond
    */

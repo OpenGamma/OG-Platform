@@ -48,7 +48,7 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument<GeneratorAttr
    */
   private final Calendar _calendar2;
 
-  // REVIEW: Do we need stubShort and stubFirst flags?
+  // REVIEW: Do we need stub type?
   // TODO: Add a merged calendar? [PLAT-1747]
 
   /**

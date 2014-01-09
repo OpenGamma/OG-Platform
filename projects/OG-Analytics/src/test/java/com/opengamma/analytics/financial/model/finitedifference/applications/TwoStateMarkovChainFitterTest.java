@@ -29,13 +29,15 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TwoStateMarkovChainFitterTest {
   //TODO just put this in to stop failures
   private static final Interpolator1D INTERPOLATOR_1D =

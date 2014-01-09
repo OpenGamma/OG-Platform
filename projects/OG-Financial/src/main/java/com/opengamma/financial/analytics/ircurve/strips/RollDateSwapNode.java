@@ -71,16 +71,16 @@ public class RollDateSwapNode extends CurveNode {
   /**
    * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
-   * @param rollDateStartNumber The IMM date start number, not negative or zero
-   * @param rollDateEndNumber The IMM date end number, not negative or zero
+   * @param rollDateStartNumber The roll date start number, not negative or zero
+   * @param rollDateEndNumber The roll date end number, not negative or zero
    * @param swapConvention The swap convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
   public RollDateSwapNode(final Tenor startTenor, final int rollDateStartNumber, final int rollDateEndNumber, final ExternalId swapConvention,
       final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
-    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "IMM date start number");
-    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "IMM date end number");
+    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "roll date start number");
+    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "roll date end number");
     setStartTenor(startTenor);
     setRollDateStartNumber(rollDateStartNumber);
     setRollDateEndNumber(rollDateEndNumber);
@@ -100,8 +100,8 @@ public class RollDateSwapNode extends CurveNode {
   public RollDateSwapNode(final Tenor startTenor, final int rollDateStartNumber, final int rollDateEndNumber, final ExternalId swapConvention,
       final boolean useFixings, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
-    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "IMM date start number");
-    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "IMM date end number");
+    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "roll date start number");
+    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "roll date end number");
     setStartTenor(startTenor);
     setRollDateStartNumber(rollDateStartNumber);
     setRollDateEndNumber(rollDateEndNumber);
@@ -121,8 +121,8 @@ public class RollDateSwapNode extends CurveNode {
   public RollDateSwapNode(final Tenor startTenor, final int rollDateStartNumber, final int rollDateEndNumber, final ExternalId swapConvention,
       final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
-    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "IMM date start number");
-    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "IMM date end number");
+    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "roll date start number");
+    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "roll date end number");
     setStartTenor(startTenor);
     setRollDateStartNumber(rollDateStartNumber);
     setRollDateEndNumber(rollDateEndNumber);
@@ -143,8 +143,8 @@ public class RollDateSwapNode extends CurveNode {
   public RollDateSwapNode(final Tenor startTenor, final int rollDateStartNumber, final int rollDateEndNumber, final ExternalId swapConvention,
       final boolean useFixings, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
-    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "IMM date start number");
-    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "IMM date end number");
+    ArgumentChecker.notNegativeOrZero(rollDateStartNumber, "roll date start number");
+    ArgumentChecker.notNegativeOrZero(rollDateEndNumber, "roll date end number");
     setStartTenor(startTenor);
     setRollDateStartNumber(rollDateStartNumber);
     setRollDateEndNumber(rollDateEndNumber);

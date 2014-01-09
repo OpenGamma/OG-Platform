@@ -8,15 +8,15 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * This represents one payment period on the premium leg of a CDS
  */
 public class CDSCoupon {
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
   private static final boolean PROTECTION_FROM_START = true;
 
   private final double _effStart;
@@ -165,7 +165,7 @@ public class CDSCoupon {
   }
 
   /**
-   * Gets the year fraction ratio.
+   * Gets the ratio of the accrual period year fraction calculated using the accrual DCC to that calculated using the curve DCC. This is used in accrual on default calculations
    * @return the year fraction ratio
    */
   public double getYFRatio() {

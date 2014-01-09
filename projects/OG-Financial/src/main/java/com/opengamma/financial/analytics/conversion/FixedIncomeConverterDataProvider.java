@@ -1378,10 +1378,6 @@ public class FixedIncomeConverterDataProvider {
   }
 
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateSwapLeg floatingLeg) {
-    FloatingRateType type = floatingLeg.getConvention().getRateType();
-    if (type.isIbor() || type.equals(FloatingRateType.OIS) || type.equals(FloatingRateType.CMS)) {
-      return getIndexIdBundle(floatingLeg.getFloatingReferenceRateId());
-    }
     return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
   }
 

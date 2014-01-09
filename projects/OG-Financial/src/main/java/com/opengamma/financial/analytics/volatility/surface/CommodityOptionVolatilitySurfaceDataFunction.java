@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -36,7 +35,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
@@ -51,6 +49,13 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(CommodityOptionVolatilitySurfaceDataFunction.class);
+
+  private ConfigDBVolatilitySurfaceSpecificationSource _volatilitySurfaceSpecificationSource;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _volatilitySurfaceSpecificationSource = ConfigDBVolatilitySurfaceSpecificationSource.init(context, this);
+  }
 
   @Override
   /**
@@ -111,20 +116,19 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
         }
       }
     }
-    final VolatilitySurfaceData<Double, Double> stdVolSurface = new VolatilitySurfaceData<Double, Double>(rawSurface.getDefinitionName(), rawSurface.getSpecificationName(), rawSurface.getTarget(),
-        tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
+    final VolatilitySurfaceData<Double, Double> stdVolSurface = new VolatilitySurfaceData<Double, Double>(rawSurface.getDefinitionName(), rawSurface.getSpecificationName(),
+        rawSurface.getTarget(), tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
 
     // 4. Return
-    final ValueProperties stdVolProperties = createValueProperties()
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
-        .get();
+    final ValueProperties stdVolProperties = createValueProperties().with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION).get();
     final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), stdVolProperties);
     return Collections.singleton(new ComputedValue(stdVolSpec, stdVolSurface));
   }
 
   /**
    * Some strikes blow up the black function - strip them out
+   * 
    * @return true if strike works with black function
    */
   private boolean isValidStrike(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Number, Double> rawSurface, final double t, final Number nExpiry) {
@@ -160,10 +164,8 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        createValueProperties().withAny(ValuePropertyNames.SURFACE)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
-            .get());
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), createValueProperties()
+        .withAny(ValuePropertyNames.SURFACE).with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION).get());
     return Collections.singleton(spec);
   }
 
@@ -179,26 +181,21 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
     final String fullName = givenName + "_" + target.getUniqueId().getValue();
 
     // 2. Look up the specification
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION);
+    final VolatilitySurfaceSpecification specification = _volatilitySurfaceSpecificationSource.getSpecification(fullName, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION);
     if (specification == null) {
       s_logger.error("Could not get volatility surface specification with name " + fullName);
       return null;
     }
 
     // Add forward curve so we can discount strikes > forward
-    final ValueProperties forwardProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, givenName).get();
+    final ValueProperties forwardProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, givenName).get();
     final ValueRequirement forwardRequirement = new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), forwardProperties);
 
     // 3. Build the ValueRequirements' constraints
-    final ValueProperties constraints = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, givenName)
+    final ValueProperties constraints = ValueProperties.builder().with(ValuePropertyNames.SURFACE, givenName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())
-        .get();
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits()).get();
     // 4. Return
     final ValueRequirement surfaceReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), constraints);
     //return Collections.singleton(surfaceReq);

@@ -137,7 +137,7 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of time-series external identifiers to load.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalId> getExternalIds() {
     return _externalIds;
@@ -145,9 +145,10 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
 
   /**
    * Sets the set of time-series external identifiers to load.
-   * @param externalIds  the new value of the property
+   * @param externalIds  the new value of the property, not null
    */
   public void setExternalIds(Set<ExternalId> externalIds) {
+    JodaBeanUtils.notNull(externalIds, "externalIds");
     this._externalIds.clear();
     this._externalIds.addAll(externalIds);
   }
@@ -489,6 +490,11 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesLoaderRequest) bean)._externalIds, "externalIds");
     }
 
   }

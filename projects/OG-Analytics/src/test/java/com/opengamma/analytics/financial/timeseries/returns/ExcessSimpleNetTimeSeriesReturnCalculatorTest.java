@@ -13,10 +13,12 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ExcessSimpleNetTimeSeriesReturnCalculatorTest {
   private static final TimeSeriesReturnCalculator CALCULATOR = TimeSeriesReturnCalculatorFactory.getReturnCalculator(TimeSeriesReturnCalculatorFactory.EXCESS_SIMPLE_NET_STRICT);
   private static final LocalDateDoubleTimeSeries TS1 = ImmutableLocalDateDoubleTimeSeries.of(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3), 

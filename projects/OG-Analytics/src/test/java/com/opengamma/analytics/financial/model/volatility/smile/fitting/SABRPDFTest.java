@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.SABRPau
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRPDFTest {
   private static final double F = 5;
   private static final double BETA = 0.99;

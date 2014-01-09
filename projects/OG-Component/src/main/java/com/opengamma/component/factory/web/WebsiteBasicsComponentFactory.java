@@ -20,7 +20,6 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -169,12 +168,12 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private BatchMaster _batchMaster;
   /**
-   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * For obtaining the live market data provider names.
    */
   @PropertyDefinition
   private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
   /**
-   * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * For looking up market data provider specifications by name.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    */
@@ -211,9 +210,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initMasters(ComponentRepository repo) {
-    if (getLiveMarketDataProviderFactory() == null && getMarketDataSpecificationRepository() == null) {
-      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
-    }
     JerseyRestResourceFactory resource;
     resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
     repo.getRestComponents().publishResource(resource);
@@ -775,7 +771,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * Gets for obtaining the live market data provider names.
    * @return the value of the property
    */
   public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
@@ -783,7 +779,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * Sets for obtaining the live market data provider names.
    * @param liveMarketDataProviderFactory  the new value of the property
    */
   public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
@@ -800,7 +796,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * Gets for looking up market data provider specifications by name.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    * @return the value of the property
@@ -811,7 +807,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * Sets for looking up market data provider specifications by name.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    * @param marketDataSpecificationRepository  the new value of the property

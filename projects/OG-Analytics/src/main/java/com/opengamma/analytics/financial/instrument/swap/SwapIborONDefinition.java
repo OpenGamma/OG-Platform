@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.swap;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.NotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborON;
@@ -94,6 +95,23 @@ public class SwapIborONDefinition extends SwapDefinition {
     return from(oisLeg, notionalSigned, generator.getIndexIbor(), spread, generator.getIborCalendar());
   }
 
+  /**
+   * Builder of OIS swap from financial description (start date and end date, the fixed leg and floating leg notionals can be different).
+   * @param settlementDate The annuity settlement or first fixing date.
+   * @param endFixingPeriodDate  The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param notionalFixed The notional of the fixed leg.
+   * @param notionalOIS The notional of the OIS leg.
+   * @param generator The Ibor/ON generator.
+   * @param spread The spread on the Ibor leg.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @return The swap.
+   */
+  public static SwapIborONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final NotionalProvider notionalFixed, final NotionalProvider notionalOIS,
+                                          final GeneratorSwapIborON generator, final double spread, final boolean isPayer) {
+    final AnnuityCouponONDefinition oisLeg = AnnuityCouponONDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
+    return from(oisLeg, notionalFixed, generator.getIndexIbor(), spread, generator.getIborCalendar(), isPayer);
+  }
+
   private static SwapIborONDefinition from(final AnnuityCouponONDefinition oisLeg, final double notionalSigned, final IborIndex indexIbor, final double spread,
       final Calendar calendar) {
     final CouponIborSpreadDefinition[] cpnIbor = new CouponIborSpreadDefinition[oisLeg.getNumberOfPayments()];
@@ -101,6 +119,18 @@ public class SwapIborONDefinition extends SwapDefinition {
       final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), indexIbor.getSpotLag(), calendar);
       cpnIbor[loopcpn] = new CouponIborSpreadDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg
           .getNthPayment(loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixingDate, indexIbor, spread, calendar);
+    }
+    return new SwapIborONDefinition(new AnnuityCouponIborSpreadDefinition(cpnIbor, calendar), oisLeg);
+  }
+
+  private static SwapIborONDefinition from(final AnnuityCouponONDefinition oisLeg, final NotionalProvider notional, final IborIndex indexIbor, final double spread,
+                                           final Calendar calendar, boolean isPayer) {
+    final double sign = isPayer ? -1 : 1;
+    final CouponIborSpreadDefinition[] cpnIbor = new CouponIborSpreadDefinition[oisLeg.getNumberOfPayments()];
+    for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
+      final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), indexIbor.getSpotLag(), calendar);
+      cpnIbor[loopcpn] = new CouponIborSpreadDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg
+          .getNthPayment(loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), sign * notional.getAmount(oisLeg.getNthPayment(loopcpn).getAccrualStartDate().toLocalDate()), fixingDate, indexIbor, spread, calendar);
     }
     return new SwapIborONDefinition(new AnnuityCouponIborSpreadDefinition(cpnIbor, calendar), oisLeg);
   }

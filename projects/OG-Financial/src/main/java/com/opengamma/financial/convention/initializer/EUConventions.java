@@ -54,9 +54,9 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.expirycalc.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.expirycalc.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
@@ -80,10 +80,10 @@ public class EUConventions extends ConventionMasterInitializer {
   /** The IRS Euribor leg string **/
   public static final String EURIBOR_LEG = EURIBOR + " Leg";
 
-  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final DayCount THIRTY_U_360 = DayCountFactory.INSTANCE.getDayCount("30U/360");  
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
+  private static final DayCount THIRTY_U_360 = DayCounts.THIRTY_U_360;  
   private static final ExternalId EU = ExternalSchemes.financialRegionId("EU");
   private static final ExternalId USEU = ExternalSchemes.financialRegionId("US+EU");
 
@@ -111,6 +111,7 @@ public class EUConventions extends ConventionMasterInitializer {
         euriborConventionName, getIds(Currency.EUR, EURIBOR), ACT_360, MODIFIED_FOLLOWING, 2, true, Currency.EUR,
         LocalTime.of(11, 00), "EU", EU, EU, "");
     final ExternalId euriborConventionId = ExternalId.of(SCHEME_NAME, euriborConventionName);
+    
     // Deposit
     final String depositONConventionName = getConventionName(Currency.EUR, DEPOSIT_ON);
     final DepositConvention depositONConvention = new DepositConvention(

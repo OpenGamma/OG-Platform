@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class WinsorizedMeanCalculatorTest {
   private static final int N = 100;
   private static final Function1D<double[], Double> CALCULATOR = new WinsorizedMeanCalculator(0.1);

@@ -145,6 +145,227 @@ public class ImmutableLocalDateObjectTimeSeriesTest extends LocalDateObjectTimeS
   }
 
   //-------------------------------------------------------------------------
+  public void test_subSeries_byLocalDates_single() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .put(LocalDate.of(2010, 5, 8), 8)
+        .put(LocalDate.of(2010, 6, 8), 9)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> singleMiddle = dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 3, 9));
+    assertEquals(1, singleMiddle.size());
+    assertEquals(LocalDate.of(2010, 3, 8), singleMiddle.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), singleMiddle.getValueAtIndex(0));
+    
+    final LocalDateObjectTimeSeries<Integer> singleStart = dts.subSeries(LocalDate.of(2010, 2, 8), LocalDate.of(2010, 2, 9));
+    assertEquals(1, singleStart.size());
+    assertEquals(LocalDate.of(2010, 2, 8), singleStart.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(2), singleStart.getValueAtIndex(0));
+    
+    final LocalDateObjectTimeSeries<Integer> singleEnd = dts.subSeries(LocalDate.of(2010, 6, 8), LocalDate.of(2010, 6, 9));
+    assertEquals(1, singleEnd.size());
+    assertEquals(LocalDate.of(2010, 6, 8), singleEnd.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(9), singleEnd.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDates_empty() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub = dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 3, 8));
+    assertEquals(0, sub.size());
+  }
+
+  public void test_subSeries_byLocalDates_range() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .put(LocalDate.of(2010, 5, 8), 8)
+        .put(LocalDate.of(2010, 6, 8), 9)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> middle = dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 5, 9));
+    assertEquals(3, middle.size());
+    assertEquals(LocalDate.of(2010, 3, 8), middle.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), middle.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 4, 8), middle.getTimeAtIndex(1));
+    assertEquals(Integer.valueOf(5), middle.getValueAtIndex(1));
+    assertEquals(LocalDate.of(2010, 5, 8), middle.getTimeAtIndex(2));
+    assertEquals(Integer.valueOf(8), middle.getValueAtIndex(2));
+    
+    final LocalDateObjectTimeSeries<Integer> fromStart = dts.subSeries(LocalDate.of(2010, 2, 8), LocalDate.of(2010, 4, 9));
+    assertEquals(3, fromStart.size());
+    assertEquals(LocalDate.of(2010, 2, 8), fromStart.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(2), fromStart.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 3, 8), fromStart.getTimeAtIndex(1));
+    assertEquals(Integer.valueOf(3), fromStart.getValueAtIndex(1));
+    assertEquals(LocalDate.of(2010, 4, 8), fromStart.getTimeAtIndex(2));
+    assertEquals(Integer.valueOf(5), fromStart.getValueAtIndex(2));
+    
+    final LocalDateObjectTimeSeries<Integer> preStart = dts.subSeries(LocalDate.of(2010, 1, 8), LocalDate.of(2010, 3, 9));
+    assertEquals(2, preStart.size());
+    assertEquals(LocalDate.of(2010, 2, 8), preStart.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(2), preStart.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 3, 8), preStart.getTimeAtIndex(1));
+    assertEquals(Integer.valueOf(3), preStart.getValueAtIndex(1));
+    
+    final LocalDateObjectTimeSeries<Integer> postEnd = dts.subSeries(LocalDate.of(2010, 5, 8), LocalDate.of(2010, 12, 9));
+    assertEquals(2, postEnd.size());
+    assertEquals(LocalDate.of(2010, 5, 8), postEnd.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(8), postEnd.getValueAtIndex(0));
+    assertEquals(LocalDate.of(2010, 6, 8), postEnd.getTimeAtIndex(1));
+    assertEquals(Integer.valueOf(9), postEnd.getValueAtIndex(1));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_subSeries_byLocalDates_badRange1() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .put(LocalDate.of(2010, 5, 8), 8)
+        .put(LocalDate.of(2010, 6, 8), 9)
+        .build();
+    dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 3, 7));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_subSeries_byLocalDates_badRange2() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .put(LocalDate.of(2010, 5, 8), 8)
+        .put(LocalDate.of(2010, 6, 8), 9)
+        .build();
+    dts.subSeries(LocalDate.of(2010, 3, 8), LocalDate.of(2010, 2, 7));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_subSeries_byLocalDatesAndBooleans_trueTrue() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), true, LocalDate.of(2010, 3, 8), true);
+    assertEquals(1, sub1.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub1.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), sub1.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_trueFalse() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), true, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub1.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub2 = dts.subSeries(LocalDate.of(2010, 3, 8), true, LocalDate.of(2010, 3, 9), false);
+    assertEquals(1, sub2.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub2.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), sub2.getValueAtIndex(0));
+    
+    final LocalDateObjectTimeSeries<Integer> sub3 = dts.subSeries(LocalDate.of(2010, 3, 7), true, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub3.size());
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_falseTrue() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 8), true);
+    assertEquals(0, sub1.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub2 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 9), true);
+    assertEquals(0, sub2.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub3 = dts.subSeries(LocalDate.of(2010, 3, 7), false, LocalDate.of(2010, 3, 8), true);
+    assertEquals(1, sub3.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub3.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), sub3.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_falseFalse() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub1 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub1.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub2 = dts.subSeries(LocalDate.of(2010, 3, 8), false, LocalDate.of(2010, 3, 9), false);
+    assertEquals(0, sub2.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub3 = dts.subSeries(LocalDate.of(2010, 3, 7), false, LocalDate.of(2010, 3, 8), false);
+    assertEquals(0, sub3.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub4 = dts.subSeries(LocalDate.of(2010, 3, 7), false, LocalDate.of(2010, 3, 9), false);
+    assertEquals(1, sub4.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub4.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), sub4.getValueAtIndex(0));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_subSeries_byLocalDatesAndBooleans_maxSimple() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.of(2010, 4, 8), 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub1 = dts.subSeries(LocalDate.of(2010, 3, 9), true, LocalDate.MAX, false);
+    assertEquals(1, sub1.size());
+    assertEquals(LocalDate.of(2010, 4, 8), sub1.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(5), sub1.getValueAtIndex(0));
+    
+    final LocalDateObjectTimeSeries<Integer> sub2 = dts.subSeries(LocalDate.of(2010, 3, 9), true, LocalDate.MAX, true);
+    assertEquals(1, sub2.size());
+    assertEquals(LocalDate.of(2010, 4, 8), sub2.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(5), sub2.getValueAtIndex(0));
+  }
+
+  public void test_subSeries_byLocalDatesAndBooleans_maxComplex() {
+    final LocalDateObjectTimeSeries<Integer> dts = ImmutableLocalDateObjectTimeSeries.<Integer>builder()
+        .put(LocalDate.of(2010, 2, 8), 2)
+        .put(LocalDate.of(2010, 3, 8), 3)
+        .put(LocalDate.MAX, 5)
+        .build();
+    final LocalDateObjectTimeSeries<Integer> sub1 = dts.subSeries(LocalDate.of(2010, 3, 7), true, LocalDate.MAX, false);
+    assertEquals(1, sub1.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub1.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), sub1.getValueAtIndex(0));
+    
+    final LocalDateObjectTimeSeries<Integer> sub2 = dts.subSeries(LocalDate.of(2010, 3, 7), true, LocalDate.MAX, true);
+    assertEquals(2, sub2.size());
+    assertEquals(LocalDate.of(2010, 3, 8), sub2.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(3), sub2.getValueAtIndex(0));
+    assertEquals(LocalDate.MAX, sub2.getTimeAtIndex(1));
+    assertEquals(Integer.valueOf(5), sub2.getValueAtIndex(1));
+    
+    final LocalDateObjectTimeSeries<Integer> sub3 = dts.subSeries(LocalDate.MAX, true, LocalDate.MAX, true);
+    assertEquals(1, sub3.size());
+    assertEquals(LocalDate.MAX, sub3.getTimeAtIndex(0));
+    assertEquals(Integer.valueOf(5), sub3.getValueAtIndex(0));
+    
+    final LocalDateObjectTimeSeries<Integer> sub4 = dts.subSeries(LocalDate.MAX, false, LocalDate.MAX, true);
+    assertEquals(0, sub4.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub5 = dts.subSeries(LocalDate.MAX, true, LocalDate.MAX, false);
+    assertEquals(0, sub5.size());
+    
+    final LocalDateObjectTimeSeries<Integer> sub6 = dts.subSeries(LocalDate.MAX, false, LocalDate.MAX, false);
+    assertEquals(0, sub6.size());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toString() {
     LocalDateObjectTimeSeries<Float> ts= ImmutableLocalDateObjectTimeSeries.of(LocalDate.of(2012, 6, 30), 2.0f);
     assertEquals("ImmutableLocalDateObjectTimeSeries[(2012-06-30, 2.0)]", ts.toString());

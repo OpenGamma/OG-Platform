@@ -30,35 +30,37 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFi
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
 @SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class AnnuityCouponONDefinitionTest {
   private static final Currency CCY = Currency.EUR;
   private static final Period PAYMENT_PERIOD = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("Weekend");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final boolean IS_EOM = true;
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 2, 1);
   private static final ZonedDateTime MATURITY_DATE = DateUtils.getUTCDate(2022, 2, 1);
   private static final Period MATURITY_TENOR = Period.ofYears(10);
   private static final double NOTIONAL = 100000000;
   private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 0);
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final GeneratorSwapFixedON GENERATOR = new GeneratorSwapFixedON("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1, CALENDAR);
   private static final boolean IS_PAYER = true;
   private static final AnnuityCouponONDefinition DEFINITION = AnnuityCouponONDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, IS_PAYER);

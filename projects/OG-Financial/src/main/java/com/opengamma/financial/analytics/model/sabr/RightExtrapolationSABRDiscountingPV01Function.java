@@ -39,7 +39,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -66,7 +66,7 @@ public class RightExtrapolationSABRDiscountingPV01Function extends RightExtrapol
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO
+        final DayCount dayCount = DayCounts.ACT_360; //TODO
         final SABRSwaptionProvider sabrData = getSABRSurfaces(executionContext, inputs, target, fxMatrix, dayCount);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);

@@ -14,13 +14,15 @@ import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.CalendarFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test BusinessDayConvention.
  */
+@Test(groups = TestGroup.UNIT)
 public class BusinessDayTest {
 
-  private final Calendar _calendar_UK = CalendarFactory.INSTANCE.getCalendar("UK Bank Holidays");
+  private final Calendar _calendar_UK = CalendarFactory.of("UK Bank Holidays");
 
   private void assertDate(final TemporalAdjuster adjuster, final LocalDate testDate, final LocalDate expectedDate) {
     assertEquals(expectedDate, testDate.with(adjuster));
@@ -28,7 +30,7 @@ public class BusinessDayTest {
 
   @Test
   public void testPrecedingDay() {
-    final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+    final BusinessDayConvention convention = BusinessDayConventions.PRECEDING;
     assertNotNull(convention);
     final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
@@ -46,7 +48,7 @@ public class BusinessDayTest {
 
   @Test
   public void testFollowingDay() {
-    final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention convention = BusinessDayConventions.FOLLOWING;
     assertNotNull(convention);
     final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
@@ -64,7 +66,7 @@ public class BusinessDayTest {
 
   @Test
   public void testModifiedFollowingDay() {
-    final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final BusinessDayConvention convention = BusinessDayConventions.MODIFIED_FOLLOWING;
     assertNotNull(convention);
     final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);
@@ -82,7 +84,7 @@ public class BusinessDayTest {
 
   @Test
   public void testModifiedPrecedingDay() {
-    final BusinessDayConvention convention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Preceding");
+    final BusinessDayConvention convention = BusinessDayConventions.MODIFIED_PRECEDING;
     assertNotNull(convention);
     final TemporalAdjuster adjuster = convention.getTemporalAdjuster(_calendar_UK);
     assertNotNull(adjuster);

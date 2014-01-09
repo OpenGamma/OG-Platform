@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SVIVolatilityFunctionTest {
   private static final double A = 1.2;
   private static final double B = 0.4;

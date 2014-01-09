@@ -9,12 +9,14 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class PresentValueSABRSensitivityDataBundleTest {
 
   private static Map<DoublesPair, Double> ALPHA = new HashMap<>();

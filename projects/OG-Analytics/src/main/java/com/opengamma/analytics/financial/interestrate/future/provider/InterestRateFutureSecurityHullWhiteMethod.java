@@ -64,13 +64,23 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
    */
   public double price(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
     ArgumentChecker.notNull(futures, "Future");
-    ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
+    ArgumentChecker.notNull(hwMulticurves, "Multi-curve with Hull-White");
     final double forward = hwMulticurves.getMulticurveProvider().getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
         futures.getFixingPeriodAccrualFactor());
     final double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), futures.getLastTradingTime(),
         futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime());
     final double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / futures.getFixingPeriodAccrualFactor();
     return price;
+  }
+
+  /**
+   * Computes the future rate (1-price) from the curves using an estimation of the future rate with Hull-White one factor convexity adjustment.
+   * @param futures The futures.
+   * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
+   * @return The rate.
+   */
+  public double parRate(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+    return 1.0d - price(futures, hwMulticurves);
   }
 
   @Override

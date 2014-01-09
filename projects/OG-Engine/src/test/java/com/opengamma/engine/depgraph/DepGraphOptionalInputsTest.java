@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the dependency graph building with optional inputs to functions.
@@ -86,26 +87,41 @@ public class DepGraphOptionalInputsTest extends AbstractDependencyGraphBuilderTe
   }
 
   public void optionalInputsPresent() {
-    final DepGraphTestHelper helper = new DepGraphTestHelper();
-    helper.addFunctionProducing1and2();
-    helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, true));
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = new DepGraphTestHelper();
+      helper.addFunctionProducing1and2();
+      helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, true));
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void optionalInputsBothMissing() {
-    final DepGraphTestHelper helper = new DepGraphTestHelper();
-    helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, false, false));
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = new DepGraphTestHelper();
+      helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, false, false));
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void optionalInputsOneMissing() {
-    final DepGraphTestHelper helper = new DepGraphTestHelper();
-    helper.addFunctionProducing2();
-    helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, false));
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = new DepGraphTestHelper();
+      helper.addFunctionProducing2();
+      helper.getFunctionRepository().addFunction(new OptionalInputsFunction(helper, true, false));
+      final DependencyGraphBuilder builder = helper.createBuilder(null);
+      expectCompletion(builder, builder.getContext().resolveRequirement(new ValueRequirement("OUT", helper.getTarget().toSpecification()), null, null));
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
 }

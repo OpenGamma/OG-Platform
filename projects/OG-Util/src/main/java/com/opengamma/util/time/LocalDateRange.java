@@ -18,7 +18,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -294,7 +294,7 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -367,7 +367,7 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code LocalDateRange}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<LocalDateRange> {
+  private static final class Builder extends DirectFieldsBeanBuilder<LocalDateRange> {
 
     private LocalDate _startDateInclusive;
     private LocalDate _endDateInclusive;
@@ -376,7 +376,6 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
      * Restricted constructor.
      */
     private Builder() {
-      super(LocalDateRange.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -396,6 +395,30 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public LocalDateRange build() {
       return new LocalDateRange(
           _startDateInclusive,
@@ -407,8 +430,8 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("LocalDateRange.Builder{");
-      buf.append("startDateInclusive").append('=').append(_startDateInclusive).append(',').append(' ');
-      buf.append("endDateInclusive").append('=').append(_endDateInclusive);
+      buf.append("startDateInclusive").append('=').append(JodaBeanUtils.toString(_startDateInclusive)).append(',').append(' ');
+      buf.append("endDateInclusive").append('=').append(JodaBeanUtils.toString(_endDateInclusive));
       buf.append('}');
       return buf.toString();
     }

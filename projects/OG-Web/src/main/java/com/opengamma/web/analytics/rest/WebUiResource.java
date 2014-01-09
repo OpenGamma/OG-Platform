@@ -44,12 +44,14 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.rest.RestUtils;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.ErrorInfo;
 import com.opengamma.web.analytics.GridCell;
 import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.MarketDataSpecificationJsonReader;
+import com.opengamma.web.analytics.ValueRequirementTargetForCell;
 import com.opengamma.web.analytics.ViewRequest;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
@@ -181,6 +183,21 @@ public class WebUiResource {
     return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType));
   }
 
+  @Path("{viewId}/{gridType}/viewports/{viewportId}/valuereq/{row}/{col}")
+  @GET
+  public ValueRequirementTargetForCell getValueRequirementForTargetForCell(@PathParam("viewId") String viewId,
+                                                                           @PathParam("gridType") String gridType,
+                                                                           @PathParam("row") int row,
+                                                                           @PathParam("col") int col,
+                                                                           @PathParam("viewportId") int viewportId) {
+
+    GridStructure gridStructure =  _viewManager.getView(viewId).getGridStructure(gridType(gridType), viewportId);
+
+    Pair<String, ValueRequirement> pair = gridStructure.getValueRequirementForCell(row, col);
+    return new ValueRequirementTargetForCell(pair.getFirst(), pair.getSecond());
+
+  }
+
   @Path("{viewId}/{gridType}/viewports")
   @POST
   public Response createViewport(@Context UriInfo uriInfo,
@@ -255,8 +272,8 @@ public class WebUiResource {
                                       @FormParam("requestId") int requestId,
                                       @FormParam("row") Integer row,
                                       @FormParam("col") Integer col,
-                                      @FormParam("calcConfigName") String calcConfigName,
-                                      @FormParam("valueRequirement") ValueRequirementFormParam valueRequirementParam) {
+                                      @FormParam("colset") String calcConfigName,
+                                      @FormParam("req") ValueRequirementFormParam valueRequirementParam) {
     int graphId = s_nextId.getAndIncrement();
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
@@ -264,8 +281,13 @@ public class WebUiResource {
     if (row != null && col != null) {
       _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
     } else if (calcConfigName != null && valueRequirementParam != null) {
-      ValueRequirement req = valueRequirementParam.getValueRequirement();
-      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, calcConfigName, req);
+      ValueRequirement valueRequirement = valueRequirementParam.getValueRequirement();
+      _viewManager.getView(viewId).openDependencyGraph(requestId,
+                                                       gridType(gridType),
+                                                       graphId,
+                                                       callbackId,
+                                                       calcConfigName,
+                                                       valueRequirement);
     }
     return Response.status(Response.Status.CREATED).build();
   }
@@ -337,7 +359,8 @@ public class WebUiResource {
                                                                @PathParam("gridType") String gridType,
                                                                @PathParam("depgraphId") int depgraphId,
                                                                @PathParam("viewportId") int viewportId) {
-    return _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId, viewportId);
+    GridStructure g = _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId, viewportId);
+    return g;
   }
 
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")

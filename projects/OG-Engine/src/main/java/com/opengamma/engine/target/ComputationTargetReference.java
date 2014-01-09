@@ -170,7 +170,8 @@ public abstract class ComputationTargetReference implements Serializable {
   @Override
   public int hashCode() {
     // Sub-classes must override
-    return (getClass().hashCode() * 31 * 31) + ObjectUtils.hashCode(getParent()) * 31 + getType().hashCode();
+    //getName() and hashCode() results are cached on their objects
+    return (getClass().getName().hashCode() * 31 * 31) + ObjectUtils.hashCode(getParent()) * 31 + getType().hashCode();
   }
 
   /**

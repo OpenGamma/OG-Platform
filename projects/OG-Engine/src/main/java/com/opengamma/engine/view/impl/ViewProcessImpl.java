@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
@@ -26,6 +27,7 @@ import com.opengamma.engine.management.InternalViewResultListener;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -135,6 +137,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
       _viewDefinitionChangeListener = null;
     } else {
       final ObjectId viewDefinitionObject = viewDefinitionId.getObjectId();
+      ViewDefinition viewDefinition = getProcessContext().getConfigSource().getConfig(ViewDefinition.class, getDefinitionId());
+      final Set<ObjectId> scenarioIds = Sets.newHashSet(viewDefinitionObject);
+      for (ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
+        UniqueId scenarioId = calcConfig.getScenarioId();
+        UniqueId parametersId = calcConfig.getScenarioParametersId();
+        if (scenarioId != null) {
+          scenarioIds.add(scenarioId.getObjectId());
+        }
+        if (parametersId != null) {
+          scenarioIds.add(parametersId.getObjectId());
+        }
+      }
       _viewDefinitionChangeListener = new ChangeListener() {
         @SuppressWarnings("incomplete-switch")
         @Override
@@ -149,6 +163,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
                 viewDefinitionChanged();
                 break;
             }
+          } else if (scenarioIds.contains(event.getObjectId())) {
+            viewDefinitionChanged();
+            forceGraphRebuild();
           }
         }
       };

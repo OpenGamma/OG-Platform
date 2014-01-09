@@ -125,6 +125,7 @@ public class Simulation {
         params.put(unusedSelector, EmptyFunctionParameters.INSTANCE);
       }
       ViewCycleExecutionOptions scenarioOptions = baseOptions.copy()
+          .setName(definition.getName())
           .setFunctionParameters(params)
           .setValuationTime(scenario.getValuationTime())
           .setResolverVersionCorrection(scenario.getResolverVersionCorrection())
@@ -266,7 +267,7 @@ public class Simulation {
       if (batchMode) {
         executionOptions = ExecutionOptions.batch(sequence, baseOptions);
       } else if (listener != null) {
-        executionOptions = ExecutionOptions.of(sequence, executionFlags);
+        executionOptions = ExecutionOptions.of(sequence, baseOptions, executionFlags);
       } else {
         s_logger.warn("Not running in batch mode and no listener specified, the results would be ignored. Exiting.");
         return;

@@ -17,10 +17,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.ChiSquareDistribution;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class QuartileSkewnessCalculatorTest {
   private static final double STD = 2.;
   private static final Function1D<double[], Double> SKEW = new QuartileSkewnessCalculator();

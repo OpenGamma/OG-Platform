@@ -19,11 +19,13 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableTransactionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

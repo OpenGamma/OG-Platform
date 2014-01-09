@@ -18,11 +18,13 @@ import com.opengamma.analytics.financial.model.volatility.smile.function.MultiHo
 import com.opengamma.analytics.financial.model.volatility.surface.MixedLogNormalVolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class LocalVolPDEPricerTest {
 
   LocalVolPDEPricer PRICER = new LocalVolPDEPricer();

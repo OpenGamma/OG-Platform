@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.financial.OpenGammaCompilationContext;
 
 /**
  *
@@ -37,18 +37,16 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(AttributesFunction.class);
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final String attributeName = desiredValue.getConstraint(PROPERTY_ATTRIBUTE_NAME);
+    final ValueProperties properties = desiredValue.getConstraints();
+    final String attributeName = properties.getSingleValue(PROPERTY_ATTRIBUTE_NAME);
     final Security security = target.getSecurity();
     final Map<String, String> attributes = security.getAttributes();
     final String result = attributes.get(attributeName);
     if (result == null) {
       throw new OpenGammaRuntimeException("Could not get value for attribute " + attributeName);
     }
-    final ValueProperties properties = createValueProperties()
-        .with(PROPERTY_ATTRIBUTE_NAME, attributeName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, result));
   }
@@ -60,18 +58,27 @@ public class AttributesFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties()
-        .withAny(PROPERTY_ATTRIBUTE_NAME).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties));
+    final Map<String, String> attributes = target.getSecurity().getAttributes();
+    if (attributes.isEmpty()) {
+      return null;
+    }
+    final ValueProperties.Builder properties = createValueProperties();
+    for (String attribute : attributes.keySet()) {
+      properties.with(PROPERTY_ATTRIBUTE_NAME, attribute);
+    }
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.ATTRIBUTES, target.toSpecification(), properties.get()));
+
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> attributeNames = constraints.getValues(PROPERTY_ATTRIBUTE_NAME);
-    if (attributeNames == null || attributeNames.size() != 1) {
-      s_logger.error("Did not specify a single attribute name");
-      return null;
+    if (!OpenGammaCompilationContext.isPermissive(context)) {
+      if (attributeNames == null || attributeNames.size() != 1) {
+        s_logger.error("Did not specify a single attribute name");
+        return null;
+      }
     }
     return Collections.emptySet();
   }

@@ -19,22 +19,24 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Federal Fund future.
  */
+@Test(groups = TestGroup.UNIT)
 public class FederalFundsFutureSecurityTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final Currency USD = INDEX_FEDFUND.getCurrency();
-  private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventions.FOLLOWING;
   private static final ZonedDateTime MARCH_1 = DateUtils.getUTCDate(2012, 3, 1);
   private static final ZonedDateTime APRIL_1 = DateUtils.getUTCDate(2012, 4, 1);
   private static final ZonedDateTime PERIOD_FIRST_DATE = BUSINESS_DAY_FOLLOWING.adjustDate(NYC, MARCH_1);

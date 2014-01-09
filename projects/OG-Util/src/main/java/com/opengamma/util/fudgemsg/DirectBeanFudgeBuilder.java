@@ -33,7 +33,7 @@ import com.google.common.collect.Maps;
 
 /**
  * Builder to convert DirectBean to and from Fudge.
- * 
+ *
  * @param <T> the bean type
  */
 public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilder<T> {

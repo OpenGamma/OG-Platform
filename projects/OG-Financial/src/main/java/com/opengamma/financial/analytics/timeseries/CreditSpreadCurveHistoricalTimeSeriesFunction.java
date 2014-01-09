@@ -16,7 +16,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -33,8 +32,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.curve.ConfigDBCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.id.ExternalIdBundle;
@@ -44,18 +47,27 @@ import com.opengamma.util.async.AsynchronousExecution;
  * 
  */
 public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final Logger s_logger = LoggerFactory.getLogger(CreditSpreadCurveHistoricalTimeSeriesFunction.class);
 
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
+
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public void init(final FunctionCompilationContext context) {
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
+  }
+
+  @Override
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final String idName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveName = idName;
-    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), curveName);
+    final CurveSpecification curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), _curveDefinitionSource, _curveSpecificationBuilder, now.toLocalDate(), curveName);
     final String dataField = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     final String resolutionKey;
     final Set<String> resolutionKeyConstraint = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY);
@@ -86,15 +98,13 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
         s_logger.warn("Could not get time series for {}", identifier);
       }
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(),
-        desiredValue.getConstraints()), bundle));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), desiredValue
+        .getConstraints()), bundle));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY
-        .or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY)
-        .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
+    return FinancialSecurityTypes.STANDARD_VANILLA_CDS_SECURITY.or(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY).or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_OPTION_SECURITY)
         .or(FinancialSecurityTypes.CREDIT_DEFAULT_SWAP_INDEX_SECURITY);
   }
 
@@ -103,13 +113,11 @@ public class CreditSpreadCurveHistoricalTimeSeriesFunction extends AbstractFunct
     final ValueProperties properties = createValueProperties()
         .withAny(CURVE)
         //        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, "PX_LAST")
-        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, MarketDataRequirementNames.MARKET_VALUE)
-        .withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
+        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, MarketDataRequirementNames.MARKET_VALUE).withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
         .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
         .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
         .withAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
-        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
-        .get();
+        .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.CREDIT_SPREAD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), properties));
   }
 

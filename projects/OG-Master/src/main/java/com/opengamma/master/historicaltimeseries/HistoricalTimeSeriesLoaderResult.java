@@ -79,7 +79,7 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
   /**
    * Gets the unique IDs of the time-series that were obtained.
    * The external ID is the original search key.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<ExternalId, UniqueId> getResultMap() {
     return _resultMap;
@@ -88,9 +88,10 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
   /**
    * Sets the unique IDs of the time-series that were obtained.
    * The external ID is the original search key.
-   * @param resultMap  the new value of the property
+   * @param resultMap  the new value of the property, not null
    */
   public void setResultMap(Map<ExternalId, UniqueId> resultMap) {
+    JodaBeanUtils.notNull(resultMap, "resultMap");
     this._resultMap.clear();
     this._resultMap.putAll(resultMap);
   }
@@ -237,6 +238,11 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesLoaderResult) bean)._resultMap, "resultMap");
     }
 
   }

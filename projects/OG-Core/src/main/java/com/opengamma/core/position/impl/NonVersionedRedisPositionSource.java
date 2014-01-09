@@ -108,7 +108,7 @@ public class NonVersionedRedisPositionSource implements PositionSource {
    * Gets the jedisPool.
    * @return the jedisPool
    */
-  protected JedisPool getJedisPool() {
+  public JedisPool getJedisPool() {
     return _jedisPool;
   }
 
@@ -116,7 +116,7 @@ public class NonVersionedRedisPositionSource implements PositionSource {
    * Gets the redisPrefix.
    * @return the redisPrefix
    */
-  protected String getRedisPrefix() {
+  public String getRedisPrefix() {
     return _redisPrefix;
   }
 

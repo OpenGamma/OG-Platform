@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
+import java.util.Arrays;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.temporal.JulianFields;
@@ -22,23 +24,21 @@ import com.opengamma.util.time.Tenor;
 public class MultiCDSAnalytic {
 
   private final double _lgd;
+  private final boolean _payAccOnDefault;
+  private final CDSCoupon[] _standardCoupons; //these will be common across many CDSs
+  private final CDSCoupon[] _terminalCoupons; //these are the final coupons for each CDS 
 
   private final double _accStart;
-  private final double _effProtectionStart;
+  private final double _effectiveProtectionStart;
   private final double _valuationTime;
-  private final boolean _payAccOnDefault;
-  private final boolean _protectionFromStartOfDay;
-
-  private final int _totalPayments;
-  private final CDSCoupon[] _standardCoupons; //these will be common across many CDSs
-
-  private final int _nMaturities;
-  private final int[] _matIndexToPayments;
-  private final CDSCoupon[] _terminalCoupons; //these are the final coupons for each CDS 
   private final double[] _protectionEnd;
+
   private final double[] _accrued;
   private final int[] _accruedDays;
-  private final double[] _couponAmts;
+
+  private final int _totalPayments;
+  private final int _nMaturities;
+  private final int[] _matIndexToPayments;
 
   /**
    * Set up a strip of increasing maturity CDSs that have some coupons in common.  The trade date, step-in date and valuation date and
@@ -56,7 +56,6 @@ public class MultiCDSAnalytic {
    * the trade date, so the actually maturities will be some fixed periods after this.  
    * @param maturityIndexes The maturities are fixed integer multiples of the payment interval, so for 6M, 1Y and 2Y tenors with a 3M 
    * payment interval, would require 2, 4, and 8 as the indices    
-   * @param coupons The fractional coupons of the individual CDSs 
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
    * @param paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    * @param stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
@@ -69,8 +68,8 @@ public class MultiCDSAnalytic {
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
    */
   public MultiCDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate,
-      final int[] maturityIndexes, final double[] couponAmts, final boolean payAccOnDefault, final Tenor paymentInterval, final StubType stubType, final boolean protectStart,
-      final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar, final DayCount accrualDayCount, final DayCount curveDayCount) {
+      final int[] maturityIndexes, final boolean payAccOnDefault, final Tenor paymentInterval, final StubType stubType, final boolean protectStart, final double recoveryRate,
+      final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar, final DayCount accrualDayCount, final DayCount curveDayCount) {
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notNull(stepinDate, "stepinDate");
     ArgumentChecker.notNull(valueDate, "valueDate");
@@ -85,26 +84,20 @@ public class MultiCDSAnalytic {
     ArgumentChecker.isFalse(stepinDate.isBefore(tradeDate), "Require stepin >= today");
     //  ArgumentChecker.isFalse(tradeDate.isAfter(maturityReferanceDate), "First CDS has expired");
     ArgumentChecker.notEmpty(maturityIndexes, "maturityIndexes");
-    ArgumentChecker.notEmpty(couponAmts, "couponAmts");
 
     _nMaturities = maturityIndexes.length;
-    ArgumentChecker.isTrue(_nMaturities == couponAmts.length, "There are {} maturities but {} coupons", _nMaturities, couponAmts.length);
     ArgumentChecker.isTrue(maturityIndexes[0] >= 0, "first maturity index < 0");
     for (int i = 1; i < _nMaturities; i++) {
       ArgumentChecker.isTrue(maturityIndexes[i] > maturityIndexes[i - 1], "maturityIndexes not ascending");
     }
-    _couponAmts = new double[_nMaturities];
-    System.arraycopy(couponAmts, 0, _couponAmts, 0, _nMaturities);
-
     _payAccOnDefault = payAccOnDefault;
-    _protectionFromStartOfDay = protectStart;
 
     _accStart = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
     final LocalDate temp = stepinDate.isAfter(accStartDate) ? stepinDate : accStartDate;
     final LocalDate effectiveStartDate = protectStart ? temp.minusDays(1) : temp;
 
     _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
-    _effProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
+    _effectiveProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
     _lgd = 1 - recoveryRate;
 
     final LocalDate[] maturities = new LocalDate[_nMaturities];
@@ -144,7 +137,6 @@ public class MultiCDSAnalytic {
       _matIndexToPayments[i] = index - couponOffset;
       //This will only matter for the edge case when the trade date is 1 day before maturity      
       final LocalDate tDate2 = _matIndexToPayments[i] < 0 ? fullPaymentSchedule.getAccStartDate(couponOffset - 1) : paymentSchedule.getAccStartDate(0);
-      //final LocalDate tDate2 = i == 0 && (stepinDate.isEqual(paymentSchedule.getAccStartDate(0))) ? fullPaymentSchedule.getAccStartDate(couponOffset - 1) : paymentSchedule.getAccStartDate(0);
       final long firstJulianDate = tDate2.getLong(JulianFields.MODIFIED_JULIAN_DAY);
       _accruedDays[i] = secondJulianDate > firstJulianDate ? (int) (secondJulianDate - firstJulianDate) : 0;
       _accrued[i] = tDate2.isBefore(stepinDate) ? accrualDayCount.getDayCountFraction(tDate2, stepinDate) : 0.0;
@@ -164,7 +156,7 @@ public class MultiCDSAnalytic {
   }
 
   /**
-   * get payment index for a particular maturity index
+   * get payment index for a particular maturity index. The final standard coupon is one less than this
    * @param matIndex maturity index (0 for first maturity, etc)
    * @return payment index 
    */
@@ -172,9 +164,15 @@ public class MultiCDSAnalytic {
     return _matIndexToPayments[matIndex];
   }
 
-  public double getCoupon(final int matIndex) {
-    return _couponAmts[matIndex];
-  }
+  //  /**
+  //   * 
+  //   * @param matIndex
+  //   * @return
+  //   */
+  //  @Deprecated
+  //  public double getCoupon(final int matIndex) {
+  //    return _couponAmts[matIndex];
+  //  }
 
   /**
    * Gets the payAccOnDefault.
@@ -185,64 +183,72 @@ public class MultiCDSAnalytic {
   }
 
   /**
-   * Gets the protectionFromStartOfDay.
-   * @return the protectionFromStartOfDay
+   * The loss-given-default. This is 1 - recovery rate
+   * @return the LGD
    */
-  public boolean isProtectionFromStartOfDay() {
-    return _protectionFromStartOfDay;
-  }
-
-  /**
-   * Gets the year fraction value of one day for the day count used for curves (i.e. discounting)
-   * @return the curveOneDay
-  //   */
-  //  public double getCurveOneDay() {
-  //    return _curveOneDay;
-  //  }
-
   public double getLGD() {
     return _lgd;
   }
 
   /**
-   * Gets the valuationTime.
-   * @return the valuationTime
+   * Gets year fraction (according to curve DCC) between the trade date and the cash-settle date 
+   * @return the CashSettleTime
    */
-  public double getValuationTime() {
+  public double getCashSettleTime() {
     return _valuationTime;
   }
 
   /**
-   * Gets the protectionStart.
-   * @return the protectionStart
+   * Year fraction (according to curve DCC) from trade date to accrual start date. This will be negative for spot starting CDS, but will be positive for forward starting CDS.   
+   * @return accrual start year-fraction. 
    */
-  public double getEffectiveProtectionStart() {
-    return _effProtectionStart;
-  }
-
   public double getAccStart() {
     return _accStart;
   }
 
   /**
-   * Gets the protectionEnd.
+   * Year fraction (according to curve DCC) from trade date to effective protection start date. The effective protection start date is the greater of the accrual start date
+   * and the step-in date;  if protection is from start of day, this is  adjusted back one day - so for a standard CDS it is the trade date.
+   * @return the effectiveProtectionStart
+   */
+  public double getEffectiveProtectionStart() {
+    return _effectiveProtectionStart;
+  }
+
+  /**
+   *  Year fraction (according to curve DCC) from trade date to the maturity of the CDS at the given index (zero based). 
+   *  @param matIndex the index 
    * @return the protectionEnd
    */
   public double getProtectionEnd(final int matIndex) {
     return _protectionEnd[matIndex];
   }
 
+  /**
+   * Get the final coupon for the CDS at the given index (zero based). 
+   * @param matIndex the index 
+   * @return A coupon 
+   */
   public CDSCoupon getTerminalCoupon(final int matIndex) {
     return _terminalCoupons[matIndex];
   }
 
+  /** Get the standard (i.e. not the final or terminal coupon of a CDS) at the given index
+   * @param index the index
+   * @return a coupon 
+   */
   public CDSCoupon getStandardCoupon(final int index) {
     return _standardCoupons[index];
   }
 
+  public CDSCoupon[] getStandardCoupons() {
+    return _standardCoupons;
+  }
+
   /**
-   * Gets the accrued premium per unit of (fractional) spread - i.e. if the quoted spread (coupon)  was 500bps the actual
-   * accrued premium paid would be this times 0.05
+   * Gets the accrued premium per unit of (fractional) spread (i.e. if the quoted spread (coupon)  was 500bps the actual
+   * accrued premium paid would be this times 0.05) for the CDS at the given index (zero based). 
+  * @param matIndex the index 
    * @return the accrued premium per unit of (fractional) spread (and unit of notional)
    */
   public double getAccruedPremiumPerUnitSpread(final int matIndex) {
@@ -250,7 +256,8 @@ public class MultiCDSAnalytic {
   }
 
   /**
-   * Gets the accrued premium per unit of notional
+   * Gets the accrued premium per unit of notional for the CDS at the given index (zero based). 
+   * @param matIndex the index 
    * @param fractionalSpread The <b>fraction</b> spread
    * @return the accrued premium
    */
@@ -259,11 +266,91 @@ public class MultiCDSAnalytic {
   }
 
   /**
-   * Get the number of days of accrued premium.
+   * Get the number of days of accrued premium for the CDS at the given index (zero based)
+  * @param matIndex the index 
    * @return Accrued days
    */
   public int getAccuredDays(final int matIndex) {
     return _accruedDays[matIndex];
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_accStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_accrued);
+    result = prime * result + Arrays.hashCode(_accruedDays);
+    temp = Double.doubleToLongBits(_effectiveProtectionStart);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_lgd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_matIndexToPayments);
+    result = prime * result + _nMaturities;
+    result = prime * result + (_payAccOnDefault ? 1231 : 1237);
+    result = prime * result + Arrays.hashCode(_protectionEnd);
+    result = prime * result + Arrays.hashCode(_standardCoupons);
+    result = prime * result + Arrays.hashCode(_terminalCoupons);
+    result = prime * result + _totalPayments;
+    temp = Double.doubleToLongBits(_valuationTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final MultiCDSAnalytic other = (MultiCDSAnalytic) obj;
+    if (Double.doubleToLongBits(_accStart) != Double.doubleToLongBits(other._accStart)) {
+      return false;
+    }
+    if (!Arrays.equals(_accrued, other._accrued)) {
+      return false;
+    }
+    if (!Arrays.equals(_accruedDays, other._accruedDays)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_effectiveProtectionStart) != Double.doubleToLongBits(other._effectiveProtectionStart)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_lgd) != Double.doubleToLongBits(other._lgd)) {
+      return false;
+    }
+    if (!Arrays.equals(_matIndexToPayments, other._matIndexToPayments)) {
+      return false;
+    }
+    if (_nMaturities != other._nMaturities) {
+      return false;
+    }
+    if (_payAccOnDefault != other._payAccOnDefault) {
+      return false;
+    }
+    if (!Arrays.equals(_protectionEnd, other._protectionEnd)) {
+      return false;
+    }
+    if (!Arrays.equals(_standardCoupons, other._standardCoupons)) {
+      return false;
+    }
+    if (!Arrays.equals(_terminalCoupons, other._terminalCoupons)) {
+      return false;
+    }
+    if (_totalPayments != other._totalPayments) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_valuationTime) != Double.doubleToLongBits(other._valuationTime)) {
+      return false;
+    }
+    return true;
   }
 
 }

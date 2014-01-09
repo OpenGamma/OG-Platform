@@ -12,42 +12,108 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.MarketDataAliasingFunction;
 import com.opengamma.engine.function.NoOpFunction;
 import com.opengamma.engine.function.StructureManipulationFunction;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 
 /**
  * Constructs and bootstraps an {@link InMemoryFunctionRepository} based on configuration provided in a Fudge-encoded stream.
  */
-public class FunctionRepositoryFactory {
+public abstract class FunctionRepositoryFactory implements ChangeProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionRepositoryFactory.class);
 
   /**
-   * The set of functions that are always in a constructed repository regardless of the
-   * {@link FunctionConfigurationBundle} document used.
+   * The set of functions that are always in a constructed repository regardless of the {@link FunctionConfigurationBundle} document used.
    */
-  private static final List<FunctionDefinition> INTRINSIC_FUNCTIONS = ImmutableList.<FunctionDefinition>of(
-      NoOpFunction.INSTANCE,
-      MarketDataAliasingFunction.INSTANCE,
+  private static final List<FunctionDefinition> INTRINSIC_FUNCTIONS = ImmutableList.<FunctionDefinition>of(NoOpFunction.INSTANCE, MarketDataAliasingFunction.INSTANCE,
       StructureManipulationFunction.INSTANCE);
 
   /**
-   * The number of functions that are always in a constructed repository regardless of the
-   * {@link FunctionConfigurationBundle} document used. For example:
+   * The number of functions that are always in a constructed repository regardless of the {@link FunctionConfigurationBundle} document used. For example:
    * <ul>
    * <li>The no-op function used for execution suppression ({@link NoOpFunction})</li>
    * <li>The value aliasing function ({@link MarketDataAliasingFunction})</li>
    * </ul>
    */
   public static final int INTRINSIC_FUNCTION_COUNT = INTRINSIC_FUNCTIONS.size();
+
+  /**
+   * Creates a new repository, with functions from the given version timestamp.
+   * 
+   * @param configurationVersion the version timestamp, not null
+   * @return the function repository, not null
+   */
+  public abstract FunctionRepository constructRepository(Instant configurationVersion);
+
+  /**
+   * Creates a new factory that always returns the same repository.
+   * 
+   * @param staticFunctions the function repository to return, not null
+   * @return the repository factory, not null
+   */
+  public static FunctionRepositoryFactory constructRepositoryFactory(final FunctionRepository staticFunctions) {
+    ArgumentChecker.notNull(staticFunctions, "staticFunctions");
+    return new FunctionRepositoryFactory() {
+
+      @Override
+      public FunctionRepository constructRepository(final Instant configurationVersion) {
+        return staticFunctions;
+      }
+
+      @Override
+      public ChangeManager changeManager() {
+        return DummyChangeManager.INSTANCE;
+      }
+
+    };
+  }
+
+  /**
+   * Creates a new factory that queries a {@link FunctionConfigurationSource} for function definitions.
+   * <p>
+   * The source is queried with each call, but if it returns the same document then the same repository instance is returned.
+   * 
+   * @param dynamicFunctions the configuration source, not null
+   * @return the repository factory, not null
+   */
+  public static FunctionRepositoryFactory constructRepositoryFactory(final FunctionConfigurationSource dynamicFunctions) {
+    ArgumentChecker.notNull(dynamicFunctions, "dynamicFunctions");
+    return new FunctionRepositoryFactory() {
+
+      private FunctionConfigurationBundle _previousConfiguration;
+      private FunctionRepository _previousRepository;
+
+      @Override
+      public synchronized FunctionRepository constructRepository(final Instant configurationVersion) {
+        final FunctionConfigurationBundle repositoryConfiguration = dynamicFunctions.getFunctionConfiguration(configurationVersion);
+        if ((_previousConfiguration == null) || !_previousConfiguration.equals(repositoryConfiguration)) {
+          _previousConfiguration = repositoryConfiguration;
+          _previousRepository = constructRepository(repositoryConfiguration);
+        }
+        return _previousRepository;
+      }
+
+      @Override
+      public ChangeManager changeManager() {
+        return dynamicFunctions.changeManager();
+      }
+
+    };
+  }
 
   /**
    * Constructs a repository from the configuration.
@@ -93,8 +159,7 @@ public class FunctionRepositoryFactory {
 
   protected static AbstractFunction createParameterizedFunction(final Class<?> definitionClass, final List<String> parameterList) {
     try {
-    constructors:
-      for (final Constructor<?> constructor : definitionClass.getConstructors()) {
+      constructors: for (final Constructor<?> constructor : definitionClass.getConstructors()) { //CSIGNORE
         final Class<?>[] parameters = constructor.getParameterTypes();
         final Object[] args = new Object[parameters.length];
         int used = 0;

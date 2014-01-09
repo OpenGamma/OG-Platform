@@ -5,28 +5,27 @@
  */
 package com.opengamma.integration.regression;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
-import org.joda.beans.PropertyDefinition;
-
-import com.google.common.collect.ImmutableMap;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.id.ObjectId;
 
 /**
  *
@@ -71,7 +70,6 @@ public final class IdMappings implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static IdMappings.Builder builder() {
@@ -188,7 +186,7 @@ public final class IdMappings implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -261,7 +259,7 @@ public final class IdMappings implements ImmutableBean {
   /**
    * The bean-builder for {@code IdMappings}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<IdMappings> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IdMappings> {
 
     private Map<ObjectId, Integer> _ids = new HashMap<ObjectId, Integer>();
     private int _maxId;
@@ -270,7 +268,6 @@ public final class IdMappings implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(IdMappings.Meta.INSTANCE);
     }
 
     /**
@@ -278,7 +275,6 @@ public final class IdMappings implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IdMappings beanToCopy) {
-      super(IdMappings.Meta.INSTANCE);
       this._ids = new HashMap<ObjectId, Integer>(beanToCopy.getIds());
       this._maxId = beanToCopy.getMaxId();
     }
@@ -297,6 +293,30 @@ public final class IdMappings implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -334,8 +354,8 @@ public final class IdMappings implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("IdMappings.Builder{");
-      buf.append("ids").append('=').append(_ids).append(',').append(' ');
-      buf.append("maxId").append('=').append(_maxId);
+      buf.append("ids").append('=').append(JodaBeanUtils.toString(_ids)).append(',').append(' ');
+      buf.append("maxId").append('=').append(JodaBeanUtils.toString(_maxId));
       buf.append('}');
       return buf.toString();
     }

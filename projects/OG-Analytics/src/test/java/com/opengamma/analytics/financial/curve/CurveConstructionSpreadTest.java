@@ -5,11 +5,16 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import org.testng.annotations.Test;
+
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Curves are using different types of interpolations (on cc rate, periodic rates and discount factors) and spread curves.
  * TODO: This is old code that has been commented. It should be removed at some point.
  */
+@Test(groups = TestGroup.UNIT)
 public class CurveConstructionSpreadTest {
 
   //  private static final Interpolator1D INTERPOLATOR_DQ = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -30,9 +35,9 @@ public class CurveConstructionSpreadTest {
   //  private static final FXMatrix FX_MATRIX = new FXMatrix(CCY_USD);
   //  private static final Calendar CALENDAR = new MondayToFridayCalendar("CAL");
   //  private static final int SPOT_LAG = 2;
-  //  private static final DayCount DAY_COUNT_CASH = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  //  private static final DayCount DAY_COUNT_CASH = DayCounts.ACT_360;
   //  private static final double NOTIONAL = 1.0;
-  //  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  //  private static final BusinessDayConvention BDC = BusinessDayConventions.MODIFIED_FOLLOWING;
   //  private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);
   //  private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH);
   //  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_ON_1, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);

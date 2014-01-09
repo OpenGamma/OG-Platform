@@ -21,16 +21,18 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroC
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorSwapFixedInflationTest {
 
   private static final IndexPrice[] PRICE_INDEXES = MulticurveProviderDiscountDataSets.getPriceIndexes();
@@ -38,7 +40,7 @@ public class GeneratorSwapFixedInflationTest {
   private static final IndexPrice PRICE_INDEX_GPB = PRICE_INDEXES[1];
   private static final Currency CUR = PRICE_INDEX_EUR.getCurrency();
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean EOM = true;
   private static final ZonedDateTime TODAY = DateUtils.getUTCDate(2008, 8, 14);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
@@ -66,7 +68,7 @@ public class GeneratorSwapFixedInflationTest {
     REFERENCE_END_DATES[1] = PAYMENT_DATE.minusMonths(MONTH_LAG - 1).with(TemporalAdjusters.lastDayOfMonth());
   }
 
-  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  //  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final DoubleTimeSeries<ZonedDateTime> HICPX_TS = MulticurveProviderDiscountDataSets.euroHICPXFrom2009();
 
   public static final GeneratorAttributeIR ATTRIBUTE = new GeneratorAttributeIR(COUPON_TENOR);
@@ -125,7 +127,7 @@ public class GeneratorSwapFixedInflationTest {
         IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));
 
-    final BusinessDayConvention modifiedBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    final BusinessDayConvention modifiedBusinessDay = BusinessDayConventions.FOLLOWING;
     generatorModified = new GeneratorSwapFixedInflationZeroCoupon("generator", PRICE_INDEX_EUR, modifiedBusinessDay, CALENDAR, EOM, MONTH_LAG, SPOT_LAG,
         IS_LINEAR);
     assertFalse(GENERATOR_SWAP_INFLATION_LINEAR.equals(generatorModified));

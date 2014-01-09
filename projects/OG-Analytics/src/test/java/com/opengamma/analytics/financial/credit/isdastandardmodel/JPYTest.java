@@ -13,9 +13,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class JPYTest extends ISDABaseTest {
 
   private static final TYOCalendar TYO_CAL = new TYOCalendar("TYO");

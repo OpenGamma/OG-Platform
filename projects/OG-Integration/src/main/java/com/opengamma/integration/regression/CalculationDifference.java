@@ -19,7 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -219,7 +219,6 @@ public final class CalculationDifference implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static CalculationDifference.Builder builder() {
@@ -492,7 +491,7 @@ public final class CalculationDifference implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -673,7 +672,7 @@ public final class CalculationDifference implements ImmutableBean {
   /**
    * The bean-builder for {@code CalculationDifference}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CalculationDifference> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CalculationDifference> {
 
     private int _equalResultCount;
     private String _viewDefinitionName;
@@ -690,7 +689,6 @@ public final class CalculationDifference implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(CalculationDifference.Meta.INSTANCE);
     }
 
     /**
@@ -698,7 +696,6 @@ public final class CalculationDifference implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(CalculationDifference beanToCopy) {
-      super(CalculationDifference.Meta.INSTANCE);
       this._equalResultCount = beanToCopy.getEqualResultCount();
       this._viewDefinitionName = beanToCopy.getViewDefinitionName();
       this._snapshotName = beanToCopy.getSnapshotName();
@@ -749,6 +746,30 @@ public final class CalculationDifference implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -882,16 +903,16 @@ public final class CalculationDifference implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(352);
       buf.append("CalculationDifference.Builder{");
-      buf.append("equalResultCount").append('=').append(_equalResultCount).append(',').append(' ');
-      buf.append("viewDefinitionName").append('=').append(_viewDefinitionName).append(',').append(' ');
-      buf.append("snapshotName").append('=').append(_snapshotName).append(',').append(' ');
-      buf.append("valuationTime").append('=').append(_valuationTime).append(',').append(' ');
-      buf.append("baseVersion").append('=').append(_baseVersion).append(',').append(' ');
-      buf.append("testVersion").append('=').append(_testVersion).append(',').append(' ');
-      buf.append("onlyBase").append('=').append(_onlyBase).append(',').append(' ');
-      buf.append("onlyTest").append('=').append(_onlyTest).append(',').append(' ');
-      buf.append("different").append('=').append(_different).append(',').append(' ');
-      buf.append("differentProperties").append('=').append(_differentProperties);
+      buf.append("equalResultCount").append('=').append(JodaBeanUtils.toString(_equalResultCount)).append(',').append(' ');
+      buf.append("viewDefinitionName").append('=').append(JodaBeanUtils.toString(_viewDefinitionName)).append(',').append(' ');
+      buf.append("snapshotName").append('=').append(JodaBeanUtils.toString(_snapshotName)).append(',').append(' ');
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
+      buf.append("baseVersion").append('=').append(JodaBeanUtils.toString(_baseVersion)).append(',').append(' ');
+      buf.append("testVersion").append('=').append(JodaBeanUtils.toString(_testVersion)).append(',').append(' ');
+      buf.append("onlyBase").append('=').append(JodaBeanUtils.toString(_onlyBase)).append(',').append(' ');
+      buf.append("onlyTest").append('=').append(JodaBeanUtils.toString(_onlyTest)).append(',').append(' ');
+      buf.append("different").append('=').append(JodaBeanUtils.toString(_different)).append(',').append(' ');
+      buf.append("differentProperties").append('=').append(JodaBeanUtils.toString(_differentProperties));
       buf.append('}');
       return buf.toString();
     }

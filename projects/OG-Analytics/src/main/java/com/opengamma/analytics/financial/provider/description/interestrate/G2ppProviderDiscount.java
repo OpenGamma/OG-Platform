@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -20,13 +20,13 @@ public class G2ppProviderDiscount extends G2ppProvider {
    * @param parameters The G2++ parameters.
    * @param ccyG2pp The currency for which the G2++ parameters are valid (G2++ on the discounting curve).
    */
-  public G2ppProviderDiscount(final MulticurveProviderDiscount multicurves, G2ppPiecewiseConstantParameters parameters, Currency ccyG2pp) {
+  public G2ppProviderDiscount(final MulticurveProviderDiscount multicurves, final G2ppPiecewiseConstantParameters parameters, final Currency ccyG2pp) {
     super(multicurves, parameters, ccyG2pp);
   }
 
   @Override
   public G2ppProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    final MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new G2ppProviderDiscount(multicurveProvider, getG2ppParameters(), getG2ppCurrency());
   }
 
@@ -34,5 +34,4 @@ public class G2ppProviderDiscount extends G2ppProvider {
   public MulticurveProviderDiscount getMulticurveProvider() {
     return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
-
 }

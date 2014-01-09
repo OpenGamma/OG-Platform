@@ -35,11 +35,13 @@ import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests regarding the pricing of in-arrears Ibor products by replication.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborInArrearsReplicationMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

@@ -14,10 +14,12 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.statistics.distribution.LaplaceDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class LaplaceDistributionMaximumLikelihoodEstimatorTest {
   private static final DistributionParameterEstimator<Double> ESTIMATOR = new LaplaceDistributionMaximumLikelihoodEstimator();
 

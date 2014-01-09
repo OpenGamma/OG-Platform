@@ -22,10 +22,12 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantY
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SpreadSensitivityTest {
 
   // private static final ISDACompliantCreditCurveBuild BUILDER = new ISDACompliantCreditCurveBuild();

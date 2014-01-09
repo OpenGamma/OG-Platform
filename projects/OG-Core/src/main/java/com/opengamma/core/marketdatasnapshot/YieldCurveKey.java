@@ -21,7 +21,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -110,7 +110,6 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static YieldCurveKey.Builder builder() {
@@ -235,7 +234,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -308,7 +307,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
   /**
    * The bean-builder for {@code YieldCurveKey}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<YieldCurveKey> {
+  public static final class Builder extends DirectFieldsBeanBuilder<YieldCurveKey> {
 
     private Currency _currency;
     private String _name;
@@ -317,7 +316,6 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
      * Restricted constructor.
      */
     private Builder() {
-      super(YieldCurveKey.Meta.INSTANCE);
     }
 
     /**
@@ -325,7 +323,6 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(YieldCurveKey beanToCopy) {
-      super(YieldCurveKey.Meta.INSTANCE);
       this._currency = beanToCopy.getCurrency();
       this._name = beanToCopy.getName();
     }
@@ -343,6 +340,30 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -381,8 +402,8 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("YieldCurveKey.Builder{");
-      buf.append("currency").append('=').append(_currency).append(',').append(' ');
-      buf.append("name").append('=').append(_name);
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(_currency)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name));
       buf.append('}');
       return buf.toString();
     }

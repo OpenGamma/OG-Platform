@@ -29,8 +29,7 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
   private final double _omega;
 
   /**
-   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.
+   *Construct a credit curve builder that uses the Original ISDA accrual-on-default formula (version 1.8.2 and lower)
    */
   public FastCreditCurveBuilder() {
     super();
@@ -38,9 +37,8 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
   }
 
   /**
-   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.
-   * @param formula The accrual on default formulae.
+   *Construct a credit curve builder that uses the specified accrual-on-default formula
+   * @param formula The accrual on default formulae. <b>Note</b> The MarkitFix is erroneous
    */
   public FastCreditCurveBuilder(final AccrualOnDefaultFormulae formula) {
     super(formula);
@@ -52,9 +50,8 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
   }
 
   /**
-   * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.
-  * @param formula The accrual on default formulae.
+   * Construct a credit curve builder that uses the specified accrual-on-default formula and arbitrage handing 
+  * @param formula The accrual on default formulae. <b>Note</b> The MarkitFix is erroneous
    * @param arbHandling How should any arbitrage in the input date be handled
    */
   public FastCreditCurveBuilder(final AccrualOnDefaultFormulae formula, final ArbitrageHandling arbHandling) {
@@ -182,7 +179,7 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
       _proLegIntPoints = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
       _nProPoints = _proLegIntPoints.length;
       final double lgd = cds.getLGD();
-      _valuationDF = yieldCurve.getDiscountFactor(cds.getValuationTime());
+      _valuationDF = yieldCurve.getDiscountFactor(cds.getCashSettleTime());
       _lgdDF = lgd / _valuationDF;
       _proYieldCurveRT = new double[_nProPoints];
       _proDF = new double[_nProPoints];
@@ -195,7 +192,7 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
       _nPayments = cds.getNumPayments();
       _paymentDF = new double[_nPayments];
       for (int i = 0; i < _nPayments; i++) {
-        _paymentDF[i] = yieldCurve.getDiscountFactor(cds.getPaymentTime(i));
+        _paymentDF[i] = yieldCurve.getDiscountFactor(cds.getCoupon(i).getPaymentTime());
       }
 
       if (cds.isPayAccOnDefault()) {
@@ -209,9 +206,10 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
         _rt = new double[_nPayments][];
         _premDt = new double[_nPayments][];
         for (int i = 0; i < _nPayments; i++) {
-          _offsetAccStart[i] = cds.getEffectiveAccStart(i);
-          final double offsetAccEnd = cds.getEffectiveAccEnd(i);
-          _accRate[i] = cds.getAccRatio(i);
+          final CDSCoupon c = cds.getCoupon(i);
+          _offsetAccStart[i] = c.getEffStart();
+          final double offsetAccEnd = c.getEffEnd();
+          _accRate[i] = c.getYFRatio();
           final double start = Math.max(_offsetAccStart[i], cds.getEffectiveProtectionStart());
           if (start >= offsetAccEnd) {
             continue;
@@ -271,8 +269,9 @@ public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
       //   final double obsOffset = _cds.isProtectionFromStartOfDay() ? -_cds.getCurveOneDay() : 0.0;
       double pv = 0.0;
       for (int i = 0; i < _nPayments; i++) {
-        final double q = creditCurve.getDiscountFactor(_cds.getEffectiveAccEnd(i));
-        pv += _cds.getAccrualFraction(i) * _paymentDF[i] * q;
+        final CDSCoupon c = _cds.getCoupon(i);
+        final double q = creditCurve.getDiscountFactor(c.getEffEnd());
+        pv += c.getYearFrac() * _paymentDF[i] * q;
       }
 
       if (_cds.isPayAccOnDefault()) {

@@ -22,13 +22,15 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class BinomialOptionModelTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> DUMMY = new BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle>() {
     @Override

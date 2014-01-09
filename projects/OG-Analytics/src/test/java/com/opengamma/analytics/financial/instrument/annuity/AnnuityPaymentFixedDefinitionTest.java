@@ -16,8 +16,13 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class AnnuityPaymentFixedDefinitionTest {
   private static final Calendar CALENDAR = new NoHolidayCalendar();
   private static final Currency CUR = Currency.EUR;

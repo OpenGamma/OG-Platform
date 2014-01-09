@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TrigonometricFunctionUtilsTest {
   private static final Double X = 0.12;
   private static final ComplexNumber Y = new ComplexNumber(X, 0);

@@ -13,16 +13,21 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class BondFutureConversionFactorMethodTest {
 
   private static final BondFutureConversionFactorMethod METHOD_CONVERSION = new BondFutureConversionFactorMethod();
@@ -31,8 +36,8 @@ public class BondFutureConversionFactorMethodTest {
   private static final Currency G_CUR = Currency.GBP;
   private static final Period G_PAYMENT_TENOR = Period.ofMonths(6);
   private static final Calendar G_CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount G_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention G_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount G_DAY_COUNT = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention G_BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
   private static final boolean G_IS_EOM = false;
   private static final int G_SETTLEMENT_DAYS = 2;
   private static final int G_EX_COUPON = 7;
@@ -74,8 +79,8 @@ public class BondFutureConversionFactorMethodTest {
   private static final Currency EUR = Currency.EUR;
   private static final Period PAYMENT_TENOR_GER = Period.ofMonths(12);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final DayCount DAY_COUNT_GER = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
-  private static final BusinessDayConvention BUSINESS_DAY_GER = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final DayCount DAY_COUNT_GER = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayConvention BUSINESS_DAY_GER = BusinessDayConventions.FOLLOWING;
   private static final boolean IS_EOM_GER = false;
   private static final int SETTLEMENT_DAYS_GER = 3;
   private static final int EX_COUPON_GER = 0;

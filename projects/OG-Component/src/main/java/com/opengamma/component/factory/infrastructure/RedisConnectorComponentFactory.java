@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Protocol;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -44,11 +45,14 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _password;
   
+  @PropertyDefinition
+  private int _timeOut = Protocol.DEFAULT_TIMEOUT;
+  
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     JedisPoolConfig poolConfig = new JedisPoolConfig();
     poolConfig.setMaxActive(Runtime.getRuntime().availableProcessors() + 5);
-    RedisConnector redisConnector = new RedisConnector(getClassifier(), getHostName(), getRedisPort(), getPassword(), poolConfig);
+    RedisConnector redisConnector = new RedisConnector(getClassifier(), getHostName(), getRedisPort(), getPassword(), poolConfig, getTimeOut());
     
     ComponentInfo info = new ComponentInfo(RedisConnector.class, getClassifier());
     repo.registerComponent(info, redisConnector);
@@ -176,6 +180,31 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the timeOut.
+   * @return the value of the property
+   */
+  public int getTimeOut() {
+    return _timeOut;
+  }
+
+  /**
+   * Sets the timeOut.
+   * @param timeOut  the new value of the property
+   */
+  public void setTimeOut(int timeOut) {
+    this._timeOut = timeOut;
+  }
+
+  /**
+   * Gets the the {@code timeOut} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> timeOut() {
+    return metaBean().timeOut().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public RedisConnectorComponentFactory clone() {
     return (RedisConnectorComponentFactory) super.clone();
@@ -192,6 +221,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHostName(), other.getHostName()) &&
           (getRedisPort() == other.getRedisPort()) &&
           JodaBeanUtils.equal(getPassword(), other.getPassword()) &&
+          (getTimeOut() == other.getTimeOut()) &&
           super.equals(obj);
     }
     return false;
@@ -204,12 +234,13 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHostName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPort());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPassword());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeOut());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("RedisConnectorComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -227,6 +258,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
     buf.append("hostName").append('=').append(JodaBeanUtils.toString(getHostName())).append(',').append(' ');
     buf.append("redisPort").append('=').append(JodaBeanUtils.toString(getRedisPort())).append(',').append(' ');
     buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
+    buf.append("timeOut").append('=').append(JodaBeanUtils.toString(getTimeOut())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -260,6 +292,11 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _password = DirectMetaProperty.ofReadWrite(
         this, "password", RedisConnectorComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code timeOut} property.
+     */
+    private final MetaProperty<Integer> _timeOut = DirectMetaProperty.ofReadWrite(
+        this, "timeOut", RedisConnectorComponentFactory.class, Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -267,7 +304,8 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
         "classifier",
         "hostName",
         "redisPort",
-        "password");
+        "password",
+        "timeOut");
 
     /**
      * Restricted constructor.
@@ -286,6 +324,8 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
           return _redisPort;
         case 1216985755:  // password
           return _password;
+        case -1313942207:  // timeOut
+          return _timeOut;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -338,6 +378,14 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
       return _password;
     }
 
+    /**
+     * The meta-property for the {@code timeOut} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> timeOut() {
+      return _timeOut;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -350,6 +398,8 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
           return ((RedisConnectorComponentFactory) bean).getRedisPort();
         case 1216985755:  // password
           return ((RedisConnectorComponentFactory) bean).getPassword();
+        case -1313942207:  // timeOut
+          return ((RedisConnectorComponentFactory) bean).getTimeOut();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -368,6 +418,9 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
           return;
         case 1216985755:  // password
           ((RedisConnectorComponentFactory) bean).setPassword((String) newValue);
+          return;
+        case -1313942207:  // timeOut
+          ((RedisConnectorComponentFactory) bean).setTimeOut((Integer) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

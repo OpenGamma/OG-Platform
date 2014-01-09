@@ -24,7 +24,7 @@ import com.opengamma.id.VersionCorrection;
   private static final long serialVersionUID = 1L;
 
   public NullComputationTargetType() {
-    super(NullComputationTargetType.class.hashCode());
+    super(NullComputationTargetType.class.getName().hashCode());
   }
 
   // ComputationTargetType

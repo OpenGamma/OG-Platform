@@ -100,9 +100,10 @@ public class BondFutureSecurity extends FutureSecurity {
 
   /**
    * Sets the deliverables.
-   * @param basket  the new value of the property
+   * @param basket  the new value of the property, not null
    */
   public void setBasket(List<BondFutureDeliverable> basket) {
+    JodaBeanUtils.notNull(basket, "basket");
     this._basket.clear();
     this._basket.addAll(basket);
   }

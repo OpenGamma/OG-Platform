@@ -21,6 +21,7 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.test.TestLifecycle;
 
 /**
  * Tests the function exclusion group mechansim.
@@ -40,24 +41,29 @@ public class DepGraphExclusionTest extends AbstractDependencyGraphBuilderTest {
   }
 
   private DependencyGraph test(final FunctionExclusionGroups exclusions) {
-    final DepGraphTestHelper helper = helper();
-    final Map<CompiledFunctionDefinition, Integer> priority = new HashMap<CompiledFunctionDefinition, Integer>();
-    priority.put(helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue1Foo()), 5); // 0
-    priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Bar(), helper.getValue1Bar()), 5); // 1
-    priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Foo(), helper.getValue2Bar()), 5); // 2
-    priority.put(helper.addFunctionProducing(helper.getValue1Foo()), 1); // 3
-    priority.put(helper.addFunctionProducing(helper.getValue1Bar()), 1); // 4
-    priority.put(helper.addFunctionProducing(helper.getValue2Bar()), 1); // 5
-    priority.put(helper.addFunctionProducing(helper.getValue2Foo()), 1); // 6
-    final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
-      @Override
-      public int getPriority(final CompiledFunctionDefinition function) {
-        return priority.get(function);
-      }
-    });
-    builder.setFunctionExclusionGroups(exclusions);
-    builder.addTarget(helper.getRequirement1Foo());
-    return builder.getDependencyGraph();
+    TestLifecycle.begin();
+    try {
+      final DepGraphTestHelper helper = helper();
+      final Map<CompiledFunctionDefinition, Integer> priority = new HashMap<CompiledFunctionDefinition, Integer>();
+      priority.put(helper.addFunctionRequiringProducing(helper.getRequirement1Bar(), helper.getValue1Foo()), 5); // 0
+      priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Bar(), helper.getValue1Bar()), 5); // 1
+      priority.put(helper.addFunctionRequiringProducing(helper.getRequirement2Foo(), helper.getValue2Bar()), 5); // 2
+      priority.put(helper.addFunctionProducing(helper.getValue1Foo()), 1); // 3
+      priority.put(helper.addFunctionProducing(helper.getValue1Bar()), 1); // 4
+      priority.put(helper.addFunctionProducing(helper.getValue2Bar()), 1); // 5
+      priority.put(helper.addFunctionProducing(helper.getValue2Foo()), 1); // 6
+      final DependencyGraphBuilder builder = helper.createBuilder(new FunctionPriority() {
+        @Override
+        public int getPriority(final CompiledFunctionDefinition function) {
+          return priority.get(function);
+        }
+      });
+      builder.setFunctionExclusionGroups(exclusions);
+      builder.addTarget(helper.getRequirement1Foo());
+      return builder.getDependencyGraph();
+    } finally {
+      TestLifecycle.end();
+    }
   }
 
   public void noGroups() {

@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,9 +50,9 @@ import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -68,9 +67,9 @@ import com.opengamma.util.time.Tenor;
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeCurrencyVisitorTest {
   private static final String SCHEME = "Test";
-  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final DayCount THIRTY_360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final BusinessDayConvention MODIFIED_FOLLOWING = BusinessDayConventions.MODIFIED_FOLLOWING;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
+  private static final DayCount THIRTY_360 = DayCounts.THIRTY_U_360;
   private static final ExternalId US = ExternalSchemes.financialRegionId("US");
   private static final ExternalId EU = ExternalSchemes.financialRegionId("EU");
   private static final ExternalId NYLON = ExternalSchemes.financialRegionId("US+GB");
@@ -365,19 +364,19 @@ public class CurveNodeCurrencyVisitorTest {
   @Test
   public void testContinuouslyCompoundedRateNode() {
     final ContinuouslyCompoundedRateNode node = new ContinuouslyCompoundedRateNode(SCHEME, Tenor.TWELVE_MONTHS);
-    assertNull(node.accept(VISITOR));
+    assertEquals(0, node.accept(VISITOR).size());
   }
 
   @Test
   public void testCreditSpreadNode() {
     final CreditSpreadNode node = new CreditSpreadNode(SCHEME, Tenor.THREE_MONTHS);
-    assertNull(node.accept(VISITOR));
+    assertEquals(0, node.accept(VISITOR).size());
   }
 
   @Test
   public void testDiscountFactorNode() {
     final DiscountFactorNode node = new DiscountFactorNode(SCHEME, Tenor.FIVE_YEARS);
-    assertNull(node.accept(VISITOR));
+    assertEquals(0, node.accept(VISITOR).size());
   }
 
   @Test

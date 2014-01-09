@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -43,7 +43,7 @@ public class MulticurveForwardPointsProviderDiscount extends MulticurveForwardPo
    */
   @Override
   public MulticurveForwardPointsProviderDiscount copy() {
-    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    final MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new MulticurveForwardPointsProviderDiscount(multicurveProvider, getForwardPointsCurve(), getCurrencyPair());
   }
 
@@ -104,7 +104,6 @@ public class MulticurveForwardPointsProviderDiscount extends MulticurveForwardPo
   /**
    * Set all the curves contains in another provider. If a currency or index is already present in the map, the associated curve is changed.
    * @param other The other provider.
-   * TODO: REVIEW: Should we check that the curve are already present? Should we update the HW parameters.
    */
   public void setAll(final MulticurveForwardPointsProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
@@ -115,7 +114,7 @@ public class MulticurveForwardPointsProviderDiscount extends MulticurveForwardPo
    * Replaces the discounting curve for a given currency.
    * @param ccy The currency.
    * @param curve The yield curve used for discounting.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
     getMulticurveProvider().replaceCurve(ccy, curve);
@@ -125,24 +124,42 @@ public class MulticurveForwardPointsProviderDiscount extends MulticurveForwardPo
    * Replaces the forward curve for a given index.
    * @param index The index.
    * @param curve The yield curve used for forward.
-   *  @throws IllegalArgumentException if curve name NOT already present 
+   *  @throws IllegalArgumentException if curve name NOT already present
    */
   public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     getMulticurveProvider().replaceCurve(index, curve);
   }
 
-  public MulticurveForwardPointsProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
+  /**
+   * Replaces a discounting curve for a currency.
+   * @param ccy The currency
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied discounting curve
+   */
+  public MulticurveForwardPointsProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
     return new MulticurveForwardPointsProviderDiscount(decoratedMulticurve, getForwardPointsCurve(), getCurrencyPair());
   }
 
+  /**
+   * Replaces an ibor curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied ibor curve
+   */
   public MulticurveForwardPointsProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new MulticurveForwardPointsProviderDiscount(decoratedMulticurve, getForwardPointsCurve(), getCurrencyPair());
   }
 
+  /**
+   * Replaces an overnight curve for an index.
+   * @param index The index
+   * @param replacement The replacement curve
+   * @return A new provider with the supplied overnight curve
+   */
   public MulticurveForwardPointsProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
-    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    final MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
     return new MulticurveForwardPointsProviderDiscount(decoratedMulticurve, getForwardPointsCurve(), getCurrencyPair());
   }
 

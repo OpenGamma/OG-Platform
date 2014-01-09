@@ -23,10 +23,12 @@ import com.opengamma.analytics.financial.sensitivity.ValueGreek;
 import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SensitivityAndReturnDataBundleTest {
   private static final Sensitivity<ValueGreek> S1 = new ValueGreekSensitivity(new ValueGreek(Greek.DELTA), "ValueDelta");
   private static final Sensitivity<ValueGreek> S2 = new ValueGreekSensitivity(new ValueGreek(Greek.GAMMA), "ValueGamma");

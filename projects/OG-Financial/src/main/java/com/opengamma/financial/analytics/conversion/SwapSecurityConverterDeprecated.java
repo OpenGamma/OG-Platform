@@ -25,12 +25,14 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
+import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFloatingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedCompoundedONCompoundedDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
@@ -165,40 +167,120 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateLeg iborLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
-    final ExternalId regionId = payLeg.getRegionId();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
-    final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+    // Swap data
+    final double signFixed = (payFixed ? -1.0 : 1.0);
+    int nbNotional = 0;
+    nbNotional = (swapSecurity.isExchangeInitialNotional() ? nbNotional + 1 : nbNotional);
+    nbNotional = (swapSecurity.isExchangeFinalNotional() ? nbNotional + 1 : nbNotional);
+    final double spread;
+    if (hasSpread) {
+      spread = ((FloatingSpreadIRLeg) iborLeg).getSpread();
+    } else {
+      spread = 0;
+    }
+    // Ibor Leg
+    final ExternalId regionIdIbor = fixedLeg.getRegionId();
+    final Calendar calendarIbor = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionIdIbor);
+    final Currency currencyIbor = ((InterestRateNotional) iborLeg.getNotional()).getCurrency();
     final ConventionBundle iborIndexConvention = _conventionSource.getConventionBundle(iborLeg.getFloatingReferenceRateId());
     if (iborIndexConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currency + " using " + iborLeg.getFloatingReferenceRateId() + " from swap " +
+      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currencyIbor + " using " + iborLeg.getFloatingReferenceRateId() + " from swap " +
           swapSecurity.getExternalIdBundle());
     }
     final Frequency freqIbor = iborLeg.getFrequency();
-    final Period tenorIbor;
-    if (freqIbor.getName() == Frequency.NEVER_NAME) {
-      tenorIbor = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+    Period tenorIbor;
+    if (Frequency.NEVER_NAME.equals(freqIbor.getName())) { // If NEVER, then treated as a compounded Ibor coupon over the annuity length
+      ConventionBundle conventionIbor = _conventionSource.getConventionBundle(iborLeg.getFloatingReferenceRateId());
+      tenorIbor = conventionIbor.getPeriod();  
     } else {
       tenorIbor = getTenor(freqIbor);
     }
-    final IborIndex indexIbor = new IborIndex(currency, tenorIbor, iborIndexConvention.getSettlementDays(), iborIndexConvention.getDayCount(),
+    final int spotLag = iborIndexConvention.getSettlementDays();
+    final IborIndex indexIbor = new IborIndex(currencyIbor, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
         iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention(), iborIndexConvention.getName());
-    final Frequency freqFixed = fixedLeg.getFrequency();
-    final Period tenorFixed;
-    if (freqIbor.getName() == Frequency.NEVER_NAME) {
-      tenorFixed = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
-    } else {
-      tenorFixed = getTenor(freqFixed);
-    }
-    final double fixedLegNotional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
-    if (hasSpread) {
-      final double spread = ((FloatingSpreadIRLeg) iborLeg).getSpread();
-      return SwapFixedIborSpreadDefinition.from(effectiveDate, maturityDate, tenorFixed, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional,
-          fixedLeg.getRate(), tenorIbor, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), iborLegNotional, indexIbor, spread, payFixed, calendar);
+    final AnnuityDefinition<? extends CouponDefinition> iborLegDefinition;
+    if (Frequency.NEVER_NAME.equals(freqIbor.getName())) { // If NEVER, then treated as a compounded Ibor coupon over the annuity length
+      CouponDefinition[] payments = new CouponDefinition[nbNotional + 1];
+      int loopnot = 0;
+      if (swapSecurity.isExchangeInitialNotional()) {
+        payments[0] = new CouponFixedDefinition(currencyIbor, effectiveDate, effectiveDate, effectiveDate, 1.0, signFixed * iborLegNotional, 1.0);
+        loopnot++;
+      }
+      payments[loopnot] = CouponIborCompoundingDefinition.from(-signFixed * iborLegNotional, effectiveDate, maturityDate, indexIbor, StubType.SHORT_START, 
+          indexIbor.getBusinessDayConvention(), indexIbor.isEndOfMonth(), calendarIbor); // TODO: add spread and compounding type
+      if (swapSecurity.isExchangeFinalNotional()) {
+        payments[loopnot + 1] = new CouponFixedDefinition(currencyIbor, maturityDate, maturityDate, maturityDate, 1.0, -signFixed * iborLegNotional, 1.0);
+      }
+      iborLegDefinition = new AnnuityDefinition<>(payments, calendarIbor);
+    } else {
+      iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, spread, indexIbor, 
+          !payFixed, calendarIbor, StubType.SHORT_START, 0, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
     }
-    final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, maturityDate, tenorFixed, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(),
-        fixedLegNotional, fixedLeg.getRate(), tenorIbor, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), iborLegNotional, indexIbor, payFixed, calendar);
-    return swap;
+        // Fixed Leg
+    final ExternalId regionIdFixed = fixedLeg.getRegionId();
+    final Calendar calendarFixed = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionIdFixed);
+    final Frequency freqFixed = fixedLeg.getFrequency();
+    final Currency currencyFixed = ((InterestRateNotional) fixedLeg.getNotional()).getCurrency();
+    final double fixedLegNotional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
+    final AnnuityCouponFixedDefinition fixedLegDefinition;
+    if (Frequency.NEVER_NAME.equals(freqFixed.getName())) { // If NEVER, then treated as a zero-coupon and coupon not used.
+      final int nbPayment = Math.max(nbNotional, 1); // Implementation note: If zero-coupon with no notional, create a fake coupon of 0.
+      final double accruedEnd = (nbNotional == 0 ? 0.0 : 1.0);
+      CouponFixedDefinition[] notional = new CouponFixedDefinition[nbPayment];
+      int loopnot = 0;
+      if (swapSecurity.isExchangeInitialNotional()) {
+        notional[0] = new CouponFixedDefinition(currencyIbor, effectiveDate, effectiveDate, effectiveDate, 1.0, -signFixed * fixedLegNotional, 1.0);
+        loopnot++;
+      }
+      if (swapSecurity.isExchangeFinalNotional() || (nbNotional == 0)) {
+        notional[loopnot] = new CouponFixedDefinition(currencyIbor, maturityDate, maturityDate, maturityDate, accruedEnd, signFixed * fixedLegNotional, 1.0);
+      }
+      fixedLegDefinition = new AnnuityCouponFixedDefinition(notional, calendarFixed);
+    } else {
+      final Period tenorFixed = getTenor(freqFixed);
+      fixedLegDefinition = AnnuityDefinitionBuilder.couponFixedWithNotional(currencyFixed, effectiveDate, maturityDate, tenorFixed, calendarFixed, 
+          fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, StubType.SHORT_START, 0,
+          swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
+    }
+    return new SwapCouponFixedCouponDefinition(fixedLegDefinition, iborLegDefinition);
+    
+    
+    
+//    final ExternalId regionId = payLeg.getRegionId();
+//    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+//    final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+//    final ConventionBundle iborIndexConvention = _conventionSource.getConventionBundle(iborLeg.getFloatingReferenceRateId());
+//    if (iborIndexConvention == null) {
+//      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currency + " using " + iborLeg.getFloatingReferenceRateId() + " from swap " +
+//          swapSecurity.getExternalIdBundle());
+//    }
+//    final Frequency freqIbor = iborLeg.getFrequency();
+//    final Period tenorIbor;
+//    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+//      tenorIbor = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+//    } else {
+//      tenorIbor = getTenor(freqIbor);
+//    }
+//    final IborIndex indexIbor = new IborIndex(currency, tenorIbor, iborIndexConvention.getSettlementDays(), iborIndexConvention.getDayCount(),
+//        iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention(), iborIndexConvention.getName());
+//    final Frequency freqFixed = fixedLeg.getFrequency();
+//    final Period tenorFixed;
+//    if (freqIbor.getName() == Frequency.NEVER_NAME) {
+//      tenorFixed = Period.between(effectiveDate.toLocalDate(), maturityDate.toLocalDate());
+//    } else {
+//      tenorFixed = getTenor(freqFixed);
+//    }
+//    final double fixedLegNotional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
+//    final double iborLegNotional = ((InterestRateNotional) iborLeg.getNotional()).getAmount();
+//    if (hasSpread) {
+//      final double spread = ((FloatingSpreadIRLeg) iborLeg).getSpread();
+//      return SwapFixedIborSpreadDefinition.from(effectiveDate, maturityDate, tenorFixed, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional,
+//          fixedLeg.getRate(), tenorIbor, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), iborLegNotional, indexIbor, spread, payFixed, calendar);
+//    }
+//    final SwapFixedIborDefinition swap = SwapFixedIborDefinition.from(effectiveDate, maturityDate, tenorFixed, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(),
+//        fixedLegNotional, fixedLeg.getRate(), tenorIbor, iborLeg.getDayCount(), iborLeg.getBusinessDayConvention(), iborLeg.isEom(), iborLegNotional, indexIbor, payFixed, calendar);
+//    return swap;
   }
 
   private SwapDefinition getFixedOISSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed, final boolean forCurve) {
@@ -396,7 +478,7 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
       regionId[loopleg] = swapLeg[loopleg].getRegionId();
       calendar[loopleg] = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId[0]);
     }
-    final ArrayList<AnnuityDefinition<PaymentDefinition>> legDefinition = new ArrayList<>();
+    final ArrayList<AnnuityDefinition<? extends PaymentDefinition>> legDefinition = new ArrayList<>();
     for (int loopleg = 0; loopleg < 2; loopleg++) {
       if (swapLeg[loopleg] instanceof FloatingInterestRateLeg) { // Leg is Ibor
         double spread = 0.0;
@@ -411,7 +493,8 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
         final Period tenorIbor = iborIndexConvention.getPeriod();
         final IborIndex iborIndex = new IborIndex(currency[loopleg], tenorIbor, iborIndexConvention.getSettlementDays(), iborIndexConvention.getDayCount(),
             iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isEOMConvention());
-        legDefinition.add(AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, notional[loopleg], iborIndex, spread, payer[loopleg], calendar[loopleg]));
+        legDefinition.add(AnnuityDefinitionBuilder.couponIborSpreadWithNotional(settlementDate, maturityDate, notional[loopleg], spread, iborIndex, payer[loopleg], 
+            calendar[loopleg], StubType.SHORT_START, 0, security.isExchangeInitialNotional(), security.isExchangeFinalNotional()));
       } else {
         if (swapLeg[loopleg] instanceof FixedInterestRateLeg) { // Leg is Fixed
           final FixedInterestRateLeg legFixed = (FixedInterestRateLeg) swapLeg[loopleg];
@@ -423,7 +506,8 @@ public class SwapSecurityConverterDeprecated extends FinancialSecurityVisitorAda
           final Frequency freqFixed = legFixed.getFrequency();
           final Period tenorFixed = getTenor(freqFixed);
           legDefinition.add(AnnuityDefinitionBuilder.couponFixedWithNotional(currency[loopleg], settlementDate, maturityDate, tenorFixed,
-              calendar[loopleg], legFixed.getDayCount(), businessDay, isEOM, notional[loopleg], legFixed.getRate(), payer[loopleg], StubType.SHORT_START));
+              calendar[loopleg], legFixed.getDayCount(), businessDay, isEOM, notional[loopleg], legFixed.getRate(), payer[loopleg], StubType.SHORT_START, 0,
+              security.isExchangeInitialNotional(), security.isExchangeFinalNotional()));
         } else {
           throw new OpenGammaRuntimeException("X Ccy Swap legs should be Fixed or Floating legs");
         }

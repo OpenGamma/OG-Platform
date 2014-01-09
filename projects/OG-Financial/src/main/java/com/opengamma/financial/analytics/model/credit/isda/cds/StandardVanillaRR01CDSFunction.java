@@ -36,6 +36,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -56,7 +57,7 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
 
     final double rr01 = getRR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);

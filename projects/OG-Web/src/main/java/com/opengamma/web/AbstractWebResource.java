@@ -146,7 +146,8 @@ public abstract class AbstractWebResource {
   protected String createBeanXML(Object obj) {
     if (obj instanceof Bean) {
       try {
-        return JodaBeanSer.PRETTY.xmlWriter().write((Bean) obj, false);
+        // NOTE jim 8-Jan-2014 -- changed last param from false to true so bean type is set.  Not necessary for UI, but enables easier parsing if cut and pasted elsewhere.
+        return JodaBeanSer.PRETTY.xmlWriter().write((Bean) obj, true);
       } catch (RuntimeException ex) {
         s_logger.warn("Error serialising bean to XML with JodaBean serializer", ex);
         return createXML(obj);

@@ -21,8 +21,11 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Converts bond future securities into the form that is used by the analytics library
+ * Converts bond future securities into the form that is used by the analytics library.
+ * @deprecated This converter creates a deprecated analytics object and does not add
+ * issuer information. Use {@link BondAndBondFutureTradeWithEntityConverter}
  */
+@Deprecated
 public class BondFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** The security source */
   private final SecuritySource _securitySource;

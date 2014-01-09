@@ -17,7 +17,6 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Maps;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.convention.ConventionType;
 import com.opengamma.master.convention.ManageableConvention;
 import com.opengamma.util.ClassUtils;
@@ -73,7 +72,8 @@ public final class ConventionTypesProvider {
       try {
         type = (ConventionType) conventionClass.getDeclaredField("TYPE").get(null);
       } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
-        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+        s_logger.warn("Convention class must declare a static variable 'TYPE' but none found: " + conventionClass.getName());
+        continue;
       }
       // extract description
       String description = type.getName().replaceAll(

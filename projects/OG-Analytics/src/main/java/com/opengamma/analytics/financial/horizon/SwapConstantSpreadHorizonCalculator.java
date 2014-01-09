@@ -27,7 +27,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class SwapConstantSpreadHorizonCalculator implements HorizonCalculator<SwapDefinition, YieldCurveBundle, ZonedDateTimeDoubleTimeSeries[]> {
+public class SwapConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<SwapDefinition, YieldCurveBundle, ZonedDateTimeDoubleTimeSeries[]> {
   /** Rolls down a yield curve */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
   /** Empty series */

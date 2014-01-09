@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of yield and discounting curves.
  */
+@Test(groups = TestGroup.UNIT)
 public class YieldAndDiscountCurveTest {
 
   private static final double[] TIME = new double[] {1, 2, 3};

@@ -39,6 +39,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -46,6 +47,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public abstract class NodeSensitivityCalculatorTestBase {
 
   private static final String DISCOUNTING_CURVE_NAME = "USD Discounting";

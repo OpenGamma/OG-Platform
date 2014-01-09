@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.LocalDate;
 
-import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Request;
@@ -79,7 +78,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
    * <p>
    * This will use the statistics tool in the connector.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
+   * @param bloombergConnector the Bloomberg connector, not null
    */
   public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector) {
     this(bloombergConnector, bloombergConnector.getReferenceDataStatistics());
@@ -88,8 +87,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   /**
    * Creates an instance with statistics gathering.
    * 
-   * @param bloombergConnector  the Bloomberg connector, not null
-   * @param statistics  the statistics to collect, not null
+   * @param bloombergConnector the Bloomberg connector, not null
+   * @param statistics the statistics to collect, not null
    */
   public BloombergHistoricalTimeSeriesProvider(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
     super(BLOOMBERG_DATA_SOURCE_NAME);
@@ -100,9 +99,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
   @Override
   protected HistoricalTimeSeriesProviderGetResult doBulkGet(HistoricalTimeSeriesProviderGetRequest request) {
     fixRequestDateRange(request, DEFAULT_START_DATE);
-    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(
-        request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(),
-        request.getDateRange(), request.getMaxPoints());
+    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> map = _impl.doBulkGet(request.getExternalIdBundles(), request.getDataProvider(), request.getDataField(), request.getDateRange(),
+        request.getMaxPoints());
     HistoricalTimeSeriesProviderGetResult result = new HistoricalTimeSeriesProviderGetResult(map);
     return filterResult(result, request.getDateRange(), request.getMaxPoints());
   }
@@ -142,7 +140,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Creates an instance.
      * 
-     * @param provider  the provider, not null
+     * @param provider the provider, not null
      */
     public BloombergHistoricalTimeSeriesProviderImpl(BloombergConnector bloombergConnector, BloombergReferenceDataStatistics statistics) {
       super(bloombergConnector, BloombergConstants.REF_DATA_SVC_NAME);
@@ -160,15 +158,14 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Get time-series from Bloomberg.
      * 
-     * @param externalIdBundle  the identifier bundle, not null
-     * @param dataProvider  the data provider, not null
-     * @param dataField  the dataField, not null
-     * @param dateRange  the date range to obtain, not null
-     * @param maxPoints  the maximum number of points required, negative back from the end date, null for all
+     * @param externalIdBundle the identifier bundle, not null
+     * @param dataProvider the data provider, not null
+     * @param dataField the dataField, not null
+     * @param dateRange the date range to obtain, not null
+     * @param maxPoints the maximum number of points required, negative back from the end date, null for all
      * @return a map of each supplied identifier bundle to the corresponding time-series, not null
      */
-    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> doBulkGet(
-        Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints) {
+    Map<ExternalIdBundle, LocalDateDoubleTimeSeries> doBulkGet(Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints) {
 
       ensureStarted();
       s_logger.debug("Getting historical data for {}", externalIdBundle);
@@ -180,7 +177,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       Map<String, ExternalIdBundle> reverseBundleMap = Maps.newHashMap();
       Request request = createRequest(externalIdBundle, dataProvider, dataField, dateRange, maxPoints, reverseBundleMap);
       _statistics.recordStatistics(reverseBundleMap.keySet(), Collections.singleton(dataField));
-      BlockingQueue<Element> responseElements = callBloomberg(request);
+      BlockingQueue<Element> responseElements = submitBloombergRequest(request);
       return extractTimeSeries(externalIdBundle, dataField, reverseBundleMap, responseElements);
     }
 
@@ -188,9 +185,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Creates the Bloomberg request.
      */
-    private Request createRequest(
-        Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange,
-        Integer maxPoints, Map<String, ExternalIdBundle> reverseBundleMap) {
+    private Request createRequest(Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints,
+        Map<String, ExternalIdBundle> reverseBundleMap) {
 
       // create request
       Request request = getService().createRequest(BLOOMBERG_HISTORICAL_DATA_REQUEST);
@@ -250,24 +246,11 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       return preferredId;
     }
 
-    //-------------------------------------------------------------------------
-    /**
-     * Call Bloomberg.
-     * 
-     * @param request  the request, not null
-     * @return the response, may be null
-     */
-    private BlockingQueue<Element> callBloomberg(Request request) {
-      CorrelationID cid = submitBloombergRequest(request);
-      return getResultElement(cid);
-    }
-
-    //-------------------------------------------------------------------------
     /**
      * Convert response to time-series.
      */
-    private static Map<ExternalIdBundle, LocalDateDoubleTimeSeries> extractTimeSeries(
-        Set<ExternalIdBundle> externalIdBundle, String dataField, Map<String, ExternalIdBundle> reverseBundleMap, BlockingQueue<Element> resultElements) {
+    private static Map<ExternalIdBundle, LocalDateDoubleTimeSeries> extractTimeSeries(Set<ExternalIdBundle> externalIdBundle, String dataField,
+        Map<String, ExternalIdBundle> reverseBundleMap, BlockingQueue<Element> resultElements) {
 
       // handle empty case
       if (resultElements == null || resultElements.isEmpty()) {
@@ -303,10 +286,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         }
       }
       if (externalIdBundle.size() != result.size()) {
-        s_logger.warn("Failed to get time series results for ({}/{}) {}",
-                      externalIdBundle.size() - result.size(),
-                      externalIdBundle.size(),
-                      Sets.difference(externalIdBundle, result.keySet()));
+        s_logger.warn("Failed to get time series results for ({}/{}) {}", externalIdBundle.size() - result.size(), externalIdBundle.size(),
+            Sets.difference(externalIdBundle, result.keySet()));
       }
       return convertResult(result);
     }
@@ -325,8 +306,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Extracts time-series.
      */
-    private static void extractFieldData(
-        Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result) {
+    private static void extractFieldData(Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeriesBuilder> result) {
 
       String secDes = securityElem.getElementAsString(BloombergConstants.SECURITY);
       ExternalIdBundle identifiers = reverseBundleMap.get(secDes);
@@ -354,7 +334,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     /**
      * Process an error.
      * 
-     * @param element  the error element, not null
+     * @param element the error element, not null
      */
     private static void extractError(Element element) {
       int code = element.getElementAsInt32("code");

@@ -44,4 +44,10 @@ public class InMemoryViewExecutionCache implements ViewExecutionCache {
     _compiledViewDefinitions.put(key, viewDefinition);
   }
 
+  @Override
+  public void clear() {
+    s_logger.info("Clearing all CompiledViewDefinitionWithGraphs");
+    _compiledViewDefinitions.clear();
+  }
+
 }

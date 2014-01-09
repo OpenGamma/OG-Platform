@@ -5,23 +5,24 @@
  */
 package com.opengamma.financial.analytics.test;
 
-import org.fudgemsg.FudgeMsg;
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.financial.security.swap.SwapSecurity;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import org.fudgemsg.FudgeMsg;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
  * 
@@ -55,7 +56,6 @@ public final class IRSwapSecurity implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static IRSwapSecurity.Builder builder() {
@@ -180,7 +180,7 @@ public final class IRSwapSecurity implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -253,7 +253,7 @@ public final class IRSwapSecurity implements ImmutableBean {
   /**
    * The bean-builder for {@code IRSwapSecurity}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<IRSwapSecurity> {
+  public static final class Builder extends DirectFieldsBeanBuilder<IRSwapSecurity> {
 
     private SwapSecurity _swapSecurity;
     private FudgeMsg _rawInput;
@@ -262,7 +262,6 @@ public final class IRSwapSecurity implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(IRSwapSecurity.Meta.INSTANCE);
     }
 
     /**
@@ -270,7 +269,6 @@ public final class IRSwapSecurity implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(IRSwapSecurity beanToCopy) {
-      super(IRSwapSecurity.Meta.INSTANCE);
       this._swapSecurity = beanToCopy.getSwapSecurity();
       this._rawInput = beanToCopy.getRawInput();
     }
@@ -288,6 +286,30 @@ public final class IRSwapSecurity implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -326,8 +348,8 @@ public final class IRSwapSecurity implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("IRSwapSecurity.Builder{");
-      buf.append("swapSecurity").append('=').append(_swapSecurity).append(',').append(' ');
-      buf.append("rawInput").append('=').append(_rawInput);
+      buf.append("swapSecurity").append('=').append(JodaBeanUtils.toString(_swapSecurity)).append(',').append(' ');
+      buf.append("rawInput").append('=').append(JodaBeanUtils.toString(_rawInput));
       buf.append('}');
       return buf.toString();
     }

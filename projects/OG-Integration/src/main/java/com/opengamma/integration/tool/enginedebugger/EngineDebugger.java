@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SynchronousQueue;
 
@@ -40,6 +41,8 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
@@ -49,6 +52,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -63,6 +67,7 @@ import com.opengamma.integration.swing.ViewEntry;
 import com.opengamma.integration.swing.ViewListCellRenderer;
 import com.opengamma.integration.swing.ViewListModel;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.scripts.Scriptable;
 
 /**
@@ -71,9 +76,16 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   
+  private static final Logger s_logger = LoggerFactory.getLogger(EngineDebugger.class);
+  
   private static final String DEFAULT_VALUE_REQUIREMENT = "Present Value";
 
   private JFrame _frame;
+
+  private JButton _marketDataButton;
+
+  private List<LiveDataMetaDataProvider> _liveDataMetaDataProviders;
+  private List<MarketDataSpecification> _marketDataSpecifications;
 
   /**
    * Launch the application.
@@ -110,6 +122,8 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
     parametersPanel.add(_valueRequirementField, Box.createHorizontalGlue());
     _goButton = new JButton("Go");
     parametersPanel.add(_goButton, Box.createHorizontalGlue());
+    _marketDataButton = new JButton("Market Data...");
+    parametersPanel.add(_marketDataButton, Box.createHorizontalGlue());
     mainPanel.add(parametersPanel, BorderLayout.PAGE_START);
     
     JLabel viewDefinitionsLabel = new JLabel("View Definitions");
@@ -171,10 +185,20 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
       }
     });
     
+    _liveDataMetaDataProviders = getToolContext().getLiveDataMetaDataProviders();
+
     _goButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         updateTreeTableModel(_portfolioTree);
+      }
+    });
+    
+    _marketDataButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        MarketDataDialog marketDataDialog = new MarketDataDialog(_liveDataMetaDataProviders, getToolContext().getConfigMaster(), getToolContext().getMarketDataSnapshotMaster());
+        _marketDataSpecifications = marketDataDialog.showDialog();
       }
     });
   }
@@ -215,6 +239,11 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
       name = valueReq;
       constraints = ValueProperties.none();
     }
+    if (_marketDataSpecifications != null) {
+      for (MarketDataSpecification marketDataSpec : _marketDataSpecifications) {
+        properties = properties.addMarketData(marketDataSpec);
+      }
+    }
     properties = properties.addRequirement(new ValueRequirement(name, targetType, ((UniqueIdentifiable) leafNode).getUniqueId(), constraints));
     DependencyGraphBuildTrace trace = getToolContext().getDependencyGraphTraceProvider().getTrace(properties);
     ResolutionFailureTreeTableModel failuresTreeTableModel = new ResolutionFailureTreeTableModel(trace.getFailures());
@@ -242,6 +271,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
               JOptionPane.showMessageDialog(null, "Thread interrupted while getting graph trace", "Thread Interrupted", JOptionPane.ERROR_MESSAGE);
             } catch (ExecutionException ex) {
               JOptionPane.showMessageDialog(null, "Execution execption while getting graph trace", "Execution Exception", JOptionPane.ERROR_MESSAGE);
+              s_logger.error("Execution exception while getting graph trace", ex);
             }
           }
           

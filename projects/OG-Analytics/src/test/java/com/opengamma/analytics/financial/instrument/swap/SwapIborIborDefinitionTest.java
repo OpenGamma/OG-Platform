@@ -24,11 +24,13 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the swap Ibor+spread to Ibor+spread constructor and to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapIborIborDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

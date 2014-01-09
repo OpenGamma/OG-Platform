@@ -37,6 +37,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -424,6 +425,13 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitFRASecurity(final FRASecurity security) {
     return _fraSecurity.get(security.getCurrency());
+  }
+
+  private final Digests _forwardRateAgreementSecurity = new Digests("Security");
+
+  @Override
+  public Object visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return _forwardRateAgreementSecurity.get(security.getCurrency());
   }
 
   private final Digests _fxBarrierOptionSecurity = new Digests("Security");

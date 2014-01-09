@@ -7,9 +7,12 @@ package com.opengamma.analytics.math.integration;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GaussLegendreWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final double[] X2 = new double[] {-Math.sqrt(3) / 3., Math.sqrt(3) / 3.};
   private static final double[] W2 = new double[] {1, 1};

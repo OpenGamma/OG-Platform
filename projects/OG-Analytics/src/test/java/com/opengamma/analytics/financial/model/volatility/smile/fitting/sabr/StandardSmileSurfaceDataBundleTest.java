@@ -16,10 +16,12 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class StandardSmileSurfaceDataBundleTest {
   private static final double SPOT = 1.0;
   private static final double[] FORWARDS = new double[] {1.1, 1.15, 1.3 };

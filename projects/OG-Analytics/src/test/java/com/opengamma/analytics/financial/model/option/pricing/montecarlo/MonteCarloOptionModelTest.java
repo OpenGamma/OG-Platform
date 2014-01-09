@@ -22,12 +22,14 @@ import com.opengamma.analytics.financial.model.stochastic.StochasticProcess;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.random.RandomNumberGenerator;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class MonteCarloOptionModelTest {
   private static final int N = 100;
   private static final int STEPS = 1000;

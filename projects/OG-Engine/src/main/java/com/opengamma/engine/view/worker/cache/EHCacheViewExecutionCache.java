@@ -220,4 +220,11 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     _compiledViewDefinitions.put(new Element(key, new CompiledViewDefinitionWithGraphsHolder(viewDefinition)));
   }
 
+  @Override
+  public void clear() {
+    _compiledViewDefinitionsFrontCache.clear();
+    s_logger.info("Clearing all CompiledViewDefinitionWithGraphs");
+    _compiledViewDefinitions.removeAll();
+  }
+
 }

@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateTest {
   private static final double RATE = 0.05;
   private static final InterestRate ANNUAL = new PeriodicInterestRate(RATE, 1);

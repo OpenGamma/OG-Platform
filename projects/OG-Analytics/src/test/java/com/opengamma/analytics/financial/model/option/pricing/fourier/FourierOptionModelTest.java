@@ -22,9 +22,14 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class FourierOptionModelTest {
   private static final HashSet<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE);
   private static final double R = 0.005;

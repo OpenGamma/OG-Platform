@@ -18,9 +18,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
@@ -53,9 +53,9 @@ public class SwaptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTo
   /** The strike formatter */
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("#.####");
   /** The day count */
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Act/360");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   /** The business day convention */
-  private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention BDC = BusinessDayConventions.FOLLOWING;
   /** Map of currency to region */
   private static final Map<Currency, ExternalId> REGIONS = new HashMap<>();
   /** Map of currency to synthetic ibor tickers */

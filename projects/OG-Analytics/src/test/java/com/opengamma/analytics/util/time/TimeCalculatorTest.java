@@ -17,12 +17,14 @@ import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * The TimeCalculator computes the difference between two instants as 'Analytics time', 
  * which is actually a measure of years. This is used primarily for interest accrual and curve/surface interpolation
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeCalculatorTest {
 
   private static final double TOLERANCE = 1.0E-50;

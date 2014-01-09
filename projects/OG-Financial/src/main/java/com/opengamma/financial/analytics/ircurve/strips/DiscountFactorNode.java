@@ -36,6 +36,9 @@ public class DiscountFactorNode extends CurveNode {
   @PropertyDefinition(validate = "notNull")
   private Tenor _tenor;
 
+  /**
+   * For the builder.
+   */
   /* package*/DiscountFactorNode() {
     super();
   }

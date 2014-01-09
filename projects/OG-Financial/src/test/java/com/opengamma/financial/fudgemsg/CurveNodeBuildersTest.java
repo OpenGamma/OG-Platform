@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -20,10 +21,10 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -37,6 +38,14 @@ import com.opengamma.util.time.Tenor;
  */
 @Test(groups = TestGroup.UNIT)
 public class CurveNodeBuildersTest extends AnalyticsTestBase {
+
+  @Test
+  public void testBondNodeBuilder() {
+    BondNode node = new BondNode(Tenor.ONE_YEAR, "TEST");
+    assertEquals(node, cycleObject(BondNode.class, node));
+    node = new BondNode(Tenor.TWO_YEARS, "TEST", "name");
+    assertEquals(node, cycleObject(BondNode.class, node));
+  }
 
   @Test
   public void testCashNodeBuilder() {

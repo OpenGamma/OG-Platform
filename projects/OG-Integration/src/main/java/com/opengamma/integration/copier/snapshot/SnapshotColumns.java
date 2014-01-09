@@ -81,6 +81,12 @@ public enum SnapshotColumns {
     return null;
   }
 
+  private static String[] getColumns(ArrayList<String> list) {
+    String[] columns = new String[list.size()];
+    columns = list.toArray(columns);
+    return columns;
+  }
+
   /**
    * @return Snapshot columns
    *   {TYPE, NAME, INSTANT, YIELD_CURVE_CURRENCY, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE,
@@ -92,8 +98,7 @@ public enum SnapshotColumns {
     for (SnapshotColumns column : SnapshotColumns.values()) {
       list.add(column._text);
     }
-    String[] columns = new String[list.size()];
-    columns = list.toArray(columns);
-    return columns;
+    return getColumns(list);
   }
+
 }

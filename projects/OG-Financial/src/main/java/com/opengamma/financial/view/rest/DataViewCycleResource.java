@@ -22,6 +22,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 public class DataViewCycleResource extends AbstractDataResource {
 
   //CSOFF: just constants
+  public static final String PATH_NAME = "name";
   public static final String PATH_UNIQUE_ID = "id";
   public static final String PATH_VIEW_PROCESS_ID = "viewProcessId";
   public static final String PATH_STATE = "state";
@@ -39,6 +40,12 @@ public class DataViewCycleResource extends AbstractDataResource {
     _cycle = cycle;
   }
 
+  @GET
+  @Path(PATH_NAME)
+  public Response getName() {
+    return responseOkFudge(_cycle.getName());
+  }
+  
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {

@@ -15,7 +15,6 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.threeten.bp.Period;
 
 import com.opengamma.financial.analytics.curve.CurveNodeIdMapper;
 import com.opengamma.financial.analytics.ircurve.CurveInstrumentProvider;
@@ -28,6 +27,8 @@ import com.opengamma.util.time.Tenor;
 public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper> {
   /** The name field */
   public static final String NAME_FIELD = "name";
+  /** The bond ids field */
+  public static final String BOND_NODE_FIELD = "bondIds";
   /** The cash ids field */
   public static final String CASH_NODE_FIELD = "cashIds";
   /** The continuously compounded node field */
@@ -60,6 +61,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final MutableFudgeMsg message = serializer.newMessage();
     message.add(null, 0, object.getClass().getName());
     message.add(NAME_FIELD, object.getName());
+    if (object.getBondNodeIds() != null) {
+      message.add(BOND_NODE_FIELD, getMessageForField(serializer, object.getBondNodeIds()));
+    }
     if (object.getCashNodeIds() != null) {
       message.add(CASH_NODE_FIELD, getMessageForField(serializer, object.getCashNodeIds()));
     }
@@ -110,6 +114,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     } else {
       name = null;
     }
+    final Map<Tenor, CurveInstrumentProvider> bondNodeIds = getMapForField(BOND_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> cashNodeIds = getMapForField(CASH_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> continuouslyCompoundedRateNodeIds = getMapForField(CONTINUOUSLY_COMPOUNDED_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> creditSpreadNodeIds = getMapForField(CREDIT_SPREAD_NODE_FIELD, deserializer, message);
@@ -124,6 +129,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds = getMapForField(THREE_LEG_BASIS_SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = getMapForField(ZERO_COUPON_INFLATION_NODE_FIELD, deserializer, message);
     final CurveNodeIdMapper idMapper = CurveNodeIdMapper.builder().
+        bondNodeIds(bondNodeIds).
         cashNodeIds(cashNodeIds).
         continuouslyCompoundedRateNodeIds(continuouslyCompoundedRateNodeIds).
         creditSpreadNodeIds(creditSpreadNodeIds).
@@ -151,7 +157,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   public static FudgeMsg getMessageForField(final FudgeSerializer serializer, final Map<Tenor, CurveInstrumentProvider> idMap) {
     final MutableFudgeMsg idsMessage = serializer.newMessage();
     for (final Map.Entry<Tenor, CurveInstrumentProvider> entry : idMap.entrySet()) {
-      serializer.addToMessageWithClassHeaders(idsMessage, entry.getKey().getPeriod().toString(), null, entry.getValue(), CurveInstrumentProvider.class);
+      serializer.addToMessageWithClassHeaders(idsMessage, entry.getKey().toFormattedString(), null, entry.getValue(), CurveInstrumentProvider.class); //entry.getKey().getPeriod().toString()
     }
     return idsMessage;
   }
@@ -168,7 +174,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
       final Map<Tenor, CurveInstrumentProvider> nodeIds = new HashMap<>();
       final FudgeMsg idsMessage = message.getMessage(fieldName);
       for (final FudgeField field : idsMessage.getAllFields()) {
-        nodeIds.put(Tenor.of(Period.parse(field.getName())), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
+        nodeIds.put(Tenor.parse(field.getName()), deserializer.fieldValueToObject(CurveInstrumentProvider.class, field));
       }
       return nodeIds;
     }

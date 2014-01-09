@@ -653,6 +653,16 @@ public class DbTool {
     formatter.printHelp("java com.opengamma.util.db.tool.DbTool [args]", options);
   }
 
+  /**
+   * Returns collection of table names.
+   *
+   * @return a list of table names, not null
+   */
+  public List<String> listTables() {
+    initialize();
+    return _dialect.listTables(getCatalog());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Callback invoked when tables are creates or upgraded.

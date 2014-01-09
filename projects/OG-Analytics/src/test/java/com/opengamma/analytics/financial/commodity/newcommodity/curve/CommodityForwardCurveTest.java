@@ -12,16 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.curve.CommodityForwardCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CommodityForwardCurveTest {
 
   private static double[] FWD_VALUE = new double[] {108.23, 108.64, 111.0, 115.0 };
@@ -29,16 +25,11 @@ public class CommodityForwardCurveTest {
   private static final InterpolatedDoublesCurve CURVE = InterpolatedDoublesCurve.from(TIME_VALUE, FWD_VALUE, new LinearInterpolator1D());
   private static final CommodityForwardCurve COMMODITY_FORWARD_CURVE = new CommodityForwardCurve(CURVE);
 
-  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurve() {
     new CommodityForwardCurve(null);
   }
 
-  @Test
   /**
    * Tests the getter.
    */
@@ -46,7 +37,6 @@ public class CommodityForwardCurveTest {
     assertEquals(CURVE, COMMODITY_FORWARD_CURVE.getFwdCurve());
   }
 
-  @Test
   /**
    * Tests price index.
    */

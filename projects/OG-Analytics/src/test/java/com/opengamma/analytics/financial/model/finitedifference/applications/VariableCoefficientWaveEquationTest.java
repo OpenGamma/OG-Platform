@@ -25,10 +25,12 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class VariableCoefficientWaveEquationTest {
 
   private static final Surface<Double, Double, Double> A = ConstantDoublesSurface.from(-0.01);

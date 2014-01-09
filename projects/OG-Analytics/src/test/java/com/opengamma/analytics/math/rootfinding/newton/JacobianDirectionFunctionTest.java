@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.linearalgebra.SVDecompositionColt;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class JacobianDirectionFunctionTest {
   private static final SVDecompositionColt SV = new SVDecompositionColt();
   private static final JacobianDirectionFunction F = new JacobianDirectionFunction(SV);

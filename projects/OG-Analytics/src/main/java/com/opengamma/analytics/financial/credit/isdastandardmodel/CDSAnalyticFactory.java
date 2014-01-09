@@ -8,18 +8,17 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getNextIMMDate;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
-import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.isIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
@@ -36,10 +35,10 @@ public class CDSAnalyticFactory {
   private static final boolean PROT_START = true;
   private static final double DEFAULT_RR = 0.4;
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** Curve daycount generally fixed to Act/365 in ISDA */
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
 
   private final int _stepIn;
   private final int _cashSettle;
@@ -474,19 +473,33 @@ public class CDSAnalyticFactory {
   //************************************************************************************************************************
   //Make MultiCDSAnalytic
   //************************************************************************************************************************
+  public MultiCDSAnalytic makeMultiCDS(final LocalDate tradeDate, final LocalDate maturityReferanceDate, final int termMatIndex) {
+    final int[] maturityIndexes = new int[termMatIndex + 1];
+    for (int i = 0; i <= termMatIndex; i++) {
+      maturityIndexes[i] = i;
+    }
+    final LocalDate accStartDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate));
+    return makeMultiCDS(tradeDate, accStartDate, maturityReferanceDate, maturityIndexes);
+  }
+
+  public MultiCDSAnalytic makeMultiCDS(final LocalDate tradeDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate, final int[] maturityIndexes) {
+    final LocalDate stepinDate = tradeDate.plusDays(_stepIn);
+    final LocalDate valueDate = addWorkDays(tradeDate, _cashSettle, _calendar);
+    return makeMultiCDS(tradeDate, stepinDate, valueDate, accStartDate, maturityReferanceDate, maturityIndexes);
+  }
 
   public MultiCDSAnalytic makeMultiCDS(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate accStartDate, final LocalDate maturityReferanceDate,
-      final int[] maturityIndexes, final double[] coupons) {
-    return new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, accStartDate, maturityReferanceDate, maturityIndexes, coupons, _payAccOnDefault, _couponIntervalTenor, _stubType, _protectStart,
+      final int[] maturityIndexes) {
+    return new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, accStartDate, maturityReferanceDate, maturityIndexes, _payAccOnDefault, _couponIntervalTenor, _stubType, _protectStart,
         _recoveryRate, _businessdayAdjustmentConvention, DEFAULT_CALENDAR, _accrualDayCount, _curveDayCount);
   }
 
-  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final Period[] tenors, final double[] coupons) {
+  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final Period[] tenors) {
     final LocalDate accStartDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate));
-    return makeMultiIMMCDS(tradeDate, accStartDate, tenors, coupons);
+    return makeMultiIMMCDS(tradeDate, accStartDate, tenors);
   }
 
-  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final LocalDate accStartDate, final Period[] tenors, final double[] coupons) {
+  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final LocalDate accStartDate, final Period[] tenors) {
 
     ArgumentChecker.noNulls(tenors, "tenors");
     final int n = tenors.length;
@@ -501,10 +514,10 @@ public class CDSAnalyticFactory {
       matIndices[i] = months / immNMonths;
     }
 
-    return makeMultiIMMCDS(tradeDate, accStartDate, matIndices, coupons);
+    return makeMultiIMMCDS(tradeDate, accStartDate, matIndices);
   }
 
-  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final Period firstTenor, final Period lastTenor, final double[] coupons) {
+  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final Period firstTenor, final Period lastTenor) {
     ArgumentChecker.notNull(firstTenor, "firstTenor");
     ArgumentChecker.notNull(lastTenor, "lastTenor");
     final int immNMonths = (int) DEFAULT_COUPON_INT.toTotalMonths();
@@ -515,10 +528,10 @@ public class CDSAnalyticFactory {
     }
     final int firstIndex = m1 / immNMonths;
     final int lastIndex = m2 / immNMonths;
-    return makeMultiIMMCDS(tradeDate, firstIndex, lastIndex, coupons);
+    return makeMultiIMMCDS(tradeDate, firstIndex, lastIndex);
   }
 
-  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final int firstIndex, final int lastIndex, final double[] coupons) {
+  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final int firstIndex, final int lastIndex) {
     ArgumentChecker.isTrue(lastIndex > firstIndex, "Require lastIndex>firstIndex");
     ArgumentChecker.isTrue(firstIndex >= 0, "Require positive indices");
     final int n = lastIndex - firstIndex + 1;
@@ -526,28 +539,27 @@ public class CDSAnalyticFactory {
     for (int i = 0; i < n; i++) {
       matIndices[i] = i + firstIndex;
     }
-    return makeMultiIMMCDS(tradeDate, matIndices, coupons);
+    return makeMultiIMMCDS(tradeDate, matIndices);
   }
 
-  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final int[] matIndices, final double[] coupons) {
+  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final int[] matIndices) {
     final LocalDate accStartDate = _businessdayAdjustmentConvention.adjustDate(_calendar, getPrevIMMDate(tradeDate));
-    return makeMultiIMMCDS(tradeDate, accStartDate, matIndices, coupons);
+    return makeMultiIMMCDS(tradeDate, accStartDate, matIndices);
   }
 
-  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final LocalDate accStartDate, final int[] matIndices, final double[] coupons) {
+  public MultiCDSAnalytic makeMultiIMMCDS(final LocalDate tradeDate, final LocalDate accStartDate, final int[] matIndices) {
     if (!_couponInterval.equals(DEFAULT_COUPON_INT)) {
       throw new IllegalArgumentException("coupon interval must be 3M for this method. However it is set to " + _couponInterval.toString());
     }
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notEmpty(matIndices, "matIndicies");
-    ArgumentChecker.notEmpty(coupons, "coupons");
-    final int n = matIndices.length;
-    ArgumentChecker.isTrue(n == coupons.length, "coupons wrong length");
-    final LocalDate nextIMM = isIMMDate(tradeDate) ? tradeDate : getNextIMMDate(tradeDate);
+
+    //final LocalDate nextIMM = isIMMDate(tradeDate) ? tradeDate : getNextIMMDate(tradeDate);
+    final LocalDate nextIMM = getNextIMMDate(tradeDate);
     final LocalDate stepinDate = tradeDate.plusDays(_stepIn);
     final LocalDate valueDate = addWorkDays(tradeDate, _cashSettle, _calendar);
 
-    return new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, accStartDate, nextIMM, matIndices, coupons, _payAccOnDefault, _couponIntervalTenor, _stubType, _protectStart, _recoveryRate,
+    return new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, accStartDate, nextIMM, matIndices, _payAccOnDefault, _couponIntervalTenor, _stubType, _protectStart, _recoveryRate,
         _businessdayAdjustmentConvention, DEFAULT_CALENDAR, _accrualDayCount, _curveDayCount);
   }
 

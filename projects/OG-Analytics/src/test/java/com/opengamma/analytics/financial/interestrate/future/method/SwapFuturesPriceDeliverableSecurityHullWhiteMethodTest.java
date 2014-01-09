@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -35,6 +36,7 @@ import com.opengamma.util.time.DateUtils;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

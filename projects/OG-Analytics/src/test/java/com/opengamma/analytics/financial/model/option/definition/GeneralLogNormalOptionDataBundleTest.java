@@ -18,12 +18,14 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneralLogNormalOptionDataBundleTest {
   private static final YieldCurve YIELD = YieldCurve.from(ConstantDoublesCurve.from(0.03));
   private static final DriftSurface DRIFT_SURFACE = new DriftSurface(FunctionalDoublesSurface.from(new Function<Double, Double>() {

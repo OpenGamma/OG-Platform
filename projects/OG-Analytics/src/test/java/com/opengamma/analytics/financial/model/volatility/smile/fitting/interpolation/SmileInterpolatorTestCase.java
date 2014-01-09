@@ -12,10 +12,12 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public abstract class SmileInterpolatorTestCase {
 
   private static final double FORWARD = 1172.011012;

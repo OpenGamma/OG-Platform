@@ -11,14 +11,16 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests related to the construction of Fixed/ON (OIS) generators.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorSwapFixedONTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -26,7 +28,7 @@ public class GeneratorSwapFixedONTest {
   private static final String USD_NAME = "USD1YFEDFUND";
   private static final Period USD_PERIOD = Period.ofMonths(12);
   private static final DayCount USD_DAYCOUNT_FIXED = INDEX_FEDFUND.getDayCount();
-  private static final BusinessDayConvention USD_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention USD_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean USD_IS_EOM = true;
   private static final int USD_SPOT_LAG = 2;
 

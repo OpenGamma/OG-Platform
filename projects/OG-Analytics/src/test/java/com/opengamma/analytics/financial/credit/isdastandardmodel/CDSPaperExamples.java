@@ -26,10 +26,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CDSPaperExamples extends ISDABaseTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final DateTimeFormatter DATE_FORMATT = DateTimeFormatter.ofPattern("dd-MMM-yy");
@@ -575,22 +577,20 @@ public class CDSPaperExamples extends ISDABaseTest {
   }
 
   private ISDACompliantCreditCurve bumpCurve(final ISDACompliantCreditCurve curve, final double amount) {
-    final double[] r = curve.getR();
+    final double[] r = curve.getKnotZeroRates();
     final int n = r.length;
-    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = r[i] + amount;
+      r[i] += amount;
     }
-    return curve.withRates(res);
+    return curve.withRates(r);
   }
 
   private ISDACompliantCreditCurve tiltCurve(final ISDACompliantCreditCurve curve, final double amount) {
-    final double[] r = curve.getR();
+    final double[] r = curve.getKnotZeroRates();
     final int n = r.length;
-    final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      res[i] = r[i] + (amount / (n / 2)) * (i - n / 2);
+      r[i] += +(amount / (n / 2)) * (i - n / 2);
     }
-    return curve.withRates(res);
+    return curve.withRates(r);
   }
 }

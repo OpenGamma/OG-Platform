@@ -140,7 +140,7 @@ public class MultiCurveCalculationConfig {
         if (!other._exogenousConfigAndCurveNames.containsKey(entry.getKey())) {
           return false;
         }
-        if (!Arrays.deepEquals(entry.getValue(), _exogenousConfigAndCurveNames.get(entry.getKey()))) {
+        if (!Arrays.deepEquals(entry.getValue(), other._exogenousConfigAndCurveNames.get(entry.getKey()))) {
           return false;
         }
       }

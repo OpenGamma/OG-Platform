@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.number.ComplexNumber;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeChangeTest {
   private static final double FORWARD = 1.0;
   private static final double T = 3.0;

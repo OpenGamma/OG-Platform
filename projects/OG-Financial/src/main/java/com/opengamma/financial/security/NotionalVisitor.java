@@ -47,7 +47,7 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   private final CurrencyPairs _currencyPairs;
   private final SecuritySource _securitySource;
 
-  public NotionalVisitor(final CurrencyPairs currencyPairs, SecuritySource securitySource) {
+  public NotionalVisitor(final CurrencyPairs currencyPairs, final SecuritySource securitySource) {
     _currencyPairs = currencyPairs;
     _securitySource = securitySource;
   }
@@ -67,7 +67,7 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   }
 
   @Override
-  public CurrencyAmount visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
+  public CurrencyAmount visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     //TODO: Handle more than 2 legs
     final InterestRateSwapLeg payNotional = security.getPayLeg();
     final InterestRateSwapLeg receiveNotional = security.getReceiveLeg();
@@ -148,14 +148,14 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   @Override
   public CurrencyAmount visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     final InterestRateNotional notional = security.getNotional();
-    final int sign = security.isBuy() ? 1 : -1;
+    final int sign = security.isBuy() ? -1 : 1;
     return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
   }
 
   @Override
   public CurrencyAmount visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
     final InterestRateNotional notional = security.getNotional();
-    final int sign = security.isBuy() ? 1 : -1;
+    final int sign = security.isBuy() ? -1 : 1;
     return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
   }
 
@@ -227,7 +227,8 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
   @Override
   public CurrencyAmount visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
     final InterestRateNotional notional = security.getNotional();
-    return CurrencyAmount.of(notional.getCurrency(), notional.getAmount());
+    final int sign = security.isBuy() ? -1 : 1;
+    return CurrencyAmount.of(notional.getCurrency(), sign * notional.getAmount());
   }
 
   @Override

@@ -12,11 +12,11 @@ import org.threeten.bp.Period;
 import org.threeten.bp.temporal.JulianFields;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -26,22 +26,20 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CDSAnalytic {
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   /** Curve daycount generally fixed to Act/365 in ISDA */
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
 
   private final double _lgd;
-
+  private final boolean _payAccOnDefault;
   private final CDSCoupon[] _coupons;
 
-  private final double _effectiveProtectionStart;
-  //  private final double _protectionStart;
-  private final double _protectionEnd;
-  private final double _valuationTime;
-  private final boolean _payAccOnDefault;
-  private final boolean _protectionFromStartOfDay;
   private final double _accStart;
+  private final double _effectiveProtectionStart;
+  private final double _valuationTime;
+  private final double _protectionEnd;
+
   private final double _accrued;
   private final int _accruedDays;
 
@@ -144,15 +142,14 @@ public class CDSAnalytic {
     ArgumentChecker.isFalse(tradeDate.isAfter(endDate), "CDS has expired");
 
     _payAccOnDefault = payAccOnDefault;
-    _protectionFromStartOfDay = isProtectStart;
 
     final LocalDate startDate = stepinDate.isAfter(accStartDate) ? stepinDate : accStartDate;
     final LocalDate effectiveStartDate = isProtectStart ? startDate.minusDays(1) : startDate;
 
     _accStart = accStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStartDate);
     _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate);
-    //   _protectionStart = curveDayCount.getDayCountFraction(tradeDate, startDate);
-    _effectiveProtectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate);
+    _effectiveProtectionStart = effectiveStartDate.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(effectiveStartDate, tradeDate) : curveDayCount.getDayCountFraction(tradeDate,
+        effectiveStartDate);
     _protectionEnd = curveDayCount.getDayCountFraction(tradeDate, endDate);
     _lgd = 1 - recoveryRate;
 
@@ -183,44 +180,37 @@ public class CDSAnalytic {
    * Gets the protectionFromStartOfDay.
    * @return the protectionFromStartOfDay
    */
-  public boolean isProtectionFromStartOfDay() {
-    return _protectionFromStartOfDay;
-  }
+  //  public boolean isProtectionFromStartOfDay() {
+  //    return _protectionFromStartOfDay;
+  //  }
 
+  /**
+   * The loss-given-default. This is 1 - recovery rate
+   * @return the LGD
+   */
   public double getLGD() {
     return _lgd;
   }
 
-  //  /**
-  //   * Gets the stepin.
-  //   * @return the stepin
-  //   */
-  //  public double getAStepin() {
-  //    return _stepin;
-  //  }
-
   /**
-   * Gets the valuationTime.
-   * @return the valuationTime
+   * Gets year fraction (according to curve DCC) between the trade date and the cash-settle date 
+   * @return the CashSettleTime
    */
-  public double getValuationTime() {
+  public double getCashSettleTime() {
     return _valuationTime;
   }
 
+  /**
+   * Year fraction (according to curve DCC) from trade date to accrual start date. This will be negative for spot starting CDS, but will be positive for forward starting CDS.   
+   * @return accrual start year-fraction. 
+   */
   public double getAccStart() {
     return _accStart;
   }
 
-  //  /**
-  //   * Gets the protection Start
-  //   * @return the effectiveProtectionStart
-  //   */
-  //  public double getProtectionStart() {
-  //    return _protectionStart;
-  //  }
-
   /**
-   * Gets the effective protection Start - i.e. adjusted back one day if protection is from start of day.
+   * Year fraction (according to curve DCC) from trade date to effective protection start date. The effective protection start date is the greater of the accrual start date
+   * and the step-in date;  if protection is from start of day, this is  adjusted back one day - so for a standard CDS it is the trade date.
    * @return the effectiveProtectionStart
    */
   public double getEffectiveProtectionStart() {
@@ -228,59 +218,28 @@ public class CDSAnalytic {
   }
 
   /**
-   * Gets the protectionEnd.
+   *  Year fraction (according to curve DCC) from trade date to the maturity of the CDS. 
    * @return the protectionEnd
    */
   public double getProtectionEnd() {
     return _protectionEnd;
   }
 
+  /**
+   * Get all the coupons on the premium leg.
+   * @return the coupons. 
+   */
   public CDSCoupon[] getCoupons() {
     return _coupons;
   }
 
+  /**
+   * get a coupon at a particular index (zero based).
+   * @param index the index
+   * @return a coupon 
+   */
   public CDSCoupon getCoupon(final int index) {
     return _coupons[index];
-  }
-
-  /**
-   * Gets the accStart for a particular payment period
-   * @param index the index of the payment period
-   * @return the accStart
-   */
-  public double getEffectiveAccStart(final int index) {
-    return _coupons[index].getEffStart();
-  }
-
-  /**
-   * Gets the accEnd for a particular payment period
-   * @param index the index of the payment period
-   * @return the accEnd
-   */
-  public double getEffectiveAccEnd(final int index) {
-    return _coupons[index].getEffEnd();
-  }
-
-  /**
-   * Gets the payment time for a particular payment period
-   * @param index the index of the payment period
-   * @return the paymentTime
-   */
-  public double getPaymentTime(final int index) {
-    return _coupons[index].getPaymentTime();
-  }
-
-  /**
-   * Gets the accrual fraction for a particular payment period
-   * @param index the index of the payment period
-   * @return the accFraction
-   */
-  public double getAccrualFraction(final int index) {
-    return _coupons[index].getYearFrac();
-  }
-
-  public double getAccRatio(final int index) {
-    return _coupons[index].getYFRatio();
   }
 
   /**
@@ -309,25 +268,29 @@ public class CDSAnalytic {
     return _accruedDays;
   }
 
-  private CDSAnalytic(final double lgd, final CDSCoupon[] coupons, final double start, final double effectiveProtectionStart, /*final double protectionStart, */final double protectionEnd,
-      final double valuationTime, final boolean payAccOnDefault, final boolean protectionFromStartOfDay, final double accrued, final int accruedDays) {
+  private CDSAnalytic(final double lgd, final CDSCoupon[] coupons, final double start, final double effectiveProtectionStart, final double protectionEnd, final double valuationTime,
+      final boolean payAccOnDefault, final double accrued, final int accruedDays) {
     ArgumentChecker.noNulls(coupons, "coupons");
-    _lgd = lgd;
-    _coupons = coupons;
+
     _accStart = start;
     _effectiveProtectionStart = effectiveProtectionStart;
-    //   _protectionStart = protectionStart;
     _protectionEnd = protectionEnd;
     _valuationTime = valuationTime;
+
+    _lgd = lgd;
+    _coupons = coupons;
     _payAccOnDefault = payAccOnDefault;
-    _protectionFromStartOfDay = protectionFromStartOfDay;
     _accrued = accrued;
     _accruedDays = accruedDays;
   }
 
+  /**
+   * produce a copy of the CDS with a new recovery rate
+   * @param recoveryRate The recovery rate
+   * @return a new CDS
+   */
   public CDSAnalytic withRecoveryRate(final double recoveryRate) {
     ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
-    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, /*_protectionStart,*/_protectionEnd, _valuationTime, _payAccOnDefault, _protectionFromStartOfDay,
-        _accrued, _accruedDays);
+    return new CDSAnalytic(1 - recoveryRate, _coupons, _accStart, _effectiveProtectionStart, _protectionEnd, _valuationTime, _payAccOnDefault, _accrued, _accruedDays);
   }
 }

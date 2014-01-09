@@ -79,6 +79,7 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
       throw new OpenGammaRuntimeException("Unexpected server type in metadata " + metaData);
     }
     String description = metaData.getDescription() != null ? metaData.getDescription() : "Bloomberg";
+    // REVIEW: jim 30-Oct-2013 -- If the following line is ever fixed, please remove hack from LiveMarketDataSpecificationListModel
     description = "Live market data (" + description + ")";
     final URI jmsUri = metaData.getJmsBrokerUri();
     if (jmsUri == null) {

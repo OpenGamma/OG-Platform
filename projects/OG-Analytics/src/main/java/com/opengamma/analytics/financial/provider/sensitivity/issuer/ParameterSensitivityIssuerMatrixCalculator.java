@@ -12,7 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
@@ -30,25 +30,25 @@ public class ParameterSensitivityIssuerMatrixCalculator extends AbstractParamete
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityIssuerMatrixCalculator(final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityIssuerMatrixCalculator(final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
   @Override
-  public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final IssuerProviderInterface issuer, final Set<String> curvesSet) {
+  public DoubleMatrix1D pointToParameterSensitivity(final MulticurveSensitivity sensitivity, final ParameterIssuerProviderInterface issuer, final Set<String> curvesSet) {
     SimpleParameterSensitivity ps = new SimpleParameterSensitivity();
     // YieldAndDiscount
     final Map<String, List<DoublesPair>> sensitivityDsc = sensitivity.getYieldDiscountingSensitivities();
     for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityDsc.entrySet()) {
       if (curvesSet.contains(entry.getKey())) {
-        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(issuer.parameterSensitivity(entry.getKey(), entry.getValue())));
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(issuer.getIssuerProvider().parameterSensitivity(entry.getKey(), entry.getValue())));
       }
     }
     // Forward
     final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getForwardSensitivities();
     for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensitivityFwd.entrySet()) {
       if (curvesSet.contains(entry.getKey())) {
-        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(issuer.parameterForwardSensitivity(entry.getKey(), entry.getValue())));
+        ps = ps.plus(entry.getKey(), new DoubleMatrix1D(issuer.getIssuerProvider().parameterForwardSensitivity(entry.getKey(), entry.getValue())));
       }
     }
     // By curve name in the curves set (to have the right order)
@@ -58,7 +58,7 @@ public class ParameterSensitivityIssuerMatrixCalculator extends AbstractParamete
       if (sensi != null) {
         result = ArrayUtils.addAll(result, sensi.getData());
       } else {
-        result = ArrayUtils.addAll(result, new double[issuer.getNumberOfParameters(name)]);
+        result = ArrayUtils.addAll(result, new double[issuer.getIssuerProvider().getNumberOfParameters(name)]);
       }
     }
     return new DoubleMatrix1D(result);

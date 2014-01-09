@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
@@ -12,7 +12,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class AnalyticSpreadSensitivityCalculator {
 
@@ -42,7 +42,6 @@ public class AnalyticSpreadSensitivityCalculator {
    * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
    * @param quote The market quote for the CDS - these can be ParSpread, PointsUpFront or QuotedSpread
    * @param yieldCurve The yield (or discount) curve
-   * @param fracBumpAmount The fraction bump amount of the spread so a 1pb bump is 1e-4
    * @return the parallel CS01
    */
   public double parallelCS01(final CDSAnalytic cds, final CDSQuoteConvention quote, final ISDACompliantYieldCurve yieldCurve) {
@@ -50,7 +49,7 @@ public class AnalyticSpreadSensitivityCalculator {
   }
 
   /**
-   *The analytic CS01 (or credit DV01) 
+   *The analytic CS01 (or credit DV01)
    * @param cds  analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
    * @param coupon  the of the traded CDS  (expressed as <b>fractions not basis points</b>)
    * @param yieldCurve The yield (or discount) curve
@@ -71,7 +70,7 @@ public class AnalyticSpreadSensitivityCalculator {
   }
 
   /**
-   * The analytic CS01 (or credit DV01) 
+   * The analytic CS01 (or credit DV01)
    * @param cds analytic description of a CDS traded at a certain time - it is this CDS that we are calculation CDV01 for
    * @param coupon the of the traded CDS  (expressed as <b>fractions not basis points</b>)
    * @param yieldCurve  The yield (or discount) curve
@@ -122,9 +121,10 @@ public class AnalyticSpreadSensitivityCalculator {
     return bucketedCS01FromCreditCurve(cds, cdsCoupon, pillarCDSs, yieldCurve, creditCurve);
   }
 
-  public double[][] bucketedCS01(final CDSAnalytic[] cds, final double[] cdsCoupons, final CDSAnalytic[] PillarCDSs, final CDSQuoteConvention[] marketQuotes, final ISDACompliantYieldCurve yieldCurve) {
-    final ISDACompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(PillarCDSs, marketQuotes, yieldCurve);
-    return bucketedCS01FromCreditCurve(cds, cdsCoupons, PillarCDSs, yieldCurve, creditCurve);
+  public double[][] bucketedCS01(final CDSAnalytic[] cds, final double[] cdsCoupons, final CDSAnalytic[] pillarCDSs, final CDSQuoteConvention[] marketQuotes,
+      final ISDACompliantYieldCurve yieldCurve) {
+    final ISDACompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, marketQuotes, yieldCurve);
+    return bucketedCS01FromCreditCurve(cds, cdsCoupons, pillarCDSs, yieldCurve, creditCurve);
   }
 
   public double[] bucketedCS01FromParSpreads(final CDSAnalytic cds, final double cdsCoupon, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] pillarCDSs, final double[] spreads) {

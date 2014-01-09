@@ -21,7 +21,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -102,7 +102,6 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static ManageableYieldCurveSnapshot.Builder builder() {
@@ -227,7 +226,7 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -300,7 +299,7 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
   /**
    * The bean-builder for {@code ManageableYieldCurveSnapshot}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ManageableYieldCurveSnapshot> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ManageableYieldCurveSnapshot> {
 
     private Instant _valuationTime;
     private ManageableUnstructuredMarketDataSnapshot _values;
@@ -309,7 +308,6 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
      * Restricted constructor.
      */
     private Builder() {
-      super(ManageableYieldCurveSnapshot.Meta.INSTANCE);
     }
 
     /**
@@ -317,7 +315,6 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(ManageableYieldCurveSnapshot beanToCopy) {
-      super(ManageableYieldCurveSnapshot.Meta.INSTANCE);
       this._valuationTime = beanToCopy.getValuationTime();
       this._values = beanToCopy.getValues();
     }
@@ -335,6 +332,30 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -373,8 +394,8 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
       buf.append("ManageableYieldCurveSnapshot.Builder{");
-      buf.append("valuationTime").append('=').append(_valuationTime).append(',').append(' ');
-      buf.append("values").append('=').append(_values);
+      buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(_valuationTime)).append(',').append(' ');
+      buf.append("values").append('=').append(JodaBeanUtils.toString(_values));
       buf.append('}');
       return buf.toString();
     }

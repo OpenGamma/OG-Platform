@@ -155,6 +155,8 @@
         <@rowout label="Effective date">${security.effectiveDate.toLocalDate()} - ${security.effectiveDate.zone}</@rowout>
         <@rowout label="Maturity date">${security.maturityDate.toLocalDate()} - ${security.maturityDate.zone}</@rowout>
         <@rowout label="Counterparty">${security.counterparty}</@rowout>
+        <@rowout label="Exchange initial notional">${security.exchangeInitialNotional?string("TRUE","FALSE")}</@rowout>
+        <@rowout label="Exchange final notional">${security.exchangeFinalNotional?string("TRUE","FALSE")}</@rowout>
         <@subsection title="Pay leg">
           <@rowout label="Day count">${security.payLeg.dayCount.conventionName}</@rowout>
           <@rowout label="Frequency">${security.payLeg.frequency.conventionName}</@rowout>

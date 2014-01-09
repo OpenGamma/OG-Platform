@@ -10,21 +10,23 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorSwapFixedCompoundedONCompoundedTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexON INDEX_CDI = IndexONMaster.getInstance().getIndex("CDI");
   private static final String BRL_NAME = "BRLCDI";
   private static final DayCount BRL_DAYCOUNT_FIXED = INDEX_CDI.getDayCount();
-  private static final BusinessDayConvention BRL_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention BRL_BUSINESS_DAY = BusinessDayConventions.MODIFIED_FOLLOWING;
   private static final boolean BRl_IS_EOM = true;
   private static final int BRL_SPOT_LAG = 2;
 

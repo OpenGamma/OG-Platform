@@ -14,6 +14,7 @@ import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -26,30 +27,26 @@ import com.opengamma.engine.view.cycle.ViewCycle;
 /* package */class DependencyGraphStructureBuilder {
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
-  private final List<ValueSpecification> _valueSpecs = Lists.newArrayList();
+  private final List<ValueSpecification> _valueSpecifications = Lists.newArrayList();
   /** Function names for all rows in the grid in row index order. */
   private final List<String> _fnNames = Lists.newArrayList();
   /** The grid structure. */
   private final DependencyGraphGridStructure _structure;
   private final FunctionRepository _functions;
+  private final ValueMappings _valueMappings;
 
   /** Mutable variable for keeping track of the index of the last row */
   private int _lastRow;
 
   /**
    * @param compiledViewDef The compiled view definition containing the dependency graph
-   * @param rootSpec Specification of the value whose dependency graph structure is being built
+   * @param rootValueRequirement value requirement for the root cell
    * @param calcConfigName The calculation configuration used when calculating the value
    * @param targetResolver For looking up calculation targets given their specification
    * @param cycle The most recent view cycle
    */
-  /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-      ValueRequirement requirement,
-      ValueSpecification rootSpec,
-      String calcConfigName,
-      ComputationTargetResolver targetResolver,
-      FunctionRepository functions,
-      ViewCycle cycle) {
+  /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef, ValueRequirement rootValueRequirement, String calcConfigName,
+      ComputationTargetResolver targetResolver, FunctionRepository functions, ViewCycle cycle, ValueMappings valueMappings) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -65,11 +62,13 @@ import com.opengamma.engine.view.cycle.ViewCycle;
     } else {
       viewDef = cycle.getCompiledViewDefinition();
     }
+    ValueSpecification rootValueSpecification = valueMappings.getValueSpecification(calcConfigName, rootValueRequirement);
     DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
-    DependencyNode rootNode = depGraphExplorer.getNodeProducing(rootSpec);
+    DependencyNode rootNode = depGraphExplorer.getNodeProducing(rootValueSpecification);
     _functions = functions;
-    AnalyticsNode node = (rootNode != null) ? createNode(rootSpec, rootNode, true) : null;
-    _structure = new DependencyGraphGridStructure(node, calcConfigName, requirement, _valueSpecs, _fnNames, targetResolver);
+    _valueMappings = valueMappings;
+    AnalyticsNode node = (rootNode != null) ? createNode(rootValueSpecification, rootNode, true) : null;
+    _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecifications, _fnNames, targetResolver);
   }
 
   private String getFunctionName(final String functionId) {
@@ -85,13 +84,13 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the nodes it depends on. Recursively builds up the node structure representing whole the
    * dependency graph.
    * 
-   * @param valueSpec The value specification of the target that is the current root
+   * @param valueSpecification The value specification of the target that is the current root
    * @param targetNode The node producing {@code valueSpec}, not null
    * @param rootNode Whether the value specification is for the root node of the dependency graph
    * @return Root node of the grid structure representing the dependency graph for the value
    */
-  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyNode targetNode, boolean rootNode) {
-    _valueSpecs.add(valueSpec);
+  private AnalyticsNode createNode(ValueSpecification valueSpecification, DependencyNode targetNode, boolean rootNode) {
+    _valueSpecifications.add(valueSpecification);
     _fnNames.add(getFunctionName(targetNode.getFunction().getFunctionId()));
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = Lists.newArrayList();

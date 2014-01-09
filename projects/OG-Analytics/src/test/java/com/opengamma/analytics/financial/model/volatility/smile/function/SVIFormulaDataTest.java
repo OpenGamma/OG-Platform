@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SVIFormulaDataTest {
   private static final double A = 1;
   private static final double B = 2;

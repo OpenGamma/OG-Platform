@@ -50,6 +50,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMasterUtils;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
@@ -356,16 +357,16 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   protected ManageableSecurity writeSecurity(ManageableSecurity security) {
     
     ArgumentChecker.notNull(security, "security");
-    
-    SecuritySearchResult searchResult = lookupSecurity(security);
-
-    ManageableSecurity foundSecurity = updateSecurityVersionIfFound(security, searchResult);
-
-    if (foundSecurity != null) {
-      return foundSecurity;
-    } else {
-      return addSecurity(security);
-    }
+    return SecurityMasterUtils.addOrUpdateSecurity(_securityMaster, security);
+//    SecuritySearchResult searchResult = lookupSecurity(security);
+//
+//    ManageableSecurity foundSecurity = updateSecurityVersionIfFound(security, searchResult);
+//
+//    if (foundSecurity != null) {
+//      return foundSecurity;
+//    } else {
+//      return addSecurity(security);
+//    }
   }
 
   /**

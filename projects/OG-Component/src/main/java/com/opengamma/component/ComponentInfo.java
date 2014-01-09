@@ -234,9 +234,10 @@ public class ComponentInfo extends DirectBean {
 
   /**
    * Sets the extensible set of attributes that help describe the component.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }

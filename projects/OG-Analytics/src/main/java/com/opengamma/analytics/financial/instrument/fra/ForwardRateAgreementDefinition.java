@@ -21,10 +21,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -37,7 +37,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
   /**
    * Preceding business day convention.
    */
-  private static final BusinessDayConvention PRECEDING_BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  private static final BusinessDayConvention PRECEDING_BDC = BusinessDayConventions.PRECEDING;
   /**
    * Ibor-like index on which the FRA fixes. The index currency should be the same as the instrument currency.
    */
@@ -253,7 +253,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curve names are required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
@@ -277,7 +277,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final String fundingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
@@ -318,7 +318,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
     ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date " + getFixingDate() + " "
         + date);
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate(), _calendar);
     // Ibor is not fixed yet, all the details are required.
@@ -333,7 +333,7 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
   public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime zonedDate = date.toLocalDate().atStartOfDay(ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, getPaymentDate(), _calendar);
     if (date.isAfter(getFixingDate()) || (date.equals(getFixingDate()))) {

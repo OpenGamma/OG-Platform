@@ -61,6 +61,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -68,6 +69,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Two curves in USD; 3M curve build with STIR futures and swap futures priced with Hull-White (HW parameters exogeneous).
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
 
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2013, 4, 26);
@@ -216,7 +218,7 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
+  private static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
       definitions[loopmv] = generators[loopmv].generateInstrument(NOW, marketQuotes[loopmv], NOTIONAL, attribute[loopmv]);

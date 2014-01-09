@@ -16,7 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -70,7 +70,6 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static HistoricalShockMarketDataSpecification.Builder builder() {
@@ -237,7 +236,7 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -334,7 +333,7 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
   /**
    * The bean-builder for {@code HistoricalShockMarketDataSpecification}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<HistoricalShockMarketDataSpecification> {
+  public static final class Builder extends DirectFieldsBeanBuilder<HistoricalShockMarketDataSpecification> {
 
     private HistoricalShockMarketDataSnapshot.ShockType _shockType;
     private MarketDataSpecification _historicalSpecification1;
@@ -345,7 +344,6 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
      * Restricted constructor.
      */
     private Builder() {
-      super(HistoricalShockMarketDataSpecification.Meta.INSTANCE);
     }
 
     /**
@@ -353,7 +351,6 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(HistoricalShockMarketDataSpecification beanToCopy) {
-      super(HistoricalShockMarketDataSpecification.Meta.INSTANCE);
       this._shockType = beanToCopy.getShockType();
       this._historicalSpecification1 = beanToCopy.getHistoricalSpecification1();
       this._historicalSpecification2 = beanToCopy.getHistoricalSpecification2();
@@ -379,6 +376,30 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -441,10 +462,10 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("HistoricalShockMarketDataSpecification.Builder{");
-      buf.append("shockType").append('=').append(_shockType).append(',').append(' ');
-      buf.append("historicalSpecification1").append('=').append(_historicalSpecification1).append(',').append(' ');
-      buf.append("historicalSpecification2").append('=').append(_historicalSpecification2).append(',').append(' ');
-      buf.append("baseSpecification").append('=').append(_baseSpecification);
+      buf.append("shockType").append('=').append(JodaBeanUtils.toString(_shockType)).append(',').append(' ');
+      buf.append("historicalSpecification1").append('=').append(JodaBeanUtils.toString(_historicalSpecification1)).append(',').append(' ');
+      buf.append("historicalSpecification2").append('=').append(JodaBeanUtils.toString(_historicalSpecification2)).append(',').append(' ');
+      buf.append("baseSpecification").append('=').append(JodaBeanUtils.toString(_baseSpecification));
       buf.append('}');
       return buf.toString();
     }

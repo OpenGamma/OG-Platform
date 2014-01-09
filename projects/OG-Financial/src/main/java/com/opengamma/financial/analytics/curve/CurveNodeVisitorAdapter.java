@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -14,9 +16,9 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
-import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -48,6 +50,16 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
    */
   public static <T> Builder<T> builder(final CurveNodeVisitor<T> visitor) {
     return new Builder<>(visitor);
+  }
+
+  @Override
+  public T visitBondNode(final BondNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
+  public T visitCalendarSwapNode(CalendarSwapNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
   @Override
@@ -154,9 +166,25 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
     }
 
     /**
+     * Adds a visitor for {@link BondNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle bond nodes
+     */
+    public Builder<T> bondNodeVisitor(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitBondNode(final BondNode node) {
+          return visitor.visitBondNode(node);
+        }
+      };
+      return this;
+    }
+
+    /**
      * Adds a visitor for {@link CashNode}s
      * @param visitor The original visitor.
-     * @return A visitor that also handle cash nodes
+     * @return A visitor that can also handle cash nodes
      */
     public Builder<T> cashNodeVisitor(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {

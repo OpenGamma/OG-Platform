@@ -9,10 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test ActualThreeSixtyFive.
  */
+@Test(groups = TestGroup.UNIT)
 public class ActualThreeSixtyFiveTest extends DayCountTestCase {
 
   private static final ActualThreeSixtyFive DC = new ActualThreeSixtyFive();

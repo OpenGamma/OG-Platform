@@ -68,7 +68,7 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   /**
    * Gets the list if valid configuration types.
    * This is only populated if requested.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<Class<?>> getConfigTypes() {
     return _configTypes;
@@ -77,9 +77,10 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   /**
    * Sets the list if valid configuration types.
    * This is only populated if requested.
-   * @param configTypes  the new value of the property
+   * @param configTypes  the new value of the property, not null
    */
   public void setConfigTypes(List<Class<?>> configTypes) {
+    JodaBeanUtils.notNull(configTypes, "configTypes");
     this._configTypes.clear();
     this._configTypes.addAll(configTypes);
   }
@@ -219,6 +220,12 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConfigMetaDataResult) bean)._configTypes, "configTypes");
+      super.validate(bean);
     }
 
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.bond;
@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -69,7 +70,8 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
     }
     final Double cleanPrice = (Double) cleanPriceObject;
     final String creditCurveName = riskFreeCurveName;
-    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName);
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, currency);
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties.get());
     final YieldAndDiscountCurve riskFreeCurve = (YieldAndDiscountCurve) riskFreeCurveObject;
     final YieldCurveBundle data = new YieldCurveBundle(new String[] {riskFreeCurveName, riskFreeCurveName }, new YieldAndDiscountCurve[] {riskFreeCurve, riskFreeCurve });
@@ -78,7 +80,7 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = getResultProperties();
+    final ValueProperties.Builder properties = getResultProperties(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()));
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties.get()));
   }
 
@@ -107,7 +109,8 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
     assert curveName != null;
     final String riskFreeCurveName = curveName;
     final String creditCurveName = riskFreeCurveName;
-    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName);
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, currency);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties.get()));
   }
 
@@ -120,8 +123,8 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
 
   @Override
   protected ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    Trade trade = target.getTrade();
-    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, ComputationTargetType.SECURITY, trade.getSecurity().getUniqueId(), ValueProperties.builder().get());
+    final Trade trade = target.getTrade();
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, trade.getSecurity().getUniqueId(), ValueProperties.builder().get());
   }
 
   @Override
@@ -135,40 +138,47 @@ public class BondPresentValueFromCleanPriceFunction extends BondFromPriceFunctio
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    Trade trade = target.getTrade();
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Trade trade = target.getTrade();
     return trade.getSecurity() instanceof BondSecurity;
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties() {
-    return createValueProperties()
-        .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
-        .withAny(BondFunction.PROPERTY_CREDIT_CURVE)
-        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
-  }
-
-  @Override
-  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, String curveName) {
     throw new UnsupportedOperationException();
   }
 
-  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName) {
+  protected ValueProperties.Builder getResultProperties(final Currency currency) {
     return createValueProperties()
-        .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
-        .with(BondFunction.PROPERTY_CREDIT_CURVE, creditCurveName)
+        .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
+        .withAny(BondFunction.PROPERTY_CREDIT_CURVE)
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
   }
 
   @Override
-  protected double getValue(FunctionExecutionContext context, ZonedDateTime date, String riskFreeCurveName, String creditCurveName, ComputationTarget target, YieldCurveBundle data, double price) {
+  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final String curveName) {
+    throw new UnsupportedOperationException();
+  }
+
+  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName, final Currency currency) {
+    return createValueProperties()
+        .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
+        .with(BondFunction.PROPERTY_CREDIT_CURVE, creditCurveName)
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethodName());
+  }
+
+  @Override
+  protected double getValue(final FunctionExecutionContext context, final ZonedDateTime date, final String riskFreeCurveName, final String creditCurveName, final ComputationTarget target,
+      final YieldCurveBundle data, final double price) {
     final Trade trade = target.getTrade();
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
-    BondTradeConverter visitor = new BondTradeConverter(new BondSecurityConverter(holidaySource, conventionSource, regionSource));
+    final BondTradeConverter visitor = new BondTradeConverter(new BondSecurityConverter(holidaySource, conventionSource, regionSource));
     final BondFixedTransactionDefinition definition = visitor.convert(trade);
-    BondFixedTransaction derivative = definition.toDerivative(date, riskFreeCurveName, creditCurveName);
+    final BondFixedTransaction derivative = definition.toDerivative(date, riskFreeCurveName, creditCurveName);
     return CALCULATOR.presentValueFromCleanPrice(derivative, data, price);
   }
 

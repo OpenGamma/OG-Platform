@@ -25,12 +25,14 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the construction of the Hull-White one factor model with piecewise constant volatility. The computation of several model related factors are also tested.
  */
+@Test(groups = TestGroup.UNIT)
 public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
 
   private static final double MEAN_REVERSION = 0.01;

@@ -11,10 +11,12 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform.LimitType;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestCase {
   private static final double A = -2.5;
   private static final double B = 1.0;

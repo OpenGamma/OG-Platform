@@ -73,15 +73,26 @@ public class InterestRateSwapSecurityUtils {
       if (payLeg1.getConvention().getRateType().isIbor()) {
         if (receiveLeg1.getConvention().getRateType().isIbor()) {
           return InterestRateInstrumentType.SWAP_IBOR_IBOR;
+        } else if (receiveLeg1.getConvention().getRateType().isOis()) {
+          return InterestRateInstrumentType.SWAP_IBOR_OIS;
+        } else if (receiveLeg1.getConvention().getRateType().isCms()) {
+          return InterestRateInstrumentType.SWAP_IBOR_CMS;
+        } else {
+          throw new OpenGammaRuntimeException("Unknown swap type: " + security);
         }
-        return InterestRateInstrumentType.SWAP_IBOR_CMS;
       }
       if (receiveLeg1.getConvention().getRateType().isIbor()) {
-        return InterestRateInstrumentType.SWAP_IBOR_CMS;
+        if (payLeg1.getConvention().getRateType().isOis()) {
+          return InterestRateInstrumentType.SWAP_IBOR_OIS;
+        } else if (payLeg1.getConvention().getRateType().isCms()) {
+          return InterestRateInstrumentType.SWAP_IBOR_CMS;
+        } else {
+          throw new OpenGammaRuntimeException("Unknown swap type: " + security);
+        }
       }
       return InterestRateInstrumentType.SWAP_CMS_CMS;
     }
-    throw new OpenGammaRuntimeException("Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps");
+    throw new OpenGammaRuntimeException("Can only handle fixed-floating (pay and receive) swaps and floating-floating swaps, got " + security);
   }
 
   public static boolean payFixed(final InterestRateSwapSecurity security) {
@@ -93,7 +104,7 @@ public class InterestRateSwapSecurityUtils {
     if (payLeg instanceof FloatingInterestRateSwapLeg && receiveLeg instanceof FixedInterestRateSwapLeg) {
       return false;
     }
-    throw new OpenGammaRuntimeException("Swap was not fixed / floating");
+    throw new OpenGammaRuntimeException("Swap was not fixed / floating ");
   }
 
   //public static boolean isFloatFloat(final SwapSecurity security) {

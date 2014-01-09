@@ -15,10 +15,12 @@ import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.SingularValueDecomposition;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SVDecompositionColtResultTest {
   static final double CONDITION = 3.9;
   static final double NORM = 2.4;

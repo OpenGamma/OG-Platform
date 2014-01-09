@@ -10,7 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class IncompleteGammaFunctionTest {
   private static final double A = 1;
   private static final Function1D<Double, Double> FUNCTION = new IncompleteGammaFunction(A);

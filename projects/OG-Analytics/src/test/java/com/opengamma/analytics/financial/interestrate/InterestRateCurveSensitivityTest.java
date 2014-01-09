@@ -21,12 +21,14 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class to test the PresentValueSensitivity class.
  *
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateCurveSensitivityTest {
 
   private static final List<DoublesPair> SENSITIVITY_DATA_1 = Arrays.asList(new DoublesPair[] {DoublesPair.of(1d, 10d), DoublesPair.of(2d, 20d), DoublesPair.of(3d, 30d), DoublesPair.of(4d, 40d)});

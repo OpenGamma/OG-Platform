@@ -21,33 +21,36 @@ import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the construction of Inflation Capital index bonds.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondCapitalIndexedSecurityTest {
   // Index-Lined Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final String NAME = "UK RPI";
   private static final Currency CUR = Currency.GBP;
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
+  private static final DayCount DAY_COUNT_GILT_1 = DayCounts.ACT_ACT_ISDA;
   private static final boolean IS_EOM_GILT_1 = false;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2002, 7, 11);
   private static final ZonedDateTime FIRST_COUPON_DATE = DateUtils.getUTCDate(2003, 1, 26);
@@ -106,8 +109,13 @@ public class BondCapitalIndexedSecurityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIssuer() {
-    new BondCapitalIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR_GILT_1, SETTLEMENT, INDEX_START, null);
+  public void testNullIssuer1() {
+    new BondCapitalIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR_GILT_1, SETTLEMENT, INDEX_START, (String) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIssuer2() {
+    new BondCapitalIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR_GILT_1, SETTLEMENT, INDEX_START, (LegalEntity) null);
   }
 
   @Test

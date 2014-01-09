@@ -14,10 +14,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRFitterRootFinder;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewiseSABRFitterRootFinderTest {
 
   private static final double FORWARD = 1172.011012;

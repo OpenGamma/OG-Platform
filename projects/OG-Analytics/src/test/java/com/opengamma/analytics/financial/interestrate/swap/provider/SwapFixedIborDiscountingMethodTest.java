@@ -31,11 +31,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests discounting methods/calculator for swap with non-standard features.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapFixedIborDiscountingMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 11, 5);

@@ -68,9 +68,17 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
    */
   public static void main(String[] args) { // CSIGNORE
     s_logger.info("Updating time-series data from Bloomberg");
-    try (GUIFeedback feedback = new GUIFeedback("Updating time series database from Bloomberg")) {
+    GUIFeedback feedback = null;
+    try {
+      feedback = new GUIFeedback("Updating time series database from Bloomberg");
       if (!new BloombergHTSMasterUpdaterTool(feedback).initAndRun(args, IntegrationToolContext.class)) {
         feedback.done("Could not update the time-series database - check that the server has been started");
+      } else {
+        System.exit(0);
+      }
+    } catch (final java.awt.HeadlessException ex) {
+      if (!new BloombergHTSMasterUpdaterTool().initAndRun(args, IntegrationToolContext.class)) {
+        System.exit(-1);
       } else {
         System.exit(0);
       }
@@ -78,6 +86,14 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
       GUIFeedback.shout(ex.getClass().getSimpleName() + " - " + ex.getMessage());
       s_logger.error("Caught exception", ex);
       ex.printStackTrace();
+    } finally {
+      if (feedback != null) {
+        try {
+          feedback.close();
+        } catch (Exception e) {
+          System.exit(0);
+        }
+      }
     }
     System.exit(1);
   }
@@ -106,13 +122,14 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
     }
     final AtomicInteger errors = new AtomicInteger();
     final AtomicInteger successes = new AtomicInteger();
-    final BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(historicalTimeSeriesMaster, historicalTimeSeriesProvider, new BloombergIdentifierProvider(bloombergReferenceDataProvider)) {
+    final BloombergHTSMasterUpdater loader = new BloombergHTSMasterUpdater(historicalTimeSeriesMaster, historicalTimeSeriesProvider, new BloombergIdentifierProvider(
+        bloombergReferenceDataProvider)) {
 
       private long _lastNotify;
       private int _toUpdate;
 
       @Override
-      protected boolean checkForUpdates(final HistoricalTimeSeriesInfoDocument doc, final Map<MetaDataKey, ObjectId> metaDataKeyMap,
+      protected boolean checkForUpdates(final HistoricalTimeSeriesInfoDocument doc, final Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap,
           final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
         boolean result = super.checkForUpdates(doc, metaDataKeyMap, bbgTSRequest);
         if (result) {
@@ -140,12 +157,16 @@ public class BloombergHTSMasterUpdaterTool extends AbstractTool<IntegrationToolC
       }
 
       @Override
-      protected void checkForUpdates(final Collection<HistoricalTimeSeriesInfoDocument> documents, final Map<MetaDataKey, ObjectId> metaDataKeyMap,
+      protected void checkForUpdates(final Collection<HistoricalTimeSeriesInfoDocument> documents, final Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap,
           final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
         if (_feedback != null) {
           _feedback.workRequired(documents.size());
         }
         super.checkForUpdates(documents, metaDataKeyMap, bbgTSRequest);
+        if (_feedback != null) {
+          GUIFeedback.say("Updating " + _toUpdate + " time series");
+          _lastNotify = System.nanoTime();
+        }
       }
 
       @Override

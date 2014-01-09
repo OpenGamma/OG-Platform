@@ -12,10 +12,12 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class CEVPriceFunctionTest {
   private static final SABRHaganVolatilityFunction SABR = new SABRHaganVolatilityFunction();
   private static final CEVPriceFunction CEV = new CEVPriceFunction();

@@ -21,20 +21,22 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefiniti
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -42,14 +44,15 @@ import com.opengamma.util.time.DateUtils;
  *  @deprecated This code tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedBondInterestIndexedSecurityTest {
 
   private static final String NAME = "UK RPI";
   private static final Currency CUR = Currency.GBP;
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
-  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventions.FOLLOWING;
+  private static final DayCount DAY_COUNT = DayCounts.ACT_ACT_ISDA;
   private static final boolean IS_EOM = false;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2002, 7, 11);
   private static final ZonedDateTime FIRST_COUPON_DATE = DateUtils.getUTCDate(2003, 1, 26);
@@ -110,8 +113,13 @@ public class DeprecatedBondInterestIndexedSecurityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullIssuer() {
-    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, null, PRICE_INDEX);
+  public void testNullIssuer1() {
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, (String) null, PRICE_INDEX);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullIssuer2() {
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, (LegalEntity) null, PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -129,7 +137,7 @@ public class DeprecatedBondInterestIndexedSecurityTest {
     assertEquals("Inflation Interest Indexed bond: getter", COUPON_PER_YEAR, BOND_SECURITY.getCouponPerYear());
     assertEquals("Inflation Interest Indexed bond: getter", PRICE_INDEX, BOND_SECURITY.getPriceIndex());
     assertEquals("Inflation Interest Indexed bond: getter", CUR, BOND_SECURITY.getCurrency());
-    assertEquals("Inflation Interest Indexed bond: getter", ISSUER_UK, BOND_SECURITY.getIssuer());
+    assertEquals("Inflation Interest Indexed bond: getter", new LegalEntity(null, ISSUER_UK, null, null, null), BOND_SECURITY.getIssuerEntity());
   }
 
   @Test

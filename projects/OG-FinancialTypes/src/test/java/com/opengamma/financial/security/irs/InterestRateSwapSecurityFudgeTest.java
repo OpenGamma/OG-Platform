@@ -10,11 +10,14 @@ import java.util.HashSet;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -38,11 +41,11 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
   private static FloatingInterestRateSwapLegConvention USD_LIBOR_3M_EOM_CONVENTION;
   private static FloatingInterestRateSwapLeg USD_FLOAT_LEG;
 
-  private static final BusinessDayConvention MF = BusinessDayConventionFactory.of("MF");
+  private static final BusinessDayConvention MF = BusinessDayConventions.MODIFIED_FOLLOWING;
 
   static {
-    USD_FIXED_3M_EOM_CONVENTION = new FixedInterestRateSwapLegConvention();
-    USD_FIXED_3M_EOM_CONVENTION.setDayCountConvention(DayCountFactory.of("ACT/360"));
+    USD_FIXED_3M_EOM_CONVENTION = new FixedInterestRateSwapLegConvention("Test1", ExternalIdBundle.of("Scheme", "TEST FIXED"));
+    USD_FIXED_3M_EOM_CONVENTION.setDayCountConvention(DayCounts.ACT_360);
     USD_FIXED_3M_EOM_CONVENTION.setCalculationCalendars(USNYGBLO);
     USD_FIXED_3M_EOM_CONVENTION.setMaturityCalendars(USNYGBLO);
     USD_FIXED_3M_EOM_CONVENTION.setPaymentCalendars(USNYGBLO);
@@ -56,9 +59,8 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_FIXED_3M_EOM_CONVENTION.setRollConvention(RollConvention.EOM);
     USD_FIXED_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);
 
-    USD_LIBOR_3M_EOM_CONVENTION = new FloatingInterestRateSwapLegConvention();
-    USD_LIBOR_3M_EOM_CONVENTION.setExternalIdBundle(ExternalId.of("Scheme", "USD_LIBOR_3M").toBundle());
-    USD_LIBOR_3M_EOM_CONVENTION.setDayCountConvention(DayCountFactory.of("ACT/360"));
+    USD_LIBOR_3M_EOM_CONVENTION = new FloatingInterestRateSwapLegConvention("Test2", ExternalIdBundle.of("Scheme", "USD_LIBOR_3M FIXED"));
+    USD_LIBOR_3M_EOM_CONVENTION.setDayCountConvention(DayCounts.ACT_360);
     USD_LIBOR_3M_EOM_CONVENTION.setCalculationCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setMaturityCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setPaymentCalendars(USNYGBLO);
@@ -70,7 +72,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_LIBOR_3M_EOM_CONVENTION.setCalculationFrequency(SimpleFrequency.QUARTERLY);
     USD_LIBOR_3M_EOM_CONVENTION.setMaturityBusinessDayConvention(MF);
     USD_LIBOR_3M_EOM_CONVENTION.setFixingCalendars(GBLO);
-    USD_LIBOR_3M_EOM_CONVENTION.setFixingBusinessDayConvention(BusinessDayConventionFactory.of("NONE"));
+    USD_LIBOR_3M_EOM_CONVENTION.setFixingBusinessDayConvention(BusinessDayConventions.NONE);
     USD_LIBOR_3M_EOM_CONVENTION.setResetFrequency(SimpleFrequency.QUARTERLY);
     USD_LIBOR_3M_EOM_CONVENTION.setResetCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setResetBusinessDayConvention(MF);
@@ -79,7 +81,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_LIBOR_3M_EOM_CONVENTION.setRateType(FloatingRateType.IBOR);
     USD_LIBOR_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);
 
-    USD_FIX_LEG = USD_FIXED_3M_EOM_CONVENTION.toLeg(new InterestRateSwapNotional(Currency.USD, 1e6), PayReceiveType.PAY, new Rate(0.01234));
+    USD_FIX_LEG = USD_FIXED_3M_EOM_CONVENTION.toLeg(InterestRateSwapNotional.of(Currency.USD, Lists.newArrayList(LocalDate.MIN, LocalDate.MAX), Lists.newArrayList(1e6, 1e5)), PayReceiveType.PAY, new Rate(0.01234));
 
     USD_FLOAT_LEG = USD_LIBOR_3M_EOM_CONVENTION.toLeg(new InterestRateSwapNotional(Currency.USD, 1e6), PayReceiveType.RECEIVE);
   }

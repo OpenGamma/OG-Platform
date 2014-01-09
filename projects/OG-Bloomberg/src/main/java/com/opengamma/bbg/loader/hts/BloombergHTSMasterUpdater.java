@@ -119,8 +119,15 @@ public class BloombergHTSMasterUpdater {
   }
 
   //-------------------------------------------------------------------------
-  protected boolean checkForUpdates(final HistoricalTimeSeriesInfoDocument doc, final Map<MetaDataKey, ObjectId> metaDataKeyMap,
-      final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
+  /**
+   * Check a time series entry to see if it requires updating and update request and lookup data structures
+   * @param doc time series info document of the time series to update
+   * @param metaDataKeyMap map from a meta data key to a set of object ids
+   * @param bbgTSRequest data structure containing entries for start dates, each with a chain of maps to link providers and fields to id bundles
+   * @return whether to update this time series
+   */
+  protected boolean checkForUpdates(final HistoricalTimeSeriesInfoDocument doc, final Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap,
+                                    final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
     ManageableHistoricalTimeSeriesInfo info = doc.getInfo();
     ExternalIdBundle idBundle = info.getExternalIdBundle().toBundle();
     // select start date
@@ -147,16 +154,17 @@ public class BloombergHTSMasterUpdater {
     MetaDataKey metaDataKey = new MetaDataKey(idBundle, dataProvider, dataField);
     ObjectId previous;
     synchronized (metaDataKeyMap) {
-      previous = metaDataKeyMap.put(metaDataKey, doc.getInfo().getTimeSeriesObjectId());
-    }
-    if (previous != null) {
-      // if we don't check here then the master might fail, but it doesn't always 
-      throw new OpenGammaRuntimeException("Duplicate time-series " + previous + " " + doc.getInfo().getTimeSeriesObjectId());
+      ObjectId objectId = doc.getInfo().getTimeSeriesObjectId();
+      Set<ObjectId> objectIds = MapUtils.putIfAbsentGet(metaDataKeyMap, metaDataKey, Sets.newHashSet(objectId));
+      if (objectIds != null) {
+        s_logger.warn("Duplicate time series for {}", metaDataKey._identifiers);
+        objectIds.add(objectId);
+      }
     }
     return true;
   }
 
-  protected void checkForUpdates(final Collection<HistoricalTimeSeriesInfoDocument> documents, final Map<MetaDataKey, ObjectId> metaDataKeyMap,
+  protected void checkForUpdates(final Collection<HistoricalTimeSeriesInfoDocument> documents, final Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap,
       final Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest) {
     final List<RuntimeException> failures = (_startDate == null) ? new ArrayList<RuntimeException>() : null;
     // Looking up the most recent date can be a costly database operation; mitigate slightly with a pool of threads
@@ -211,7 +219,7 @@ public class BloombergHTSMasterUpdater {
     // group Bloomberg request by dates/dataProviders/dataFields
     Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest = Maps.newHashMap();
     // store identifier to UID map for timeseries update
-    Map<MetaDataKey, ObjectId> metaDataKeyMap = new HashMap<MetaDataKey, ObjectId>();
+    Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap = new HashMap<>();
     if (_startDate != null) {
       bbgTSRequest.put(_startDate, new HashMap<String, Map<String, Set<ExternalIdBundle>>>());
     }
@@ -290,11 +298,12 @@ public class BloombergHTSMasterUpdater {
 
   //-------------------------------------------------------------------------
   private void getAndUpdateHistoricalData(Map<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> bbgTSRequest,
-      Map<MetaDataKey, ObjectId> metaDataKeyMap, LocalDate endDate) {
+      Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap, LocalDate endDate) {
     // process the request
     for (Entry<LocalDate, Map<String, Map<String, Set<ExternalIdBundle>>>> entry : bbgTSRequest.entrySet()) {
       s_logger.debug("processing {}", entry);
-      LocalDate startDate = entry.getKey();
+      // if we're reloading we should get the whole ts, not just the end...
+      LocalDate startDate = _reload ? DEFAULT_START_DATE : entry.getKey();
 
       for (Entry<String, Map<String, Set<ExternalIdBundle>>> providerFieldIdentifiers : entry.getValue().entrySet()) {
         s_logger.debug("processing {}", providerFieldIdentifiers);
@@ -319,7 +328,7 @@ public class BloombergHTSMasterUpdater {
     }
   }
 
-  private void updateTimeSeriesMaster(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS, Map<MetaDataKey, ObjectId> metaDataKeyMap, String dataProvider, String dataField) {
+  private void updateTimeSeriesMaster(Map<ExternalIdBundle, LocalDateDoubleTimeSeries> bbgLoadedTS, Map<MetaDataKey, Set<ObjectId>> metaDataKeyMap, String dataProvider, String dataField) {
     for (Entry<ExternalIdBundle, LocalDateDoubleTimeSeries> identifierTS : bbgLoadedTS.entrySet()) {
       // ensure data points are after the last stored data point
       LocalDateDoubleTimeSeries timeSeries = identifierTS.getValue();
@@ -336,16 +345,20 @@ public class BloombergHTSMasterUpdater {
         // metaDataKeyMap holds the object id of the series to be updated
         ExternalIdBundle idBundle = identifierTS.getKey();
         MetaDataKey metaDataKey = new MetaDataKey(idBundle, dataProvider, dataField);
-        ObjectId oid = metaDataKeyMap.get(metaDataKey);
-        try {
-          if (_reload) {
-            _timeSeriesMaster.correctTimeSeriesDataPoints(oid, timeSeries);
-          } else {
-            _timeSeriesMaster.updateTimeSeriesDataPoints(oid, timeSeries);
+        for (ObjectId oid : metaDataKeyMap.get(metaDataKey)) {
+          try { 
+            if (_reload) {
+              _timeSeriesMaster.correctTimeSeriesDataPoints(oid, timeSeries);
+            } else {
+              _timeSeriesMaster.updateTimeSeriesDataPoints(oid, timeSeries);
+            }
+          } catch (Exception ex) {
+            s_logger.error("Error writing time-series " + oid, ex);
+            if (metaDataKeyMap.get(metaDataKey).size() > 1) {
+              s_logger.error("This is probably because there are multiple time series for {} with differing lengths.  Manually delete one or the other.", metaDataKey._identifiers);
+            }
+            errorLoading(metaDataKey);
           }
-        } catch (Exception ex) {
-          s_logger.error("Error writing time-series " + oid, ex);
-          errorLoading(metaDataKey);
         }
       }
     }

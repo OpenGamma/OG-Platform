@@ -40,12 +40,14 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the calibration engine for LMM DD calibration at best to European swaptions. The calibration is obtained
  * by changing volatility parameters with a common multiplicative factor and displacement with a common additive term.
  */
+@Test(groups = TestGroup.UNIT)
 public class SuccessiveLeastSquareSwaptionPhysicalLMMDDCalibrationObjectiveTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
@@ -93,7 +95,7 @@ public class SuccessiveLeastSquareSwaptionPhysicalLMMDDCalibrationObjectiveTest 
           * AMORTIZATION[loopexp]);
     }
     final SwapFixedIborDefinition swapAmortizedDefinition = new SwapFixedIborDefinition(new AnnuityCouponFixedDefinition(cpnFixed, TARGET), new AnnuityCouponIborDefinition(cpnIbor, EURIBOR6M, TARGET));
-    final SwaptionPhysicalFixedIborDefinition swaptionAmortizedDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapAmortizedDefinition, IS_LONG);
+    final SwaptionPhysicalFixedIborDefinition swaptionAmortizedDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapAmortizedDefinition, FIXED_IS_PAYER, IS_LONG);
     SWAPTION_AMORTIZED = swaptionAmortizedDefinition.toDerivative(REFERENCE_DATE);
   }
 

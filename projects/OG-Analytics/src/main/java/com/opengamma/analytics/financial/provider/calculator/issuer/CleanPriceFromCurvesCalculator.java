@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.issuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -42,6 +43,13 @@ public final class CleanPriceFromCurvesCalculator extends InstrumentDerivativeVi
   public Double visitBondFixedSecurity(final BondFixedSecurity bond, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(issuer, "Issuer provider");
-    return METHOD_BOND_SECURITY.cleanPriceFromCurves(bond, issuer);
+    return METHOD_BOND_SECURITY.cleanPriceFromCurves(bond, issuer) * 100;
+  }
+
+  @Override
+  public Double visitBondFixedTransaction(final BondFixedTransaction bond, final IssuerProviderInterface issuer) {
+    ArgumentChecker.notNull(bond, "bond");
+    ArgumentChecker.notNull(issuer, "Issuer provider");
+    return METHOD_BOND_SECURITY.cleanPriceFromCurves(bond.getBondTransaction(), issuer) * 100;
   }
 }

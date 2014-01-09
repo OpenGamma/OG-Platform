@@ -13,10 +13,12 @@ import static org.testng.AssertJUnit.assertNull;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class TimeSeriesReturnCalculatorFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

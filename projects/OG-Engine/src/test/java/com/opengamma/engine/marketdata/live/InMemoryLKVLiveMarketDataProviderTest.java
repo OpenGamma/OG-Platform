@@ -67,43 +67,50 @@ public class InMemoryLKVLiveMarketDataProviderTest {
 
   public void snapshotting() {
     final TestLiveDataClient client = new TestLiveDataClient();
-    final FixedMarketDataAvailabilityProvider availabilityProvider = new FixedMarketDataAvailabilityProvider();
-    availabilityProvider.addAvailableData(getTicker("test1"), constructSpecification("test1"));
-    availabilityProvider.addAvailableData(getTicker("test2"), constructSpecification("test2"));
-    availabilityProvider.addAvailableData(getTicker("test3"), constructSpecification("test3"));
-    final LiveMarketDataProvider provider = new InMemoryLKVLiveMarketDataProvider(client, availabilityProvider.getAvailabilityFilter(), UserPrincipal.getTestUser());
-    final ValueSpecification test1Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test1"), getTicker("test1"), constructRequirement("test1"));
-    final ValueSpecification test2Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test2"), getTicker("test2"), constructRequirement("test2"));
-    final ValueSpecification test3Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test3"), getTicker("test3"), constructRequirement("test3"));
-    provider.subscribe(test1Specification);
-    provider.subscribe(test2Specification);
-    provider.subscribe(test3Specification);
-    provider.subscribe(test3Specification);
-    provider.subscribe(test3Specification);
-    final MutableFudgeMsg msg1 = new FudgeContext().newMessage();
-    msg1.add(_marketDataRequirement, 52.07);
-    final MutableFudgeMsg msg2 = new FudgeContext().newMessage();
-    msg2.add(_marketDataRequirement, 52.15);
-    final MutableFudgeMsg msg3a = new FudgeContext().newMessage();
-    msg3a.add(_marketDataRequirement, 52.16);
-    final MutableFudgeMsg msg3b = new FudgeContext().newMessage();
-    msg3b.add(_marketDataRequirement, 52.17);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test1")), msg1);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test2")), msg2);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test3")), msg3a);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test3")), msg3b);
-    final MarketDataSnapshot snapshot = provider.snapshot(null);
-    snapshot.init(Collections.<ValueSpecification>emptySet(), 0, TimeUnit.MILLISECONDS);
-    final Double test1Value = (Double) snapshot.query(test1Specification);
-    assertNotNull(test1Value);
-    assertEquals(52.07, test1Value, 0.000001);
-    final Double test2Value = (Double) snapshot.query(test2Specification);
-    assertNotNull(test2Value);
-    assertEquals(52.15, test2Value, 0.000001);
-    final Double test3Value = (Double) snapshot.query(test3Specification);
-    assertNotNull(test3Value);
-    assertEquals(52.17, test3Value, 0.000001);
-    assertNull(snapshot.query(constructSpecification("invalidticker")));
+    try {
+      final FixedMarketDataAvailabilityProvider availabilityProvider = new FixedMarketDataAvailabilityProvider();
+      availabilityProvider.addAvailableData(getTicker("test1"), constructSpecification("test1"));
+      availabilityProvider.addAvailableData(getTicker("test2"), constructSpecification("test2"));
+      availabilityProvider.addAvailableData(getTicker("test3"), constructSpecification("test3"));
+      final LiveMarketDataProvider provider = new InMemoryLKVLiveMarketDataProvider(client, availabilityProvider.getAvailabilityFilter(), UserPrincipal.getTestUser());
+      final ValueSpecification test1Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test1"), getTicker("test1"),
+          constructRequirement("test1"));
+      final ValueSpecification test2Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test2"), getTicker("test2"),
+          constructRequirement("test2"));
+      final ValueSpecification test3Specification = provider.getAvailabilityProvider(MarketData.live()).getAvailability(constructTargetSpec("test3"), getTicker("test3"),
+          constructRequirement("test3"));
+      provider.subscribe(test1Specification);
+      provider.subscribe(test2Specification);
+      provider.subscribe(test3Specification);
+      provider.subscribe(test3Specification);
+      provider.subscribe(test3Specification);
+      final MutableFudgeMsg msg1 = new FudgeContext().newMessage();
+      msg1.add(_marketDataRequirement, 52.07);
+      final MutableFudgeMsg msg2 = new FudgeContext().newMessage();
+      msg2.add(_marketDataRequirement, 52.15);
+      final MutableFudgeMsg msg3a = new FudgeContext().newMessage();
+      msg3a.add(_marketDataRequirement, 52.16);
+      final MutableFudgeMsg msg3b = new FudgeContext().newMessage();
+      msg3b.add(_marketDataRequirement, 52.17);
+      client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test1")), msg1);
+      client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test2")), msg2);
+      client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test3")), msg3a);
+      client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), getTicker("test3")), msg3b);
+      final MarketDataSnapshot snapshot = provider.snapshot(null);
+      snapshot.init(Collections.<ValueSpecification>emptySet(), 0, TimeUnit.MILLISECONDS);
+      final Double test1Value = (Double) snapshot.query(test1Specification);
+      assertNotNull(test1Value);
+      assertEquals(52.07, test1Value, 0.000001);
+      final Double test2Value = (Double) snapshot.query(test2Specification);
+      assertNotNull(test2Value);
+      assertEquals(52.15, test2Value, 0.000001);
+      final Double test3Value = (Double) snapshot.query(test3Specification);
+      assertNotNull(test3Value);
+      assertEquals(52.17, test3Value, 0.000001);
+      assertNull(snapshot.query(constructSpecification("invalidticker")));
+    } finally {
+      client.close();
+    }
   }
 
   @Test
@@ -168,15 +175,9 @@ public class InMemoryLKVLiveMarketDataProviderTest {
     // VSpec[Market_All, CTSpec[PRIMITIVE, ExternalId-ACTIVFEED_TICKER~AAPL.], {Normalization=[OpenGamma],Function=[LiveMarketData],Id=[ACTIVFEED_TICKER~AAPL.]}]
     ExternalId externalId = ExternalSchemes.activFeedTickerSecurityId(ticker);
 
-    ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.FUNCTION, "LiveMarketData")
-        .with("Normalization", "OpenGamma")
-        .with("Id", externalId.toString())
-        .get();
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "LiveMarketData").with("Normalization", "OpenGamma").with("Id", externalId.toString()).get();
 
-    ComputationTargetSpecification targetSpecification =
-        new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE,
-                                           UniqueId.of("ExternalId", externalId.toString()));
+    ComputationTargetSpecification targetSpecification = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("ExternalId", externalId.toString()));
 
     return new ValueSpecification("Market_All", targetSpecification, properties);
   }
@@ -187,14 +188,9 @@ public class InMemoryLKVLiveMarketDataProviderTest {
     // VSpec[Market_All, CTSpec[SECURITY, DbSec~295921~0], {Normalization=[OpenGamma],Function=[LiveMarketData],Id=[ACTIVFEED_TICKER~AAPL.]}]
     ExternalId externalId = ExternalSchemes.activFeedTickerSecurityId(ticker);
 
-    ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.FUNCTION, "LiveMarketData")
-        .with("Normalization", "OpenGamma")
-        .with("Id", externalId.toString())
-        .get();
+    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "LiveMarketData").with("Normalization", "OpenGamma").with("Id", externalId.toString()).get();
 
-    ComputationTargetSpecification targetSpecification =
-        new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("DbSec", "1234", "1"));
+    ComputationTargetSpecification targetSpecification = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("DbSec", "1234", "1"));
 
     return new ValueSpecification("Market_All", targetSpecification, properties);
   }

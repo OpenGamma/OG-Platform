@@ -36,6 +36,7 @@ import com.opengamma.financial.security.forward.CommodityForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -79,6 +80,7 @@ import com.opengamma.id.ExternalIdBundle;
  *
  */
 public class ContractCategoryExposureFunction implements ExposureFunction {
+
   private final SecuritySource _securitySource;
 
   public ContractCategoryExposureFunction(final SecuritySource securitySource) {
@@ -240,6 +242,11 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitFRASecurity(final FRASecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     return null;
   }
 

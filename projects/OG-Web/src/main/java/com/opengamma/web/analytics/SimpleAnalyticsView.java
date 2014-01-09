@@ -23,7 +23,7 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -52,7 +52,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private final ResultsCache _cache = new ResultsCache();
   private final ComputationTargetResolver _targetResolver;
-  private final FunctionRepository _functions;
+  private final FunctionRepositoryFactory _functions;
   private final String _viewId;
   private final ViewportListener _viewportListener;
   private final VersionCorrection _versionCorrection;
@@ -78,9 +78,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
    * @param errorManager Holds information about errors that occur compiling and executing the view
    */
-  /* package */SimpleAnalyticsView(UniqueId viewDefinitionId, boolean primitivesOnly, VersionCorrection versionCorrection, String viewId, String portfolioCallbackId, String primitivesCallbackId,
-      ComputationTargetResolver targetResolver, FunctionRepository functions, ViewportListener viewportListener, SecurityAttributeMapper blotterColumnMapper, Supplier<Portfolio> portfolioSupplier,
-      PortfolioEntityExtractor portfolioEntityExtractor, boolean showBlotterColumns, ErrorManager errorManager) {
+  /* package */SimpleAnalyticsView(UniqueId viewDefinitionId, boolean primitivesOnly, VersionCorrection versionCorrection, String viewId, String portfolioCallbackId,
+      String primitivesCallbackId, ComputationTargetResolver targetResolver, FunctionRepositoryFactory functions, ViewportListener viewportListener,
+      SecurityAttributeMapper blotterColumnMapper, Supplier<Portfolio> portfolioSupplier, PortfolioEntityExtractor portfolioEntityExtractor, boolean showBlotterColumns,
+      ErrorManager errorManager) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portfolioCallbackId, "portfolioCallbackId");
@@ -210,8 +211,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   @Override
   public GridStructure getGridStructure(GridType gridType, int viewportId) {
     GridStructure gridStructure = getGrid(gridType).getViewport(viewportId).getGridStructure();
-    s_logger.debug("Viewport {} and view {} returning grid structure for the {} grid: {}",
-        viewportId, _viewId, gridType, gridStructure);
+    s_logger.debug("Viewport {} and view {} returning grid structure for the {} grid: {}", viewportId, _viewId, gridType, gridStructure);
     return gridStructure;
   }
 
@@ -223,15 +223,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public boolean createViewport(int requestId,
-      GridType gridType,
-      int viewportId,
-      String callbackId,
-      String structureCallbackId,
-      ViewportDefinition viewportDefinition) {
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
     boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, _cache);
-    s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
-        _viewId, viewportId, gridType, viewportDefinition);
+    s_logger.debug("View {} created viewport ID {} for the {} grid from {}", _viewId, viewportId, gridType, viewportDefinition);
     return hasData;
   }
 
@@ -255,8 +249,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   @Override
   public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
-    s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid",
-        _viewId, graphId, row, col, gridType);
+    s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid", _viewId, graphId, row, col, gridType);
     getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition, _viewportListener);
   }
 

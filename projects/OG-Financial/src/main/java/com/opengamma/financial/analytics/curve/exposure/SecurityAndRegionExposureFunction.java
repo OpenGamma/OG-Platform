@@ -37,6 +37,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -241,6 +242,11 @@ public class SecurityAndRegionExposureFunction implements ExposureFunction {
     final ExternalId regionId = security.getRegionId();
     final String securityType = security.getSecurityType();
     return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + regionId.getValue()));
+  }
+
+  @Override
+  public List<ExternalId> visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+    return null; // ForwardRateAgreementSecurity does not hold a region
   }
 
   @Override

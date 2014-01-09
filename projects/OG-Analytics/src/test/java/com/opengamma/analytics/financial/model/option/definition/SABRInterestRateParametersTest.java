@@ -19,11 +19,13 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRInterestRateParametersTest {
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
   private static final InterpolatedDoublesSurface ALPHA_SURFACE = InterpolatedDoublesSurface.from(new double[] {0.0, 10, 0.0, 10}, new double[] {0, 0, 10, 10}, new double[] {0.2, 0.2, 0.2, 0.2},
@@ -34,7 +36,7 @@ public class SABRInterestRateParametersTest {
       new GridInterpolator2D(LINEAR, LINEAR));
   private static final InterpolatedDoublesSurface NU_SURFACE = InterpolatedDoublesSurface.from(new double[] {0.0, 10, 0.0, 10}, new double[] {0, 0, 10, 10}, new double[] {0.5, 0.5, 0.5, 0.5},
       new GridInterpolator2D(LINEAR, LINEAR));
-  private static final DayCount DAYCOUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
+  private static final DayCount DAYCOUNT = DayCounts.THIRTY_U_360;
   private static final SABRHaganVolatilityFunction FUNCTION = new SABRHaganVolatilityFunction();
   private static final SABRInterestRateParameters OBJECT = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, FUNCTION);
 
@@ -125,7 +127,7 @@ public class SABRInterestRateParametersTest {
     assertFalse(other.equals(OBJECT));
     other = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, ALPHA_SURFACE, DAYCOUNT, FUNCTION);
     assertFalse(other.equals(OBJECT));
-    other = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DayCountFactory.INSTANCE.getDayCount("Act/365"), FUNCTION);
+    other = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DayCounts.ACT_365, FUNCTION);
     assertFalse(other.equals(OBJECT));
     other = new SABRInterestRateParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, new SABRHaganAlternativeVolatilityFunction());
     assertFalse(other.equals(OBJECT));

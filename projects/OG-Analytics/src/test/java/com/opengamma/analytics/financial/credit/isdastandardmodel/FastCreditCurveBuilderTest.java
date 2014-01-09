@@ -7,9 +7,12 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
   private static final FastCreditCurveBuilder BUILDER_ISDA = new FastCreditCurveBuilder();

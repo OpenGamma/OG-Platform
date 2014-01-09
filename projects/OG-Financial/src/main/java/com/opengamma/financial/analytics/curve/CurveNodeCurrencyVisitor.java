@@ -11,6 +11,8 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.convention.ConventionSource;
+import com.opengamma.financial.analytics.ircurve.strips.BondNode;
+import com.opengamma.financial.analytics.ircurve.strips.CalendarSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.ContinuouslyCompoundedRateNode;
 import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
@@ -36,7 +38,9 @@ import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.FinancialConvention;
 import com.opengamma.financial.convention.FinancialConventionVisitor;
+import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.FixedLegRollDateConvention;
+import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -80,6 +84,22 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     return _conventionSource;
   }
 
+  /**
+   * {@inheritDoc}
+   * Bond nodes point to a real security in the database, so the currency information is not available
+   * in the node itself.
+   */
+  @Override
+  public Set<Currency> visitBondNode(final BondNode node) {
+    return Collections.emptySet();
+  }
+
+  @Override
+  public Set<Currency> visitCalendarSwapNode(final CalendarSwapNode node) {
+    final FinancialConvention convention = _conventionSource.getSingle(node.getSwapConvention(), SwapConvention.class);
+    return convention.accept(this);
+  }
+
   @Override
   public Set<Currency> visitCashNode(final CashNode node) {
     final FinancialConvention convention = _conventionSource.getSingle(node.getConvention(), FinancialConvention.class);
@@ -88,12 +108,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitContinuouslyCompoundedRateNode(final ContinuouslyCompoundedRateNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
   public Set<Currency> visitCreditSpreadNode(final CreditSpreadNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -104,7 +124,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitDiscountFactorNode(final DiscountFactorNode node) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -181,7 +201,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitEquityConvention(final EquityConvention convention) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
@@ -197,13 +217,23 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
+  public Set<Currency> visitFixedInterestRateSwapLegConvention(final FixedInterestRateSwapLegConvention convention) {
+    return Collections.emptySet();
+  }
+
+  @Override
+  public Set<Currency> visitFloatingInterestRateSwapLegConvention(final FloatingInterestRateSwapLegConvention convention) {
+    return Collections.emptySet();
+  }
+
+  @Override
   public Set<Currency> visitFXForwardAndSwapConvention(final FXForwardAndSwapConvention convention) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override
   public Set<Currency> visitFXSpotConvention(final FXSpotConvention convention) {
-    return null;
+    return Collections.emptySet();
   }
 
   @Override

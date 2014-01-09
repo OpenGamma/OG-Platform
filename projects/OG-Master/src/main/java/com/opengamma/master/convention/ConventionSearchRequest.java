@@ -406,7 +406,7 @@ public class ConventionSearchRequest extends AbstractSearchRequest {
    * Gets map of attributes to search for.
    * The returned documents must match all of the specified attributes.
    * Wildcards are allowed for the values. Nulls are not allowed.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -416,9 +416,10 @@ public class ConventionSearchRequest extends AbstractSearchRequest {
    * Sets map of attributes to search for.
    * The returned documents must match all of the specified attributes.
    * Wildcards are allowed for the values. Nulls are not allowed.
-   * @param attributes  the new value of the property
+   * @param attributes  the new value of the property, not null
    */
   public void setAttributes(Map<String, String> attributes) {
+    JodaBeanUtils.notNull(attributes, "attributes");
     this._attributes.clear();
     this._attributes.putAll(attributes);
   }
@@ -808,6 +809,7 @@ public class ConventionSearchRequest extends AbstractSearchRequest {
 
     @Override
     protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConventionSearchRequest) bean)._attributes, "attributes");
       JodaBeanUtils.notNull(((ConventionSearchRequest) bean)._sortOrder, "sortOrder");
       super.validate(bean);
     }

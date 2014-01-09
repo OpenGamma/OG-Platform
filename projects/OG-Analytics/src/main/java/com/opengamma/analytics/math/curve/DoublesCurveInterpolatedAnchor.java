@@ -262,7 +262,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override

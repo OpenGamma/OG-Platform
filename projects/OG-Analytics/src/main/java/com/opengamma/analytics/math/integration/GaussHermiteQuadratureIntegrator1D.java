@@ -23,7 +23,7 @@ import com.opengamma.analytics.math.function.Function1D;
  * limits of integration.
  */
 public class GaussHermiteQuadratureIntegrator1D extends GaussianQuadratureIntegrator1D {
-  private static final Double[] LIMITS = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY};
+  private static final Double[] LIMITS = new Double[] {Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY };
   private static final GaussHermiteWeightAndAbscissaFunction GENERATOR = new GaussHermiteWeightAndAbscissaFunction();
 
   /**

@@ -15,12 +15,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.InterpolatorND;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterpolatedDoublesCubeTest extends DoublesCubeTest {
   @SuppressWarnings("synthetic-access")
   private static final MyInterpolator INTERPOLATOR = new MyInterpolator();

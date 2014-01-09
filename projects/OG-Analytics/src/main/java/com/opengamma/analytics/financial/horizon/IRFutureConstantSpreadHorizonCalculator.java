@@ -21,19 +21,20 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class IRFutureConstantSpreadHorizonCalculator implements HorizonCalculator<InterestRateFutureTransactionDefinition, YieldCurveBundle, Double> {
-  /** Rolls down a yield curve */
+public class IRFutureConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<InterestRateFutureTransactionDefinition, YieldCurveBundle, Double> {
+  /** Rolls down a yield curve bundle */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 
   @Override
-  public MultipleCurrencyAmount getTheta(final InterestRateFutureTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data, final int daysForward,
+  public MultipleCurrencyAmount getTheta(final InterestRateFutureTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
+      final YieldCurveBundle data, final int daysForward,
       final Calendar calendar) {
     throw new UnsupportedOperationException("Must supply a last margin price");
   }
 
   @Override
-  public MultipleCurrencyAmount getTheta(final InterestRateFutureTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data, final int daysForward,
-      final Calendar calendar, final Double lastMarginPrice) {
+  public MultipleCurrencyAmount getTheta(final InterestRateFutureTransactionDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
+      final YieldCurveBundle data, final int daysForward, final Calendar calendar, final Double lastMarginPrice) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");

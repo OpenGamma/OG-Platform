@@ -19,10 +19,12 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantY
 import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class PUFCreditCurveCalibrationTest extends ISDABaseTest {
   private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();
 

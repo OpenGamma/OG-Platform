@@ -106,7 +106,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     final String tradeType = desiredValue.getConstraint(PnLFunctionUtils.PNL_TRADE_TYPE_CONSTRAINT);
     if (tradeType == null) {
       s_logger.error("TradeType not set for: " + security.getName() +
-          ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
+          ". Choose one of {" + PnLFunctionUtils.PNL_TRADE_TYPE_OPEN + "," + PnLFunctionUtils.PNL_TRADE_TYPE_NEW + "," + PnLFunctionUtils.PNL_TRADE_TYPE_ALL + "}");
     }
 
     // Create output specification. Check for trivial cases
@@ -231,7 +231,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   protected Double calculateLivePrice(FunctionInputs inputs, ComputationTarget target) {  
     final ComputedValue valLivePrice = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
     if (valLivePrice == null) {
-      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target);
+      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target.getTrade().getSecurity().getName());
     }
     return (Double) valLivePrice.getValue();
   }

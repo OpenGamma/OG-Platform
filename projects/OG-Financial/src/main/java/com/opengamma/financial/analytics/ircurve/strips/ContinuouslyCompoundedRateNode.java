@@ -36,6 +36,9 @@ public class ContinuouslyCompoundedRateNode extends CurveNode {
   @PropertyDefinition(validate = "notNull")
   private Tenor _tenor;
 
+  /**
+   * For the builder.
+   */
   /* package */ContinuouslyCompoundedRateNode() {
     super();
   }

@@ -18,7 +18,7 @@ public final class SimpleFrequency implements Frequency, Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
-   * A frequency with a period of one year.
+   * A frequency with a period of zero.
    */
   public static final SimpleFrequency NEVER = new SimpleFrequency(NEVER_NAME, 0);
   /**
@@ -236,6 +236,9 @@ public final class SimpleFrequency implements Frequency, Serializable {
     }
     if (_name.equals(THREE_WEEK_NAME)) {
       return PeriodFrequency.THREE_WEEKS;
+    }
+    if (_name.equals(NEVER_NAME)) {
+      return PeriodFrequency.NEVER;
     }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
   }

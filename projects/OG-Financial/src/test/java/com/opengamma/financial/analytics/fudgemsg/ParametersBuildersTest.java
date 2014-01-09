@@ -17,13 +17,15 @@ import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ParametersBuildersTest extends AnalyticsTestBase {
 
   @Test

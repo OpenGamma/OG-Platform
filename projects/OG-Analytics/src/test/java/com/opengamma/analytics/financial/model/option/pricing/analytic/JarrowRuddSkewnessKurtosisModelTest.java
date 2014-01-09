@@ -20,12 +20,14 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.statistics.descriptive.LognormalFisherKurtosisFromVolatilityCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class JarrowRuddSkewnessKurtosisModelTest {
   private static final YieldAndDiscountCurve R = YieldCurve.from(ConstantDoublesCurve.from(0.05));
   private static final double B = 0.02;

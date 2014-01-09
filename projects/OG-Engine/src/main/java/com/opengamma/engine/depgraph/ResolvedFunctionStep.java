@@ -44,17 +44,15 @@ import com.opengamma.util.tuple.Triple;
       return true;
     }
     final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolvedFunction = getFunctions().next();
-    if (getTask().getFunctionExclusion() != null) {
-      final Collection<FunctionExclusionGroup> groups = getTask().getFunctionExclusion();
-      if (groups != null) {
-        final FunctionExclusionGroups util = context.getFunctionExclusionGroups();
-        final FunctionExclusionGroup exclusion = util.getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
-        if ((exclusion != null) && util.isExcluded(exclusion, groups)) {
-          s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
-          getTask().setRecursionDetected();
-          setRunnableTaskState(this, context);
-          return true;
-        }
+    final Collection<FunctionExclusionGroup> groups = getTask().getFunctionExclusion();
+    if (groups != null) {
+      final FunctionExclusionGroups util = context.getFunctionExclusionGroups();
+      final FunctionExclusionGroup exclusion = util.getExclusionGroup(resolvedFunction.getFirst().getFunction().getFunctionDefinition());
+      if ((exclusion != null) && util.isExcluded(exclusion, groups)) {
+        s_logger.debug("Ignoring {} from exclusion group {}", resolvedFunction, exclusion);
+        getTask().setRecursionDetected();
+        setRunnableTaskState(this, context);
+        return true;
       }
     }
     s_logger.debug("Considering {} for {}", resolvedFunction, getValueRequirement());

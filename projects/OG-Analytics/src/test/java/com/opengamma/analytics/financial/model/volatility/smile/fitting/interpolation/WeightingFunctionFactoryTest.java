@@ -10,10 +10,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class WeightingFunctionFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

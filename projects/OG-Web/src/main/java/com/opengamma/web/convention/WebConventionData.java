@@ -300,7 +300,7 @@ public class WebConventionData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the valid map of types.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public BiMap<String, Class<? extends ManageableConvention>> getTypeMap() {
     return _typeMap;
@@ -308,9 +308,10 @@ public class WebConventionData extends DirectBean {
 
   /**
    * Sets the valid map of types.
-   * @param typeMap  the new value of the property
+   * @param typeMap  the new value of the property, not null
    */
   public void setTypeMap(BiMap<String, Class<? extends ManageableConvention>> typeMap) {
+    JodaBeanUtils.notNull(typeMap, "typeMap");
     this._typeMap.clear();
     this._typeMap.putAll(typeMap);
   }
@@ -625,6 +626,11 @@ public class WebConventionData extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebConventionData) bean)._typeMap, "typeMap");
     }
 
   }

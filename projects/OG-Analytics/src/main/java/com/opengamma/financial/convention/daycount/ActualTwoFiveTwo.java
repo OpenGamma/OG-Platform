@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 @Deprecated
 public class ActualTwoFiveTwo extends StatelessDayCount {
   private static final long serialVersionUID = 1L;
-  private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("Business/252");
+  private static final DayCount DC = DayCounts.BUSINESS_252;
 
   @Override
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {

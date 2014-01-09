@@ -178,11 +178,11 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       args.addValue("sql_search_exchange_ids", sqlSelectIdKeys(request.getExchangeExternalIdSearch(), "exchange"));
     }
     if (customSearch != null) {
-      if (exchangeSearch.getSearchType() != ExternalIdSearchType.ANY) {
-        throw new IllegalArgumentException("Unsupported search type: " + exchangeSearch.getSearchType());
+      if (customSearch.getSearchType() != ExternalIdSearchType.ANY) {
+        throw new IllegalArgumentException("Unsupported search type: " + customSearch.getSearchType());
       }
       int i = 0;
-      for (ExternalId idKey : exchangeSearch.getExternalIds()) {
+      for (ExternalId idKey : customSearch.getExternalIds()) {
         args.addValue("custom_scheme" + i, idKey.getScheme().getName());
         args.addValue("custom_value" + i, idKey.getValue());
         i++;

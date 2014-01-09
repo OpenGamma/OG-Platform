@@ -19,7 +19,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -305,7 +305,7 @@ public final class ExternalIdWithDates implements ImmutableBean,
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -390,7 +390,7 @@ public final class ExternalIdWithDates implements ImmutableBean,
   /**
    * The bean-builder for {@code ExternalIdWithDates}.
    */
-  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdWithDates> {
+  private static final class Builder extends DirectFieldsBeanBuilder<ExternalIdWithDates> {
 
     private ExternalId _externalId;
     private LocalDate _validFrom;
@@ -400,7 +400,6 @@ public final class ExternalIdWithDates implements ImmutableBean,
      * Restricted constructor.
      */
     private Builder() {
-      super(ExternalIdWithDates.Meta.INSTANCE);
     }
 
     //-----------------------------------------------------------------------
@@ -423,6 +422,30 @@ public final class ExternalIdWithDates implements ImmutableBean,
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
+      return this;
+    }
+
+    @Override
     public ExternalIdWithDates build() {
       return new ExternalIdWithDates(
           _externalId,
@@ -435,9 +458,9 @@ public final class ExternalIdWithDates implements ImmutableBean,
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("ExternalIdWithDates.Builder{");
-      buf.append("externalId").append('=').append(_externalId).append(',').append(' ');
-      buf.append("validFrom").append('=').append(_validFrom).append(',').append(' ');
-      buf.append("validTo").append('=').append(_validTo);
+      buf.append("externalId").append('=').append(JodaBeanUtils.toString(_externalId)).append(',').append(' ');
+      buf.append("validFrom").append('=').append(JodaBeanUtils.toString(_validFrom)).append(',').append(' ');
+      buf.append("validTo").append('=').append(JodaBeanUtils.toString(_validTo));
       buf.append('}');
       return buf.toString();
     }

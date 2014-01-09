@@ -61,6 +61,7 @@ public class FXForwardNode extends CurveNode {
    */
   @PropertyDefinition(validate = "notNull")
   private Currency _receiveCurrency;
+
   /**
    * Used by the fudge builder.
    */

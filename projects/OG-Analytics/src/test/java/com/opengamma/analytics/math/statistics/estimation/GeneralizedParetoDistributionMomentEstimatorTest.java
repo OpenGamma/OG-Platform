@@ -14,10 +14,12 @@ import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.analytics.math.statistics.distribution.GeneralizedParetoDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneralizedParetoDistributionMomentEstimatorTest {
   private static final double MU = 6;
   private static final double SIGMA = 0.5;

@@ -130,9 +130,10 @@ public class ComponentTypeInfo extends DirectBean {
 
   /**
    * Sets the component info.
-   * @param infoMap  the new value of the property
+   * @param infoMap  the new value of the property, not null
    */
   public void setInfoMap(Map<String, ComponentInfo> infoMap) {
+    JodaBeanUtils.notNull(infoMap, "infoMap");
     this._infoMap.clear();
     this._infoMap.putAll(infoMap);
   }

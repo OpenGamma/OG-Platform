@@ -102,7 +102,7 @@ public class CurveNodeHistoricalDataLoader {
     final DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
     final Set<ExternalId> externalInitialRateId = newHashSet();
     for (final Currency currency : currencies) {
-      for (final String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
+      for (final String swapType : new String[] {"SWAP", "3M_SWAP", "6M_SWAP" }) {
         final String product = currency.getCode() + "_" + swapType;
         final ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
         if (convention != null) {
@@ -119,6 +119,7 @@ public class CurveNodeHistoricalDataLoader {
 
   /**
    * Generate quarterly dates +/- 2 years around today to cover futures from past and near future
+   * 
    * @return list of dates
    */
   private List<LocalDate> buildDates() {
@@ -134,6 +135,7 @@ public class CurveNodeHistoricalDataLoader {
 
   /**
    * Get all the curves starting with Forward or Discounting
+   * 
    * @param configMaster
    * @return list of yield curve definition config object names
    */
@@ -148,6 +150,7 @@ public class CurveNodeHistoricalDataLoader {
 
   /**
    * Get all the curve definition config object names specified by glob expression.
+   * 
    * @param configMaster
    * @param nameExpr glob type expression - e.g. blah*
    * @return list of names of config objects matching glob expression
@@ -164,6 +167,7 @@ public class CurveNodeHistoricalDataLoader {
 
   /**
    * For a given list of curve names, on a given list of dates, get the superset of all ids required by those curves.
+   * 
    * @param configSource
    * @param names
    * @param dates
@@ -178,7 +182,7 @@ public class CurveNodeHistoricalDataLoader {
         final InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (final LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+          final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition, VersionCorrection.LATEST);
           for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
             s_logger.info("Processing strip " + strip.getSecurity());
             externalIds.add(strip.getSecurity());
@@ -193,6 +197,7 @@ public class CurveNodeHistoricalDataLoader {
 
   /**
    * For a given list of curve names, on a given list of dates, get the superset of all ids which are futures
+   * 
    * @param configSource
    * @param names
    * @param dates
@@ -207,7 +212,7 @@ public class CurveNodeHistoricalDataLoader {
         final InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (final LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+          final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition, VersionCorrection.LATEST);
           for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
             s_logger.info("Processing strip " + strip.getSecurity());
             if (strip.getStrip().getInstrumentType().equals(StripInstrumentType.FUTURE)) {

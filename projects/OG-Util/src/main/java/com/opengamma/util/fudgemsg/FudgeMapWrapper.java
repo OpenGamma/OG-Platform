@@ -117,9 +117,10 @@ public class FudgeMapWrapper extends DirectBean {
 
   /**
    * Sets the map pairs.
-   * @param pairs  the new value of the property
+   * @param pairs  the new value of the property, not null
    */
   public void setPairs(List<Pair<?, ?>> pairs) {
+    JodaBeanUtils.notNull(pairs, "pairs");
     this._pairs.clear();
     this._pairs.addAll(pairs);
   }

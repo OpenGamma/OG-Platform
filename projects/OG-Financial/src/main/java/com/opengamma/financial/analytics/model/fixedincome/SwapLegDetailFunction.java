@@ -40,7 +40,6 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -50,9 +49,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
-import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -77,6 +74,7 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#SWAP_PAY_LEG_DETAILS} or {@link ValueRequirementNames#SWAP_RECEIVE_LEG_DETAILS}
+   * 
    * @param payLeg True if the details to be returned are for the pay leg; false returns details for receive legs.
    */
   public SwapLegDetailFunction(final String payLeg) {
@@ -85,6 +83,7 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#SWAP_PAY_LEG_DETAILS} or {@link ValueRequirementNames#SWAP_RECEIVE_LEG_DETAILS}
+   * 
    * @param payLeg True if the details to be returned are for the pay leg; false returns details for receive legs.
    */
   public SwapLegDetailFunction(final boolean payLeg) {
@@ -98,8 +97,7 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final SwapSecurity security = (SwapSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Clock snapshotClock = executionContext.getValuationClock();
@@ -107,9 +105,7 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfigSource().getConfig(curveCalculationConfigName);
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
@@ -121,13 +117,13 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
     }
     final String[] yieldCurveNames = numCurveNames == 1 ? new String[] {fullCurveNames[0], fullCurveNames[0] } : fullCurveNames;
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
-    final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
+    final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, getCurveCalculationConfigSource());
     final SwapDefinition definition = (SwapDefinition) security.accept(getVisitor());
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
-    final Swap<? extends Payment, ? extends Payment> derivative =
-        (Swap<? extends Payment, ? extends Payment>) getDerivative(security, now, timeSeries, curveNamesForSecurity, definition, getConverter());
+    final Swap<? extends Payment, ? extends Payment> derivative = (Swap<? extends Payment, ? extends Payment>) getDerivative(security, now, timeSeries, curveNamesForSecurity, definition,
+        getConverter());
     final AnnuityDefinition<? extends PaymentDefinition> legDefinition;
     final Annuity<? extends Payment> legDerivative;
     final boolean isFixed;
@@ -152,8 +148,8 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
     final Double[] fixedRates = legDerivative.accept(AnnuityFixedRatesVisitor.getInstance());
     final double[] discountFactors = legDerivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), bundle);
     if (isFixed) {
-      final FixedSwapLegDetails details = new FixedSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), discountFactors, paymentTimes,
-          paymentFractions, paymentAmounts, notionals, fixedRates);
+      final FixedSwapLegDetails details = new FixedSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), discountFactors, paymentTimes, paymentFractions, paymentAmounts,
+          notionals, fixedRates);
       return Collections.singleton(new ComputedValue(spec, details));
     }
     final Pair<LocalDate[], LocalDate[]> fixingDates = legDefinition.accept(AnnuityFixingDatesVisitor.getInstance(), localDate);
@@ -164,15 +160,14 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
     final double[] spreads = legDefinition.accept(AnnuitySpreadsVisitor.getInstance(), localDate);
     final double[] gearings = legDefinition.accept(AnnuityGearingsVisitor.getInstance(), localDate);
     final Tenor[] indexTenors = legDefinition.accept(AnnuityIndexTenorsVisitor.getInstance(), localDate);
-    final FloatingSwapLegDetails details = new FloatingSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(),
-        paymentFractions, fixingDates.getFirst(), fixingDates.getSecond(), fixingYearFractions, forwardRates,
-        fixedRates, paymentDates, paymentTimes, discountFactors, paymentAmounts, projectedAmounts, notionals, spreads, gearings, indexTenors);
+    final FloatingSwapLegDetails details = new FloatingSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), paymentFractions, fixingDates.getFirst(), fixingDates.getSecond(),
+        fixingYearFractions, forwardRates, fixedRates, paymentDates, paymentTimes, discountFactors, paymentAmounts, projectedAmounts, notionals, spreads, gearings, indexTenors);
     return Collections.singleton(new ComputedValue(spec, details));
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle, final FinancialSecurity security,
-      final ComputationTarget target, final String curveCalculationConfigName, final String currency) {
+  protected Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle, final FinancialSecurity security, final ComputationTarget target,
+      final String curveCalculationConfigName, final String currency) {
     throw new UnsupportedOperationException();
   }
 }

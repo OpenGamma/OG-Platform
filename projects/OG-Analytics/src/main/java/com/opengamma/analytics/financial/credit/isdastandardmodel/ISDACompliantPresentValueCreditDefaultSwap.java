@@ -13,11 +13,11 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,11 +29,11 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
   @SuppressWarnings("unused")
   private static final int DEFAULT_CASH_SETTLEMENT_DAYS = 3;
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
+  private static final DayCount ACT_365 = DayCounts.ACT_365;
+  private static final DayCount ACT_360 = DayCounts.ACT_360;
 
   private final BusinessDayConvention _businessdayAdjustmentConvention;
   private final Calendar _calandar;

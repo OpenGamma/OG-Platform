@@ -128,18 +128,18 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
         costOfCarry = Math.log(fCurve.getForward(timeToExpiry) / spot) / timeToExpiry;
       }
       
-      if (timeToExpiry < 7. / 365.) {
-        impliedVol = volatility;
-      } else {
-        try {
-          impliedVol = model.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.2));
-        } catch (final IllegalArgumentException e) {
-          if (inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE) == null) {
-            impliedVol =  null;
-          } else {
-            s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " not defined, reference value returned" + targetSpec);
-            impliedVol = impliedVolatilityFailed(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall);
-          }
+      try {
+        if (timeToExpiry < 7. / 365.) {
+          impliedVol = BlackFormulaRepository.impliedVolatility(optionPrice / market.getDiscountCurve().getDiscountFactor(timeToExpiry), fCurve.getForward(timeToExpiry), strike, timeToExpiry, isCall);
+        } else {
+          impliedVol = model.impliedVolatility(optionPrice, modSpot, strike, discountRate, costOfCarry, timeToExpiry, isCall, Math.min(volatility * 1.5, 0.15));
+        }
+      } catch (final IllegalArgumentException e) {
+        if (inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE) == null) {
+          impliedVol =  null;
+        } else {
+          s_logger.warn(MarketDataRequirementNames.IMPLIED_VOLATILITY + " undefined " + targetSpec);
+          impliedVol = 0.;
         }
       }
     } else {
@@ -147,28 +147,6 @@ public class EquityOptionBjerksundStenslandImpliedVolFunction extends EquityOpti
     }
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
-  }
-  
-  /*
-   * ref value is returned if market price is not consistent, e.g., (market price) < S - K for call. 
-   */
-  private double impliedVolatilityFailed(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
-    final BjerksundStenslandModel model = new BjerksundStenslandModel();
-    double sigma1 = 0.;
-    double vega = model.getPriceAndVega(s0, k, r, b, t, sigma1, isCall)[0];
-    if (Math.abs(vega) > 1.e-9) {
-      return 0.01;
-    }
-    double sigma2 = 1.5;
-    while (Math.abs(sigma1 - sigma2) > 1.e-7) {
-      vega = model.getPriceAndVega(s0, k, r, b, t, 0.5 * (sigma1 + sigma2), isCall)[0];
-      if (Math.abs(vega) > 1.e-9) {
-        sigma2 = 0.5 * (sigma1 + sigma2);
-      } else {
-        sigma1 = 0.5 * (sigma1 + sigma2);
-      }
-    }
-    return 0.5 * (sigma1 + sigma2);
   }
   
 

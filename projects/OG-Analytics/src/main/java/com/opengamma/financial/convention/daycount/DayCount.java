@@ -108,6 +108,7 @@ public interface DayCount extends NamedInstance {
    * @return the name, not null
    */
   @ToString
+  @Override
   String getName();
 
 }

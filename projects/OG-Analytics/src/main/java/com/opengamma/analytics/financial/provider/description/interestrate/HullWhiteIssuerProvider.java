@@ -1,13 +1,19 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class describing a provider with discounting, forward, credit curves and Hull-White parameters on one issuer curve.
@@ -23,21 +29,17 @@ public class HullWhiteIssuerProvider implements HullWhiteIssuerProviderInterface
    * The Hull-White one factor model parameters.
    */
   private final HullWhiteOneFactorPiecewiseConstantParameters _parameters;
-  /**
-   * The issuer/currency for which the Hull-White parameters are valid (Hull-White on the issuer discounting curve).
-   */
-  private final Pair<String, Currency> _issuerCcyHW;
 
   /**
    * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
-   * @param issuer The issuer provider.
-   * @param parameters The Hull-White one factor parameters.
-   * @param issuerCcyHW The issuer/currency for which the Hull-White parameters are valid (Hull-White on the issuer discounting curve).
+   * @param issuer The issuer provider, not null
+   * @param parameters The Hull-White one factor parameters, not null
    */
-  public HullWhiteIssuerProvider(final IssuerProviderInterface issuer, HullWhiteOneFactorPiecewiseConstantParameters parameters, final Pair<String, Currency> issuerCcyHW) {
+  public HullWhiteIssuerProvider(final IssuerProviderInterface issuer, final HullWhiteOneFactorPiecewiseConstantParameters parameters) {
+    ArgumentChecker.notNull(issuer, "issuer");
+    ArgumentChecker.notNull(parameters, "parameters");
     _issuerProvider = issuer;
     _parameters = parameters;
-    _issuerCcyHW = issuerCcyHW;
   }
 
   @Override
@@ -52,8 +54,8 @@ public class HullWhiteIssuerProvider implements HullWhiteIssuerProviderInterface
 
   @Override
   public HullWhiteIssuerProviderInterface copy() {
-    IssuerProviderInterface issuer = _issuerProvider.copy();
-    return new HullWhiteIssuerProvider(issuer, getHullWhiteParameters(), getHullWhiteIssuerCurrency());
+    final IssuerProviderInterface issuer = _issuerProvider.copy();
+    return new HullWhiteIssuerProvider(issuer, getHullWhiteParameters());
   }
 
   @Override
@@ -62,8 +64,45 @@ public class HullWhiteIssuerProvider implements HullWhiteIssuerProviderInterface
   }
 
   @Override
-  public Pair<String, Currency> getHullWhiteIssuerCurrency() {
-    return _issuerCcyHW;
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _issuerProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _issuerProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _issuerProvider.getAllCurveNames();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _issuerProvider.hashCode();
+    result = prime * result + _parameters.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof HullWhiteIssuerProvider)) {
+      return false;
+    }
+    final HullWhiteIssuerProvider other = (HullWhiteIssuerProvider) obj;
+    if (!ObjectUtils.equals(_issuerProvider, other._issuerProvider)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_parameters, other._parameters)) {
+      return false;
+    }
+    return true;
   }
 
 }

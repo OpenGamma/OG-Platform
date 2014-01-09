@@ -13,18 +13,20 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test AccruedInterestCalculator.
  */
+@Test(groups = TestGroup.UNIT)
 public class AccruedInterestCalculatorTest {
 
-  private static final DayCount DC1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
+  private static final DayCount DC1 = DayCounts.ACT_ACT_ICMA;
   private static final ZonedDateTime DATE1 = DateUtils.getUTCDate(2006, 1, 4);
   private static final ZonedDateTime[] SCHEDULE1 = new ZonedDateTime[] {DateUtils.getUTCDate(2005, 8, 15), DateUtils.getUTCDate(2006, 2, 15), DateUtils.getUTCDate(2006, 8, 15),
       DateUtils.getUTCDate(2007, 2, 15)};
-  private static final DayCount DC2 = DayCountFactory.INSTANCE.getDayCount("30U/360");
+  private static final DayCount DC2 = DayCounts.THIRTY_U_360;
   private static final ZonedDateTime DATE2 = DateUtils.getUTCDate(2006, 1, 6);
   private static final ZonedDateTime[] SCHEDULE2 = new ZonedDateTime[] {DateUtils.getUTCDate(2005, 8, 15), DateUtils.getUTCDate(2006, 2, 15), DateUtils.getUTCDate(2006, 8, 15),
       DateUtils.getUTCDate(2007, 2, 14)};

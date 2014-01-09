@@ -43,6 +43,7 @@ import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -65,7 +66,8 @@ public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanilla
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic,
+                                                Tenor[] tenors) {
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
     //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
@@ -80,7 +82,7 @@ public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanilla
                       spreadCurveBump,
                       spreadBumpType,
                       gammaCS01,
-                      dates);
+                      dates, tenors);
     final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, gammaCS01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_GAMMA_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));
@@ -94,17 +96,17 @@ public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanilla
                                  CDSAnalytic analytic,
                                  Double spreadCurveBump,
                                  SpreadBumpType spreadBumpType,
-                                 double[] gammaCS01, LocalDate[] dates) {
+                                 double[] gammaCS01, LocalDate[] dates, Tenor[] tenors) {
 
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
-    Period[] tenors = new Period[times.length];
+    Period[] periods = new Period[times.length];
     for (int i = 0; i < times.length; i++) {
-      tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
+      periods[i] = tenors[i].getPeriod();
     }
-    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
+    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), periods);
 
     for (int i = 0; i < times.length; i++) {
       final double[] bumpedUpRates = SPREAD_BUMPER.getBumpedCreditSpreads(marketSpreads, i, spreadCurveBump * 1e-4, spreadBumpType);

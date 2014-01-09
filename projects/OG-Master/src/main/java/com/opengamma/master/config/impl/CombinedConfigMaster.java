@@ -25,7 +25,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
  */
 public class CombinedConfigMaster extends ChangeProvidingCombinedMaster<ConfigDocument, ConfigMaster> implements ConfigMaster {
 
-  protected CombinedConfigMaster(List<ConfigMaster> masterList) {
+  public CombinedConfigMaster(List<ConfigMaster> masterList) {
     super(masterList);
   }
 

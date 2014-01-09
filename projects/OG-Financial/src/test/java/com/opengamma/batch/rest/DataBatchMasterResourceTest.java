@@ -62,7 +62,8 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     newHashSet(new RiskRunProperty()),
     false,
     VersionCorrection.LATEST, 
-    UniqueId.of("Scheme", "view-def")
+    UniqueId.of("Scheme", "view-def"),
+    "cyclename"
   );
 
   @BeforeMethod

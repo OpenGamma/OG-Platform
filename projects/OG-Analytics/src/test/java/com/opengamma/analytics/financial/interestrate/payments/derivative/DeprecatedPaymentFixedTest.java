@@ -11,11 +11,13 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedPaymentFixedTest {
 
   private static final double PAYMENT_TIME = 0.67;

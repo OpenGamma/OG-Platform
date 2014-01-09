@@ -11,10 +11,12 @@ import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.function.DoubleFunction1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class HermitePolynomialFunctionTest {
   private static final DoubleFunction1D H0 = new DoubleFunction1D() {
 

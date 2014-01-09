@@ -679,7 +679,8 @@ public class DbBatchWriter extends AbstractDbMaster {
     final VersionCorrection versionCorrection,
     final Instant valuationTime,
     final Map<String, String> batchParameters,
-    final SnapshotMode snapshotMode) {
+    final SnapshotMode snapshotMode,
+    final String name) {
 
     Instant now = Instant.now();
 
@@ -695,6 +696,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
     riskRun.setSnapshotMode(snapshotMode);
+    riskRun.setName(name);
 
     for (Map.Entry<String, String> parameter : batchParameters.entrySet()) {
       riskRun.addProperty(parameter.getKey(), parameter.getValue());
@@ -728,7 +730,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
         if (run == null) {
           run = createRiskRunInTransaction(cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId(),
-              cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode);
+              cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode, cycleMetadata.getName());
         } else {
           restartRunInTransaction(run);
         }
@@ -741,12 +743,12 @@ public class DbBatchWriter extends AbstractDbMaster {
         }
 
         run = createRiskRunInTransaction(cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId(),
-            cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode);
+            cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode, cycleMetadata.getName());
         break;
 
       case CREATE_NEW:
         run = createRiskRunInTransaction(cycleMetadata.getViewDefinitionId(), cycleMetadata.getMarketDataSnapshotId(),
-            cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode);
+            cycleMetadata.getVersionCorrection(), cycleMetadata.getValuationTime(), batchParameters, snapshotMode, cycleMetadata.getName());
         break;
 
       case REUSE_EXISTING:

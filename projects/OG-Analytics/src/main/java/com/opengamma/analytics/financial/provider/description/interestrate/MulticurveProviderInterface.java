@@ -12,9 +12,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface of a multi-curves framework providing discounting factors, forward rate (linked to Ibor index), issuer/currency specific curves and currency exchange rates.
@@ -48,6 +46,15 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
 
   /**
+   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @return The forward rate.
+   */
+  double getForwardRate(IborIndex index, double startTime, double endTime);
+
+  /**
    * Gets the forward for one Ibor index between start and end times.
    * @param index The Ibor index.
    * @param startTime The start time.
@@ -59,31 +66,22 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
 
   /**
+   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
+   * @param index The Ibor index.
+   * @param startTime The start time.
+   * @param endTime The end time.
+   * @return The forward rate.
+   */
+  // TODO: Do we want to have a unique method for IborIndex and IndexON? UniqueIdentifiable?
+  double getForwardRate(IndexON index, double startTime, double endTime);
+
+  /**
    * Return the exchange rate between two currencies.
    * @param ccy1 The first currency.
    * @param ccy2 The second currency.
    * @return The exchange rate: 1.0 * ccy1 = x * ccy2.
    */
   double getFxRate(final Currency ccy1, final Currency ccy2);
-
-  // TODO: Maybe some of the methods below should be in an implementation class.
-  // REVIEW emcleod 2013-9-16 Yes, they should be moved - these classes do far too much and there's
-  // quite a lot of code repeated between various providers.
-  /**
-   * Gets the sensitivities to the curve parameters.
-   * @param name The curve name
-   * @param pointSensitivity The point sensitivities
-   * @return The sensitivities to the parameters
-   */
-  double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);
-
-  /**
-   * Gets the forward sensitivities to the curve parameters.
-   * @param name The curve name
-   * @param pointSensitivity The point sensitivities
-   * @return The forward sensitivities to the parameters
-   */
-  double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
 
   /**
    * Gets the number of parameters for a curve described by its name.

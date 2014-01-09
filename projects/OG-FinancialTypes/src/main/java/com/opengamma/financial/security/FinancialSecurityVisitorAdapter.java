@@ -31,6 +31,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -178,6 +179,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitFRASecurity(final FRASecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -454,6 +460,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         public T visitFRASecurity(final FRASecurity security) {
           return visitor.visitFRASecurity(security);
         }
+
+        @Override
+        public T visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
+          return visitor.visitForwardRateAgreementSecurity(security);
+        }
       };
       return this;
     }
@@ -463,6 +474,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         @Override
         public T visitSwapSecurity(final SwapSecurity security) {
           return visitor.visitSwapSecurity(security);
+        }
+
+        @Override
+        public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+          return visitor.visitInterestRateSwapSecurity(security);
         }
       };
       return this;

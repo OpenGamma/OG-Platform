@@ -65,11 +65,11 @@ public class MarketQuotePositionFunction extends AbstractFunction.NonCompiledInv
     final Collection<Trade> trades = position.getTrades();
     for (Trade trade : trades) {
       Security security = trade.getSecurity();
-      if (!(security instanceof InterestRateFutureSecurity || security instanceof DeliverableSwapFutureSecurity)) {
-        return false;
+      if (security instanceof InterestRateFutureSecurity || security instanceof DeliverableSwapFutureSecurity) {
+        return true;
       }
     }
-    return true;
+    return false;
   }
   
   @Override

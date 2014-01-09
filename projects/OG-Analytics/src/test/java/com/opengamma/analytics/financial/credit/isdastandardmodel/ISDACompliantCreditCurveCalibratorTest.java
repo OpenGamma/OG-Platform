@@ -14,21 +14,16 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantPresentValueCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.SimpleCreditCurveBuilder;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
+import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ISDACompliantCreditCurveCalibratorTest {
 
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
@@ -45,7 +40,7 @@ public class ISDACompliantCreditCurveCalibratorTest {
   private static final double[] DISCOUNT_FACT;
   private static final double[] YC_TIMES;
   private static final ISDACompliantDateYieldCurve YIELD_CURVE;
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  private static final DayCount ACT365 = DayCounts.ACT_365;
 
   static {
     final int ycPoints = YC_DATES.length;

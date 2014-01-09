@@ -18,11 +18,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test class for the coupon fixed accrued compounding.
  */
+@Test(groups = TestGroup.UNIT)
 public class CouponFixedAccruedCompoundingDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");

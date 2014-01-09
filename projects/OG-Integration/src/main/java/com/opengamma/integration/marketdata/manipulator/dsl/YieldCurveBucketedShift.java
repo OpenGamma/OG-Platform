@@ -16,7 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -83,7 +83,6 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
 
   /**
    * Returns a builder used to create an instance of the bean.
-   *
    * @return the builder, not null
    */
   public static YieldCurveBucketedShift.Builder builder() {
@@ -246,7 +245,7 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -343,7 +342,7 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
   /**
    * The bean-builder for {@code YieldCurveBucketedShift}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<YieldCurveBucketedShift> {
+  public static final class Builder extends DirectFieldsBeanBuilder<YieldCurveBucketedShift> {
 
     private double _startYears;
     private double _endYears;
@@ -354,7 +353,6 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
      * Restricted constructor.
      */
     private Builder() {
-      super(YieldCurveBucketedShift.Meta.INSTANCE);
     }
 
     /**
@@ -362,7 +360,6 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(YieldCurveBucketedShift beanToCopy) {
-      super(YieldCurveBucketedShift.Meta.INSTANCE);
       this._startYears = beanToCopy.getStartYears();
       this._endYears = beanToCopy.getEndYears();
       this._curveShiftType = beanToCopy.getCurveShiftType();
@@ -388,6 +385,30 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
+      return this;
+    }
+
+    @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(String propertyName, String value) {
+      setString(meta().metaProperty(propertyName), value);
+      return this;
+    }
+
+    @Override
+    public Builder setString(MetaProperty<?> property, String value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
+    public Builder setAll(Map<String, ? extends Object> propertyValueMap) {
+      super.setAll(propertyValueMap);
       return this;
     }
 
@@ -446,10 +467,10 @@ public final class YieldCurveBucketedShift implements ImmutableBean {
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("YieldCurveBucketedShift.Builder{");
-      buf.append("startYears").append('=').append(_startYears).append(',').append(' ');
-      buf.append("endYears").append('=').append(_endYears).append(',').append(' ');
-      buf.append("curveShiftType").append('=').append(_curveShiftType).append(',').append(' ');
-      buf.append("shift").append('=').append(_shift);
+      buf.append("startYears").append('=').append(JodaBeanUtils.toString(_startYears)).append(',').append(' ');
+      buf.append("endYears").append('=').append(JodaBeanUtils.toString(_endYears)).append(',').append(' ');
+      buf.append("curveShiftType").append('=').append(JodaBeanUtils.toString(_curveShiftType)).append(',').append(' ');
+      buf.append("shift").append('=').append(JodaBeanUtils.toString(_shift));
       buf.append('}');
       return buf.toString();
     }

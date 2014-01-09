@@ -103,7 +103,7 @@ $.register_module({
         var data_handler = function (data) {
             var clipboard = this, grid = clipboard.grid, lcv, index,
                 selection = clipboard.selection, rows, cols, row, cell, single;
-            if (!clipboard.selection) return; // user has deselected before handler came back, so bail
+            if (!clipboard.selection || !data) return; // user has deselected before handler came back, so bail
             index = 0; rows = selection.rows.length; cols = selection.cols.length; single = rows === 1 && cols === 1;
             if (single && data[0].error && !data[0]['logOutput']) // if there's no error output yet, bail
                 return clipboard.data = null;

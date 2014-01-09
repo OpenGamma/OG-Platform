@@ -20,7 +20,7 @@
           </label>
         </td>
         <td>
-          <input class="blotter-date" name="{{prefix}}}effectiveDate" type="text" value="{{effective}}"/>
+          <input class="blotter-date" name="{{prefix}}effectiveDate" type="text" value="{{effective}}"/>
         </td>
       </tr>
       <tr>
@@ -30,7 +30,18 @@
           </label>
         </td>
         <td>
-          <input class="blotter-date" name="{{prefix}}}maturityDate" type="text" value="{{maturity}}"/>
+          <input class="blotter-date" name="{{prefix}}maturityDate" type="text" value="{{maturity}}"/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span>Notional</span>
+        </td>
+        <td class="og-double-cell">
+          <div><span><label><span>Exchange Initial
+          </span><input name="{{prefix}}exchangeInitialNotional" type="checkbox"/></label>
+          </span><span><label><span>Exchange Final
+          </span><input name="{{prefix}}exchangeFinalNotional" type="checkbox"/></label></span></div>
         </td>
       </tr>
     </tbody>

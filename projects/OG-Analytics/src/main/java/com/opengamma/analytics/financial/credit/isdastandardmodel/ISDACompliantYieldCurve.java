@@ -6,23 +6,32 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An ISDA compliant yield curve.
  */
 @BeanDefinition
-public class ISDACompliantYieldCurve
-    extends ISDACompliantCurve {
+public class ISDACompliantYieldCurve extends ISDACompliantCurve {
+
+  public static ISDACompliantYieldCurve makeFromForwardRates(final double[] t, final double[] fwd) {
+    return new ISDACompliantYieldCurve(ISDACompliantCurve.makeFromForwardRates(t, fwd));
+  }
+
+  public static ISDACompliantYieldCurve makeFromRT(final double[] t, final double[] rt) {
+    ArgumentChecker.notEmpty(t, "t");
+    ArgumentChecker.notEmpty(rt, "rt");
+    ArgumentChecker.isTrue(t.length == rt.length, "length of t not equal to length of rt");
+    return new ISDACompliantYieldCurve(new ISDACompliantCurve(new double[][] {t, rt }));
+  }
 
   /**
    * Constructor for Joda-Beans.
@@ -76,20 +85,6 @@ public class ISDACompliantYieldCurve
    */
   public ISDACompliantYieldCurve(final ISDACompliantCurve from) {
     super(from);
-  }
-
-  /**
-   * Creates an instance, used by deserialization.
-   * 
-   * @param t  the set of times that form the knots of the curve. Must be ascending with the first value >= 0.
-   * @param r  the set of zero rates
-   * @param rt  the set of rates at the knot times
-   * @param df  the set of discount factors at the knot times
-   * @deprecated This constructor is deprecated
-   */
-  @Deprecated
-  public ISDACompliantYieldCurve(final double[] t, final double[] r, final double[] rt, final double[] df) {
-    super(t, r, rt, df);
   }
 
   //-------------------------------------------------------------------------

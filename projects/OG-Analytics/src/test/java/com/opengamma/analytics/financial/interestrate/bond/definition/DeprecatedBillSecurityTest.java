@@ -11,15 +11,17 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -27,13 +29,14 @@ import com.opengamma.util.time.DateUtils;
  * @deprecated This class tests deprecated functionality
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class DeprecatedBillSecurityTest {
 
   private final static Currency EUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 16);
 
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount ACT360 = DayCounts.ACT_360;
   private static final int SETTLEMENT_DAYS = 2;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("INTEREST@MTY");
 
@@ -61,8 +64,13 @@ public class DeprecatedBillSecurityTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void nullISSUEUR() {
-    new BillSecurity(EUR, SETTLE_TIME, END_TIME, NOTIONAL, YIELD_CONVENTION, ACCRUAL_FACTOR, null, CREDIT_NAME, DSC_NAME);
+  public void nullIssuer1() {
+    new BillSecurity(EUR, SETTLE_TIME, END_TIME, NOTIONAL, YIELD_CONVENTION, ACCRUAL_FACTOR, (String) null, CREDIT_NAME, DSC_NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void nullIssuer2() {
+    new BillSecurity(EUR, SETTLE_TIME, END_TIME, NOTIONAL, YIELD_CONVENTION, ACCRUAL_FACTOR, (LegalEntity) null, CREDIT_NAME, DSC_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -91,7 +99,7 @@ public class DeprecatedBillSecurityTest {
     assertEquals("Bill Security: getter", NOTIONAL, BILL_SEC.getNotional());
     assertEquals("Bill Security: getter", YIELD_CONVENTION, BILL_SEC.getYieldConvention());
     assertEquals("Bill Security: getter", ACCRUAL_FACTOR, BILL_SEC.getAccrualFactor());
-    assertEquals("Bill Security: getter", ISSUER_BEL, BILL_SEC.getIssuer());
+    assertEquals("Bill Security: getter", new LegalEntity(null, ISSUER_BEL, null, null, null), BILL_SEC.getIssuerEntity());
     assertEquals("Bill Security: getter", DSC_NAME, BILL_SEC.getDiscountingCurveName());
   }
 

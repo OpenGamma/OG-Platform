@@ -28,7 +28,7 @@ public class SwapXCcyDefinition extends SwapDefinition {
    * @param firstLeg The first Ibor leg.
    * @param secondLeg The second Ibor leg.
    */
-  public SwapXCcyDefinition(final AnnuityDefinition<PaymentDefinition> firstLeg, final AnnuityDefinition<PaymentDefinition> secondLeg) {
+  public SwapXCcyDefinition(final AnnuityDefinition<? extends PaymentDefinition> firstLeg, final AnnuityDefinition<? extends PaymentDefinition> secondLeg) {
     super(firstLeg, secondLeg);
     ArgumentChecker.isTrue(firstLeg.getCurrency() != secondLeg.getCurrency(), "Currencies should be different");
   }

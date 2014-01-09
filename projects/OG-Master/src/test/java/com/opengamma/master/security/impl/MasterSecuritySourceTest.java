@@ -45,72 +45,55 @@ public class MasterSecuritySourceTest {
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_1arg_nullMaster() throws Exception {
+  public void test_constructor_nullMaster() throws Exception {
     new MasterSecuritySource(null);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void test_constructor_2arg_nullMaster() throws Exception {
-    new MasterSecuritySource(null, null);
   }
 
   //-------------------------------------------------------------------------
   public void test_getSecurity_UniqueId_noOverride_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
-    
+
     SecurityDocument doc = new SecurityDocument(example());
     when(mock.get(UID)).thenReturn(doc);
     MasterSecuritySource test = new MasterSecuritySource(mock);
     Security testResult = test.get(UID);
     verify(mock, times(1)).get(UID);
-    
-    assertEquals(example(), testResult);
-  }
 
-  public void test_getSecurity_UniqueId_found() throws Exception {
-    SecurityMaster mock = mock(SecurityMaster.class);
-    
-    SecurityDocument doc = new SecurityDocument(example());
-    when(mock.get(OID, VC)).thenReturn(doc);
-    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Security testResult = test.get(UID);
-    verify(mock, times(1)).get(OID, VC);
-    
     assertEquals(example(), testResult);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getSecurity_UniqueId_notFound() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
-    
-    when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
-    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+
+    when(mock.get(UID)).thenThrow(new DataNotFoundException(""));
+    MasterSecuritySource test = new MasterSecuritySource(mock);
     try {
       test.get(UID);
     } finally {
-      verify(mock, times(1)).get(OID, VC);
+      verify(mock, times(1)).get(UID);
     }
   }
 
   //-------------------------------------------------------------------------
   public void test_getSecurity_ObjectId_found() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
-    
+
     SecurityDocument doc = new SecurityDocument(example());
     when(mock.get(OID, VC)).thenReturn(doc);
-    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
     Security testResult = test.get(OID, VC);
     verify(mock, times(1)).get(OID, VC);
-    
+
     assertEquals(example(), testResult);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void test_getSecurity_ObjectId_notFound() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
-    
+
     when(mock.get(OID, VC)).thenThrow(new DataNotFoundException(""));
-    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
     try {
       test.get(OID, VC);
     } finally {
@@ -119,7 +102,25 @@ public class MasterSecuritySourceTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSecuritiesByExternalIdBundle() throws Exception {
+  public void test_get_ExternalIdBundle() throws Exception {
+    SecurityMaster mock = mock(SecurityMaster.class);
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addExternalId(ID1);
+    request.addExternalId(ID2);
+    ManageableSecurity security = example();
+    SecuritySearchResult result = new SecuritySearchResult();
+    result.getDocuments().add(new SecurityDocument(security));
+
+    when(mock.search(request)).thenReturn(result);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
+    Collection<Security> testResult = test.get(BUNDLE);
+    verify(mock, times(1)).search(request);
+
+    assertEquals(UID, testResult.iterator().next().getUniqueId());
+    assertEquals("Test", testResult.iterator().next().getName());
+  }
+
+  public void test_get_ExternalIdBundle_VersionCorrection() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ID1);
@@ -128,18 +129,36 @@ public class MasterSecuritySourceTest {
     ManageableSecurity security = example();
     SecuritySearchResult result = new SecuritySearchResult();
     result.getDocuments().add(new SecurityDocument(security));
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Collection<Security> testResult = test.get(BUNDLE);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
+    Collection<Security> testResult = test.get(BUNDLE, VC);
     verify(mock, times(1)).search(request);
-    
+
     assertEquals(UID, testResult.iterator().next().getUniqueId());
     assertEquals("Test", testResult.iterator().next().getName());
   }
 
   //-------------------------------------------------------------------------
-  public void test_getSecurity_ExternalId() throws Exception {
+  public void test_getSingle_ExternalIdBundle() throws Exception {
+    SecurityMaster mock = mock(SecurityMaster.class);
+    SecuritySearchRequest request = new SecuritySearchRequest();
+    request.addExternalId(ID1);
+    request.addExternalId(ID2);
+    ManageableSecurity security = example();
+    SecuritySearchResult result = new SecuritySearchResult();
+    result.getDocuments().add(new SecurityDocument(security));
+
+    when(mock.search(request)).thenReturn(result);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
+    Security testResult = test.getSingle(BUNDLE);
+    verify(mock, times(1)).search(request);
+
+    assertEquals(UID, testResult.getUniqueId());
+    assertEquals("Test", testResult.getName());
+  }
+
+  public void test_getSingle_ExternalIdBundle_VersionCorrection() throws Exception {
     SecurityMaster mock = mock(SecurityMaster.class);
     SecuritySearchRequest request = new SecuritySearchRequest();
     request.addExternalId(ID1);
@@ -148,12 +167,12 @@ public class MasterSecuritySourceTest {
     ManageableSecurity security = example();
     SecuritySearchResult result = new SecuritySearchResult();
     result.getDocuments().add(new SecurityDocument(security));
-    
+
     when(mock.search(request)).thenReturn(result);
-    MasterSecuritySource test = new MasterSecuritySource(mock, VC);
-    Security testResult = test.getSingle(BUNDLE);
+    MasterSecuritySource test = new MasterSecuritySource(mock);
+    Security testResult = test.getSingle(BUNDLE, VC);
     verify(mock, times(1)).search(request);
-    
+
     assertEquals(UID, testResult.getUniqueId());
     assertEquals("Test", testResult.getName());
   }

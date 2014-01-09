@@ -267,7 +267,6 @@ $.register_module({
                     });
                 };
                 update_legend = function () {
-                    if(!!$(selector)) return;
                     var $legends = $(selector + ' .legendLabel'),
                         axes = $p1.getAxes(), j, dataset = $p1.getData(), i = dataset.length, series, y, p1, p2,
                         $date_elm = $legend.find('.og-date'), date, format_date, legend_height,

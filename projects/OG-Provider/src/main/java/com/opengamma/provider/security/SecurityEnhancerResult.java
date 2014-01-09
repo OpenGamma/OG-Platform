@@ -104,7 +104,7 @@ public class SecurityEnhancerResult extends DirectBean {
   /**
    * Gets the securities that were enhanced.
    * These are in the same order as the securities passed to the request.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public List<Security> getResultList() {
     return _resultList;
@@ -113,9 +113,10 @@ public class SecurityEnhancerResult extends DirectBean {
   /**
    * Sets the securities that were enhanced.
    * These are in the same order as the securities passed to the request.
-   * @param resultList  the new value of the property
+   * @param resultList  the new value of the property, not null
    */
   public void setResultList(List<Security> resultList) {
+    JodaBeanUtils.notNull(resultList, "resultList");
     this._resultList.clear();
     this._resultList.addAll(resultList);
   }
@@ -262,6 +263,11 @@ public class SecurityEnhancerResult extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityEnhancerResult) bean)._resultList, "resultList");
     }
 
   }

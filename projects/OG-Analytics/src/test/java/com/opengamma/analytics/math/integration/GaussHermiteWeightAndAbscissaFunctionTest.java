@@ -7,9 +7,12 @@ package com.opengamma.analytics.math.integration;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class GaussHermiteWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final double SQRT_PI = Math.sqrt(Math.PI);
   private static final double DENOM1 = 4 * (3 - Math.sqrt(6));

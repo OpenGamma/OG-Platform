@@ -38,12 +38,14 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model and extrapolation for high strikes.
  */
+@Test(groups = TestGroup.UNIT)
 public class CapFloorIborSABRExtrapolationRightMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();

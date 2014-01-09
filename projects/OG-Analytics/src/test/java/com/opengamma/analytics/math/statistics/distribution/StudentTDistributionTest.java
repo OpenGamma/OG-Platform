@@ -14,6 +14,12 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.test.TestGroup;
+
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final double[] X = new double[] {0.32492, 0.270722, 0.717558, 1.372184, 1.36343, 1.770933, 2.13145, 2.55238, 2.80734, 3.6896};

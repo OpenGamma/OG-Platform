@@ -10,10 +10,12 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Test interpolateWithSensitivity method via PiecewisePolynomialInterpolator1D
  */
+@Test(groups = TestGroup.UNIT)
 public class ClampedCubicSplineInterpolator1DTest {
 
   private static final CubicSplineInterpolator INTERP = new CubicSplineInterpolator();

@@ -29,7 +29,6 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.change.AggregatingChangeManager;
@@ -39,7 +38,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionRepositoryFactory;
@@ -74,6 +72,7 @@ import com.opengamma.web.analytics.json.ErrorInfoMessageBodyWriter;
 import com.opengamma.web.analytics.json.GridColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.PrimitivesGridStructureMessageBodyWriter;
+import com.opengamma.web.analytics.json.ValueRequirementMessageBodyWriter;
 import com.opengamma.web.analytics.json.ViewportResultsMessageBodyWriter;
 import com.opengamma.web.analytics.push.ConnectionManagerImpl;
 import com.opengamma.web.analytics.push.LongPollingConnectionManager;
@@ -212,8 +211,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
-   * Indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
@@ -229,8 +227,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
     MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(), getUserConfigMaster(),
-        getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(),
+        getUserConfigMaster(), getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
@@ -244,12 +242,10 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    if (getLiveMarketDataProviderFactory() != null) {
-      repo.getRestComponents().publishResource(new LiveMarketDataProviderNamesResource(getLiveMarketDataProviderFactory()));
-    } else if (getMarketDataSpecificationRepository() != null) {
+    if (getMarketDataSpecificationRepository() != null) {
       repo.getRestComponents().publishResource(new LiveMarketDataSpecificationNamesResource(getMarketDataSpecificationRepository()));
     } else {
-      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
+      repo.getRestComponents().publishResource(new LiveMarketDataProviderNamesResource(getLiveMarketDataProviderFactory()));
     }
     repo.getRestComponents().publishResource(new WebUiResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
@@ -260,6 +256,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new ValueRequirementMessageBodyWriter());
     repo.getRestComponents().publishHelper(new GridColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(viewportResultsWriter));
     repo.getRestComponents().publishHelper(new ViewDefinitionEntriesResource(configSource));
@@ -275,15 +272,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     });
   }
 
-  protected FunctionRepository getFunctionRepository() {
+  protected FunctionRepositoryFactory getFunctionRepository() {
     // TODO: This is slightly wasteful if the view processor is in the same process and has created its own repository. Ideally we
     // should be able to inject either the constructed repository or a configuration source depending on what's available
     final FunctionConfigurationSource functions = getFunctions();
     if (functions == null) {
       // Supply an empty repo if the configuration is omitted
-      return new InMemoryFunctionRepository();
+      return FunctionRepositoryFactory.constructRepositoryFactory(new InMemoryFunctionRepository());
     }
-    return FunctionRepositoryFactory.constructRepository(functions.getFunctionConfiguration());
+    return FunctionRepositoryFactory.constructRepositoryFactory(functions);
   }
 
   protected LongPollingConnectionManager buildLongPolling() {
@@ -911,8 +908,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the value of the property
    */
@@ -921,8 +917,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @param suppressCurrencyDisplay  the new value of the property
    */
@@ -932,7 +927,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code suppressCurrencyDisplay} property.
-   * Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the property, not null
    */

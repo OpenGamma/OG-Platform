@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.position.Portfolio;
@@ -58,6 +59,7 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class EHCacheViewExecutionCacheTest {
 
+  private final Instant _now = Instant.now();
   private CacheManager _cacheManager;
 
   @BeforeClass
@@ -99,18 +101,18 @@ public class EHCacheViewExecutionCacheTest {
     final DependencyGraph graph = createDependencyGraph();
     final Collection<DependencyGraph> graphs = Collections.singleton(graph);
     final Collection<CompiledViewCalculationConfiguration> calcConfigs = Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph));
-    final Map<ComputationTargetReference, UniqueId> resolutions = ImmutableMap.<ComputationTargetReference, UniqueId>of(
-        new ComputationTargetRequirement(ComputationTargetType.SECURITY, ExternalId.of("Security", "Foo")), UniqueId.of("Sec", "0"));
-    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, graphs, resolutions, portfolio, 0, calcConfigs, null, null);
+    final Map<ComputationTargetReference, UniqueId> resolutions = ImmutableMap.<ComputationTargetReference, UniqueId>of(new ComputationTargetRequirement(ComputationTargetType.SECURITY,
+        ExternalId.of("Security", "Foo")), UniqueId.of("Sec", "0"));
+    return new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.of(_now, _now), "", viewDefinition, graphs, resolutions, portfolio, 0, calcConfigs, null, null);
   }
 
   private EHCacheViewExecutionCache createCache() {
     final ComputationTargetResolver targetResolver = Mockito.mock(ComputationTargetResolver.class);
-    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, UniqueId.of("Portfolio", "0", "V")), VersionCorrection.LATEST)).thenReturn(
-        new ComputationTarget(ComputationTargetType.PORTFOLIO, createPortfolio()));
-    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.of(ViewDefinition.class), UniqueId.of("View", "0", "V")), VersionCorrection.LATEST)).thenReturn(
-        new ComputationTarget(ComputationTargetType.of(ViewDefinition.class), createViewDefinition()));
-    Mockito.when(targetResolver.atVersionCorrection(VersionCorrection.LATEST)).thenReturn(Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class));
+    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, UniqueId.of("Portfolio", "0", "V")), VersionCorrection.of(_now, _now)))
+        .thenReturn(new ComputationTarget(ComputationTargetType.PORTFOLIO, createPortfolio()));
+    Mockito.when(targetResolver.resolve(new ComputationTargetSpecification(ComputationTargetType.of(ViewDefinition.class), UniqueId.of("View", "0", "V")), VersionCorrection.LATEST))
+        .thenReturn(new ComputationTarget(ComputationTargetType.of(ViewDefinition.class), createViewDefinition()));
+    Mockito.when(targetResolver.atVersionCorrection(VersionCorrection.of(_now, _now))).thenReturn(Mockito.mock(ComputationTargetResolver.AtVersionCorrection.class));
     return new EHCacheViewExecutionCache(_cacheManager, targetResolver);
   }
 

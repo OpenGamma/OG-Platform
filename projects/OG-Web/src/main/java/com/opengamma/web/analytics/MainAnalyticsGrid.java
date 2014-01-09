@@ -21,13 +21,12 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.VersionCorrection;
@@ -49,11 +48,12 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   /** For looking up calculation targets using their specifications. */
   private final ComputationTargetResolver _targetResolver;
   /** For lookup up function metadata */
-  private final FunctionRepository _functions;
+  private final FunctionRepositoryFactory _functions;
   /** The calculation cycle used to calculate the most recent set of results. */
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
-  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType, String gridId, ComputationTargetResolver targetResolver, FunctionRepository functions, ViewportListener viewportListener) {
+  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType, String gridId, ComputationTargetResolver targetResolver, FunctionRepositoryFactory functions,
+      ViewportListener viewportListener) {
     super(viewportListener, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
@@ -113,14 +113,14 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    Pair<String, ValueSpecification> targetForCell = getGridStructure().getTargetForCell(row, col);
+    Pair<String, ValueRequirement> targetForCell = getGridStructure().getValueRequirementForCell(row, col);
     if (targetForCell == null) {
       throw new DataNotFoundException("No dependency graph is available for row " + row + ", col " + col);
     }
     String calcConfigName = targetForCell.getFirst();
-    ValueSpecification valueSpec = targetForCell.getSecond();
-    ValueRequirement valueReq = getGridStructure().getRequirementForCell(row, col).getSecond();
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle, gridId, _targetResolver, getFunctionRepository(), viewportListener);
+    ValueRequirement valueRequirement = targetForCell.getSecond();
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueRequirement, calcConfigName, _cycle, gridId, _targetResolver, getFunctionRepository(), viewportListener,
+        getGridStructure().getValueMappings());
     _depGraphs.put(graphId, grid);
   }
 
@@ -130,17 +130,17 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
    * @param calcConfigName Name of the calculation configuration containing the value
-   * @param valueReq Requirement that resulted in the value
+   * @param valueRequirement value requirement of target cell
    * @param compiledViewDef Compiled view definition containing the full dependency graph
    * @param viewportListener Receives notification when there are changes to a viewport
    */
-  /* package */void openDependencyGraph(int graphId, String gridId, String calcConfigName, ValueRequirement valueReq, CompiledViewDefinition compiledViewDef, ViewportListener viewportListener) {
+  /* package */void openDependencyGraph(int graphId, String gridId, String calcConfigName, ValueRequirement valueRequirement, CompiledViewDefinition compiledViewDef,
+      ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    ValueSpecification valueSpec = getGridStructure().getValueMappings().getValueSpecification(calcConfigName, valueReq);
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
-        gridId, _targetResolver, getFunctionRepository(), viewportListener);
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueRequirement, calcConfigName, _cycle, gridId, _targetResolver, getFunctionRepository(), viewportListener,
+        getGridStructure().getValueMappings());
     _depGraphs.put(graphId, grid);
   }
 
@@ -155,10 +155,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     s_logger.debug("Creating new version of dependency graph grid {}", previousGrid.getCallbackId());
     DependencyGraphGridStructure structure = previousGrid.getGridStructure();
     String calcConfigName = structure.getCalculationConfigurationName();
-    ValueRequirement valueReq = structure.getRootRequirement();
-    ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle, previousGrid.getCallbackId(), _targetResolver, getFunctionRepository(),
-        previousGrid.getViewportListener());
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, previousGrid.getTargetValueRequirement(), calcConfigName, _cycle, previousGrid.getCallbackId(), _targetResolver,
+        getFunctionRepository(), previousGrid.getViewportListener(), valueMappings);
     // empty invalid viewport which can never be used to create data
     // the client will update it before it produces data
     ViewportDefinition viewportDefinition = new RectangularViewportDefinition(-1, Collections.<Integer>emptyList(), Collections.<Integer>emptyList(), TypeFormatter.Format.CELL, false);
@@ -310,7 +308,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   /** For lookup up function metadata based on the function identifier */
-  /* package */FunctionRepository getFunctionRepository() {
+  /* package */FunctionRepositoryFactory getFunctionRepository() {
     return _functions;
   }
 
@@ -320,8 +318,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   protected static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
-    public ComputationTarget resolve(final ComputationTargetSpecification specification,
-        final VersionCorrection versionCorrection) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
       return null;
     }
 

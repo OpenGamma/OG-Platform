@@ -37,7 +37,7 @@ public final class DayCountFudgeSecondaryType extends SecondaryFieldType<DayCoun
 
   @Override
   public DayCount primaryToSecondary(final String string) {
-    return DayCountFactory.INSTANCE.getDayCount(string);
+    return DayCountFactory.of(string);
   }
 
 }

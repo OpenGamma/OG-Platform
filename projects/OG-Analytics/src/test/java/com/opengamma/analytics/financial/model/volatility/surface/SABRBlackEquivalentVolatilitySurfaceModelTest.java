@@ -16,13 +16,15 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.SABRDataBundle;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SABRBlackEquivalentVolatilitySurfaceModelTest {
   private static final double K = 70;
   private static final double T = 0.5;

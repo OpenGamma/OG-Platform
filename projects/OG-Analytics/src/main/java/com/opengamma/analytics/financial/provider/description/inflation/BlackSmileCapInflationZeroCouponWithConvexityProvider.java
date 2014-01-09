@@ -1,18 +1,25 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
+
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatCapFloorParameters;
 import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationZeroCouponParameters;
 import com.opengamma.analytics.financial.model.option.parameters.InflationConvexityAdjustmentParameters;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class BlackSmileCapInflationZeroCouponWithConvexityProvider implements BlackSmileCapInflationZeroCouponWithConvexityProviderInterface {
   /**
@@ -25,9 +32,9 @@ public class BlackSmileCapInflationZeroCouponWithConvexityProvider implements Bl
   private final BlackSmileCapInflationZeroCouponParameters _parameters;
 
   /**
-   * The inflation convextity adjustment parameters.
+   * The inflation convexity adjustment parameters.
    */
-  private final InflationConvexityAdjustmentParameters _inflationConvexityAdjutmentsParameters;
+  private final InflationConvexityAdjustmentParameters _inflationConvexityAdjustmentsParameters;
 
   /**
    * The  Black volatility surface used in cap/floor ibor modeling.
@@ -36,17 +43,20 @@ public class BlackSmileCapInflationZeroCouponWithConvexityProvider implements Bl
 
   /**
    * Constructor.
-   * @param inflation The inflation provider.
-   * @param parameters The Black parameters.
-   * @param inflationConvexityAdjutmentsParameters The inflation convexity adjustment parameters.
-   * @param blackSmileIborCapParameters The Black volatility cap/floor (ibor)  parameters.
+   * @param inflation The inflation provider, not null
+   * @param parameters The Black parameters, not null
+   * @param inflationConvexityAdjustmentsParameters The inflation convexity adjustment parameters, not null
+   * @param blackSmileIborCapParameters The Black volatility cap/floor (ibor)  parameters, not null
    */
   public BlackSmileCapInflationZeroCouponWithConvexityProvider(final InflationProviderInterface inflation, final BlackSmileCapInflationZeroCouponParameters parameters,
-      final InflationConvexityAdjustmentParameters inflationConvexityAdjutmentsParameters, final BlackFlatCapFloorParameters blackSmileIborCapParameters) {
-    ArgumentChecker.notNull(inflation, "Inflation provider");
+      final InflationConvexityAdjustmentParameters inflationConvexityAdjustmentsParameters, final BlackFlatCapFloorParameters blackSmileIborCapParameters) {
+    ArgumentChecker.notNull(inflation, "inflation");
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(inflationConvexityAdjustmentsParameters, "inflationConvexityAdjustmentsParameters");
+    ArgumentChecker.notNull(blackSmileIborCapParameters, "blackSmileIborCapParameters");
     _inflation = inflation;
     _parameters = parameters;
-    _inflationConvexityAdjutmentsParameters = inflationConvexityAdjutmentsParameters;
+    _inflationConvexityAdjustmentsParameters = inflationConvexityAdjustmentsParameters;
     _blackSmileIborCapParameters = blackSmileIborCapParameters;
   }
 
@@ -62,8 +72,8 @@ public class BlackSmileCapInflationZeroCouponWithConvexityProvider implements Bl
 
   @Override
   public BlackSmileCapInflationZeroCouponWithConvexityProvider copy() {
-    InflationProviderInterface inflation = _inflation.copy();
-    return new BlackSmileCapInflationZeroCouponWithConvexityProvider(inflation, _parameters, _inflationConvexityAdjutmentsParameters, _blackSmileIborCapParameters);
+    final InflationProviderInterface inflation = _inflation.copy();
+    return new BlackSmileCapInflationZeroCouponWithConvexityProvider(inflation, _parameters, _inflationConvexityAdjustmentsParameters, _blackSmileIborCapParameters);
   }
 
   @Override
@@ -73,11 +83,70 @@ public class BlackSmileCapInflationZeroCouponWithConvexityProvider implements Bl
 
   @Override
   public InflationConvexityAdjustmentParameters getInflationConvexityAdjustmentParameters() {
-    return _inflationConvexityAdjutmentsParameters;
+    return _inflationConvexityAdjustmentsParameters;
   }
 
   @Override
   public BlackFlatCapFloorParameters getBlackSmileIborCapParameters() {
     return _blackSmileIborCapParameters;
   }
+
+  @Override
+  public double[] parameterInflationSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _inflation.parameterInflationSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _inflation.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _inflation.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _inflation.getAllCurveNames();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _blackSmileIborCapParameters.hashCode();
+    result = prime * result + _inflation.hashCode();
+    result = prime * result + _inflationConvexityAdjustmentsParameters.hashCode();
+    result = prime * result + _parameters.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof BlackSmileCapInflationZeroCouponWithConvexityProvider)) {
+      return false;
+    }
+    final BlackSmileCapInflationZeroCouponWithConvexityProvider other = (BlackSmileCapInflationZeroCouponWithConvexityProvider) obj;
+    if (!ObjectUtils.equals(_inflation, other._inflation)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_blackSmileIborCapParameters, other._blackSmileIborCapParameters)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_inflationConvexityAdjustmentsParameters, other._inflationConvexityAdjustmentsParameters)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_parameters, other._parameters)) {
+      return false;
+    }
+    return true;
+  }
+
 }

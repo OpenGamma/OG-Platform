@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ * Test.
  */
 @Test(groups = TestGroup.UNIT_SLOW)
 public class BlackScholesMertonPDEPricerTest {

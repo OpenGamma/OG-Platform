@@ -24,6 +24,8 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
@@ -47,6 +49,9 @@ import com.opengamma.util.tuple.Pairs;
  */
 public final class AnalyticsParameterProviderBuilders {
 
+  /**
+   * Private constructor.
+   */
   private AnalyticsParameterProviderBuilders() {
   }
 
@@ -74,8 +79,8 @@ public final class AnalyticsParameterProviderBuilders {
     public IborIndex buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
       final int spotLag = message.getInt(SPOT_LAG_FIELD);
-      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
-      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
+      final DayCount dayCount = DayCountFactory.of(message.getString(DAY_COUNT_FIELD));
+      final BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.of(message.getString(BUSINESS_DAY_CONVENTION_FIELD));
       final boolean isEOM = message.getBoolean(EOM_FIELD);
       final Period tenor = Period.parse(message.getString(TENOR_FIELD));
       final String name = message.getString(NAME_FIELD);
@@ -112,7 +117,7 @@ public final class AnalyticsParameterProviderBuilders {
     public IndexON buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String name = message.getString(NAME_FIELD);
       final Currency currency = Currency.of(message.getString(CURRENCY_FIELD));
-      final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(message.getString(DAY_COUNT_FIELD));
+      final DayCount dayCount = DayCountFactory.of(message.getString(DAY_COUNT_FIELD));
       final int publicationLag = message.getInt(PUBLICATION_LAG_FIELD);
       return new IndexON(name, currency, dayCount, publicationLag);
     }
@@ -397,25 +402,29 @@ public final class AnalyticsParameterProviderBuilders {
   public static class IssuerProviderDiscountBuilder extends AbstractFudgeBuilder<IssuerProviderDiscount> {
     /** The curve provider field */
     private static final String CURVE_PROVIDER_FIELD = "curveProvider";
-    /** The issuer curve names field */
-    private static final String ISSUER_CURVE_NAMES_FIELD = "issuerName";
-    /** The issuer currencies field */
-    private static final String ISSUER_CURRENCIES_FIELD = "issuerCurrency";
-    /** The issuer yield curves field */
-    private static final String ISSUER_CURVES_FIELD = "issuerCurve";
+    /** The issuer reference class field */
+    private static final String ISSUER_REFERENCE_CLASS_FIELD = "issuerReferenceClass";
+    /** The issuer reference field */
+    private static final String ISSUER_REFERENCE_FIELD = "issuerReference";
+    /** The issuer legal entity filter */
+    private static final String ISSUER_FILTER_FIELD = "issuerFilter";
+    /** The issuer curve field */
+    private static final String ISSUER_CURVE_FIELD = "issuerCurve";
 
     @Override
     public IssuerProviderDiscount buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final MulticurveProviderDiscount multicurves = deserializer.fieldValueToObject(MulticurveProviderDiscount.class, message.getByName(CURVE_PROVIDER_FIELD));
-      final List<FudgeField> issuerNameFields = message.getAllByName(ISSUER_CURVE_NAMES_FIELD);
-      final List<FudgeField> issuerCurrencyFields = message.getAllByName(ISSUER_CURRENCIES_FIELD);
-      final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVES_FIELD);
-      final Map<Pair<String, Currency>, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
-      for (int i = 0; i < issuerNameFields.size(); i++) {
-        final String issuerName = (String) issuerNameFields.get(i).getValue();
-        final Currency issuerCurrency = Currency.of((String) issuerCurrencyFields.get(i).getValue());
+      final List<FudgeField> issuerClassFields = message.getAllByName(ISSUER_REFERENCE_CLASS_FIELD);
+      final List<FudgeField> issuerReferenceFields = message.getAllByName(ISSUER_REFERENCE_FIELD);
+      final List<FudgeField> issuerFilterFields = message.getAllByName(ISSUER_FILTER_FIELD);
+      final List<FudgeField> issuerCurveFields = message.getAllByName(ISSUER_CURVE_FIELD);
+      final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> issuerCurves = new HashMap<>();
+      for (int i = 0; i < issuerReferenceFields.size(); i++) {
+        final Class<?> clazz = deserializer.fieldValueToObject(Class.class, issuerClassFields.get(i));
+        final Object issuerReference = deserializer.fieldValueToObject(clazz, issuerReferenceFields.get(i));
+        final LegalEntityFilter<LegalEntity> issuerFilter = deserializer.fieldValueToObject(LegalEntityFilter.class, issuerFilterFields.get(i));
         final YieldAndDiscountCurve curve = deserializer.fieldValueToObject(YieldAndDiscountCurve.class, issuerCurveFields.get(i));
-        issuerCurves.put(Pairs.of(issuerName, issuerCurrency), curve);
+        issuerCurves.put(Pairs.<Object, LegalEntityFilter<LegalEntity>>of(issuerReference, issuerFilter), curve);
       }
       return new IssuerProviderDiscount(multicurves, issuerCurves);
     }
@@ -423,10 +432,11 @@ public final class AnalyticsParameterProviderBuilders {
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final IssuerProviderDiscount object) {
       serializer.addToMessageWithClassHeaders(message, CURVE_PROVIDER_FIELD, null, object.getMulticurveProvider());
-      for (final Map.Entry<Pair<String, Currency>, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
-        message.add(ISSUER_CURVE_NAMES_FIELD, entry.getKey().getFirst());
-        message.add(ISSUER_CURRENCIES_FIELD, entry.getKey().getSecond().getCode());
-        serializer.addToMessageWithClassHeaders(message, ISSUER_CURVES_FIELD, null, entry.getValue());
+      for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : object.getIssuerCurves().entrySet()) {
+        serializer.addToMessage(message, ISSUER_REFERENCE_CLASS_FIELD, null, entry.getKey().getFirst().getClass());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_REFERENCE_FIELD, null, entry.getKey().getFirst());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_FILTER_FIELD, null, entry.getKey().getSecond());
+        serializer.addToMessageWithClassHeaders(message, ISSUER_CURVE_FIELD, null, entry.getValue());
       }
     }
 

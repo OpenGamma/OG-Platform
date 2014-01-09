@@ -11,9 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ConfidenceIntervalTest {
   private static final double VALUE = 100;
   private static final double LOWER = 50;

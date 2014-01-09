@@ -36,9 +36,14 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * Test.
+ */
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
 
   // Data

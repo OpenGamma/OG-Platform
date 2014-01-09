@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.curve.Curve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing the Black volatility surface used in swaption modeling.
@@ -32,8 +32,8 @@ public class BlackFlatCapFloorParameters implements VolatilityModel<double[]> {
    * @param index The Ibor index for which the volatility is valid.
    */
   public BlackFlatCapFloorParameters(final Curve<Double, Double> volatility, final IborIndex index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(index, "Ibor index");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(index, "index");
     _volatility = volatility;
     _index = index;
   }
@@ -54,8 +54,8 @@ public class BlackFlatCapFloorParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 1, "data should have one components (expiration)");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 1, "data should have one components (expiration)");
     return getVolatility(data[0]);
   }
 
@@ -77,17 +77,14 @@ public class BlackFlatCapFloorParameters implements VolatilityModel<double[]> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!(obj instanceof BlackFlatCapFloorParameters)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    BlackFlatCapFloorParameters other = (BlackFlatCapFloorParameters) obj;
+    final BlackFlatCapFloorParameters other = (BlackFlatCapFloorParameters) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }

@@ -23,10 +23,13 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.GenericApplicationContext;
 
+import com.google.common.base.Supplier;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.calcnode.CalcNodeSocketConfiguration;
 import com.opengamma.engine.calcnode.stats.TotallingNodeStatisticsGatherer;
@@ -138,6 +141,21 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     ViewDefinitionCompiler.registerMetricsStatic(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "ViewDefinitionCompiler");
   }
 
+  private static final class ClearViewExecutionCache implements ChangeListener {
+
+    private final ViewProcessor _viewProcessor;
+
+    public ClearViewExecutionCache(final ViewProcessor viewProcessor) {
+      _viewProcessor = viewProcessor;
+    }
+
+    @Override
+    public void entityChanged(ChangeEvent event) {
+      _viewProcessor.clearViewExecutionCache();
+    }
+
+  }
+
   /**
    * Registers the view processor.
    * 
@@ -146,6 +164,12 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   protected void initViewProcessor(final ComponentRepository repo, final GenericApplicationContext appContext) {
     final ViewProcessor viewProcessor = appContext.getBean(ViewProcessor.class);
+    final ChangeListener clearCache = new ClearViewExecutionCache(viewProcessor);
+    viewProcessor.getConfigSource().changeManager().addChangeListener(clearCache);
+    if (getHistoricalTimeSeriesSource() != null) {
+      getHistoricalTimeSeriesSource().changeManager().addChangeListener(clearCache);
+    }
+    // TODO: The listener needs to be removed when the view processor is shutdown
     final ComponentInfo info = new ComponentInfo(ViewProcessor.class, getClassifier());
     if (getJmsBrokerUri() != null) {
       info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsBrokerUri());
@@ -157,12 +181,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
       repo.getRestComponents().publish(info, vpResource);
     }
     if (getJmsConnector() != null && viewProcessor instanceof ViewProcessorInternal) {
-      ViewProcessAvailabilityNotificationListener listener =
-          new ViewProcessAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(),
-                                                          getJmsConnector(),
-                                                          (ViewProcessorInternal) viewProcessor);
+      ViewProcessAvailabilityNotificationListener listener = new ViewProcessAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), getJmsConnector(),
+          (ViewProcessorInternal) viewProcessor);
       repo.registerLifecycle(listener);
-      
+
       final ViewProcessorManager viewProcessorManager = appContext.getBean(ViewProcessorManager.class);
       repo.registerLifecycle(viewProcessorManager);
     }
@@ -222,6 +244,20 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     registerInfrastructureByType(repo, UserPrincipal.class, appContext);
   }
 
+  private static class FunctionRepositorySupplier implements Supplier<FunctionRepository> {
+
+    private final CompiledFunctionService _cfs;
+
+    public FunctionRepositorySupplier(final CompiledFunctionService cfs) {
+      _cfs = cfs;
+    }
+
+    @Override
+    public FunctionRepository get() {
+      return _cfs.getFunctionRepository();
+    }
+  }
+
   /**
    * Registers the compiled function service and function .
    * 
@@ -232,14 +268,15 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
     final ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
     repo.registerComponent(infoCFS, compiledFunctionService);
-    final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
-    repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
+    // TODO: This is wrong; what is using the function repository we've registered here? It needs to use a supplier, factory, or source
+    //final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
+    //repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
     final FunctionExclusionGroups functionExclusionGroups = appContext.getBean(FunctionExclusionGroups.class);
     repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
     final FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
     if (isPublishRest()) {
-      repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
+      repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(new FunctionRepositorySupplier(compiledFunctionService)));
     }
   }
 

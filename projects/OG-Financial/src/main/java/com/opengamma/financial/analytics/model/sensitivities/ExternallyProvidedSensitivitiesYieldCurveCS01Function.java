@@ -44,11 +44,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveCS01Function extends Abstr
   public static final String CS01_REQUIREMENT = ValueRequirementNames.CS01;
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }
@@ -82,8 +77,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveCS01Function extends Abstr
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = Sets.newHashSet();
-    final ValueProperties valueProperties = ValueProperties.builder()
-        .withAny(ValuePropertyNames.CURRENCY).get();
+    final ValueProperties valueProperties = ValueProperties.builder().withAny(ValuePropertyNames.CURRENCY).get();
     requirements.add(new ValueRequirement(CREDIT_REQUIREMENT, target.toSpecification(), valueProperties));
     return requirements;
   }
@@ -104,8 +98,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveCS01Function extends Abstr
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ComputationTargetSpecification specification = target.toSpecification();
     final Object value = inputs.getValue(new ValueRequirement(CREDIT_REQUIREMENT, specification));
     if (!(value instanceof LabelledMatrix1D)) {

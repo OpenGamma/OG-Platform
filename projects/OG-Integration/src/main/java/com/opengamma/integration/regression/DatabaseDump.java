@@ -6,22 +6,15 @@
 package com.opengamma.integration.regression;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.wire.FudgeMsgWriter;
-import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -57,17 +50,17 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Dumps all the data required to run views from the database into Fudge XML files.
+ * <p>
  * TODO split this up to allow a subset of data to be dumped and restored?
  */
-/* package */ class DatabaseDump {
+/* package */class DatabaseDump {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DatabaseDump.class);
 
-  private final File _outputDir;
+  private final RegressionIO _io;
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
   private final PortfolioMaster _portfolioMaster;
@@ -78,27 +71,24 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
   private final IdMappings _idMappings;
-  private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
-  private final FudgeSerializer _serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
 
   private int _nextId;
 
-  /* package */ DatabaseDump(String outputDir,
-                             SecurityMaster securityMaster,
-                             PositionMaster positionMaster,
-                             PortfolioMaster portfolioMaster,
-                             ConfigMaster configMaster,
-                             HistoricalTimeSeriesMaster timeSeriesMaster,
-                             HolidayMaster holidayMaster,
-                             ExchangeMaster exchangeMaster,
-                             MarketDataSnapshotMaster snapshotMaster,
-                             OrganizationMaster organizationMaster) {
+  /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
+        exchangeMaster, snapshotMaster, organizationMaster);
+  }
+
+  /* package */DatabaseDump(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
+      HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
+    ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
-    ArgumentChecker.notNull(outputDir, "outputDir");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    _io = io;
     _organizationMaster = organizationMaster;
     _snapshotMaster = snapshotMaster;
     _exchangeMaster = exchangeMaster;
@@ -107,7 +97,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
     _configMaster = configMaster;
-    _outputDir = new File(outputDir);
     _securityMaster = securityMaster;
     ConfigItem<IdMappings> mappingsConfigItem = RegressionUtils.loadIdMappings(_configMaster);
     if (mappingsConfigItem != null) {
@@ -116,14 +105,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       _idMappings = new IdMappings();
     }
     _nextId = _idMappings.getMaxId() + 1;
-    if (!_outputDir.exists()) {
-      boolean success = _outputDir.mkdirs();
-      if (!success) {
-        throw new OpenGammaRuntimeException("Output directory " + outputDir + " couldn't be created");
-      }
-      s_logger.info("Created output directory {}", _outputDir.getAbsolutePath());
-    }
-    s_logger.info("Dumping database to {}", _outputDir.getAbsolutePath());
+    s_logger.info("Dumping database to {}", _io.getBaseFile().getAbsolutePath());
   }
 
   public static void main(String[] args) throws IOException {
@@ -135,16 +117,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     String serverUrl = args[1];
     int exitCode = 0;
     try (RemoteServer server = RemoteServer.create(serverUrl)) {
-      DatabaseDump databaseDump = new DatabaseDump(dataDir,
-                                                   server.getSecurityMaster(),
-                                                   server.getPositionMaster(),
-                                                   server.getPortfolioMaster(),
-                                                   server.getConfigMaster(),
-                                                   server.getHistoricalTimeSeriesMaster(),
-                                                   server.getHolidayMaster(),
-                                                   server.getExchangeMaster(),
-                                                   server.getMarketDataSnapshotMaster(),
-                                                   server.getOrganizationMaster());
+      DatabaseDump databaseDump = new DatabaseDump(dataDir, server.getSecurityMaster(), server.getPositionMaster(), server.getPortfolioMaster(), server.getConfigMaster(),
+          server.getHistoricalTimeSeriesMaster(), server.getHolidayMaster(), server.getExchangeMaster(), server.getMarketDataSnapshotMaster(), server.getOrganizationMaster());
       databaseDump.dumpDatabase();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
@@ -154,6 +128,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   public void dumpDatabase() throws IOException {
+    _io.beginWrite();
     Map<ObjectId, Integer> ids = Maps.newHashMap(_idMappings.getIds());
     ids.putAll(writeSecurities());
     ids.putAll(writePositions());
@@ -171,75 +146,65 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       }
     }
     IdMappings idMappings = new IdMappings(ids, maxId);
-    writeToFudge(_outputDir, idMappings, RegressionUtils.ID_MAPPINGS_FILE);
+    _io.write(null, idMappings, RegressionUtils.ID_MAPPINGS_IDENTIFIER);
+    _io.endWrite();
   }
 
   private Map<ObjectId, Integer> writeSecurities() throws IOException {
     SecuritySearchResult result = _securityMaster.search(new SecuritySearchRequest());
-    return writeToDirectory(result.getSecurities(), "securities", "sec");
+    return write(result.getSecurities(), RegressionUtils.SECURITY_MASTER_DATA, "sec");
   }
 
   private Map<ObjectId, Integer> writePositions() throws IOException {
     PositionSearchResult result = _positionMaster.search(new PositionSearchRequest());
-    return writeToDirectory(result.getPositions(), "positions", "pos");
+    return write(result.getPositions(), RegressionUtils.POSITION_MASTER_DATA, "pos");
   }
 
   private Map<ObjectId, Integer> writeConfig() throws IOException {
     ConfigSearchResult<Object> result = _configMaster.search(new ConfigSearchRequest<>(Object.class));
-    return writeToDirectory(result.getValues(), "configs", "cfg");
+    return write(result.getValues(), RegressionUtils.CONFIG_MASTER_DATA, "cfg");
   }
 
   private Map<ObjectId, Integer> writePortfolios() throws IOException {
     PortfolioSearchResult result = _portfolioMaster.search(new PortfolioSearchRequest());
-    return writeToDirectory(result.getPortfolios(), "portfolios", "prt");
+    return write(result.getPortfolios(), RegressionUtils.PORTFOLIO_MASTER_DATA, "prt");
   }
 
   private Map<ObjectId, Integer> writeTimeSeries() throws IOException {
     List<TimeSeriesWithInfo> objects = Lists.newArrayList();
     HistoricalTimeSeriesInfoSearchResult infoResult = _timeSeriesMaster.search(new HistoricalTimeSeriesInfoSearchRequest());
     for (ManageableHistoricalTimeSeriesInfo info : infoResult.getInfoList()) {
-      ManageableHistoricalTimeSeries timeSeries =
-          _timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST);
+      ManageableHistoricalTimeSeries timeSeries = _timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST);
       TimeSeriesWithInfo timeSeriesWithInfo = new TimeSeriesWithInfo(info, timeSeries);
       objects.add(timeSeriesWithInfo);
     }
-    return writeToDirectory(objects, "timeseries", "hts");
+    return write(objects, RegressionUtils.HISTORICAL_TIME_SERIES_MASTER_DATA, "hts");
   }
 
   private Map<ObjectId, Integer> writeHolidays() throws IOException {
     HolidaySearchResult result = _holidayMaster.search(new HolidaySearchRequest());
-    return writeToDirectory(result.getHolidays(), "holidays", "hol");
+    return write(result.getHolidays(), RegressionUtils.HOLIDAY_MASTER_DATA, "hol");
   }
 
   private Map<ObjectId, Integer> writeExchanges() throws IOException {
     ExchangeSearchResult result = _exchangeMaster.search(new ExchangeSearchRequest());
-    return writeToDirectory(result.getExchanges(), "exchanges", "exg");
+    return write(result.getExchanges(), RegressionUtils.EXCHANGE_MASTER_DATA, "exg");
   }
 
   private Map<ObjectId, Integer> writeSnapshots() throws IOException {
     MarketDataSnapshotSearchResult result = _snapshotMaster.search(new MarketDataSnapshotSearchRequest());
-    return writeToDirectory(result.getSnapshots(), "snapshots", "snp");
+    return write(result.getSnapshots(), RegressionUtils.MARKET_DATA_SNAPSHOT_MASTER_DATA, "snp");
   }
 
   private Map<ObjectId, Integer> writeOrganizations() throws IOException {
     OrganizationSearchResult result = _organizationMaster.search(new OrganizationSearchRequest());
-    return writeToDirectory(result.getOrganizations(), "organizations", "org");
+    return write(result.getOrganizations(), RegressionUtils.ORGANIZATION_MASTER_DATA, "org");
   }
 
-  private Map<ObjectId, Integer> writeToDirectory(List<? extends UniqueIdentifiable> objects,
-                                                  String outputSubDirName,
-                                                  String prefix) throws IOException {
-    File outputDir = new File(_outputDir, outputSubDirName);
-    if (!outputDir.exists()) {
-      boolean success = outputDir.mkdir();
-      if (success) {
-        s_logger.debug("Created directory {}", outputDir);
-      } else {
-        throw new OpenGammaRuntimeException("Failed to create directory " + outputDir);
-      }
-    }
-    s_logger.info("Writing to {}", outputDir.getAbsolutePath());
-    Map<ObjectId, Integer> ids = Maps.newHashMap();
+  private Map<ObjectId, Integer> write(List<? extends UniqueIdentifiable> objects, String type, String prefix) throws IOException {
+    s_logger.info("Writing {} to {}", type, _io.getBaseFile().getAbsolutePath());
+    final Map<ObjectId, Integer> ids = Maps.newHashMapWithExpectedSize(objects.size());
+    final Map<String, Object> toWrite = Maps.newHashMapWithExpectedSize(objects.size());
     for (UniqueIdentifiable object : objects) {
       ObjectId objectId = object.getUniqueId().getObjectId();
       Integer previousId = _idMappings.getId(objectId);
@@ -250,23 +215,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       } else {
         id = previousId;
       }
-      String fileName = prefix + id + ".xml";
-      writeToFudge(outputDir, object, fileName);
+      toWrite.put(prefix + id, object);
     }
-    s_logger.info("Wrote {} objects to {}", objects.size(), outputDir.getAbsolutePath());
+    _io.write(type, toWrite);
+    s_logger.info("Wrote {} objects", objects.size());
     return ids;
   }
 
-  private void writeToFudge(File outputDir, Object object, String fileName) throws IOException {
-    try (FileWriter writer = new FileWriter(new File(outputDir, fileName))) {
-      FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(_ctx, writer);
-      FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
-      MutableFudgeMsg msg = _serializer.objectToFudgeMsg(object);
-      FudgeSerializer.addClassHeader(msg, object.getClass());
-      fudgeMsgWriter.writeMessage(msg);
-      writer.append("\n");
-      s_logger.debug("Wrote object {}", object);
-      fudgeMsgWriter.flush();
-    }
-  }
 }

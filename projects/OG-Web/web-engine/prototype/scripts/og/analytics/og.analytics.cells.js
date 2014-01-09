@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var module = this, events = og.common.events;
         var Cells = function (config, label) {
-            var cell = this, options = {bypass: true, label: 'cell' + label},
+            var cell = this, options = {bypass: true, label: 'cell' + label, req: config.single.req, colset: config.single.colset},
                 row = config.single.row, col = config.single.col, headers = [];
             cell.row_name = null;
             cell.col_name = null;

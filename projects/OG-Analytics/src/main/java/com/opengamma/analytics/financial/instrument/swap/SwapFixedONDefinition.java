@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.instrument.swap;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.NotionalProvider;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
@@ -91,11 +92,38 @@ public class SwapFixedONDefinition extends SwapDefinition {
     return from(oisLeg, notionalSigned, fixedRate, generator.getOvernightCalendar());
   }
 
+  /**
+   * Builder of OIS swap from financial description (start date and end date, the fixed leg and floating leg notionals can be different).
+   * @param settlementDate The annuity settlement or first fixing date.
+   * @param endFixingPeriodDate  The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param notionalFixed The notional of the fixed leg.
+   * @param notionalOIS The notional of the OIS leg.
+   * @param generator The OIS generator.
+   * @param fixedRate The rate of the swap fixed leg.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @return The swap.
+   */
+  public static SwapFixedONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final NotionalProvider notionalFixed, final NotionalProvider notionalOIS,
+                                           final GeneratorSwapFixedON generator, final double fixedRate, final boolean isPayer) {
+    final AnnuityCouponONDefinition oisLeg = AnnuityCouponONDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
+    return from(oisLeg, notionalFixed, fixedRate, generator.getOvernightCalendar(), isPayer);
+  }
+
   private static SwapFixedONDefinition from(final AnnuityCouponONDefinition oisLeg, final double notionalSigned, final double fixedRate, final Calendar calendar) {
     final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[oisLeg.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
       cpnFixed[loopcpn] = new CouponFixedDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg.getNthPayment(
           loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixedRate);
+    }
+    return new SwapFixedONDefinition(new AnnuityCouponFixedDefinition(cpnFixed, calendar), oisLeg);
+  }
+
+  private static SwapFixedONDefinition from(final AnnuityCouponONDefinition oisLeg, final NotionalProvider notional, final double fixedRate, final Calendar calendar, final boolean isPayer) {
+    final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[oisLeg.getNumberOfPayments()];
+    final double sign = isPayer ? -1.0 : 1.0;
+    for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
+      cpnFixed[loopcpn] = new CouponFixedDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg.getNthPayment(
+          loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), sign * notional.getAmount(oisLeg.getNthPayment(loopcpn).getAccrualStartDate().toLocalDate()), fixedRate);
     }
     return new SwapFixedONDefinition(new AnnuityCouponFixedDefinition(cpnFixed, calendar), oisLeg);
   }

@@ -5,10 +5,16 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.List;
+import java.util.Set;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Interface for Hull-White parameters provider for one currency.
@@ -30,11 +36,14 @@ public class HullWhiteOneFactorProvider implements HullWhiteOneFactorProviderInt
 
   /**
    * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
-   * @param multicurves The multi-curves provider.
-   * @param parameters The Hull-White one factor parameters.
-   * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).
+   * @param multicurves The multi-curves provider, not null
+   * @param parameters The Hull-White one factor parameters, not null
+   * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve), not null
    */
   public HullWhiteOneFactorProvider(final MulticurveProviderInterface multicurves, final HullWhiteOneFactorPiecewiseConstantParameters parameters, final Currency ccyHW) {
+    ArgumentChecker.notNull(multicurves, "multicurves");
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(ccyHW, "ccyHW");
     _multicurveProvider = multicurves;
     _parameters = parameters;
     _ccyHW = ccyHW;
@@ -75,6 +84,21 @@ public class HullWhiteOneFactorProvider implements HullWhiteOneFactorProviderInt
   @Override
   public MulticurveProviderInterface getMulticurveProvider() {
     return _multicurveProvider;
+  }
+
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _multicurveProvider.getAllCurveNames();
   }
 
   @Override

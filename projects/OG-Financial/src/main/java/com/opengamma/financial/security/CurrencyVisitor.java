@@ -6,6 +6,8 @@
 
 package com.opengamma.financial.security;
 
+import java.util.Iterator;
+
 import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.core.security.Security;
@@ -35,6 +37,7 @@ import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.fra.ForwardRateAgreementSecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
@@ -47,6 +50,7 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -68,6 +72,7 @@ import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.security.RawSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 
@@ -143,6 +148,11 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
 
   @Override
   public Currency visitFRASecurity(final FRASecurity security) {
+    return security.getCurrency();
+  }
+
+  @Override
+  public Currency visitForwardRateAgreementSecurity(final ForwardRateAgreementSecurity security) {
     return security.getCurrency();
   }
 
@@ -411,10 +421,15 @@ public class CurrencyVisitor extends FinancialSecurityVisitorSameValueAdapter<Cu
 
   @Override
   public Currency visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
-    final InterestRateNotional payLeg = security.getPayLeg().getNotional();
-    final InterestRateNotional receiveLeg = security.getReceiveLeg().getNotional();
-    if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
-      return payLeg.getCurrency();
+    Iterator<InterestRateSwapLeg> iterator = security.getLegs().iterator();
+    if (iterator.hasNext()) {
+      Currency ccy = iterator.next().getNotional().getCurrency();
+      for (InterestRateSwapLeg leg = iterator.next(); iterator.hasNext(); iterator.next()) {
+        if (!leg.getNotional().getCurrency().equals(ccy)) {
+          return null; // FX swap
+        }
+      }
+      return ccy;
     }
     return null;
   }

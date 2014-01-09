@@ -17,9 +17,9 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
@@ -34,9 +34,9 @@ public class InMemoryConventionBundleMasterTest {
   public void testRepository() {
     final ConventionBundleMaster repo = new InMemoryConventionBundleMaster();
     final ConventionBundleSource source = new DefaultConventionBundleSource(repo);
-    final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount actact = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+    final BusinessDayConvention modified = BusinessDayConventions.MODIFIED_FOLLOWING;
+    final BusinessDayConvention following = BusinessDayConventions.FOLLOWING;
+    final DayCount actact = DayCounts.ACT_360;
 
     final ConventionBundle conventions = source.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR O/N"));
     AssertJUnit.assertEquals("USD LIBOR O/N", conventions.getName());

@@ -29,11 +29,13 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test the swaps with multiple legs constructor and to derivative.
  */
+@Test(groups = TestGroup.UNIT)
 public class SwapMultilegDefinitionTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TRAGET");
@@ -59,11 +61,11 @@ public class SwapMultilegDefinitionTest {
   private static final AnnuityDefinition[] LEGS_DEFINITION = new AnnuityDefinition[NB_LEGS];
   static {
     LEGS_DEFINITION[0] = AnnuityDefinitionBuilder.couponFixed(EUR, SETTLEMENT_DATE, MATURITY_DATE, EUR1YEURIBOR6M.getFixedLegPeriod(), TARGET,
-        EUR1YEURIBOR6M.getFixedLegDayCount(), EUR1YEURIBOR6M.getBusinessDayConvention(), EUR1YEURIBOR6M.isEndOfMonth(), NOTIONAL, SPREAD, IS_PAYER_SPREAD, STUB);
+        EUR1YEURIBOR6M.getFixedLegDayCount(), EUR1YEURIBOR6M.getBusinessDayConvention(), EUR1YEURIBOR6M.isEndOfMonth(), NOTIONAL, SPREAD, IS_PAYER_SPREAD, STUB, 0);
     LEGS_DEFINITION[1] = AnnuityDefinitionBuilder.couponIbor(SETTLEMENT_DATE, MATURITY_DATE, EURIBOR3M.getTenor(), NOTIONAL, EURIBOR3M,
-        IS_PAYER_SPREAD, EURIBOR3M.getDayCount(), EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), TARGET, STUB);
+        IS_PAYER_SPREAD, EURIBOR3M.getDayCount(), EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), TARGET, STUB, 0);
     LEGS_DEFINITION[2] = AnnuityDefinitionBuilder.couponIbor(SETTLEMENT_DATE, MATURITY_DATE, EURIBOR6M.getTenor(), NOTIONAL, EURIBOR6M,
-        !IS_PAYER_SPREAD, EURIBOR6M.getDayCount(), EURIBOR6M.getBusinessDayConvention(), EURIBOR6M.isEndOfMonth(), TARGET, STUB);
+        !IS_PAYER_SPREAD, EURIBOR6M.getDayCount(), EURIBOR6M.getBusinessDayConvention(), EURIBOR6M.isEndOfMonth(), TARGET, STUB, 0);
   }
   @SuppressWarnings("unchecked")
   private static final SwapMultilegDefinition SWAP_MULTI_LEG_DEFINITION = new SwapMultilegDefinition(LEGS_DEFINITION);

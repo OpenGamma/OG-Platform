@@ -38,13 +38,15 @@ import com.opengamma.analytics.financial.model.option.pricing.tree.TrinomialOpti
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- *
+ * Test.
  */
 @SuppressWarnings("deprecation")
+@Test(groups = TestGroup.UNIT)
 public class VanillaOptionCrossModelPricingTest {
   private static final double SPOT = 10;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2009, 1, 1);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.curve;
@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SpreadCurveShiftFunction implements CurveShiftFunction<SpreadDoublesCurve> {
   /** An additive curve function */
-  private static final CurveSpreadFunction SPREAD_FUNCTION = new AddCurveSpreadFunction();
+  private static final CurveSpreadFunction SPREAD_FUNCTION = AddCurveSpreadFunction.getInstance();
 
   /**
    * {@inheritDoc}

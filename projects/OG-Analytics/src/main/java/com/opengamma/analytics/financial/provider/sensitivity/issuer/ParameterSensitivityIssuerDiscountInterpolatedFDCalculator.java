@@ -13,11 +13,13 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -38,7 +40,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
   /**
    * The value calculator.
    */
-  private final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> _valueCalculator;
+  private final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MultipleCurrencyAmount> _valueCalculator;
   /**
    * The shift used for finite difference.
    */
@@ -49,7 +51,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
    * @param valueCalculator The value calculator.
    * @param shift The shift used for finite difference.
    */
-  public ParameterSensitivityIssuerDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<IssuerProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
+  public ParameterSensitivityIssuerDiscountInterpolatedFDCalculator(final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MultipleCurrencyAmount> valueCalculator, final double shift) {
     ArgumentChecker.notNull(valueCalculator, "Calculator");
     _valueCalculator = valueCalculator;
     _shift = shift;
@@ -150,9 +152,9 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
       }
     }
     // Discounting issuer
-    final Set<Pair<String, Currency>> issuerCcies = issuercurves.getIssuersCurrencies();
-    for (final Pair<String, Currency> ic : issuerCcies) {
-      final YieldAndDiscountCurve curve = issuercurves.getCurve(ic);
+    final Set<Pair<Object, LegalEntityFilter<LegalEntity>>> issuerCcies = issuercurves.getIssuers();
+    for (final Pair<Object, LegalEntityFilter<LegalEntity>> ic : issuerCcies) {
+      final YieldAndDiscountCurve curve = issuercurves.getIssuerCurve(ic);
       ArgumentChecker.isTrue(curve instanceof YieldCurve, "Curve should be a YieldCurve");
       final YieldCurve curveYield = (YieldCurve) curve;
       ArgumentChecker.isTrue(curveYield.getCurve() instanceof InterpolatedDoublesCurve, "Yield curve should be based on InterpolatedDoublesCurve");
@@ -163,7 +165,7 @@ public class ParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
         final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
         final YieldAndDiscountCurve icBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-        final IssuerProvider providerIcBumped = issuercurves.withIssuerCurrency(ic, icBumped);
+        final IssuerProvider providerIcBumped = issuercurves.withIssuerCurve(ic, icBumped);
         final MultipleCurrencyAmount pvBumped = instrument.accept(_valueCalculator, providerIcBumped);
         final MultipleCurrencyAmount pvDiff = pvBumped.plus(pvInitMinus);
         for (int loopccypv = 0; loopccypv < nbCcy; loopccypv++) {

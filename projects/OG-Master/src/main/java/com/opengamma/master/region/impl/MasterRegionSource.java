@@ -32,7 +32,7 @@ import com.opengamma.util.paging.PagingRequest;
 public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocument, RegionMaster> implements RegionSource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
    * @param master the master, not null
    */
@@ -40,22 +40,12 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
     super(master);
   }
 
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master the master, not null
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  public MasterRegionSource(final RegionMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
-  }
-
   //-------------------------------------------------------------------------
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Collection<Region> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     RegionSearchRequest request = new RegionSearchRequest(bundle);
-    request.setVersionCorrection(getVersionCorrection());
+    request.setVersionCorrection(versionCorrection);
     return (List) getMaster().search(request).getRegions();
   }
 
@@ -63,7 +53,6 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
   public ManageableRegion getHighestLevelRegion(ExternalId regionId) {
     RegionSearchRequest request = new RegionSearchRequest(regionId);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionCorrection(getVersionCorrection());
     return getMaster().search(request).getFirstRegion();
   }
 
@@ -71,7 +60,6 @@ public class MasterRegionSource extends AbstractMasterSource<Region, RegionDocum
   public ManageableRegion getHighestLevelRegion(ExternalIdBundle regionIds) {
     RegionSearchRequest request = new RegionSearchRequest(regionIds);
     request.setPagingRequest(PagingRequest.ONE);
-    request.setVersionCorrection(getVersionCorrection());
     return getMaster().search(request).getFirstRegion();
   }
 

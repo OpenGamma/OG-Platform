@@ -34,6 +34,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaJumpToDefaultCDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -55,7 +56,8 @@ public class ISDACDXAsSingleNameJumpToDefaultFunction extends ISDACDXAsSingleNam
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+                                                CDSAnalytic analytic,
+                                                Tenor[] tenors) {
     final double jumpToDefault = StandardVanillaJumpToDefaultCDSFunction.jumpToDefault(definition, yieldCurve, hazardCurve, analytic);
     //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.JUMP_TO_DEFAULT, target.toSpecification(), properties);

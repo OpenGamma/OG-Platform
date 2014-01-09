@@ -241,7 +241,11 @@ public class JodaBeanRowParser extends RowParser {
     ArgumentChecker.notNull(row, "row");
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(position, "position");
-    
+    if (!row.containsKey("trade:securitylink")) {
+      if (row.containsKey("externalidbundle")) {
+        row.put("trade:securitylink", row.get("externalidbundle"));
+      }
+    }
     ManageableTrade result = (ManageableTrade) recursiveConstructBean(row, ManageableTrade.class, "trade:");
     if (result != null) {
       if (result.getTradeDate() == null) {

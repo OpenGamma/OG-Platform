@@ -37,6 +37,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.time.Tenor;
 
 /**
  * 
@@ -57,7 +58,7 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
@@ -70,7 +71,7 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
 
   public static double parallelGammaCS01(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve hazardCurve,
                                    CDSAnalytic analytic, double spreadCurveBump, SpreadBumpType spreadBumpType) {
-    final double[] rates = hazardCurve.getR();
+    final double[] rates = hazardCurve.getKnotZeroRates();
     final double[] bumpedUpRates = SPREAD_BUMPER.getBumpedCreditSpreads(rates, spreadCurveBump * 1e-4, spreadBumpType);
     final double[] bumpedDownRates = SPREAD_BUMPER.getBumpedCreditSpreads(rates, -spreadCurveBump * 1e-4, spreadBumpType);
     final ISDACompliantCreditCurve bumpedUpCreditCurve = hazardCurve.withRates(bumpedUpRates);

@@ -17,11 +17,13 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the construction of multiple currency interest rate sensitivity.
  */
+@Test(groups = TestGroup.UNIT)
 public class MultipleCurrencyInterestRateCurveSensitivityTest {
 
   private static final Currency USD = Currency.USD;

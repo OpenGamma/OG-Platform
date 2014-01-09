@@ -7,9 +7,12 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class SmileInterpolatorSplineTest extends SmileInterpolatorTestCase {
   private static final GeneralSmileInterpolator INTERPOLATOR = new SmileInterpolatorSpline();
 

@@ -20,11 +20,13 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the interest rate future option with margin transaction description.
  */
+@Test(groups = TestGroup.UNIT)
 public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
@@ -50,7 +52,7 @@ public class InterestRateFutureOptionPremiumTransactionDefinitionTest {
       TRADE_PRICE);
   // Derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  //  private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  //  private static final DayCount ACT_ACT = DayCounts.ACT_ACT_ISDA;
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -16,17 +16,28 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Specification for an interpolated curve.
  */
 public class InterpolatedCurveSpecification extends CurveSpecification {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
 
+  /** The interpolator name */
   private final String _interpolatorName;
+  /** The right extrapolator name */
   private final String _rightExtrapolatorName;
+  /** The left extrapolator name */
   private final String _leftExtrapolatorName;
 
+  /**
+   * @param curveDate The curve construction date, not null
+   * @param name The curve name, not null
+   * @param nodes The nodes that are used to construct this curve, not null
+   * @param interpolatorName The interpolator name, not null
+   * @param rightExtrapolatorName The right extrapolator name, not null
+   * @param leftExtrapolatorName The left extrapolator name, not null
+   */
   public InterpolatedCurveSpecification(final LocalDate curveDate, final String name, final Collection<CurveNodeWithIdentifier> nodes,
       final String interpolatorName, final String rightExtrapolatorName, final String leftExtrapolatorName) {
     super(curveDate, name, nodes);
@@ -38,14 +49,26 @@ public class InterpolatedCurveSpecification extends CurveSpecification {
     _leftExtrapolatorName = leftExtrapolatorName;
   }
 
+  /**
+   * Gets the interpolator name,
+   * @return The interpolator name
+   */
   public String getInterpolatorName() {
     return _interpolatorName;
   }
 
+  /**
+   * Gets the right extrapolator name.
+   * @return The right extrapolator name
+   */
   public String getRightExtrapolatorName() {
     return _rightExtrapolatorName;
   }
 
+  /**
+   * Gets the left extrapolator name.
+   * @return The left extrapolator name
+   */
   public String getLeftExtrapolatorName() {
     return _leftExtrapolatorName;
   }

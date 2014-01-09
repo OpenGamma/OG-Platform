@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
@@ -58,7 +58,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final String discountingCurveName = yieldCurveNames[1];
     final String iborCurveName = yieldCurveNames[2];
     final String[] couponCurveName = new String[] {creditCurveName, iborCurveName };
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot, getUnderlyingBond().getCalendar());
     final double settlementTime;
@@ -104,7 +104,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
     final String discountingCurveName = yieldCurveNames[1];
     final String iborCurveName = yieldCurveNames[2];
     final String[] couponCurveName = new String[] {creditCurveName, iborCurveName };
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot, getUnderlyingBond().getCalendar());
     final double settlementTime;
@@ -138,7 +138,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
   public BondIborTransaction toDerivative(final ZonedDateTime date) {
     // TODO: review this implementation using the Security toDerivative.
     ArgumentChecker.notNull(date, "date");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot, getUnderlyingBond().getCalendar());
     final double settlementTime;
@@ -172,7 +172,7 @@ public class BondIborTransactionDefinition extends BondTransactionDefinition<Pay
   public BondIborTransaction toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final double spotTime = actAct.getDayCountFraction(date, spot, getUnderlyingBond().getCalendar());
     final double settlementTime;

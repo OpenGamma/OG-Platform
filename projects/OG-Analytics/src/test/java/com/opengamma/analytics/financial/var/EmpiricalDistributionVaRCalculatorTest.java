@@ -11,10 +11,12 @@ import org.testng.annotations.Test;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
+import com.opengamma.util.test.TestGroup;
 
 /**
- *
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class EmpiricalDistributionVaRCalculatorTest {
   private static final double HORIZON = 10;
   private static final double PERIODS = 250;

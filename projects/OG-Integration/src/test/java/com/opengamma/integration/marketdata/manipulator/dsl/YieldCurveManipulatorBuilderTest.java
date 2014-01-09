@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -7,10 +12,11 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.util.test.TestGroup;
 
+@Test(groups = TestGroup.UNIT)
 public class YieldCurveManipulatorBuilderTest {
 
   private YieldCurveManipulatorBuilder _builder;
@@ -33,7 +39,9 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(BucketedShiftType.FORWARD, ImmutableList.<Object>of(1, 2, 3, CurveShiftType.ABSOLUTE));    
+    _builder.bucketedShifts(BucketedShiftType.FORWARD)
+      .shift(1, 2, 3, CurveShiftType.ABSOLUTE)
+      .apply();
     
     YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator)_manipulatorResult;
     
@@ -51,7 +59,10 @@ public class YieldCurveManipulatorBuilderTest {
 
   @Test
   public void pointShifts() {
-    _builder.pointShifts(ImmutableList.<Object>of(1, 2, CurveShiftType.ABSOLUTE));    
+    
+    _builder.pointShifts()
+      .shift(1, 2, CurveShiftType.ABSOLUTE)
+      .apply();
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     

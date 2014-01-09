@@ -100,10 +100,11 @@ public class GenericImpliedVolatiltySolver {
 
     double lowerSigma;
     double upperSigma;
-    final double volGuess = guess < 1.e-14 ? 0.15 : guess;
+    final double volGuess = guess < 1.e-2 ? 0.15 : guess;
+    final double shift = 1.e-2;
 
     try {
-      final double[] temp = bracketRoot(optionPrice, pavFunc, volGuess, Math.min(volGuess, 0.1));
+      final double[] temp = bracketRoot(optionPrice, pavFunc, volGuess, Math.min(volGuess, 0.1), shift);
       lowerSigma = temp[0];
       upperSigma = temp[1];
     } catch (final MathException e) {
@@ -175,6 +176,19 @@ public class GenericImpliedVolatiltySolver {
       }
     };
     return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0, Double.POSITIVE_INFINITY);
+  }
+
+  private static double[] bracketRoot(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double sigma, final double change, final double shift) {
+    final BracketRoot bracketer = new BracketRoot();
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double volatility) {
+        return pavFunc.evaluate(volatility)[0] / optionPrice - 1.0;
+      }
+    };
+    final double absChange = Math.abs(change);
+    final double left = sigma - absChange < shift ? shift : sigma - absChange;
+    return bracketer.getBracketedPoints(func, left, sigma + absChange, shift, Double.POSITIVE_INFINITY);
   }
 
   private static double solveByBisection(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double lowerSigma,

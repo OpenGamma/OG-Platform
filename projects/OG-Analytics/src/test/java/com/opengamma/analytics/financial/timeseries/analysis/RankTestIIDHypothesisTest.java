@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class RankTestIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis RANK_TEST = new RankTestIIDHypothesis(0.05);
 

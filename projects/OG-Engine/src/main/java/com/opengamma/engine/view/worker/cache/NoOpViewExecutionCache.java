@@ -22,4 +22,9 @@ public class NoOpViewExecutionCache implements ViewExecutionCache {
   public void setCompiledViewDefinitionWithGraphs(ViewExecutionCacheKey key, CompiledViewDefinitionWithGraphs viewDefinition) {
     // do nothing
   }
+
+  @Override
+  public void clear() {
+    // do nothing
+  }
 }

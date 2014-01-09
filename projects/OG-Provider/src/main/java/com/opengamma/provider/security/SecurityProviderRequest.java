@@ -146,7 +146,7 @@ public class SecurityProviderRequest extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of security external identifiers to get.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Set<ExternalIdBundle> getExternalIdBundles() {
     return _externalIdBundles;
@@ -154,9 +154,10 @@ public class SecurityProviderRequest extends DirectBean {
 
   /**
    * Sets the set of security external identifiers to get.
-   * @param externalIdBundles  the new value of the property
+   * @param externalIdBundles  the new value of the property, not null
    */
   public void setExternalIdBundles(Set<ExternalIdBundle> externalIdBundles) {
+    JodaBeanUtils.notNull(externalIdBundles, "externalIdBundles");
     this._externalIdBundles.clear();
     this._externalIdBundles.addAll(externalIdBundles);
   }
@@ -351,6 +352,11 @@ public class SecurityProviderRequest extends DirectBean {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecurityProviderRequest) bean)._externalIdBundles, "externalIdBundles");
     }
 
   }

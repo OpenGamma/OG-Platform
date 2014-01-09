@@ -85,7 +85,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, conventionBundleSource, regionSource);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(securitySource, swapConverter);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
@@ -137,7 +137,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
           || security instanceof DeliverableSwapFutureSecurity
           || security instanceof FederalFundsFutureSecurity;
     }
-
+    
     @Override
     protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties =  createValueProperties()

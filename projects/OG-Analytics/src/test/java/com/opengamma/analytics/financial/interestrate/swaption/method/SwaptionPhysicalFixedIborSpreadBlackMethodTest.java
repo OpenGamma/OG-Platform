@@ -34,6 +34,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -41,6 +42,7 @@ import com.opengamma.util.time.DateUtils;
  * @deprecated This class tests deprecated functionality.
  */
 @Deprecated
+@Test(groups = TestGroup.UNIT)
 public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -66,10 +68,10 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
       .from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE, SPREAD, IS_PAYER, TARGET);
   private static final SwapFixedIborDefinition SWAP_NOSPREAD_EUR3M3M_DEFINITION = SwapFixedIborDefinition.from(START_DATE, SWAP_TENOR, EUR3MEURIBOR3M, NOTIONAL, FIXED_RATE - SPREAD, IS_PAYER);
   private static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_SPREAD_EUR1Y3M_DEFINITION = SwaptionPhysicalFixedIborSpreadDefinition.from(EXPIRY_DATE, SWAP_SPREAD_EUR1Y3M_DEFINITION,
-      IS_LONG);
+      IS_PAYER, IS_LONG);
   private static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_SPREAD_EUR3M3M_DEFINITION = SwaptionPhysicalFixedIborSpreadDefinition.from(EXPIRY_DATE, SWAP_SPREAD_EUR3M3M_DEFINITION,
-      IS_LONG);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_NOSPREAD_EUR3M3M_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_NOSPREAD_EUR3M3M_DEFINITION, IS_LONG);
+      IS_PAYER, IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_NOSPREAD_EUR3M3M_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_NOSPREAD_EUR3M3M_DEFINITION, IS_PAYER, IS_LONG);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsBlack.createCurvesEUR();
   private static final String[] CURVE_NAMES = TestsDataSetsBlack.curvesEURNames();

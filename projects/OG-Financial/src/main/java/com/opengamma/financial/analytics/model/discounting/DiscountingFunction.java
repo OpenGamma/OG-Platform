@@ -73,6 +73,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
       _withCurrency = withCurrency;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()

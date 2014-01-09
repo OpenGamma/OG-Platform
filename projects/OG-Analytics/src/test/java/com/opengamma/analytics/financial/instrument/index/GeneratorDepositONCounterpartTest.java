@@ -16,18 +16,20 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructor and method of GeneratorDepositON.
  */
+@Test(groups = TestGroup.UNIT)
 public class GeneratorDepositONCounterpartTest {
 
   private static final String NAME_GENERATOR = "US Govt Deposit ON";
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
+  private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final Currency CUR = Currency.EUR;
   private static final String NAME_COUNTERPART = "US GOVT";
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositONCounterpart(NAME_GENERATOR, CUR, CALENDAR, DAY_COUNT, NAME_COUNTERPART);

@@ -10,9 +10,12 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class ComplexNumberTest {
   private static final ComplexNumber Z1 = new ComplexNumber(1, 2);
   private static final ComplexNumber Z2 = new ComplexNumber(1, 2);

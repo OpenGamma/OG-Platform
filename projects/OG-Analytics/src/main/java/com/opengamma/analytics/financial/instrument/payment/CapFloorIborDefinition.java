@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
@@ -234,7 +234,7 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
         fixedRate = indexFixingTS.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar, getFixingDate().minusDays(1));
+        final ZonedDateTime previousBusinessDay = BusinessDayConventions.PRECEDING.adjustDate(_calendar, getFixingDate().minusDays(1));
         fixedRate = indexFixingTS.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {
@@ -286,7 +286,7 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
         fixedRate = indexFixingTS.getValue(fixingDateAtLiborFixingTime);
       }
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(_calendar, getFixingDate().minusDays(1));
+        final ZonedDateTime previousBusinessDay = BusinessDayConventions.PRECEDING.adjustDate(_calendar, getFixingDate().minusDays(1));
         fixedRate = indexFixingTS.getValue(previousBusinessDay);
         //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
         if (fixedRate == null) {

@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Here we use the following notation
@@ -19,6 +20,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
  * delta_i = (yValues[i+1] - yValues[i])/h_i
  * d_i = dF(x)/dx |x=xValues[i] where F(x) is the piecewise interpolation function
  */
+@Test(groups = TestGroup.UNIT)
 public class PiecewiseCubicHermiteSplineInterpolatorTest {
 
   private static final double EPS = 1e-14;

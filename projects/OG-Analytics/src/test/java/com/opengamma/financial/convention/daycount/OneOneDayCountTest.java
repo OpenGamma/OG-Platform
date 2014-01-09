@@ -10,11 +10,13 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Test OneOneDatCount.
  */
+@Test(groups = TestGroup.UNIT)
 public class OneOneDayCountTest {
 
   private static final ZonedDateTime D1 = DateUtils.getUTCDate(2010, 1, 1);

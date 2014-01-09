@@ -108,10 +108,7 @@ public class CancelExecutionTest {
 
   @DataProvider(name = "executors")
   Object[][] data_executors() {
-    return new Object[][] {
-        {multipleNodeExecutorFactoryManyJobs() },
-        {multipleNodeExecutorFactoryOneJob() },
-        {new SingleNodeExecutorFactory() }, };
+    return new Object[][] { {multipleNodeExecutorFactoryManyJobs() }, {multipleNodeExecutorFactoryOneJob() }, {new SingleNodeExecutorFactory() }, };
   }
 
   //-------------------------------------------------------------------------
@@ -143,7 +140,8 @@ public class CancelExecutionTest {
     _functionCount.set(0);
     final MockFunction mockFunction = new MockFunction(ComputationTarget.NULL) {
       @Override
-      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) {
         try {
           Thread.sleep(JOB_FINISH_TIME / (JOB_SIZE * 2));
         } catch (final InterruptedException e) {
@@ -172,11 +170,10 @@ public class CancelExecutionTest {
     viewDefinition.addViewCalculationConfiguration(new ViewCalculationConfiguration(viewDefinition, "default"));
     final MockConfigSource configSource = new MockConfigSource();
     configSource.put(viewDefinition);
-    final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider,
-        new DefaultViewPortfolioPermissionProvider(),
-        marketDataProviderResolver, compilationService, functionResolver,
-        computationCacheSource, jobDispatcher, new SingleThreadViewProcessWorkerFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
-        new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"), new InMemoryViewExecutionCache());
+    final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider, new DefaultViewPortfolioPermissionProvider(),
+        marketDataProviderResolver, compilationService, functionResolver, computationCacheSource, jobDispatcher, new SingleThreadViewProcessWorkerFactory(),
+        new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider, new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(),
+        new VersionedUniqueIdSupplier("Test", "1"), new InMemoryViewExecutionCache());
     DependencyNode previousNode = null;
     ValueSpecification previousValue = null;
     for (int i = 0; i < JOB_SIZE; i++) {
@@ -192,12 +189,13 @@ public class CancelExecutionTest {
       previousNode = node;
     }
     final DependencyGraph graph = new DependencyGraphImpl("Test", Collections.singleton(previousNode), JOB_SIZE, Collections.<ValueSpecification, Set<ValueRequirement>>emptyMap());
-    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, Collections.singleton(graph),
-        Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0,
+    final Instant now = Instant.now();
+    final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.of(now, now), "", viewDefinition,
+        Collections.singleton(graph), Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0,
         Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph)), null, null);
-    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(LiveMarketDataSpecification.LIVE_SPEC)
-        .create();
-    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), new ComputationResultListener() {
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1))
+        .setMarketDataSpecification(LiveMarketDataSpecification.LIVE_SPEC).create();
+    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), "", new ComputationResultListener() {
       @Override
       public void resultAvailable(final ViewComputationResultModel result) {
         //ignore

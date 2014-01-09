@@ -37,6 +37,7 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -214,8 +215,10 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
     List<String> liveDataSources;
     if (data().getLiveMarketDataProviderFactory() != null) {
       liveDataSources = data().getLiveMarketDataProviderFactory().getProviderNames();
-    } else {
+    } else if (data().getMarketDataSpecificationRepository() != null) {
       liveDataSources = data().getMarketDataSpecificationRepository().getNames();
+    } else {
+      liveDataSources = ImmutableList.of();
     }
     return liveDataSources;
   }

@@ -56,7 +56,7 @@ import com.opengamma.util.ArgumentChecker;
   };
 
   private MultipleComputationTargetType(final Set<ComputationTargetType> target) {
-    super(MultipleComputationTargetType.class.hashCode() * 31 + target.hashCode());
+    super(MultipleComputationTargetType.class.getName().hashCode() * 31 + target.hashCode());
     _target = target;
   }
 

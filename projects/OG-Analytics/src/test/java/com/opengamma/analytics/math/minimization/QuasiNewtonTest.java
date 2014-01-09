@@ -7,9 +7,12 @@ package com.opengamma.analytics.math.minimization;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
- * 
+ * Test.
  */
+@Test(groups = TestGroup.UNIT)
 public class QuasiNewtonTest extends MultidimensionalMinimizerWithGradientTestCase {
   private static final QuasiNewtonInverseHessianUpdate BFGS = new BroydenFletcherGoldfarbShannoInverseHessianUpdate();
   private static final QuasiNewtonInverseHessianUpdate DFP = new DavidonFletcherPowellInverseHessianUpdate();

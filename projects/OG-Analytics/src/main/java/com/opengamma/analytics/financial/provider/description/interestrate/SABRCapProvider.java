@@ -5,8 +5,16 @@
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Implementation for cap-floor SABR parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
@@ -27,11 +35,14 @@ public class SABRCapProvider implements SABRCapProviderInterface {
   private final IborIndex _index;
 
   /**
-   * @param multicurveProvider The multicurve provider.
-   * @param parameters The SABR parameters.
-   * @param index The cap/floor index.
+   * @param multicurveProvider The multicurve provider, not null
+   * @param parameters The SABR parameters, not null
+   * @param index The cap/floor index, not null
    */
   public SABRCapProvider(final MulticurveProviderInterface multicurveProvider, final SABRInterestRateParameters parameters, final IborIndex index) {
+    ArgumentChecker.notNull(multicurveProvider, "multicurveProvider");
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(index, "index");
     _multicurveProvider = multicurveProvider;
     _parameters = parameters;
     _index = index;
@@ -58,4 +69,49 @@ public class SABRCapProvider implements SABRCapProviderInterface {
     return _multicurveProvider;
   }
 
+  @Override
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
+    return _multicurveProvider.parameterSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
+    return _multicurveProvider.parameterForwardSensitivity(name, pointSensitivity);
+  }
+
+  @Override
+  public Set<String> getAllCurveNames() {
+    return _multicurveProvider.getAllCurveNames();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _index.hashCode();
+    result = prime * result + _multicurveProvider.hashCode();
+    result = prime * result + _parameters.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof SABRCapProvider)) {
+      return false;
+    }
+    final SABRCapProvider other = (SABRCapProvider) obj;
+    if (!ObjectUtils.equals(_index, other._index)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_multicurveProvider, other._multicurveProvider)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_parameters, other._parameters)) {
+      return false;
+    }
+    return true;
+  }
 }

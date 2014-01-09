@@ -376,7 +376,8 @@ import com.opengamma.util.tuple.Pairs;
     private final ComputationTargetSpecification[] _a;
     private final ComputationTargetSpecification[] _b;
 
-    public CollapseNodes(DependencyNodeFunction function, final PerFunctionNodeInfo nodeInfo, final Collection<ComputationTargetSpecification> a, final Collection<ComputationTargetSpecification> b) {
+    public CollapseNodes(DependencyNodeFunction function, final PerFunctionNodeInfo nodeInfo, final Collection<ComputationTargetSpecification> a,
+        final Collection<ComputationTargetSpecification> b) {
       _function = function;
       _nodeInfo = nodeInfo;
       _a = a.toArray(new ComputationTargetSpecification[a.size()]);
@@ -619,6 +620,16 @@ import com.opengamma.util.tuple.Pairs;
             }
             inputNode = getOrCreateNode(inputValue, downstreamCopy);
             if (inputNode != null) {
+              for (int j = 0; j < inputNode.getOutputCount(); j++) {
+                final ValueSpecification reducedInput = inputNode.getOutputValue(j);
+                if (reducedInput.getValueName() == input.getValueName()) {
+                  if (input.getProperties().isSatisfiedBy(reducedInput.getProperties())) {
+                    s_logger.debug("Reducing {} to {}", input, reducedInput);
+                    input = reducedInput;
+                    break;
+                  }
+                }
+              }
               inputValues[i] = input;
               inputNodes[i++] = inputNode;
             } else {
@@ -707,8 +718,7 @@ import com.opengamma.util.tuple.Pairs;
     }
   }
 
-  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode,
-      final Set<DependencyNode> nodes) {
+  private DependencyNode getOrCreateNode(final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream, final DependencyNode existingNode, final Set<DependencyNode> nodes) {
     final DependencyNode newNode = updateOrCreateNode(resolvedValue, downstream, existingNode);
     if (newNode == null) {
       return null;
@@ -855,8 +865,7 @@ import com.opengamma.util.tuple.Pairs;
               // Found suitable match; check whether it needs rewriting
               final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
               if (!composedProperties.equals(outputValue.getProperties())) {
-                final ValueSpecification newOutputValue = MemoryUtils
-                    .instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
+                final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
                 if (replacementOutputs == null) {
                   replacementOutputs = Maps.newHashMapWithExpectedSize(outputValues.size());
                 }

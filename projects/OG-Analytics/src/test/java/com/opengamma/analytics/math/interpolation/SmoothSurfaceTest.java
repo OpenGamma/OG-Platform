@@ -23,14 +23,16 @@ import com.opengamma.analytics.math.minimization.ConjugateGradientVectorMinimize
 import com.opengamma.analytics.math.minimization.ScalarMinimizer;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
- *
+ * Test.
  */
-//FIXME this test does nothing - either delete or add some real tests
+@Test(groups = TestGroup.UNIT)
 public class SmoothSurfaceTest {
+//FIXME this test does nothing - either delete or add some real tests
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, RANDOM);
   private static final double EPS = 1e-5;

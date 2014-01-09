@@ -56,6 +56,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -63,6 +64,7 @@ import com.opengamma.util.tuple.Pair;
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Two curves in EUR; no futures; EONIA curve with ECB meeting dates.
  */
+@Test(groups = TestGroup.UNIT)
 public class MulticurveBuildingDiscountingDiscountEURCommitteeSimpleTest {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,

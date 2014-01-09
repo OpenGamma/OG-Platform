@@ -33,7 +33,7 @@ public abstract class CommodityFutureSecurityDefinition<T extends InstrumentDeri
   private final CommodityUnderlying _underlying;
 
   /** 
-   * Description of unit size (for example :  barrel)
+   * Description of unit size (for example : a barrel)
    */
   private final String _unitName;
 

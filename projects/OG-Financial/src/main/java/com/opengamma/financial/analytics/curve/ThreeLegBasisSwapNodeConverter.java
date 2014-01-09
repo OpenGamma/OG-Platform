@@ -76,11 +76,11 @@ public class ThreeLegBasisSwapNodeConverter extends CurveNodeVisitorAdapter<Inst
     final Period maturityTenor = threeLegBasisSwapNode.getMaturityTenor().getPeriod();
     final AnnuityDefinition<?>[] legs = new AnnuityDefinition[3];
     legs[0] = NodeConverterUtils.getSwapLeg(spreadLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
-        _marketData, _dataId, _valuationTime, true, false); // Spread leg
+        _marketData, _dataId, _valuationTime, true, false, false, 1.0); // Spread leg
     legs[1] = NodeConverterUtils.getSwapLeg(payLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
-        _marketData, _dataId, _valuationTime, true, false); // Leg associated to the spread (same pay/receive)
+        _marketData, _dataId, _valuationTime, true, false, false, 1.0); // Leg associated to the spread (same pay/receive)
     legs[2] = NodeConverterUtils.getSwapLeg(receiveLegConvention, startTenor, maturityTenor, _regionSource, _holidaySource, _conventionSource, 
-        _marketData, _dataId, _valuationTime, false, false); // Other leg
+        _marketData, _dataId, _valuationTime, false, false, false, 1.0); // Other leg
     return new SwapMultilegDefinition(legs);
   }
 

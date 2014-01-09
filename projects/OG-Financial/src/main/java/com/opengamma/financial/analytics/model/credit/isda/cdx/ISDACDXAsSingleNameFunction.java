@@ -53,7 +53,7 @@ import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifier
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -70,7 +70,7 @@ import com.opengamma.util.time.Tenor;
  */
 //TODO rename to make clear that these functions use the ISDA methodology (specifically, for effective dates)
 public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention FOLLOWING = BusinessDayConventions.FOLLOWING;
   private final String[] _valueRequirements;
 
   public ISDACDXAsSingleNameFunction(final String... valueRequirements) {
@@ -85,8 +85,8 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
-    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource);
     final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final CreditDefaultIndexSwapSecurityToProxyConverter converter = new CreditDefaultIndexSwapSecurityToProxyConverter(holidaySource, regionSource, organizationSource, securitySource, valuationTime);
     final CreditDefaultSwapIndexSecurity security = (CreditDefaultSwapIndexSecurity) target.getSecurity();
     final CreditDefaultSwapIndexDefinitionSecurity underlyingDefinition = (CreditDefaultSwapIndexDefinitionSecurity) securitySource.getSingle(ExternalIdBundle.of(security.getReferenceEntity()));
     if (underlyingDefinition == null) {
@@ -95,8 +95,8 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     final double recoveryRate = underlyingDefinition.getRecoveryRate();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
-    definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
-    definition = definition.withRecoveryRate(recoveryRate);
+    //definition = definition.withEffectiveDate(FOLLOWING.adjustDate(calendar, valuationTime.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1)));
+    //definition = definition.withRecoveryRate(recoveryRate);
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -122,11 +122,11 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getEffectiveDate().toLocalDate(), definition.getStartDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS, tenors);
   }
 
   @Override
@@ -234,7 +234,8 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
                                                          ValueProperties properties,
                                                          FunctionInputs inputs,
                                                          ISDACompliantCreditCurve hazardCurve,
-                                                         CDSAnalytic analytic);
+                                                         CDSAnalytic analytic,
+                                                         Tenor[] tenors);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 

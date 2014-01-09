@@ -22,12 +22,14 @@ import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests the portfolio hedging calculator, with simplified examples and then with full scale data.
  */
+@Test(groups = TestGroup.UNIT)
 public class PortfolioHedgingCalculatorTest {
 
   private static final Currency EUR = Currency.EUR;
@@ -55,7 +57,6 @@ public class PortfolioHedgingCalculatorTest {
 
   private static final double TOLERANCE = 1.0E-8;
 
-  @Test
   /**
    * Test the hedging portfolio with reference instruments equal to the curve construction instruments.
    */
@@ -96,7 +97,6 @@ public class PortfolioHedgingCalculatorTest {
     assertArrayEquals("PortfolioHedgingCalculator: ", sensiOpposite, hedging3, TOLERANCE);
   }
 
-  @Test
   /**
    * Test the hedging portfolio. The answer is perturbed to check that it is at a minimum.
    */
@@ -169,7 +169,6 @@ public class PortfolioHedgingCalculatorTest {
   private static final DoubleMatrix1D SENSITIVITY_1_1 = new DoubleMatrix1D(4.0, 2.0, 5.0, 1.5);
   private static final DoubleMatrix1D SENSITIVITY_2_1 = new DoubleMatrix1D(5.0, 1.0, 2.0, 5.0, 1.5);
 
-  @Test
   public void testToMatrix() {
     final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map1 = Maps.newLinkedHashMap();
     map1.put(NAME_1_EUR, SENSITIVITY_1_1);

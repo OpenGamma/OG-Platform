@@ -128,10 +128,12 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIb
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Class testing the instrument definition visitor.
  */
+@Test(groups = TestGroup.UNIT)
 public class InstrumentDefinitionVisitorTest {
   private static final Set<InstrumentDefinition<?>> ALL_INSTRUMENTS = TestInstrumentDefinitionsAndDerivatives.getAllInstruments();
   private static final MyVisitor<Object> VISITOR = new MyVisitor<>();

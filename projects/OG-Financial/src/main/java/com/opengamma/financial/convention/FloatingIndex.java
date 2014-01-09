@@ -115,9 +115,17 @@ public enum FloatingIndex {
    */
   NOK_NIBOR_NIBR(Currency.NOK, "NIBOR", "NOK-NIBOR-NIBR"),
   /**
+   * The MXN-TIIE-Banxico ISDA index.
+   */
+  MXN_TIIE_Banxico (Currency.of("MXN"), "TIIE", "MXN-TIIE-Banxico"),
+  /**
    * The NZD-BBR-FRA ISDA index.
    */
   NZD_BBR_FRA(Currency.NZD, "BBR", "NZD-BBR-FRA"),
+  /**
+   * The NZD-BBR-FRA ISDA index.
+   */
+  NZD_LIBOR_BBA(Currency.NZD, "LIBOR", "NZD-LIBOR-BBA"),
   /**
    * The NZD-BBR-Telerate ISDA index.
    */
@@ -138,6 +146,10 @@ public enum FloatingIndex {
    * The USD-LIBOR-BBA ISDA index.
    */
   USD_LIBOR_BBA(Currency.USD, "LIBOR", "USD-LIBOR-BBA"),
+  /**
+   * The USD-Federal Funds-H.15 ISDA index.
+   */
+  USD_FEDFUND(Currency.USD, "FEDFUND", "USD-Federal Funds-H.15"),
   /**
    * The USD-Federal Funds-H.15-OIS_COMPOUND ISDA index.
    */
@@ -213,6 +225,9 @@ public enum FloatingIndex {
         break;
       case Frequency.THREE_WEEK_NAME:
         idValue += "3W";
+        break;
+      case Frequency.TWENTY_EIGHT_DAYS_NAME:
+        idValue += "28D";
         break;
       case Frequency.MONTHLY_NAME:
         idValue += "1M";

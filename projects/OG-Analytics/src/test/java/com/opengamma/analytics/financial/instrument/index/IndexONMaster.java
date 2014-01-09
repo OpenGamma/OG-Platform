@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -40,9 +40,9 @@ public final class IndexONMaster {
    * Private constructor.
    */
   private IndexONMaster() {
-    final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
-    final DayCount Bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
+    final DayCount act360 = DayCounts.ACT_360;
+    final DayCount act365 = DayCounts.ACT_365;
+    final DayCount Bus252 = DayCounts.BUSINESS_252;
     _on = new HashMap<>();
     _on.put("EONIA", new IndexON("EONIA", Currency.EUR, act360, 0));
     _on.put("FED FUND", new IndexON("FED FUND", Currency.USD, act360, 1));

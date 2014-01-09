@@ -21,18 +21,20 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  *
  */
-public class PhysicalSwaptionConstantSpreadHorizonCalculator implements HorizonCalculator<SwaptionPhysicalFixedIborDefinition, YieldCurveWithBlackSwaptionBundle, Void> {
+public class PhysicalSwaptionConstantSpreadHorizonCalculator implements HorizonCalculatorDeprecated<SwaptionPhysicalFixedIborDefinition, YieldCurveWithBlackSwaptionBundle, Void> {
   /** Rolls down swaption data (curves and surface) */
   private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
 
   @Override
-  public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveWithBlackSwaptionBundle data, final int daysForward,
+  public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
+      final YieldCurveWithBlackSwaptionBundle data, final int daysForward,
       final Calendar calendar) {
     return getTheta(definition, date, yieldCurveNames, data, daysForward, calendar, null);
   }
 
   @Override
-  public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveWithBlackSwaptionBundle data, final int daysForward,
+  public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
+      final YieldCurveWithBlackSwaptionBundle data, final int daysForward,
       final Calendar calendar, final Void additionalData) {
     ArgumentChecker.notNull(definition, "definition");
     ArgumentChecker.notNull(date, "date");

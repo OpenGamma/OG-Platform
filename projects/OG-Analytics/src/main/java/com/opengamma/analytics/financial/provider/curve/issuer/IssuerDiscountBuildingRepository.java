@@ -17,12 +17,14 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.legalentity.LegalEntity;
+import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
 import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.ParameterSensitivityIssuerMatrixCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -93,15 +95,21 @@ public class IssuerDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return The new curves and the calibrated parameters.
    */
-  private Pair<IssuerProviderDiscount, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final IssuerProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<String, Currency>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+  private Pair<IssuerProviderDiscount, Double[]> makeUnit(final InstrumentDerivative[] instruments,
+      final double[] initGuess,
+      final IssuerProviderDiscount knownData,
+      final LinkedHashMap<String, Currency> discountingMap,
+      final LinkedHashMap<String, IborIndex[]> forwardIborMap,
+      final LinkedHashMap<String, IndexON[]> forwardONMap,
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorIssuerProviderDiscount generator = new GeneratorIssuerProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, generatorsMap);
     final IssuerDiscountBuildingData data = new IssuerDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new IssuerDiscountFinderFunction(calculator, data);
-    //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new IssuerDiscountFinderJacobian(new ParameterSensitivityIssuerUnderlyingMatrixCalculator(sensitivityCalculator), data);
-    // TODO
+    // final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new IssuerDiscountFinderJacobian(new ParameterSensitivityIssuerUnderlyingMatrixCalculator(sensitivityCalculator), data);
+    // TODO: Create a way to select the SensitivityMatrixMulticurve calculator (with underlying curve or not)
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new IssuerDiscountFinderJacobian(new ParameterSensitivityIssuerMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final IssuerProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
@@ -125,11 +133,17 @@ public class IssuerDiscountBuildingRepository {
    * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    */
-  // TODO: Currently only for the ParSpreadMarketQuoteDiscountingProviderCalculator.
-  private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final int startBlock, final int[] nbParameters, final Double[] parameters, final IssuerProviderDiscount knownData,
-      final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<String, Currency>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+  private DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments,
+      final int startBlock,
+      final int[] nbParameters,
+      final Double[] parameters,
+      final IssuerProviderDiscount knownData,
+      final LinkedHashMap<String, Currency> discountingMap,
+      final LinkedHashMap<String, IborIndex[]> forwardIborMap,
+      final LinkedHashMap<String, IndexON[]> forwardONMap,
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorIssuerProviderDiscount generator = new GeneratorIssuerProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, generatorsMap);
     final IssuerDiscountBuildingData data = new IssuerDiscountBuildingData(instruments, generator);
     //    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MulticurveDiscountFinderJacobian(new
@@ -151,71 +165,6 @@ public class IssuerDiscountBuildingRepository {
     return result;
   }
 
-//  /**
-//   * Build a block of curves.
-//   * @param instruments The instruments used for the block calibration.
-//   * @param curveGenerators The curve generators (final version). As an array of arrays, representing the units and the curves within the units.
-//   * @param curveNames The names of the different curves. As an array of arrays, representing the units and the curves within the units.
-//   * @param parametersGuess The initial guess for the parameters. As an array of arrays, representing the units and the parameters for one unit (all the curves of the unit concatenated).
-//   * @param knownData The known data (fx rates, other curves, model parameters, ...)
-//   * @param discountingMap The discounting curves names map.
-//   * @param forwardIborMap The forward curves names map.
-//   * @param forwardONMap The forward curves names map.
-//   * @param issuerMap The issuer curves names map.
-//   * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
-//   * @param sensitivityCalculator The parameter sensitivity calculator.
-//   * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
-//   */
-//  public Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorYDCurve[][] curveGenerators,
-//      final String[][] curveNames, final double[][] parametersGuess, final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
-//      final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<String, Currency>> issuerMap,
-//      final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
-//    final int nbUnits = curveGenerators.length;
-//    final IssuerProviderDiscount knownSoFarData = knownData.copy();
-//    final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
-//    final LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<>();
-//    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<>();
-//    final List<Double> parametersSoFar = new ArrayList<>();
-//    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
-//    int startUnit = 0;
-//    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-//      final int nbCurve = curveGenerators[loopunit].length;
-//      final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
-//      final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<>();
-//      final int[] nbIns = new int[curveGenerators[loopunit].length];
-//      int nbInsUnit = 0; // Number of instruments in the unit.
-//      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-//        startCurve[loopcurve] = nbInsUnit;
-//        nbIns[loopcurve] = instruments[loopunit][loopcurve].length;
-//        nbInsUnit += nbIns[loopcurve];
-//        instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
-//      }
-//      final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
-//      final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[instrumentsSoFar.size()]);
-//      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-//        System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
-//      }
-//      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-//        final GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-//        gen.put(curveNames[loopunit][loopcurve], tmp);
-//        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-//        unitMap.put(curveNames[loopunit][loopcurve], Pairs.of(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
-//      }
-//      final Pair<IssuerProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap,
-//          forwardONMap, issuerMap, gen, calculator, sensitivityCalculator);
-//      parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-//      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]), knownData,
-//          discountingMap, forwardIborMap, forwardONMap, issuerMap, generatorsSoFar, sensitivityCalculator);
-//      // TODO: should curve matrix be computed only once at the end? To save time
-//      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-//        unitBundleSoFar.put(curveNames[loopunit][loopcurve], Pairs.of(new CurveBuildingBlock(unitMap), mat[loopcurve]));
-//      }
-//      knownSoFarData.setAll(unitCal.getFirst());
-//      startUnit = startUnit + nbInsUnit;
-//    }
-//    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
-//  }
-
   /**
    * Build a block of curves.
    * @param curveBundles The bundles of curve data used in construction.
@@ -228,10 +177,15 @@ public class IssuerDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final MultiCurveBundle<GeneratorYDCurve>[] curveBundles,
-      final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
-      final LinkedHashMap<String, IborIndex[]> forwardIborMap, final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<String, Currency>> issuerMap,
-      final InstrumentDerivativeVisitor<IssuerProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
+  public Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(
+      final MultiCurveBundle<GeneratorYDCurve>[] curveBundles,
+      final IssuerProviderDiscount knownData,
+      final LinkedHashMap<String, Currency> discountingMap,
+      final LinkedHashMap<String, IborIndex[]> forwardIborMap,
+      final LinkedHashMap<String, IndexON[]> forwardONMap,
+      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     ArgumentChecker.notNull(curveBundles, "curve bundles");
     ArgumentChecker.notNull(knownData, "known data");
     ArgumentChecker.notNull(discountingMap, "discounting map");
@@ -253,7 +207,7 @@ public class IssuerDiscountBuildingRepository {
       final int nbCurve = curveBundle.size();
       final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
       final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<>();
-      final int[] nbIns = new int[curveBundle.getNumberOfInstruments()];
+      final int[] nbIns = new int[nbCurve];
       int nbInsUnit = 0; // Number of instruments in the unit.
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
         final SingleCurveBundle<GeneratorYDCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
@@ -290,5 +244,6 @@ public class IssuerDiscountBuildingRepository {
       startUnit = startUnit + nbInsUnit;
     }
     return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+
   }
 }

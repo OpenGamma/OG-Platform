@@ -31,31 +31,18 @@ import com.opengamma.util.PublicSPI;
 /**
  * A {@code ConventionSource} implemented using an underlying {@code ConventionMaster}.
  * <p>
- * The {@link ConventionSource} interface provides conventions to the engine via a narrow API.
- * This class provides the source on top of a standard {@link ConventionMaster}.
+ * The {@link ConventionSource} interface provides conventions to the engine via a narrow API. This class provides the source on top of a standard {@link ConventionMaster}.
  */
 @PublicSPI
-public class MasterConventionSource
-    extends AbstractMasterSource<Convention, ConventionDocument, ConventionMaster>
-    implements ConventionSource {
+public class MasterConventionSource extends AbstractMasterSource<Convention, ConventionDocument, ConventionMaster> implements ConventionSource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
    * @param master the master, not null
    */
   public MasterConventionSource(final ConventionMaster master) {
     super(master);
-  }
-
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master the master, not null
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  public MasterConventionSource(final ConventionMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
   }
 
   //-------------------------------------------------------------------------
@@ -69,10 +56,8 @@ public class MasterConventionSource
   public Collection<Convention> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-
     Collection<Convention> conventions = new ArrayList<Convention>();
-    for (ManageableConvention manageableConvention : getSecuritiesInternal(bundle, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection)) {
+    for (ManageableConvention manageableConvention : getSecuritiesInternal(bundle, versionCorrection)) {
       conventions.add(manageableConvention);
     }
     return conventions;
@@ -93,8 +78,7 @@ public class MasterConventionSource
   public ManageableConvention getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-    final Collection<ManageableConvention> conventions = getSecuritiesInternal(bundle, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
+    final Collection<ManageableConvention> conventions = getSecuritiesInternal(bundle, versionCorrection);
     if (conventions.isEmpty()) {
       throw new DataNotFoundException("No convention found: " + bundle);
     }
@@ -150,12 +134,7 @@ public class MasterConventionSource
   public <T extends Convention> T getSingle(ExternalIdBundle bundle, Class<T> type) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(type, "type");
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-    if (overrideVersionCorrection != null) {
-      return getSingle(bundle, overrideVersionCorrection, type);
-    } else {
-      return getSingle(bundle, VersionCorrection.LATEST, type);
-    }
+    return getSingle(bundle, VersionCorrection.LATEST, type);
   }
 
   @Override

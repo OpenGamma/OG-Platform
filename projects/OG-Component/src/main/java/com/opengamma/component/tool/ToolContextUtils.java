@@ -114,7 +114,9 @@ public final class ToolContextUtils {
     
     // Populate the tool context from the remote component server
     for (MetaProperty<?> metaProperty : toolContext.metaBean().metaPropertyIterable()) {
-      if (!metaProperty.name().equals("contextManager")) {
+      if (metaProperty.propertyType().equals(ComponentServer.class)) {
+        metaProperty.set(toolContext, componentServer);
+      } else if (!metaProperty.name().equals("contextManager")) {
         try {
           ComponentInfo componentInfo = getComponentInfo(componentServer, classifierChain, metaProperty.propertyType());
           if (componentInfo == null) {

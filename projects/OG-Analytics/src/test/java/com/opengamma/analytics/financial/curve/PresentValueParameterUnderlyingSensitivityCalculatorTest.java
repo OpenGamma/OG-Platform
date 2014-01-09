@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * @deprecated This class tests deprecated functionality
  */
+@Test(groups = TestGroup.UNIT)
 @Deprecated
 public class PresentValueParameterUnderlyingSensitivityCalculatorTest extends ParameterUnderlyingSensitivityCalculatorTest {
 

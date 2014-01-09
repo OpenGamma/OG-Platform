@@ -24,33 +24,26 @@ final class ISDAResultsBuilder {
   private ISDAResultsBuilder() {
   }
 
-
-
   /**
    * Fudge builder for {@link ISDACompliantCurve}
    */
   @FudgeBuilderFor(ISDACompliantCurve.class)
   public static final class ISDACompliantCurveBuilder extends AbstractFudgeBuilder<ISDACompliantCurve> {
     private static final String T_FIELD_NAME = "t";
-    private static final String R_FIELD_NAME = "r";
     private static final String RT_FIELD_NAME = "rt";
-    private static final String DF_FIELD_NAME = "df";
 
     @Override
     public ISDACompliantCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] t = deserializer.fieldValueToObject(double[].class, message.getByName(T_FIELD_NAME));
-      final double[] r = deserializer.fieldValueToObject(double[].class, message.getByName(R_FIELD_NAME));
       final double[] rt = deserializer.fieldValueToObject(double[].class, message.getByName(RT_FIELD_NAME));
-      final double[] df = deserializer.fieldValueToObject(double[].class, message.getByName(DF_FIELD_NAME));
-      return new ISDACompliantCurve(t, r, rt, df);
+      return ISDACompliantCurve.makeFromRT(t, rt);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ISDACompliantCurve object) {
       serializer.addToMessage(message, T_FIELD_NAME, null, object.getT());
-      serializer.addToMessage(message, R_FIELD_NAME, null, object.getR());
       serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());
-      serializer.addToMessage(message, DF_FIELD_NAME, null, object.getDf());
+
     }
   }
 
@@ -67,18 +60,14 @@ final class ISDAResultsBuilder {
     @Override
     public ISDACompliantYieldCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] t = deserializer.fieldValueToObject(double[].class, message.getByName(T_FIELD_NAME));
-      final double[] r = deserializer.fieldValueToObject(double[].class, message.getByName(R_FIELD_NAME));
       final double[] rt = deserializer.fieldValueToObject(double[].class, message.getByName(RT_FIELD_NAME));
-      final double[] df = deserializer.fieldValueToObject(double[].class, message.getByName(DF_FIELD_NAME));
-      return new ISDACompliantYieldCurve(t, r, rt, df);
+      return ISDACompliantYieldCurve.makeFromRT(t, rt);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ISDACompliantYieldCurve object) {
       serializer.addToMessage(message, T_FIELD_NAME, null, object.getT());
-      serializer.addToMessage(message, R_FIELD_NAME, null, object.getR());
       serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());
-      serializer.addToMessage(message, DF_FIELD_NAME, null, object.getDf());
     }
   }
 
@@ -88,27 +77,20 @@ final class ISDAResultsBuilder {
   @FudgeBuilderFor(ISDACompliantCreditCurve.class)
   public static final class ISDACompliantCreditCurveBuilder extends AbstractFudgeBuilder<ISDACompliantCreditCurve> {
     private static final String T_FIELD_NAME = "t";
-    private static final String R_FIELD_NAME = "r";
     private static final String RT_FIELD_NAME = "rt";
-    private static final String DF_FIELD_NAME = "df";
 
     @Override
     public ISDACompliantCreditCurve buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] t = deserializer.fieldValueToObject(double[].class, message.getByName(T_FIELD_NAME));
-      final double[] r = deserializer.fieldValueToObject(double[].class, message.getByName(R_FIELD_NAME));
       final double[] rt = deserializer.fieldValueToObject(double[].class, message.getByName(RT_FIELD_NAME));
-      final double[] df = deserializer.fieldValueToObject(double[].class, message.getByName(DF_FIELD_NAME));
-      return new ISDACompliantCreditCurve(t, r, rt, df);
+      return ISDACompliantCreditCurve.makeFromRT(t, rt);
     }
 
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ISDACompliantCreditCurve object) {
       serializer.addToMessage(message, T_FIELD_NAME, null, object.getT());
-      serializer.addToMessage(message, R_FIELD_NAME, null, object.getR());
-      serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());
-      serializer.addToMessage(message, DF_FIELD_NAME, null, object.getDf());
+      serializer.addToMessage(message, RT_FIELD_NAME, null, object.getRt());;
     }
   }
-
 
 }
