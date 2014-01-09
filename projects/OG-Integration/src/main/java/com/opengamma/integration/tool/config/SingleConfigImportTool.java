@@ -28,6 +28,7 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchSortOrder;
 import com.opengamma.master.convention.ConventionMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -52,6 +53,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
     ToolContext toolContext = getToolContext();
     ConfigMaster configMaster = toolContext.getConfigMaster();
     ConventionMaster conventionMaster = toolContext.getConventionMaster();
+    MarketDataSnapshotMaster marketDataSnapshotMaster = toolContext.getMarketDataSnapshotMaster();
     CommandLine commandLine = getCommandLine();
     @SuppressWarnings("unchecked")
     List<String> fileList = commandLine.getArgList();
@@ -61,7 +63,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
     boolean verbose = commandLine.hasOption("verbose");
     if (commandLine.hasOption("load")) {
       checkForInvalidOption("type");
-      SingleConfigLoader configLoader = new SingleConfigLoader(configMaster, conventionMaster);
+      SingleConfigLoader configLoader = new SingleConfigLoader(configMaster, conventionMaster, marketDataSnapshotMaster);
       if (fileList.size() > 0) {
         boolean problems = false;
         for (String fileName : fileList) {

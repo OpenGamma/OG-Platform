@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.convention.ConventionDocument;
@@ -25,6 +26,10 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.master.convention.ManageableConvention;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -35,12 +40,14 @@ public class SingleConfigLoader {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleConfigLoader.class);
   private ConfigMaster _configMaster;
   private ConventionMaster _conventionMaster;
+  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  public SingleConfigLoader(ConfigMaster configMaster, ConventionMaster conventionMaster) {
+  public SingleConfigLoader(ConfigMaster configMaster, ConventionMaster conventionMaster, MarketDataSnapshotMaster marketDataSnapshotMaster) {
     _configMaster = configMaster;
     _conventionMaster = conventionMaster;
+    _marketDataSnapshotMaster = marketDataSnapshotMaster;
   }
   
   private ManageableConvention addOrUpdateConvention(ManageableConvention convention) {
@@ -57,7 +64,7 @@ public class SingleConfigLoader {
       }
     }
     if (match != null) {
-      s_logger.info("Found existing item, updating it");
+      s_logger.info("Found existing convention, updating it");
       match.setConvention(convention);
       return _conventionMaster.update(match).getConvention();
     } else {
@@ -67,10 +74,37 @@ public class SingleConfigLoader {
     }
   }
   
+  private ManageableMarketDataSnapshot addOrUpdateSnapshot(ManageableMarketDataSnapshot snapshot) {
+    MarketDataSnapshotSearchRequest searchReq = new MarketDataSnapshotSearchRequest();
+    searchReq.setName(snapshot.getName());
+    MarketDataSnapshotSearchResult searchResult = _marketDataSnapshotMaster.search(searchReq);
+    MarketDataSnapshotDocument match = null;
+    for (MarketDataSnapshotDocument doc : searchResult.getDocuments()) {
+      if (doc.getSnapshot().getBasisViewName().equals(snapshot.getBasisViewName())) {
+        if (match == null) {
+          match = doc;
+        } else {
+          s_logger.warn("Found more than one matching market data snapshot for {} with type {}, changing first one", snapshot.getName(), snapshot.getBasisViewName());
+        }
+      }
+    }
+    if (match != null) {
+      s_logger.info("Found existing market data snapshot, updating it");
+      match.setSnapshot(snapshot);
+      return _marketDataSnapshotMaster.update(match).getSnapshot();
+    } else {
+      s_logger.info("No existing market data snapshot, creating a new one");
+      MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(snapshot);
+      return _marketDataSnapshotMaster.add(doc).getSnapshot();
+    }
+  }
+  
   public <T> void loadConfig(InputStream is, Class<T> hintType) {
     T config = JodaBeanSer.PRETTY.xmlReader().read(is, hintType);
     if (config instanceof ManageableConvention) {
       addOrUpdateConvention((ManageableConvention) config);
+    } else if (config instanceof ManageableMarketDataSnapshot) {
+      addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
     } else if (config instanceof Bean) {
       ConfigItem<T> item = ConfigItem.of(config);
       ConfigMasterUtils.storeByName(_configMaster, item);          
@@ -83,6 +117,8 @@ public class SingleConfigLoader {
     Object config = JodaBeanSer.PRETTY.xmlReader().read(is);
     if (config instanceof ManageableConvention) {
       addOrUpdateConvention((ManageableConvention) config);
+    } else if (config instanceof ManageableMarketDataSnapshot) {
+      addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
     } else if (config instanceof Bean) {
       ConfigItem<?> item = ConfigItem.of(config);
       ConfigMasterUtils.storeByName(_configMaster, item);          
