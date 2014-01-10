@@ -36,24 +36,23 @@ import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 import com.opengamma.scripts.Scriptable;
 
-/** Diagnostic tool for bloomber API server */
+/** Diagnostic tool for bloomberg API server */
 @Scriptable
 public class Diagnose {
 
   private static final String USAGE = "java com.opengamma.bbg.util.Diagnose";
 
-  private static CommandLine line = null;
-  private static String host = "localhost";
-  private static String port = "8194";
+  private static CommandLine s_line = null;
+  private static String s_host = "localhost";
+  private static String s_port = "8194";
   private static final String TICKER = "BBHBEAT Index";
   private static final String LIVE_FIELD = "LAST_PRICE";
   private static final String REF_FIELD = "API_MACHINE";
-  private static String timeout = "5000";
-  private static boolean verbose = false;
+  private static String s_timeout = "5000";
+  private static boolean s_verbose = false;
 
-
-  private static final Deferred ref_ok = new DeferredObject();
-  private static final Deferred mkt_ok = new DeferredObject();
+  private static final Deferred<String, Void, Void> REF_OK = new DeferredObject<>();
+  private static final Deferred<String, Void, Void> MKT_OK = new DeferredObject<>();
 
   public static void main(String[] args) throws Exception {
 
@@ -61,40 +60,40 @@ public class Diagnose {
     final CommandLineParser parser = new PosixParser();
 
     try {
-      line = parser.parse(options, args);
+      s_line = parser.parse(options, args);
     } catch (final ParseException e) {
       usage(options);
       System.exit(1);
     }
 
-    host = line.getOptionValue("h", host);
-    port = line.getOptionValue("p", port);
-    timeout = line.getOptionValue("t", timeout);
-    verbose = line.hasOption("v");
+    s_host = s_line.getOptionValue("h", s_host);
+    s_port = s_line.getOptionValue("p", s_port);
+    s_timeout = s_line.getOptionValue("t", s_timeout);
+    s_verbose = s_line.hasOption("v");
 
     try {
-      Integer.parseInt(port);
+      Integer.parseInt(s_port);
     } catch (NumberFormatException e) {
       System.err.println("port should be intiger value");
       usage(options);
     }
 
     try {
-      Integer.parseInt(timeout);
+      Integer.parseInt(s_timeout);
     } catch (NumberFormatException e) {
       System.err.println("timeout should be intiger value");
       usage(options);
     }
 
     SessionOptions sessionOptions = new SessionOptions();
-    sessionOptions.setServerHost(host);
-    sessionOptions.setServerPort(Integer.parseInt(port));
+    sessionOptions.setServerHost(s_host);
+    sessionOptions.setServerPort(Integer.parseInt(s_port));
 
     Session session = new Session(sessionOptions, new MyEventHandler());
     session.startAsync();
 
     DeferredManager dm = new DefaultDeferredManager();
-    Promise completed = dm.when(mkt_ok.promise(), ref_ok.promise());
+    Promise completed = dm.when(MKT_OK.promise(), REF_OK.promise());
     completed.done(new DoneCallback() {
       @Override
       public void onDone(Object o) {
@@ -103,23 +102,23 @@ public class Diagnose {
       }
     });
 
-    completed.waitSafely(Integer.parseInt(timeout));
-    if (!mkt_ok.isResolved()) {
-      System.err.printf("Received no market data within timeout of %s ms\n", timeout);
+    completed.waitSafely(Integer.parseInt(s_timeout));
+    if (!MKT_OK.isResolved()) {
+      System.err.printf("Received no market data within timeout of %s ms\n", s_timeout);
     }
-    if (!ref_ok.isResolved()) {
-      System.err.printf("Received no market data within timeout of %s ms\n", timeout);
+    if (!REF_OK.isResolved()) {
+      System.err.printf("Received no market data within timeout of %s ms\n", s_timeout);
     }
     System.exit(1);
   }
 
   private static Options createOptions() {
     final Options options = new Options();
-    Option option = new Option("h", "host", true, "bloomberg host address (default " + host + ")");
+    Option option = new Option("h", "host", true, "bloomberg host address (default " + s_host + ")");
     options.addOption(option);
-    option = new Option("p", "port", true, "bloomberg host port (default " + port + ")");
+    option = new Option("p", "port", true, "bloomberg host port (default " + s_port + ")");
     options.addOption(option);
-    option = new Option("t", "timeout", true, "timeout in milliseconds (default " + timeout + ")");
+    option = new Option("t", "timeout", true, "timeout in milliseconds (default " + s_timeout + ")");
     options.addOption(option);
     option = new Option("v", "verbose", false, "use verbose output");
     options.addOption(option);
@@ -162,7 +161,7 @@ public class Diagnose {
       while (iter.hasNext()) {
         Message message = iter.next();
 
-        if (verbose) {
+        if (s_verbose) {
           handleEventVerbose(event);
         }
 
@@ -180,7 +179,6 @@ public class Diagnose {
             SubscriptionList subscriptions = new SubscriptionList();
             subscriptions.add(new Subscription(TICKER, LIVE_FIELD));
             session.subscribe(subscriptions);
-
 
             if (!session.openService("//blp/refdata")) {
               System.out.println("Could not open service //blp/refdata");
@@ -208,7 +206,7 @@ public class Diagnose {
               System.err.println("Error retrieving reference data: " + securityError);
               System.exit(1);
             } else {
-              ref_ok.resolve("ok");
+              REF_OK.resolve("ok");
               Element fieldData = securityData.getElement("fieldData");
               // Element ref = fieldData.getElement(REF_FIELD);
               System.out.printf("Successfully received reference value for  Ticker:%s, Field:%s",
@@ -218,7 +216,7 @@ public class Diagnose {
             }
           }
         } else if (message.messageType().equals("MarketDataEvents") && message.getElement(LIVE_FIELD) != null) {
-          mkt_ok.resolve("ok");
+          MKT_OK.resolve("ok");
           System.out.printf("Successfully received live value for  Ticker:%s, Field:%s",
                             TICKER, message.getElement(LIVE_FIELD));
         } else {
@@ -229,6 +227,3 @@ public class Diagnose {
   }
 
 }
-
-
-
