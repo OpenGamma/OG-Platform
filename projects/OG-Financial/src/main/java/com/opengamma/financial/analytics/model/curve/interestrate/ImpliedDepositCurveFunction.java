@@ -248,7 +248,7 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
         throw new OpenGammaRuntimeException("Could not get result curve properties");
       }
       final ValueProperties resultJacobianProperties = resultCurveProperties.withoutAny(CURVE);
-      final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
+      ZonedDateTime valuationDateTime = executionContext.getValuationTime().atZone(executionContext.getValuationClock().getZone());
       final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
@@ -257,9 +257,9 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
       ZonedDateTime spotDate;
       if (spotLag == 0 && conventionSettlementRegion == null) {
-        spotDate = now;
+        spotDate = valuationDateTime;
       } else {
-        spotDate = now;
+        spotDate = ScheduleCalculator.getAdjustedDate(valuationDateTime, spotLag, calendar);;
       }
       final YieldCurveBundle curves = new YieldCurveBundle();
       final String fullYieldCurveName = _originalCurveName + "_" + _currency;
@@ -276,9 +276,9 @@ public class ImpliedDepositCurveFunction extends AbstractFunction {
       for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
         final Tenor tenor = strip.getCurveNodePointTime();
         final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
-        final double startTime = TimeCalculator.getTimeBetween(now, spotDate);
-        final double endTime = TimeCalculator.getTimeBetween(now, paymentDate);
-        final double accrualFactor = dayCount.getDayCountFraction(now, now.plus(tenor.getPeriod()), calendar);
+        final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
+        final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
+        final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
         final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
         final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
         final Cash cashDepositCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, impliedDepositCurveName);
