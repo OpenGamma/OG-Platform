@@ -5,14 +5,23 @@
  */
 package com.opengamma.core.config.impl;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -31,6 +40,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ClassUtils;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An item stored in the config master.
@@ -38,7 +48,9 @@ import com.opengamma.util.ClassUtils;
  * @param <T> the type of the underlying item
  */
 @BeanDefinition
-public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, ObjectIdentifiable {
+public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, ObjectIdentifiable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * The underlying value.
@@ -153,6 +165,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigItem}.
+   * 
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
@@ -162,8 +175,9 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * The meta-bean for {@code ConfigItem}.
-   * @param <R>  the bean's generic type
-   * @param cls  the bean's generic type
+   * 
+   * @param <R> the bean's generic type
+   * @param cls the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
@@ -184,6 +198,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying value.
+   * 
    * @return the value of the property, not null
    */
   public T getValue() {
@@ -192,7 +207,8 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Sets the underlying value.
-   * @param value  the new value of the property, not null
+   * 
+   * @param value the new value of the property, not null
    */
   public void setValue(T value) {
     JodaBeanUtils.notNull(value, "value");
@@ -201,6 +217,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code value} property.
+   * 
    * @return the property, not null
    */
   public final Property<T> value() {
@@ -210,15 +227,18 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier.
+   * 
    * @return the value of the property
    */
+  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
 
   /**
    * Sets the unique identifier.
-   * @param uniqueId  the new value of the property
+   * 
+   * @param uniqueId the new value of the property
    */
   public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
@@ -226,6 +246,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code uniqueId} property.
+   * 
    * @return the property, not null
    */
   public final Property<UniqueId> uniqueId() {
@@ -235,6 +256,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the item.
+   * 
    * @return the value of the property, not null
    */
   public String getName() {
@@ -243,7 +265,8 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Sets the name of the item.
-   * @param name  the new value of the property, not null
+   * 
+   * @param name the new value of the property, not null
    */
   public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
@@ -252,6 +275,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code name} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> name() {
@@ -261,7 +285,8 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   //-----------------------------------------------------------------------
   /**
    * Sets the type of the configuration item.
-   * @param type  the new value of the property
+   * 
+   * @param type the new value of the property
    */
   public void setType(Class<?> type) {
     this._type = type;
@@ -269,6 +294,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   /**
    * Gets the the {@code type} property.
+   * 
    * @return the property, not null
    */
   public final Property<Class<?>> type() {
@@ -299,9 +325,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       ConfigItem<?> other = (ConfigItem<?>) obj;
-      return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
+      return JodaBeanUtils.equal(getValue(), other.getValue()) && JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) && JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getType(), other.getType());
     }
     return false;
@@ -352,33 +376,24 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
      * The meta-property for the {@code value} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<T> _value = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(
-        this, "value", ConfigItem.class, Object.class);
+    private final MetaProperty<T> _value = (DirectMetaProperty) DirectMetaProperty.ofReadWrite(this, "value", ConfigItem.class, Object.class);
     /**
      * The meta-property for the {@code uniqueId} property.
      */
-    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
-        this, "uniqueId", ConfigItem.class, UniqueId.class);
+    private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(this, "uniqueId", ConfigItem.class, UniqueId.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
-        this, "name", ConfigItem.class, String.class);
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(this, "name", ConfigItem.class, String.class);
     /**
      * The meta-property for the {@code type} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(
-        this, "type", ConfigItem.class, (Class) Class.class);
+    private final MetaProperty<Class<?>> _type = DirectMetaProperty.ofReadWrite(this, "type", ConfigItem.class, (Class) Class.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "value",
-        "uniqueId",
-        "name",
-        "type");
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(this, null, "value", "uniqueId", "name", "type");
 
     /**
      * Restricted constructor.
@@ -389,13 +404,13 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 111972721:  // value
+        case 111972721: // value
           return _value;
-        case -294460212:  // uniqueId
+        case -294460212: // uniqueId
           return _uniqueId;
-        case 3373707:  // name
+        case 3373707: // name
           return _name;
-        case 3575610:  // type
+        case 3575610: // type
           return _type;
       }
       return super.metaPropertyGet(propertyName);
@@ -420,6 +435,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code value} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<T> value() {
@@ -428,6 +444,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
     /**
      * The meta-property for the {@code uniqueId} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<UniqueId> uniqueId() {
@@ -436,6 +453,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
     /**
      * The meta-property for the {@code name} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> name() {
@@ -444,6 +462,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
     /**
      * The meta-property for the {@code type} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Class<?>> type() {
@@ -454,13 +473,13 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 111972721:  // value
+        case 111972721: // value
           return ((ConfigItem<?>) bean).getValue();
-        case -294460212:  // uniqueId
+        case -294460212: // uniqueId
           return ((ConfigItem<?>) bean).getUniqueId();
-        case 3373707:  // name
+        case 3373707: // name
           return ((ConfigItem<?>) bean).getName();
-        case 3575610:  // type
+        case 3575610: // type
           return ((ConfigItem<?>) bean).getType();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -470,16 +489,16 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 111972721:  // value
+        case 111972721: // value
           ((ConfigItem<T>) bean).setValue((T) newValue);
           return;
-        case -294460212:  // uniqueId
+        case -294460212: // uniqueId
           ((ConfigItem<T>) bean).setUniqueId((UniqueId) newValue);
           return;
-        case 3373707:  // name
+        case 3373707: // name
           ((ConfigItem<T>) bean).setName((String) newValue);
           return;
-        case 3575610:  // type
+        case 3575610: // type
           ((ConfigItem<T>) bean).setType((Class<?>) newValue);
           return;
       }
@@ -504,16 +523,44 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     serializer.addToMessageWithClassHeaders(msg, Meta.INSTANCE.value().name(), null, getValue(), getType());
   }
 
-  public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final Class<?> type = ClassUtils.loadClassRuntime(msg.getString(Meta.INSTANCE.type().name()));
-    final String name = msg.getString(Meta.INSTANCE.name().name());
-    final Object value = deserializer.fieldValueToObject(type, msg.getByName(Meta.INSTANCE.value().name()));
-    final ConfigItem<?> item = ConfigItem.of(value, name, type);
+  @SuppressWarnings("unchecked")
+  private void fromFudgeMsgImpl(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    _type = ClassUtils.loadClassRuntime(msg.getString(Meta.INSTANCE.type().name()));
+    _name = msg.getString(Meta.INSTANCE.name().name());
+    _value = deserializer.fieldValueToObject((Class<T>) _type, msg.getByName(Meta.INSTANCE.value().name()));
     final FudgeField uniqueId = msg.getByName(Meta.INSTANCE.uniqueId().name());
     if (uniqueId != null) {
-      item.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueId));
+      _uniqueId = deserializer.fieldValueToObject(UniqueId.class, uniqueId);
     }
-    return item;
+  }
+
+  public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final ConfigItem<?> instance = new ConfigItem<Object>();
+    instance.fromFudgeMsgImpl(deserializer, msg);
+    return instance;
+  }
+
+  /**
+   * The fields of a configuration item, specifically the value, are not always serializable but can be Fudge encoded. We can use Java serialization by writing out the binary Fudge encoding.
+   */
+  private void writeObject(final ObjectOutputStream out) throws IOException {
+    final FudgeContext context = OpenGammaFudgeContext.getInstance();
+    final FudgeMsgWriter writer = context.createMessageWriter((DataOutput) out);
+    final MutableFudgeMsg msg = context.newMessage();
+    toFudgeMsg(new FudgeSerializer(context), msg);
+    writer.writeMessage(msg);
+    // Note - don't close the writer as we don't want to close the underlying stream
+  }
+
+  /**
+   * The fields of a configuration item, specifically the value, are not always serializable but can be decoded from a binary Fudge encoding written by {@link #writeObject}.
+   */
+  private void readObject(final ObjectInputStream in) throws IOException {
+    final FudgeContext context = OpenGammaFudgeContext.getInstance();
+    final FudgeMsgReader reader = context.createMessageReader((DataInput) in);
+    final FudgeMsg msg = reader.nextMessage();
+    // Note - don't close the reader as we don't want to close the underlying stream
+    fromFudgeMsgImpl(new FudgeDeserializer(context), msg);
   }
 
 }
