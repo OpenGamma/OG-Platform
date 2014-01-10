@@ -140,6 +140,10 @@ To 2.1.18
 To 2.1.19
 ---------
 	[PLAT-5502] Further change to apply the correct spot lag for ImpliedDepositCurveSeriesFunction. Look up lag from FXSpotConvention.
+	
+To 2.1.19
+---------
+	[PLAT-5502] Brought implied depo curve function in line with the curve series function
 
 OpenGamma Platform 2.1
 ---------------------------------
