@@ -100,6 +100,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -288,10 +289,12 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
         final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
 
+        final FXSpotConvention fxSpotConvention = conventionSource.getSingle(ExternalId.of("CONVENTION", "FX Spot"), FXSpotConvention.class);
+        final int spotLag = fxSpotConvention.getSettlementDays();
+        
         for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : originalCurveSeries.entrySet()) {
           final LocalDate valuationDate = entry.getKey();
           final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, LocalTime.MIDNIGHT, executionContext.getValuationClock().getZone());
-          final int spotLag = 0;
           final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
           ZonedDateTime spotDate;
           if (spotLag == 0 && conventionSettlementRegion == null) {
