@@ -101,6 +101,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -272,15 +273,17 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final Map<LocalDate, YieldAndDiscountCurve> originalCurveSeries = (Map<LocalDate, YieldAndDiscountCurve>) originalCurveObject;
         final Map<FixedIncomeStrip, List<Double>> results = new HashMap<>();
         List<LocalDate> impliedRateDates = new ArrayList<>();
+        final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
 
+        final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
+        final int spotLag = fxSpotConvention.getSettlementDays();
+        
         for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : originalCurveSeries.entrySet()) {
           final LocalDate valuationDate = entry.getKey();
           final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, LocalTime.MIDNIGHT, executionContext.getValuationClock().getZone());
           final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-          final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
           final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
           final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
-          final int spotLag = 0;
           final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
           ZonedDateTime spotDate;
           if (spotLag == 0 && conventionSettlementRegion == null) {
