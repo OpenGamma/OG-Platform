@@ -54,10 +54,11 @@ public final class CouponONArithmeticAverageDiscountingApproxMethod {
   public MultipleCurrencyAmount presentValue(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
-    final double[] times = coupon.getFixingPeriodTimes();
-    final int nbFwd = times.length - 1;
+    final double[] startTimes = coupon.getFixingPeriodStartTimes();
+    final double[] endTimes = coupon.getFixingPeriodEndTimes();
+    final int nbFwd = endTimes.length - 1;
     final double delta = coupon.getFixingPeriodRemainingAccrualFactor();
-    final double rateAccruedCompounded = multicurve.getForwardRate(coupon.getIndex(), times[0], times[nbFwd], delta) * delta;
+    final double rateAccruedCompounded = multicurve.getForwardRate(coupon.getIndex(), startTimes[0], endTimes[nbFwd], delta) * delta;
     final double rateAccrued = coupon.getRateAccrued() + Math.log(1.0 + rateAccruedCompounded);
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = df * rateAccrued * coupon.getNotional();
@@ -74,10 +75,11 @@ public final class CouponONArithmeticAverageDiscountingApproxMethod {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
     // Forward sweep
-    final double[] times = coupon.getFixingPeriodTimes();
-    final int nbFwd = times.length - 1;
+    final double[] startTimes = coupon.getFixingPeriodStartTimes();
+    final double[] endTimes = coupon.getFixingPeriodEndTimes();
+    final int nbFwd = endTimes.length - 1;
     final double delta = coupon.getFixingPeriodRemainingAccrualFactor();
-    final double forward = multicurve.getForwardRate(coupon.getIndex(), times[0], times[nbFwd], delta);
+    final double forward = multicurve.getForwardRate(coupon.getIndex(), startTimes[0], endTimes[nbFwd], delta);
     final double rateAccruedCompounded = forward * delta;
     final double rateAccrued = coupon.getRateAccrued() + Math.log(1.0 + rateAccruedCompounded);
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
@@ -93,7 +95,7 @@ public final class CouponONArithmeticAverageDiscountingApproxMethod {
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();
-    listForward.add(new ForwardSensitivity(times[0], times[nbFwd], delta, forwardBar));
+    listForward.add(new ForwardSensitivity(startTimes[0], endTimes[nbFwd], delta, forwardBar));
     mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
     return result;

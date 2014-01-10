@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -20,8 +19,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -43,9 +42,15 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    */
   private final IndexON _index;
   /**
-   * The dates of the fixing periods. The length is one greater than the number of periods, as it includes accrual start and end.
+   * The start dates of the fixing periods. The length is the same as the number of periods.
    */
-  private final ZonedDateTime[] _fixingPeriodDates;
+  private final ZonedDateTime[] _fixingPeriodStartDates;
+
+  /**
+   * The end dates of the fixing periods. The length is the same as the number of periods.
+   */
+  private final ZonedDateTime[] _fixingPeriodEndDates;
+
   /**
    * The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    */
@@ -75,18 +80,22 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     ArgumentChecker.notNull(fixingPeriodEndDate, "CouponArithmeticAverageONDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
-    final List<ZonedDateTime> fixingDateList = new ArrayList<>();
+    final List<ZonedDateTime> fixingStartDateList = new ArrayList<>();
+    final List<ZonedDateTime> fixingEndDateList = new ArrayList<>();
     final List<Double> fixingAccrualFactorList = new ArrayList<>();
     ZonedDateTime currentDate = fixingPeriodStartDate;
-    fixingDateList.add(currentDate);
+    fixingStartDateList.add(currentDate);
     ZonedDateTime nextDate;
     while (currentDate.isBefore(fixingPeriodEndDate)) {
       nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, calendar);
-      fixingDateList.add(nextDate);
+      fixingStartDateList.add(nextDate);
+      fixingEndDateList.add(nextDate);
       fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate, calendar));
       currentDate = nextDate;
     }
-    _fixingPeriodDates = fixingDateList.toArray(new ZonedDateTime[fixingDateList.size()]);
+    fixingStartDateList.remove(fixingPeriodEndDate);
+    _fixingPeriodStartDates = fixingStartDateList.toArray(new ZonedDateTime[fixingStartDateList.size()]);
+    _fixingPeriodEndDates = fixingEndDateList.toArray(new ZonedDateTime[fixingEndDateList.size()]);
     _fixingPeriodAccrualFactors = ArrayUtils.toPrimitive(fixingAccrualFactorList.toArray(new Double[fixingAccrualFactorList.size()]));
   }
 
@@ -139,11 +148,33 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
   }
 
   /**
+   * Gets the start dates of the fixing periods. 
+   * @return The start dates of the fixing periods.
+   */
+  public ZonedDateTime[] getFixingPeriodStartDates() {
+    return _fixingPeriodStartDates;
+  }
+
+  /**
+   * Gets the end dates of the fixing periods. 
+   * @return The end dates of the fixing periods.
+   */
+  public ZonedDateTime[] getFixingPeriodEndDates() {
+    return _fixingPeriodEndDates;
+  }
+
+  // TODO : this should be remove when all overnight coupon will be coherent (ie with two different vectors for fixing start dates and fixing end dates)
+  /**
    * Gets the dates of the fixing periods (start and end). There is one date more than period.
    * @return The dates of the fixing periods.
    */
   public ZonedDateTime[] getFixingPeriodDates() {
-    return _fixingPeriodDates;
+    final ZonedDateTime[] dates = new ZonedDateTime[_fixingPeriodEndDates.length + 1];
+    dates[0] = _fixingPeriodStartDates[0];
+    for (int i = 0; i < _fixingPeriodEndDates.length; i++) {
+      dates[i + 1] = _fixingPeriodEndDates[i];
+    }
+    return dates;
   }
 
   /**
@@ -161,10 +192,11 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
   @Deprecated
   @Override
   public CouponONArithmeticAverage toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
+    ArgumentChecker.isTrue(!_fixingPeriodStartDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDates);
-    return CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactors, 0);
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDates);
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDates);
+    return CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, 0);
   }
 
   /**
@@ -179,10 +211,11 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
 
   @Override
   public CouponONArithmeticAverage toDerivative(final ZonedDateTime date) {
-    ArgumentChecker.isTrue(!_fixingPeriodDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
+    ArgumentChecker.isTrue(!_fixingPeriodStartDates[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDates);
-    return CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactors, 0);
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDates);
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDates);
+    return CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, 0);
   }
 
   @Override
@@ -190,7 +223,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     ArgumentChecker.notNull(valZdt, "valZdt - valuation date as ZonedDateTime");
     final LocalDate valDate = valZdt.toLocalDate();
     ArgumentChecker.isTrue(!valDate.isAfter(getPaymentDate().toLocalDate()), "valuation date is after payment date");
-    final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
+    final LocalDate firstPublicationDate = _fixingPeriodStartDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     if (valDate.isBefore(firstPublicationDate)) {
       return toDerivative(valZdt);
     }
@@ -206,9 +239,9 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     // Accrued rate for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
     double accruedRate = 0.0;
-    while ((fixedPeriod < _fixingPeriodDates.length - 1) && valDate.isAfter(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()].toLocalDate())) {
+    while ((fixedPeriod < _fixingPeriodStartDates.length) && valDate.isAfter(_fixingPeriodEndDates[fixedPeriod + _index.getPublicationLag() - 1].toLocalDate())) {
 
-      final LocalDate currentDate = _fixingPeriodDates[fixedPeriod].toLocalDate();
+      final LocalDate currentDate = _fixingPeriodStartDates[fixedPeriod].toLocalDate();
       final Double fixedRate = indexFixingDateSeries.getValue(currentDate);
 
       if (fixedRate == null) {
@@ -220,27 +253,29 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     }
 
     final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
-    if (fixedPeriod < _fixingPeriodDates.length - 1) { // Some OIS period left
+    if (fixedPeriod < _fixingPeriodStartDates.length) { // Some OIS period left
       // Check to see if a fixing is available on current date
-      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
+      final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodStartDates[fixedPeriod].toLocalDate());
       if (fixedRate != null) { // There is!
         accruedRate += _fixingPeriodAccrualFactors[fixedPeriod] * fixedRate;
         fixedPeriod++;
       }
-      if (fixedPeriod < _fixingPeriodDates.length - 1) { // More OIS period left
+      if (fixedPeriod < _fixingPeriodStartDates.length) { // More OIS period left
         final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodAccrualFactors.length - fixedPeriod];
-        final double[] fixingPeriodTimes = new double[_fixingPeriodDates.length - fixedPeriod];
+        final double[] fixingPeriodStartTimes = new double[_fixingPeriodStartDates.length - fixedPeriod];
+        final double[] fixingPeriodEndTimes = new double[_fixingPeriodEndDates.length - fixedPeriod];
 
-        for (int i = 0; i < _fixingPeriodDates.length - fixedPeriod; i++) {
-          fixingPeriodTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod]);
+        for (int i = 0; i < _fixingPeriodStartDates.length - fixedPeriod; i++) {
+          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodStartDates[i + fixedPeriod]);
+          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodEndDates[i + fixedPeriod]);
 
         }
 
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
           fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod + fixedPeriod];
         }
-        final CouponONArithmeticAverage cpn = CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes,
-            fixingAccrualFactorsLeft, accruedRate);
+        final CouponONArithmeticAverage cpn = CouponONArithmeticAverage.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
+            fixingPeriodEndTimes, fixingAccrualFactorsLeft, accruedRate);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), accruedRate / getPaymentYearFraction());
@@ -263,16 +298,23 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     return visitor.visitCouponArithmeticAverageONDefinition(this);
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + Arrays.hashCode(_fixingPeriodAccrualFactors);
-    result = prime * result + Arrays.hashCode(_fixingPeriodDates);
-    result = prime * result + _index.hashCode();
+    result = prime * result + Arrays.hashCode(_fixingPeriodEndDates);
+    result = prime * result + Arrays.hashCode(_fixingPeriodStartDates);
+    result = prime * result + ((_index == null) ? 0 : _index.hashCode());
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -288,10 +330,17 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }
-    if (!Arrays.equals(_fixingPeriodDates, other._fixingPeriodDates)) {
+    if (!Arrays.equals(_fixingPeriodEndDates, other._fixingPeriodEndDates)) {
       return false;
     }
-    if (!ObjectUtils.equals(_index, other._index)) {
+    if (!Arrays.equals(_fixingPeriodStartDates, other._fixingPeriodStartDates)) {
+      return false;
+    }
+    if (_index == null) {
+      if (other._index != null) {
+        return false;
+      }
+    } else if (!_index.equals(other._index)) {
       return false;
     }
     return true;
