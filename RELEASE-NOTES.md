@@ -137,6 +137,9 @@ To 2.1.18
 ---------
 	[PLAT-5502] Spot and payment dates are incorrectly calculated in ImpliedDepositCurveSeriesFunction
 
+To 2.1.19
+---------
+	[PLAT-5502] Further change to apply the correct spot lag for ImpliedDepositCurveSeriesFunction. Look up lag from FXSpotConvention.
 
 OpenGamma Platform 2.1
 ---------------------------------
