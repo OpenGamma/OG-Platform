@@ -21,6 +21,7 @@ Configuration compatibility
   not a FunctionRepository in order to handle updates. Existing code will work, but adding config entries will
   still require a restart.
 
+Full Issue List
 * Sub-task
   * [PLAT-5024] - implementation of CommodityForwardCurve
 * Bug
