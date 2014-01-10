@@ -35,6 +35,7 @@ import com.opengamma.util.ArgumentChecker;
 public class BundleErrorReportInfo implements Runnable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(BundleErrorReportInfo.class);
+  private static final String[] s_subdirs = new String[] {"Downloads" };
   private static String s_userHome;
 
   protected static void setUserHome(final String userHome) {
@@ -79,12 +80,32 @@ public class BundleErrorReportInfo implements Runnable {
   }
 
   /**
+   * Find a preferred sub-directory under the user's home folder. We use the home folder as it is most likely writeable, but most systems have sub-folders called things like "Downloads" or
+   * "Downloaded Files" that the user might prefer things end up in.
+   * 
+   * @param path path the check, not null
+   * @return the updated path, or the original if no candidate sub-folder is found
+   */
+  private String preferredSubFolder(final String path) {
+    final File file = new File(path);
+    if (file.isDirectory()) {
+      for (String subdir : s_subdirs) {
+        final File sd = new File(file, subdir);
+        if (sd.isDirectory()) {
+          return path + File.separator + subdir;
+        }
+      }
+    }
+    return path;
+  }
+
+  /**
    * Opens the ZIP output stream ready for each "report" entry to be added.
    * 
    * @return the path that will be written to, not null
    */
   protected String openReportOutput() {
-    final String home = (s_userHome != null) ? s_userHome : System.getProperty("user.home");
+    final String home = preferredSubFolder((s_userHome != null) ? s_userHome : System.getProperty("user.home"));
     final LocalDateTime ldt = Instant.now().atZone(ZoneOffset.systemDefault()).toLocalDateTime();
     final String path = String.format("%s%c%s-%04d-%02d-%02d-%02d-%02d-%02d.zip", home, File.separatorChar, "OpenGamma-ErrorReport", ldt.getYear(), ldt.getMonthValue(), ldt.getDayOfMonth(),
         ldt.getHour(), ldt.getMinute(), ldt.getSecond()).toString();
