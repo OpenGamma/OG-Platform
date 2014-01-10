@@ -42,14 +42,14 @@ public class Diagnose {
 
   private static final String USAGE = "java com.opengamma.bbg.util.Diagnose";
 
-  private static CommandLine s_line = null;
+  private static CommandLine s_line;
   private static String s_host = "localhost";
   private static String s_port = "8194";
   private static final String TICKER = "BBHBEAT Index";
   private static final String LIVE_FIELD = "LAST_PRICE";
   private static final String REF_FIELD = "API_MACHINE";
   private static String s_timeout = "5000";
-  private static boolean s_verbose = false;
+  private static boolean s_verbose;
 
   private static final Deferred<String, Void, Void> REF_OK = new DeferredObject<>();
   private static final Deferred<String, Void, Void> MKT_OK = new DeferredObject<>();
