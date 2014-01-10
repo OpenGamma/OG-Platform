@@ -75,6 +75,9 @@ public abstract class AbstractRegressionTest {
                                                         compareValueProperties(compareValueProperties()).
                                                         between(original.getCalculationResults(), thisRun);
     
+    System.out.println("Total result in golden copy: " + original.getCalculationResults().getValues().size());
+    System.out.println("Total result in test run: " + thisRun.getValues().size());
+    
     System.out.println("Equal: " + result.getEqualResultCount());
     System.out.println("Different: " + result.getDifferent().size());
     if (compareValueProperties()) {

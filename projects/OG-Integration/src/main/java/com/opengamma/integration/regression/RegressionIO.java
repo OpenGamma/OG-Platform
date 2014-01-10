@@ -246,4 +246,15 @@ public abstract class RegressionIO {
     }
   }
 
+  protected String stripIdentifierExtension(String name) {
+    String ext = getFormat().getLogicalFileExtension(getFormatContext());
+    if (ext == null) {
+      return name;
+    } else if (name.endsWith(ext)) {
+      return name.substring(0, name.length() - ext.length());
+    } else {
+      return name;
+    }
+  }
+
 }

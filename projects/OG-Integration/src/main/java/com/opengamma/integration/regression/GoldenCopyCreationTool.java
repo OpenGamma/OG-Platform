@@ -49,7 +49,7 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
     
     DataTrackingToolContext tc = getToolContext();
     
-    RegressionIO io = new ZipFileRegressionIO(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat(), false);
+    RegressionIO io = ZipFileRegressionIO.createWriter(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat());
     
     GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
         tc.getSecurityMaster(),

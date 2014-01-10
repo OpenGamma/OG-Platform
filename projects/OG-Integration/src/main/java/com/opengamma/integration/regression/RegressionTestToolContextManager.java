@@ -88,7 +88,7 @@ public class RegressionTestToolContextManager {
   }
 
   private void restoreFromZipfile(ToolContext toolContext, File zipFile) throws IOException {
-    ZipFileRegressionIO io = new ZipFileRegressionIO(zipFile, new FudgeXMLFormat(), true);
+    ZipFileRegressionIO io = ZipFileRegressionIO.createReader(zipFile, new FudgeXMLFormat());
     DatabaseRestore restore = new DatabaseRestore(
         io,
         toolContext.getSecurityMaster(),

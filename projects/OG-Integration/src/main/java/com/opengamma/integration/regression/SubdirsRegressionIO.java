@@ -104,21 +104,17 @@ public class SubdirsRegressionIO extends RegressionIO {
       throw new OpenGammaRuntimeException("No files found in " + subDir);
     }
     final List<String> identifiers = new ArrayList<String>(files.length);
-    String ext = getFormat().getLogicalFileExtension(getFormatContext());
     for (File file : files) {
       if (file.isFile()) {
         final String name = file.getName();
-        if (ext == null) {
-          identifiers.add(name);
-        } else if (name.endsWith(ext)) {
-          identifiers.add(name.substring(0, name.length() - ext.length()));
-        }
+        String identifier = stripIdentifierExtension(name);
+        identifiers.add(identifier);
       }
     }
     s_logger.debug("Found {} objects", identifiers.size());
     return identifiers;
   }
-
+  
   // TODO: Bulk read operation
 
 }

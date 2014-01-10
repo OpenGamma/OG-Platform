@@ -22,112 +22,176 @@ import com.google.common.collect.Lists;
 /**
  * Implementation of RegressionIO which reads and writes a dump to a zip file.
  */
-public class ZipFileRegressionIO extends RegressionIO implements AutoCloseable {
+public abstract class ZipFileRegressionIO extends RegressionIO implements AutoCloseable {
 
-  /**
-   * The output stream - null in read only mode
-   */
-  private ZipArchiveOutputStream _zipArchiveOS;
   
-  /**
-   * The zip input stream. Not null.
-   */
-  private ZipFile _zipFile;
   
-
-  public ZipFileRegressionIO(File zipFile, Format format, boolean readMode) throws IOException {
+  public ZipFileRegressionIO(File zipFile, Format format) throws IOException {
     super(zipFile, format);
-    initZipfile(zipFile, readMode);
   }
 
-  private void initZipfile(File zipFile, boolean readMode) throws IOException {
-    if (!readMode) {
+  
+  protected String createObjectPath(final String type, String identifier) {
+    
+    String objectPath = createFilename(identifier);
+    if (type != null) {
+      objectPath = type + "/" + objectPath;
+    }
+    return objectPath;
+  }
+
+  
+  public static ZipFileRegressionIO createWriter(File zipFile, Format format) throws IOException {
+    return new WritingZipFileRegressionIO(zipFile, format);
+  }
+  
+  public static ZipFileRegressionIO createReader(File zipFile, Format format) throws IOException {
+    return new ReadingZipFileRegressionIO(zipFile, format);
+  }
+  
+  
+  /**
+   * An implementation which only writes to zip files. Read operations throw
+   * {@link UnsupportedOperationException}s.
+   */
+  private static final class WritingZipFileRegressionIO extends ZipFileRegressionIO {
+    
+    /**
+     * The zip output stream - not null
+     */
+    private ZipArchiveOutputStream _zipArchiveOS;
+
+    private WritingZipFileRegressionIO(File zipFile, Format format) throws IOException {
+      super(zipFile, format);
       _zipArchiveOS = new ZipArchiveOutputStream(zipFile);
     }
-    //should exist by now, whether read mode enabled or not
-    if (!zipFile.exists()) {
-      throw new IllegalStateException("Unable to locate specified zip file on the file system: " + zipFile.getPath());
+    
+    @Override
+    public void write(String type, Object o, String identifier) throws IOException {
+      ZipArchiveEntry entry = new ZipArchiveEntry(createObjectPath(type, identifier));
+      
+      _zipArchiveOS.putArchiveEntry(entry);
+      getFormat().write(getFormatContext(), o, _zipArchiveOS);
+      _zipArchiveOS.flush();
+      _zipArchiveOS.closeArchiveEntry();
+
     }
-    _zipFile = new ZipFile(zipFile);
-  }
 
-  
-  private ZipArchiveEntry createZipEntry(final String type, String identifier) {
-    
-    String fileName = createFilename(identifier);
-    if (type != null) {
-      fileName = type + "/" + fileName;
-    }
-    return new ZipArchiveEntry(fileName);
-  }
-
-  
-  @Override
-  public void write(String type, Object o, String identifier) throws IOException {
-    ZipArchiveEntry entry = createZipEntry(type, identifier);
-    
-    _zipArchiveOS.putArchiveEntry(entry);
-    getFormat().write(getFormatContext(), o, _zipArchiveOS);
-    _zipArchiveOS.flush();
-    _zipArchiveOS.closeArchiveEntry();
-
-  }
-
-  @Override
-  public Object read(String type, String identifier) throws IOException {
-    
-    String objectPath = type + "/" + identifier;
-    ZipArchiveEntry entry = _zipFile.getEntry(objectPath);
-    
-    if (entry == null) {
-      throw new IllegalArgumentException(objectPath + " does not exist in this archive.");
-    }
-    
-    InputStream inputStream = _zipFile.getInputStream(entry);
-    
-    return getFormat().read(getFormatContext(), inputStream);
-    
-  }
-
-  @Override
-  public List<String> enumObjects(String type) throws IOException {
-    
-    List<String> objectIdentifiers = Lists.newLinkedList();
-    Pattern typeNameFormat = Pattern.compile("(.*)/(.*)");
-    
-    @SuppressWarnings("unchecked")
-    Enumeration<ZipArchiveEntry> entries = _zipFile.getEntries();
-    
-    while (entries.hasMoreElements()) {
-      ZipArchiveEntry nextEntry = entries.nextElement();
-      String entryName = nextEntry.getName();
-      Matcher matcher = typeNameFormat.matcher(entryName);
-      if (matcher.matches()) {
-        String objectType = matcher.group(1);
-        if (objectType.equals(type)) {
-          String objectIdentifier = matcher.group(2);
-          objectIdentifiers.add(objectIdentifier);
-        }
+    @Override
+    public void endWrite() throws IOException {
+      super.endWrite();
+      if (_zipArchiveOS != null) {
+        _zipArchiveOS.close();
       }
     }
+
+    @Override
+    public void close() throws Exception {
+      if (_zipArchiveOS != null) {
+        _zipArchiveOS.close();
+      }
+    }
+
+    private UnsupportedOperationException unimplemented() {
+      throw new UnsupportedOperationException("Cannot perform reads when in write mode.");
+    }
+
+    @Override
+    public Object read(String type, String identifier) throws IOException {
+      throw unimplemented();
+    }
+
+    @Override
+    public List<String> enumObjects(String type) throws IOException {
+      throw unimplemented();
+    }
+
     
-    return objectIdentifiers;
+    
   }
+
   
-  @Override
-  public void endWrite() throws IOException {
-    super.endWrite();
-    if (_zipArchiveOS != null) {
-      _zipArchiveOS.close();
+  /**
+   * An implementation which only reads from zip files. Write operations throw
+   * {@link UnsupportedOperationException}s.
+   */
+  private static final class ReadingZipFileRegressionIO extends ZipFileRegressionIO {
+    
+    /**
+     * The zip file. Not null.
+     */
+    private ZipFile _zipFile;
+    
+
+    public ReadingZipFileRegressionIO(File zipFile, Format format) throws IOException {
+      super(zipFile, format);
+      initZipFile(zipFile);
+
     }
+
+    private void initZipFile(File zipFile) throws IOException {
+      if (!zipFile.exists()) {
+        throw new IllegalStateException("Unable to locate specified zip file on the file system: " + zipFile.getPath());
+      }
+      _zipFile = new ZipFile(zipFile);
+    }
+
+    @Override
+    public void close() throws Exception {
+      _zipFile.close();
+    }
+
+    @Override
+    public void write(String type, Object o, String identifier) throws IOException {
+      unimplemented();
+    }
+    
+    private void unimplemented() {
+      throw new UnsupportedOperationException("Cannot perform writes when in read mode.");
+    }
+
+    @Override
+    public Object read(String type, String identifier) throws IOException {
+      String objectPath = createObjectPath(type, identifier);
+      ZipArchiveEntry entry = _zipFile.getEntry(objectPath);
+      
+      if (entry == null) {
+        throw new IllegalArgumentException(objectPath + " does not exist in this archive.");
+      }
+      
+      InputStream inputStream = _zipFile.getInputStream(entry);
+      return getFormat().read(getFormatContext(), inputStream);
+      
+    }
+
+    @Override
+    public List<String> enumObjects(String type) throws IOException {
+      
+      List<String> objectIdentifiers = Lists.newLinkedList();
+      Pattern typeNameFormat = Pattern.compile("(.*)/(.*)");
+      
+      @SuppressWarnings("unchecked")
+      Enumeration<ZipArchiveEntry> entries = _zipFile.getEntries();
+      
+      while (entries.hasMoreElements()) {
+        ZipArchiveEntry nextEntry = entries.nextElement();
+        String entryName = nextEntry.getName();
+        Matcher matcher = typeNameFormat.matcher(entryName);
+        if (matcher.matches()) {
+          String objectType = matcher.group(1);
+          if (objectType.equals(type)) {
+            String objectIdentifierFileName = matcher.group(2);
+            String objectIdentifier = stripIdentifierExtension(objectIdentifierFileName);
+            objectIdentifiers.add(objectIdentifier);
+          }
+        }
+      }
+      
+      return objectIdentifiers;
+    }
+    
+
   }
 
-  @Override
-  public void close() throws Exception {
-    _zipFile.close();
-    if (_zipArchiveOS != null) {
-      _zipArchiveOS.close();
-    }
-  }
-
+  
 }
