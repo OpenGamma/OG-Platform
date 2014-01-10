@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.convention.ConventionDocument;
@@ -119,6 +120,9 @@ public class SingleConfigLoader {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
       addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
+    } else if (config instanceof CurrencyPairs) {
+      ConfigItem<?> item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+      ConfigMasterUtils.storeByName(_configMaster, item);          
     } else if (config instanceof Bean) {
       ConfigItem<?> item = ConfigItem.of(config);
       ConfigMasterUtils.storeByName(_configMaster, item);          
@@ -131,8 +135,14 @@ public class SingleConfigLoader {
     @SuppressWarnings("resource")
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(s_fudgeContext, new InputStreamReader(is)));
     final FudgeMsg message = fmr.nextMessage();
+
     Object config = s_fudgeContext.fromFudgeMsg(message);
-    ConfigItem<?> item = ConfigItem.of(config);
+    ConfigItem<?> item;
+    if (config instanceof CurrencyPairs) {
+      item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    } else {
+      item = ConfigItem.of(config);
+    }
     ConfigMasterUtils.storeByName(_configMaster, item);          
   }
 }

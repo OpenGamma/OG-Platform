@@ -5,15 +5,20 @@
  */
 package com.opengamma.integration.tool.config;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -38,6 +43,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class SingleConfigImportTool extends AbstractTool<ToolContext> {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleConfigImportTool.class);
+  private static final long DEFAULT_MARK_BUFFER = 1000000; // 1MB should do it.
 
   /**
    * Main method to run the tool.
@@ -86,53 +92,38 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
             if (verbose) {
               s_logger.info("Processing " + fileName);
             }
-            FileInputStream inputStream = new FileInputStream(fileName);
-            if (commandLine.hasOption("type")) {
-              List<String> types = getTypes();
-              if (types.size() > 1) {
-                s_logger.error("More than one type specified");
-                System.exit(1);
-              }
-              try {
-                Class<?> type = Class.forName(types.get(0));
-                try {
-                  configLoader.loadConfig(inputStream, type);
-                  s_logger.info("Config loaded successfully");
-                } catch (Exception e) {
-                  // try loading it as fudge!
-                  try {
-                    // close it - we could use mark/reset, but this is simpler.
-                    inputStream.close();
-                    inputStream = new FileInputStream(fileName);
-                    configLoader.loadFudgeConfig(inputStream);
-                    s_logger.info("Config loaded successfully");
-                  } catch (Exception fe) {
-                    s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
-                    s_logger.error("JodaXML trace", e);
-                    s_logger.error("Fudge trace", e);
+            FileInputStream inputStream;
+            File file = new File(fileName);
+            if (file.isFile()) {
+              if (file.getName().endsWith(".zip")) {
+                ZipFile zipFile = new ZipFile(file);
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                  final ZipEntry zipEntry = entries.nextElement();
+                  if (!zipEntry.isDirectory()) {
+                    final String zipFileName = zipEntry.getName();
+                    if (zipFileName.endsWith(".xml")) {
+                      if (verbose) {
+                        s_logger.info("Processing file {} in zip archive", zipFileName);
+                      }
+                      long fileSize = zipEntry.getSize();
+                      storeObjectFromStream(configLoader, fileSize, zipFile.getInputStream(zipEntry));
+                    } else {
+                      s_logger.warn("File {} not xml, skipping...", zipFileName);
+                    }
                   }
                 }
-              } catch (ClassNotFoundException ex) {
-                s_logger.error("Class {} not found", types.get(0));
+              } else if (file.getName().endsWith(".xml")) {
+                inputStream = new FileInputStream(fileName);
+                long fileSize = file.length();
+                storeObjectFromStream(configLoader, fileSize, inputStream);
+              } else {
+                s_logger.error("File type not recognised, pass either a zip or xml file");
                 System.exit(1);
               }
             } else {
-              try {
-                configLoader.loadConfig(inputStream);
-                s_logger.info("Config loaded successfully as JodaXML");
-              } catch (Exception e) {
-                try {
-                  // close it - we could use mark/reset, but this is simpler.
-                  inputStream.close();
-                  inputStream = new FileInputStream(fileName);                  
-                  configLoader.loadFudgeConfig(inputStream);
-                  s_logger.info("Config loaded successfully as FudgeXML");
-                } catch (Exception fe) {
-                  s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
-                  s_logger.error("JodaXML trace", e);
-                  s_logger.error("Fudge trace", e);                  
-                }
-              }
+              s_logger.error("Path is not a file");
+              System.exit(1);
             }
           }
         } catch (IOException ioe) {
@@ -150,6 +141,63 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
       }
     } else {
       s_logger.info("Specify -load to load a config");
+    }
+  }
+
+  /**
+   * @param commandLine
+   * @param configLoader
+   * @param fileName
+   * @param inputStream
+   * @return
+   */
+  private void storeObjectFromStream(SingleConfigLoader configLoader, long fileSize, InputStream rawInputStream) {
+    InputStream inputStream = new BufferedInputStream(rawInputStream, (int) (fileSize > 0 ? fileSize : DEFAULT_MARK_BUFFER));
+    if (getCommandLine().hasOption("type")) {
+      List<String> types = getTypes();
+      if (types.size() > 1) {
+        s_logger.error("More than one type specified");
+        System.exit(1);
+      }
+      try {
+        Class<?> type = Class.forName(types.get(0));
+        try {
+          inputStream.mark((int) (fileSize > 0 ? fileSize : DEFAULT_MARK_BUFFER));
+          configLoader.loadConfig(inputStream, type);
+          s_logger.info("Config loaded successfully");
+        } catch (Exception e) {
+          // try loading it as fudge!
+          try {
+            inputStream.reset();
+            configLoader.loadFudgeConfig(inputStream);
+            s_logger.info("Config loaded successfully");
+          } catch (Exception fe) {
+            s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
+            s_logger.error("JodaXML trace", e);
+            s_logger.error("Fudge trace", e);
+          }
+        }
+      } catch (ClassNotFoundException ex) {
+        s_logger.error("Class {} not found", types.get(0));
+        System.exit(1);
+      }
+    } else {
+      try {
+        inputStream.mark((int) (fileSize > 0 ? fileSize : DEFAULT_MARK_BUFFER)); 
+        configLoader.loadConfig(inputStream);
+        s_logger.info("Config loaded successfully as JodaXML");
+      } catch (Exception e) {
+        try {
+          // close it - we could use mark/reset, but this is simpler.
+          inputStream.reset();               
+          configLoader.loadFudgeConfig(inputStream);
+          s_logger.info("Config loaded successfully as FudgeXML");
+        } catch (Exception fe) {
+          s_logger.error("Exception thrown when loading as both JodaXML and as FudgeXML");
+          s_logger.error("JodaXML trace", e);
+          s_logger.error("Fudge trace", e);                  
+        }
+      }
     }
   }
 
