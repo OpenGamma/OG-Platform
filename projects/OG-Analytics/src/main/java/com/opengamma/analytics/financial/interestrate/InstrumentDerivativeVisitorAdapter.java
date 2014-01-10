@@ -75,6 +75,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -732,6 +734,26 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitBondFuturesTransaction(final BondFuturesTransaction bondFutures) {
+    return getException(bondFutures);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures, final DATA_TYPE data) {
+    return getException(bondFutures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity bondFutures) {
+    return getException(bondFutures);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures, final DATA_TYPE data) {
+    return getException(bondFutures, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesTransaction(final YieldAverageBondFuturesTransaction bondFutures) {
     return getException(bondFutures);
   }
 

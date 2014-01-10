@@ -83,6 +83,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -1379,6 +1381,26 @@ public class ForexDerivativeVisitorTest {
     @Override
     public String visitForwardCommodityPhysicalSettle(final ForwardCommodityPhysicalSettle forward) {
       // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures) {
+      return null;
+    }
+
+    @Override
+    public String visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures) {
       return null;
     }
 

@@ -72,6 +72,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -184,6 +186,26 @@ public class InstrumentDefinitionVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitBondFuturesTransactionDefinition(final BondFuturesTransactionDefinition bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bond, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bond) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bond, final DATA_TYPE data) {
+    return _value;
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bond) {
     return _value;
   }
 

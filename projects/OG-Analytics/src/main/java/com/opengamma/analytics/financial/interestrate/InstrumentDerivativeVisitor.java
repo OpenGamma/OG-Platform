@@ -75,6 +75,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
@@ -434,6 +436,14 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitBondFuturesTransaction(BondFuturesTransaction bondFutures, DATA_TYPE data);
 
   RESULT_TYPE visitBondFuturesTransaction(BondFuturesTransaction bondFutures);
+
+  RESULT_TYPE visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures, DATA_TYPE data);
+
+  RESULT_TYPE visitYieldAverageBondFuturesSecurity(YieldAverageBondFuturesSecurity bondFutures);
+
+  RESULT_TYPE visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures, DATA_TYPE data);
+
+  RESULT_TYPE visitYieldAverageBondFuturesTransaction(YieldAverageBondFuturesTransaction bondFutures);
 
   RESULT_TYPE visitInterestRateFutureTransaction(InterestRateFutureTransaction future, DATA_TYPE data);
 

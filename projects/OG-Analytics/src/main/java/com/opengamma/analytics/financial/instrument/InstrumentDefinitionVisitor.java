@@ -72,6 +72,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -328,6 +330,36 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bondFuture);
+
+  /**
+   * Yield average bond future security method that takes data.
+   * @param bondFuture A bond future security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture, DATA_TYPE data);
+
+  /**
+   * Yield average bond future security method.
+   * @param bondFuture A bond future security
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture);
+
+  /**
+   * Yield average bond future transaction method that takes data.
+   * @param bondFuture A bond future transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture, DATA_TYPE data);
+
+  /**
+   * Yield average bond future transaction method.
+   * @param bondFuture A bond future transaction
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture);
 
   /**
    * Forward rate agreement method that takes data.

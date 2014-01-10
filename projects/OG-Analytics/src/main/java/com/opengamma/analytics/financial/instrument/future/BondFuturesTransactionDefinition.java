@@ -118,7 +118,7 @@ public class BondFuturesTransactionDefinition implements InstrumentDefinitionWit
 
   @Override
   public BondFuturesTransaction toDerivative(final ZonedDateTime date) {
-    throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the two argument method (without margin price data).");
+    throw new UnsupportedOperationException("The method toDerivative of BondFutureTransactionDefinition does not support the one argument method (without margin price data).");
   }
 
 
