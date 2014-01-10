@@ -21,6 +21,144 @@ Configuration compatibility
   not a FunctionRepository in order to handle updates. Existing code will work, but adding config entries will
   still require a restart.
 
+* Sub-task
+  * [PLAT-5024] - implementation of CommodityForwardCurve
+* Bug
+  * [PLAT-3413] - OG-Financial: Modified duration multiplied by 100
+  * [PLAT-5223] - VolatilitySurfaceDefinitionFudgeBuilder creates Object[] which can't be cast
+  * [PLAT-5315] - Reducing an input to a more specific form throws NullPointerException
+  * [PLAT-5331] - Replace resolved tenors with config tenors in labels on matrix output
+  * [PLAT-5333] - Default uninstall leaves system in inconsistent state
+  * [PLAT-5340] - Error cause when dragging and dropping dropdown before the data has loaded
+  * [PLAT-5343] - A process with an open service handle prevents clean uninstall
+  * [PLAT-5345] - Tolerance is hard coded to 10^-12 in FXImpliedYieldCurveSeriesFunction
+  * [PLAT-5347] - Race hazard in InMemoryLKVLiveMarketDataProvider constructor
+  * [PLAT-5348] - NPE in Engine tests
+  * [PLAT-5353] - Market data availability notification can get lost
+  * [PLAT-5354] - Market data available is reported while reference data is still down
+  * [PLAT-5356] - Database import tool requires server restart
+  * [PLAT-5357] - Incremental market data subscriptions which map to an existing subscription in the live data client never request another initial snapshot
+  * [PLAT-5368] - Potential for a MarketDataManager to unsubscribe from market data that it never requested with concurrent view processes
+  * [PLAT-5370] - PNL was removed from InterestRateFutureOptionBlackDefaults in 2.1 to 2.2 merge
+  * [PLAT-5375] - DiscreteDividendFunction expects patchy availability of its requirements but does not override canHandleMissingRequirements
+  * [PLAT-5376] - Thread pool used by remote live data client can't be configured from Spring
+  * [PLAT-5384] - Remote live data client deadlocks if a finite thread pool is used
+  * [PLAT-5391] - BondTransactionDiscountingMethod.presentValueFromCleanPrice quantity not taken into account
+  * [PLAT-5392] - DbHolidayMaster has improper code when handling custom searches
+  * [PLAT-5403] - NonVersionedRedisHistoricalTimeSeriesSource fails with version strings
+  * [PLAT-5406] - Empty time series data is encoded as a zero-length array
+  * [PLAT-5407] - OG-Financial: MarketQuotePositionFunction incorrect canApplyTo
+  * [PLAT-5409] - Portfolio order gets scrambled on import
+  * [PLAT-5410] - DatabaseRestoreTool dependent on file system ordering
+  * [PLAT-5414] - User message is dispatched before contexts are initialised
+  * [PLAT-5415] - Time series updater fails if duplicate series present
+  * [PLAT-5420] - URL configuration dialog box stops service & it doesn't restart
+  * [PLAT-5433] - run-tool passes class name as arg[0]
+  * [PLAT-5436] - OG-Financial: BondTradeWithEntityConverter uses trade date instead of settlement date
+  * [PLAT-5437] - OG-Financial: BondFunctionUtils pass 0.0 as closing price for bond futures
+  * [PLAT-5438] - Net basis and gross basis are both calculated using the gross basis formula
+  * [PLAT-5443] - Simulation only applies scenarios in batch mode
+  * [PLAT-5462] - DbFunctionConfigurationSourceComponentFactory makes a static query
+  * [PLAT-5471] - AssertionError: null thrown during graph building causes dropped rows
+  * [PLAT-5472] - Implied deposit curve series tenors of less than 1M resolve to 0
+  * [PLAT-5473] - Make ConventionTypesProvider log an error when there is no ConventionType rather than throwing an exception
+  * [PLAT-5476] - run-tool displays console window when launched from start menu
+  * [PLAT-5477] - EngineDebugger can no longer be started from a URL
+  * [PLAT-5478] - Restore previous date parsing API in RowParser
+  * [PLAT-5484] - Engine calculates delta cycle even though function parameters have changed
+  * [PLAT-5486] - Properties can be incorrectly set for curve bundles
+  * [PLAT-5502] - Spot and payment dates are incorrectly calculated in ImpliedDepositCurveSeriesFunction
+  * [PLAT-5503] - AbstractJmsResultPublisher can't handle concurrent calls to send
+* Epic
+  * [PLAT-5423] - VIX Options
+* Improvement
+  * [PLAT-3436] - OG-Analytics: Add implementation of bond yield computation of more conventions
+  * [PLAT-3448] - Improve the handling of PV01 and YieldCurveNodeSensitivities for Bonds
+  * [PLAT-3449] - Improve the handling of PV01 and YieldCurveNodeSensitivities for Bond Futures
+  * [PLAT-3807] - Regenerate curve/surface functions when new config objects added
+  * [PLAT-4692] - Add Excel support for snapshot import/export
+  * [PLAT-5286] - No early exercise condition in BjerksundStenslandModel
+  * [PLAT-5316] - Embedded ActiveMQ sometimes fails to start quickly because of persisted messages
+  * [PLAT-5320] - Add Ibor vs OIS swap type & conversion
+  * [PLAT-5321] - Add USD-Federal Funds-H.15 & MXN-TIIE-Banxico
+  * [PLAT-5322] - Add support for variable notional swaps
+  * [PLAT-5327] - Clearer error messages when new curve functions throw exceptions in the compile phase
+  * [PLAT-5352] - OG-Analytics: Fixed coupon bonds transaction - constructor from yield
+  * [PLAT-5359] - LiveDataClient decorator that resubscribes automatically
+  * [PLAT-5361] - InMemoryLKVLiveMarketDataProvider should remove LKV entries when subscription is removed
+  * [PLAT-5364] - OG-Financial: accept ON and TN as tenor for CashNodeConverter
+  * [PLAT-5378] - Improve dividend frequency handling
+  * [PLAT-5385] - STIR Futures: par rate for HullWhiteFunction should use ParRateHullWhiteCalculator
+  * [PLAT-5390] - Don't create new HTTP client instances with each request
+  * [PLAT-5400] - Add properties to bond functions that use yield and curves to allow unambiguous selection of curves
+  * [PLAT-5401] - Handling no early exercise in RGW model
+  * [PLAT-5408] - OG-Analytics: Bond futures - Hull-White method: add test vs Numerical Integration
+  * [PLAT-5421] - Check for null inputs in multi curve providers and implement hashCode() and equals() where necessary
+  * [PLAT-5428] - Add top-level method to get all names from ParameterProviderInterface
+  * [PLAT-5429] - Dividend payment after expiry in RGW model
+  * [PLAT-5441] - Derivative by time to dividend payment in RGW model
+  * [PLAT-5442] - OG-Analytics: BondFuturesSecurity - add basket at spot
+  * [PLAT-5445] - Extend NextQuarterAdjuster to allow for Quarterly Cycles other than March
+  * [PLAT-5446] - Remove assumptions of ExchangeTradedInstrumentExpiryCalculator from EquityFuturePriceCurveFunction
+  * [PLAT-5449] - ActivEquityIndexFuturePriceCurveInstrumentProvider - Remove need for cast from ExchangeTradedInstrumentExpiryCalculator to FutureOptionExpiries
+  * [PLAT-5458] - SuccessResult should not rely on code gen to implement interface
+  * [PLAT-5487] - Delete function that interpolated bond yields directly
+  * [PLAT-5504] - Refactor InterestRateSwapLeg/InterestRateSwapLegConvention
+  * [PLAT-5508] - Add date format dropdown to csv/xls import dialog
+* New Feature
+  * [PLAT-3369] - Constant curve definitions
+  * [PLAT-3370] - Spread curve definitions
+  * [PLAT-4304] - Add function that produces issuer-specific curves.
+  * [PLAT-5087] - Bond node for curve construction
+  * [PLAT-5202] - add a conventionsource argument to AbstractMockSourcesTest in order to test the new swapconverter
+  * [PLAT-5277] - OG-Analytics: create a util than return the next (non-)business day from a calendar
+  * [PLAT-5279] - ListedEquityOption Refactor: Break out ImpliedVol computation as separate Function
+  * [PLAT-5280] - ListedEquityOption Prototyping: Extend to allow one to bootstrap Vols from PreviousMarks
+  * [PLAT-5281] - Change issuer curve type configuration to use legal entity filters
+  * [PLAT-5313] - Need a FileUtils.copyResourceToTempFile() operation
+  * [PLAT-5317] - Create a function that constructs bond curves directly from yields
+  * [PLAT-5318] - Add new versions of bond pricing functions that start from the clean price
+  * [PLAT-5323] - Add bond security converter that uses available information to construct legal entities
+  * [PLAT-5324] - NoPaddingTimeSeriesSamplingFunction very inefficient for large time series
+  * [PLAT-5326] - Create OptionSecurityVisitors.java, a set of visitors to output common fields of OptionSecurity's
+  * [PLAT-5330] - Extract common fields (name, unique id) from CurveDefinition into an abstract top-level class
+  * [PLAT-5332] - Create a factory for curve spread functions and make functions implement NamedInstance
+  * [PLAT-5334] - Add bond analytics that use market yield
+  * [PLAT-5336] - Add bond analytics that use yield curves
+  * [PLAT-5349] - Create curve specifications for spread curves
+  * [PLAT-5350] - Create an abstract base class for curve specifications
+  * [PLAT-5351] - Create curve specifications for constant curves
+  * [PLAT-5360] - Add ForwardRateAgreementSecurity
+  * [PLAT-5362] - Roll-Geske-Whaley model
+  * [PLAT-5363] - Analytic Greeks for Roll-Geske-Whaley model
+  * [PLAT-5365] - Add support for constant curves in interpolated issuer curves
+  * [PLAT-5366] - Add support for spread curves in issuer curve configurations
+  * [PLAT-5371] - Add bond node converter
+  * [PLAT-5372] - Function that creates issuer curves using fitting rather than interpolation on yields
+  * [PLAT-5374] - Add curve calculation type to bond functions that use curves
+  * [PLAT-5382] - Extension of RGW model for multiple discrete dividends
+  * [PLAT-5398] - Add converter for bond futures that uses legal entity information
+  * [PLAT-5399] - Add bond futures support to functions that price bonds using curves
+  * [PLAT-5422] - Add calculators for bond and bond future PV01 and bucketed PV01
+  * [PLAT-5426] - Add function to calculate gamma PV01 for the provider form of curve bundles
+  * [PLAT-5427] - OG-Analytics: Created ParSpreadRate calculators
+  * [PLAT-5439] - Add functions that calculate net basis and gross basis for a bond future deliverable basket
+  * [PLAT-5444] - Create VixFutureAndOptionExpiryCalculator
+  * [PLAT-5448] - Add theta calculator for bond futures that uses new curve providers
+  * [PLAT-5452] - OG-Analytics: Add the Australian Governement bond convention
+  * [PLAT-5453] - Add function that provides theta for bond futures
+  * [PLAT-5480] - implement the Implement the rate cut-off mechanism for CouponONArithmeticAverage
+* Task
+  * [PLAT-4867] - Swap notional = 0 is valid
+  * [PLAT-5278] - Tests for BjerksundStenslandModel
+  * [PLAT-5342] - Hard stop the JVM before the wait notify hint expires
+  * [PLAT-5402] - OG-Analytics: Bond futures - separate security and trade
+  * [PLAT-5404] - Tool to remove time series data from a database dump
+  * [PLAT-5412] - Don't restart JVM after external controlled stop.
+  * [PLAT-5424] - FileUtils.TEMP_DIR variable should be public
+  * [PLAT-5450] - Remove VersionedSource
+  * [PLAT-5461] - Identify and correct any queries to "latest" config from functions
+
 To 2.2.0-M5
 -----------
 * Bug
