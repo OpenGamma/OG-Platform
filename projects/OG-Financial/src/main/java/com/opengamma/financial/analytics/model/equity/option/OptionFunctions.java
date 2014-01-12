@@ -54,7 +54,7 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
   }
 
   /**
-   * Function repository configuration source for the default functions contained in this package.
+   * Function repository configuration source for the default function for equity barrier options contained in this package.
    */
   public static class Defaults extends AbstractFunctionConfigurationBean {
 
@@ -124,9 +124,9 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(EquityOptionBlackVommaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackValueGammaFunction.class));
-    
+
     functions.add(functionConfiguration(EquityOptionBlackBasicPresentValueFunction.class));
-    
+
     functions.add(functionConfiguration(ListedEquityOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackRhoFunction.class));

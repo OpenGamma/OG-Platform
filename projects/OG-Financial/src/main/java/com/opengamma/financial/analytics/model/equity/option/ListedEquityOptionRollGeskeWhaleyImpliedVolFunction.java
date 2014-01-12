@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity.option;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
-import com.opengamma.analytics.financial.equity.EqyOptRollGeskeWhaleyPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexFutureOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
@@ -33,13 +32,16 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.volatility.surface.black.EquityBlackVolatilitySurfaceFromSinglePriceFunction;
 
 /**
- * 
+ *
  */
 public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedEquityOptionRollGeskeWhaleyFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(ListedEquityOptionRollGeskeWhaleyImpliedVolFunction.class);
 
-  /** 
+  /**
    * The Black present value calculator
    * The model is chosen to be consistent with {@link EquityBlackVolatilitySurfaceFromSinglePriceFunction}
    */
@@ -50,11 +52,11 @@ public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedE
   public ListedEquityOptionRollGeskeWhaleyImpliedVolFunction() {
     super(ValueRequirementNames.IMPLIED_VOLATILITY);
   }
-  
+
   @Override
-  protected Set<ComputedValue> computeValues(InstrumentDerivative derivative, StaticReplicationDataBundle market, FunctionInputs inputs, Set<ValueRequirement> desiredValues,
-      ComputationTargetSpecification targetSpec, ValueProperties resultProperties) {
-    
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+
     // Get market price
     Double marketPrice = null;
     final ComputedValue mktPriceObj = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
@@ -106,7 +108,7 @@ public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedE
 
     final double spot = market.getForwardCurve().getSpot();
     final double discountRate = market.getDiscountCurve().getInterestRate(timeToExpiry);
-    
+
     Double impliedVol = null;
     if (isCall) {
       final RollGeskeWhaleyModel model = new RollGeskeWhaleyModel();
@@ -160,16 +162,13 @@ public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedE
           impliedVol = volatility;
         }
       } else {
-        impliedVol = volatility;      
+        impliedVol = volatility;
       }
     }
-    
-    
+
+
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
-  
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(ListedEquityOptionRollGeskeWhaleyImpliedVolFunction.class);
 
 }

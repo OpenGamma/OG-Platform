@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.equity.SecurityMarketPriceFunction;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
@@ -22,12 +24,16 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
  * This visitor returns true if the FinancialSecurity is market traded.
- * In our context, this means that a MarketDataRequirementNames.MARKET_VALUE is available.
- * When "Security Market Price" is chosen in a View Configuration, (ValueRequirementNames.SECURITY_MARKET_PRICE)
- * SecurityMarketPriceFunction provides the price.
+ * In our context, this means that a MarketDataRequirementNames.MARKET_VALUE is available
+ * for a security.<p>
+ * When {@link ValueRequirementNames#SECURITY_MARKET_PRICE} is chosen in a View Configuration,
+ * {@link SecurityMarketPriceFunction} provides the price.
  */
 public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter<Boolean> {
 
+  /**
+   * Sets the default return value to false.
+   */
   public MarketSecurityVisitor() {
     super(false);
   }

@@ -38,8 +38,9 @@ import com.opengamma.util.money.Currency;
  * For securities that do not have an underlying, such as the {@link EquitySecurity}, their own market value is provided
  */
 public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledInvoker {
-
+  /** Determines whether a security is market-traded */
   private static MarketSecurityVisitor s_judgeOfMarketSecurities = new MarketSecurityVisitor();
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(UnderlyingMarketPriceFunction.class);
 
   @Override
@@ -48,7 +49,8 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final double marketValue = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.UNDERLYING_MARKET_PRICE, target.toSpecification(), desiredValue.getConstraints()), marketValue));
@@ -56,11 +58,11 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Currently set to apply to any market-traded security in {@link MarketSecurityVisitor}.<p>
-   * TODO Constrain this further to those {@link FinancialSecurity}'s that have underlyings..
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target the Target for which capability is to be tested
    * @return true if FinancialSecurity underlying the Position or Trade is a market-traded Security, else false
    */
+  // TODO Constrain this further to those {@link FinancialSecurity}s that have underlyings. [PLAT-5523]
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (!(target.getPositionOrTrade().getSecurity() instanceof FinancialSecurity)) {
@@ -69,13 +71,13 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
     final FinancialSecurity security = (FinancialSecurity) target.getPositionOrTrade().getSecurity();
     try {
       return security.accept(s_judgeOfMarketSecurities);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       return false;
     }
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
@@ -87,15 +89,14 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Security security = target.getPositionOrTrade().getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     if (underlyingId != null) {
       return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, underlyingId));
-    } else {
-      s_logger.info("No underlying found for {}. The security itself will be used as its own underlying", security.getName());
-      return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId()));
     }
+    s_logger.info("No underlying found for {}. The security itself will be used as its own underlying", security.getName());
+    return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId()));
   }
 
 }

@@ -131,7 +131,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs a market data bundle
-   * 
+   *
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -146,7 +146,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     // 1. The Funding Curve
     final Object discountingObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (discountingObject == null) {
-      throw new OpenGammaRuntimeException("Could not get discounting Curve");
+      throw new OpenGammaRuntimeException("Could not get discounting curve");
     }
     if (!(discountingObject instanceof YieldCurve)) { //TODO: make it more generic
       throw new IllegalArgumentException("Can only handle YieldCurve");
@@ -156,7 +156,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     // 2. The Vol Surface
     final Object volSurfaceObject = inputs.getValue(ValueRequirementNames.BLACK_VOLATILITY_SURFACE);
     if (volSurfaceObject == null || !(volSurfaceObject instanceof BlackVolatilitySurface)) {
-      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
+      throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
     final BlackVolatilitySurface<?> blackVolSurf = (BlackVolatilitySurface<?>) volSurfaceObject;
 
@@ -173,7 +173,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Calculates the result
-   * 
+   *
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -314,10 +314,25 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     final ValueRequirement marketValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, target.toSpecification());
-    // Return the set    
+    // Return the set
     return Sets.newHashSet(discountingReq, volReq, forwardCurveReq, marketValueRequirement);
   }
 
+  /**
+   * Adjusts the properties of the function inputs: <p>
+   * <ul>
+   *   <li> {@link ValueRequirementNames#YIELD_CURVE} - removes the {@link ValuePropertyNames#FUNCTION} and {@link ValuePropertyNames#CURRENCY}
+   *   properties and remaps {@link ValuePropertyNames#CURVE} -> {@link EquityOptionFunction#PROPERTY_DISCOUNTING_CURVE_NAME} and
+   *   {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} -> {@link EquityOptionFunction#PROPERTY_DISCOUNTING_CURVE_CONFIG}.
+   *   <li> {@link ValueRequirementNames#BLACK_VOLATILITY_SURFACE} removes the {@link ValuePropertyNames#FUNCTION} and
+   *   {@link InstrumentTypeProperties#PROPERTY_SURFACE_INSTRUMENT_TYPE} properties.
+   *   <li> {@link ValueRequirementNames#FORWARD_CURVE} - removes the {@link ValuePropertyNames#FUNCTION} and {@link ValuePropertyNames#CURRENCY}
+   *   properties and remaps {@link ValuePropertyNames#CURVE} -> {@link ForwardCurveValuePropertyNames#PROPERTY_FORWARD_CURVE_NAME}.
+   * </ul>
+   * <p>
+   * @param input The resolved input
+   * @param properties The properties to be adjusted
+   */
   protected void extractInputProperties(final ValueSpecification input, final ValueProperties.Builder properties) {
     final String inputName = input.getValueName();
     if (ValueRequirementNames.YIELD_CURVE.equals(inputName)) {
@@ -377,7 +392,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Converts result properties with a currency property to one without.
-   * 
+   *
    * @param resultsWithCurrency The set of results with the currency property set
    * @return A set of results without a currency property
    */
@@ -394,17 +409,34 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return resultsWithoutCurrency;
   }
 
-  private ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security, final ValueProperties additionalConstraints) {
-    final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy()
+  /**
+   * Gets the discounting curve requirement
+   * @param fundingCurveName The discounting curve name
+   * @param curveCalculationConfigName The curve calculation configuration name
+   * @param security The security
+   * @param additionalConstraints The additional constraints
+   * @return The discounting curve requirement
+   */
+  private static ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security,
+      final ValueProperties additionalConstraints) {
+    final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy() [PLAT-5524]
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(FinancialSecurityUtils.getCurrency(security)), properties);
   }
 
-  private ValueRequirement getForwardCurveRequirement(final String forwardCurveName, final String forwardCurveCalculationMethod, final ExternalId underlyingBuid,
+  /**
+   * Gets the forward curve requirement
+   * @param forwardCurveName The forward curve name
+   * @param forwardCurveCalculationMethod The curve calculation method
+   * @param underlyingBuid The underlying id of the security
+   * @param additionalConstraints The additional constraints
+   * @return The forward curve requirement
+   */
+  private static ValueRequirement getForwardCurveRequirement(final String forwardCurveName, final String forwardCurveCalculationMethod, final ExternalId underlyingBuid,
       final ValueProperties additionalConstraints) {
-    final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy()
+    final ValueProperties properties = ValueProperties.builder() // TODO: Update to this => additionalConstraints.copy() [PLAT-5524]
         .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .get();
@@ -412,6 +444,19 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, underlyingBuid, properties);
   }
 
+  /**
+   * Gets the volatility surface requirement
+   * @param tsSource The time series source
+   * @param securitySource The security source
+   * @param desiredValue The desired value
+   * @param security The security
+   * @param surfaceName The volatility surface name
+   * @param forwardCurveName The forward curve name
+   * @param surfaceCalculationMethod The surface calculation method
+   * @param underlyingBuid The underlying id of the seucirty
+   * @param additionalConstraints The additional requirements
+   * @return The volatility surface requirement
+   */
   protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
       final ValueRequirement desiredValue, final Security security, final String surfaceName, final String forwardCurveName,
       final String surfaceCalculationMethod, final ExternalId underlyingBuid, final ValueProperties additionalConstraints) {
@@ -419,16 +464,26 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     // TODO Casey - Replace desiredValue with smileInterpolatorName in BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement
     return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, ValueProperties.none(), surfaceName, forwardCurveName,
         InstrumentTypeProperties.EQUITY_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
-    // TODO Casey - Replace above with below - ie pass additional constraints
+    // TODO Casey - Replace above with below - ie pass additional constraints [PLAT-5524]
     //return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, additionalConstraints, surfaceName, forwardCurveName,
     //InstrumentTypeProperties.EQUITY_OPTION, ComputationTargetType.PRIMITIVE, underlyingBuid);
   }
 
-  private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource, final VersionCorrection versionCorrection,
-      final String surfaceName) {
-    /** scheme we return i.e. BBG_WEAK */
+  /**
+   * Remaps the scheme of the underlying (e .g. from a Bloomberg ticker to a Bloomberg weak ticker) to match that
+   * of the volatility surface
+   * @param underlyingId The underlying id
+   * @param tsSource The time series source
+   * @param securitySource The security source
+   * @param versionCorrection The version correction
+   * @param surfaceName The surface name
+   * @return The weak underlying id.
+   */
+  private static ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
+      final VersionCorrection versionCorrection, final String surfaceName) {
+    /* scheme we return i.e. BBG_WEAK */
     final ExternalScheme desiredScheme = EquitySecurityUtils.getTargetType(surfaceName);
-    /** scheme we look for i.e. BBG */
+    /* scheme we look for i.e. BBG */
     final ExternalScheme sourceScheme = EquitySecurityUtils.getRemappedScheme(desiredScheme);
     if (desiredScheme == null) { // surface name is unknown
       return null;
@@ -462,7 +517,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the value requirement names
-   * 
+   *
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -471,14 +526,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the calculation method.
-   * 
+   *
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   * 
+   *
    * @return The model type
    */
   protected abstract String getModelType();
