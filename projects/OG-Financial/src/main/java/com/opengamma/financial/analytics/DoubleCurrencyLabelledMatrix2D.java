@@ -7,6 +7,9 @@ package com.opengamma.financial.analytics;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -17,6 +20,8 @@ import com.opengamma.util.money.Currency;
  */
 public class DoubleCurrencyLabelledMatrix2D extends LabelledMatrix2D<Double, Currency> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DoubleCurrencyLabelledMatrix2D.class);
+  
   public DoubleCurrencyLabelledMatrix2D(final Double[] xKeys, final Currency[] yKeys, final double[][] values) {
     super(xKeys, yKeys, values);
   }
@@ -103,7 +108,13 @@ public class DoubleCurrencyLabelledMatrix2D extends LabelledMatrix2D<Double, Cur
         otherXIdxMapValue = otherX;
         otherX++;
       } else {
-        throw new IllegalArgumentException("Same key " + xKey + " used for different labels in the two matrices: " + xLabel + " and " + otherXLabel);
+        s_logger.debug("Same key " + xKey + " used for different labels in the two matrices: " + xLabel + " and " + otherXLabel);
+        resultXLabels[resultIdx] = xLabel;
+        resultXKeys[resultIdx] = xKey;
+        xIdxMapValue = x;
+        otherXIdxMapValue = otherX;
+        x++;
+        otherX++;
       }
       xIdxMap[resultIdx] = xIdxMapValue;
       otherXIdxMap[resultIdx] = otherXIdxMapValue;
