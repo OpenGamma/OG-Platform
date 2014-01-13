@@ -48,21 +48,9 @@ public final class EqyOptRollGeskeWhaleyPresentValueCalculator extends Instrumen
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
+    final double unitAmount = option.getUnitAmount();
 
-    final ForwardCurve fCurve = data.getForwardCurve();
-    double[] divTime = null;
-    double[] divAmount = null;
-    if (fCurve instanceof ForwardCurveAffineDividends) {
-      final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
-      divTime = div.getTau();
-      divAmount = div.getAlpha();
-    } else {
-      divTime = new double[] {0. };
-      divAmount = new double[] {0. };
-    }
-    final double volatility = data.getVolatilitySurface().getVolatility(t, k);
-
-    return option.getUnitAmount() * MODEL.price(s, k, r, t, volatility, divAmount, divTime);
+    return getPresetValue(unitAmount, s, k, t, r, data);
   }
 
   @Override
@@ -78,22 +66,9 @@ public final class EqyOptRollGeskeWhaleyPresentValueCalculator extends Instrumen
     final double k = option.getStrike();
     final double t = option.getTimeToExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
+    final double unitAmount = option.getUnitAmount();
 
-    final ForwardCurve fCurve = data.getForwardCurve();
-    double[] divTime = null;
-    double[] divAmount = null;
-    if (fCurve instanceof ForwardCurveAffineDividends) {
-      final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
-      divTime = div.getTau();
-      divAmount = div.getAlpha();
-    } else {
-      divTime = new double[] {0. };
-      divAmount = new double[] {0. };
-    }
-
-    final double volatility = data.getVolatilitySurface().getVolatility(t, k);
-
-    return option.getUnitAmount() * MODEL.price(s, k, r, t, volatility, divAmount, divTime);
+    return getPresetValue(unitAmount, s, k, t, r, data);
   }
 
   @Override
@@ -109,22 +84,26 @@ public final class EqyOptRollGeskeWhaleyPresentValueCalculator extends Instrumen
     final double k = option.getStrike();
     final double t = option.getExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
+    final double pointValue = option.getPointValue();
 
+    return getPresetValue(pointValue, s, k, t, r, data);
+  }
+
+  private double getPresetValue(final double factor, final double spot, final double strike, final double time, final double interestRate, final StaticReplicationDataBundle data) {
     final ForwardCurve fCurve = data.getForwardCurve();
     double[] divTime = null;
     double[] divAmount = null;
     if (fCurve instanceof ForwardCurveAffineDividends) {
-      final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
+      final AffineDividends div = ((ForwardCurveAffineDividends) fCurve).getDividends();
       divTime = div.getTau();
       divAmount = div.getAlpha();
     } else {
       divTime = new double[] {0. };
       divAmount = new double[] {0. };
     }
+    final double volatility = data.getVolatilitySurface().getVolatility(time, strike);
 
-    final double volatility = data.getVolatilitySurface().getVolatility(t, k);
-
-    return option.getPointValue() * MODEL.price(s, k, r, t, volatility, divAmount, divTime);
+    return factor * MODEL.price(spot, strike, interestRate, time, volatility, divAmount, divTime);
   }
 
 }
