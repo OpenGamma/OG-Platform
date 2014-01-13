@@ -128,7 +128,7 @@ public class BondFuturesTransactionHullWhiteMethodTest {
     final double quotedPrice = 1.05;
     final MultipleCurrencyAmount pvComputed = METHOD_FUT_TRA_HW.presentValueFromPrice(BOND_FUTURES_TRA, quotedPrice);
     final double pvExpected = (quotedPrice - PRICE_REFERENCE) * NOTIONAL * QUANTITY;
-    assertEquals("Bond future Method: present value from price", pvExpected, pvComputed.getAmount(USD));
+    assertEquals("Bond future Method: present value from price", pvExpected, pvComputed.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test

@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
 import com.opengamma.analytics.financial.provider.calculator.singlevalue.FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -15,15 +15,15 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Interface to generic futures security pricing method.
  */
-public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
+public class FuturesTransactionHullWhiteIssuerMethod extends FuturesTransactionMethod {
 
   private static final FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator PVCSIC = FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator.getInstance();
 
   /**
    * Constructor.
    */
-  public FuturesTransactionIssuerMethod() {
-    super(new FuturesSecurityIssuerMethod());
+  public FuturesTransactionHullWhiteIssuerMethod() {
+    super(new FuturesSecurityHullWhiteIssuerMethod());
   }
 
   /**
@@ -31,8 +31,8 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    * @return the securityMethod
    */
   @Override
-  public FuturesSecurityIssuerMethod getSecurityMethod() {
-    return (FuturesSecurityIssuerMethod) super.getSecurityMethod();
+  public FuturesSecurityHullWhiteIssuerMethod getSecurityMethod() {
+    return (FuturesSecurityHullWhiteIssuerMethod) super.getSecurityMethod();
   }
 
   /**
@@ -41,7 +41,7 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    * @param multicurve The multicurve and parameters provider.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final FuturesTransaction<?> futures, final ParameterIssuerProviderInterface multicurve) {
+  public MultipleCurrencyAmount presentValue(final FuturesTransaction<?> futures, final HullWhiteIssuerProviderInterface multicurve) {
     double price = getSecurityMethod().price(futures.getUnderlyingFuture(), multicurve);
     return presentValueFromPrice(futures, price);
   }
@@ -53,7 +53,7 @@ public class FuturesTransactionIssuerMethod extends FuturesTransactionMethod {
    * @return The present value rate sensitivity.
    */
 
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final ParameterIssuerProviderInterface multicurve) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final FuturesTransaction<?> futures, final HullWhiteIssuerProviderInterface multicurve) {
     final MulticurveSensitivity priceSensitivity = getSecurityMethod().priceCurveSensitivity(futures.getUnderlyingFuture(), multicurve);
     return futures.accept(PVCSIC, priceSensitivity);
 

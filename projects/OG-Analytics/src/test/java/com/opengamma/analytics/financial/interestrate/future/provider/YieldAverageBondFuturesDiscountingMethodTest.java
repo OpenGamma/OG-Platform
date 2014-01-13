@@ -75,7 +75,7 @@ public class YieldAverageBondFuturesDiscountingMethodTest {
   private static final YieldAverageBondFuturesSecurity FUT_SEC = FUT_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final IssuerProviderInterface ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProviderAus();
-  private static final FuturesSecurityIssuerMethod METHOD_FUTI_SEC = FuturesSecurityIssuerMethod.getInstance();
+  private static final FuturesSecurityIssuerMethod METHOD_FUTI_SEC = new FuturesSecurityIssuerMethod();
   private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
 
   private static final double TOLERANCE_INDEX = 1.0E-5;

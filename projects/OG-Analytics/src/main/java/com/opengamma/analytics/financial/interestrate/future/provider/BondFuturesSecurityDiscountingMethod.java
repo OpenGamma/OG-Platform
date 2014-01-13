@@ -10,13 +10,12 @@ import org.apache.commons.math.stat.descriptive.rank.Min;
 import com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Method to compute the bond futures security results with the price computed as the cheapest forward.
  */
-public final class BondFuturesSecurityDiscountingMethod {
+public final class BondFuturesSecurityDiscountingMethod extends FuturesSecurityIssuerMethod {
 
   /**
    * Creates the method unique instance.
@@ -47,16 +46,6 @@ public final class BondFuturesSecurityDiscountingMethod {
   private static final Min MIN_FUNCTION = new Min();
 
   /**
-   * Computes the futures price from the curves used to price the underlying bonds.
-   * @param futures The future security.
-   * @param issuerMulticurves The issuer and multi-curves provider.
-   * @return The future price.
-   */
-  public double price(final BondFuturesSecurity futures, final IssuerProviderInterface issuerMulticurves) {
-    return priceFromNetBasis(futures, issuerMulticurves, 0.0);
-  }
-
-  /**
    * Computes the futures price from the curves used to price the underlying bonds and the net basis.
    * @param futures The future security.
    * @param issuerMulticurves The issuer and multi-curves provider.
@@ -72,29 +61,6 @@ public final class BondFuturesSecurityDiscountingMethod {
     }
     final double priceFuture = MIN_FUNCTION.evaluate(priceFromBond);
     return priceFuture;
-  }
-
-  /**
-   * Computes the futures price curve sensitivity.
-   * @param futures The futures security.
-   * @param issuerMulticurves The issuer and multi-curves provider.
-   * @return The curve sensitivity.
-   */
-  public MulticurveSensitivity priceCurveSensitivity(final BondFuturesSecurity futures, final IssuerProviderInterface issuerMulticurves) {
-    ArgumentChecker.notNull(futures, "Future");
-    ArgumentChecker.notNull(issuerMulticurves, "Issuer and multi-curves provider");
-    final double[] priceFromBond = new double[futures.getDeliveryBasketAtDeliveryDate().length];
-    int indexCTD = 0;
-    double priceMin = 2.0;
-    for (int loopbasket = 0; loopbasket < futures.getDeliveryBasketAtDeliveryDate().length; loopbasket++) {
-      priceFromBond[loopbasket] = (BOND_METHOD.cleanPriceFromCurves(futures.getDeliveryBasketAtDeliveryDate()[loopbasket], issuerMulticurves)) / futures.getConversionFactor()[loopbasket];
-      if (priceFromBond[loopbasket] < priceMin) {
-        priceMin = priceFromBond[loopbasket];
-        indexCTD = loopbasket;
-      }
-    }
-    final MulticurveSensitivity result = BOND_METHOD.dirtyPriceCurveSensitivity(futures.getDeliveryBasketAtDeliveryDate()[indexCTD], issuerMulticurves);
-    return result.multipliedBy(1.0 / futures.getConversionFactor()[indexCTD]);
   }
 
   /**

@@ -84,8 +84,8 @@ public class YieldAverageBondFuturesTransactionDiscountingMethodTest {
   private static final YieldAverageBondFuturesTransaction FUT_TRA = FUT_TRA_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_PRICE);
 
   private static final IssuerProviderInterface ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProviderAus();
-  private static final FuturesSecurityIssuerMethod METHOD_FI_SEC = FuturesSecurityIssuerMethod.getInstance();
-  private static final FuturesTransactionIssuerMethod METHOD_FI_TRA = FuturesTransactionIssuerMethod.getInstance();
+  private static final FuturesSecurityIssuerMethod METHOD_FI_SEC = new FuturesSecurityIssuerMethod();
+  private static final FuturesTransactionIssuerMethod METHOD_FI_TRA = new FuturesTransactionIssuerMethod();
 
   private static final double TOLERANCE_PV = 1.0E-2;
 
