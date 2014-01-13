@@ -246,6 +246,11 @@ public abstract class RegressionIO {
     }
   }
 
+  protected boolean isIdentifierIncluded(String name) {
+    String ext = getFormat().getLogicalFileExtension(getFormatContext());
+    return ext == null || name.endsWith(ext);
+  }
+  
   protected String stripIdentifierExtension(String name) {
     String ext = getFormat().getLogicalFileExtension(getFormatContext());
     if (ext == null) {

@@ -107,8 +107,10 @@ public class SubdirsRegressionIO extends RegressionIO {
     for (File file : files) {
       if (file.isFile()) {
         final String name = file.getName();
-        String identifier = stripIdentifierExtension(name);
-        identifiers.add(identifier);
+        if (isIdentifierIncluded(name)) {
+          String identifier = stripIdentifierExtension(name);
+          identifiers.add(identifier);
+        }
       }
     }
     s_logger.debug("Found {} objects", identifiers.size());

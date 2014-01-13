@@ -181,8 +181,10 @@ public abstract class ZipFileRegressionIO extends RegressionIO implements AutoCl
           String objectType = matcher.group(1);
           if (objectType.equals(type)) {
             String objectIdentifierFileName = matcher.group(2);
-            String objectIdentifier = stripIdentifierExtension(objectIdentifierFileName);
-            objectIdentifiers.add(objectIdentifier);
+            if (isIdentifierIncluded(objectIdentifierFileName)) {
+              String objectIdentifier = stripIdentifierExtension(objectIdentifierFileName);
+              objectIdentifiers.add(objectIdentifier);
+            }
           }
         }
       }
