@@ -11,8 +11,10 @@ import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivativ
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CouponCommodityPhysicalSettle;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -106,6 +108,11 @@ public class CouponCommodityPhysicalSettleDefinition extends CouponCommodityDefi
     return toDerivative(date);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public CouponCommodity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, getSettlementDate(), "date", "expiry date");
@@ -116,6 +123,10 @@ public class CouponCommodityPhysicalSettleDefinition extends CouponCommodityDefi
     final double lastDeliveryTime = TimeCalculator.getTimeBetween(date, _lastDeliveryDate);
     return new CouponCommodityPhysicalSettle(getPaymentYearFractione(), getUnderlying(), getUnitName(), getNotional(), settlementTime, getCalendar(), noticeFirstTime, noticeLastTime,
         firstDeliveryTime, lastDeliveryTime);
+  }
+
+  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
+    return toDerivative(date, priceIndexTimeSeries);
   }
 
   @Override

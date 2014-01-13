@@ -44,8 +44,6 @@ public final class CouponONArithmeticAverage extends Coupon {
    */
   private final double _fixingPeriodRemainingAccrualFactor;
 
-  // TODO: Implement the rate cut-off mechanism (the two last periods use the same fixing)
-
   /**
    * Constructor.
    * @param currency The coupon currency.

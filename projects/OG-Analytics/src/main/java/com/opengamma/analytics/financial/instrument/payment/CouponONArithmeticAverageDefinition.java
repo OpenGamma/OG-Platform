@@ -56,7 +56,6 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    */
   private final double[] _fixingPeriodAccrualFactors;
 
-  // TODO: Implement the rate cut-off mechanism (the two last periods use the same fixing)
   /**
    * Constructor from all details.
    * @param currency The payment currency.
@@ -227,11 +226,11 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
-  public static CouponONArithmeticAverageDefinition fromWithRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
+  public static CouponONArithmeticAverageDefinition withRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final Period tenor, final double notional, final int paymentLag,
       final BusinessDayConvention businessDayConvention, final boolean isEOM, final Calendar calendar) {
     ArgumentChecker.notNull(index, "Index");
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, tenor, businessDayConvention, calendar, isEOM);
-    return fromWithRateCutOff(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, calendar);
+    return withRateCutOff(index, fixingPeriodStartDate, fixingPeriodEndDate, notional, paymentLag, calendar);
   }
 
   /**
@@ -245,7 +244,7 @@ public final class CouponONArithmeticAverageDefinition extends CouponDefinition 
    * @param calendar The holiday calendar for the overnight index.
    * @return The OIS coupon.
    */
-  public static CouponONArithmeticAverageDefinition fromWithRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
+  public static CouponONArithmeticAverageDefinition withRateCutOff(final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double notional,
       final int paymentLag, final Calendar calendar) {
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing Period End Date");
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + paymentLag, calendar);
