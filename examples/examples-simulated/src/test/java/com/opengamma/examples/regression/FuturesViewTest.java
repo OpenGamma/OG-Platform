@@ -10,11 +10,14 @@ import java.io.File;
 import org.testng.annotations.Test;
 
 import com.opengamma.integration.regression.AbstractRegressionTest;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Example regression test.
  */
-@Test
+//not strictly a unit test, but tagged as such due to limitations
+//of current build infrastructure
+@Test(groups = TestGroup.UNIT) 
 public class FuturesViewTest extends AbstractRegressionTest {
   
   public FuturesViewTest() {
