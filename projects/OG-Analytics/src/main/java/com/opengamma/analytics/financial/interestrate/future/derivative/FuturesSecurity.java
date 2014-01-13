@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.util.money.Currency;
 
 /**
  * Abstract class for generic futures securities.
@@ -33,6 +34,12 @@ public abstract class FuturesSecurity  implements InstrumentDerivative {
   public double getTradingLastTime() {
     return _tradingLastTime;
   }
+  
+  /**
+   * Returns the currency of the futures security.
+   * @return The currency.
+   */
+  public abstract Currency getCurrency();
 
   @Override
   public int hashCode() {

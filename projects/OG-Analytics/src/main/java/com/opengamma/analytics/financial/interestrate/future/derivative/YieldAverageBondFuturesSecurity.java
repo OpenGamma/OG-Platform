@@ -88,14 +88,6 @@ public class YieldAverageBondFuturesSecurity extends FuturesSecurity {
   }
 
   /**
-   * Gets the future currency.
-   * @return The currency.
-   */
-  public Currency getCurrency() {
-    return _deliveryBasketAtDeliveryDate[0].getCurrency();
-  }
-
-  /**
    * Returns the coupon rate of the synthetic bond used to compute the settlement price from the yield.
    * @return The rate.
    */
@@ -109,6 +101,20 @@ public class YieldAverageBondFuturesSecurity extends FuturesSecurity {
    */
   public int getTenor() {
     return _tenor;
+  }
+
+
+  @Override
+  public Currency getCurrency() {
+    return _deliveryBasketAtDeliveryDate[0].getCurrency();
+  }
+  
+  /**
+   * Returns the number of coupon per year for the first bond in the basket.
+   * @return The number of coupon per year.
+   */
+  public int getNumberCouponPerYear() {
+    return _deliveryBasketAtDeliveryDate[0].getCouponPerYear();
   }
 
   @Override
