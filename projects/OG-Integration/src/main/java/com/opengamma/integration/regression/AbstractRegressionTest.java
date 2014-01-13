@@ -27,11 +27,19 @@ public abstract class AbstractRegressionTest {
   
   
   /**
+   * Initializes the test. A valid tool context properties file is required - this cut down context is used to
+   * initialize the database. Secondly, a "regressionPropertiesFile" is also required. This is used to execute
+   * the views and must therefore contain a full engine configuration. Typically this can be created by using
+   * the fullstack.properties/ini as a starting point, removing the enterprise services such as web and amq
+   * exposure.
+   * 
    * @param regressionRoot the root for this set of tests (i.e. the directory
-   * containing the dbdump zip and golden_copy folder)
+   * containing the dbdump zip and golden_copy folder
+   * @param toolContextPropertiesFile path to a valid tool context properties file
+   * @param regressionPropertiesFile path to a valid regression properties file
    */
-  public AbstractRegressionTest(File regressionRoot) {
-    _contextManager = new RegressionTestToolContextManager(new File(regressionRoot, GoldenCopyDumpCreator.DB_DUMP_ZIP));
+  public AbstractRegressionTest(File regressionRoot, String toolContextPropertiesFile, String regressionPropertiesFile) {
+    _contextManager = new RegressionTestToolContextManager(new File(regressionRoot, GoldenCopyDumpCreator.DB_DUMP_ZIP), toolContextPropertiesFile, regressionPropertiesFile);
     _goldenCopyPersistenceHelper = new GoldenCopyPersistenceHelper(regressionRoot);
   }
   
@@ -75,8 +83,8 @@ public abstract class AbstractRegressionTest {
                                                         compareValueProperties(compareValueProperties()).
                                                         between(original.getCalculationResults(), thisRun);
     
-    System.out.println("Total result in golden copy: " + original.getCalculationResults().getValues().size());
-    System.out.println("Total result in test run: " + thisRun.getValues().size());
+    System.out.println("Total results in golden copy: " + original.getCalculationResults().getValues().size());
+    System.out.println("Total results in test run: " + thisRun.getValues().size());
     
     System.out.println("Equal: " + result.getEqualResultCount());
     System.out.println("Different: " + result.getDifferent().size());

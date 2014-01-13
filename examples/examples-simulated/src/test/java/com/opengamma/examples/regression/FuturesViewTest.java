@@ -3,35 +3,32 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.regression;
+package com.opengamma.examples.regression;
 
 import java.io.File;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.integration.regression.AbstractRegressionTest;
+
 /**
- * Example test
+ * Example regression test.
  */
 @Test
 public class FuturesViewTest extends AbstractRegressionTest {
   
   public FuturesViewTest() {
-    super(new File("regression/multiview"));
+    super(new File("regression/multiview_example"), "classpath:regression/regression-toolcontext.properties", "classpath:regression/regression-testdb.properties");
   }
   
   @Test
   public void testFuturesView() {
     runTestForView("Futures View", "Futures Snapshot");
   }
-  
-  @Test
-  public void testEurSwapDeskView() {
-    runTestForView("EUR Swap Desk View", "EUR Swap Desk Snapshot");
-  }
 
   @Override
   protected double getAcceptableDelta() {
-    return 1;
+    return 0.0001;
   }
   
   

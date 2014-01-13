@@ -8,16 +8,13 @@ package com.opengamma.integration.regression;
 import java.io.File;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Throwables;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
- * 
+ * Manages the lifecycle of components.
  */
 public class RegressionTestToolContextManager {
 
@@ -33,19 +30,21 @@ public class RegressionTestToolContextManager {
     }
   }
   
-  //TODO - these probably need to be configurable
-  private static String s_toolContext = "classpath:regression/regression-toolcontext.properties";
-  private static String s_regressionPropertiesFile = "classpath:regression/regression-testdb.properties";
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(RegressionTestToolContextManager.class);
+  private final String _toolContextPropertiesFile;
+  private final String _regressionPropertiesFile;
   
   private final File _dumpFile;
   
   /**
-   * @param dumpFile the dump. can be a zip file or directory.
+   * Initialize the context using the specified db dump file.
+   * @param dumpFile the dump file to use: a zip file
+   * @param toolContextPropertiesFile a tool context, for use initializing the regression db
+   * @param regressionPropertiesFile a full engine context
    */
-  public RegressionTestToolContextManager(File dumpFile) {
+  public RegressionTestToolContextManager(File dumpFile, String toolContextPropertiesFile, String regressionPropertiesFile) {
     _dumpFile = dumpFile;
+    _toolContextPropertiesFile = toolContextPropertiesFile;
+    _regressionPropertiesFile = regressionPropertiesFile;
   }
 
 
@@ -53,8 +52,7 @@ public class RegressionTestToolContextManager {
   public void init() {
     
     PlatformConfigUtils.configureSystemProperties();
-    //TODO use logger
-    System.out.println("Initializing DB");
+    System.out.println("Initializing DB using tool context '" + _toolContextPropertiesFile + "'");
     try {
       initialiseDB();
     } catch (IOException ex) {
@@ -63,8 +61,8 @@ public class RegressionTestToolContextManager {
     System.out.println("Initialized DB");
     
     //start toolcontext
-    System.out.println("Starting full context");
-    _toolContext = ToolContextUtils.getToolContext(s_regressionPropertiesFile, ToolContext.class);
+    System.out.println("Starting full context: '" + _regressionPropertiesFile + "'");
+    _toolContext = ToolContextUtils.getToolContext(_regressionPropertiesFile, ToolContext.class);
     System.out.println("Full context started");
     
   }
@@ -76,10 +74,10 @@ public class RegressionTestToolContextManager {
    */
   private void initialiseDB() throws IOException  {
     System.out.println("Creating empty DB...");
-    EmptyDatabaseCreator.createForConfig(s_toolContext);
+    EmptyDatabaseCreator.createForConfig(_toolContextPropertiesFile);
     
     System.out.println("Creating tool context for DB...");
-    ToolContext toolContext = ToolContextUtils.getToolContext(s_toolContext, ToolContext.class);
+    ToolContext toolContext = ToolContextUtils.getToolContext(_toolContextPropertiesFile, ToolContext.class);
     
     //assume this is a zipfile:
     restoreFromZipfile(toolContext, _dumpFile);
@@ -110,6 +108,7 @@ public class RegressionTestToolContextManager {
     if (_toolContext != null) {
       _toolContext.close();
     }
+    //TODO delete the tmp db?
   }
   
   /**
