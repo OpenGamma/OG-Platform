@@ -3,7 +3,7 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 <style type="text/css">
     body {background: #fff;}
-    div {margin-bottom: 6px}
+    div {margin-bottom: 9px}
     small {font-size: 10px;}
     input[type=text] {width: 200px}
     td {vertical-align: top;}
