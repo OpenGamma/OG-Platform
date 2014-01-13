@@ -21,7 +21,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
 /**
@@ -44,16 +43,16 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
    * actually requested.
    */
   @PropertyDefinition(validate = "notNull")
-  private final FormattingTuple _errorMessage;
+  private final String _errorMessage;
 
   /* package */ FailureResult(FailureStatus failureStatus, String message, Object... messageArgs) {
-    this(failureStatus, MessageFormatter.arrayFormat(message, messageArgs));
+    this(failureStatus, MessageFormatter.arrayFormat(message, messageArgs).getMessage());
   }
 
   @ImmutableConstructor
-  /* package */ FailureResult(FailureStatus failureStatus, FormattingTuple errorMessage) {
+  /* package */ FailureResult(FailureStatus failureStatus, String message) {
     _status = failureStatus;
-    _errorMessage = errorMessage;
+    _errorMessage = message;
   }
 
   @Override
@@ -63,7 +62,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
 
   @Override
   public String getFailureMessage() {
-    return _errorMessage.getMessage();
+    return _errorMessage;
   }
 
   @Override
@@ -141,7 +140,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
    * actually requested.
    * @return the value of the property, not null
    */
-  public FormattingTuple getErrorMessage() {
+  public String getErrorMessage() {
     return _errorMessage;
   }
 
@@ -199,8 +198,8 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     /**
      * The meta-property for the {@code errorMessage} property.
      */
-    private final MetaProperty<FormattingTuple> _errorMessage = DirectMetaProperty.ofImmutable(
-        this, "errorMessage", FailureResult.class, FormattingTuple.class);
+    private final MetaProperty<String> _errorMessage = DirectMetaProperty.ofImmutable(
+        this, "errorMessage", FailureResult.class, String.class);
     /**
      * The meta-properties.
      */
@@ -255,7 +254,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
      * The meta-property for the {@code errorMessage} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FormattingTuple> errorMessage() {
+    public MetaProperty<String> errorMessage() {
       return _errorMessage;
     }
 
@@ -289,7 +288,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
   public static final class Builder<T> extends DirectFieldsBeanBuilder<FailureResult<T>> {
 
     private FailureStatus _status;
-    private FormattingTuple _errorMessage;
+    private String _errorMessage;
 
     /**
      * Restricted constructor.
@@ -315,7 +314,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
           this._status = (FailureStatus) newValue;
           break;
         case 1203236063:  // errorMessage
-          this._errorMessage = (FormattingTuple) newValue;
+          this._errorMessage = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -371,7 +370,7 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
      * @param errorMessage  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder<T> errorMessage(FormattingTuple errorMessage) {
+    public Builder<T> errorMessage(String errorMessage) {
       JodaBeanUtils.notNull(errorMessage, "errorMessage");
       this._errorMessage = errorMessage;
       return this;
