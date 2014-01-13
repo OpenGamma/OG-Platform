@@ -165,7 +165,7 @@ public class BundleErrorReportInfo implements Runnable {
         sb.append(c);
       }
     }
-    return Pattern.compile(sb.toString());
+    return Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
   }
 
   private int attachFiles(final File root, final String path) {
@@ -177,25 +177,34 @@ public class BundleErrorReportInfo implements Runnable {
       tail = null;
     } else {
       match = fileNameMatch(path.substring(0, i));
-      tail = path.substring(i + 1);
+      int tailStart = i;
+      do {
+        tailStart++;
+        if (tailStart >= path.length()) {
+          return 0;
+        }
+      } while (path.charAt(tailStart) == File.separatorChar);
+      tail = path.substring(tailStart);
     }
     int count = 0;
     final String[] files = root.list();
-    Arrays.sort(files);
-    for (String file : files) {
-      final Matcher m = match.matcher(file);
-      if (m.matches()) {
-        s_logger.trace("Entry {} matched by path", file);
-        final File entry = new File(root, file);
-        if (tail != null) {
-          if (entry.isDirectory()) {
-            count += attachFiles(entry, tail);
-          }
-        } else {
-          if (entry.isFile()) {
-            s_logger.info("Attaching {}", entry);
-            attachFile(entry, createUniqueName(file));
-            count++;
+    if (files != null) {
+      Arrays.sort(files);
+      for (String file : files) {
+        final Matcher m = match.matcher(file);
+        if (m.matches()) {
+          s_logger.trace("Entry {} matched by path", file);
+          final File entry = new File(root, file);
+          if (tail != null) {
+            if (entry.isDirectory()) {
+              count += attachFiles(entry, tail);
+            }
+          } else {
+            if (entry.isFile()) {
+              s_logger.info("Attaching {}", entry);
+              attachFile(entry, createUniqueName(file));
+              count++;
+            }
           }
         }
       }
@@ -209,7 +218,12 @@ public class BundleErrorReportInfo implements Runnable {
    * @param path the path, including * and ? characters as wildcards
    * @return the number of files written to the ZIP file
    */
-  private int attachFiles(final String path) {
+  private int attachFiles(String path) {
+    if (path.startsWith("%TEMP%")) {
+      final String tmpdir = System.getProperty("java.io.tmpdir");
+      s_logger.trace("Substituting " + tmpdir + " for %TEMP%");
+      path = tmpdir + path.substring(6);
+    }
     s_logger.debug("Attaching {}", path);
     final int i = path.indexOf(File.separatorChar);
     if (i < 0) {

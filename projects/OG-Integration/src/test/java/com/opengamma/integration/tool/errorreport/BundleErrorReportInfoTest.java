@@ -52,6 +52,7 @@ public class BundleErrorReportInfoTest {
       ps.println("");
       ps.println("Invalid line=ignored");
       ps.println(" AttachFiles=" + basePath + File.separator + "test.log");
+      ps.println("AttachFiles=%TEMP%" + File.separator + "this-will-not-exist-but-will-try-the-expansion.log");
     }
   }
 
@@ -102,8 +103,8 @@ public class BundleErrorReportInfoTest {
       writeTestFile(file.getAbsolutePath() + File.separator + "testB.log" + File.separator + "foo.txt", 1);
       final AtomicInteger count = new AtomicInteger();
       final BundleErrorReportInfo beri = new BundleErrorReportInfo(new GUIFeedback("Test"), new String[] {
-          "AttachFiles=" + file.getAbsolutePath() + File.separator + "Foo?" + File.separator + "*.log", "AttachFiles=" + file.getAbsolutePath() + File.separator + "test*.log",
-          "AttachFiles=/path/doesnt/exist" }) {
+          "AttachFiles=" + file.getAbsolutePath() + File.separator + File.separator + "Foo?" + File.separator + "*.log",
+          "AttachFiles=" + file.getAbsolutePath() + File.separator + "test*.log", "AttachFiles=/path/doesnt/exist" }) {
 
         @Override
         protected String openReportOutput() {
