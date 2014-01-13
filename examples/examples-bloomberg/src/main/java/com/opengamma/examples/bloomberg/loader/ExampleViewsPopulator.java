@@ -96,6 +96,8 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutput;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutputAggregationType;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
@@ -167,6 +169,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   @Override
   protected void doRun() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME, "Equity View"));
+    storeViewDefinition(getMultiCurrencySwapViewDefinitionWithSeparateOutputs(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME));
     storeViewDefinition(getMultiCurrencySwapViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME));
     storeViewDefinition(getEquityOptionViewDefinition(DemoEquityOptionCollarPortfolioLoader.PORTFOLIO_NAME, "Equity / Equity Option View"));
     storeViewDefinition(getFXOptionViewDefinition(ExampleVanillaFxOptionPortfolioLoader.PORTFOLIO_NAME, "FX Option View"));
@@ -283,9 +286,9 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     return searchResult.getFirstPortfolio().getUniqueId();
   }
 
-  private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
+  private ViewDefinition getMultiCurrencySwapViewDefinitionWithSeparateOutputs(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View (outputs by ccy)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -296,16 +299,14 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     // The name "Default" has no special meaning, but means that the currency conversion function can never be used and so we get the instrument's natural currency
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
         ValueProperties.with(CurrencyConversionFunction.ORIGINAL_CURRENCY, "Default").withOptional(CurrencyConversionFunction.ORIGINAL_CURRENCY).get());
-    defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
-        ValueProperties.with(CURRENCY, "USD").get());
+    defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CURRENCY, "USD").get());
     for (final Map.Entry<Currency, String> entry : CONFIGS_FOR_CURRENCY.entrySet()) {
       final String ccyName = entry.getKey().getCode();
       final ComputationTargetSpecification ccyTarget = ComputationTargetSpecification.of(entry.getKey());
       final Pair<String, String> curveNames = CURVES_FOR_CURRENCY.get(entry.getKey());
       final String discountingCurve = curveNames.getFirst();
       final String forwardCurve = curveNames.getSecond();
-      defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-          ValueProperties.with(CURVE, discountingCurve).with(CURVE_CURRENCY, ccyName)
+      defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01, ValueProperties.with(CURVE, discountingCurve).with(CURVE_CURRENCY, ccyName)
               .with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
           ValueProperties.with(CURVE, discountingCurve).with(CURVE_CURRENCY, ccyName)
@@ -327,6 +328,53 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     return viewDefinition;
   }
 
+  private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration defaultCalcConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    defaultCalcConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, PAR_RATE);
+    // The name "Default" has no special meaning, but means that the currency conversion function can never be used and so we get the instrument's natural currency
+    defaultCalcConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
+        ValueProperties.with(CurrencyConversionFunction.ORIGINAL_CURRENCY, "Default").withOptional(CurrencyConversionFunction.ORIGINAL_CURRENCY).get());
+    defaultCalcConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CURRENCY, "USD").get());
+    MergedOutput discountingPV01Output = new MergedOutput("Discounting PV01", MergedOutputAggregationType.LINEAR);
+    MergedOutput discountingYCNSOutput = new MergedOutput("Discounting Bucketed PV01", MergedOutputAggregationType.LINEAR);
+    MergedOutput forwardPV01Output = new MergedOutput("Forward PV01", MergedOutputAggregationType.LINEAR);
+    MergedOutput forwardYCNSOutput = new MergedOutput("Forward Bucketed PV01", MergedOutputAggregationType.LINEAR);
+    for (final Map.Entry<Currency, String> entry : CONFIGS_FOR_CURRENCY.entrySet()) {
+      final String ccyName = entry.getKey().getCode();
+      final ComputationTargetSpecification ccyTarget = ComputationTargetSpecification.of(entry.getKey());
+      final Pair<String, String> curveNames = CURVES_FOR_CURRENCY.get(entry.getKey());
+      final String discountingCurve = curveNames.getFirst();
+      final String forwardCurve = curveNames.getSecond();
+      discountingPV01Output.addMergedRequirement(PV01, ValueProperties.with(CURVE, discountingCurve).with(CURVE_CURRENCY, ccyName)
+          .with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+      discountingYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, discountingCurve)
+          .with(CURVE_CURRENCY, ccyName).with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+      forwardPV01Output.addMergedRequirement(PV01, ValueProperties.with(CURVE, forwardCurve).with(CURVE_CURRENCY, ccyName)
+          .with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+      forwardYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, forwardCurve).with(CURVE_CURRENCY, ccyName)
+          .with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get());
+      defaultCalcConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ccyTarget,
+          ValueProperties.with(CURVE, discountingCurve).with(CURVE_CALCULATION_CONFIG, entry.getValue())
+              .with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get()));
+      defaultCalcConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ccyTarget,
+          ValueProperties.with(CURVE, forwardCurve).with(CURVE_CALCULATION_CONFIG, entry.getValue())
+              .with(ValuePropertyNames.AGGREGATION, MISSING_INPUTS).withOptional(ValuePropertyNames.AGGREGATION).get()));
+    }
+    defaultCalcConfig.addMergedOutput(discountingPV01Output);
+    defaultCalcConfig.addMergedOutput(discountingYCNSOutput);
+    defaultCalcConfig.addMergedOutput(forwardPV01Output);
+    defaultCalcConfig.addMergedOutput(forwardYCNSOutput);
+    viewDefinition.addViewCalculationConfiguration(defaultCalcConfig);
+    return viewDefinition;
+  }
+  
   private ViewDefinition getFXOptionViewDefinition(final String portfolioName, final String viewName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition(viewName, portfolioId, UserPrincipal.getTestUser());
