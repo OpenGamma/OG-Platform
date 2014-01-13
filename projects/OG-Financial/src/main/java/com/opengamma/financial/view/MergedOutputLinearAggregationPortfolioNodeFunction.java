@@ -137,4 +137,9 @@ public class MergedOutputLinearAggregationPortfolioNodeFunction extends Abstract
     return SumUtils.addValue(previousSum, currentValue, requirementDisplayName);
   }
 
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+  
 }
