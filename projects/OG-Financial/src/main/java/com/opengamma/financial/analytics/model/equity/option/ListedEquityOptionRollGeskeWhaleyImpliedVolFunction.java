@@ -11,7 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.analytics.financial.equity.EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptRollGeskeWhaleyImpliedVolatilityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -33,7 +33,7 @@ public class ListedEquityOptionRollGeskeWhaleyImpliedVolFunction extends ListedE
   /**
    * Implied volatility calculator
    */
-  private static final EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator s_volCalculator =  EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator.getInstance();
+  private static final EqyOptRollGeskeWhaleyImpliedVolatilityCalculator s_volCalculator =  EqyOptRollGeskeWhaleyImpliedVolatilityCalculator.getInstance();
   
   /** Default constructor */
   public ListedEquityOptionRollGeskeWhaleyImpliedVolFunction() {

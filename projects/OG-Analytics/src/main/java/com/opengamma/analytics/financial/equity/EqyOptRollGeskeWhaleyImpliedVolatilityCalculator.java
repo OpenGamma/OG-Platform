@@ -25,10 +25,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates implied volatility for American options using Roll-Geske-Whaley model
  */
-public final class EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class EqyOptRollGeskeWhaleyImpliedVolatilityCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
 
   /** Static instance */
-  private static final EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator s_instance = new EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator();
+  private static final EqyOptRollGeskeWhaleyImpliedVolatilityCalculator s_instance = new EqyOptRollGeskeWhaleyImpliedVolatilityCalculator();
 
   /**
    * The Black present value calculator
@@ -40,11 +40,11 @@ public final class EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator extend
    * Gets the (singleton) instance of this calculator
    * @return The instance of this calculator
    */
-  public static EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator getInstance() {
+  public static EqyOptRollGeskeWhaleyImpliedVolatilityCalculator getInstance() {
     return s_instance;
   }
 
-  private EquityOptionRollGeskeWhaleyImpliedVolatilityCalculator() {
+  private EqyOptRollGeskeWhaleyImpliedVolatilityCalculator() {
   }
 
   @Override
