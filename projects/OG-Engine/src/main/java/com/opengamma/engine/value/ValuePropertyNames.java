@@ -343,9 +343,14 @@ public final class ValuePropertyNames {
    */
   public static final String SNAP_TIME_LIVE = "Live";
   
-
   /**
    * Value for {@link ValuePropertyNames#SNAP_TIME} when data is to be snapped at time of previous Close
    */
   public static final String SNAP_TIME_CLOSE = "Close";
+  
+  /**
+   * Value for a name.
+   */
+  public static final String NAME = "Name";
+  
 }

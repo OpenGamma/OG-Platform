@@ -92,7 +92,7 @@ public class ResultsFormatter {
                   new VolatilitySurfaceFormatter(),
                   new LabelledMatrix1DFormatter(doubleFormatter),
                   new LocalDateLabelledMatrix1DFormatter(doubleFormatter),
-                  new LabelledMatrix2DFormatter(),
+                  new LabelledMatrix2DFormatter(doubleFormatter),
                   new LabelledMatrix3DFormatter(),
                   new TenorLabelledLocalDateDoubleTimeSeriesMatrix1DFormatter(localDateDoubleTimeSeriesFormatter),
                   new TenorFormatter(),
