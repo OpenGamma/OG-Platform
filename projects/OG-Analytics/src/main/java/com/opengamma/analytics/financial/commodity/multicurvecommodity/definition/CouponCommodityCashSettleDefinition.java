@@ -19,7 +19,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Class describing a Coupon Commodity Cash Settle.
  */
 public class CouponCommodityCashSettleDefinition extends CouponCommodityDefinition {
 
