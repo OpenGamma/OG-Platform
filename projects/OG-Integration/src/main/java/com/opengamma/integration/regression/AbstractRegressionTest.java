@@ -9,7 +9,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
 
-import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
 import com.opengamma.financial.tool.ToolContext;
@@ -44,15 +43,16 @@ public abstract class AbstractRegressionTest {
   }
   
   
-  @BeforeTest
+  @BeforeTest(alwaysRun = true)
   public void initContext() {
     _contextManager.init();
   }
   
-  @AfterTest
+  @BeforeTest(alwaysRun = true)
   public void closeContext() {
     _contextManager.close();
   }
+  
   
   
   /**
