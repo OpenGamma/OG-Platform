@@ -108,6 +108,7 @@ public class LegalEntityFilterTest {
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY_RED_CODE));
     filter = new LegalEntityCreditRatings();
     filter.setPerAgencyRatings(Collections.singleton("Moody's"));
+    //    System.out.println(JodaBeanSer.PRETTY.xmlWriter().write(filter));
     expected = new HashSet<>();
     expected.add(Pairs.of("Moody's", "B"));
     assertEquals(expected, filter.getFilteredData(LEGAL_ENTITY));

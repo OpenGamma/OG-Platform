@@ -33,7 +33,7 @@ import com.opengamma.util.time.DateUtils;
  * Tests related to the pricing of Yield average bond futures (in particular for AUD-SFE futures) with discounting method, i.e. without convexity adjustments.
  */
 public class YieldAverageBondFuturesDiscountingMethodTest {
-  
+
   // Bonds: Delivery basket SFE 10Y
   private static final Currency AUD = Currency.AUD;
   // AUD defaults
@@ -48,18 +48,18 @@ public class YieldAverageBondFuturesDiscountingMethodTest {
   private static final YieldConvention YIELD_CONVENTION = SimpleYieldConvention.AUSTRALIA_EX_DIVIDEND;
   private static final double NOTIONAL_BOND = 100;
   private static final double NOTIONAL_FUTURES = 10000;
-  
+
   private static final ZonedDateTime LAST_TRADING_DATE = DateUtils.getUTCDate(2014, 3, 17);
   //  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 1, 10);
   // ASX 10 Year Bond Contract - March 14
-  private static final double[] UNDERLYING_COUPON = {0.0575, 0.0550, 0.0275, 0.0325};
+  private static final double[] UNDERLYING_COUPON = {0.0575, 0.0550, 0.0275, 0.0325 };
   private static final ZonedDateTime[] UNDERLYING_MATURITY_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2022, 7, 15), DateUtils.getUTCDate(2023, 4, 15),
-    DateUtils.getUTCDate(2024, 4, 15), DateUtils.getUTCDate(2025, 4, 15)};
+    DateUtils.getUTCDate(2024, 4, 15), DateUtils.getUTCDate(2025, 4, 15) };
   private static final int NB_BOND = UNDERLYING_COUPON.length;
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[NB_BOND];
   private static final BondFixedSecurityDefinition[] BASKET_SECURITY_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   static {
-    for(int loopbond=0; loopbond<NB_BOND; loopbond++) {
+    for (int loopbond = 0; loopbond < NB_BOND; loopbond++) {
       START_ACCRUAL_DATE[loopbond] = UNDERLYING_MATURITY_DATE[loopbond].minusYears(12);
       BASKET_SECURITY_DEFINITION[loopbond] = BondFixedSecurityDefinition.from(AUD, START_ACCRUAL_DATE[loopbond], UNDERLYING_MATURITY_DATE[loopbond], PAYMENT_TENOR,
           UNDERLYING_COUPON[loopbond], SETTLEMENT_DAYS, NOTIONAL_BOND, EX_DIVIDEND_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, YIELD_CONVENTION, IS_EOM, ISSUER_LEGAL_ENTITY, "Repo");
@@ -67,20 +67,20 @@ public class YieldAverageBondFuturesDiscountingMethodTest {
   }
   private static final double SYNTHETIC_COUPON = 0.06;
   private static final int TENOR = 10;
-  
-  private static final YieldAverageBondFuturesSecurityDefinition FUT_SEC_DEFINITION = new YieldAverageBondFuturesSecurityDefinition(LAST_TRADING_DATE, 
+
+  private static final YieldAverageBondFuturesSecurityDefinition FUT_SEC_DEFINITION = new YieldAverageBondFuturesSecurityDefinition(LAST_TRADING_DATE,
       BASKET_SECURITY_DEFINITION, SYNTHETIC_COUPON, TENOR, NOTIONAL_FUTURES);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2014, 1, 10);
   private static final YieldAverageBondFuturesSecurity FUT_SEC = FUT_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
-  
+
   private static final IssuerProviderInterface ISSUER_MULTICURVE = IssuerProviderDiscountDataSets.getIssuerSpecificProviderAus();
-  private static final YieldAverageBondFuturesSecurityDiscountingMethod METHOD_AYBF_SEC = YieldAverageBondFuturesSecurityDiscountingMethod.getInstance();
+  private static final FuturesSecurityIssuerMethod METHOD_FUTI_SEC = FuturesSecurityIssuerMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
-  
+
   private static final double TOLERANCE_INDEX = 1.0E-5;
   private static final double TOLERANCE_PRICE = 1.0E-8;
-  
+
   @Test
   /**
    * Tests the margin index (i.e. the figure used to compute the margin on one futures) from the quoted price.
@@ -90,24 +90,25 @@ public class YieldAverageBondFuturesDiscountingMethodTest {
     final double yield = 1.0d - quotedPrice;
     final double theoreticalPriceFromYield = dirtyPriceFromYield(yield, FUT_SEC.getCouponRate(), FUT_SEC.getTenor(), FUT_SEC.getNumberCouponPerYear());
     final double marginIndexExpected = theoreticalPriceFromYield * FUT_SEC.getNotional();
-    final double marginIndexComputed = METHOD_AYBF_SEC.marginIndex(FUT_SEC, quotedPrice);
+    final double marginIndexComputed = METHOD_FUTI_SEC.marginIndex(FUT_SEC, quotedPrice);
     assertEquals("YieldAverageBondFuturesDiscountingMethod: margin index", marginIndexExpected, marginIndexComputed, TOLERANCE_INDEX);
   }
-  
+
   @Test
   /**
    * Tests the bond futures price from average yield from curves.
    */
   public void price() {
-    final double priceComputed = METHOD_AYBF_SEC.price(FUT_SEC, ISSUER_MULTICURVE);
+    final double priceComputed = METHOD_FUTI_SEC.price(FUT_SEC, ISSUER_MULTICURVE);
     final double[] yieldsAtDelivery = new double[NB_BOND];
     double yieldAverage = 0.0;
-    for (int loopbond=0; loopbond<NB_BOND; loopbond++) {
+    for (int loopbond = 0; loopbond < NB_BOND; loopbond++) {
       yieldsAtDelivery[loopbond] = METHOD_BOND.yieldFromCurves(FUT_SEC.getDeliveryBasketAtDeliveryDate()[loopbond], ISSUER_MULTICURVE);
       yieldAverage += yieldsAtDelivery[loopbond];
     }
     yieldAverage /= NB_BOND;
-    final double priceExpected = 1.0d - yieldAverage;;
+    final double priceExpected = 1.0d - yieldAverage;
+    ;
     assertEquals("YieldAverageBondFuturesDiscountingMethod: price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 
@@ -130,5 +131,5 @@ public class YieldAverageBondFuturesDiscountingMethodTest {
     price += 1.0d / Math.pow(v, n);
     return price;
   }
-  
+
 }
