@@ -32,7 +32,7 @@ import com.opengamma.id.UniqueIdentifiable;
  * Holds the range of X for a future price curve (to be used with volatility surfaces).
  * @param <X> Type of the x-data
  */
-@Config(description = "Future price curve definition", group = ConfigGroups.VOL)
+@Config(description = "Future price curve definition", group = ConfigGroups.MISC)
 @BeanDefinition
 public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
 

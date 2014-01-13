@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-@Config(description = "Future price curve specification", group = ConfigGroups.VOL)
+@Config(description = "Future price curve specification", group = ConfigGroups.MISC)
 public class FuturePriceCurveSpecification {
   private final String _name;
   private final UniqueIdentifiable _target;
