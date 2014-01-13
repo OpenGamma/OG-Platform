@@ -141,7 +141,7 @@ import com.opengamma.util.time.Expiry;
           templateData.put("settlementExchange", security.getSettlementExchange());
         }
         if (security.getCurrency() != null && StringUtils.isNotBlank(security.getCurrency().getCode())) {
-          templateData.put("redemptionValue", security.getCurrency().getCode());
+          templateData.put("currency", security.getCurrency().getCode());
         }
         List<BondFutureDeliverable> basket = security.getBasket();
         if (!basket.isEmpty()) {
