@@ -20,7 +20,11 @@ import com.opengamma.util.ArgumentChecker;
 public class PortfolioSwapAdjustment {
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder();
 
-  private AnalyticCDSPricer _pricer;
+  private final AnalyticCDSPricer _pricer;
+
+  public PortfolioSwapAdjustment() {
+    _pricer = new AnalyticCDSPricer();
+  }
 
   /**
    * Price an index from the credit curves of the individual single names. Only undefaulted names should be passed in. This is based on a notional of 1. The get the
@@ -48,8 +52,8 @@ public class PortfolioSwapAdjustment {
     double protLeg = 0;
     double rpv01 = 0;
     for (int i = 0; i < n; i++) {
-      protLeg += (1 - recoveryRates[i]) * _pricer.protectionLeg(cds, yieldCurve, creditCurves[i]);
-      rpv01 += _pricer.annuity(cds, yieldCurve, creditCurves[i], PriceType.DIRTY);
+      protLeg += (1 - recoveryRates[i]) * _pricer.protectionLeg(cds, yieldCurve, creditCurves[i], 0);
+      rpv01 += _pricer.annuity(cds, yieldCurve, creditCurves[i], PriceType.DIRTY, 0);
     }
     double pv = (protLeg - indexCoupon * rpv01) / indexSize;
 

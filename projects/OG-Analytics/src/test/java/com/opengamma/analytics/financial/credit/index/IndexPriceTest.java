@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.index;
 
+import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getPrevIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -22,7 +23,6 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDABaseTest;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.CreditCurveCalibrator;
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.GaussHermiteQuadratureIntegrator1D;
@@ -158,17 +158,28 @@ public class IndexPriceTest extends ISDABaseTest {
 
   @Test
   public void fwdCDSTest() {
-    final LocalDate fwdDate = LocalDate.of(2014, 6, 19);
+    final double coupon = 0.01;
+    final LocalDate fwdStartDate = LocalDate.of(2014, 6, 21);
+    final LocalDate fwdAccStart = FOLLOWING.adjustDate(DEFAULT_CALENDAR, getPrevIMMDate(fwdStartDate));
     final LocalDate maturity = LocalDate.of(2019, 6, 20);
-    final CDSAnalytic fwdCDS = FACTORY.makeCDS(TRADE_DATE, fwdDate, TRADE_DATE, fwdDate, maturity);
+    final CDSAnalytic fwdCDS = FACTORY.makeCDS(TRADE_DATE, fwdStartDate, TRADE_DATE, fwdAccStart, maturity);
     System.out.println(fwdCDS.getAccuredDays());
-    final double fwdSpread = PRICER.parSpread(fwdCDS, YIELD_CURVE, CREDIT_CURVE);
+
+    final double fwdProt = PRICER.protectionLeg(fwdCDS, YIELD_CURVE, CREDIT_CURVE, 0.0);
+    final double fwdAnnD = PRICER.annuity(fwdCDS, YIELD_CURVE, CREDIT_CURVE, PriceType.DIRTY, 0.0);
+    final double fwdPVc = PRICER.pv(fwdCDS, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.CLEAN, 0.0);
+    final double fwdPVd = PRICER.pv(fwdCDS, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.DIRTY, 0.0);
 
     final CDSAnalytic cds1 = FACTORY.makeIMMCDS(TRADE_DATE, Period.ofMonths(6));
     final CDSAnalytic cds2 = FACTORY.makeIMMCDS(TRADE_DATE, Period.of(5, 6, 0));
-    final double fwdSpread2 = (PRICER.protectionLeg(cds2, YIELD_CURVE, CREDIT_CURVE) - PRICER.protectionLeg(cds1, YIELD_CURVE, CREDIT_CURVE)) /
-        (PRICER.annuity(cds2, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN) - PRICER.annuity(cds1, YIELD_CURVE, CREDIT_CURVE, PriceType.CLEAN));
-    System.out.println("fwd spread: " + fwdSpread + "\t" + fwdSpread2);
+    final double fwdProtImp = PRICER.protectionLeg(cds2, YIELD_CURVE, CREDIT_CURVE, 0.0) - PRICER.protectionLeg(cds1, YIELD_CURVE, CREDIT_CURVE, 0.0);
+    final double fwdAnnDImp = PRICER.annuity(cds2, YIELD_CURVE, CREDIT_CURVE, PriceType.DIRTY, 0.0) - PRICER.annuity(cds1, YIELD_CURVE, CREDIT_CURVE, PriceType.DIRTY, 0.0);
+    final double fwdPVcImp = PRICER.pv(cds2, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.CLEAN, 0.0) - PRICER.pv(cds1, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.CLEAN, 0.0);
+    final double fwdPVdImp = PRICER.pv(cds2, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.DIRTY, 0.0) - PRICER.pv(cds1, YIELD_CURVE, CREDIT_CURVE, coupon, PriceType.DIRTY, 0.0);
+    System.out.println("clean v dirty: " + fwdPVcImp + "\t" + fwdPVdImp);
+    System.out.println("clean v dirty: " + fwdPVc + "\t" + fwdPVd);
+    System.out.println("protection leg: " + fwdProt + "\t" + fwdProtImp);
+    System.out.println("annuity: " + fwdAnnD + "\t" + fwdAnnDImp);
   }
 
   @Test
@@ -307,69 +318,69 @@ public class IndexPriceTest extends ISDABaseTest {
     };
   }
 
-  public Function1D<Double, Double> getConstHazardRateFunction(final CDSAnalytic[] cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve[] creditCurve,
-      final double indexPUF) {
+  //  public Function1D<Double, Double> getConstHazardRateFunction(final CDSAnalytic[] cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve[] creditCurve,
+  //      final double indexPUF) {
+  //
+  //    return new Function1D<Double, Double>() {
+  //      @Override
+  //      public Double evaluate(final Double x) {
+  //        final ISDACompliantCreditCurve[] adjCurves = bumpCurves(creditCurve, x);
+  //        return indexPV(cds, yieldCurve, adjCurves, coupon) - indexPUF;
+  //      }
+  //    };
+  //  }
 
-    return new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double x) {
-        final ISDACompliantCreditCurve[] adjCurves = bumpCurves(creditCurve, x);
-        return indexPV(cds, yieldCurve, adjCurves, coupon) - indexPUF;
-      }
-    };
-  }
+  //  private ISDACompliantCreditCurve[] bumpCurves(final ISDACompliantCreditCurve[] creditCurve, final double amount) {
+  //    final int nKnots = creditCurve[0].getNumberOfKnots();
+  //    final int nCurves = creditCurve.length;
+  //    final double[] t = creditCurve[0].getKnotTimes();
+  //    final ISDACompliantCreditCurve[] adjCurves = new ISDACompliantCreditCurve[nCurves];
+  //    for (int jj = 0; jj < nCurves; jj++) {
+  //      final double[] rt = creditCurve[jj].getRt();
+  //      final double[] rtAdj = new double[nKnots];
+  //      for (int i = 0; i < nKnots; i++) {
+  //        rtAdj[i] = rt[i] * amount;
+  //      }
+  //      adjCurves[jj] = ISDACompliantCreditCurve.makeFromRT(t, rtAdj);
+  //    }
+  //    return adjCurves;
+  //  }
 
-  private ISDACompliantCreditCurve[] bumpCurves(final ISDACompliantCreditCurve[] creditCurve, final double amount) {
-    final int nKnots = creditCurve[0].getNumberOfKnots();
-    final int nCurves = creditCurve.length;
-    final double[] t = creditCurve[0].getKnotTimes();
-    final ISDACompliantCreditCurve[] adjCurves = new ISDACompliantCreditCurve[nCurves];
-    for (int jj = 0; jj < nCurves; jj++) {
-      final double[] rt = creditCurve[jj].getRt();
-      final double[] rtAdj = new double[nKnots];
-      for (int i = 0; i < nKnots; i++) {
-        rtAdj[i] = rt[i] * amount;
-      }
-      adjCurves[jj] = ISDACompliantCreditCurve.makeFromRT(t, rtAdj);
-    }
-    return adjCurves;
-  }
+  //  private Function1D<Double, Double> getPayoffFunc(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final double coupon, final double strike) {
+  //    final Function1D<Double, Double> rpv01Func = getRPV01ForSpreadFunction(cds, yieldCurve);
+  //    final double exicisePrice = (strike - coupon) * rpv01Func.evaluate(strike);
+  //    final Function1D<Double, Double> hFunc = getHFunc(cds, yieldCurve, coupon);
+  //    return new Function1D<Double, Double>() {
+  //
+  //      @Override
+  //      public Double evaluate(final Double spread) {
+  //        return Math.max(0, hFunc.evaluate(spread) - exicisePrice);
+  //      }
+  //    };
+  //
+  //  }
 
-  private Function1D<Double, Double> getPayoffFunc(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final double coupon, final double strike) {
-    final Function1D<Double, Double> rpv01Func = getRPV01ForSpreadFunction(cds, yieldCurve);
-    final double exicisePrice = (strike - coupon) * rpv01Func.evaluate(strike);
-    final Function1D<Double, Double> hFunc = getHFunc(cds, yieldCurve, coupon);
-    return new Function1D<Double, Double>() {
+  //  private Function1D<Double, Double> getHFunc(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final double coupon) {
+  //    final Function1D<Double, Double> rpv01Func = getRPV01ForSpreadFunction(cds, yieldCurve);
+  //    return new Function1D<Double, Double>() {
+  //      @Override
+  //      public Double evaluate(final Double spread) {
+  //        return (spread - coupon) * rpv01Func.evaluate(spread);
+  //      }
+  //    };
+  //  }
 
-      @Override
-      public Double evaluate(final Double spread) {
-        return Math.max(0, hFunc.evaluate(spread) - exicisePrice);
-      }
-    };
-
-  }
-
-  private Function1D<Double, Double> getHFunc(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final double coupon) {
-    final Function1D<Double, Double> rpv01Func = getRPV01ForSpreadFunction(cds, yieldCurve);
-    return new Function1D<Double, Double>() {
-      @Override
-      public Double evaluate(final Double spread) {
-        return (spread - coupon) * rpv01Func.evaluate(spread);
-      }
-    };
-  }
-
-  private Function1D<Double, Double> getRPV01ForSpreadFunction(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve) {
-    final CreditCurveCalibrator calibrator = new CreditCurveCalibrator(new CDSAnalytic[] {cds }, yieldCurve);
-    return new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double spread) {
-        final ISDACompliantCreditCurve cc = calibrator.calibrate(new double[] {spread });
-        return PRICER.annuity(cds, yieldCurve, cc, PriceType.CLEAN);
-      }
-    };
-
-  }
+  //  private Function1D<Double, Double> getRPV01ForSpreadFunction(final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve) {
+  //    final CreditCurveCalibrator calibrator = new CreditCurveCalibrator(new CDSAnalytic[] {cds }, yieldCurve);
+  //    return new Function1D<Double, Double>() {
+  //
+  //      @Override
+  //      public Double evaluate(final Double spread) {
+  //        final ISDACompliantCreditCurve cc = calibrator.calibrate(new double[] {spread });
+  //        return PRICER.annuity(cds, yieldCurve, cc, PriceType.CLEAN);
+  //      }
+  //    };
+  //
+  //  }
 
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
-import static com.opengamma.analytics.financial.credit.isdastandardmodel.DoublesScheduleGenerator.truncateSetInclusive;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic.getNextIMMDate;
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
@@ -19,7 +18,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.CreditCurveCalibrator;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
@@ -27,7 +25,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
-import com.opengamma.analytics.math.utilities.Epsilon;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.test.TestGroup;
 
@@ -542,38 +539,24 @@ public class CDSPaperExamples extends ISDABaseTest {
   public void annuityTest() {
     final LocalDate mat = getNextIMMDate(TRADE_DATE).plus(Period.ofYears(10));
     final CDSAnalytic cds = CDS_FACTORY.makeIMMCDS(TRADE_DATE, Period.ofYears(10));
-    final CreditCurveCalibrator calibrator = new CreditCurveCalibrator(new CDSAnalytic[] {cds }, YIELD_CURVE);
     final double expiry = ACT365F.getDayCountFraction(TRADE_DATE, mat);
     final double adj = 365. / 360.;
+    final AnnuityForSpreadFunction isdaFunc = new AnnuityForSpreadISDAFunction(cds, YIELD_CURVE);
+    final AnnuityForSpreadFunction approxFunc = new AnnuityForSpreadApproxFunction(cds, YIELD_CURVE);
+
     for (int i = 0; i < 100; i++) {
       final double s = (1 + 25 * i) * ONE_BP;
-      final ISDACompliantCreditCurve cc = calibrator.calibrate(new double[] {s });
-      final double a = PRICER.annuity(cds, YIELD_CURVE, cc, PriceType.CLEAN);
+      final double a = isdaFunc.evaluate(s);
+      final double a2 = approxFunc.evaluate(s);
+
       final double lambda = adj * s / (1 - RECOVERY_RATE);
-      final double a2 = adj * annuity(YIELD_CURVE, lambda, expiry);
       final double a3 = adj * annuity(0.01, lambda, expiry);
       System.out.println(s * TEN_THOUSAND + "\t" + a + "\t" + a2);
     }
 
   }
 
-  private double annuity(final ISDACompliantYieldCurve yieldCurve, final double hazardRate, final double expiry) {
-    final double[] knots = truncateSetInclusive(0, expiry, yieldCurve.getKnotTimes());
-    final int n = knots.length;
-    double rt0 = 0;
-    double sum = 0;
-    for (int i = 1; i < n; i++) {
-      final double rt1 = yieldCurve.getRT(knots[i]);
-      final double dt = knots[i] - knots[i - 1];
-      final double theta = rt1 - rt0 + hazardRate * dt;
-      sum += dt * Math.exp(-rt0 - hazardRate * knots[i - 1]) * Epsilon.epsilon(-theta);
-      rt0 = rt1;
-    }
-    return sum;
-  }
-
   private double annuity(final double r, final double hazardRate, final double expiry) {
-
     return (1 - Math.exp(-expiry * (r + hazardRate))) / (r + hazardRate);
   }
 
