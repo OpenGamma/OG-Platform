@@ -104,7 +104,7 @@ public class BundleErrorReportInfoTest {
       final AtomicInteger count = new AtomicInteger();
       final BundleErrorReportInfo beri = new BundleErrorReportInfo(new GUIFeedback("Test"), new String[] {
           "AttachFiles=" + file.getAbsolutePath() + File.separator + File.separator + "Foo?" + File.separator + "*.log",
-          "AttachFiles=" + file.getAbsolutePath() + File.separator + "test*.log", "AttachFiles=/path/doesnt/exist" }) {
+          "AttachFiles=" + file.getAbsolutePath() + File.separator + "test*.log", "AttachFiles=" + File.separatorChar + "path" + File.separatorChar + "doesnt" + File.separatorChar + "exist" }) {
 
         @Override
         protected String openReportOutput() {
@@ -117,23 +117,23 @@ public class BundleErrorReportInfoTest {
         protected void attachFile(final File source, final String name) {
           switch (count.incrementAndGet()) {
             case 1:
-              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), "/Foo1/test.log");
+              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), File.separatorChar + "Foo1" + File.separatorChar + "test.log");
               assertEquals(name, "1-test.log");
               break;
             case 2:
-              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), "/Foo2/test.log");
+              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), File.separatorChar + "Foo2" + File.separatorChar + "test.log");
               assertEquals(name, "2-test.log");
               break;
             case 3:
-              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), "/test.log");
+              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), File.separatorChar + "test.log");
               assertEquals(name, "3-test.log");
               break;
             case 4:
-              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), "/testA.log");
+              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), File.separatorChar + "testA.log");
               assertEquals(name, "4-testA.log");
               break;
             case 5:
-              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), "/testXY.log");
+              assertEquals(source.getAbsolutePath().substring(file.getAbsolutePath().length()), File.separatorChar + "testXY.log");
               assertEquals(name, "5-testXY.log");
               break;
           }
@@ -150,7 +150,9 @@ public class BundleErrorReportInfoTest {
 
   public void testInvalidArgs() {
     assertEquals(BundleErrorReportInfo.mainImpl(new String[0]), 1);
-    assertEquals(BundleErrorReportInfo.mainImpl(new String[] {"/this/path/does/not/exist" }), 1);
+    assertEquals(
+        BundleErrorReportInfo.mainImpl(new String[] {File.separatorChar + "this" + File.separatorChar + "path" + File.separatorChar + "does" + File.separatorChar + "not" + File.separatorChar +
+            "exist" }), 1);
   }
 
 }
