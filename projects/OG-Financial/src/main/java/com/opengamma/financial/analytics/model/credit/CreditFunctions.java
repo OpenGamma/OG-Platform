@@ -44,7 +44,6 @@ import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNa
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedGammaCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameBucketedIR01Function;
-import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameJumpToDefaultFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParSpreadFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelCS01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelGammaCS01Function;
@@ -436,7 +435,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACDXAsSingleNameParallelIR01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameBucketedIR01Function.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameRR01Function.class));
-    functions.add(functionConfiguration(ISDACDXAsSingleNameJumpToDefaultFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNamePresentValueFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameAccruedCDSFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameParSpreadFunction.class));
