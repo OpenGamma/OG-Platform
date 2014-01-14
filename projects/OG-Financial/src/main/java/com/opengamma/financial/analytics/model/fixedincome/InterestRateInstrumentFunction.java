@@ -37,6 +37,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.CashFlowSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -66,17 +67,25 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base function for pricing interest-rate instruments without optionality.
- * 
+ *
  * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
 @Deprecated
 public abstract class InterestRateInstrumentFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentFunction.class);
+  /** Converts instrument definitions to instrument derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
+  /** The value requirement produced by this function */
   private final String _valueRequirementName;
+  /** Converts securities to instrument definitions */
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _visitor;
+  /** A source for curve calculation configurations */
   private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
+  /**
+   * @param valueRequirementName The value requirement produced by this function, not null
+   */
   public InterestRateInstrumentFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
@@ -89,10 +98,15 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
+    final CashFlowSecurityConverter cashFlowConverter = new CashFlowSecurityConverter();
     final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+        .cashSecurityVisitor(cashConverter)
+        .cashFlowSecurityVisitor(cashFlowConverter)
+        .fraSecurityVisitor(fraConverter)
+        .swapSecurityVisitor(swapConverter)
         .interestRateFutureSecurityVisitor(irFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     _curveCalculationConfigSource = ConfigDBCurveCalculationConfigSource.init(context, this);
