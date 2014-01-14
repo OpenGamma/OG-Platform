@@ -217,8 +217,13 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       final Security security = target.getTrade().getSecurity();
-      return security instanceof CashSecurity || security instanceof FRASecurity || security instanceof SwapSecurity || security instanceof FXForwardSecurity ||
-          security instanceof NonDeliverableFXForwardSecurity || security instanceof InterestRateFutureSecurity;
+      return security instanceof CashSecurity ||
+          security instanceof CashFlowSecurity ||
+          security instanceof FRASecurity ||
+          security instanceof SwapSecurity ||
+          security instanceof FXForwardSecurity ||
+          security instanceof NonDeliverableFXForwardSecurity ||
+          security instanceof InterestRateFutureSecurity;
     }
 
     @SuppressWarnings("synthetic-access")

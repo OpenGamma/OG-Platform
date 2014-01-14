@@ -56,7 +56,7 @@ public class CashFlowSecurity extends FinancialSecurity {
   /**
    * For the builder.
    */
-  CashFlowSecurity() {
+  /* package */ CashFlowSecurity() {
     super(SECURITY_TYPE);
   }
 
