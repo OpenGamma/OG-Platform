@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.provider.calculator.singlevalue;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
 
 /**
@@ -42,11 +43,6 @@ public final class FuturesMarginIndexFromPriceCalculator extends InstrumentDeriv
     return dirtyPrice * futures.getNotional();
   }
 
-  @Override
-  public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final Double quotedPrice) {
-    return quotedPrice * futures.getNotional();
-  }
-
   /**
    * The dirty price from the standard yield.
    * @param yield The yield
@@ -60,6 +56,16 @@ public final class FuturesMarginIndexFromPriceCalculator extends InstrumentDeriv
     final int n = tenor * couponPerYear;
     final double vn = Math.pow(v, -n);
     return coupon / yield * (1 - vn) + vn;
+  }
+
+  @Override
+  public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final Double quotedPrice) {
+    return quotedPrice * futures.getNotional();
+  }
+
+  @Override
+  public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final Double quotedPrice) {
+    return quotedPrice * futures.getNotional();
   }
 
 }

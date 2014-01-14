@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Abstract class for generic futures transactions.
@@ -28,7 +29,7 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
    * The reference price. It is the transaction price on the transaction date and the last close price afterward.
    */
   private final double _referencePrice;
-  
+
   /**
    * Constructor.
    * @param underlyingFuture The underlying futures security.
@@ -67,6 +68,14 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
     return _referencePrice;
   }
 
+  /**
+   * Returns the futures currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _underlyingFuture.getCurrency();
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -102,9 +111,5 @@ public abstract class FuturesTransaction<F extends FuturesSecurity> implements I
     }
     return true;
   }
-  
-  
-  
-  
 
 }

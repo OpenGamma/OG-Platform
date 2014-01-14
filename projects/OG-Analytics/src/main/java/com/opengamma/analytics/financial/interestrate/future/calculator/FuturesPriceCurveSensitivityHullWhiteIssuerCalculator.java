@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.hullwhite;
+package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import java.util.ArrayList;
 import java.util.HashMap;

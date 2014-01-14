@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.issuer;
+package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import org.apache.commons.math.stat.descriptive.moment.Mean;
 import org.apache.commons.math.stat.descriptive.rank.Min;

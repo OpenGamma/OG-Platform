@@ -461,13 +461,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
 
-  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesPriceDeliverableSecurity futures, DATA_TYPE data);
+  RESULT_TYPE visitSwapFuturesPriceDeliverableSecurity(SwapFuturesPriceDeliverableSecurity futures, DATA_TYPE data);
 
-  RESULT_TYPE visitSwapFuturesDeliverableSecurity(SwapFuturesPriceDeliverableSecurity futures);
+  RESULT_TYPE visitSwapFuturesPriceDeliverableSecurity(SwapFuturesPriceDeliverableSecurity futures);
 
-  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures, DATA_TYPE data);
+  RESULT_TYPE visitSwapFuturesPriceDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures, DATA_TYPE data);
 
-  RESULT_TYPE visitSwapFuturesDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures);
+  RESULT_TYPE visitSwapFuturesPriceDeliverableTransaction(SwapFuturesPriceDeliverableTransaction futures);
 
   // -----     Futures options   -----
 

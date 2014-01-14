@@ -5,11 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceADHullWhiteIssuerCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceCurveSensitivityHullWhiteIssuerCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.FuturesPriceADHullWhiteIssuerCalculator;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.FuturesPriceCurveSensitivityHullWhiteIssuerCalculator;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.FuturesPriceHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.tuple.Pair;

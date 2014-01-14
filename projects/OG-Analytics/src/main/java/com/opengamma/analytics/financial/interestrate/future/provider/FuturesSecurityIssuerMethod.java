@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceCurveSensitivityIssuerCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceIssuerCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
-import com.opengamma.analytics.financial.provider.calculator.issuer.FuturesPriceCurveSensitivityIssuerCalculator;
-import com.opengamma.analytics.financial.provider.calculator.issuer.FuturesPriceIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 

@@ -121,8 +121,8 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future) {
-    return visitSwap(future.getUnderlying().getUnderlyingSwap());
+  public Double visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction future) {
+    return visitSwap(future.getUnderlyingFuture().getUnderlyingSwap());
   }
 
   @Override

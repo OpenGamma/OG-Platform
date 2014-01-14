@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -17,12 +16,8 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class SwapFuturesPriceDeliverableSecurity implements InstrumentDerivative {
+public class SwapFuturesPriceDeliverableSecurity extends FuturesSecurity {
 
-  /**
-   * The futures last trading time. The date for which the delivery date is the spot date.
-   */
-  private final double _lastTradingTime;
   /**
    * The delivery time. Usually the third Wednesday of the month is the spot date.
    */
@@ -44,19 +39,11 @@ public class SwapFuturesPriceDeliverableSecurity implements InstrumentDerivative
    * @param notional The notional of the future (also called face value or contract value).
    */
   public SwapFuturesPriceDeliverableSecurity(final double lastTradingTime, final double deliveryTime, final SwapFixedCoupon<? extends Coupon> underlyingSwap, final double notional) {
+    super(lastTradingTime);
     ArgumentChecker.notNull(underlyingSwap, "Underlying swap");
-    _lastTradingTime = lastTradingTime;
     _deliveryTime = deliveryTime;
     _underlyingSwap = underlyingSwap;
     _notional = notional;
-  }
-
-  /**
-   * Gets the futures last trading time.
-   * @return The time.
-   */
-  public double getLastTradingTime() {
-    return _lastTradingTime;
   }
 
   /**
@@ -87,6 +74,7 @@ public class SwapFuturesPriceDeliverableSecurity implements InstrumentDerivative
    * Gets the futures currency.
    * @return The currency.
    */
+  @Override
   public Currency getCurrency() {
     return _underlyingSwap.getFirstLeg().getCurrency();
   }
@@ -94,23 +82,21 @@ public class SwapFuturesPriceDeliverableSecurity implements InstrumentDerivative
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitSwapFuturesDeliverableSecurity(this, data);
+    return visitor.visitSwapFuturesPriceDeliverableSecurity(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitSwapFuturesDeliverableSecurity(this);
+    return visitor.visitSwapFuturesPriceDeliverableSecurity(this);
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_deliveryTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_lastTradingTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -119,21 +105,18 @@ public class SwapFuturesPriceDeliverableSecurity implements InstrumentDerivative
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
+    if (!super.equals(obj)) {
       return false;
     }
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SwapFuturesPriceDeliverableSecurity other = (SwapFuturesPriceDeliverableSecurity) obj;
+    SwapFuturesPriceDeliverableSecurity other = (SwapFuturesPriceDeliverableSecurity) obj;
     if (Double.doubleToLongBits(_deliveryTime) != Double.doubleToLongBits(other._deliveryTime)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_lastTradingTime) != Double.doubleToLongBits(other._lastTradingTime)) {
       return false;
     }
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {

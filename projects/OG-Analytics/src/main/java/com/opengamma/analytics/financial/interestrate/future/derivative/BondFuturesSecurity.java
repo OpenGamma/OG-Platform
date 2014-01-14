@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of a bond future security (derivative version).
  */
-public class BondFuturesSecurity extends FuturesSecurity { // implements InstrumentDerivative {
+public class BondFuturesSecurity extends FuturesSecurity {
 
   /**
    * The last trading time.

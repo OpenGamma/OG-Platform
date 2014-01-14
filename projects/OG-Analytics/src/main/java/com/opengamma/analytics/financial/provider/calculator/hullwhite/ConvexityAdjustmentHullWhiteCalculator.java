@@ -50,7 +50,7 @@ public class ConvexityAdjustmentHullWhiteCalculator extends InstrumentDerivative
   }
 
   @Override
-  public Double visitSwapFuturesDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAPFUT.convexityAdjustment(futures, hullWhite);
   }
 

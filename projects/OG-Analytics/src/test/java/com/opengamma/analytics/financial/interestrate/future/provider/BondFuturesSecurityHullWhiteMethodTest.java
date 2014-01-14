@@ -13,9 +13,9 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.FuturesPriceHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.MarketQuoteCurveSensitivityHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.MarketQuoteHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteDataSets;
