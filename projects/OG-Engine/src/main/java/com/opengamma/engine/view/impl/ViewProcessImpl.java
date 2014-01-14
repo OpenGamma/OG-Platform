@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.Instant;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -63,6 +64,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final ViewExecutionOptions _executionOptions;
   private final ViewProcessContext _viewProcessContext;
   private final ViewProcessorImpl _viewProcessor;
+
+  private final int _permissionCheckInterval = 30;
+
+  private final AtomicReference<Instant> _lastPermissionCheck = new AtomicReference<>();
 
   /**
    * Manages access to critical regions of the process. Note that the use of {@link Semaphore} rather than, for example, {@link ReentrantLock} allows one thread to acquire the lock and another thread
@@ -374,6 +379,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         logListenerError(listener, e);
       }
     }
+    _lastPermissionCheck.set(Instant.now());
     getExecutionLogModeSource().viewDefinitionCompiled(compiledViewDefinition);
   }
 
@@ -402,11 +408,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   @Override
   public void cycleCompleted(final ViewCycle cycle) {
+
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} completed on view process {}", cycle.getUniqueId(), getUniqueId());
     final ViewComputationResultModel result;
     ViewDeltaResultModel deltaResult = null;
     final ViewResultListener[] listeners;
+    Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider> latest;
     lock();
     try {
       result = cycle.getResultModel();
@@ -417,18 +425,38 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
       }
       listeners = getListenerArray();
+      latest = _latestCompiledViewDefinition.get();
     } finally {
       unlock();
     }
     // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
     // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
     // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    boolean checkPermissions = isPermissionCheckDue();
     for (final ViewResultListener listener : listeners) {
       try {
-        listener.cycleCompleted(result, deltaResult);
+        if (checkPermissions) {
+          s_logger.info("Performing permissions check for data");
+          UserPrincipal user = listener.getUser();
+          MarketDataPermissionProvider permissionProvider = latest.getValue();
+          Set<ValueSpecification> marketDataRequirements = latest.getKey().getMarketDataRequirements();
+          boolean hasPermissions = permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
+
+          if (hasPermissions) {
+            listener.cycleCompleted(result, deltaResult);
+          } else {
+            listener.cycleExecutionFailed(cycle.getExecutionOptions(),
+                                          new Exception("User: " + user + " does not have permission for data in this view"));
+          }
+        } else {
+          listener.cycleCompleted(result, deltaResult);
+        }
       } catch (final Exception e) {
         logListenerError(listener, e);
       }
+    }
+    if (checkPermissions) {
+      _lastPermissionCheck.set(Instant.now());
     }
   }
 
@@ -453,6 +481,11 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         logListenerError(listener, e);
       }
     }
+  }
+
+  private boolean isPermissionCheckDue() {
+    return _permissionCheckInterval > 0 &&
+        Instant.now().isAfter(_lastPermissionCheck.get().plus(_permissionCheckInterval, ChronoUnit.SECONDS));
   }
 
   @Override
@@ -805,5 +838,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // There is no need to slow things down by attempting to join the job.
     setWorker(null);
   }
+
 
 }

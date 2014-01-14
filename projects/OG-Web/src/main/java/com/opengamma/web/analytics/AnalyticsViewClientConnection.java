@@ -249,7 +249,17 @@ import com.opengamma.util.ArgumentChecker;
     @Override
     public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
       s_logger.warn("Compilation of the view definition failed", exception);
-      // the underlying cause is likely more interesting when a view fails to compile
+      viewFailed(exception);
+    }
+
+    @Override
+    public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+      s_logger.warn("Execution of the view failed", exception);
+      viewFailed(exception);
+    }
+
+    private void viewFailed(Exception exception) {
+      // the underlying cause is likely more interesting when a view fails
       Throwable cause = exception.getCause();
       _view.viewCompilationFailed(cause != null ? cause : exception);
     }
