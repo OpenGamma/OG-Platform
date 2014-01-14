@@ -60,6 +60,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
   private ViewResultListenerFactory _batchViewClientFactory;
   private ViewExecutionCache _viewExecutionCache = new InMemoryViewExecutionCache();
+  private int _permissionCheckInterval;
   private boolean _useAutoStartViews;
 
   //-------------------------------------------------------------------------
@@ -187,6 +188,10 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
     _useAutoStartViews = useAutoStartViews;
   }
 
+  public void setPermissionCheckInterval(int permissionCheckInterval) {
+    _permissionCheckInterval = permissionCheckInterval;
+  }
+
   //-------------------------------------------------------------------------
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
@@ -224,6 +229,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getViewResultListenerFactory(),
         getViewProcessWorkerFactory(),
         getViewExecutionCache(),
+        _permissionCheckInterval,
         _useAutoStartViews);
   }
 

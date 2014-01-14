@@ -22,8 +22,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
-import net.sf.ehcache.util.NamedThreadFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -74,6 +72,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import net.sf.ehcache.util.NamedThreadFactory;
 
 /**
  * Default implementation of {@link ViewProcessor}.
@@ -138,12 +138,32 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private boolean _isStarted;
   private boolean _isSuspended;
 
+  /**
+   * Interval (in seconds) at which to check permissions for market data.
+   */
+  private final int _permissionCheckInterval;
+
   public ViewProcessorImpl(final String name, final ConfigSource configSource, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
-      final CompiledFunctionService compiledFunctionService, final FunctionResolver functionResolver, final MarketDataProviderResolver marketDataProviderFactoryResolver,
-      final ViewComputationCacheSource computationCacheSource, final JobDispatcher jobDispatcher, final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
-      final DependencyGraphExecutorFactory dependencyGraphExecutorFactory, final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
-      final ViewPermissionProvider viewPermissionProvider, final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider, final OverrideOperationCompiler overrideOperationCompiler,
-      final ViewResultListenerFactory viewResultListenerFactory, final ViewProcessWorkerFactory workerFactory, final ViewExecutionCache executionCache, final boolean useAutoStartViews) {
+                           final CompiledFunctionService compiledFunctionService, final FunctionResolver functionResolver, final MarketDataProviderResolver marketDataProviderFactoryResolver,
+                           final ViewComputationCacheSource computationCacheSource, final JobDispatcher jobDispatcher, final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
+                           final DependencyGraphExecutorFactory dependencyGraphExecutorFactory, final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
+                           final ViewPermissionProvider viewPermissionProvider, final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider, final OverrideOperationCompiler overrideOperationCompiler,
+                           final ViewResultListenerFactory viewResultListenerFactory, final ViewProcessWorkerFactory workerFactory, final ViewExecutionCache executionCache, final boolean useAutoStartViews) {
+
+    this(name, configSource, namedMarketDataSpecificationRepository, compiledFunctionService,
+         functionResolver, marketDataProviderFactoryResolver, computationCacheSource, jobDispatcher,
+         dependencyGraphBuilderFactory, dependencyGraphExecutorFactory, graphExecutionStatisticsProvider,
+         viewPermissionProvider, viewPortfolioPermissionProvider, overrideOperationCompiler,
+         viewResultListenerFactory, workerFactory, executionCache, 0, useAutoStartViews);
+  }
+
+  public ViewProcessorImpl(final String name, final ConfigSource configSource, final NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
+                           final CompiledFunctionService compiledFunctionService, final FunctionResolver functionResolver, final MarketDataProviderResolver marketDataProviderFactoryResolver,
+                           final ViewComputationCacheSource computationCacheSource, final JobDispatcher jobDispatcher, final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
+                           final DependencyGraphExecutorFactory dependencyGraphExecutorFactory, final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
+                           final ViewPermissionProvider viewPermissionProvider, final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider, final OverrideOperationCompiler overrideOperationCompiler,
+                           final ViewResultListenerFactory viewResultListenerFactory, final ViewProcessWorkerFactory workerFactory, final ViewExecutionCache executionCache,
+                           final int permissionCheckInterval, final boolean useAutoStartViews) {
     _name = name;
     _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -162,6 +182,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewProcessWorkerFactory = workerFactory;
     _executionCache = executionCache;
     _viewAutoStartManager = useAutoStartViews ? new ListeningViewAutoStartManager(configSource) : new NoOpViewAutoStartManager();
+    _permissionCheckInterval = permissionCheckInterval;
   }
 
   //-------------------------------------------------------------------------
@@ -383,7 +404,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final String idValue = generateIdValue(_processIdSource);
       final UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       final ViewProcessContext viewProcessContext = createViewProcessContext(viewProcessId, new VersionedUniqueIdSupplier(CYCLE_SCHEME, idValue));
-      final ViewProcessImpl viewProcess = new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, runPersistently);
+      final ViewProcessImpl viewProcess =
+          new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, _permissionCheckInterval, runPersistently);
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {

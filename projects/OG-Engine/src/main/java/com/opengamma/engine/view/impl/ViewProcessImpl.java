@@ -65,8 +65,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final ViewProcessContext _viewProcessContext;
   private final ViewProcessorImpl _viewProcessor;
 
-  private final int _permissionCheckInterval = 30;
+  /**
+   * Interval (in seconds) at which to check permissions for market
+   * data. Permissions aree checked on view compilation. Then, when
+   * each cycle is run, a check is made to see if a further permission
+   * check should be undertaken. A zero value indicates that no
+   * additional permission checks should be done.
+   */
+  private final int _permissionCheckInterval;
 
+  /**
+   * The time that a market data permission check was last done.
+   */
   private final AtomicReference<Instant> _lastPermissionCheck = new AtomicReference<>();
 
   /**
@@ -101,7 +111,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private volatile Object _description;
 
   /**
-   * Indicates if this view process should be run persistently. If true, then even if all clients detach, the process will be kept running.
+   * Indicates if this view process should be run persistently. If true, then even if all
+   * clients detach, the process will be kept running.
    */
   private final boolean _isPersistentViewProcess;
 
@@ -116,28 +127,36 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // END TEMPORARY CODE
 
   /**
-   * Constructs an instance. Note that if runPersistently is true, the view process will start calculating immediately rather than waiting for a listener to attach. It will continue running regardless
-   * of the number of attached listeners.
-   * 
-   * @param viewDefinitionId the identifier of the view definition, not null. If this is versioned the process will be locked to the specific instance. If this is an object identifier at "latest" then
-   *          changes to the view definition will be watched for and the process updated when the view definition changes.
+   * Constructs an instance. Note that if runPersistently is true, the view process will
+   * start calculating immediately rather than waiting for a listener to attach. It will
+   * continue running regardless of the number of attached listeners.
+   *
+   * @param viewDefinitionId the identifier of the view definition, not null. If this is
+   * versioned the process will be locked to the specific instance. If this is an object
+   * identifier at "latest" then changes to the view definition will be watched for and
+   * the process updated when the view definition changes.
    * @param executionOptions the view execution options, not null
    * @param viewProcessContext the process context, not null
    * @param viewProcessor the parent view processor, not null
-   * @param runPersistently if true, then the process will start running and continue running, regardless of the number of attached listeners
-   * @throws DataNotFoundException if the view definition identifier is invalid
+   * @param permissionCheckInterval the interval (in seconds) at which to check permissions
+   * for market data
+   * @param runPersistently if true, then the process will start running and continue running,
+   * regardless of the number of attached listeners  @throws DataNotFoundException if the
+   * view definition identifier is invalid
    */
-  public ViewProcessImpl(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions, final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
-      boolean runPersistently) {
-    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
-    ArgumentChecker.notNull(executionOptions, "executionOptions");
-    ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
-    ArgumentChecker.notNull(viewProcessor, "viewProcessor");
-    _viewDefinitionId = viewDefinitionId;
-    _executionOptions = executionOptions;
-    _viewProcessContext = viewProcessContext;
-    _viewProcessor = viewProcessor;
+  public ViewProcessImpl(final UniqueId viewDefinitionId,
+                         final ViewExecutionOptions executionOptions,
+                         final ViewProcessContext viewProcessContext,
+                         final ViewProcessorImpl viewProcessor,
+                         int permissionCheckInterval,
+                         boolean runPersistently) {
+    _viewDefinitionId = ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
+    _executionOptions = ArgumentChecker.notNull(executionOptions, "executionOptions");
+    _viewProcessContext = ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
+    _viewProcessor = ArgumentChecker.notNull(viewProcessor, "viewProcessor");
+    _permissionCheckInterval = permissionCheckInterval;
     _isPersistentViewProcess = runPersistently;
+
     if (_viewDefinitionId.isVersioned()) {
       _viewDefinitionChangeListener = null;
     } else {
@@ -373,6 +392,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     for (final ViewResultListener listener : listeners) {
       try {
         final UserPrincipal listenerUser = listener.getUser();
+        // todo - response to a failed permission check is handled by the client rather than here. Is there a reason for this (cf cycleCompleted method)
         final boolean hasMarketDataPermissions = permissionProvider.checkMarketDataPermissions(listenerUser, marketData).isEmpty();
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       } catch (final Exception e) {
@@ -435,19 +455,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     boolean checkPermissions = isPermissionCheckDue();
     for (final ViewResultListener listener : listeners) {
       try {
-        if (checkPermissions) {
-          s_logger.info("Performing permissions check for data");
-          UserPrincipal user = listener.getUser();
-          MarketDataPermissionProvider permissionProvider = latest.getValue();
-          Set<ValueSpecification> marketDataRequirements = latest.getKey().getMarketDataRequirements();
-          boolean hasPermissions = permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
-
-          if (hasPermissions) {
-            listener.cycleCompleted(result, deltaResult);
-          } else {
-            listener.cycleExecutionFailed(cycle.getExecutionOptions(),
-                                          new Exception("User: " + user + " does not have permission for data in this view"));
-          }
+        UserPrincipal user = listener.getUser();
+        if (checkPermissions && userIsDenied(latest, user)) {
+          listener.cycleExecutionFailed(cycle.getExecutionOptions(),
+                                        new Exception("User: " + user + " does not have permission for data in this view"));
         } else {
           listener.cycleCompleted(result, deltaResult);
         }
@@ -458,6 +469,19 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     if (checkPermissions) {
       _lastPermissionCheck.set(Instant.now());
     }
+  }
+
+  private boolean userIsDenied(Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider> latest,
+                               UserPrincipal user) {
+    s_logger.info("Performing permissions check for market data");
+    MarketDataPermissionProvider permissionProvider = latest.getValue();
+    Set<ValueSpecification> marketDataRequirements = latest.getKey().getMarketDataRequirements();
+    return !permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
+  }
+
+  private boolean isPermissionCheckDue() {
+    return _permissionCheckInterval > 0 &&
+        Instant.now().isAfter(_lastPermissionCheck.get().plus(_permissionCheckInterval, ChronoUnit.SECONDS));
   }
 
   @Override
@@ -481,11 +505,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         logListenerError(listener, e);
       }
     }
-  }
-
-  private boolean isPermissionCheckDue() {
-    return _permissionCheckInterval > 0 &&
-        Instant.now().isAfter(_lastPermissionCheck.get().plus(_permissionCheckInterval, ChronoUnit.SECONDS));
   }
 
   @Override
