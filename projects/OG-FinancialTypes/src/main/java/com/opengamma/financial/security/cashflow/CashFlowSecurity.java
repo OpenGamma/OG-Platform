@@ -24,7 +24,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.util.money.Currency;
 
 /**
- * A security for cash.
+ * A security for cash payments.
  */
 @BeanDefinition
 public class CashFlowSecurity extends FinancialSecurity {
@@ -53,11 +53,19 @@ public class CashFlowSecurity extends FinancialSecurity {
   @PropertyDefinition
   private double _amount;
 
-  CashFlowSecurity() { //For builder
+  /**
+   * For the builder.
+   */
+  CashFlowSecurity() {
     super(SECURITY_TYPE);
   }
 
-  public CashFlowSecurity(Currency currency, ZonedDateTime settlement, double amount) {
+  /**
+   * @param currency The payment currency, not null
+   * @param settlement The settlement date, not null
+   * @param amount The amount
+   */
+  public CashFlowSecurity(final Currency currency, final ZonedDateTime settlement, final double amount) {
     super(SECURITY_TYPE);
     setCurrency(currency);
     setSettlement(settlement);
@@ -66,7 +74,7 @@ public class CashFlowSecurity extends FinancialSecurity {
 
   //-------------------------------------------------------------------------
   @Override
-  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+  public final <T> T accept(final FinancialSecurityVisitor<T> visitor) {
     return visitor.visitCashFlowSecurity(this);
   }
 
