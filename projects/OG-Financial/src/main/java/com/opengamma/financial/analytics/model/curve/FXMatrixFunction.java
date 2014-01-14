@@ -55,8 +55,9 @@ import com.opengamma.util.money.Currency;
 public class FXMatrixFunction extends AbstractFunction {
   /** The configuration name */
   private final String _configurationName;
-
+  /** A curve construction configuration source */
   private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
+  /** A curve definition source */
   private CurveDefinitionSource _curveDefinitionSource;
 
   /**
@@ -69,7 +70,7 @@ public class FXMatrixFunction extends AbstractFunction {
 
   /**
    * Gets the curve configuration name.
-   * 
+   *
    * @return The curve configuration names
    */
   public String getConfigurationName() {
@@ -126,8 +127,8 @@ public class FXMatrixFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-        throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
       if (inputs.getAllValues().size() == 0) {
         return Collections.singleton(new ComputedValue(_spec, new FXMatrix()));
       }

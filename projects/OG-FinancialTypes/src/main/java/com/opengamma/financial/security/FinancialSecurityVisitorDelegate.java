@@ -45,6 +45,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -105,7 +106,7 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return _delegate.visitMunicipalBondSecurity(security);
   }
-  
+
   @Override
   public T visitInflationBondSecurity(final InflationBondSecurity security) {
     return _delegate.visitInflationBondSecurity(security);
@@ -307,10 +308,10 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
   }
 
   @Override
-  public T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return _delegate.visitFederalFundsFutureSecurity(security);
   }
-  
+
   @Override
   public T visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
     return _delegate.visitAgricultureForwardSecurity(security);
@@ -393,6 +394,11 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
 
   @Override
   public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
-    return  _delegate.visitInterestRateSwapSecurity(security);
+    return _delegate.visitInterestRateSwapSecurity(security);
+  }
+
+  @Override
+  public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return _delegate.visitFXVolatilitySwapSecurity(security);
   }
 }
