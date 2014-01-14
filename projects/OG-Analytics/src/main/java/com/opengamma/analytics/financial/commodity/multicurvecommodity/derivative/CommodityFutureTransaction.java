@@ -65,6 +65,14 @@ public abstract class CommodityFutureTransaction implements InstrumentDerivative
     return _quantity;
   }
 
+  /**
+   * Gets the unit amount.
+   * @return The unit amount.
+   */
+  public double getUnitAmount() {
+    return _underlying.getUnitAmount();
+  }
+
   /* (non-Javadoc)
    * @see java.lang.Object#hashCode()
    */

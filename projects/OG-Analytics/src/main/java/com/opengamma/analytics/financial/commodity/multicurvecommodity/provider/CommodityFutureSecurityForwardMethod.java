@@ -13,9 +13,7 @@ import java.util.Map;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CommodityFutureSecurity;
 import com.opengamma.analytics.financial.provider.description.commodity.CommodityProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.commodity.CommoditySensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.commodity.MultipleCurrencyCommoditySensitivity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -49,28 +47,15 @@ public final class CommodityFutureSecurityForwardMethod extends CommodityFutureS
    * @return The price.
    */
   @Override
-  public MultipleCurrencyAmount price(final CommodityFutureSecurity future, final CommodityProviderInterface multicurves) {
+  public double price(final CommodityFutureSecurity future, final CommodityProviderInterface multicurves) {
     ArgumentChecker.notNull(future, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final double forward = multicurves.getForwardValue(future.getUnderlying(), future.getSettlementTime());
-    return MultipleCurrencyAmount.of(future.getCurrency(), forward);
+    return multicurves.getForwardValue(future.getUnderlying(), future.getSettlementTime());
   }
 
   @Override
-  MultipleCurrencyAmount netAmount(final CommodityFutureSecurity future, final CommodityProviderInterface multicurve) {
-    return price(future, multicurve).multipliedBy(1 / multicurve.getDiscountFactor(future.getCurrency(), future.getSettlementTime()));
-  }
-
-  /**
-   * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
-   * @param future The future.
-   * @param multicurves The multi-curve provider.
-   * @return The rate.
-   */
-  public MultipleCurrencyAmount parRate(final CommodityFutureSecurity future, final CommodityProviderInterface multicurves) {
-    ArgumentChecker.notNull(future, "Futures");
-    ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    return price(future, multicurves).multipliedBy(-1).plus(MultipleCurrencyAmount.of(future.getCurrency(), 1));
+  double netAmount(final CommodityFutureSecurity future, final CommodityProviderInterface multicurve) {
+    return price(future, multicurve) / multicurve.getDiscountFactor(future.getCurrency(), future.getSettlementTime());
   }
 
   /**
@@ -80,7 +65,7 @@ public final class CommodityFutureSecurityForwardMethod extends CommodityFutureS
    * @return The price rate sensitivity.
    */
   @Override
-  public MultipleCurrencyCommoditySensitivity priceCurveSensitivity(final CommodityFutureSecurity future, final CommodityProviderInterface multicurves) {
+  public CommoditySensitivity priceCurveSensitivity(final CommodityFutureSecurity future, final CommodityProviderInterface multicurves) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
 
@@ -92,7 +77,6 @@ public final class CommodityFutureSecurityForwardMethod extends CommodityFutureS
     final List<DoublesPair> listPrice = new ArrayList<>();
     listPrice.add(DoublesPair.of(future.getSettlementTime(), forwardBar));
     resultMapCommodity.put(multicurves.getName(future.getUnderlying()), listPrice);
-    final CommoditySensitivity commoditySensitivity = CommoditySensitivity.ofCommodityForwardValue(resultMapCommodity);
-    return MultipleCurrencyCommoditySensitivity.of(future.getCurrency(), commoditySensitivity);
+    return CommoditySensitivity.ofCommodityForwardValue(resultMapCommodity);
   }
 }

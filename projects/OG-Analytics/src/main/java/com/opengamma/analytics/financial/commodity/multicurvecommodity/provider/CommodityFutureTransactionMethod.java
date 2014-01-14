@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.commodity.multicurvecommodity.provider
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative.CommodityFutureTransaction;
+import com.opengamma.analytics.financial.provider.sensitivity.commodity.CommoditySensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.commodity.MultipleCurrencyCommoditySensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -22,9 +23,9 @@ public abstract class CommodityFutureTransactionMethod {
    * @param price The quoted price.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValueFromPrice(final CommodityFutureTransaction future, final MultipleCurrencyAmount price) {
-    final MultipleCurrencyAmount pv = price.plus(future.getCurrency(), -future.getReferencePrice() * future.getQuantity());
-    return pv;
+  public MultipleCurrencyAmount presentValueFromPrice(final CommodityFutureTransaction future, final double price) {
+    final double pv = price - future.getReferencePrice() * future.getQuantity();
+    return MultipleCurrencyAmount.of(future.getCurrency(), pv);
   }
 
   /**
@@ -33,8 +34,8 @@ public abstract class CommodityFutureTransactionMethod {
    * @param priceSensitivity The sensitivity of the futures price.
    * @return The present value rate sensitivity.
    */
-  public MultipleCurrencyCommoditySensitivity presentValueCurveSensitivity(final CommodityFutureTransaction future, final MultipleCurrencyCommoditySensitivity priceSensitivity) {
+  public MultipleCurrencyCommoditySensitivity presentValueCurveSensitivity(final CommodityFutureTransaction future, final CommoditySensitivity priceSensitivity) {
     Validate.notNull(future, "Future");
-    return priceSensitivity.multipliedBy(future.getQuantity());
+    return MultipleCurrencyCommoditySensitivity.of(future.getCurrency(), priceSensitivity.multipliedBy(future.getQuantity() * future.getUnitAmount()));
   }
 }

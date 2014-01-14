@@ -43,7 +43,7 @@ public final class CouponCommodityCashSettleSecurityForwardMethod {
   }
 
   /**
-   * Compute the present value of a commodity cash settle by discounting.
+   * Compute the present value of a commodity cash settle coupon by discounting.
    * @param coupon The coupon.
    * @param multicurve The commodity multi-curve provider.
    * @return The present value.
@@ -58,7 +58,7 @@ public final class CouponCommodityCashSettleSecurityForwardMethod {
   }
 
   /**
-   * Compute the present value sensitivity to yield for discounting curve and forward rate (in index convention) for forward curve.
+   * Compute the present value sensitivity  of a commodity cash settle coupon by discounting.
    * @param coupon The coupon.
    * @param multicurve The commodity multi-curve provider.
    * @return The present value sensitivity.
