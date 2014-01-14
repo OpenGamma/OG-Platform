@@ -16,8 +16,12 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
@@ -68,6 +72,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -186,6 +192,26 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitBondFuturesTransactionDefinition(final BondFuturesTransactionDefinition bond) {
+    return visit(bond);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bond, final DATA_TYPE data) {
+    return visit(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(final YieldAverageBondFuturesSecurityDefinition bond) {
+    return visit(bond);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bond, final DATA_TYPE data) {
+    return visit(bond, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesTransactionDefinition bond) {
     return visit(bond);
   }
 
@@ -1242,4 +1268,45 @@ public abstract class InstrumentDefinitionVisitorSameMethodAdapter<DATA_TYPE, RE
   public RESULT_TYPE visitEnergyFutureTransactionDefinition(final EnergyFutureTransactionDefinition future) {
     return visit(future);
   }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityCashSettleDefinition(final ForwardCommodityCashSettleDefinition forward, final DATA_TYPE data) {
+    return visit(forward, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityCashSettleDefinition(final ForwardCommodityCashSettleDefinition forward) {
+    return visit(forward);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(final ForwardCommodityPhysicalSettleDefinition forward, final DATA_TYPE data) {
+    return visit(forward, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(final ForwardCommodityPhysicalSettleDefinition forward) {
+    return visit(forward);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityCashSettleDefinition(final CouponCommodityCashSettleDefinition coupon, final DATA_TYPE data) {
+    return visit(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityCashSettleDefinition(final CouponCommodityCashSettleDefinition coupon) {
+    return visit(coupon);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(final CouponCommodityPhysicalSettleDefinition coupon, final DATA_TYPE data) {
+    return visit(coupon, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(final CouponCommodityPhysicalSettleDefinition coupon) {
+    return visit(coupon);
+  }
+
 }

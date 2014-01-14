@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.irs;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -18,6 +19,14 @@ import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.rolldate.RollConvention;
+import com.opengamma.id.ExternalId;
 
 /**
  * Abstract base class for a leg in a swap.
@@ -43,6 +52,85 @@ public abstract class InterestRateSwapLeg extends DirectBean {
    */
   @PropertyDefinition
   private StubCalculationMethod _stubCalculationMethod;
+  
+  /**
+   * The day count.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _dayCountConvention;
+  
+  /**
+   * The roll convention used for adjusting dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private RollConvention _rollConvention = RollConvention.NONE;
+  
+  
+  /*
+   * Maturity date parameters
+   */
+  
+  @PropertyDefinition
+  private Set<ExternalId> _maturityDateCalendars = Sets.newHashSet();
+  
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConvention _maturityDateBusinessDayConvention;
+  
+  /*
+   * Payment date parameters
+   */
+  
+  /**
+   * The calendars used to adjust the payment dates.
+   */
+  @PropertyDefinition
+  private Set<ExternalId> _paymentDateCalendars = Sets.newHashSet();
+  
+  /**
+   * The business day convention used to adjust the payment dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConvention _paymentDateBusinessDayConvention;
+  
+  /**
+   * The frequency of the payment dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _paymentDateFrequency;
+  
+  /**
+   * Flag that describes whether the payment date is relative to the start or end of the accrual period.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DateRelativeTo _paymentDateRelativeTo = DateRelativeTo.END;
+  
+  /**
+   * The number of days offset of the payment dates, relative to the accrual periods.
+   */
+  @PropertyDefinition
+  private int _paymentOffset;
+  
+  /*
+   * Accrual period parameters
+   */
+  
+  /**
+   * The calendar used to adjust the accrual period dates.
+   */
+  @PropertyDefinition
+  private Set<ExternalId> _accrualPeriodCalendars = Sets.newHashSet();
+  
+  /**
+   * The business day convention used to adjust the accrual period dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConvention _accrualPeriodBusinessDayConvention;
+  
+  /**
+   * The frequency of the accrual periods.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _accrualPeriodFrequency;
 
   /**
    * Accepts a visitor to manage traversal of the hierarchy.
@@ -149,6 +237,314 @@ public abstract class InterestRateSwapLeg extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the day count.
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCountConvention() {
+    return _dayCountConvention;
+  }
+
+  /**
+   * Sets the day count.
+   * @param dayCountConvention  the new value of the property, not null
+   */
+  public void setDayCountConvention(DayCount dayCountConvention) {
+    JodaBeanUtils.notNull(dayCountConvention, "dayCountConvention");
+    this._dayCountConvention = dayCountConvention;
+  }
+
+  /**
+   * Gets the the {@code dayCountConvention} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> dayCountConvention() {
+    return metaBean().dayCountConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the roll convention used for adjusting dates.
+   * @return the value of the property, not null
+   */
+  public RollConvention getRollConvention() {
+    return _rollConvention;
+  }
+
+  /**
+   * Sets the roll convention used for adjusting dates.
+   * @param rollConvention  the new value of the property, not null
+   */
+  public void setRollConvention(RollConvention rollConvention) {
+    JodaBeanUtils.notNull(rollConvention, "rollConvention");
+    this._rollConvention = rollConvention;
+  }
+
+  /**
+   * Gets the the {@code rollConvention} property.
+   * @return the property, not null
+   */
+  public final Property<RollConvention> rollConvention() {
+    return metaBean().rollConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturityDateCalendars.
+   * @return the value of the property
+   */
+  public Set<ExternalId> getMaturityDateCalendars() {
+    return _maturityDateCalendars;
+  }
+
+  /**
+   * Sets the maturityDateCalendars.
+   * @param maturityDateCalendars  the new value of the property
+   */
+  public void setMaturityDateCalendars(Set<ExternalId> maturityDateCalendars) {
+    this._maturityDateCalendars = maturityDateCalendars;
+  }
+
+  /**
+   * Gets the the {@code maturityDateCalendars} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ExternalId>> maturityDateCalendars() {
+    return metaBean().maturityDateCalendars().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturityDateBusinessDayConvention.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getMaturityDateBusinessDayConvention() {
+    return _maturityDateBusinessDayConvention;
+  }
+
+  /**
+   * Sets the maturityDateBusinessDayConvention.
+   * @param maturityDateBusinessDayConvention  the new value of the property, not null
+   */
+  public void setMaturityDateBusinessDayConvention(BusinessDayConvention maturityDateBusinessDayConvention) {
+    JodaBeanUtils.notNull(maturityDateBusinessDayConvention, "maturityDateBusinessDayConvention");
+    this._maturityDateBusinessDayConvention = maturityDateBusinessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code maturityDateBusinessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> maturityDateBusinessDayConvention() {
+    return metaBean().maturityDateBusinessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the calendars used to adjust the payment dates.
+   * @return the value of the property
+   */
+  public Set<ExternalId> getPaymentDateCalendars() {
+    return _paymentDateCalendars;
+  }
+
+  /**
+   * Sets the calendars used to adjust the payment dates.
+   * @param paymentDateCalendars  the new value of the property
+   */
+  public void setPaymentDateCalendars(Set<ExternalId> paymentDateCalendars) {
+    this._paymentDateCalendars = paymentDateCalendars;
+  }
+
+  /**
+   * Gets the the {@code paymentDateCalendars} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ExternalId>> paymentDateCalendars() {
+    return metaBean().paymentDateCalendars().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention used to adjust the payment dates.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getPaymentDateBusinessDayConvention() {
+    return _paymentDateBusinessDayConvention;
+  }
+
+  /**
+   * Sets the business day convention used to adjust the payment dates.
+   * @param paymentDateBusinessDayConvention  the new value of the property, not null
+   */
+  public void setPaymentDateBusinessDayConvention(BusinessDayConvention paymentDateBusinessDayConvention) {
+    JodaBeanUtils.notNull(paymentDateBusinessDayConvention, "paymentDateBusinessDayConvention");
+    this._paymentDateBusinessDayConvention = paymentDateBusinessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code paymentDateBusinessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> paymentDateBusinessDayConvention() {
+    return metaBean().paymentDateBusinessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the frequency of the payment dates.
+   * @return the value of the property, not null
+   */
+  public Frequency getPaymentDateFrequency() {
+    return _paymentDateFrequency;
+  }
+
+  /**
+   * Sets the frequency of the payment dates.
+   * @param paymentDateFrequency  the new value of the property, not null
+   */
+  public void setPaymentDateFrequency(Frequency paymentDateFrequency) {
+    JodaBeanUtils.notNull(paymentDateFrequency, "paymentDateFrequency");
+    this._paymentDateFrequency = paymentDateFrequency;
+  }
+
+  /**
+   * Gets the the {@code paymentDateFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> paymentDateFrequency() {
+    return metaBean().paymentDateFrequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets flag that describes whether the payment date is relative to the start or end of the accrual period.
+   * @return the value of the property, not null
+   */
+  public DateRelativeTo getPaymentDateRelativeTo() {
+    return _paymentDateRelativeTo;
+  }
+
+  /**
+   * Sets flag that describes whether the payment date is relative to the start or end of the accrual period.
+   * @param paymentDateRelativeTo  the new value of the property, not null
+   */
+  public void setPaymentDateRelativeTo(DateRelativeTo paymentDateRelativeTo) {
+    JodaBeanUtils.notNull(paymentDateRelativeTo, "paymentDateRelativeTo");
+    this._paymentDateRelativeTo = paymentDateRelativeTo;
+  }
+
+  /**
+   * Gets the the {@code paymentDateRelativeTo} property.
+   * @return the property, not null
+   */
+  public final Property<DateRelativeTo> paymentDateRelativeTo() {
+    return metaBean().paymentDateRelativeTo().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the number of days offset of the payment dates, relative to the accrual periods.
+   * @return the value of the property
+   */
+  public int getPaymentOffset() {
+    return _paymentOffset;
+  }
+
+  /**
+   * Sets the number of days offset of the payment dates, relative to the accrual periods.
+   * @param paymentOffset  the new value of the property
+   */
+  public void setPaymentOffset(int paymentOffset) {
+    this._paymentOffset = paymentOffset;
+  }
+
+  /**
+   * Gets the the {@code paymentOffset} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> paymentOffset() {
+    return metaBean().paymentOffset().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the calendar used to adjust the accrual period dates.
+   * @return the value of the property
+   */
+  public Set<ExternalId> getAccrualPeriodCalendars() {
+    return _accrualPeriodCalendars;
+  }
+
+  /**
+   * Sets the calendar used to adjust the accrual period dates.
+   * @param accrualPeriodCalendars  the new value of the property
+   */
+  public void setAccrualPeriodCalendars(Set<ExternalId> accrualPeriodCalendars) {
+    this._accrualPeriodCalendars = accrualPeriodCalendars;
+  }
+
+  /**
+   * Gets the the {@code accrualPeriodCalendars} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ExternalId>> accrualPeriodCalendars() {
+    return metaBean().accrualPeriodCalendars().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention used to adjust the accrual period dates.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getAccrualPeriodBusinessDayConvention() {
+    return _accrualPeriodBusinessDayConvention;
+  }
+
+  /**
+   * Sets the business day convention used to adjust the accrual period dates.
+   * @param accrualPeriodBusinessDayConvention  the new value of the property, not null
+   */
+  public void setAccrualPeriodBusinessDayConvention(BusinessDayConvention accrualPeriodBusinessDayConvention) {
+    JodaBeanUtils.notNull(accrualPeriodBusinessDayConvention, "accrualPeriodBusinessDayConvention");
+    this._accrualPeriodBusinessDayConvention = accrualPeriodBusinessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code accrualPeriodBusinessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> accrualPeriodBusinessDayConvention() {
+    return metaBean().accrualPeriodBusinessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the frequency of the accrual periods.
+   * @return the value of the property, not null
+   */
+  public Frequency getAccrualPeriodFrequency() {
+    return _accrualPeriodFrequency;
+  }
+
+  /**
+   * Sets the frequency of the accrual periods.
+   * @param accrualPeriodFrequency  the new value of the property, not null
+   */
+  public void setAccrualPeriodFrequency(Frequency accrualPeriodFrequency) {
+    JodaBeanUtils.notNull(accrualPeriodFrequency, "accrualPeriodFrequency");
+    this._accrualPeriodFrequency = accrualPeriodFrequency;
+  }
+
+  /**
+   * Gets the the {@code accrualPeriodFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> accrualPeriodFrequency() {
+    return metaBean().accrualPeriodFrequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public InterestRateSwapLeg clone() {
     BeanBuilder<? extends InterestRateSwapLeg> builder = metaBean().builder();
@@ -173,7 +569,19 @@ public abstract class InterestRateSwapLeg extends DirectBean {
       InterestRateSwapLeg other = (InterestRateSwapLeg) obj;
       return JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           JodaBeanUtils.equal(getPayReceiveType(), other.getPayReceiveType()) &&
-          JodaBeanUtils.equal(getStubCalculationMethod(), other.getStubCalculationMethod());
+          JodaBeanUtils.equal(getStubCalculationMethod(), other.getStubCalculationMethod()) &&
+          JodaBeanUtils.equal(getDayCountConvention(), other.getDayCountConvention()) &&
+          JodaBeanUtils.equal(getRollConvention(), other.getRollConvention()) &&
+          JodaBeanUtils.equal(getMaturityDateCalendars(), other.getMaturityDateCalendars()) &&
+          JodaBeanUtils.equal(getMaturityDateBusinessDayConvention(), other.getMaturityDateBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getPaymentDateCalendars(), other.getPaymentDateCalendars()) &&
+          JodaBeanUtils.equal(getPaymentDateBusinessDayConvention(), other.getPaymentDateBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getPaymentDateFrequency(), other.getPaymentDateFrequency()) &&
+          JodaBeanUtils.equal(getPaymentDateRelativeTo(), other.getPaymentDateRelativeTo()) &&
+          (getPaymentOffset() == other.getPaymentOffset()) &&
+          JodaBeanUtils.equal(getAccrualPeriodCalendars(), other.getAccrualPeriodCalendars()) &&
+          JodaBeanUtils.equal(getAccrualPeriodBusinessDayConvention(), other.getAccrualPeriodBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getAccrualPeriodFrequency(), other.getAccrualPeriodFrequency());
     }
     return false;
   }
@@ -184,12 +592,24 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayReceiveType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStubCalculationMethod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCountConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRollConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDateBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentDateRelativeTo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentOffset());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualPeriodFrequency());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(512);
     buf.append("InterestRateSwapLeg{");
     int len = buf.length();
     toString(buf);
@@ -204,6 +624,18 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
     buf.append("payReceiveType").append('=').append(JodaBeanUtils.toString(getPayReceiveType())).append(',').append(' ');
     buf.append("stubCalculationMethod").append('=').append(JodaBeanUtils.toString(getStubCalculationMethod())).append(',').append(' ');
+    buf.append("dayCountConvention").append('=').append(JodaBeanUtils.toString(getDayCountConvention())).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(getRollConvention())).append(',').append(' ');
+    buf.append("maturityDateCalendars").append('=').append(JodaBeanUtils.toString(getMaturityDateCalendars())).append(',').append(' ');
+    buf.append("maturityDateBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getMaturityDateBusinessDayConvention())).append(',').append(' ');
+    buf.append("paymentDateCalendars").append('=').append(JodaBeanUtils.toString(getPaymentDateCalendars())).append(',').append(' ');
+    buf.append("paymentDateBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getPaymentDateBusinessDayConvention())).append(',').append(' ');
+    buf.append("paymentDateFrequency").append('=').append(JodaBeanUtils.toString(getPaymentDateFrequency())).append(',').append(' ');
+    buf.append("paymentDateRelativeTo").append('=').append(JodaBeanUtils.toString(getPaymentDateRelativeTo())).append(',').append(' ');
+    buf.append("paymentOffset").append('=').append(JodaBeanUtils.toString(getPaymentOffset())).append(',').append(' ');
+    buf.append("accrualPeriodCalendars").append('=').append(JodaBeanUtils.toString(getAccrualPeriodCalendars())).append(',').append(' ');
+    buf.append("accrualPeriodBusinessDayConvention").append('=').append(JodaBeanUtils.toString(getAccrualPeriodBusinessDayConvention())).append(',').append(' ');
+    buf.append("accrualPeriodFrequency").append('=').append(JodaBeanUtils.toString(getAccrualPeriodFrequency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -232,13 +664,88 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     private final MetaProperty<StubCalculationMethod> _stubCalculationMethod = DirectMetaProperty.ofReadWrite(
         this, "stubCalculationMethod", InterestRateSwapLeg.class, StubCalculationMethod.class);
     /**
+     * The meta-property for the {@code dayCountConvention} property.
+     */
+    private final MetaProperty<DayCount> _dayCountConvention = DirectMetaProperty.ofReadWrite(
+        this, "dayCountConvention", InterestRateSwapLeg.class, DayCount.class);
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     */
+    private final MetaProperty<RollConvention> _rollConvention = DirectMetaProperty.ofReadWrite(
+        this, "rollConvention", InterestRateSwapLeg.class, RollConvention.class);
+    /**
+     * The meta-property for the {@code maturityDateCalendars} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _maturityDateCalendars = DirectMetaProperty.ofReadWrite(
+        this, "maturityDateCalendars", InterestRateSwapLeg.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code maturityDateBusinessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _maturityDateBusinessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "maturityDateBusinessDayConvention", InterestRateSwapLeg.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code paymentDateCalendars} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _paymentDateCalendars = DirectMetaProperty.ofReadWrite(
+        this, "paymentDateCalendars", InterestRateSwapLeg.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code paymentDateBusinessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _paymentDateBusinessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "paymentDateBusinessDayConvention", InterestRateSwapLeg.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code paymentDateFrequency} property.
+     */
+    private final MetaProperty<Frequency> _paymentDateFrequency = DirectMetaProperty.ofReadWrite(
+        this, "paymentDateFrequency", InterestRateSwapLeg.class, Frequency.class);
+    /**
+     * The meta-property for the {@code paymentDateRelativeTo} property.
+     */
+    private final MetaProperty<DateRelativeTo> _paymentDateRelativeTo = DirectMetaProperty.ofReadWrite(
+        this, "paymentDateRelativeTo", InterestRateSwapLeg.class, DateRelativeTo.class);
+    /**
+     * The meta-property for the {@code paymentOffset} property.
+     */
+    private final MetaProperty<Integer> _paymentOffset = DirectMetaProperty.ofReadWrite(
+        this, "paymentOffset", InterestRateSwapLeg.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code accrualPeriodCalendars} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _accrualPeriodCalendars = DirectMetaProperty.ofReadWrite(
+        this, "accrualPeriodCalendars", InterestRateSwapLeg.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code accrualPeriodBusinessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _accrualPeriodBusinessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "accrualPeriodBusinessDayConvention", InterestRateSwapLeg.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code accrualPeriodFrequency} property.
+     */
+    private final MetaProperty<Frequency> _accrualPeriodFrequency = DirectMetaProperty.ofReadWrite(
+        this, "accrualPeriodFrequency", InterestRateSwapLeg.class, Frequency.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "notional",
         "payReceiveType",
-        "stubCalculationMethod");
+        "stubCalculationMethod",
+        "dayCountConvention",
+        "rollConvention",
+        "maturityDateCalendars",
+        "maturityDateBusinessDayConvention",
+        "paymentDateCalendars",
+        "paymentDateBusinessDayConvention",
+        "paymentDateFrequency",
+        "paymentDateRelativeTo",
+        "paymentOffset",
+        "accrualPeriodCalendars",
+        "accrualPeriodBusinessDayConvention",
+        "accrualPeriodFrequency");
 
     /**
      * Restricted constructor.
@@ -255,6 +762,30 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return _payReceiveType;
         case 778144252:  // stubCalculationMethod
           return _stubCalculationMethod;
+        case 589154980:  // dayCountConvention
+          return _dayCountConvention;
+        case -10223666:  // rollConvention
+          return _rollConvention;
+        case 1589069014:  // maturityDateCalendars
+          return _maturityDateCalendars;
+        case 1997471406:  // maturityDateBusinessDayConvention
+          return _maturityDateBusinessDayConvention;
+        case -995993471:  // paymentDateCalendars
+          return _paymentDateCalendars;
+        case 1601890777:  // paymentDateBusinessDayConvention
+          return _paymentDateBusinessDayConvention;
+        case 167080168:  // paymentDateFrequency
+          return _paymentDateFrequency;
+        case -1476655013:  // paymentDateRelativeTo
+          return _paymentDateRelativeTo;
+        case 1303406137:  // paymentOffset
+          return _paymentOffset;
+        case 1257168517:  // accrualPeriodCalendars
+          return _accrualPeriodCalendars;
+        case 591038941:  // accrualPeriodBusinessDayConvention
+          return _accrualPeriodBusinessDayConvention;
+        case -1874725140:  // accrualPeriodFrequency
+          return _accrualPeriodFrequency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -299,6 +830,102 @@ public abstract class InterestRateSwapLeg extends DirectBean {
       return _stubCalculationMethod;
     }
 
+    /**
+     * The meta-property for the {@code dayCountConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> dayCountConvention() {
+      return _dayCountConvention;
+    }
+
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<RollConvention> rollConvention() {
+      return _rollConvention;
+    }
+
+    /**
+     * The meta-property for the {@code maturityDateCalendars} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ExternalId>> maturityDateCalendars() {
+      return _maturityDateCalendars;
+    }
+
+    /**
+     * The meta-property for the {@code maturityDateBusinessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> maturityDateBusinessDayConvention() {
+      return _maturityDateBusinessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code paymentDateCalendars} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ExternalId>> paymentDateCalendars() {
+      return _paymentDateCalendars;
+    }
+
+    /**
+     * The meta-property for the {@code paymentDateBusinessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> paymentDateBusinessDayConvention() {
+      return _paymentDateBusinessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code paymentDateFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> paymentDateFrequency() {
+      return _paymentDateFrequency;
+    }
+
+    /**
+     * The meta-property for the {@code paymentDateRelativeTo} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DateRelativeTo> paymentDateRelativeTo() {
+      return _paymentDateRelativeTo;
+    }
+
+    /**
+     * The meta-property for the {@code paymentOffset} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> paymentOffset() {
+      return _paymentOffset;
+    }
+
+    /**
+     * The meta-property for the {@code accrualPeriodCalendars} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ExternalId>> accrualPeriodCalendars() {
+      return _accrualPeriodCalendars;
+    }
+
+    /**
+     * The meta-property for the {@code accrualPeriodBusinessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> accrualPeriodBusinessDayConvention() {
+      return _accrualPeriodBusinessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code accrualPeriodFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> accrualPeriodFrequency() {
+      return _accrualPeriodFrequency;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -309,10 +936,35 @@ public abstract class InterestRateSwapLeg extends DirectBean {
           return ((InterestRateSwapLeg) bean).getPayReceiveType();
         case 778144252:  // stubCalculationMethod
           return ((InterestRateSwapLeg) bean).getStubCalculationMethod();
+        case 589154980:  // dayCountConvention
+          return ((InterestRateSwapLeg) bean).getDayCountConvention();
+        case -10223666:  // rollConvention
+          return ((InterestRateSwapLeg) bean).getRollConvention();
+        case 1589069014:  // maturityDateCalendars
+          return ((InterestRateSwapLeg) bean).getMaturityDateCalendars();
+        case 1997471406:  // maturityDateBusinessDayConvention
+          return ((InterestRateSwapLeg) bean).getMaturityDateBusinessDayConvention();
+        case -995993471:  // paymentDateCalendars
+          return ((InterestRateSwapLeg) bean).getPaymentDateCalendars();
+        case 1601890777:  // paymentDateBusinessDayConvention
+          return ((InterestRateSwapLeg) bean).getPaymentDateBusinessDayConvention();
+        case 167080168:  // paymentDateFrequency
+          return ((InterestRateSwapLeg) bean).getPaymentDateFrequency();
+        case -1476655013:  // paymentDateRelativeTo
+          return ((InterestRateSwapLeg) bean).getPaymentDateRelativeTo();
+        case 1303406137:  // paymentOffset
+          return ((InterestRateSwapLeg) bean).getPaymentOffset();
+        case 1257168517:  // accrualPeriodCalendars
+          return ((InterestRateSwapLeg) bean).getAccrualPeriodCalendars();
+        case 591038941:  // accrualPeriodBusinessDayConvention
+          return ((InterestRateSwapLeg) bean).getAccrualPeriodBusinessDayConvention();
+        case -1874725140:  // accrualPeriodFrequency
+          return ((InterestRateSwapLeg) bean).getAccrualPeriodFrequency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -325,6 +977,42 @@ public abstract class InterestRateSwapLeg extends DirectBean {
         case 778144252:  // stubCalculationMethod
           ((InterestRateSwapLeg) bean).setStubCalculationMethod((StubCalculationMethod) newValue);
           return;
+        case 589154980:  // dayCountConvention
+          ((InterestRateSwapLeg) bean).setDayCountConvention((DayCount) newValue);
+          return;
+        case -10223666:  // rollConvention
+          ((InterestRateSwapLeg) bean).setRollConvention((RollConvention) newValue);
+          return;
+        case 1589069014:  // maturityDateCalendars
+          ((InterestRateSwapLeg) bean).setMaturityDateCalendars((Set<ExternalId>) newValue);
+          return;
+        case 1997471406:  // maturityDateBusinessDayConvention
+          ((InterestRateSwapLeg) bean).setMaturityDateBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case -995993471:  // paymentDateCalendars
+          ((InterestRateSwapLeg) bean).setPaymentDateCalendars((Set<ExternalId>) newValue);
+          return;
+        case 1601890777:  // paymentDateBusinessDayConvention
+          ((InterestRateSwapLeg) bean).setPaymentDateBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 167080168:  // paymentDateFrequency
+          ((InterestRateSwapLeg) bean).setPaymentDateFrequency((Frequency) newValue);
+          return;
+        case -1476655013:  // paymentDateRelativeTo
+          ((InterestRateSwapLeg) bean).setPaymentDateRelativeTo((DateRelativeTo) newValue);
+          return;
+        case 1303406137:  // paymentOffset
+          ((InterestRateSwapLeg) bean).setPaymentOffset((Integer) newValue);
+          return;
+        case 1257168517:  // accrualPeriodCalendars
+          ((InterestRateSwapLeg) bean).setAccrualPeriodCalendars((Set<ExternalId>) newValue);
+          return;
+        case 591038941:  // accrualPeriodBusinessDayConvention
+          ((InterestRateSwapLeg) bean).setAccrualPeriodBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case -1874725140:  // accrualPeriodFrequency
+          ((InterestRateSwapLeg) bean).setAccrualPeriodFrequency((Frequency) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -332,6 +1020,14 @@ public abstract class InterestRateSwapLeg extends DirectBean {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._payReceiveType, "payReceiveType");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._dayCountConvention, "dayCountConvention");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._rollConvention, "rollConvention");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._maturityDateBusinessDayConvention, "maturityDateBusinessDayConvention");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._paymentDateBusinessDayConvention, "paymentDateBusinessDayConvention");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._paymentDateFrequency, "paymentDateFrequency");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._paymentDateRelativeTo, "paymentDateRelativeTo");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._accrualPeriodBusinessDayConvention, "accrualPeriodBusinessDayConvention");
+      JodaBeanUtils.notNull(((InterestRateSwapLeg) bean)._accrualPeriodFrequency, "accrualPeriodFrequency");
     }
 
   }

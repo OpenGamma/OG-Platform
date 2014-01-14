@@ -77,6 +77,16 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().pushResult(context, resolvedValue, lastResult);
     }
 
+    /**
+     * Creates a result instance.
+     * <p>
+     * The {@code valueSpecification} specification must be a normalized/canonical form.
+     * 
+     * @param valueSpecification the resolved value specification, as it will appear in the dependency graph, not null
+     * @param parameterizedFunction the function identifier and parameters, not null
+     * @param functionInputs the resolved input specifications, as they will appear in the dependency graph, not null
+     * @param functionOutputs the resolved output specifications, as they will appear in the dependency graph, not null
+     */
     protected ResolvedValue createResult(final ValueSpecification valueSpecification, final ParameterizedFunction parameterizedFunction, final Set<ValueSpecification> functionInputs,
         final Set<ValueSpecification> functionOutputs) {
       return new ResolvedValue(valueSpecification, parameterizedFunction, functionInputs, functionOutputs);

@@ -79,6 +79,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutput;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutputAggregationType;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
@@ -162,6 +164,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   @Override
   protected void doRun() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
+    storeViewDefinition(getMultiCurrencySwapViewDefinitionWithSeparateOutputs(MULTI_CURRENCY_SWAP_PORTFOLIO_NAME));
     storeViewDefinition(getMultiCurrencySwapViewDefinition(MULTI_CURRENCY_SWAP_PORTFOLIO_NAME));
     storeViewDefinition(getAUDSwapView1Definition(AUD_SWAP_PORFOLIO_NAME));
     storeViewDefinition(getAUDSwapView2Definition(AUD_SWAP_PORFOLIO_NAME));
@@ -194,9 +197,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     return viewDefinition;
   }
 
-  private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
+  private ViewDefinition getMultiCurrencySwapViewDefinitionWithSeparateOutputs(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View (outputs by ccy)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -229,6 +232,52 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
       }
     }
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+    return viewDefinition;
+  }
+  
+  private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
+    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    final ViewCalculationConfiguration defaultCalcConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    defaultCalcConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, PAR_RATE);
+    // The name "Default" has no special meaning, but means that the currency conversion function can never be used and so we get the instrument's natural currency
+    defaultCalcConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
+        ValueProperties.with(CurrencyConversionFunction.ORIGINAL_CURRENCY, "Default").withOptional(CurrencyConversionFunction.ORIGINAL_CURRENCY).get());
+    defaultCalcConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE, ValueProperties.with(CURRENCY, "USD").get());
+    MergedOutput discountingPV01Output = new MergedOutput("Discounting PV01", MergedOutputAggregationType.LINEAR);
+    MergedOutput discountingYCNSOutput = new MergedOutput("Discounting Bucketed PV01", MergedOutputAggregationType.LINEAR);
+    MergedOutput forwardPV01Output = new MergedOutput("Forward PV01", MergedOutputAggregationType.LINEAR);
+    MergedOutput forwardYCNSOutput = new MergedOutput("Forward Bucketed PV01", MergedOutputAggregationType.LINEAR);
+    for (int i = 0; i < s_swapCurrencies.length; i++) {
+      final Currency ccy = s_swapCurrencies[i];
+      final String ccyCode = ccy.getCode();
+      discountingPV01Output.addMergedRequirement(PV01, ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyCode).get());
+      discountingYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyCode).get());
+      defaultCalcConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy), ValueProperties.with(CURVE, "Discounting")
+          .with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
+      
+      if (ccyCode.equals("USD")) {
+        forwardYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyCode).get());
+        forwardPV01Output.addMergedRequirement(PV01, ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyCode).get());
+        defaultCalcConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy), ValueProperties.with(CURVE, "Forward3M")
+            .with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
+      } else {
+        forwardYCNSOutput.addMergedRequirement(YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(CURVE, "Forward6M").with(ValuePropertyNames.CURVE_CURRENCY, ccyCode).get());
+        forwardPV01Output.addMergedRequirement(PV01, ValueProperties.with(CURVE, "Forward6M").with(CURVE_CURRENCY, ccyCode).get());
+        defaultCalcConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy), ValueProperties.with(CURVE, "Forward6M")
+            .with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
+      }
+    }
+    defaultCalcConfig.addMergedOutput(discountingPV01Output);
+    defaultCalcConfig.addMergedOutput(discountingYCNSOutput);
+    defaultCalcConfig.addMergedOutput(forwardPV01Output);
+    defaultCalcConfig.addMergedOutput(forwardYCNSOutput);
+    viewDefinition.addViewCalculationConfiguration(defaultCalcConfig);
     return viewDefinition;
   }
 

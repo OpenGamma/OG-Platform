@@ -35,6 +35,10 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
    */
   private final boolean _isLong;
   /**
+   * Flag indicating if the option is a call (true) or a put (false).
+   */
+  private final boolean _isCall;
+  /**
    * The swaption expiry.
    */
   private final Expiry _expiry;
@@ -52,6 +56,7 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     _underlyingSwap = underlyingSwap;
+    _isCall = isCall;
     _isLong = isLong;
     _expiry = new Expiry(expiryDate);
   }
@@ -149,7 +154,7 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   @Override
@@ -160,7 +165,7 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime);
-    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   @Override
@@ -169,6 +174,7 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
     int result = 1;
     result = prime * result + _expiry.hashCode();
     result = prime * result + (_isLong ? 1231 : 1237);
+    result = prime * result + (_isCall ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
   }
@@ -185,10 +191,13 @@ public final class SwaptionPhysicalFixedIborSpreadDefinition implements Instrume
       return false;
     }
     final SwaptionPhysicalFixedIborSpreadDefinition other = (SwaptionPhysicalFixedIborSpreadDefinition) obj;
-    if (!ObjectUtils.equals(_expiry, other._expiry)) {
+    if (_isCall != other._isCall) {
       return false;
     }
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {

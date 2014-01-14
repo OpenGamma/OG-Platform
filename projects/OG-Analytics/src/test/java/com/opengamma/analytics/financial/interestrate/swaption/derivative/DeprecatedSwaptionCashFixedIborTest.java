@@ -100,16 +100,14 @@ public class DeprecatedSwaptionCashFixedIborTest {
   private static final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
   // Calculators
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  //private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   // Volatility and pricing functions
-  //private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
-  @Test
   /**
    * Tests the equal and hashCode methods.
    */
+  @Test
   public void equalHash() {
     assertTrue(SWAPTION_LONG_PAYER.equals(SWAPTION_LONG_PAYER));
     final SwaptionCashFixedIbor other = SWAPTION_DEFINITION_LONG_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -120,15 +118,15 @@ public class DeprecatedSwaptionCashFixedIborTest {
     assertTrue(SWAPTION_SHORT_RECEIVER.equals(otherS));
     assertTrue(SWAPTION_SHORT_RECEIVER.hashCode() == otherS.hashCode());
     SwaptionCashFixedIbor modifiedSwaption;
-    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry() - 0.01, SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry() - 0.01, SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), FIXED_IS_PAYER, IS_LONG);
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
-    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime() - 0.01, IS_LONG);
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime() - 0.01, FIXED_IS_PAYER, IS_LONG);
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
-    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), !IS_LONG);
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), SWAP_PAYER, SWAPTION_LONG_PAYER.getSettlementTime(), FIXED_IS_PAYER, !IS_LONG);
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
     final SwapFixedIborDefinition otherSwapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, 2 * NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
     final SwapFixedCoupon<Coupon> otherSwap = otherSwapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), otherSwap, SWAPTION_LONG_PAYER.getSettlementTime(), IS_LONG);
+    modifiedSwaption = SwaptionCashFixedIbor.from(SWAPTION_LONG_PAYER.getTimeToExpiry(), otherSwap, SWAPTION_LONG_PAYER.getSettlementTime(), FIXED_IS_PAYER, IS_LONG);
     assertFalse(SWAPTION_LONG_PAYER.equals(modifiedSwaption));
     assertFalse(SWAPTION_LONG_PAYER.equals(EXPIRY_DATE));
     assertFalse(SWAPTION_LONG_PAYER.equals(null));

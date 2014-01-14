@@ -192,17 +192,11 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
 
       final ForwardCurve fCurve = data.getForwardCurve();
       double[] divTime = null;
-      double[] divTimeUp = null;
-      double[] divTimeDw = null;
       double[] divAmount = null;
       if (fCurve instanceof ForwardCurveAffineDividends) {
         final AffineDividends div = ((ForwardCurveAffineDividends) data.getForwardCurve()).getDividends();
         divTime = div.getTau();
-        divTimeUp = div.getTau();
-        divTimeDw = div.getTau();
         divAmount = div.getAlpha();
-        divTimeUp[0] += 1.e-7;
-        divTimeDw[0] -= 1.e-7;
       } else {
         divTime = new double[] {0. };
         divAmount = new double[] {0. };

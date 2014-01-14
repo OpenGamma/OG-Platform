@@ -196,13 +196,17 @@ public class DatabaseRestore {
         }
       }
       for (ManageableTrade trade : position.getTrades()) {
-        trade.addAttribute(REGRESSION_ID, trade.getUniqueId().getObjectId().toString());
+        if (!trade.getAttributes().containsKey(REGRESSION_ID)) {
+          trade.addAttribute(REGRESSION_ID, trade.getUniqueId().getObjectId().toString());
+        }
         trade.setUniqueId(null);
         trade.setParentPositionId(null);
       }
       // put the old ID on as an attribute. this allows different instances of a position or trade to be identified
       // when they're saved in different databases and therefore have different unique IDs
-      position.addAttribute(REGRESSION_ID, oldId.toString());
+      if (!position.getAttributes().containsKey(REGRESSION_ID)) {
+        position.addAttribute(REGRESSION_ID, oldId.toString());
+      }
       PositionDocument doc = _positionMaster.add(new PositionDocument(position));
       ObjectId newId = doc.getUniqueId().getObjectId();
       ids.put(oldId, newId);

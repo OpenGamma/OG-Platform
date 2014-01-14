@@ -96,6 +96,7 @@ public class EUConventions extends ConventionMasterInitializer {
   //-------------------------------------------------------------------------
   @Override
   public void init(final ConventionMaster master) {
+    
     // Index (Overnight and Ibor-like)
     final String onIndexName = getConventionName(Currency.EUR, OVERNIGHT);
     final ExternalId onIndexId = ExternalId.of(SCHEME_NAME, onIndexName);
@@ -126,6 +127,7 @@ public class EUConventions extends ConventionMasterInitializer {
     final String fraIMMMonthlyConventionName = getConventionName(Currency.EUR, FRA + " " + IMM + " " + MONTHLY);
     final RollDateFRAConvention immFRAMonthlyConvention = new RollDateFRAConvention(fraIMMMonthlyConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, fraIMMMonthlyConventionName)), 
         euriborConventionId, MONTHLY_IMM_DATES);
+    
     // Fixed legs
     final String oisFixedLegConventionName = getConventionName(Currency.EUR, TENOR_STR_1Y, PAY_LAG + FIXED_LEG);
     final SwapFixedLegConvention oisFixedLegConvention = new SwapFixedLegConvention(
@@ -232,7 +234,7 @@ public class EUConventions extends ConventionMasterInitializer {
     final String serialFutureConventionName = getConventionName(Currency.EUR, STIR_FUTURES + SERIAL);
     final InterestRateFutureConvention serialSTIRFutureConvention = new InterestRateFutureConvention(
         serialFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, serialFutureConventionName)),
-        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME), EU, liborConventionId);
+        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME), EU, euriborConventionId);
     
     // Forex
     final String fxSpotEURUSDName = FX_SPOT + " EUR/USD";

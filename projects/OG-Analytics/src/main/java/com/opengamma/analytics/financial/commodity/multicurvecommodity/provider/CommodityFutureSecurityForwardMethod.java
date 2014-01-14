@@ -58,8 +58,7 @@ public final class CommodityFutureSecurityForwardMethod extends CommodityFutureS
 
   @Override
   MultipleCurrencyAmount netAmount(final CommodityFutureSecurity future, final CommodityProviderInterface multicurve) {
-    final double netAmount = price(future, multicurve).getAmount(future.getCurrency()) / multicurve.getDiscountFactor(future.getCurrency(), future.getSettlementTime());
-    return MultipleCurrencyAmount.of(future.getCurrency(), netAmount);
+    return price(future, multicurve).multipliedBy(1 / multicurve.getDiscountFactor(future.getCurrency(), future.getSettlementTime()));
   }
 
   /**

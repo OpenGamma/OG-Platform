@@ -6,7 +6,9 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +101,12 @@ public class ViewCalculationConfiguration implements Serializable {
    * subset of the graph.
    */
   private ResolutionRuleTransform _resolutionRuleTransform = IdentityResolutionRuleTransform.INSTANCE;
+  
+  /**
+   * Defines merged outputs. These are sets of portfolio requirements which should be published under a single output
+   * name with common aggregates. 
+   */
+  private List<MergedOutput> _mergedOutputs = new ArrayList<>();
 
   /**
    * Defines the labels and order of the columns used for displaying the data in the UI. This doesn't have to contain
@@ -369,16 +377,55 @@ public class ViewCalculationConfiguration implements Serializable {
     ArgumentChecker.notNull(requirement, "requirement");
     addSpecificRequirements(Collections.singleton(requirement));
   }
+  
+  /**
+   * Gets the list of merged outputs.
+   * 
+   * @return the merged outputs, not null
+   */
+  public List<MergedOutput> getMergedOutputs() {
+    return _mergedOutputs;
+  }
+  
+  /**
+   * Gets the merged output with a given name.
+   * 
+   * @param mergedOutputName  the merged output name, not null
+   * @return the merged output, null if not found
+   */
+  public MergedOutput getMergedOutput(String mergedOutputName) {
+    ArgumentChecker.notNull(mergedOutputName, "mergedOutputName");
+    for (MergedOutput mergedOutput : getMergedOutputs()) {
+      if (mergedOutput.getMergedOutputName().equals(mergedOutputName)) {
+        return mergedOutput;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Adds a new merged output.
+   * 
+   * @param mergedOutput  the merged output, not null
+   */
+  public void addMergedOutput(MergedOutput mergedOutput) {
+    ArgumentChecker.notNull(mergedOutput, "mergedOutput");
+    _mergedOutputs.add(mergedOutput);
+  }
 
   /**
-   * @return The column definitions, not null
+   * Gets the list of column definitions.
+   * 
+   * @return the column definitions, not null
    */
   public List<Column> getColumns() {
     return _columns;
   }
 
   /**
-   * @param columns The column definitions, not null
+   * Sets the list of column definitions.
+   * 
+   * @param columns  the column definitions, not null
    */
   public void setColumns(List<Column> columns) {
     ArgumentChecker.notNull(columns, "columns");
@@ -396,6 +443,8 @@ public class ViewCalculationConfiguration implements Serializable {
     result = prime * result + ObjectUtils.hashCode(getScenarioId());
     result = prime * result + ObjectUtils.hashCode(getScenarioParametersId());
     result = prime * result + ObjectUtils.hashCode(getResolutionRuleTransform());
+    result = prime * result + ObjectUtils.hashCode(getColumns());
+    result = prime * result + ObjectUtils.hashCode(getMergedOutputs());
     return result;
   }
 
@@ -433,6 +482,12 @@ public class ViewCalculationConfiguration implements Serializable {
     if (!ObjectUtils.equals(getScenarioParametersId(), other.getScenarioParametersId())) {
       return false;
     }
+    if (!ObjectUtils.equals(getColumns(), other.getColumns())) {
+      return false;
+    }
+    if (!ObjectUtils.equals(getMergedOutputs(), other.getMergedOutputs())) {
+      return false;
+    }
     return true;
   }
 
@@ -445,6 +500,9 @@ public class ViewCalculationConfiguration implements Serializable {
     }
   }
 
+  /**
+   * Associates a header with a portfolio requirement.
+   */
   public static final class Column {
 
     private final String _header;
@@ -452,7 +510,7 @@ public class ViewCalculationConfiguration implements Serializable {
     private final ValueProperties _properties;
 
     public Column(String header, String valueName, ValueProperties properties) {
-      ArgumentChecker.notNull(header, "label");
+      ArgumentChecker.notNull(header, "header");
       ArgumentChecker.notNull(valueName, "valueName");
       ArgumentChecker.notNull(properties, "properties");
       _header = header;
@@ -471,5 +529,119 @@ public class ViewCalculationConfiguration implements Serializable {
     public ValueProperties getProperties() {
       return _properties;
     }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + _header.hashCode();
+      result = prime * result + _properties.hashCode();
+      result = prime * result + _valueName.hashCode();
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Column)) {
+        return false;
+      }
+      Column other = (Column) obj;
+      return ObjectUtils.equals(_header, other._header)
+          && ObjectUtils.equals(_valueName, other._valueName)
+          && ObjectUtils.equals(_valueName, other._valueName);
+    }
+    
   }
+  
+  /**
+   * Represents a set of portfolio requirements to be published under a single output name with common aggregates.
+   */
+  public static final class MergedOutput {
+    
+    private final String _mergedOutputName;
+    private Set<Pair<String, ValueProperties>> _portfolioRequirements = new HashSet<>();
+    private MergedOutputAggregationType _aggregationType;
+    
+    /**
+     * Creates an instance. 
+     * 
+     * @param mergedOutputName  the name under which to display the merged output, not null
+     * @param aggregationType  the aggregation to apply to the merged output, not null
+     */
+    public MergedOutput(String mergedOutputName, MergedOutputAggregationType aggregationType) {
+      ArgumentChecker.notNull(mergedOutputName, "mergedOutputName");
+      ArgumentChecker.notNull(aggregationType, "aggregationType");
+      _mergedOutputName = mergedOutputName;
+      _aggregationType = aggregationType;
+    }
+    
+    public String getMergedOutputName() {
+      return _mergedOutputName;
+    }
+    
+    public Set<Pair<String, ValueProperties>> getPortfolioRequirements() {
+      return _portfolioRequirements;
+    }
+    
+    public MergedOutputAggregationType getAggregationType() {
+      return _aggregationType;
+    }
+    
+    public void setAggregationType(MergedOutputAggregationType aggregationType) {
+      _aggregationType = aggregationType;
+    }
+    
+    /**
+     * Adds a requirement to this merged output.
+     * 
+     * @param valueName  the original value name, not null
+     * @param properties  the original value properties, not null
+     */
+    public void addMergedRequirement(String valueName, ValueProperties properties) {
+      ArgumentChecker.notNull(valueName, "valueName");
+      ArgumentChecker.notNull(properties, "properties");
+      _portfolioRequirements.add(Pairs.of(valueName, properties));
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + _aggregationType.hashCode();
+      result = prime * result + _mergedOutputName.hashCode();
+      result = prime * result + _portfolioRequirements.hashCode();
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof ViewCalculationConfiguration)) {
+        return false;
+      }
+      MergedOutput other = (MergedOutput) obj;
+      return ObjectUtils.equals(_aggregationType, other._aggregationType)
+          && ObjectUtils.equals(_mergedOutputName, other._mergedOutputName)
+          && ObjectUtils.equals(_portfolioRequirements, other._portfolioRequirements);
+    }
+    
+  }
+  
+  /**
+   * Enumerates the ways that aggregates can be calculated for merged outputs.
+   */
+  public static enum MergedOutputAggregationType {
+    
+    /**
+     * Specifies that simple, linear aggregation should be used
+     */
+    LINEAR
+    
+  }
+  
 }

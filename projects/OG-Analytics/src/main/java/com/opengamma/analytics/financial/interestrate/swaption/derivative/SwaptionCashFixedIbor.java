@@ -9,6 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -34,7 +35,7 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   private final double _settlementTime;
 
   /**
-   * Constructor from the expiry date, the underlying swap and the long/short flqg.
+   * Constructor from the expiry date, the underlying swap and the long/short flag.
    * @param expiryTime The expiry time.
    * @param strike The strike
    * @param underlyingSwap The underlying swap.
@@ -47,21 +48,42 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
     super(strike, expiryTime, isCall);
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     ArgumentChecker.isTrue(Double.doubleToLongBits(underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate()) == Double.doubleToLongBits(strike), "Strike not in line with underlying");
-    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
     _settlementTime = settlementTime;
     _isLong = isLong;
   }
 
   /**
-   * Builder from the expiry date, the underlying swap and the long/short flqg.
+   * Builder from the expiry date, the underlying swap and the long/short flag. The underlying swap is used to determine whether
+   * the swap is a payer or a receiver.
+   * @param expiryTime The expiry time.
+   * @param underlyingSwap The underlying swap.
+   * @param settlementTime The time (in years) to cash settlement.
+   * @param isLong The long (true) / short (false) flag.
+   * @param isCall True if the swaption is a call
+   * @return The swaption.
+   */
+  public static SwaptionCashFixedIbor from(final double expiryTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime,
+      final boolean isCall, final boolean isLong) {
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
+    // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
+    return new SwaptionCashFixedIbor(expiryTime, strike, underlyingSwap, settlementTime, isCall, isLong);
+  }
+
+  /**
+   * Builder from the expiry date, the underlying swap and the long/short flag. The underlying swap is used to determine whether
+   * the swap is a payer or a receiver.
    * @param expiryTime The expiry time.
    * @param underlyingSwap The underlying swap.
    * @param settlementTime The time (in years) to cash settlement.
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
+   * @deprecated This relies on the {@link AnnuityCouponFixed#isPayer()} method to determine if the swaption is a call or a put, which is deprecated
    */
-  public static SwaptionCashFixedIbor from(final double expiryTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime, final boolean isLong) {
+  @Deprecated
+  public static SwaptionCashFixedIbor from(final double expiryTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime,
+      final boolean isLong) {
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getFixedRate();
     // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
@@ -77,8 +99,8 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   }
 
   /**
-   * Gets the _isLong field.
-   * @return The Long (true)/Short (false) flag.
+   * Gets the long / short flag.
+   * @return True if the option is long
    */
   public boolean isLong() {
     return _isLong;

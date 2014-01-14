@@ -43,7 +43,7 @@ public abstract class RowParser {
   // CSON
 
   
-  {
+  protected RowParser() {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
     CSV_DATE_FORMATTER = builder.toFormatter();
@@ -53,6 +53,17 @@ public abstract class RowParser {
     builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
+  }
+  
+  protected RowParser(DateTimeFormatter formatter) {
+    ArgumentChecker.notNull(formatter, "formatter");
+    CSV_DATE_FORMATTER = formatter;
+    DateTimeFormatterBuilder builder2 = new DateTimeFormatterBuilder();
+    builder2.appendPattern("MM/dd/yyyy");
+    SECONDARY_CSV_DATE_FORMATTER = builder2.toFormatter();
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+    builder.appendPattern("yyyy-MM-dd");
+    OUTPUT_DATE_FORMATTER = builder.toFormatter();    
   }
   
   /**

@@ -106,8 +106,8 @@ public class CouponONArithmeticAverageDefinitionTest {
     assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getPaymentDate(), PAYMENT_DATE_3M);
     assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getAccrualStartDate(), EFFECTIVE_DATE);
     assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getAccrualEndDate(), ACCRUAL_END_DATE_3M);
-    assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getFixingPeriodDates()[0], EFFECTIVE_DATE);
-    assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getFixingPeriodDates()[FEDFUND_CPN_3M_DEF.getFixingPeriodDates().length - 1], ACCRUAL_END_DATE_3M);
+    assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates()[0], EFFECTIVE_DATE);
+    assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates()[FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates().length - 1], ACCRUAL_END_DATE_3M);
     assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getCurrency(), FEDFUND.getCurrency());
     assertEquals("CouponArithmeticAverageON: getter", FEDFUND_CPN_3M_DEF.getIndex(), FEDFUND);
   }
@@ -142,8 +142,9 @@ public class CouponONArithmeticAverageDefinitionTest {
   public void toDerivativesNoData() {
     final CouponONArithmeticAverage cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
     final double payTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getPaymentDate());
-    final double[] fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(payTime, FEDFUND_CPN_3M_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, fixingTime,
+    final double[] fixingStartTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates());
+    final double[] fixingEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates());
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(payTime, FEDFUND_CPN_3M_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, fixingStartTime, fixingEndTime,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0);
     assertEquals("CouponArithmeticAverageONDefinition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -156,8 +157,9 @@ public class CouponONArithmeticAverageDefinitionTest {
     final String[] curvesNames = new String[] {"Funding", "Forward" };
     final CouponONArithmeticAverage cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE, curvesNames);
     final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE_3M);
-    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates());
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(TRADE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates());
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -171,8 +173,9 @@ public class CouponONArithmeticAverageDefinitionTest {
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7) }, new double[] {0.01 });
     final CouponONArithmeticAverage cpnConverted = (CouponONArithmeticAverage) FEDFUND_CPN_3M_DEF.toDerivative(referenceDate, fixingTS);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_3M);
-    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates());
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates());
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
 
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
@@ -188,8 +191,9 @@ public class CouponONArithmeticAverageDefinitionTest {
         new double[] {0.01, 0.01 });
     final Payment cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(referenceDate, fixingTS);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_3M);
-    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodDates());
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates());
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates());
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
         FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors(), 0.0);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -199,24 +203,25 @@ public class CouponONArithmeticAverageDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeFixingOnStartFixed() {
-    final ZonedDateTime referenceDate = FEDFUND_CPN_3M_DEF.getFixingPeriodDates()[1];
+    final ZonedDateTime referenceDate = FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates()[1];
     final double fixingRate = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 18), DateUtils.getUTCDate(2013, 4, 19),
       DateUtils.getUTCDate(2013, 4, 22), DateUtils.getUTCDate(2013, 4, 23) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate });
     final Payment cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(referenceDate, fixingTS);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_3M);
     final double rateAccrued = fixingRate * FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors()[0];
-    final double[] fixingPeriodTimes = new double[FEDFUND_CPN_3M_DEF.getFixingPeriodDates().length - 1];
-
-    for (int loopperiod = 1; loopperiod < FEDFUND_CPN_3M_DEF.getFixingPeriodDates().length; loopperiod++) {
-      fixingPeriodTimes[loopperiod - 1] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodDates()[loopperiod]);
+    final double[] fixingPeriodStartTimes = new double[FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates().length - 1];
+    final double[] fixingPeriodEndTimes = new double[FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates().length - 1];
+    for (int loopperiod = 1; loopperiod < FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates().length; loopperiod++) {
+      fixingPeriodStartTimes[loopperiod - 1] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodStartDates()[loopperiod]);
+      fixingPeriodEndTimes[loopperiod - 1] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_3M_DEF.getFixingPeriodEndDates()[loopperiod]);
     }
 
     final double[] fixingAccrualFactorsLeft = new double[FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors().length - 1];
     for (int loopperiod = 1; loopperiod < FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors().length; loopperiod++) {
       fixingAccrualFactorsLeft[loopperiod - 1] = FEDFUND_CPN_3M_DEF.getFixingPeriodAccrualFactors()[loopperiod];
     }
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_3M, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
         fixingAccrualFactorsLeft, rateAccrued);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -226,24 +231,26 @@ public class CouponONArithmeticAverageDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeFixingMiddleNotYetFixed() {
-    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[2];
+    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates()[2];
     final double fixingRate = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 18), DateUtils.getUTCDate(2013, 4, 19),
       DateUtils.getUTCDate(2013, 4, 22), DateUtils.getUTCDate(2013, 4, 23) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate });
     final Payment cpnConverted = FEDFUND_CPN_7D_DEF.toDerivative(referenceDate, fixingTS);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_7D);
     final double rateAccrued = fixingRate * FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[0] + fixingRate * FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[1];
-    final double[] fixingPeriodTimes = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodDates().length - 2];
+    final double[] fixingPeriodStartTimes = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates().length - 2];
+    final double[] fixingPeriodEndTimes = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates().length - 2];
 
-    for (int loopperiod = 2; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodDates().length; loopperiod++) {
-      fixingPeriodTimes[loopperiod - 2] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[loopperiod]);
+    for (int loopperiod = 2; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates().length; loopperiod++) {
+      fixingPeriodStartTimes[loopperiod - 2] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates()[loopperiod]);
+      fixingPeriodEndTimes[loopperiod - 2] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates()[loopperiod]);
     }
 
     final double[] fixingAccrualFactorsLeft = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors().length - 2];
     for (int loopperiod = 2; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors().length; loopperiod++) {
       fixingAccrualFactorsLeft[loopperiod - 2] = FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[loopperiod];
     }
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
         fixingAccrualFactorsLeft, rateAccrued);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -253,7 +260,7 @@ public class CouponONArithmeticAverageDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeFixingMiddleFixed() {
-    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[3];
+    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates()[3];
     final double fixingRate = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 18), DateUtils.getUTCDate(2013, 4, 19),
       DateUtils.getUTCDate(2013, 4, 22), DateUtils.getUTCDate(2013, 4, 23) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate });
@@ -261,17 +268,19 @@ public class CouponONArithmeticAverageDefinitionTest {
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, PAYMENT_DATE_7D);
     final double rateAccrued = fixingRate * FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[0] + fixingRate * FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[1] + fixingRate *
         FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[2];
-    final double[] fixingPeriodTimes = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodDates().length - 3];
+    final double[] fixingPeriodStartTimes = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates().length - 3];
+    final double[] fixingPeriodEndTimes = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates().length - 3];
 
-    for (int loopperiod = 3; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodDates().length; loopperiod++) {
-      fixingPeriodTimes[loopperiod - 3] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[loopperiod]);
+    for (int loopperiod = 3; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates().length; loopperiod++) {
+      fixingPeriodStartTimes[loopperiod - 3] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_7D_DEF.getFixingPeriodStartDates()[loopperiod]);
+      fixingPeriodEndTimes[loopperiod - 3] = TimeCalculator.getTimeBetween(referenceDate, FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates()[loopperiod]);
     }
 
     final double[] fixingAccrualFactorsLeft = new double[FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors().length - 3];
     for (int loopperiod = 3; loopperiod < FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors().length; loopperiod++) {
       fixingAccrualFactorsLeft[loopperiod - 3] = FEDFUND_CPN_7D_DEF.getFixingPeriodAccrualFactors()[loopperiod];
     }
-    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodTimes,
+    final CouponONArithmeticAverage cpnExpected = CouponONArithmeticAverage.from(paymentTime, ACCURAL_FACTOR_7D, NOTIONAL, FEDFUND, fixingPeriodStartTimes, fixingPeriodEndTimes,
         fixingAccrualFactorsLeft, rateAccrued);
     assertEquals("CouponArithmeticAverageON definition: toDerivative", cpnExpected, cpnConverted);
   }
@@ -281,7 +290,7 @@ public class CouponONArithmeticAverageDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeFixingSecondLastFixed() {
-    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[5].plusDays(1);
+    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates()[4].plusDays(1);
     final double fixingRate = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 18), DateUtils.getUTCDate(2013, 4, 19),
       DateUtils.getUTCDate(2013, 4, 22), DateUtils.getUTCDate(2013, 4, 23), DateUtils.getUTCDate(2013, 4, 24) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
@@ -299,7 +308,7 @@ public class CouponONArithmeticAverageDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeFixingLast() {
-    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[5].plusDays(2);
+    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates()[4].plusDays(2);
     final double fixingRate = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 18), DateUtils.getUTCDate(2013, 4, 19),
       DateUtils.getUTCDate(2013, 4, 22), DateUtils.getUTCDate(2013, 4, 23), DateUtils.getUTCDate(2013, 4, 24) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
@@ -317,7 +326,7 @@ public class CouponONArithmeticAverageDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivativeAfterLast() {
-    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodDates()[5].plusDays(3);
+    final ZonedDateTime referenceDate = FEDFUND_CPN_7D_DEF.getFixingPeriodEndDates()[4].plusDays(3);
     final double fixingRate = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 4, 18), DateUtils.getUTCDate(2013, 4, 19),
       DateUtils.getUTCDate(2013, 4, 22), DateUtils.getUTCDate(2013, 4, 23), DateUtils.getUTCDate(2013, 4, 24) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });

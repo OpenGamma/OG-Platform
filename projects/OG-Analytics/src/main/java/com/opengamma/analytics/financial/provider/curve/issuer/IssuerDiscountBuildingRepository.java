@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.google.common.collect.LinkedListMultimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -101,7 +102,7 @@ public class IssuerDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
       final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
@@ -141,7 +142,7 @@ public class IssuerDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
       final LinkedHashMap<String, GeneratorYDCurve> generatorsMap,
       final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     final GeneratorIssuerProviderDiscount generator = new GeneratorIssuerProviderDiscount(knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, generatorsMap);
@@ -183,7 +184,7 @@ public class IssuerDiscountBuildingRepository {
       final LinkedHashMap<String, Currency> discountingMap,
       final LinkedHashMap<String, IborIndex[]> forwardIborMap,
       final LinkedHashMap<String, IndexON[]> forwardONMap,
-      final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
       final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MulticurveSensitivity> sensitivityCalculator) {
     ArgumentChecker.notNull(curveBundles, "curve bundles");

@@ -21,6 +21,7 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +71,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Top-level class for multi-curve functions. This is a work in progress
- * 
+ *
  * @param <T> The type of the provider produced
  * @param <U> The type of the builder
  * @param <V> The type of the curve generator
@@ -122,28 +123,28 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
   /**
    * Gets the calculator.
-   * 
+   *
    * @return The calculator
    */
   protected abstract InstrumentDerivativeVisitor<T, Double> getCalculator();
 
   /**
    * Gets the sensitivity calculator.
-   * 
+   *
    * @return The sensitivity calculator
    */
   protected abstract InstrumentDerivativeVisitor<T, W> getSensitivityCalculator();
 
   /**
    * Gets the curve type property.
-   * 
+   *
    * @return The curve type property
    */
   protected abstract String getCurveTypeProperty();
 
   /**
    * Gets the compiled function for this curve construction method.
-   * 
+   *
    * @param earliestInvocation The earliest time this metadata and invoker are valid, null to indicate no lower validity bound
    * @param latestInvocation The latest time this metadata and invoker are valid, null to indicate no upper validity bound
    * @param curveNames The curve names
@@ -194,22 +195,16 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-        throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
       final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       final T knownData = getKnownData(inputs);
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-      ValueProperties bundleProperties = null;
-      for (final ValueRequirement desiredValue : desiredValues) {
-        if (desiredValue.getValueName().equals(CURVE_BUNDLE) || desiredValue.getValueName().equals(_curveRequirement)) {
-          bundleProperties = desiredValue.getConstraints();
-          break;
-        }
-      }
-      if (bundleProperties == null) {
-        throw new OpenGammaRuntimeException("Could not get bundle properties from desired values");
-      }
+      ValueProperties bundleProperties = desiredValues.iterator().next().getConstraints().copy()
+          .withoutAny(CURVE)
+          .with(CURVE, Arrays.asList(_curveNames))
+          .get();
       final double absoluteTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)));
       final double relativeTolerance = Double.parseDouble(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)));
       final int maxIterations = Integer.parseInt(Iterables.getOnlyElement(bundleProperties.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)));
@@ -262,7 +257,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the exogenous requirements.
-     * 
+     *
      * @return The exogenous requirements
      */
     protected Set<ValueRequirement> getExogenousRequirements() {
@@ -271,7 +266,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the curve names.
-     * 
+     *
      * @return The curve names
      */
     protected String[] getCurveNames() {
@@ -279,8 +274,17 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     }
 
     /**
-     * Gets the known data from the FX matrix.
+     * Gets the curve construction configuration name.
      * 
+     * @return The curve construction configuration name
+     */
+    protected String getCurveConstructionConfigurationName() {
+      return _configurationName;
+    }
+    
+    /**
+     * Gets the known data from the FX matrix.
+     *
      * @param inputs The inputs
      * @return The known data
      */
@@ -288,7 +292,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the curve builder.
-     * 
+     *
      * @param absoluteTolerance The absolute tolerance for the root-finder
      * @param relativeTolerance The relative tolerance for the root-finder
      * @param maxIterations The maximum number of iterations
@@ -298,7 +302,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the generator for a curve definition
-     * 
+     *
      * @param definition The curve definition
      * @param valuationDate The valuation date
      * @return The generator
@@ -339,7 +343,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the curve node converter used to convert a node into an InstrumentDerivative.
-     * 
+     *
      * @param conventionSource the convention source, not null
      * @return The curve node converter used to convert a node into an InstrumentDerivative.
      */
@@ -350,7 +354,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the maturity calculator.
-     * 
+     *
      * @return The maturity calculator
      */
     @SuppressWarnings("synthetic-access")
@@ -360,27 +364,40 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the result properties for a curve
-     * 
+     *
      * @param curveName The curve name
      * @return The result properties
      */
     @SuppressWarnings("synthetic-access")
     protected ValueProperties getCurveProperties(final String curveName) {
-      return createValueProperties().with(CURVE, curveName).with(CURVE_CALCULATION_METHOD, ROOT_FINDING).with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
-          .with(CURVE_CONSTRUCTION_CONFIG, _configurationName).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-          .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).get();
+      return createValueProperties()
+          .with(CURVE, curveName)
+          .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+          .with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
+          .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
+          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+          .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+          .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+          .get();
     }
 
     /**
      * Gets the result properties for a curve bundle
-     * 
+     *
      * @param curveNames All of the curves produced by this function
      * @return The result properties
      */
     @SuppressWarnings("synthetic-access")
     protected ValueProperties getBundleProperties(final String[] curveNames) {
-      return createValueProperties().with(CURVE_CALCULATION_METHOD, ROOT_FINDING).with(PROPERTY_CURVE_TYPE, getCurveTypeProperty()).with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
-          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).with(CURVE, curveNames).get();
+      return createValueProperties()
+          .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
+          .with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
+          .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
+          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
+          .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+          .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+          .with(CURVE, curveNames)
+          .get();
     }
 
   }

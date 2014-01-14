@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -34,7 +35,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is mutable although once created is normally treated as immutable.
  */
-@Config(description = "Currency pairs")
+@Config(description = "Currency pairs", group = ConfigGroups.CURRENCY)
 @BeanDefinition
 public final class CurrencyPairs implements Bean, UniqueIdentifiable, MutableUniqueIdentifiable {
   // TODO: this really should be immutable

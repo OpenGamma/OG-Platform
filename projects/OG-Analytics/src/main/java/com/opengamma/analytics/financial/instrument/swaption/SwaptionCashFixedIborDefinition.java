@@ -35,6 +35,10 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
    */
   private final boolean _isLong;
   /**
+   * Flag indicating if the option is a call (true) or put (false).
+   */
+  private final boolean _isCall;
+  /**
    * The cash settlement date of the swaption.
    */
   private final ZonedDateTime _settlementDate;
@@ -61,6 +65,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     _underlyingSwap = underlyingSwap;
     _currency = underlyingSwap.getCurrency();
     _isLong = isLong;
+    _isCall = isCall;
     _settlementDate = underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate();
     _expiry = new Expiry(expiryDate);
   }
@@ -110,7 +115,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
   @Override
@@ -121,7 +126,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _settlementDate);
     final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime);
-    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
+    return SwaptionCashFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isCall, _isLong);
   }
 
 
@@ -135,10 +140,18 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
 
   /**
    * Gets the isLong flag.
-   * @return The Long (true)/Short (false) flag.
+   * @return True if the swaption is long
    */
   public boolean isLong() {
     return _isLong;
+  }
+
+  /**
+   * Gets the call/put flag
+   * @return True if the swaption is a call
+   */
+  public boolean isCall() {
+    return _isCall;
   }
 
   /**
@@ -190,6 +203,7 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     final int prime = 31;
     int result = 1;
     result = prime * result + _expiry.hashCode();
+    result = prime * result + (_isCall ? 1231 : 1237);
     result = prime * result + (_isLong ? 1231 : 1237);
     result = prime * result + _underlyingSwap.hashCode();
     return result;
@@ -207,10 +221,13 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
       return false;
     }
     final SwaptionCashFixedIborDefinition other = (SwaptionCashFixedIborDefinition) obj;
-    if (!ObjectUtils.equals(_expiry, other._expiry)) {
+    if (_isCall != other._isCall) {
       return false;
     }
     if (_isLong != other._isLong) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {

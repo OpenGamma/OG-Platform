@@ -8,6 +8,7 @@ package com.opengamma.engine.view.cycle;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.testng.annotations.BeforeMethod;
@@ -49,7 +50,6 @@ public class LiveDataDeltaCalculatorTest {
 
   ViewComputationCache _cache;
   ViewComputationCache _previousCache;
-  LiveDataDeltaCalculator _deltaCalculator;
 
   @BeforeMethod
   public void setUp() {
@@ -57,8 +57,14 @@ public class LiveDataDeltaCalculatorTest {
     final InMemoryViewComputationCacheSource source = new InMemoryViewComputationCacheSource(FudgeContext.GLOBAL_DEFAULT);
     _cache = source.getCache(UniqueId.of("Test", "ViewCycle", "1"), "Default");
     _previousCache = source.getCache(UniqueId.of("Test", "ViewCycle", "0"), "Default");
-    _deltaCalculator = new LiveDataDeltaCalculator(_graph, _cache, _previousCache);
+  }
 
+  private LiveDataDeltaCalculator deltaCalculator() {
+    return deltaCalculator(Collections.<ValueSpecification>emptySet());
+  }
+
+  private LiveDataDeltaCalculator deltaCalculator(final Set<ValueSpecification> dirtySpecifications) {
+    return new LiveDataDeltaCalculator(_graph, _cache, _previousCache, dirtySpecifications);
   }
 
   private ComputationTargetSpecification getTarget(final String name) {
@@ -70,7 +76,7 @@ public class LiveDataDeltaCalculatorTest {
   }
 
   /**
-   * Creates the test graph
+   * Creates the test graph (data flows downwards - 0 & 1 are market data nodes)
    * 
    * <pre>
    *         0   1
@@ -105,51 +111,78 @@ public class LiveDataDeltaCalculatorTest {
   }
 
   public void noChangeA() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
     put(_cache, 0, 6.0);
     put(_previousCache, 0, 6.0);
-    _deltaCalculator.computeDelta();
-    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
   }
 
   public void noChangeB() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
     put(_cache, 1, 6.0);
     put(_previousCache, 1, 6.0);
-    _deltaCalculator.computeDelta();
-    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
   }
 
   public void noChangeC() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
     put(_cache, 2, 6.0);
     put(_previousCache, 2, 6.0);
-    _deltaCalculator.computeDelta();
-    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
   }
 
   public void changeA() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
     put(_cache, 0, 6.0);
     put(_previousCache, 0, 7.0);
-    _deltaCalculator.computeDelta();
-    assertEquals(Sets.newHashSet(_node[1], _node[3]), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Sets.newHashSet(_node[0], _node[2], _node[4]), _deltaCalculator.getChangedNodes());
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[1], _node[3]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[0], _node[2], _node[4]), deltaCalculator.getChangedNodes());
   }
 
   public void changeB() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
     put(_cache, 1, 6.0);
     put(_previousCache, 1, 7.0);
-    _deltaCalculator.computeDelta();
-    assertEquals(Sets.newHashSet(_node[0]), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Sets.newHashSet(_node[1], _node[2], _node[3], _node[4]), _deltaCalculator.getChangedNodes());
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[1], _node[2], _node[3], _node[4]), deltaCalculator.getChangedNodes());
   }
 
   public void changeC() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator();
     put(_cache, 2, 6.0);
     put(_previousCache, 2, 7.0);
-    _deltaCalculator.computeDelta();
-    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
+    deltaCalculator.computeDelta();
+    assertEquals(ImmutableSet.copyOf(DependencyGraphImpl.getDependencyNodes(_graph)), deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), deltaCalculator.getChangedNodes());
+  }
+
+  public void parameterChangeA() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator(Collections.singleton(_value[2]));
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0], _node[1], _node[3]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[2], _node[4]), deltaCalculator.getChangedNodes());
+  }
+
+  public void parameterChangeB() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator(Collections.singleton(_value[3]));
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0], _node[1], _node[2]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[3], _node[4]), deltaCalculator.getChangedNodes());
+  }
+
+  public void parameterChangeC() {
+    final LiveDataDeltaCalculator deltaCalculator = deltaCalculator(Collections.singleton(_value[4]));
+    deltaCalculator.computeDelta();
+    assertEquals(Sets.newHashSet(_node[0], _node[1], _node[2], _node[3]), deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node[4]), deltaCalculator.getChangedNodes());
   }
 
 }

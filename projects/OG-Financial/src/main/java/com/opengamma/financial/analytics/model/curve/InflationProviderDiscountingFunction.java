@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -36,6 +38,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundi
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedInflationZeroCouponDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
@@ -95,6 +98,8 @@ import com.opengamma.util.tuple.Pairs;
  */
 public class InflationProviderDiscountingFunction extends
     MultiCurveFunction<InflationProviderInterface, InflationDiscountBuildingRepository, GeneratorPriceIndexCurve, InflationSensitivity> {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InflationProviderDiscountingFunction.class);
   /** The calculator */
   private static final ParSpreadInflationMarketQuoteDiscountingCalculator PSIMQC = ParSpreadInflationMarketQuoteDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
@@ -304,10 +309,16 @@ public class InflationProviderDiscountingFunction extends
       result.add(new ComputedValue(jacobianSpec, pair.getSecond()));
       for (final String curveName : getCurveNames()) {
         final ValueProperties curveProperties = bundleProperties.copy()
+            .withoutAny(CURVE)
             .with(CURVE, curveName)
             .get();
-        final ValueSpecification curveSpec = new ValueSpecification(PRICE_INDEX_CURVE, ComputationTargetSpecification.NULL, curveProperties);
-        result.add(new ComputedValue(curveSpec, provider.getCurve(curveName)));
+        final YieldAndDiscountCurve curve = provider.getMulticurveProvider().getCurve(curveName);
+        if (curve == null) {
+          s_logger.error("Could not get curve called {} from configuration {}", curveName, getCurveConstructionConfigurationName());
+        } else {
+          final ValueSpecification curveSpec = new ValueSpecification(PRICE_INDEX_CURVE, ComputationTargetSpecification.NULL, curveProperties);
+          result.add(new ComputedValue(curveSpec, curve));
+        }
       }
       return result;
     }

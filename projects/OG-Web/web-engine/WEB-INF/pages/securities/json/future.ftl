@@ -7,7 +7,7 @@
         "expiryAccuracy":"${security.expiry.accuracy?replace("_", " ")}",
         "tradingExchange":"${security.tradingExchange}",
         "settlementExchange":"${security.settlementExchange}",
-        "redemptionValue":"${security.currency}",
+        "currency":"${security.currency}",
         "unitAmount": ${security.unitAmount},
         <#if futureSecurityType == "BondFuture">
             "firstDeliveryDate":"${security.firstDeliveryDate}",

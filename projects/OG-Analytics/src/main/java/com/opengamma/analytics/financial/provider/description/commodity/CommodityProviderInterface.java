@@ -39,7 +39,7 @@ public interface CommodityProviderInterface extends ParameterCommodityProviderIn
   double getForwardValue(CommodityUnderlying underlying, Double time);
 
   /**
-   * Return the name associated to a price index.
+   * Return the name associated to a commodity underlying.
    * @param underlying The underlying commodity.
    * @return The name.
    */

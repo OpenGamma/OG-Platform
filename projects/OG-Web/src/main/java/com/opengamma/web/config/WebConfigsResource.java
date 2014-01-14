@@ -288,6 +288,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     out.put("searchRequest", searchRequest);
     out.put("configTypes", getConfigTypesProvider().getConfigTypes());
     out.put("configDescriptionMap", getConfigTypesProvider().getDescriptionMap());
+    out.put("configGroupMap", getConfigTypesProvider().getGroupMap());
     out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }

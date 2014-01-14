@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinition;
 import com.opengamma.engine.marketdata.manipulator.ScenarioDefinitionFactory;
 
@@ -34,7 +35,7 @@ import com.opengamma.engine.marketdata.manipulator.ScenarioDefinitionFactory;
  * Configuration object containing a script to define a scenario.
  * The script is written in the Groovy-based scenario DSL.
  */
-@Config(description = "Scenario DSL script")
+@Config(description = "Scenario DSL script", group = ConfigGroups.SCENARIOS)
 @BeanDefinition
 public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitionFactory {
 

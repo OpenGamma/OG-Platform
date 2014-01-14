@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -16,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of a bond future security (derivative version).
  */
-public class BondFuturesSecurity implements InstrumentDerivative {
+public class BondFuturesSecurity extends FuturesSecurity { // implements InstrumentDerivative {
 
   /**
    * The last trading time.
@@ -70,6 +69,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
   public BondFuturesSecurity(final double tradingLastTime, final double noticeFirstTime, final double noticeLastTime, final double deliveryFirstTime,
       final double deliveryLastTime, final double notional, final BondFixedSecurity[] deliveryBasketAtDeliveryDate, final BondFixedSecurity[] deliveryBasketAtSpotDate,
       final double[] conversionFactor) {
+    super(tradingLastTime);
     ArgumentChecker.notNull(deliveryBasketAtDeliveryDate, "Delivery basket at delivery date");
     ArgumentChecker.notNull(deliveryBasketAtSpotDate, "Delivery basket at spot date");
     ArgumentChecker.notNull(conversionFactor, "Conversion factors");
@@ -91,6 +91,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
    * Gets the last trading time.
    * @return The last trading time.
    */
+  @Override
   public double getTradingLastTime() {
     return _tradingLastTime;
   }
@@ -163,6 +164,7 @@ public class BondFuturesSecurity implements InstrumentDerivative {
    * Gets the future currency.
    * @return The currency.
    */
+  @Override
   public Currency getCurrency() {
     return _deliveryBasketAtDeliveryDate[0].getCurrency();
   }

@@ -176,7 +176,11 @@ public abstract class AbstractWebResource {
     Source xmlInput = new StreamSource(new StringReader(input));
     StreamResult xmlOutput = new StreamResult(new StringWriter());
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    transformerFactory.setAttribute("indent-number", indent);
+    try {
+      transformerFactory.setAttribute("indent-number", indent);
+    } catch (IllegalArgumentException e) {
+      //ignore
+    }
     Transformer transformer = transformerFactory.newTransformer();
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.transform(xmlInput, xmlOutput);

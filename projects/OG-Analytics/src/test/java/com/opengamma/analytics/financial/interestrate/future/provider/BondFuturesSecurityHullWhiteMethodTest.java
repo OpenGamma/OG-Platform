@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.FuturesPriceHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.MarketQuoteCurveSensitivityHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.MarketQuoteHullWhiteIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.HullWhiteDataSets;
@@ -112,9 +113,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
 
   private static final BondFuturesSecurityHullWhiteMethod METHOD_FUT_SEC_HW = BondFuturesSecurityHullWhiteMethod.getInstance();
   private static final BondFuturesSecurityHullWhiteNumericalIntegrationMethod METHOD_FUT_SEC_NI = BondFuturesSecurityHullWhiteNumericalIntegrationMethod.getInstance();
-
-  /** The number of points used in the numerical integration process. */
-  private static final int DEFAULT_NB_POINTS = 81;
+  private static final FuturesPriceHullWhiteIssuerCalculator FPHWIC = FuturesPriceHullWhiteIssuerCalculator.getInstance();
 
   private static final double TOLERANCE_PRICE = 1.0E-8;
   private static final double TOLERANCE_PRICE_NI = 1.0E-6;
@@ -166,7 +165,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
   public void priceAD() {
     final double price = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     final MulticurveSensitivity pcs = METHOD_FUT_SEC_HW.priceCurveSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
-    final Pair<Double, MulticurveSensitivity> priceAD = METHOD_FUT_SEC_HW.priceAD(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, DEFAULT_NB_POINTS);
+    final Pair<Double, MulticurveSensitivity> priceAD = METHOD_FUT_SEC_HW.priceAD(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     assertEquals("Bond future security Discounting Method: price from curves", price, priceAD.getFirst(), TOLERANCE_PRICE);
     AssertSensivityObjects.assertEquals("Bond future security Discounting Method: price from curves", pcs, priceAD.getSecond(), TOLERANCE_PRICE_DELTA);
   }
@@ -187,7 +186,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      priceFuture = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, DEFAULT_NB_POINTS);
+      priceFuture = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     }
     endTime = System.currentTimeMillis();
     System.out.println("BondFuturesSecurityHullWhiteMethodTest: " + nbTest + " price Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
@@ -195,7 +194,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pcs = METHOD_FUT_SEC_HW.priceCurveSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, DEFAULT_NB_POINTS);
+      pcs = METHOD_FUT_SEC_HW.priceCurveSensitivity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     }
     endTime = System.currentTimeMillis();
     System.out.println("BondFuturesSecurityHullWhiteMethodTest: " + nbTest + " price curve sensi Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
@@ -203,7 +202,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      priceAD = METHOD_FUT_SEC_HW.priceAD(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, DEFAULT_NB_POINTS);
+      priceAD = METHOD_FUT_SEC_HW.priceAD(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER);
     }
     endTime = System.currentTimeMillis();
     System.out.println("BondFuturesSecurityHullWhiteMethodTest: " + nbTest + " price and price curve sensi Bond Future Hull-White (Default number of points): " + (endTime - startTime) + " ms");
@@ -225,7 +224,7 @@ public class BondFuturesSecurityHullWhiteMethodTest {
     for (int looprange = 0; looprange < nbRange; looprange++) {
       startTime = System.currentTimeMillis();
       for (int looptest = 0; looptest < nbTest; looptest++) {
-        priceRange[looprange] = METHOD_FUT_SEC_HW.price(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, nbPoint[looprange]);
+        priceRange[looprange] = FPHWIC.visitBondFuturesSecurity(BOND_FUTURE_SEC, MULTICURVES_HW_ISSUER, nbPoint[looprange]);
       }
       endTime = System.currentTimeMillis();
       System.out.println("BondFuturesSecurityHullWhiteMethodTest: " + nbTest + " price Bond Future Hull-White: with " + nbPoint[looprange] + " points: " + (endTime - startTime) + " ms - price: " +

@@ -7,6 +7,7 @@ package com.opengamma.web.config;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.fudgemsg.AnnotationReflector;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.Config;
-import com.opengamma.util.ClassUtils;
 
 /**
  * Provides all supported configuration types
@@ -39,6 +39,10 @@ public final class ConfigTypesProvider {
    * Map of config descriptions.
    */
   private final ImmutableSortedMap<String, String> _configDescriptionMap;
+  /**
+   * Map of config groups.
+   */
+  private final Map<String, Map<String, String>> _configGroupMap;
 
   //-------------------------------------------------------------------------
   /**
@@ -55,6 +59,7 @@ public final class ConfigTypesProvider {
    * Restricted constructor
    */
   private ConfigTypesProvider() {
+    _configGroupMap = new TreeMap();
     Map<String, Class<?>> result = Maps.newHashMap();
     ImmutableSortedMap.Builder<String, String> descriptions = ImmutableSortedMap.naturalOrder();
     AnnotationReflector reflector = AnnotationReflector.getDefaultReflector();
@@ -67,6 +72,8 @@ public final class ConfigTypesProvider {
         if (configType == Object.class) {
           configType = configClass;
         }
+        // extract grouping
+        String group = configValueAnnotation.group();
         // extract description
         String description = configValueAnnotation.description();
         if (description.length() == 0) {
@@ -78,10 +85,19 @@ public final class ConfigTypesProvider {
           s_logger.warn("Two classes exist with the same name: " + configType.getSimpleName());
         }
         descriptions.put(configType.getSimpleName(), description);
+        if (_configGroupMap.containsKey(group)) {
+          _configGroupMap.get(group).put(configType.getSimpleName(), description);
+        } else {
+          Map<String, String> value = new TreeMap<>();
+          value.put(configType.getSimpleName(), description);
+          _configGroupMap.put(group, value);
+        }
+
       }
     }
     _configTypeMap = ImmutableSortedMap.copyOf(result);
     _configDescriptionMap = descriptions.build();
+
   }
 
   //-------------------------------------------------------------------------
@@ -110,6 +126,15 @@ public final class ConfigTypesProvider {
    */
   public ImmutableSortedMap<String, String> getDescriptionMap() {
     return _configDescriptionMap;
+  }
+
+  /**
+   * Gets the map of config groups by short key.
+   *
+   * @return the map, not null
+   */
+  public Map<String, Map<String, String>> getGroupMap() {
+    return _configGroupMap;
   }
 
   /**

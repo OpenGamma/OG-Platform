@@ -96,6 +96,7 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     assertEquals(SWAPTION.getExpiry().getExpiry(), EXPIRY_DATE);
     assertEquals(SWAPTION.getUnderlyingSwap(), SWAP);
     assertEquals(SWAPTION.isLong(), IS_LONG);
+    assertEquals(SWAPTION.isCall(), FIXED_IS_PAYER);
   }
 
   @SuppressWarnings("deprecation")
@@ -158,6 +159,8 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     assertFalse(SWAPTION.equals(modifiedSwaption));
     assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
     modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, true, IS_LONG);
+    assertFalse(SWAPTION.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, false, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
     modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, otherSwap, true, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));

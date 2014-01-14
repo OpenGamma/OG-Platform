@@ -1616,6 +1616,10 @@ public final class ValueRequirementNames {
    * Type of a position or trade.
    */
   public static final String TYPE = "Type";
+  /**
+   * The named used for a value published as a merged output.
+   */
+  public static final String MERGED_OUTPUT = "MergedOutput";
   
   ///// Externally-sourced values
   // Existing value requirement names with a suffix

@@ -27,6 +27,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -35,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * The mapping of Bloomberg security types description to OG security types.
  */
-@Config(description = "Bloomberg security type definition")
+@Config(description = "Bloomberg security type definition", group = ConfigGroups.MISC)
 @BeanDefinition
 public class BloombergSecurityTypeDefinition implements Bean, Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
   

@@ -38,7 +38,7 @@ public class InterestRateSwapSecurityUtils {
       //if (floatingLeg instanceof FloatingSpreadIRLeg) {
       //  return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
       //}
-      final FloatingRateType floatingRateType = floatingLeg.getConvention().getRateType();
+      final FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
       switch (floatingRateType) {
         case IBOR:
           return InterestRateInstrumentType.SWAP_FIXED_IBOR;
@@ -55,7 +55,7 @@ public class InterestRateSwapSecurityUtils {
       //if (floatingLeg instanceof FloatingSpreadIRLeg) {
       //  return InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD;
       //}
-      final FloatingRateType floatingRateType = floatingLeg.getConvention().getRateType();
+      final FloatingRateType floatingRateType = floatingLeg.getFloatingRateType();
       switch (floatingRateType) {
         case IBOR:
           return InterestRateInstrumentType.SWAP_FIXED_IBOR;
@@ -70,21 +70,21 @@ public class InterestRateSwapSecurityUtils {
     if (payLeg instanceof FloatingInterestRateSwapLeg && receiveLeg instanceof FloatingInterestRateSwapLeg) {
       final FloatingInterestRateSwapLeg payLeg1 = (FloatingInterestRateSwapLeg) payLeg;
       final FloatingInterestRateSwapLeg receiveLeg1 = (FloatingInterestRateSwapLeg) receiveLeg;
-      if (payLeg1.getConvention().getRateType().isIbor()) {
-        if (receiveLeg1.getConvention().getRateType().isIbor()) {
+      if (payLeg1.getFloatingRateType().isIbor()) {
+        if (receiveLeg1.getFloatingRateType().isIbor()) {
           return InterestRateInstrumentType.SWAP_IBOR_IBOR;
-        } else if (receiveLeg1.getConvention().getRateType().isOis()) {
+        } else if (receiveLeg1.getFloatingRateType().isOis()) {
           return InterestRateInstrumentType.SWAP_IBOR_OIS;
-        } else if (receiveLeg1.getConvention().getRateType().isCms()) {
+        } else if (receiveLeg1.getFloatingRateType().isCms()) {
           return InterestRateInstrumentType.SWAP_IBOR_CMS;
         } else {
           throw new OpenGammaRuntimeException("Unknown swap type: " + security);
         }
       }
-      if (receiveLeg1.getConvention().getRateType().isIbor()) {
-        if (payLeg1.getConvention().getRateType().isOis()) {
+      if (receiveLeg1.getFloatingRateType().isIbor()) {
+        if (payLeg1.getFloatingRateType().isOis()) {
           return InterestRateInstrumentType.SWAP_IBOR_OIS;
-        } else if (payLeg1.getConvention().getRateType().isCms()) {
+        } else if (payLeg1.getFloatingRateType().isCms()) {
           return InterestRateInstrumentType.SWAP_IBOR_CMS;
         } else {
           throw new OpenGammaRuntimeException("Unknown swap type: " + security);

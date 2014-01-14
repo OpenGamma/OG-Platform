@@ -16,8 +16,12 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.AgricultureFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.CouponCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.EnergyFutureTransactionDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityCashSettleDefinition;
+import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.ForwardCommodityPhysicalSettleDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureSecurityDefinition;
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.definition.MetalFutureTransactionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
@@ -68,6 +72,8 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSec
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.YieldAverageBondFuturesTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearInterpolationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationZeroCouponInterpolationDefinition;
@@ -324,6 +330,36 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bondFuture);
+
+  /**
+   * Yield average bond future security method that takes data.
+   * @param bondFuture A bond future security
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture, DATA_TYPE data);
+
+  /**
+   * Yield average bond future security method.
+   * @param bondFuture A bond future security
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesSecurityDefinition(YieldAverageBondFuturesSecurityDefinition bondFuture);
+
+  /**
+   * Yield average bond future transaction method that takes data.
+   * @param bondFuture A bond future transaction
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture, DATA_TYPE data);
+
+  /**
+   * Yield average bond future transaction method.
+   * @param bondFuture A bond future transaction
+   * @return The result
+   */
+  RESULT_TYPE visitYieldAverageBondFuturesTransactionDefinition(YieldAverageBondFuturesTransactionDefinition bondFuture);
 
   /**
    * Forward rate agreement method that takes data.
@@ -1645,6 +1681,66 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
    * @return The result
    */
   RESULT_TYPE visitEnergyFutureTransactionDefinition(EnergyFutureTransactionDefinition future);
+
+  /**
+   * Forward commodity cash settle method that takes data.
+   * @param forward A forward
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityCashSettleDefinition(ForwardCommodityCashSettleDefinition forward, DATA_TYPE data);
+
+  /**
+   * Forward commodity cash settle  method.
+   * @param forward A forward
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityCashSettleDefinition(ForwardCommodityCashSettleDefinition forward);
+
+  /**
+   * Forward commodity Physical settle method that takes data.
+   * @param forward A forward
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(ForwardCommodityPhysicalSettleDefinition forward, DATA_TYPE data);
+
+  /**
+   * Forward commodity Physical settle  method.
+   * @param forward A forward
+   * @return The result
+   */
+  RESULT_TYPE visitForwardCommodityPhysicalSettleDefinition(ForwardCommodityPhysicalSettleDefinition forward);
+
+  /**
+   * Coupon commodity cash settle method that takes data.
+   * @param coupon A coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityCashSettleDefinition(CouponCommodityCashSettleDefinition coupon, DATA_TYPE data);
+
+  /**
+   * Coupon commodity cash settle  method.
+   * @param coupon A coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityCashSettleDefinition(CouponCommodityCashSettleDefinition coupon);
+
+  /**
+   * Coupon commodity Physical settle method that takes data.
+   * @param coupon A coupon
+   * @param data The data
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(CouponCommodityPhysicalSettleDefinition coupon, DATA_TYPE data);
+
+  /**
+   * Coupon commodity Physical settle  method.
+   * @param coupon A coupon
+   * @return The result
+   */
+  RESULT_TYPE visitCouponCommodityPhysicalSettleDefinition(CouponCommodityPhysicalSettleDefinition coupon);
 
   // -----     Equity    -----
 

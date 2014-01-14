@@ -28,8 +28,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewCalculationConfiguration.MergedOutput;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -187,6 +190,10 @@ public class PortfolioGridStructure extends MainGridStructure {
       }
       for (Pair<String, ValueProperties> output : calcConfig.getAllPortfolioRequirements()) {
         allSpecs.add(new ColumnSpecification(calcConfig.getName(), output.getFirst(), output.getSecond()));
+      }
+      for (MergedOutput output : calcConfig.getMergedOutputs()) {
+        ValueProperties constraints = ValueProperties.with(ValuePropertyNames.NAME, output.getMergedOutputName()).get();
+        allSpecs.add(new ColumnSpecification(calcConfig.getName(), ValueRequirementNames.MERGED_OUTPUT, constraints, output.getMergedOutputName()));
       }
       List<GridColumn> columns = Lists.newArrayList();
       for (ColumnSpecification columnSpec : allSpecs) {

@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -30,7 +31,7 @@ import com.opengamma.id.UniqueIdentifiable;
  * Config object that contains bloomberg field overrides.
  */
 @BeanDefinition
-@Config(description = "Bloomberg field override")
+@Config(description = "Bloomberg field override", group = ConfigGroups.MISC)
 public class BloombergFieldOverride extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
   
   @PropertyDefinition

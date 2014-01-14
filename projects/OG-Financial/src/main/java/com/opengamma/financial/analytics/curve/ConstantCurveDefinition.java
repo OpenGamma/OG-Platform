@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -26,7 +27,7 @@ import com.opengamma.id.ExternalId;
  * {@link ExternalId} of the constant value.
  */
 @BeanDefinition
-@Config(description = "Constant curve definition")
+@Config(description = "Constant curve definition", group = ConfigGroups.CURVES)
 public class ConstantCurveDefinition extends AbstractCurveDefinition {
 
   /** Serialization version */

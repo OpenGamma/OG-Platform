@@ -12,6 +12,8 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.FixedInterestRateSwapLegConvention;
 import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
@@ -50,7 +52,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_FIXED_3M_EOM_CONVENTION.setMaturityCalendars(USNYGBLO);
     USD_FIXED_3M_EOM_CONVENTION.setPaymentCalendars(USNYGBLO);
     USD_FIXED_3M_EOM_CONVENTION.setPaymentFrequency(SimpleFrequency.QUARTERLY);
-    USD_FIXED_3M_EOM_CONVENTION.setPaymentRelativeTo(PeriodRelationship.END);
+    USD_FIXED_3M_EOM_CONVENTION.setPaymentRelativeTo(DateRelativeTo.END);
     USD_FIXED_3M_EOM_CONVENTION.setSettlementDays(2);
     USD_FIXED_3M_EOM_CONVENTION.setPaymentDayConvention(MF);
     USD_FIXED_3M_EOM_CONVENTION.setCalculationBusinessDayConvention(MF);
@@ -65,7 +67,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_LIBOR_3M_EOM_CONVENTION.setMaturityCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setPaymentCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setPaymentFrequency(SimpleFrequency.QUARTERLY);
-    USD_LIBOR_3M_EOM_CONVENTION.setPaymentRelativeTo(PeriodRelationship.END);
+    USD_LIBOR_3M_EOM_CONVENTION.setPaymentRelativeTo(DateRelativeTo.END);
     USD_LIBOR_3M_EOM_CONVENTION.setSettlementDays(2);
     USD_LIBOR_3M_EOM_CONVENTION.setPaymentDayConvention(MF);
     USD_LIBOR_3M_EOM_CONVENTION.setCalculationBusinessDayConvention(MF);
@@ -76,7 +78,7 @@ public class InterestRateSwapSecurityFudgeTest extends AbstractFudgeBuilderTestC
     USD_LIBOR_3M_EOM_CONVENTION.setResetFrequency(SimpleFrequency.QUARTERLY);
     USD_LIBOR_3M_EOM_CONVENTION.setResetCalendars(USNYGBLO);
     USD_LIBOR_3M_EOM_CONVENTION.setResetBusinessDayConvention(MF);
-    USD_LIBOR_3M_EOM_CONVENTION.setResetRelativeTo(PeriodRelationship.BEGINNING);
+    USD_LIBOR_3M_EOM_CONVENTION.setResetRelativeTo(DateRelativeTo.START);
     USD_LIBOR_3M_EOM_CONVENTION.setRollConvention(RollConvention.EOM);
     USD_LIBOR_3M_EOM_CONVENTION.setRateType(FloatingRateType.IBOR);
     USD_LIBOR_3M_EOM_CONVENTION.setCompoundingMethod(CompoundingMethod.NONE);

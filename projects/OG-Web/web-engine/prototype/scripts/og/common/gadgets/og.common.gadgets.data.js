@@ -94,7 +94,10 @@ $.register_module({
             LABELLED_MATRIX_2D: function (dataman, data) {
                 if (!data || !data.matrix || !data.matrix.length) return;
                 var cols = data.xLabels, rows = data.yLabels.map(cell_value),
-                    fixed_width = Math.max.apply(null, data.yLabels.pluck('length')) * char_width;
+                    // Try to work out a reasonable header column width by taking the maximum number of characters in
+                    // the header column and multiplying by an average character width. Ensure column width is no
+                    // smaller than the grid's minimum of 50.
+                    fixed_width = Math.max(50, Math.max.apply(null, data.yLabels.pluck('length')) * char_width);
                 return {
                     meta: meta(dataman, rows.length, cols, fixed_width, cols.length === 1 + data.matrix[0].length),
                     data: data.matrix.reduce(function (acc, val, idx) {

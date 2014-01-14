@@ -74,31 +74,27 @@ public final class DependencyGraphBuilder implements Cancelable {
    * Disables the multi-threaded graph building. If set, value requirements will be queued as they are added and the graph built by a single thread when {@link #getDependencyGraph} is called. This is
    * false by default but can be controlled by the {@code DependencyGraphBuilder.noBackgroundThreads} property. When set the value of {@link #_maxAdditionalThreads} is ignored.
    */
-  private static final boolean NO_BACKGROUND_THREADS =
-      System.getProperty("DependencyGraphBuilder.noBackgroundThreads", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean NO_BACKGROUND_THREADS = System.getProperty("DependencyGraphBuilder.noBackgroundThreads", "FALSE").equalsIgnoreCase("TRUE");
 
   /**
    * Limits the maximum number of additional threads that the builder will spawn by default. This is used for the default value for {@link #_maxAdditionalThreads}. A value of {@code -1} will use the
    * number of processor cores as the default. The number of threads actually used by be different as the {@link DependencyGraphBuilderFactory} may only provide a limited pool to all active graph
    * builders. This is {@code -1} by default (use the number of processor cores) but can be controlled by the {@code DependencyGraphBuilder.maxAdditionalThreads} property.
    */
-  private static final int MAX_ADDITIONAL_THREADS =
-      Integer.parseInt(System.getProperty("DependencyGraphBuilder.maxAdditionalThreads", "-1"));
+  private static final int MAX_ADDITIONAL_THREADS = Integer.parseInt(System.getProperty("DependencyGraphBuilder.maxAdditionalThreads", "-1"));
 
   /**
    * Writes the dependency graph structure (in ASCII) out after each graph build completes. Graphs are written to the user's temporary folder with the name {@code dependencyGraph} and a numeric suffix
    * from the builder's object ID. The default value is off but can be controlled by the {@code DependencyGraphBuilder.dumpDependencyGraph} property.
    */
-  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH =
-      System.getProperty("DependencyGraphBuilder.dumpDependencyGraph", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean DEBUG_DUMP_DEPENDENCY_GRAPH = System.getProperty("DependencyGraphBuilder.dumpDependencyGraph", "FALSE").equalsIgnoreCase("TRUE");
 
   /**
    * Writes the value requirements that could not be resolved out. Failure information is written to the user's temporary folder with the name {@code resolutionFailure} and a sequential numeric suffix
    * from the builder's object ID. The verbosity of failure information will depend on the {@link #_disableFailureReporting} flag typically controlled by
    * {@link DependencyGraphBuilderFactory#setEnableFailureReporting}. The default value is off but can be controlled by the {@code DependencyGraphBuilder.dumpFailureInfo} property.
    */
-  private static final boolean DEBUG_DUMP_FAILURE_INFO =
-      System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
+  private static final boolean DEBUG_DUMP_FAILURE_INFO = System.getProperty("DependencyGraphBuilder.dumpFailureInfo", "FALSE").equalsIgnoreCase("TRUE");
 
   /**
    * Controls whether to GZIP the outputs created by {@link #DEBUG_DUMP_DEPENDENCY_GRAPH} and {@link #DEBUG_DUMP_FAILURE_INFO}. The default value is off but can be controlled by the
@@ -150,15 +146,13 @@ public final class DependencyGraphBuilder implements Cancelable {
   private FunctionExclusionGroups _functionExclusionGroups;
 
   // The resolve task is ref-counted once for the map (it is being used as a set)
-  private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements =
-      new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
+  private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements = new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
 
   /** The number of active resolve tasks for this instance of DependencyGraphBuilder */
   private final AtomicInteger _activeResolveTasks = new AtomicInteger();
 
   // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
-  private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications =
-      new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
+  private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications = new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
 
   /**
    * Number of additional threads to launch while requirements are being added or the graph is being built. The total number of threads used for graph construction may be up to this value or may be
@@ -409,6 +403,14 @@ public final class DependencyGraphBuilder implements Cancelable {
     return tasks;
   }
 
+  /**
+   * Fetches an existing resolution of the given value specification.
+   * <p>
+   * The {@code valueSpecification} parameter must be normalized.
+   * 
+   * @param valueSpecification the specification to search for, not null
+   * @return the resolved value, or null if not resolved
+   */
   protected ResolvedValue getResolvedValue(final ValueSpecification valueSpecification) {
     return _getTerminalValuesCallback.getProduction(valueSpecification);
   }
@@ -1017,7 +1019,8 @@ public final class DependencyGraphBuilder implements Cancelable {
 
   protected DependencyGraph createDependencyGraph() {
     final Pair<Collection<DependencyNode>, Integer> nodes = getTerminalValuesCallback().getGraphRootNodes();
-    final DependencyGraphImpl graph = new DependencyGraphImpl(getCalculationConfigurationName(), nodes.getFirst(), nodes.getSecond(), getTerminalValuesCallback().getTerminalValuesBySpecification());
+    final DependencyGraphImpl graph = new DependencyGraphImpl(getCalculationConfigurationName(), nodes.getFirst(), nodes.getSecond(), getTerminalValuesCallback()
+        .getTerminalValuesBySpecification());
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");
       ps.println("Configuration = " + getCalculationConfigurationName());

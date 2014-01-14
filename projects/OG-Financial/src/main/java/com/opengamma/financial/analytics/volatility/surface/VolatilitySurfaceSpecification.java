@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.value.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -16,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specification for a volatility surface - contains all available points on the surface.
  */
-@Config(description = "Volatility surface specification")
+@Config(description = "Volatility surface specification", group = ConfigGroups.VOL)
 public class VolatilitySurfaceSpecification {
   private final SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private final String _name;

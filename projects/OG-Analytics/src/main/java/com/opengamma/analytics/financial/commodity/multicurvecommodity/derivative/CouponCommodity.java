@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.commodity.multicurvecommodity.derivative;
 
 import com.opengamma.analytics.financial.commodity.multicurvecommodity.underlying.CommodityUnderlying;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -14,7 +14,7 @@ import com.opengamma.util.money.Currency;
 /**
  *  Class describing a generic commodity coupon.
  */
-public abstract class CouponCommodity implements InstrumentDerivative {
+public abstract class CouponCommodity extends Payment {
 
   /**
    * The payment period year fraction (or accrual factor).
@@ -57,6 +57,7 @@ public abstract class CouponCommodity implements InstrumentDerivative {
    */
   public CouponCommodity(final double paymentYearFraction, final CommodityUnderlying underlying, final String unitName, final double notional,
       final double settlementTime, final Calendar calendar) {
+    super(underlying.getCurrency(), settlementTime);
     ArgumentChecker.isTrue(paymentYearFraction >= 0, "payment year fraction must be positive");
     ArgumentChecker.isTrue(settlementTime >= 0, "settlement time must be positive");
     ArgumentChecker.notNull(underlying, "underlying");
@@ -88,6 +89,7 @@ public abstract class CouponCommodity implements InstrumentDerivative {
   /**
    * @return the _underlying
    */
+  @Override
   public Currency getCurrency() {
     return _underlying.getCurrency();
   }

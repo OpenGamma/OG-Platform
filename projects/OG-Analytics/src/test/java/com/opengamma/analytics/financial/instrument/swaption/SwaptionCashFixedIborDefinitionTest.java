@@ -158,12 +158,15 @@ public class SwaptionCashFixedIborDefinitionTest {
     assertTrue(SWAPTION.equals(other));
     assertTrue(SWAPTION.hashCode() == other.hashCode());
     assertEquals(SWAPTION.toString(), other.toString());
-    modifiedSwaption = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, !IS_LONG);
+    modifiedSwaption = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, FIXED_IS_PAYER, !IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
     assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
-    modifiedSwaption = SwaptionCashFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, IS_LONG);
+    modifiedSwaption = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, !FIXED_IS_PAYER, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
-    modifiedSwaption = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, otherSwap, IS_LONG);
+    assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
+    modifiedSwaption = SwaptionCashFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, FIXED_IS_PAYER, IS_LONG);
+    assertFalse(SWAPTION.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, otherSwap, FIXED_IS_PAYER, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
     assertFalse(SWAPTION.equals(EXPIRY_DATE));
     assertFalse(SWAPTION.equals(null));

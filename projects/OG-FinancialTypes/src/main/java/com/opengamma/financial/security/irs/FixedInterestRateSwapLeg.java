@@ -33,12 +33,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
   private Rate _rate;
 
   /**
-   * The convention.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private FixedInterestRateSwapLegConvention _convention;
-
-  /**
    * The schedule for the dates on this leg.
    * Allows the conventions to be overridden with specific dates.
    */
@@ -104,32 +98,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the convention.
-   * @return the value of the property, not null
-   */
-  public FixedInterestRateSwapLegConvention getConvention() {
-    return _convention;
-  }
-
-  /**
-   * Sets the convention.
-   * @param convention  the new value of the property, not null
-   */
-  public void setConvention(FixedInterestRateSwapLegConvention convention) {
-    JodaBeanUtils.notNull(convention, "convention");
-    this._convention = convention;
-  }
-
-  /**
-   * Gets the the {@code convention} property.
-   * @return the property, not null
-   */
-  public Property<FixedInterestRateSwapLegConvention> convention() {
-    return metaBean().convention().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the schedule for the dates on this leg.
    * Allows the conventions to be overridden with specific dates.
    * @return the value of the property
@@ -170,7 +138,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedInterestRateSwapLeg other = (FixedInterestRateSwapLeg) obj;
       return JodaBeanUtils.equal(getRate(), other.getRate()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
           JodaBeanUtils.equal(getSchedule(), other.getSchedule()) &&
           super.equals(obj);
     }
@@ -181,7 +148,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchedule());
     return hash ^ super.hashCode();
   }
@@ -202,11 +168,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
     private final MetaProperty<Rate> _rate = DirectMetaProperty.ofReadWrite(
         this, "rate", FixedInterestRateSwapLeg.class, Rate.class);
     /**
-     * The meta-property for the {@code convention} property.
-     */
-    private final MetaProperty<FixedInterestRateSwapLegConvention> _convention = DirectMetaProperty.ofReadWrite(
-        this, "convention", FixedInterestRateSwapLeg.class, FixedInterestRateSwapLegConvention.class);
-    /**
      * The meta-property for the {@code schedule} property.
      */
     private final MetaProperty<FloatingInterestRateSwapLegSchedule> _schedule = DirectMetaProperty.ofReadWrite(
@@ -217,7 +178,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "rate",
-        "convention",
         "schedule");
 
     /**
@@ -231,8 +191,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
       switch (propertyName.hashCode()) {
         case 3493088:  // rate
           return _rate;
-        case 2039569265:  // convention
-          return _convention;
         case -697920873:  // schedule
           return _schedule;
       }
@@ -264,14 +222,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
     }
 
     /**
-     * The meta-property for the {@code convention} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<FixedInterestRateSwapLegConvention> convention() {
-      return _convention;
-    }
-
-    /**
      * The meta-property for the {@code schedule} property.
      * @return the meta-property, not null
      */
@@ -285,8 +235,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
       switch (propertyName.hashCode()) {
         case 3493088:  // rate
           return ((FixedInterestRateSwapLeg) bean).getRate();
-        case 2039569265:  // convention
-          return ((FixedInterestRateSwapLeg) bean).getConvention();
         case -697920873:  // schedule
           return ((FixedInterestRateSwapLeg) bean).getSchedule();
       }
@@ -299,9 +247,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
         case 3493088:  // rate
           ((FixedInterestRateSwapLeg) bean).setRate((Rate) newValue);
           return;
-        case 2039569265:  // convention
-          ((FixedInterestRateSwapLeg) bean).setConvention((FixedInterestRateSwapLegConvention) newValue);
-          return;
         case -697920873:  // schedule
           ((FixedInterestRateSwapLeg) bean).setSchedule((FloatingInterestRateSwapLegSchedule) newValue);
           return;
@@ -312,7 +257,6 @@ public final class FixedInterestRateSwapLeg extends InterestRateSwapLeg {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FixedInterestRateSwapLeg) bean)._rate, "rate");
-      JodaBeanUtils.notNull(((FixedInterestRateSwapLeg) bean)._convention, "convention");
       super.validate(bean);
     }
 

@@ -64,6 +64,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -121,8 +122,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final InMemoryViewComputationResultModel _resultModel;
 
   public SingleComputationCycle(final UniqueId cycleId, final String name, final ComputationResultListener cycleFragmentResultListener, final ViewProcessContext viewProcessContext,
-      final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ViewCycleExecutionOptions executionOptions,
-      final VersionCorrection versionCorrection) {
+      final CompiledViewDefinitionWithGraphs compiledViewDefinition, final ViewCycleExecutionOptions executionOptions, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(cycleId, "cycleId");
     ArgumentChecker.notNull(cycleFragmentResultListener, "cycleFragmentResultListener");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
@@ -269,8 +269,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     ArgumentChecker.notNull(query.getValueSpecifications(), "valueSpecifications");
     final ViewComputationCache cache = getComputationCache(query.getCalculationConfigurationName());
     if (cache == null) {
-      throw new DataNotFoundException("No computation cache for calculation configuration '" + query.getCalculationConfigurationName()
-          + "' was found.");
+      throw new DataNotFoundException("No computation cache for calculation configuration '" + query.getCalculationConfigurationName() + "' was found.");
     }
 
     final Collection<Pair<ValueSpecification, Object>> result = cache.getValues(query.getValueSpecifications());
@@ -303,11 +302,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return new ComputedValueResult(valueSpec, calculatedValue, AggregatedExecutionLog.EMPTY, null, null, null);
     } else {
       final CalculationJobResultItem jobResultItem = jobExecutionResult.getJobResultItem();
-      return new ComputedValueResult(valueSpec,
-          calculatedValue,
-          jobExecutionResult.getAggregatedExecutionLog(),
-          jobExecutionResult.getComputeNodeId(),
-          jobResultItem.getMissingInputs(),
+      return new ComputedValueResult(valueSpec, calculatedValue, jobExecutionResult.getAggregatedExecutionLog(), jobExecutionResult.getComputeNodeId(), jobResultItem.getMissingInputs(),
           jobResultItem.getResult());
     }
   }
@@ -320,8 +315,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    * @param suppressExecutionOnNoMarketData true if execution is to be suppressed when input data is entirely missing, false otherwise
    * @return true if execution should continue, false if execution should be suppressed
    */
-  public boolean preExecute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot,
-      final boolean suppressExecutionOnNoMarketData) {
+  public boolean preExecute(final SingleComputationCycle previousCycle, final MarketDataSnapshot marketDataSnapshot, final boolean suppressExecutionOnNoMarketData) {
     if (_state != ViewCycleState.AWAITING_EXECUTION) {
       throw new IllegalStateException("State must be " + ViewCycleState.AWAITING_EXECUTION);
     }
@@ -438,8 +432,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
       } else {
         final OverrideOperationCompiler compiler = getViewProcessContext().getOverrideOperationCompiler();
-        final ComputationTargetResolver.AtVersionCorrection resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver()
-            .atVersionCorrection(getVersionCorrection());
+        final ComputationTargetResolver.AtVersionCorrection resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+            .getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
         final String shiftExpr = marketDataShift.iterator().next();
         try {
           operation = compiler.compile(shiftExpr, resolver);
@@ -525,8 +519,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    */
   private void createAllCaches() {
     for (final String calcConfigurationName : getAllCalculationConfigurationNames()) {
-      final ViewComputationCache cache = getViewProcessContext().getComputationCacheSource()
-          .getCache(getUniqueId(), calcConfigurationName);
+      final ViewComputationCache cache = getViewProcessContext().getComputationCacheSource().getCache(getUniqueId(), calcConfigurationName);
       _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
       _jobResultCachesByCalculationConfiguration.put(calcConfigurationName, new DependencyNodeJobExecutionResultCache());
     }
@@ -549,16 +542,20 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     if (previousCycle.getState() != ViewCycleState.EXECUTED) {
       throw new IllegalArgumentException("State of previous cycle must be " + ViewCycleState.EXECUTED);
     }
+    final FunctionParametersDelta parameterDelta = FunctionParametersDelta.of(previousCycle.getExecutionOptions(), getExecutionOptions());
     final InMemoryViewComputationResultModel fragmentResultModel = constructTemplateResultModel();
     final InMemoryViewComputationResultModel fullResultModel = getResultModel();
-    for (final DependencyGraphExplorer depGraphExplorer : getCompiledViewDefinition().getDependencyGraphExplorers()) {
+    final CompiledViewDefinition previousViewDefinition = previousCycle.getCompiledViewDefinition();
+    final CompiledViewDefinitionWithGraphs viewDefinition = getCompiledViewDefinition();
+    for (final DependencyGraphExplorer depGraphExplorer : viewDefinition.getDependencyGraphExplorers()) {
       final DependencyGraph depGraph = depGraphExplorer.getWholeGraph();
       final String calcConfig = depGraph.getCalculationConfigurationName();
       final ViewComputationCache cache = getComputationCache(calcConfig);
       final ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfig);
       final DependencyNodeJobExecutionResultCache jobExecutionResultCache = getJobExecutionResultCache(calcConfig);
       final DependencyNodeJobExecutionResultCache previousJobExecutionResultCache = previousCycle.getJobExecutionResultCache(calcConfig);
-      final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache);
+      final LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph, cache, previousCache, parameterDelta.getValueSpecifications(calcConfig, previousViewDefinition,
+          viewDefinition));
       deltaCalculator.computeDelta();
       s_logger.info("Computed delta for calculation configuration '{}'. {} nodes out of {} require recomputation.", calcConfig, deltaCalculator.getChangedNodes().size(), depGraph.getSize());
       final Collection<ValueSpecification> specsToCopy = new LinkedList<>();
@@ -573,7 +570,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           // Nothing to reuse
           continue;
         }
-        if (getLogModeSource().getLogMode(calcConfig, unchangedNode.getOutputValue(0)) == ExecutionLogMode.FULL && previousExecutionResult.getJobResultItem().getExecutionLog().getEvents() == null) {
+        if (getLogModeSource().getLogMode(calcConfig, unchangedNode.getOutputValue(0)) == ExecutionLogMode.FULL &&
+            previousExecutionResult.getJobResultItem().getExecutionLog().getEvents() == null) {
           // Need to rerun calculation to collect logs, so cannot reuse
           continue;
         }

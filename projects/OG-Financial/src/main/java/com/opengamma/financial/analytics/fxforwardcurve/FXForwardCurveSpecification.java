@@ -6,13 +6,14 @@
 package com.opengamma.financial.analytics.fxforwardcurve;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
  */
-@Config(description = "FX forward curve specification")
+@Config(description = "FX forward curve specification", group = ConfigGroups.CURVES_LEGACY)
 public class FXForwardCurveSpecification {
   /** The type of the FX forward quote */
   public enum QuoteType {
