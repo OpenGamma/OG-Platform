@@ -15,6 +15,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
@@ -236,5 +237,10 @@ public class NotionalVisitor extends FinancialSecurityVisitorAdapter<CurrencyAmo
     final Currency currency = security.getCurrency();
     final double notional = security.getNotional();
     return CurrencyAmount.of(currency, notional);
+  }
+
+  @Override
+  public CurrencyAmount visitCashFlowSecurity(final CashFlowSecurity security) {
+    return CurrencyAmount.of(security.getCurrency(), security.getAmount());
   }
 }
