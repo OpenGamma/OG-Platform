@@ -40,6 +40,7 @@ import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityFilter;
 import com.opengamma.engine.marketdata.live.InMemoryLKVLiveMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.live.LiveDataAvailabilityNotificationListener;
 import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.id.ExternalScheme;
@@ -81,6 +82,11 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
    */
   @PropertyDefinition(validate = "notNull")
   private String _defaultProviders;
+  /**
+   * JMS topic for notifications when market data providers become available
+   */
+  @PropertyDefinition
+  private String _jmsMarketDataAvailabilityTopic;
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
@@ -124,6 +130,12 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     // REVIEW jonathan 2013-08-23 -- Didn't want to break backwards compatibility, but shouldn't the repository take care of supertypes?
     info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, liveMarketDataProviderFactory);
+    
+    if (!StringUtils.isBlank(getJmsMarketDataAvailabilityTopic())) {
+      LiveDataAvailabilityNotificationListener availabilityNotificationListener =
+          new LiveDataAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(), factories.values(), getJmsConnector());
+      repo.registerLifecycle(availabilityNotificationListener);
+    }
 
     return liveMarketDataProviderFactory;
   }
@@ -301,6 +313,31 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets jMS topic for notifications when market data providers become available
+   * @return the value of the property
+   */
+  public String getJmsMarketDataAvailabilityTopic() {
+    return _jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Sets jMS topic for notifications when market data providers become available
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property
+   */
+  public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
+    this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
+  }
+
+  /**
+   * Gets the the {@code jmsMarketDataAvailabilityTopic} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsMarketDataAvailabilityTopic() {
+    return metaBean().jmsMarketDataAvailabilityTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public LiveMarketDataProviderFactoryComponentFactory clone() {
     return (LiveMarketDataProviderFactoryComponentFactory) super.clone();
@@ -316,6 +353,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getDefaultProviders(), other.getDefaultProviders()) &&
+          JodaBeanUtils.equal(getJmsMarketDataAvailabilityTopic(), other.getJmsMarketDataAvailabilityTopic()) &&
           super.equals(obj);
     }
     return false;
@@ -327,12 +365,13 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultProviders());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsMarketDataAvailabilityTopic());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("LiveMarketDataProviderFactoryComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -349,6 +388,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
     buf.append("defaultProviders").append('=').append(JodaBeanUtils.toString(getDefaultProviders())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -377,13 +417,19 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     private final MetaProperty<String> _defaultProviders = DirectMetaProperty.ofReadWrite(
         this, "defaultProviders", LiveMarketDataProviderFactoryComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     */
+    private final MetaProperty<String> _jmsMarketDataAvailabilityTopic = DirectMetaProperty.ofReadWrite(
+        this, "jmsMarketDataAvailabilityTopic", LiveMarketDataProviderFactoryComponentFactory.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "jmsConnector",
-        "defaultProviders");
+        "defaultProviders",
+        "jmsMarketDataAvailabilityTopic");
 
     /**
      * Restricted constructor.
@@ -400,6 +446,8 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
           return _jmsConnector;
         case 1263631201:  // defaultProviders
           return _defaultProviders;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return _jmsMarketDataAvailabilityTopic;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -444,6 +492,14 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
       return _defaultProviders;
     }
 
+    /**
+     * The meta-property for the {@code jmsMarketDataAvailabilityTopic} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsMarketDataAvailabilityTopic() {
+      return _jmsMarketDataAvailabilityTopic;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -454,6 +510,8 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
           return ((LiveMarketDataProviderFactoryComponentFactory) bean).getJmsConnector();
         case 1263631201:  // defaultProviders
           return ((LiveMarketDataProviderFactoryComponentFactory) bean).getDefaultProviders();
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getJmsMarketDataAvailabilityTopic();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -469,6 +527,9 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
           return;
         case 1263631201:  // defaultProviders
           ((LiveMarketDataProviderFactoryComponentFactory) bean).setDefaultProviders((String) newValue);
+          return;
+        case 108776830:  // jmsMarketDataAvailabilityTopic
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setJmsMarketDataAvailabilityTopic((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
