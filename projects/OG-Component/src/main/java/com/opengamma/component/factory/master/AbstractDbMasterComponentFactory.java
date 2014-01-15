@@ -413,7 +413,8 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trackingMode.
+   * Gets whether to enable tracking mode. This will result in the implementing component factory being called with
+   * wrapMasterWithTrackingInterface().
    * @return the value of the property
    */
   public boolean isTrackingMode() {
@@ -421,7 +422,8 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
   }
 
   /**
-   * Sets the trackingMode.
+   * Sets whether to enable tracking mode. This will result in the implementing component factory being called with
+   * wrapMasterWithTrackingInterface().
    * @param trackingMode  the new value of the property
    */
   public void setTrackingMode(boolean trackingMode) {
@@ -430,6 +432,7 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
 
   /**
    * Gets the the {@code trackingMode} property.
+   * wrapMasterWithTrackingInterface().
    * @return the property, not null
    */
   public final Property<Boolean> trackingMode() {
