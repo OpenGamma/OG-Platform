@@ -287,7 +287,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.RR01);
     addSummingFunction(functions, ValueRequirementNames.IR01);
     addSummingFunction(functions, ValueRequirementNames.BUCKETED_IR01);
-    addSummingFunction(functions, ValueRequirementNames.JUMP_TO_DEFAULT);
     addUnitScalingFunction(functions, ValueRequirementNames.DV01);
     addUnitScalingFunction(functions, ValueRequirementNames.CS01);
     addUnitScalingFunction(functions, ValueRequirementNames.BUCKETED_CS01);

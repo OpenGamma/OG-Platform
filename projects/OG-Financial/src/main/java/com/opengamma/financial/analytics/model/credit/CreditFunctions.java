@@ -419,6 +419,8 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ISDACompliantCDSFunction.class));
     functions.add(functionConfiguration(ISDACompliantYieldCurveFunction.class));
     functions.add(functionConfiguration(ISDACompliantCreditCurveFunction.class));
+
+    functions.add(functionConfiguration(JumpToDefaultPortfolioNodeFunction.class));
   }
 
 }

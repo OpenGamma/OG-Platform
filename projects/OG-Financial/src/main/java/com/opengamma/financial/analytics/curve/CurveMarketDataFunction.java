@@ -68,7 +68,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
 
   /**
    * Gets the curve name.
-   * 
+   *
    * @return The curve name
    */
   public String getCurveName() {
@@ -119,8 +119,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-        throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(executionContext.getComputationTargetResolver());
       final SnapshotDataBundle marketData = new SnapshotDataBundle();
       populateSnapshot(_specification, inputs, marketData, resolver);
