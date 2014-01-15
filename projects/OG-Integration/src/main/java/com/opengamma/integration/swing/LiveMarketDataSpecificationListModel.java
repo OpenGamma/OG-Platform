@@ -42,13 +42,8 @@ public class LiveMarketDataSpecificationListModel extends AbstractListModel<Stri
         for (LiveDataMetaDataProvider liveDataMetaDataProvider : liveDataMetaDataProviders) {
           LiveDataMetaDataProviderRequest liveDataMetaDataProviderRequest = new LiveDataMetaDataProviderRequest();
           LiveDataMetaDataProviderResult metaData = liveDataMetaDataProvider.metaData(liveDataMetaDataProviderRequest);
-          // REVIEW jim 30-Oct-2013 -- This is a hack because BloombergLiveDataClientComponentFactory doesn't respect the description.  
-          // I don't want to risk changing it at the moment. Comment in code to refactor if fixed.
-          if (metaData.getMetaData().getDescription().equals("Bloomberg")) {
-            specsByName.put(metaData.getMetaData().getDescription(), LiveMarketDataSpecification.of("Live market data (" + metaData.getMetaData().getDescription() + ")"));
-          } else {
-            specsByName.put(metaData.getMetaData().getDescription(), LiveMarketDataSpecification.of(metaData.getMetaData().getDescription()));
-          }
+          MarketDataSpecification marketDataSpec = LiveMarketDataSpecification.of(metaData.getMetaData().getDescription());
+          specsByName.put(metaData.getMetaData().getDescription(), marketDataSpec);
         }
         return specsByName;
       }
