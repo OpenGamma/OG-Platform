@@ -31,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database position master.
  */
 @BeanDefinition
-public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbPositionMaster> {
+public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<PositionMaster, DbPositionMaster> {
 
   /**
    * The maximum number of get requests to pass in one hit - see {@link QuerySplittingPositionMaster#get(Collection)}
@@ -59,16 +59,16 @@ public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterCo
   }
   
   @Override
-  protected AbstractDataResource createPublishedResource(DbPositionMaster dbMaster, Object postProcessedMaster) {
+  protected PositionMaster postProcess(DbPositionMaster master) {
+    return splitQueries(master);
+  }
+  
+  @Override
+  protected AbstractDataResource createPublishedResource(DbPositionMaster dbMaster, PositionMaster postProcessedMaster) {
     //note - the db instance is required for this resource
     return new DataDbPositionMasterResource(dbMaster);
   }
   
-  @Override
-  protected Object postProcess(DbPositionMaster master) {
-    return splitQueries(master);
-  }
-
   /**
    * If query splitting is enabled, wraps the position master with a query splitter.
    * 
@@ -242,7 +242,7 @@ public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterCo
   /**
    * The meta-bean for {@code DbPositionMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbPositionMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<PositionMaster, DbPositionMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

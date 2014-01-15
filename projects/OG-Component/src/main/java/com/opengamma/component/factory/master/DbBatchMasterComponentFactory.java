@@ -31,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database batch master.
  */
 @BeanDefinition
-public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFactory<DbBatchMaster> {
+public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFactory<BatchMaster, DbBatchMaster> {
 
   @PropertyDefinition(validate = "notNull")
   private ComputationTargetResolver _computationTargetResolver;
@@ -46,7 +46,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   }
 
   @Override
-  protected AbstractDataResource createPublishedResource(DbBatchMaster dbMaster, Object postProcessedMaster) {
+  protected AbstractDataResource createPublishedResource(DbBatchMaster dbMaster, BatchMaster postProcessedMaster) {
     return new DataBatchMasterResource(dbMaster);
   }
 
@@ -145,7 +145,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   /**
    * The meta-bean for {@code DbBatchMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDbMasterComponentFactory.Meta<DbBatchMaster> {
+  public static class Meta extends AbstractDbMasterComponentFactory.Meta<BatchMaster, DbBatchMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

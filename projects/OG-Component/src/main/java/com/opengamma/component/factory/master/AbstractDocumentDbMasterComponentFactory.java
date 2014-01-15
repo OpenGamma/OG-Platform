@@ -27,10 +27,12 @@ import com.opengamma.util.jms.JmsConnector;
 
 /**
  * Component factory delegate for document-based masters.
- * @param <M>
+ * @param <I> the master interface to use. this must be a super-interface of M and would typically
+ * extend from AbstractDbMaster. (Not stated explicitly due to limitation in Joda-beans).
+ * @param <M> the db master type
  */
 @BeanDefinition
-public abstract class AbstractDocumentDbMasterComponentFactory<M extends ConfigurableDbChangeProvidingMaster> extends AbstractDbMasterComponentFactory<M> {
+public abstract class AbstractDocumentDbMasterComponentFactory<I, M extends ConfigurableDbChangeProvidingMaster> extends AbstractDbMasterComponentFactory<I, M> {
 
   /**
    * The JMS connector.
@@ -44,7 +46,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
   private String _jmsChangeManagerTopic;
   
   
-  public AbstractDocumentDbMasterComponentFactory(String schemaName, Class<? super M> masterInterface, Class<? extends AbstractRemoteMaster> remoteInterface) {
+  public AbstractDocumentDbMasterComponentFactory(String schemaName, Class<I> masterInterface, Class<? extends AbstractRemoteMaster> remoteInterface) {
     super(schemaName, masterInterface, remoteInterface);
   }
 
@@ -82,12 +84,14 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
 
   /**
    * The meta-bean for {@code AbstractDocumentDbMasterComponentFactory}.
-   * @param <R>  the bean's generic type
-   * @param cls  the bean's generic type
+   * @param <R>  the first generic type
+   * @param <S>  the second generic type
+   * @param cls1  the first generic type
+   * @param cls2  the second generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R extends ConfigurableDbChangeProvidingMaster> AbstractDocumentDbMasterComponentFactory.Meta<R> metaAbstractDocumentDbMasterComponentFactory(Class<R> cls) {
+  public static <R, S extends ConfigurableDbChangeProvidingMaster> AbstractDocumentDbMasterComponentFactory.Meta<R, S> metaAbstractDocumentDbMasterComponentFactory(Class<R> cls1, Class<S> cls2) {
     return AbstractDocumentDbMasterComponentFactory.Meta.INSTANCE;
   }
 
@@ -97,7 +101,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
 
   @SuppressWarnings("unchecked")
   @Override
-  public AbstractDocumentDbMasterComponentFactory.Meta<M> metaBean() {
+  public AbstractDocumentDbMasterComponentFactory.Meta<I, M> metaBean() {
     return AbstractDocumentDbMasterComponentFactory.Meta.INSTANCE;
   }
 
@@ -158,7 +162,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractDocumentDbMasterComponentFactory<?> other = (AbstractDocumentDbMasterComponentFactory<?>) obj;
+      AbstractDocumentDbMasterComponentFactory<?, ?> other = (AbstractDocumentDbMasterComponentFactory<?, ?>) obj;
       return JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
           super.equals(obj);
@@ -198,7 +202,7 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
   /**
    * The meta-bean for {@code AbstractDocumentDbMasterComponentFactory}.
    */
-  public static class Meta<M extends ConfigurableDbChangeProvidingMaster> extends AbstractDbMasterComponentFactory.Meta<M> {
+  public static class Meta<I, M extends ConfigurableDbChangeProvidingMaster> extends AbstractDbMasterComponentFactory.Meta<I, M> {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -241,13 +245,13 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
     }
 
     @Override
-    public BeanBuilder<? extends AbstractDocumentDbMasterComponentFactory<M>> builder() {
+    public BeanBuilder<? extends AbstractDocumentDbMasterComponentFactory<I, M>> builder() {
       throw new UnsupportedOperationException("AbstractDocumentDbMasterComponentFactory is an abstract class");
     }
 
     @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends AbstractDocumentDbMasterComponentFactory<M>> beanType() {
+    public Class<? extends AbstractDocumentDbMasterComponentFactory<I, M>> beanType() {
       return (Class) AbstractDocumentDbMasterComponentFactory.class;
     }
 
@@ -278,9 +282,9 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1495762275:  // jmsConnector
-          return ((AbstractDocumentDbMasterComponentFactory<?>) bean).getJmsConnector();
+          return ((AbstractDocumentDbMasterComponentFactory<?, ?>) bean).getJmsConnector();
         case -758086398:  // jmsChangeManagerTopic
-          return ((AbstractDocumentDbMasterComponentFactory<?>) bean).getJmsChangeManagerTopic();
+          return ((AbstractDocumentDbMasterComponentFactory<?, ?>) bean).getJmsChangeManagerTopic();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -290,10 +294,10 @@ public abstract class AbstractDocumentDbMasterComponentFactory<M extends Configu
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1495762275:  // jmsConnector
-          ((AbstractDocumentDbMasterComponentFactory<M>) bean).setJmsConnector((JmsConnector) newValue);
+          ((AbstractDocumentDbMasterComponentFactory<I, M>) bean).setJmsConnector((JmsConnector) newValue);
           return;
         case -758086398:  // jmsChangeManagerTopic
-          ((AbstractDocumentDbMasterComponentFactory<M>) bean).setJmsChangeManagerTopic((String) newValue);
+          ((AbstractDocumentDbMasterComponentFactory<I, M>) bean).setJmsChangeManagerTopic((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

@@ -24,7 +24,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database portfolio master.
  */
 @BeanDefinition
-public class DbPortfolioMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbPortfolioMaster> {
+public class DbPortfolioMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<PortfolioMaster, DbPortfolioMaster> {
 
   
   public DbPortfolioMasterComponentFactory() {
@@ -38,7 +38,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractDocumentDbMasterC
   }
   
   @Override
-  protected AbstractDataResource createPublishedResource(DbPortfolioMaster dbMaster, Object postProcessedMaster) {
+  protected AbstractDataResource createPublishedResource(DbPortfolioMaster dbMaster, PortfolioMaster postProcessedMaster) {
     //note - the db instance is required for this resource
     return new DataDbPortfolioMasterResource(dbMaster);
   }
@@ -108,7 +108,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractDocumentDbMasterC
   /**
    * The meta-bean for {@code DbPortfolioMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbPortfolioMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<PortfolioMaster, DbPortfolioMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

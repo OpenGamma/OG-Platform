@@ -24,7 +24,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database snapshot master.
  */
 @BeanDefinition
-public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbMarketDataSnapshotMaster> {
+public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<MarketDataSnapshotMaster, DbMarketDataSnapshotMaster> {
 
   public DbMarketDataSnapshotMasterComponentFactory() {
     super("snp", MarketDataSnapshotMaster.class, RemoteMarketDataSnapshotMaster.class);
@@ -37,8 +37,8 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDocument
   }
 
   @Override
-  protected AbstractDataResource createPublishedResource(DbMarketDataSnapshotMaster dbMaster, Object postProcessedMaster) {
-    return new DataMarketDataSnapshotMasterResource((MarketDataSnapshotMaster) postProcessedMaster);
+  protected AbstractDataResource createPublishedResource(DbMarketDataSnapshotMaster dbMaster, MarketDataSnapshotMaster postProcessedMaster) {
+    return new DataMarketDataSnapshotMasterResource(postProcessedMaster);
   }
   
 
@@ -106,7 +106,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractDocument
   /**
    * The meta-bean for {@code DbMarketDataSnapshotMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbMarketDataSnapshotMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<MarketDataSnapshotMaster, DbMarketDataSnapshotMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

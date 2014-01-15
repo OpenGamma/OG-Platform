@@ -25,7 +25,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database holiday master.
  */
 @BeanDefinition
-public class DbHolidayMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbHolidayMaster> {
+public class DbHolidayMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<HolidayMaster, DbHolidayMaster> {
 
   
   public DbHolidayMasterComponentFactory() {
@@ -41,8 +41,8 @@ public class DbHolidayMasterComponentFactory extends AbstractDocumentDbMasterCom
   }
   
   @Override
-  protected AbstractDataResource createPublishedResource(DbHolidayMaster dbMaster, Object postProcessedMaster) {
-    return new DataHolidayMasterResource((HolidayMaster) postProcessedMaster);
+  protected AbstractDataResource createPublishedResource(DbHolidayMaster dbMaster, HolidayMaster postProcessedMaster) {
+    return new DataHolidayMasterResource(postProcessedMaster);
   }
 
 
@@ -110,7 +110,7 @@ public class DbHolidayMasterComponentFactory extends AbstractDocumentDbMasterCom
   /**
    * The meta-bean for {@code DbHolidayMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbHolidayMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<HolidayMaster, DbHolidayMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

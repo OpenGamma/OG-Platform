@@ -24,7 +24,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the organization master.
  */
 @BeanDefinition
-public class DbOrganizationMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbOrganizationMaster> {
+public class DbOrganizationMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<OrganizationMaster, DbOrganizationMaster> {
 
   
   public DbOrganizationMasterComponentFactory() {
@@ -38,7 +38,7 @@ public class DbOrganizationMasterComponentFactory extends AbstractDocumentDbMast
   }
   
   @Override
-  protected AbstractDataResource createPublishedResource(DbOrganizationMaster dbMaster, Object postProcessedMaster) {
+  protected AbstractDataResource createPublishedResource(DbOrganizationMaster dbMaster, OrganizationMaster postProcessedMaster) {
     return new DataOrganizationMasterResource((OrganizationMaster) postProcessedMaster);
   }
       
@@ -107,7 +107,7 @@ public class DbOrganizationMasterComponentFactory extends AbstractDocumentDbMast
   /**
    * The meta-bean for {@code DbOrganizationMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbOrganizationMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<OrganizationMaster, DbOrganizationMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

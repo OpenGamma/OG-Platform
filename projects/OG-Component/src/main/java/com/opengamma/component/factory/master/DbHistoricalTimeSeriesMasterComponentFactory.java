@@ -25,7 +25,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database historical time-series master.
  */
 @BeanDefinition
-public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbHistoricalTimeSeriesMaster> {
+public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<HistoricalTimeSeriesMaster, DbHistoricalTimeSeriesMaster> {
 
   
   
@@ -42,8 +42,8 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDocume
   }
 
   @Override
-  protected AbstractDataResource createPublishedResource(DbHistoricalTimeSeriesMaster dbMaster, Object postProcessedMaster) {
-    return new DataHistoricalTimeSeriesMasterResource((HistoricalTimeSeriesMaster) postProcessedMaster);
+  protected AbstractDataResource createPublishedResource(DbHistoricalTimeSeriesMaster dbMaster, HistoricalTimeSeriesMaster postProcessedMaster) {
+    return new DataHistoricalTimeSeriesMasterResource(postProcessedMaster);
   }
   
   
@@ -111,7 +111,7 @@ public class DbHistoricalTimeSeriesMasterComponentFactory extends AbstractDocume
   /**
    * The meta-bean for {@code DbHistoricalTimeSeriesMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbHistoricalTimeSeriesMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<HistoricalTimeSeriesMaster, DbHistoricalTimeSeriesMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

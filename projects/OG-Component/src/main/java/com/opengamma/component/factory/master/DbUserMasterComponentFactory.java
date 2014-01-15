@@ -25,7 +25,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database user master.
  */
 @BeanDefinition
-public class DbUserMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbUserMaster> {
+public class DbUserMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<UserMaster, DbUserMaster> {
   
   
   public DbUserMasterComponentFactory() {
@@ -41,7 +41,7 @@ public class DbUserMasterComponentFactory extends AbstractDocumentDbMasterCompon
   }
   
   @Override
-  protected AbstractDataResource createPublishedResource(DbUserMaster dbMaster, Object postProcessedMaster) {
+  protected AbstractDataResource createPublishedResource(DbUserMaster dbMaster, UserMaster postProcessedMaster) {
     return new DataUserMasterResource((UserMaster) postProcessedMaster);
   }
   
@@ -110,7 +110,7 @@ public class DbUserMasterComponentFactory extends AbstractDocumentDbMasterCompon
   /**
    * The meta-bean for {@code DbUserMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbUserMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<UserMaster, DbUserMaster> {
     /**
      * The singleton instance of the meta-bean.
      */

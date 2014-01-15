@@ -34,7 +34,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * Component factory for the database security master.
  */
 @BeanDefinition
-public class DbSecurityMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<DbSecurityMaster> {
+public class DbSecurityMasterComponentFactory extends AbstractDocumentDbMasterComponentFactory<SecurityMaster, DbSecurityMaster> {
   
   /**
    * The cache manager.
@@ -69,7 +69,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDocumentDbMasterCo
   }
   
   @Override
-  protected AbstractDataResource createPublishedResource(DbSecurityMaster dbMaster, Object postProcessedMaster) {
+  protected AbstractDataResource createPublishedResource(DbSecurityMaster dbMaster, SecurityMaster postProcessedMaster) {
     //only db instance is allowed by the constructor here:
     return new DataDbSecurityMasterResource(dbMaster);
   }
@@ -195,7 +195,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDocumentDbMasterCo
   /**
    * The meta-bean for {@code DbSecurityMasterComponentFactory}.
    */
-  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<DbSecurityMaster> {
+  public static class Meta extends AbstractDocumentDbMasterComponentFactory.Meta<SecurityMaster, DbSecurityMaster> {
     /**
      * The singleton instance of the meta-bean.
      */
