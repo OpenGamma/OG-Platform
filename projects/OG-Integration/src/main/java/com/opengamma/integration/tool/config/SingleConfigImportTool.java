@@ -36,6 +36,7 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.scripts.Scriptable;
+import com.opengamma.util.result.FailureResult;
 
 /**
  * Tool to read currency pairs from a text file and store them in the config master. The pairs must be in the format AAA/BBB, one per line in the file.
