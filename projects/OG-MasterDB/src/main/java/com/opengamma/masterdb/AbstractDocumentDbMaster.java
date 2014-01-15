@@ -59,7 +59,7 @@ import com.opengamma.util.paging.PagingRequest;
  */
 public abstract class AbstractDocumentDbMaster<D extends AbstractDocument>
     extends AbstractDbMaster
-    implements AbstractMaster<D>, MetricProducer {
+    implements AbstractMaster<D>, MetricProducer, ConfigurableDbChangeProvidingMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
@@ -116,6 +116,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument>
    *
    * @return the change manager, not null
    */
+  @Override
   public ChangeManager getChangeManager() {
     return _changeManager;
   }
@@ -125,6 +126,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument>
    *
    * @param changeManager  the change manager, not null
    */
+  @Override
   public void setChangeManager(final ChangeManager changeManager) {
     ArgumentChecker.notNull(changeManager, "changeManager");
     _changeManager = changeManager;

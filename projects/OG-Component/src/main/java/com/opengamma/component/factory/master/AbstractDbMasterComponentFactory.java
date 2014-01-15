@@ -5,6 +5,7 @@
  */
 package com.opengamma.component.factory.master;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -16,36 +17,40 @@ import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
-import com.jolbox.bonecp.BoneCPDataSource;
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.master.impl.AbstractRemoteMaster;
 import com.opengamma.masterdb.AbstractDbMaster;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.masterdb.ConfigurableDbMaster;
 import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.db.management.DbManagement;
-import com.opengamma.util.db.management.DbManagementUtils;
-import com.opengamma.util.db.script.DbScriptUtils;
-import com.opengamma.util.db.tool.DbCreateOperation;
-import com.opengamma.util.db.tool.DbToolContext;
-import com.opengamma.util.db.tool.DbUpgradeOperation;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * Base component factory for all {@link AbstractDbMaster} implementations.
+ * Base component factory delegate for all {@link AbstractDbMaster} implementations.
+ * @param <M> the db master type
  */
 @BeanDefinition
-public abstract class AbstractDbMasterComponentFactory extends AbstractComponentFactory {
+public abstract class AbstractDbMasterComponentFactory<M extends ConfigurableDbMaster> extends AbstractComponentFactory {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DbSecurityMasterComponentFactory.class);
 
+  /**
+   * The classifier that the factory should publish under.
+   */
+  @PropertyDefinition
+  private String _classifier;
+  /**
+   * The flag determining whether the component should be published by REST (default true).
+   */
+  @PropertyDefinition
+  private boolean _publishRest = true;
+  
   /**
    * The database connector.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private DbConnector _dbConnector;
   /**
    * The flag determining whether to enforce the schema version, preventing the server from starting if the version
@@ -64,103 +69,111 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
    */
   @PropertyDefinition
   private boolean _autoSchemaManagement;
+  
+  /**
+   * The scheme used by the {@code UniqueId}.
+   */
+  @PropertyDefinition
+  private String _uniqueIdScheme;
 
-  //-------------------------------------------------------------------------
-  protected void checkSchema(Integer actualSchemaVersion, String schemaName) {
-    if (isAutoSchemaManagement()) {
-      manageSchema(actualSchemaVersion, schemaName);
-    } else {
-      checkSchemaVersion(actualSchemaVersion, schemaName);
-    }
+  
+  /**
+   * The maximum number of retries when updating.
+   */
+  @PropertyDefinition
+  private Integer _maxRetries;
+  
+  private final String _schemaName;
+  private final Class<? super M> _masterInterface; 
+  private final Class<? extends AbstractRemoteMaster> _remoteInterface;
+
+  
+  protected AbstractDbMasterComponentFactory(String schemaName, Class<? super M> masterInterface, Class<? extends AbstractRemoteMaster> remoteInterface) {
+    _schemaName = schemaName;
+    _masterInterface = masterInterface;
+    _remoteInterface = remoteInterface;
   }
-
-  @SuppressWarnings("resource")
-  private void manageSchema(Integer actualSchemaVersion, String schemaName) {
-    ArgumentChecker.notNull(schemaName, "schemaName");
+  
+  @Override
+  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     
-    // REVIEW jonathan 2013-05-14 -- don't look at this :-)
-    if (!(getDbConnector().getDataSource() instanceof BoneCPDataSource)) {
-      s_logger.warn("Unable to obtain database management instance. Database objects cannot be inspected or modified, and may be missing or out-of-date.");
-      return; 
-    }
-    BoneCPDataSource dataSource = (BoneCPDataSource) getDbConnector().getDataSource();
-    String jdbcUrl = dataSource.getJdbcUrl();
-    if (jdbcUrl == null) {
-      throw new OpenGammaRuntimeException("No JDBC URL specified");
-    }
-    DbManagement dbManagement = DbManagementUtils.getDbManagement(jdbcUrl);
-    int lastSlashIdx = jdbcUrl.lastIndexOf("/");
-    if (lastSlashIdx == -1) {
-      throw new OpenGammaRuntimeException("JDBC URL must contain '/' before the database name");
-    }
-
-    // REVIEW jonathan 2013-05-14 -- should not be doing this (PLAT-2745)
-    int lastSlash = jdbcUrl.lastIndexOf('/');
-    if (lastSlash == -1 || lastSlash == jdbcUrl.length() - 1) {
-      throw new OpenGammaRuntimeException("JDBC URL must contain a slash separating the server host and the database name");
-    }
-    String dbServerHost = jdbcUrl.substring(0, lastSlash);
-    String catalog = jdbcUrl.substring(lastSlashIdx + 1);
-    String user = dataSource.getUsername();
-    String password = dataSource.getPassword();
-    dbManagement.initialise(dbServerHost, user, password);
+    ComponentInfo info = new ComponentInfo(_masterInterface, getClassifier());
     
-    Integer expectedSchemaVersion = DbScriptUtils.getCurrentVersion(schemaName);
-    if (expectedSchemaVersion == null) {
-      throw new OpenGammaRuntimeException("Unable to find schema version information for " + schemaName + ". Database objects cannot be managed.");
+    M master = createMaster(repo, info);
+    
+    if (getUniqueIdScheme() != null) {
+      master.setUniqueIdScheme(getUniqueIdScheme());
     }
-    // DbToolContext should not be closed as DbConnector needs to remain started
-    DbToolContext dbToolContext = new DbToolContext();
-    dbToolContext.setDbConnector(getDbConnector());
-    dbToolContext.setDbManagement(dbManagement);
-    dbToolContext.setCatalog(catalog);
-    dbToolContext.setSchemaNames(ImmutableSet.of(schemaName));
-    if (actualSchemaVersion == null) {
-      // Assume empty database, so attempt to create tables
-      DbCreateOperation createOperation = new DbCreateOperation(dbToolContext, true, null, false);
-      createOperation.execute();
-    } else if (actualSchemaVersion < expectedSchemaVersion) {
-      // Upgrade from expected to actual
-      DbUpgradeOperation upgradeOperation = new DbUpgradeOperation(dbToolContext, true, null);
-      upgradeOperation.execute();
-    } else if (expectedSchemaVersion > actualSchemaVersion) {
-      throw new OpenGammaRuntimeException(schemaName + " schema too new. This build of the OpenGamma Platform works with version " +
-          expectedSchemaVersion + " of the " + schemaName + " schema, but the database contains version " + actualSchemaVersion +
-          ". Unable to downgrade an existing database.");
+    
+    String resolvedScheme = master.getUniqueIdScheme();
+    
+    if (getMaxRetries() != null) {
+      master.setMaxRetries(getMaxRetries());
     }
-  }
+    
+    OGSchema ogSchema = OGSchema.on(getDbConnector())
+        .enforcingSchemaVersion(isEnforceSchemaVersion())
+        .withAutoSchemaManagement(isAutoSchemaManagement())
+        .build();
 
-  private void checkSchemaVersion(Integer actualSchemaVersion, String schemaName) {
-    ArgumentChecker.notNull(schemaName, "schemaName");
-    if (actualSchemaVersion == null) {
-      throw new OpenGammaRuntimeException("Unable to find current " + schemaName + " schema version in database");
-    }
-    Integer expectedSchemaVersion = DbScriptUtils.getCurrentVersion(schemaName);
-    if (expectedSchemaVersion == null) {
-      s_logger.info("Unable to find schema version information for {}. The database schema may differ from the required version.", schemaName);
-      return;
-    }
-    if (expectedSchemaVersion.intValue() == actualSchemaVersion) {
-      s_logger.debug("Verified " + schemaName + " schema version " + actualSchemaVersion);
-      return;
-    }
-    String relativeDbAge = expectedSchemaVersion.intValue() < actualSchemaVersion ? "new" : "old";
-    String message = schemaName + " schema too " + relativeDbAge + ". This build of the OpenGamma Platform works with version " +
-        expectedSchemaVersion + " of the " + schemaName + " schema, but the database contains version " + actualSchemaVersion + ".";
-    if (isEnforceSchemaVersion()) {
-      throw new OpenGammaRuntimeException(message);
-    } else {
-      s_logger.warn(message);
-    }
-  }
+    ogSchema.checkSchema(master.getSchemaVersion(), _schemaName);
 
+    Object masterToPublish = postProcess(master);
+    
+    // register
+    info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, _remoteInterface);
+    info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, resolvedScheme);
+    repo.registerComponent(info, masterToPublish);
+
+    if (isPublishRest()) {
+      repo.getRestComponents().publish(info, createPublishedResource(master, masterToPublish));
+    }
+    
+  }
+  
+  protected abstract M createMaster(ComponentRepository repo, ComponentInfo info) throws Exception;
+
+  /**
+   * Create the rest-published resource. The resource can be created using the original
+   * db-master or the post-processed master, whichever is required.
+   * @param dbMaster the master instance created by the {@link #createMaster(ComponentRepository, ComponentInfo)}
+   *  call.
+   * @param postProcessedMaster whatever was returned from the postProcess method
+   * @return the {@link AbstractDataResource} to publish
+   */
+  protected abstract AbstractDataResource createPublishedResource(M dbMaster, Object postProcessedMaster);
+
+  /**
+   * Apply any post-processing, such as wrapping. Can be overridden
+   * if required.
+   * @param master the master to apply post-processing to
+   * @return the post-processed master
+   */
+  protected Object postProcess(M master) {
+    return master;
+  }
+  
+  
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractDbMasterComponentFactory}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static AbstractDbMasterComponentFactory.Meta meta() {
+    return AbstractDbMasterComponentFactory.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code AbstractDbMasterComponentFactory}.
+   * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends ConfigurableDbMaster> AbstractDbMasterComponentFactory.Meta<R> metaAbstractDbMasterComponentFactory(Class<R> cls) {
     return AbstractDbMasterComponentFactory.Meta.INSTANCE;
   }
 
@@ -168,15 +181,66 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     JodaBeanUtils.registerMetaBean(AbstractDbMasterComponentFactory.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AbstractDbMasterComponentFactory.Meta metaBean() {
+  public AbstractDbMasterComponentFactory.Meta<M> metaBean() {
     return AbstractDbMasterComponentFactory.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the classifier that the factory should publish under.
+   * @return the value of the property
+   */
+  public String getClassifier() {
+    return _classifier;
+  }
+
+  /**
+   * Sets the classifier that the factory should publish under.
+   * @param classifier  the new value of the property
+   */
+  public void setClassifier(String classifier) {
+    this._classifier = classifier;
+  }
+
+  /**
+   * Gets the the {@code classifier} property.
+   * @return the property, not null
+   */
+  public final Property<String> classifier() {
+    return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag determining whether the component should be published by REST (default true).
+   * @return the value of the property
+   */
+  public boolean isPublishRest() {
+    return _publishRest;
+  }
+
+  /**
+   * Sets the flag determining whether the component should be published by REST (default true).
+   * @param publishRest  the new value of the property
+   */
+  public void setPublishRest(boolean publishRest) {
+    this._publishRest = publishRest;
+  }
+
+  /**
+   * Gets the the {@code publishRest} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> publishRest() {
+    return metaBean().publishRest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the database connector.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public DbConnector getDbConnector() {
     return _dbConnector;
@@ -184,10 +248,9 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
 
   /**
    * Sets the database connector.
-   * @param dbConnector  the new value of the property, not null
+   * @param dbConnector  the new value of the property
    */
   public void setDbConnector(DbConnector dbConnector) {
-    JodaBeanUtils.notNull(dbConnector, "dbConnector");
     this._dbConnector = dbConnector;
   }
 
@@ -271,16 +334,70 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the scheme used by the {@code UniqueId}.
+   * @return the value of the property
+   */
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
+  }
+
+  /**
+   * Sets the scheme used by the {@code UniqueId}.
+   * @param uniqueIdScheme  the new value of the property
+   */
+  public void setUniqueIdScheme(String uniqueIdScheme) {
+    this._uniqueIdScheme = uniqueIdScheme;
+  }
+
+  /**
+   * Gets the the {@code uniqueIdScheme} property.
+   * @return the property, not null
+   */
+  public final Property<String> uniqueIdScheme() {
+    return metaBean().uniqueIdScheme().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maximum number of retries when updating.
+   * @return the value of the property
+   */
+  public Integer getMaxRetries() {
+    return _maxRetries;
+  }
+
+  /**
+   * Sets the maximum number of retries when updating.
+   * @param maxRetries  the new value of the property
+   */
+  public void setMaxRetries(Integer maxRetries) {
+    this._maxRetries = maxRetries;
+  }
+
+  /**
+   * Gets the the {@code maxRetries} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> maxRetries() {
+    return metaBean().maxRetries().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractDbMasterComponentFactory other = (AbstractDbMasterComponentFactory) obj;
-      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+      AbstractDbMasterComponentFactory<?> other = (AbstractDbMasterComponentFactory<?>) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           (isEnforceSchemaVersion() == other.isEnforceSchemaVersion()) &&
           (isAutoSchemaManagement() == other.isAutoSchemaManagement()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
           super.equals(obj);
     }
     return false;
@@ -289,15 +406,19 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(isEnforceSchemaVersion());
     hash += hash * 31 + JodaBeanUtils.hashCode(isAutoSchemaManagement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("AbstractDbMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -311,21 +432,36 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
     buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
     buf.append("enforceSchemaVersion").append('=').append(JodaBeanUtils.toString(isEnforceSchemaVersion())).append(',').append(' ');
     buf.append("autoSchemaManagement").append('=').append(JodaBeanUtils.toString(isAutoSchemaManagement())).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
+    buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code AbstractDbMasterComponentFactory}.
    */
-  public static class Meta extends AbstractComponentFactory.Meta {
+  public static class Meta<M extends ConfigurableDbMaster> extends AbstractComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code classifier} property.
+     */
+    private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
+        this, "classifier", AbstractDbMasterComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code publishRest} property.
+     */
+    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
+        this, "publishRest", AbstractDbMasterComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code dbConnector} property.
      */
@@ -342,13 +478,27 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     private final MetaProperty<Boolean> _autoSchemaManagement = DirectMetaProperty.ofReadWrite(
         this, "autoSchemaManagement", AbstractDbMasterComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code uniqueIdScheme} property.
+     */
+    private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "uniqueIdScheme", AbstractDbMasterComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code maxRetries} property.
+     */
+    private final MetaProperty<Integer> _maxRetries = DirectMetaProperty.ofReadWrite(
+        this, "maxRetries", AbstractDbMasterComponentFactory.class, Integer.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "classifier",
+        "publishRest",
         "dbConnector",
         "enforceSchemaVersion",
-        "autoSchemaManagement");
+        "autoSchemaManagement",
+        "uniqueIdScheme",
+        "maxRetries");
 
     /**
      * Restricted constructor.
@@ -359,24 +509,33 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return _classifier;
+        case -614707837:  // publishRest
+          return _publishRest;
         case 39794031:  // dbConnector
           return _dbConnector;
         case 2128193333:  // enforceSchemaVersion
           return _enforceSchemaVersion;
         case 1236703379:  // autoSchemaManagement
           return _autoSchemaManagement;
+        case -1737146991:  // uniqueIdScheme
+          return _uniqueIdScheme;
+        case -2022653118:  // maxRetries
+          return _maxRetries;
       }
       return super.metaPropertyGet(propertyName);
     }
 
     @Override
-    public BeanBuilder<? extends AbstractDbMasterComponentFactory> builder() {
+    public BeanBuilder<? extends AbstractDbMasterComponentFactory<M>> builder() {
       throw new UnsupportedOperationException("AbstractDbMasterComponentFactory is an abstract class");
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends AbstractDbMasterComponentFactory> beanType() {
-      return AbstractDbMasterComponentFactory.class;
+    public Class<? extends AbstractDbMasterComponentFactory<M>> beanType() {
+      return (Class) AbstractDbMasterComponentFactory.class;
     }
 
     @Override
@@ -385,6 +544,22 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code classifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> classifier() {
+      return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code publishRest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> publishRest() {
+      return _publishRest;
+    }
+
     /**
      * The meta-property for the {@code dbConnector} property.
      * @return the meta-property, not null
@@ -409,40 +584,71 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
       return _autoSchemaManagement;
     }
 
+    /**
+     * The meta-property for the {@code uniqueIdScheme} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> uniqueIdScheme() {
+      return _uniqueIdScheme;
+    }
+
+    /**
+     * The meta-property for the {@code maxRetries} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> maxRetries() {
+      return _maxRetries;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((AbstractDbMasterComponentFactory<?>) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((AbstractDbMasterComponentFactory<?>) bean).isPublishRest();
         case 39794031:  // dbConnector
-          return ((AbstractDbMasterComponentFactory) bean).getDbConnector();
+          return ((AbstractDbMasterComponentFactory<?>) bean).getDbConnector();
         case 2128193333:  // enforceSchemaVersion
-          return ((AbstractDbMasterComponentFactory) bean).isEnforceSchemaVersion();
+          return ((AbstractDbMasterComponentFactory<?>) bean).isEnforceSchemaVersion();
         case 1236703379:  // autoSchemaManagement
-          return ((AbstractDbMasterComponentFactory) bean).isAutoSchemaManagement();
+          return ((AbstractDbMasterComponentFactory<?>) bean).isAutoSchemaManagement();
+        case -1737146991:  // uniqueIdScheme
+          return ((AbstractDbMasterComponentFactory<?>) bean).getUniqueIdScheme();
+        case -2022653118:  // maxRetries
+          return ((AbstractDbMasterComponentFactory<?>) bean).getMaxRetries();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((AbstractDbMasterComponentFactory<M>) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((AbstractDbMasterComponentFactory<M>) bean).setPublishRest((Boolean) newValue);
+          return;
         case 39794031:  // dbConnector
-          ((AbstractDbMasterComponentFactory) bean).setDbConnector((DbConnector) newValue);
+          ((AbstractDbMasterComponentFactory<M>) bean).setDbConnector((DbConnector) newValue);
           return;
         case 2128193333:  // enforceSchemaVersion
-          ((AbstractDbMasterComponentFactory) bean).setEnforceSchemaVersion((Boolean) newValue);
+          ((AbstractDbMasterComponentFactory<M>) bean).setEnforceSchemaVersion((Boolean) newValue);
           return;
         case 1236703379:  // autoSchemaManagement
-          ((AbstractDbMasterComponentFactory) bean).setAutoSchemaManagement((Boolean) newValue);
+          ((AbstractDbMasterComponentFactory<M>) bean).setAutoSchemaManagement((Boolean) newValue);
+          return;
+        case -1737146991:  // uniqueIdScheme
+          ((AbstractDbMasterComponentFactory<M>) bean).setUniqueIdScheme((String) newValue);
+          return;
+        case -2022653118:  // maxRetries
+          ((AbstractDbMasterComponentFactory<M>) bean).setMaxRetries((Integer) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((AbstractDbMasterComponentFactory) bean)._dbConnector, "dbConnector");
-      super.validate(bean);
     }
 
   }
