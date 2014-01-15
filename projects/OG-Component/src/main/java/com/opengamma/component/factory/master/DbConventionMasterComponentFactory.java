@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.impl.DataConventionMasterResource;
+import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
 import com.opengamma.master.convention.impl.RemoteConventionMaster;
 import com.opengamma.masterdb.convention.DbConventionBeanMaster;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
@@ -57,7 +58,7 @@ public class DbConventionMasterComponentFactory extends AbstractDocumentDbMaster
       
   @Override
   protected ConventionMaster wrapMasterWithTrackingInterface(ConventionMaster postProcessedMaster) {
-    throw new UnsupportedOperationException("Wrapping not supported on convention master"); //TODO
+    return new DataTrackingConventionMaster(postProcessedMaster);
   }
 
 

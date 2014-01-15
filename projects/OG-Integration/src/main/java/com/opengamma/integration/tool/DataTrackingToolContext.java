@@ -7,6 +7,7 @@ package com.opengamma.integration.tool;
 
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.impl.DataTrackingConfigMaster;
+import com.opengamma.master.convention.impl.DataTrackingConventionMaster;
 import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
 import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
@@ -66,6 +67,9 @@ public class DataTrackingToolContext extends ToolContext {
     return (DataTrackingMarketDataSnapshotMaster) super.getMarketDataSnapshotMaster();
   }
 
-  
+  @Override
+  public DataTrackingConventionMaster getConventionMaster() {
+    return (DataTrackingConventionMaster) super.getConventionMaster();
+  }
   
 }
