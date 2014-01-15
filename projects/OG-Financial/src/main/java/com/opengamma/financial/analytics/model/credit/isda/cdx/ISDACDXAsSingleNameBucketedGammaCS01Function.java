@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cdx;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -42,7 +41,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class ISDACDXAsSingleNameBucketedGammaCS01Function extends ISDACDXAsSingleNameCS01Function {
 
@@ -59,9 +58,9 @@ public class ISDACDXAsSingleNameBucketedGammaCS01Function extends ISDACDXAsSingl
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic,
-                                                Tenor[] tenors) {
+                                                final ISDACompliantCreditCurve hazardCurve,
+                                                final CDSAnalytic analytic,
+                                                final Tenor[] tenors) {
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
@@ -80,10 +79,6 @@ public class ISDACDXAsSingleNameBucketedGammaCS01Function extends ISDACDXAsSingl
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> cdsPriceTypes = constraints.getValues(PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = "CDS_INDEX_" + security.accept(new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context))).getUniqueId().getValue();
     //TODO shouldn't need all of the yield curve properties

@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.analytics.financial.credit.bumpers.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
@@ -30,7 +29,6 @@ import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCD
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSBucketedIR01Defaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSCS01Defaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSIR01Defaults;
-import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSPriceTypeDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaCDSRR01Defaults;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaHedgeNotionalCDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaJumpToDefaultCDSFunction;
@@ -139,7 +137,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
     private InterestRateBumpType _bucketedYieldBumpCurveType = InterestRateBumpType.ADDITIVE;
     private double _recoveryRateBump = 0.01;
     private RecoveryRateBumpType _recoveryRateCurveType = RecoveryRateBumpType.ADDITIVE;
-    private PriceType _priceType = PriceType.CLEAN;
     private String _spreadCurveShiftType = CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
@@ -255,14 +252,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       return _recoveryRateCurveType;
     }
 
-    public void setPriceType(final PriceType priceType) {
-      _priceType = priceType;
-    }
-
-    public PriceType getPriceType() {
-      return _priceType;
-    }
-
     public void setSpreadCurveShiftType(final String spreadCurveShiftType) {
       _spreadCurveShiftType = spreadCurveShiftType;
     }
@@ -372,17 +361,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(StandardVanillaCDSRR01Defaults.class, args));
     }
 
-    protected void addStandardVanillaPriceTypeDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
-      int i = 0;
-      args[i++] = PriorityClass.NORMAL.name();
-      for (final Map.Entry<String, CurrencyInfo> entry : getPerCurrencyInfo().entrySet()) {
-        args[i++] = entry.getKey();
-        args[i++] = getPriceType().name();
-      }
-      functions.add(functionConfiguration(StandardVanillaCDSPriceTypeDefaults.class, args));
-    }
-
     protected void addSpreadCurveShiftDefaults(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(SpreadCurveShiftDefaults.class, CreditInstrumentPropertyNamesAndValues.ADDITIVE_SPREAD_CURVE_SHIFT));
     }
@@ -400,7 +378,6 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
       addStandardVanillaIR01Defaults(functions);
       addStandardVanillaBucketedIR01Defaults(functions);
       addStandardVanillaRR01Defaults(functions);
-      addStandardVanillaPriceTypeDefaults(functions);
       addSpreadCurveShiftDefaults(functions);
     }
   }

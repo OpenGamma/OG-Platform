@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
+import static com.opengamma.financial.analytics.model.credit.CreditFunctionUtils.getCoupon;
 
 import java.util.Collections;
 import java.util.Set;
@@ -20,18 +20,16 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantC
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.InterestRateSensitivityCalculator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class StandardVanillaParallelIR01CDSFunction extends StandardVanillaIR01CDSFunction {
   private static final InterestRateSensitivityCalculator CALCULATOR = new InterestRateSensitivityCalculator();
@@ -49,17 +47,17 @@ public class StandardVanillaParallelIR01CDSFunction extends StandardVanillaIR01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
     final double ir01 = getParallelIR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.IR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, ir01));
   }
 
-  public static double getParallelIR01(CreditDefaultSwapDefinition definition,
-                                 ISDACompliantYieldCurve yieldCurve,
-                                 ValueProperties properties,
-                                 ISDACompliantCreditCurve hazardCurve,
-                                 CDSAnalytic analytic) {
+  public static double getParallelIR01(final CreditDefaultSwapDefinition definition,
+                                 final ISDACompliantYieldCurve yieldCurve,
+                                 final ValueProperties properties,
+                                 final ISDACompliantCreditCurve hazardCurve,
+                                 final CDSAnalytic analytic) {
     final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
     final InterestRateBumpType interestRateBumpType =
@@ -67,24 +65,6 @@ public class StandardVanillaParallelIR01CDSFunction extends StandardVanillaIR01C
     //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
 
     return interestRateCurveBump * definition.getNotional() * CALCULATOR.parallelIR01(analytic, getCoupon(definition), hazardCurve, yieldCurve);
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
-    if (requirements == null) {
-      return null;
-    }
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> cdsPriceTypes = constraints.getValues(PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
-    //final Set<String> hazardRateCurveCalculationMethodNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD);
-    //if (hazardRateCurveCalculationMethodNames == null || hazardRateCurveCalculationMethodNames.size() != 1) {
-    //  return null;
-    //}
-    return requirements;
   }
 
 }

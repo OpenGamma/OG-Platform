@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
+import static com.opengamma.financial.analytics.model.credit.CreditFunctionUtils.getCoupon;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -27,23 +28,26 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ * Produces the jump to default for single-name CDS.
  */
 public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSFunction {
+  /** The calculator */
+  private static final CDSRiskFactors CALCULATOR = new CDSRiskFactors();
 
-  private static CDSRiskFactors CALCULATOR = new CDSRiskFactors();
-
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#JUMP_TO_DEFAULT}
+   */
   public StandardVanillaJumpToDefaultCDSFunction() {
     super(ValueRequirementNames.JUMP_TO_DEFAULT);
   }
@@ -57,21 +61,13 @@ public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSF
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic,
-                                                Tenor[] tenors) {
-
-    //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    double valueOnDefault = jumpToDefault(definition, yieldCurve, hazardCurve, analytic);
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic,
+                                                final Tenor[] tenors) {
+    final double coupon = getCoupon(definition);
+    final double lossGivenDefault = definition.getNotional() * CALCULATOR.valueOnDefault(analytic, yieldCurve, hazardCurve, coupon);
+    final double valueOnDefault = (definition.getBuySellProtection() == BuySellProtection.BUY) ? lossGivenDefault : -lossGivenDefault;
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.JUMP_TO_DEFAULT, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, valueOnDefault));
-  }
-
-  public static double jumpToDefault(CreditDefaultSwapDefinition definition,
-                               ISDACompliantYieldCurve yieldCurve,
-                               ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    double coupon = getCoupon(definition);
-    final double lossGivenDefault = definition.getNotional() * CALCULATOR.valueOnDefault(analytic, yieldCurve, hazardCurve, coupon);
-    return (definition.getBuySellProtection() == BuySellProtection.BUY) ? lossGivenDefault : -lossGivenDefault;
   }
 
   @Override
@@ -81,10 +77,6 @@ public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSF
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = security.accept(new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(
         context))).getUniqueId().getValue();
@@ -109,13 +101,12 @@ public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSF
   }
 
   @Override
-  protected ValueProperties.Builder getCommonResultProperties() {
-    return createValueProperties()
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+  protected boolean labelResultWithCurrency() {
+    return true;
   }
 
   @Override
-  protected boolean labelResultWithCurrency() {
-    return true;
+  protected Builder getCommonResultProperties() {
+    return createValueProperties();
   }
 }

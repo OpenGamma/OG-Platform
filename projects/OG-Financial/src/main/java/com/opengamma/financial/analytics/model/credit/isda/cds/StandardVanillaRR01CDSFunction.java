@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
@@ -39,7 +39,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
   private static final CDSRiskFactors CALCULATOR = new CDSRiskFactors();
@@ -57,16 +57,16 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
 
     final double rr01 = getRR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, rr01));
   }
 
-  public static double getRR01(CreditDefaultSwapDefinition definition,
-                         ISDACompliantYieldCurve yieldCurve,
-                         ValueProperties properties, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+  public static double getRR01(final CreditDefaultSwapDefinition definition,
+                         final ISDACompliantYieldCurve yieldCurve,
+                         final ValueProperties properties, final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic) {
     final RecoveryRateBumpType recoveryRateBumpType =
         RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(
             CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
@@ -95,11 +95,6 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
     if (recoveryRateBumpTypes == null || recoveryRateBumpTypes.size() != 1) {
       return null;
     }
-    final Set<String> cdsPriceTypes = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
-
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = security.accept(new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(
         context))).getUniqueId().getValue();
@@ -127,8 +122,7 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
   protected ValueProperties.Builder getCommonResultProperties() {
     return createValueProperties()
         .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE);
   }
 
   @Override

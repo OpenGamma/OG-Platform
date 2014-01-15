@@ -6,6 +6,8 @@
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.financial.analytics.model.credit.CreditFunctionUtils.getSpreads;
+import static com.opengamma.financial.analytics.model.credit.CreditFunctionUtils.getTenors;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 
@@ -20,9 +22,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
@@ -51,7 +51,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
@@ -110,8 +109,8 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     }
     final ISDACompliantYieldCurve yieldCurve = (ISDACompliantYieldCurve) yieldCurveObject;
     final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
-    final Tenor[] tenors = CreditFunctionUtils.getTenors(spreadCurve.getXData());
-    final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
+    final Tenor[] tenors = getTenors(spreadCurve.getXData());
+    final Double[] marketSpreadObjects = getSpreads(spreadCurve.getYData());
     ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
     final int n = tenors.length;
     final ZonedDateTime[] times = new ZonedDateTime[n];
@@ -251,15 +250,4 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     return true;
   }
 
-
-
-  public static double getCoupon(final CreditDefaultSwapDefinition definition) {
-    if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      return ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon();
-    } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      return 1e-4 * ((LegacyCreditDefaultSwapDefinition) definition).getParSpread();
-    } else {
-      throw new OpenGammaRuntimeException("Unexpected security type: " + definition);
-    }
-  }
 }
