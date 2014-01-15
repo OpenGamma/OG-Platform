@@ -85,6 +85,10 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
   @PropertyDefinition
   private Integer _maxRetries;
   
+  /**
+   * Whether to enable tracking mode. This will result in the implementing component factory being called with 
+   * wrapMasterWithTrackingInterface().
+   */
   @PropertyDefinition
   private boolean _trackingMode;
   
