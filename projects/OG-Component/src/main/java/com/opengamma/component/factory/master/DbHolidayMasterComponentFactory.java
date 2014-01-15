@@ -16,6 +16,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.DataHolidayMasterResource;
+import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
 import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.masterdb.holiday.DbHolidayMaster;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
@@ -43,6 +44,12 @@ public class DbHolidayMasterComponentFactory extends AbstractDocumentDbMasterCom
   @Override
   protected AbstractDataResource createPublishedResource(DbHolidayMaster dbMaster, HolidayMaster postProcessedMaster) {
     return new DataHolidayMasterResource(postProcessedMaster);
+  }
+
+
+  @Override
+  protected HolidayMaster wrapMasterWithTrackingInterface(HolidayMaster postProcessedMaster) {
+    return new DataTrackingHolidayMaster(postProcessedMaster);
   }
 
 

@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.DataTrackingPositionMaster;
 import com.opengamma.master.position.impl.ParallelQuerySplittingPositionMaster;
 import com.opengamma.master.position.impl.QuerySplittingPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
@@ -63,6 +64,11 @@ public class DbPositionMasterComponentFactory extends AbstractDocumentDbMasterCo
     return splitQueries(master);
   }
   
+  @Override
+  protected PositionMaster wrapMasterWithTrackingInterface(PositionMaster postProcessedMaster) {
+    return new DataTrackingPositionMaster(postProcessedMaster);
+  }
+
   @Override
   protected AbstractDataResource createPublishedResource(DbPositionMaster dbMaster, PositionMaster postProcessedMaster) {
     //note - the db instance is required for this resource

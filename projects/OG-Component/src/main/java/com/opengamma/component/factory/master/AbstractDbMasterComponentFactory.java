@@ -85,6 +85,10 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
   @PropertyDefinition
   private Integer _maxRetries;
   
+  @PropertyDefinition
+  private boolean _trackingMode;
+  
+  
   private final String _schemaName;
   private final Class<I> _masterInterface; 
   private final Class<? extends AbstractRemoteMaster> _remoteInterface;
@@ -101,16 +105,16 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
     
     ComponentInfo info = new ComponentInfo(_masterInterface, getClassifier());
     
-    M master = createMaster(repo, info);
+    M dbMaster = createMaster(repo, info);
     
     if (getUniqueIdScheme() != null) {
-      master.setUniqueIdScheme(getUniqueIdScheme());
+      dbMaster.setUniqueIdScheme(getUniqueIdScheme());
     }
     
-    String resolvedScheme = master.getUniqueIdScheme();
+    String resolvedScheme = dbMaster.getUniqueIdScheme();
     
     if (getMaxRetries() != null) {
-      master.setMaxRetries(getMaxRetries());
+      dbMaster.setMaxRetries(getMaxRetries());
     }
     
     OGSchema ogSchema = OGSchema.on(getDbConnector())
@@ -118,22 +122,35 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
         .withAutoSchemaManagement(isAutoSchemaManagement())
         .build();
 
-    ogSchema.checkSchema(master.getSchemaVersion(), _schemaName);
+    ogSchema.checkSchema(dbMaster.getSchemaVersion(), _schemaName);
 
-    I masterToPublish = postProcess(master);
+    I postProcessedMaster = postProcess(dbMaster);
+    
+    if (isTrackingMode()) {
+      postProcessedMaster = wrapMasterWithTrackingInterface(postProcessedMaster);
+    }
     
     // register
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, _remoteInterface);
     info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, resolvedScheme);
-    repo.registerComponent(info, masterToPublish);
+    repo.registerComponent(info, postProcessedMaster);
 
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, createPublishedResource(master, masterToPublish));
+      repo.getRestComponents().publish(info, createPublishedResource(dbMaster, postProcessedMaster));
     }
     
   }
   
+  
+  /**
+   * Adds tracking to the master by wrapping it, if it is supported.
+   * Only called if trackingMode is enabled.
+   * @param postProcessedMaster the master to wrap
+   * @return the wrapped master
+   * @throws UnsupportedOperationException if this master doesn't support tracking
+   */
+  protected abstract I wrapMasterWithTrackingInterface(I postProcessedMaster);
   
   
   protected abstract M createMaster(ComponentRepository repo, ComponentInfo info) throws Exception;
@@ -391,6 +408,31 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the trackingMode.
+   * @return the value of the property
+   */
+  public boolean isTrackingMode() {
+    return _trackingMode;
+  }
+
+  /**
+   * Sets the trackingMode.
+   * @param trackingMode  the new value of the property
+   */
+  public void setTrackingMode(boolean trackingMode) {
+    this._trackingMode = trackingMode;
+  }
+
+  /**
+   * Gets the the {@code trackingMode} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> trackingMode() {
+    return metaBean().trackingMode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -405,6 +447,7 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
           (isAutoSchemaManagement() == other.isAutoSchemaManagement()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
           JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
+          (isTrackingMode() == other.isTrackingMode()) &&
           super.equals(obj);
     }
     return false;
@@ -420,12 +463,13 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
     hash += hash * 31 + JodaBeanUtils.hashCode(isAutoSchemaManagement());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isTrackingMode());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("AbstractDbMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -446,6 +490,7 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
     buf.append("autoSchemaManagement").append('=').append(JodaBeanUtils.toString(isAutoSchemaManagement())).append(',').append(' ');
     buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
     buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
+    buf.append("trackingMode").append('=').append(JodaBeanUtils.toString(isTrackingMode())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -495,6 +540,11 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
     private final MetaProperty<Integer> _maxRetries = DirectMetaProperty.ofReadWrite(
         this, "maxRetries", AbstractDbMasterComponentFactory.class, Integer.class);
     /**
+     * The meta-property for the {@code trackingMode} property.
+     */
+    private final MetaProperty<Boolean> _trackingMode = DirectMetaProperty.ofReadWrite(
+        this, "trackingMode", AbstractDbMasterComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -505,7 +555,8 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
         "enforceSchemaVersion",
         "autoSchemaManagement",
         "uniqueIdScheme",
-        "maxRetries");
+        "maxRetries",
+        "trackingMode");
 
     /**
      * Restricted constructor.
@@ -530,6 +581,8 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
           return _uniqueIdScheme;
         case -2022653118:  // maxRetries
           return _maxRetries;
+        case -1884120838:  // trackingMode
+          return _trackingMode;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -607,6 +660,14 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
       return _maxRetries;
     }
 
+    /**
+     * The meta-property for the {@code trackingMode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> trackingMode() {
+      return _trackingMode;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -625,6 +686,8 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
           return ((AbstractDbMasterComponentFactory<?, ?>) bean).getUniqueIdScheme();
         case -2022653118:  // maxRetries
           return ((AbstractDbMasterComponentFactory<?, ?>) bean).getMaxRetries();
+        case -1884120838:  // trackingMode
+          return ((AbstractDbMasterComponentFactory<?, ?>) bean).isTrackingMode();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -653,6 +716,9 @@ public abstract class AbstractDbMasterComponentFactory<I, M extends Configurable
           return;
         case -2022653118:  // maxRetries
           ((AbstractDbMasterComponentFactory<I, M>) bean).setMaxRetries((Integer) newValue);
+          return;
+        case -1884120838:  // trackingMode
+          ((AbstractDbMasterComponentFactory<I, M>) bean).setTrackingMode((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
