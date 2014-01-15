@@ -98,7 +98,7 @@ public class FXMatrixFunction extends AbstractFunction {
       final ValueProperties properties = createValueProperties().with(CURVE_CONSTRUCTION_CONFIG, _configurationName).get();
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_MATRIX, ComputationTargetSpecification.NULL, properties);
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), spec, currencies);
-    } catch (final Exception e) {
+    } catch (final Throwable e) {
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveConstructionConfiguration called " + _configurationName);
     }
   }
