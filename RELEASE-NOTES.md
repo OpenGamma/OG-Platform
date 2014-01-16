@@ -7,6 +7,10 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M6p02
+--------------
+- [PLAT-5607] VolatilitySurfaceManipulatorBuilder should be public
+
 To 2.2.0-M6p01
 --------------
 - [PLAT-5502] ImpliedDepositCurveSeriesFunction nor FXImpliedYieldCurveSeriesFunction should be using ZonedDateTime.now() to infer date/time information.
