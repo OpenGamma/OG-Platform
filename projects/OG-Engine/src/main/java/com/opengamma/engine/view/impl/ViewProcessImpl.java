@@ -8,6 +8,7 @@ package com.opengamma.engine.view.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,9 +76,16 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final int _permissionCheckInterval;
 
   /**
-   * The time that a market data permission check was last done.
+   * The time that a market data permission check was last done (on the market data server).
    */
   private final AtomicReference<Instant> _lastPermissionCheck = new AtomicReference<>();
+
+  /**
+   * Indicates whether a user is entitled to the market data. This is maintained
+   * across cycles and is updated each time the entitlement check is made on the
+   * market data server.
+   */
+  private Map<UserPrincipal, Boolean> _userPermissions = new ConcurrentHashMap<>();
 
   /**
    * Manages access to critical regions of the process. Note that the use of {@link Semaphore} rather than, for example, {@link ReentrantLock} allows one thread to acquire the lock and another thread
@@ -393,7 +401,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
       try {
         final UserPrincipal listenerUser = listener.getUser();
         // todo - response to a failed permission check is handled by the client rather than here. Is there a reason for this (cf cycleCompleted method)
-        final boolean hasMarketDataPermissions = permissionProvider.checkMarketDataPermissions(listenerUser, marketData).isEmpty();
+        final boolean hasMarketDataPermissions = userIsPermitted(true, listenerUser, permissionProvider, marketData);
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       } catch (final Exception e) {
         logListenerError(listener, e);
@@ -452,31 +460,40 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
     // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
     // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
-    boolean checkPermissions = isPermissionCheckDue();
+    boolean isPermissionCheckDue = isPermissionCheckDue();
     for (final ViewResultListener listener : listeners) {
       try {
         UserPrincipal user = listener.getUser();
-        if (checkPermissions && userIsDenied(latest, user)) {
+        final MarketDataPermissionProvider permissionProvider = latest.getValue();
+        final Set<ValueSpecification> marketDataRequirements = latest.getKey().getMarketDataRequirements();
+        if (userIsPermitted(isPermissionCheckDue, user, permissionProvider, marketDataRequirements)) {
+          listener.cycleCompleted(result, deltaResult);
+        } else {
           listener.cycleExecutionFailed(cycle.getExecutionOptions(),
                                         new Exception("User: " + user + " does not have permission for data in this view"));
-        } else {
-          listener.cycleCompleted(result, deltaResult);
         }
       } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
-    if (checkPermissions) {
+    if (isPermissionCheckDue) {
       _lastPermissionCheck.set(Instant.now());
     }
   }
 
-  private boolean userIsDenied(Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider> latest,
-                               UserPrincipal user) {
-    s_logger.info("Performing permissions check for market data");
-    MarketDataPermissionProvider permissionProvider = latest.getValue();
-    Set<ValueSpecification> marketDataRequirements = latest.getKey().getMarketDataRequirements();
-    return !permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
+  private boolean userIsPermitted(boolean isPermissionCheckDue,
+                                  UserPrincipal user,
+                                  MarketDataPermissionProvider permissionProvider,
+                                  Set<ValueSpecification> marketDataRequirements) {
+
+    if (isPermissionCheckDue || !_userPermissions.containsKey(user)) {
+      s_logger.info("Performing permissions check for market data");
+      final boolean allowed = permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
+      _userPermissions.put(user, allowed);
+      return allowed;
+    } else {
+      return _userPermissions.get(user);
+    }
   }
 
   private boolean isPermissionCheckDue() {
