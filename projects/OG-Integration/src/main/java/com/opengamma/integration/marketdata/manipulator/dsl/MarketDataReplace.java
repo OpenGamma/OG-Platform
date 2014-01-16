@@ -11,11 +11,12 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Manipulator that replaces a single market data point with a specified value.
  */
-public class Replace implements StructureManipulator<Double> {
+public class MarketDataReplace implements StructureManipulator<Double> {
 
   /** Field name for Fudge message. */
   private static final String VALUE = "value";
@@ -23,7 +24,7 @@ public class Replace implements StructureManipulator<Double> {
   /** The new value for the market data point. */
   private final double _value;
 
-  /* package */ Replace(double value) {
+  /* package */ MarketDataReplace(double value) {
     if (Double.isInfinite(value) || Double.isNaN(value)) {
       throw new IllegalArgumentException("value must not be infinite or NaN. value=" + value);
     }
@@ -31,7 +32,7 @@ public class Replace implements StructureManipulator<Double> {
   }
 
   @Override
-  public Double execute(Double structure) {
+  public Double execute(Double structure, ValueSpecification valueSpecification) {
     return _value;
   }
 
@@ -46,9 +47,9 @@ public class Replace implements StructureManipulator<Double> {
     return msg;
   }
 
-  public static Replace fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static MarketDataReplace fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(VALUE));
-    return new Replace(scalingFactor);
+    return new MarketDataReplace(scalingFactor);
   }
 
   @Override
@@ -59,7 +60,7 @@ public class Replace implements StructureManipulator<Double> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Replace replace = (Replace) o;
+    MarketDataReplace replace = (MarketDataReplace) o;
 
     if (Double.compare(replace._value, _value) != 0) {
       return false;

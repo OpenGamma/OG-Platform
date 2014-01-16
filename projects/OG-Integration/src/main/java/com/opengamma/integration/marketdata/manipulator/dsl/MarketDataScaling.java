@@ -11,11 +11,12 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Manipulator that scales a single market data value.
  */
-public class Scaling implements StructureManipulator<Double> {
+public class MarketDataScaling implements StructureManipulator<Double> {
 
   /** Field name for Fudge message. */
   private static final String SCALING_FACTOR = "scalingFactor";
@@ -23,7 +24,7 @@ public class Scaling implements StructureManipulator<Double> {
   /** Scaling factor applied to the market data value. */
   private final double _scalingFactor;
 
-  /* package */ Scaling(double scalingFactor) {
+  /* package */ MarketDataScaling(double scalingFactor) {
     if (Double.isInfinite(scalingFactor) || Double.isNaN(scalingFactor)) {
       throw new IllegalArgumentException("scalingFactor must not be infinite or NaN. value=" + scalingFactor);
     }
@@ -31,7 +32,7 @@ public class Scaling implements StructureManipulator<Double> {
   }
 
   @Override
-  public Double execute(Double structure) {
+  public Double execute(Double structure, ValueSpecification valueSpecification) {
     return structure * _scalingFactor;
   }
 
@@ -46,9 +47,9 @@ public class Scaling implements StructureManipulator<Double> {
     return msg;
   }
 
-  public static Scaling fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static MarketDataScaling fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(SCALING_FACTOR));
-    return new Scaling(scalingFactor);
+    return new MarketDataScaling(scalingFactor);
   }
 
   @Override
@@ -64,7 +65,7 @@ public class Scaling implements StructureManipulator<Double> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Scaling scaling = (Scaling) o;
+    MarketDataScaling scaling = (MarketDataScaling) o;
 
     if (Double.compare(scaling._scalingFactor, _scalingFactor) != 0) {
       return false;

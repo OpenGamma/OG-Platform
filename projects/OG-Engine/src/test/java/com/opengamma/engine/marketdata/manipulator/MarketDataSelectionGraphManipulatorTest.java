@@ -87,7 +87,8 @@ public class MarketDataSelectionGraphManipulatorTest {
     final DistinctMarketDataSelector yieldCurveSelector = createYieldCurveSelector(Currency.USD, "Forward3M");
     final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> specificManipulators = new HashMap<>();
     specificManipulators.put("graph", createYieldCurveSelectorAndParams(Currency.USD, "Forward3M"));
-    final MarketDataSelectionGraphManipulator manipulator = new MarketDataSelectionGraphManipulator(NoOpMarketDataSelector.getInstance(), specificManipulators);
+    final MarketDataSelectionGraphManipulator manipulator =
+        new MarketDataSelectionGraphManipulator(NoOpMarketDataSelector.getInstance(), specificManipulators);
     final DependencyGraph graph1 = createNamedDependencyGraph("graph");
     final Set<ValueSpecification> originalOutputSpecifications1 = DependencyGraphImpl.getAllOutputSpecifications(graph1);
     final Map<DistinctMarketDataSelector, Set<ValueSpecification>> result1 = new HashMap<>();
@@ -95,7 +96,7 @@ public class MarketDataSelectionGraphManipulatorTest {
     checkNodeHasBeenAddedToGraph(newGraph1, originalOutputSpecifications1, result1);
     assertEquals(result1.size(), 1);
     // Selector is the underlying, not composite
-    assertEquals(result1.containsKey(yieldCurveSelector), true);
+    assertTrue(result1.containsKey(yieldCurveSelector));
   }
 
   @Test
@@ -134,7 +135,9 @@ public class MarketDataSelectionGraphManipulatorTest {
     return YieldCurveSelector.of(YieldCurveKey.of(currency, curveType));
   }
 
-  private void checkNodeHasBeenAddedToGraph(DependencyGraph graph, Set<ValueSpecification> originalOutputSpecifications, Map<DistinctMarketDataSelector, Set<ValueSpecification>> result) {
+  private void checkNodeHasBeenAddedToGraph(DependencyGraph graph,
+                                            Set<ValueSpecification> originalOutputSpecifications,
+                                            Map<DistinctMarketDataSelector, Set<ValueSpecification>> result) {
     assertFalse(result.isEmpty());
     ValueSpecification originalValueSpec = Iterables.getOnlyElement(originalOutputSpecifications);
     Set<ValueSpecification> outputSpecifications = new HashSet<>(DependencyGraphImpl.getAllOutputSpecifications(graph));

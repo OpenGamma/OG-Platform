@@ -11,11 +11,12 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Manipulator that shift a single market data value by an absolute amount.
  */
-public class Shift implements StructureManipulator<Double> {
+public class MarketDataShift implements StructureManipulator<Double> {
 
   /** Field name for Fudge message. */
   private static final String SHIFT = "shift";
@@ -23,7 +24,7 @@ public class Shift implements StructureManipulator<Double> {
   /** Absolute shift added to the market data value. */
   private final double _shift;
 
-  /* package */ Shift(double shift) {
+  /* package */ MarketDataShift(double shift) {
     if (Double.isInfinite(shift) || Double.isNaN(shift)) {
       throw new IllegalArgumentException("shift must not be infinite or NaN. value=" + shift);
     }
@@ -31,7 +32,7 @@ public class Shift implements StructureManipulator<Double> {
   }
 
   @Override
-  public Double execute(Double structure) {
+  public Double execute(Double structure, ValueSpecification valueSpecification) {
     return structure + _shift;
   }
 
@@ -46,9 +47,9 @@ public class Shift implements StructureManipulator<Double> {
     return msg;
   }
 
-  public static Shift fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+  public static MarketDataShift fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     Double scalingFactor = deserializer.fieldValueToObject(Double.class, msg.getByName(SHIFT));
-    return new Shift(scalingFactor);
+    return new MarketDataShift(scalingFactor);
   }
 
   @Override
@@ -64,7 +65,7 @@ public class Shift implements StructureManipulator<Double> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    Shift shift = (Shift) o;
+    MarketDataShift shift = (MarketDataShift) o;
 
     if (Double.compare(shift._shift, _shift) != 0) {
       return false;

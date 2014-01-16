@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * {@link StructureManipulator} that shifts all points on a curve up or down by the same amount.
@@ -37,7 +38,7 @@ public class YieldCurveSingleShift implements StructureManipulator<YieldAndDisco
   }
 
   @Override
-  public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure) {
+  public YieldAndDiscountCurve execute(YieldAndDiscountCurve structure, ValueSpecification valueSpecification) {
     return structure.withSingleShift(_t, _shift);
   }
 

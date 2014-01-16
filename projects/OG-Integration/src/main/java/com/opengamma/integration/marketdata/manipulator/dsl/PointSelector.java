@@ -13,21 +13,19 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
-import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
-import com.opengamma.engine.marketdata.manipulator.StructureType;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Selects raw market data points that will be manipulated.
  */
 public class PointSelector implements DistinctMarketDataSelector {
-
-  /** Types of structured data selected by this class. */
-  private static final ImmutableSet<StructureType> STRUCTURE_TYPES = ImmutableSet.of(StructureType.MARKET_DATA_POINT);
 
   /** Calc configs to which this selector will apply, null will match any config. */
   private final Set<String> _calcConfigNames;
@@ -72,18 +70,17 @@ public class PointSelector implements DistinctMarketDataSelector {
   }
 
   @Override
-  public DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+  public DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
                                                          String calcConfigName,
                                                          SelectorResolver resolver) {
     if (_calcConfigNames != null && !_calcConfigNames.contains(calcConfigName)) {
       return null;
     }
-    Object value = structureId.getValue();
-    if (!(value instanceof ExternalId)) {
+    if (!MarketDataRequirementNames.MARKET_VALUE.equals(valueSpecification.getValueName())) {
       return null;
     }
-    ExternalId id = (ExternalId) value;
-    if (_ids != null && !_ids.contains(value)) {
+    ExternalId id = createId(valueSpecification);
+    if (_ids != null && !_ids.contains(id)) {
       return null;
     }
     if (_idMatchScheme != null && _idMatchPattern != null) {
@@ -111,9 +108,20 @@ public class PointSelector implements DistinctMarketDataSelector {
     return this;
   }
 
-  @Override
-  public Set<StructureType> getApplicableStructureTypes() {
-    return STRUCTURE_TYPES;
+  private static ExternalId createId(ValueSpecification valueSpecification) {
+    if (valueSpecification.getProperty("Id") != null) {
+      return ExternalId.parse(valueSpecification.getProperty("Id"));
+    } else {
+      // Id may not always be present - maybe with snapshots? (get External from UniqueId)
+      UniqueId uniqueId = valueSpecification.getTargetSpecification().getUniqueId();
+      String scheme = uniqueId.getScheme();
+      if (scheme.startsWith("ExternalId-")) {
+        scheme = scheme.substring(11);
+      }
+      // REVIEW 2013-10-11 Andrew -- The above logic is only correct if the requirement was for a single identifier and not a bundle,
+      // for example data might have been asked for with tickers from a number of alternative data providers
+      return ExternalId.of(scheme, uniqueId.getValue());
+    }
   }
 
   /* package */ Set<ExternalId> getIds() {

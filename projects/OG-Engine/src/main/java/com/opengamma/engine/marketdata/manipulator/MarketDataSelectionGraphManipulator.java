@@ -67,7 +67,9 @@ public class MarketDataSelectionGraphManipulator {
     }
   }
 
-  private DependencyNode modifyDependencyNode(final DependencyNode node, final ValueSpecification desiredOutput, final DependencyGraphStructureExtractor extractor) {
+  private DependencyNode modifyDependencyNode(DependencyNode node,
+                                              ValueSpecification desiredOutput,
+                                              DependencyGraphStructureExtractor extractor) {
     DependencyNode newNode = extractor.getProduction(desiredOutput);
     if (newNode != null) {
       return newNode;
@@ -128,6 +130,7 @@ public class MarketDataSelectionGraphManipulator {
         final String originalFunction = properties.getStrictValue(ValuePropertyNames.FUNCTION);
         final ValueSpecification proxyOutput = new ValueSpecification(output.getValueName(), target, properties.copy().withoutAny(ValuePropertyNames.FUNCTION)
             .with(ValuePropertyNames.FUNCTION, originalFunction + StructureManipulationFunction.UNIQUE_ID).get());
+        // REVIEW Chris 2014-01-14 - This isn't a good design. it's deliberately mutating the internal state of the extractor
         proxySpecs.add(proxyOutput);
         final DependencyNode proxyNode = new DependencyNodeImpl(MANIPULATION_FUNCTION, target, Collections.singleton(proxyOutput), Collections.singletonMap(output, newNode));
         extractor.storeProduction(proxyOutput, proxyNode);
@@ -149,14 +152,14 @@ public class MarketDataSelectionGraphManipulator {
    * 
    * @param graph the graph to inspect, not null
    * @param resolver for looking up data used in selection criteria, for example securities, not null
-   * @param manipulators populated with details of the manipulations inserted into the graph, not null
+   * @param selectorMapping populated with details of the manipulations inserted into the graph, not null
    * @return the new graph, not null
    */
   public DependencyGraph modifyDependencyGraph(final DependencyGraph graph, final ComputationTargetResolver.AtVersionCorrection resolver,
-      final Map<DistinctMarketDataSelector, Set<ValueSpecification>> manipulators) {
+      final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping) {
     ArgumentChecker.notNull(graph, "graph");
     ArgumentChecker.notNull(resolver, "resolver");
-    ArgumentChecker.notNull(manipulators, "manipulators");
+    ArgumentChecker.notNull(selectorMapping, "selectorMapping");
     final String configurationName = graph.getCalculationConfigurationName();
     final MarketDataSelector combinedSelector = buildCombinedSelector(configurationName);
     // Drop out immediately if we have no shifts specified (caller should already have verified
@@ -167,14 +170,15 @@ public class MarketDataSelectionGraphManipulator {
     final int roots = graph.getRootCount();
     final Set<DependencyNode> newRoots = Sets.newHashSetWithExpectedSize(roots);
     final DefaultSelectorResolver selectorResolver = new DefaultSelectorResolver(resolver);
-    final DependencyGraphStructureExtractor extractor = new DependencyGraphStructureExtractor(configurationName, combinedSelector, selectorResolver, manipulators);
+    final DependencyGraphStructureExtractor extractor =
+        new DependencyGraphStructureExtractor(configurationName, combinedSelector, selectorResolver, selectorMapping);
     for (int i = 0; i < roots; i++) {
       final DependencyNode root = graph.getRootNode(i);
       newRoots.add(modifyDependencyNode(root, root.getOutputValue(0), extractor));
     }
     final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs;
     if (extractor.hasTerminalValueRenames()) {
-      terminalOutputs = new HashMap<ValueSpecification, Set<ValueRequirement>>(graph.getTerminalOutputs());
+      terminalOutputs = new HashMap<>(graph.getTerminalOutputs());
       for (Pair<ValueSpecification, ValueSpecification> rename : extractor.getTerminalValueRenames()) {
         final Set<ValueRequirement> terminals = terminalOutputs.remove(rename.getFirst());
         if (terminals != null) {

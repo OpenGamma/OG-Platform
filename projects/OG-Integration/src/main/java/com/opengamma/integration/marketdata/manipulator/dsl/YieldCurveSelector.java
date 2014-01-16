@@ -8,32 +8,35 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
-import com.opengamma.engine.marketdata.manipulator.StructureType;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.Currency;
 
 /**
  * Selects yield curves for manipulation.
  */
-public class YieldCurveSelector extends Selector<YieldCurveKey> {
+public class YieldCurveSelector extends Selector {
 
   /* package */ YieldCurveSelector(Set<String> calcConfigNames,
                                    Set<String> names,
                                    Set<Currency> currencies,
                                    Pattern nameMatchPattern,
                                    Pattern nameLikePattern) {
-    super(calcConfigNames,
-          names,
-          currencies,
-          nameMatchPattern,
-          nameLikePattern,
-          YieldCurveKey.class,
-          StructureType.YIELD_CURVE);
+    super(calcConfigNames, names, currencies, nameMatchPattern, nameLikePattern);
   }
 
   @Override
-  boolean matches(YieldCurveKey key) {
-    return matches(key.getName(), key.getCurrency());
+  boolean matches(ValueSpecification valueSpecification) {
+    if (!ValueRequirementNames.YIELD_CURVE.equals(valueSpecification.getValueName())) {
+      return false;
+    }
+    Currency currency = Currency.of(valueSpecification.getTargetSpecification().getUniqueId().getValue());
+    String curve = valueSpecification.getProperties().getStrictValue(ValuePropertyNames.CURVE);
+    if (curve == null) {
+      return false;
+    }
+    return matches(curve, currency);
   }
 
   /**

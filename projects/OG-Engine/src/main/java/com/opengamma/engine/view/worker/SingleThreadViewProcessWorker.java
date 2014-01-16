@@ -1537,7 +1537,10 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> functionParamsByConfig = new HashMap<>();
       for (DependencyGraphExplorer graphExplorer : compiledViewDefinition.getDependencyGraphExplorers()) {
         DependencyGraph graph = graphExplorer.getWholeGraph();
-        final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = new HashMap<DistinctMarketDataSelector, Set<ValueSpecification>>();
+        // REVIEW Chris 2014-01-14 - selectorMapping is stored in DependencyGraphStructureExtractor, mutated
+        // by MarketDataSelectionGraphManipulator and used here. that's too obscure
+        final Map<DistinctMarketDataSelector, Set<ValueSpecification>> selectorMapping = new HashMap<>();
+        // TODO is graph mutated in modifyDependencyGraph? if not then should probably use a new variable to make that explicit
         graph = _marketDataSelectionGraphManipulator.modifyDependencyGraph(graph, resolver, selectorMapping);
         if (!selectorMapping.isEmpty()) {
           newGraphsByConfig.put(graph.getCalculationConfigurationName(), graph);
