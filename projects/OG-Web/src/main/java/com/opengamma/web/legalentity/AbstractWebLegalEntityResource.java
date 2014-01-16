@@ -11,6 +11,7 @@ import javax.ws.rs.core.UriInfo;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.legalentity.LegalEntityMaster;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
@@ -30,11 +31,13 @@ public abstract class AbstractWebLegalEntityResource extends AbstractPerRequestW
    * Creates the resource.
    *
    * @param legalEntityMaster the legalEntity master, not null
+   * @param securityMaster the securityMaster master, not null
    */
-  protected AbstractWebLegalEntityResource(final LegalEntityMaster legalEntityMaster) {
+  protected AbstractWebLegalEntityResource(final LegalEntityMaster legalEntityMaster, final SecurityMaster securityMaster) {
     ArgumentChecker.notNull(legalEntityMaster, "legalEntityMaster");
     _data = new WebLegalEntityData();
     data().setLegalEntityMaster(legalEntityMaster);
+    data().setSecurityMaster(securityMaster);
     initializeMetaData();
   }
 

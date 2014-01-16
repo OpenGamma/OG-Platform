@@ -6,11 +6,11 @@
 package com.opengamma.core.legalentity;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.core.Attributable;
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
 
@@ -36,7 +36,6 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
    * @return the bundle defining the legal entity, not null
    */
   @Override
-  // override for Javadoc
   ExternalIdBundle getExternalIdBundle();
 
   /**
@@ -60,12 +59,60 @@ public interface LegalEntity extends UniqueIdentifiable, ExternalBundleIdentifia
    */
   Collection<Capability> getCapabilities();
 
-  Collection<ObjectId> getIssuedSecurities(); //TODO refactor <ObjectId> to <SecurityLink> when SecurityLink is ready.
+  /**
+   * Gets the securities issued by the legal entity
+   *
+   * @return the securities issued by the legal entity
+   */
+  Collection<ExternalIdBundle> getIssuedSecurities(); //TODO refactor <ExternalIdBundle> to <SecurityLink> when SecurityLink is ready.
 
+  /**
+   * Gets the obligations of the legal entity
+   *
+   * @return the obligations of a legal entity
+   */
   Collection<Obligation> getObligations();
 
+  /**
+   * Gets the accounts of the legal entity
+   *
+   * @return the accounts of a legal entity
+   */
   Collection<Account> getAccounts();
 
+  /**
+   * Gets the portfolio of the legal entity
+   *
+   * @return the portfolio of the legal entity
+   */
   RootPortfolio getRootPortfolio();
+
+  /**
+   * Gets the entire set of details.
+   * <p/>
+   * Details are used to tag the object with additional information.
+   *
+   * @return the complete set of details, not null
+   */
+  Map<String, String> getDetails();
+
+  /**
+   * Sets the entire set of details.
+   * <p/>
+   * Details are used to tag the object with additional information.
+   *
+   * @param details the new set of details, not null
+   */
+  void setDetails(Map<String, String> details);
+
+  /**
+   * Adds a key-value pair to the set of details
+   * <p/>
+   * Details are used to tag the object with additional information.
+   *
+   * @param key the key to add, not null
+   * @param value the value to add, not null
+   */
+  void addDetail(String key, String value);
 
 }

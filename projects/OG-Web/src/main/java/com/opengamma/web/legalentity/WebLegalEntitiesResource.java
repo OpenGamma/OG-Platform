@@ -41,6 +41,7 @@ import com.opengamma.master.legalentity.LegalEntitySearchRequest;
 import com.opengamma.master.legalentity.LegalEntitySearchResult;
 import com.opengamma.master.legalentity.LegalEntitySearchSortOrder;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 import com.opengamma.web.analytics.rest.MasterType;
@@ -60,9 +61,10 @@ public class WebLegalEntitiesResource extends AbstractWebLegalEntityResource {
    * Creates the resource.
    *
    * @param legalEntityMaster the legalEntity master, not null
+   * @param securityMaster the securityMaster master, not null
    */
-  public WebLegalEntitiesResource(final LegalEntityMaster legalEntityMaster) {
-    super(legalEntityMaster);
+  public WebLegalEntitiesResource(final LegalEntityMaster legalEntityMaster, final SecurityMaster securityMaster) {
+    super(legalEntityMaster, securityMaster);
   }
 
   //-------------------------------------------------------------------------

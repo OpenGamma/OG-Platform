@@ -5,7 +5,14 @@
  */
 package com.opengamma.web.legalentity;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
 import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,11 +34,17 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.core.legalentity.Account;
+import com.opengamma.core.legalentity.Obligation;
 import com.opengamma.core.legalentity.RootPortfolio;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecuritySearchRequest;
 
 /** RESTful resource for a legalEntity document. */
 @Path("/legalentities/{legalEntityId}")
@@ -50,6 +63,46 @@ public class WebLegalEntityResource extends AbstractWebLegalEntityResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getHTML() {
+    final ManageableLegalEntity legalEntity = data().getLegalEntity().getLegalEntity();
+
+    //RootPortfolio rp = new RootPortfolio();
+    //rp.setPortfolio(ObjectId.parse("DbPrt~1042"));
+    //legalEntity.setRootPortfolio(rp);
+    //
+    //List<ExternalIdBundle> is = newArrayList(
+    //    ExternalIdBundle.of(
+    //        ExternalId.of("RANDOM_SECURITY_GENERATOR", "7c7baeb0-7864-11e3-8000-a82066016a4c")),
+    //    ExternalIdBundle.of(
+    //        ExternalId.of("RANDOM_SECURITY_GENERATOR", "7c3a11d0-7864-11e3-8000-a82066016a4c")));
+    //legalEntity.setIssuedSecurities(is);
+    //
+    //Account acc1 = new Account();
+    //acc1.setName("Account 1");
+    //acc1.setPortfolio(ObjectId.parse("DbPrt~1015"));
+    //Account acc2 = new Account();
+    //acc2.setName("Account 2");
+    //acc2.setPortfolio(ObjectId.parse("DbPrt~1040"));
+    //List<Account> accounts = newArrayList(acc1, acc2);
+    //legalEntity.setAccounts(accounts);
+    //
+    //Map<String, String> details = newHashMap();
+    //details.put("Street Address", "185 PARK STREET");
+    //details.put("City", "London");
+    //details.put("Postcode", "SE1 9BL");
+    //details.put("Country", "UNITED KINGDOM");
+    //details.put("Email", "INFO@OPENGAMMA.COM");
+    //details.put("Phone", "+44 20 3416 3333");
+    //legalEntity.setDetails(details);
+    //
+    //Obligation ob1 = new Obligation();
+    //ob1.setName("Obligation 1");
+    //ob1.setSecurity(ExternalIdBundle.of(ExternalId.of("RANDOM_SECURITY_GENERATOR", "7c7baeb0-7864-11e3-8000-a82066016a4c")));
+    //Obligation ob2 = new Obligation();
+    //ob2.setName("Obligation 1");
+    //ob2.setSecurity(ExternalIdBundle.of(ExternalId.of("RANDOM_SECURITY_GENERATOR", "7c3a11d0-7864-11e3-8000-a82066016a4c")));
+    //Collection<Obligation> obligations = newArrayList(ob1, ob2);
+    //legalEntity.setObligations(obligations);
+
     final FlexiBean out = createRootData();
     final LegalEntityDocument doc = data().getLegalEntity();
     out.put("legalEntityXML", createBeanXML(doc.getLegalEntity()));
@@ -65,9 +118,43 @@ public class WebLegalEntityResource extends AbstractWebLegalEntityResource {
       return builder.build();
     }
     final FlexiBean out = createRootData();
-    final LegalEntityDocument doc = data().getLegalEntity();
-    out.put("legalEntityXML", StringEscapeUtils.escapeJava(createBeanXML(doc.getLegalEntity())));
-    out.put("type", data().getTypeMap().inverse().get(doc.getLegalEntity().getClass()));
+    final ManageableLegalEntity legalEntity = data().getLegalEntity().getLegalEntity();
+
+    List<FlexiBean> issuedSecuritiesOids = functional(legalEntity.getIssuedSecurities()).map(new Function1<ExternalIdBundle, FlexiBean>() {
+      @Override
+      public FlexiBean execute(ExternalIdBundle externalIds) {
+        ManageableSecurity security = data().getSecurityMaster().search(new SecuritySearchRequest(externalIds)).getFirstSecurity();
+        if (security != null) {
+          FlexiBean out = new FlexiBean();
+          out.put("name", security.getName());
+          out.put("oid", security.getUniqueId().getObjectId());
+          return out;
+        } else {
+          return null;
+        }
+      }
+    }).asList();
+
+    List<FlexiBean> obligationsOids = functional(legalEntity.getObligations()).map(new Function1<Obligation, FlexiBean>() {
+      @Override
+      public FlexiBean execute(Obligation obligation) {
+        ManageableSecurity security = data().getSecurityMaster().search(new SecuritySearchRequest(obligation.getSecurity())).getFirstSecurity();
+        if (security != null) {
+          FlexiBean out = new FlexiBean();
+          out.put("obligation", obligation.getName());
+          out.put("name", security.getName());
+          out.put("oid", security.getUniqueId().getObjectId());
+          return out;
+        } else {
+          return null;
+        }
+      }
+    }).asList();
+
+    out.put("issuedSecuritiesOids", issuedSecuritiesOids);
+    out.put("obligationsOids", obligationsOids);
+    out.put("legalEntityXML", StringEscapeUtils.escapeJava(createBeanXML(legalEntity)));
+    out.put("type", data().getTypeMap().inverse().get(legalEntity.getClass()));
     final String json = getFreemarker().build(JSON_DIR + "legalentity.ftl", out);
     return Response.ok(json).tag(etag).build();
   }

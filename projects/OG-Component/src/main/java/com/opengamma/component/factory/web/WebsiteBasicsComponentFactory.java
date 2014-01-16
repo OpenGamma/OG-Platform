@@ -222,7 +222,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebConventionsResource.class, getConventionMaster());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster());
+    resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster(), getSecurityMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesMaster(), getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
@@ -234,8 +234,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     resource = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class, getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), configSource);
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebComputationTargetTypeResource.class, getTargetTypes());
-    repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebLegalEntitiesResource.class, getLegalEntityMaster());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, 
         getMarketDataSnapshotMaster(), getConfigMaster(), getLiveMarketDataProviderFactory(), getMarketDataSpecificationRepository(),

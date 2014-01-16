@@ -28,6 +28,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.legalentity.LegalEntityDocument;
 import com.opengamma.master.legalentity.LegalEntityMaster;
 import com.opengamma.master.legalentity.ManageableLegalEntity;
+import com.opengamma.master.security.SecurityMaster;
 
 /** Data class for web-based legalEntity management. */
 @BeanDefinition
@@ -36,6 +37,11 @@ public class WebLegalEntityData extends DirectBean {
   /** The legalEntity master. */
   @PropertyDefinition
   private LegalEntityMaster _legalEntityMaster;
+  /**
+   * The security master.
+   */
+  @PropertyDefinition
+  private SecurityMaster _securityMaster;
   /** The JSR-311 URI information. */
   @PropertyDefinition
   private UriInfo _uriInfo;
@@ -128,6 +134,31 @@ public class WebLegalEntityData extends DirectBean {
    */
   public final Property<LegalEntityMaster> legalEntityMaster() {
     return metaBean().legalEntityMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security master.
+   * @return the value of the property
+   */
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  /**
+   * Sets the security master.
+   * @param securityMaster  the new value of the property
+   */
+  public void setSecurityMaster(SecurityMaster securityMaster) {
+    this._securityMaster = securityMaster;
+  }
+
+  /**
+   * Gets the the {@code securityMaster} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityMaster> securityMaster() {
+    return metaBean().securityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -331,6 +362,7 @@ public class WebLegalEntityData extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       WebLegalEntityData other = (WebLegalEntityData) obj;
       return JodaBeanUtils.equal(getLegalEntityMaster(), other.getLegalEntityMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getType(), other.getType()) &&
           JodaBeanUtils.equal(getUriLegalEntityId(), other.getUriLegalEntityId()) &&
@@ -346,6 +378,7 @@ public class WebLegalEntityData extends DirectBean {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getLegalEntityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriLegalEntityId());
@@ -358,7 +391,7 @@ public class WebLegalEntityData extends DirectBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("WebLegalEntityData{");
     int len = buf.length();
     toString(buf);
@@ -371,6 +404,7 @@ public class WebLegalEntityData extends DirectBean {
 
   protected void toString(StringBuilder buf) {
     buf.append("legalEntityMaster").append('=').append(JodaBeanUtils.toString(getLegalEntityMaster())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
     buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
     buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
     buf.append("uriLegalEntityId").append('=').append(JodaBeanUtils.toString(getUriLegalEntityId())).append(',').append(' ');
@@ -395,6 +429,11 @@ public class WebLegalEntityData extends DirectBean {
      */
     private final MetaProperty<LegalEntityMaster> _legalEntityMaster = DirectMetaProperty.ofReadWrite(
         this, "legalEntityMaster", WebLegalEntityData.class, LegalEntityMaster.class);
+    /**
+     * The meta-property for the {@code securityMaster} property.
+     */
+    private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
+        this, "securityMaster", WebLegalEntityData.class, SecurityMaster.class);
     /**
      * The meta-property for the {@code uriInfo} property.
      */
@@ -438,6 +477,7 @@ public class WebLegalEntityData extends DirectBean {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "legalEntityMaster",
+        "securityMaster",
         "uriInfo",
         "type",
         "uriLegalEntityId",
@@ -457,6 +497,8 @@ public class WebLegalEntityData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -1944474242:  // legalEntityMaster
           return _legalEntityMaster;
+        case -887218750:  // securityMaster
+          return _securityMaster;
         case -173275078:  // uriInfo
           return _uriInfo;
         case 3575610:  // type
@@ -497,6 +539,14 @@ public class WebLegalEntityData extends DirectBean {
      */
     public final MetaProperty<LegalEntityMaster> legalEntityMaster() {
       return _legalEntityMaster;
+    }
+
+    /**
+     * The meta-property for the {@code securityMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityMaster> securityMaster() {
+      return _securityMaster;
     }
 
     /**
@@ -561,6 +611,8 @@ public class WebLegalEntityData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -1944474242:  // legalEntityMaster
           return ((WebLegalEntityData) bean).getLegalEntityMaster();
+        case -887218750:  // securityMaster
+          return ((WebLegalEntityData) bean).getSecurityMaster();
         case -173275078:  // uriInfo
           return ((WebLegalEntityData) bean).getUriInfo();
         case 3575610:  // type
@@ -585,6 +637,9 @@ public class WebLegalEntityData extends DirectBean {
       switch (propertyName.hashCode()) {
         case -1944474242:  // legalEntityMaster
           ((WebLegalEntityData) bean).setLegalEntityMaster((LegalEntityMaster) newValue);
+          return;
+        case -887218750:  // securityMaster
+          ((WebLegalEntityData) bean).setSecurityMaster((SecurityMaster) newValue);
           return;
         case -173275078:  // uriInfo
           ((WebLegalEntityData) bean).setUriInfo((UriInfo) newValue);

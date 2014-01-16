@@ -12,7 +12,7 @@ $.register_module({
         'og.common.util.ui.toolbar'
     ],
     obj: function () {
-        var api = og.api.rest, routes = og.common.routes, module = this, view, details = og.common.details,
+        var api = og.api.rest, common = og.common, routes = og.common.routes, module = this, view, details = og.common.details,
             ui = og.common.util.ui, history = og.common.util.history, page_name = module.name.split('.').pop(),
             details_page = function (args, config) {
                 var show_loading = !(config || {}).hide_loading, rest_options;
@@ -36,13 +36,17 @@ $.register_module({
                         $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                         view.layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
 
-                        legalentity_functions.render_info('.OG-details-content .og-js-info', json);
+                        $('.OG-details-content .og-js-name').text(json.template_data.name);
+                        legalentity_functions.render_details('.OG-details-content .og-js-details', json.details);
+                        legalentity_functions.render_attributes('.OG-details-content .og-js-attributes', json.attributes);
                         legalentity_functions.render_ratings('.OG-details-content .og-js-ratings', json.ratings);
                         legalentity_functions.render_accounts('.OG-details-content .og-js-accounts', json.accounts);
-                        legalentity_functions.render_obligations('.OG-details-content .og-js-obligations', json.obligations);
+                        legalentity_functions.render_obligations('.OG-details-content .og-js-obligations', json.obligations_oids);
                         legalentity_functions.render_capabilities('.OG-details-content .og-js-capabilities', json.capabilities);
-                        legalentity_functions.render_issued_securities('.OG-details-content .og-js-issued_securities', json.issued_securities);
+                        legalentity_functions.render_issued_securities('.OG-details-content .og-js-issued_securities', json.issued_securities_oids);
                         legalentity_functions.render_root_portfolio('.OG-details-content .og-js-root_portfolio', json.root_portfolio);
+                        legalentity_functions.render_identifiers('.OG-details-content .og-js-identifiers', json.identifiers);
+
                         if (show_loading) view.notify(null);
                         ui.toolbar(view.options.toolbar.active);
                         setTimeout(view.layout.inner.resizeAll);
