@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Selects volatility surfaces for manipulation.
  */
-/* package */ class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
+public class VolatilitySurfaceSelector implements DistinctMarketDataSelector {
 
   private final Set<String> _calcConfigNames;
   private final Set<String> _names;

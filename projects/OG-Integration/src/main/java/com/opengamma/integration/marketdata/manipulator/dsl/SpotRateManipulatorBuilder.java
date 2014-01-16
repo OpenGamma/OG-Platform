@@ -10,7 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class SpotRateManipulatorBuilder {
+public class SpotRateManipulatorBuilder {
 
   private final Scenario _scenario;
   private final SpotRateSelector _selector;
