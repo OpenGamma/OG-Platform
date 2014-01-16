@@ -318,7 +318,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
       // Fixing should have taken place already
       final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod]);
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       }
       accruedInterest += _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;

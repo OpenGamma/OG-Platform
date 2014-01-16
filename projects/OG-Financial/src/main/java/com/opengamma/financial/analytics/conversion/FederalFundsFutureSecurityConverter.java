@@ -10,7 +10,6 @@ import static com.opengamma.financial.convention.initializer.PerCurrencyConventi
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -65,11 +64,11 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     final double notional = security.getUnitAmount() / paymentAccrualFactor;
     return FederalFundsFutureSecurityDefinition.from(lastTradeDate, index, notional, paymentAccrualFactor, security.getName(), calendar);
   }
-  
+
   @Override
-  public InstrumentDefinition<?> visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+  public InstrumentDefinition<?> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
+    final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry().withHour(0);
     final Currency currency = security.getCurrency();
     final FederalFundsFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE), FederalFundsFutureConvention.class);
     final OvernightIndexConvention overnightIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), OvernightIndexConvention.class);

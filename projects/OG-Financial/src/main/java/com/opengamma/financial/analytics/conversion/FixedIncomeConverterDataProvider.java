@@ -615,13 +615,6 @@ public class FixedIncomeConverterDataProvider {
       @Override
       public InstrumentDerivative convert(final FederalFundsFutureSecurity security, final FederalFundsFutureSecurityDefinition definition, final ZonedDateTime now,
           final HistoricalTimeSeriesBundle timeSeries) {
-        final HistoricalTimeSeries futureTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle());
-        if (futureTS == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + security);
-        }
-        if (futureTS.getTimeSeries().size() == 0) {
-          throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty");
-        }
         final HistoricalTimeSeries underlyingTS = timeSeries.get(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId().toBundle());
         if (underlyingTS == null) {
           throw new OpenGammaRuntimeException("Could not get underlying time series for " + security.getUnderlyingId());
@@ -629,9 +622,7 @@ public class FixedIncomeConverterDataProvider {
         if (underlyingTS.getTimeSeries().size() == 0) {
           throw new OpenGammaRuntimeException("Time series for " + security.getUnderlyingId().toBundle() + " was empty");
         }
-//        return definition.toDerivative(now, convertTimeSeries(ZoneId.of("UTC"), underlyingTS.getTimeSeries()),
-//            convertTimeSeries(ZoneId.of("UTC"), futureTS.getTimeSeries()));
-        return definition.toDerivative(now, convertTimeSeries(ZoneId.of("UTC"), futureTS.getTimeSeries()));
+        return definition.toDerivative(now, convertTimeSeries(ZoneId.of("UTC"), underlyingTS.getTimeSeries()));
       }
 
     };
