@@ -65,7 +65,8 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
       if (!_unorderedCurrencyPairs.contains(unorderedCurrencyPair)) {
         return null;
       }
-    } else */if (targetType.equals(CurrencyPair.TYPE)) {
+    } else */
+    if (targetType.equals(CurrencyPair.TYPE)) {
       CurrencyPair currencyPair = CurrencyPair.parse(idValue);
       if (!_currencyPairs.contains(currencyPair) && !_currencyPairs.contains(currencyPair.inverse())) {
         return null;
