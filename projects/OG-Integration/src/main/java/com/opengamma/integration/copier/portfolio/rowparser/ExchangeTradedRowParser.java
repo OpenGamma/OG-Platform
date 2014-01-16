@@ -20,6 +20,8 @@ import org.threeten.bp.format.DateTimeFormatter;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -133,7 +135,14 @@ public class ExchangeTradedRowParser extends RowParser {
       result.setPremium(Double.parseDouble(row.get(PREMIUM)));
       if (row.containsKey(PREMIUM_CURRENCY)) {
         result.setPremiumCurrency(Currency.parse(getWithException(row, PREMIUM_CURRENCY)));
-      } 
+      } else {
+        if (security instanceof FinancialSecurity) {
+          Currency currency = FinancialSecurityUtils.getCurrency(security);
+          if (currency != null) {
+            result.setPremiumCurrency(currency);
+          }
+        }
+      }
       if (row.containsKey(PREMIUM_DATE)) {
         result.setPremiumDate(getDateWithException(row, PREMIUM_DATE));
       }
