@@ -72,7 +72,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
     boolean verbose = commandLine.hasOption("verbose");
     if (commandLine.hasOption("load")) {
       checkForInvalidOption("type");
-      SingleConfigLoader configLoader = new SingleConfigLoader(configMaster, configSource, conventionMaster, marketDataSnapshotMaster);
+      SingleConfigLoader configLoader = new SingleConfigLoader(configMaster, configSource, conventionMaster, marketDataSnapshotMaster, commandLine.hasOption("do-not-update"));
       if (fileList.size() > 0) {
         boolean problems = false;
         for (String fileName : fileList) {
