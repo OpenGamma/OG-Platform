@@ -75,7 +75,7 @@ public class BondAndBondFutureTradeWithEntityConverter {
   /** Floating rate note coupon type strings */
   private static final Set<String> FLOATING_RATE_STRINGS = Sets.newHashSet("FLOAT RATE NOTE");
   /** Rating agency strings */
-  private static final String[] RATING_STRINGS = new String[] {"RatingMoody"};
+  private static final String[] RATING_STRINGS = new String[] {"RatingMoody", "RatingFitch"};
   /** Sector name string */
   public static final String SECTOR_STRING = "IndustrySector";
   /** Market type string */
@@ -138,9 +138,10 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
     final double price = trade.getPremium().doubleValue();
     if (security instanceof BondFutureSecurity) {
+      final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
-      return new BondFuturesTransactionDefinition(bondFuture, quantity, settlementDate, price);
+      return new BondFuturesTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
     final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
@@ -162,25 +163,32 @@ public class BondAndBondFutureTradeWithEntityConverter {
    * @param security The bond security
    * @return A legal entity
    */
-  private static LegalEntity getLegalEntityForBond(final Map<String, String> attributes, final BondSecurity security) {
+  private static LegalEntity getLegalEntityForBond(final Map<String, String> tradeAttributes, final BondSecurity security) {
+    final Map<String, String> securityAttributes = security.getAttributes();
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
     final String isin = identifiers.getValue(ExternalSchemes.ISIN);
     final String ticker = isin == null ? null : isin;
     final String shortName = security.getIssuerName();
     Set<CreditRating> creditRatings = null;
     for (final String ratingString : RATING_STRINGS) {
-      if (attributes.containsKey(ratingString)) {
+      if (securityAttributes.containsKey(ratingString)) {
         if (creditRatings == null) {
           creditRatings = new HashSet<>();
         }
-        creditRatings.add(CreditRating.of(attributes.get(ratingString), ratingString, true));
+        creditRatings.add(CreditRating.of(securityAttributes.get(ratingString), ratingString, true));
+      }
+      if (tradeAttributes.containsKey(ratingString)) {
+        if (creditRatings == null) {
+          creditRatings = new HashSet<>();
+        }
+        creditRatings.add(CreditRating.of(tradeAttributes.get(ratingString), ratingString, true));
       }
     }
     final String sectorName = security.getIssuerType();
     final FlexiBean classifications = new FlexiBean();
     classifications.put(MARKET_STRING, security.getMarket());
-    if (attributes.containsKey(SECTOR_STRING)) {
-      classifications.put(SECTOR_STRING, attributes.get(SECTOR_STRING));
+    if (tradeAttributes.containsKey(SECTOR_STRING)) {
+      classifications.put(SECTOR_STRING, tradeAttributes.get(SECTOR_STRING));
     }
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region = Region.of(security.getIssuerDomicile(), Country.of(security.getIssuerDomicile()), security.getCurrency());

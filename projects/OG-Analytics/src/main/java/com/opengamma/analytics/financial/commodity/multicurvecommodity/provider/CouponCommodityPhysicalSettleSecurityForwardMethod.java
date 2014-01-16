@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and present value sensitivity for physical settle commodity coupon.
  */
-public class CouponCommodityPhysicalSettleSecurityForwardMethod {
+public final class CouponCommodityPhysicalSettleSecurityForwardMethod {
 
   /**
    * The method unique instance.

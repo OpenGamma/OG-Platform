@@ -28,10 +28,9 @@ public class PointManipulatorBuilder {
    * Adds an action to the scenario to scale the raw value.
    * @param scalingFactor The scaling factor
    * @return This builder
-   * TODO should this be named multiplicativeShift?
    */
   public PointManipulatorBuilder scaling(Number scalingFactor) {
-    _scenario.add(_selector, new Scaling(scalingFactor.doubleValue()));
+    _scenario.add(_selector, new MarketDataScaling(scalingFactor.doubleValue()));
     return this;
   }
 
@@ -41,7 +40,7 @@ public class PointManipulatorBuilder {
    * @return This builder
    */
   public PointManipulatorBuilder shift(Number shift) {
-    _scenario.add(_selector, new Shift(shift.doubleValue()));
+    _scenario.add(_selector, new MarketDataShift(shift.doubleValue()));
     return this;
   }
 
@@ -51,7 +50,7 @@ public class PointManipulatorBuilder {
    * @return This builder
    */
   public PointManipulatorBuilder replace(Number value) {
-    _scenario.add(_selector, new Replace(value.doubleValue()));
+    _scenario.add(_selector, new MarketDataReplace(value.doubleValue()));
     return this;
   }
 }

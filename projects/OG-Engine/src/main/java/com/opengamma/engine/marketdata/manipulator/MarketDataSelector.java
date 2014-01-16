@@ -6,7 +6,8 @@
 package com.opengamma.engine.marketdata.manipulator;
 
 import java.io.Serializable;
-import java.util.Set;
+
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Indicates a market data structure on which a shift is to be performed within the execution of a
@@ -28,23 +29,12 @@ public interface MarketDataSelector extends Serializable {
   /**
    * Indicates the distinct underlying selector that is applicable to the specified market data
    * structure. If one is found, then it is returned.
-   *
-   *
-   *
-   * @param structureId the id of the structure to test against
+   * @param valueSpecification Specification of the market data structure
    * @param calculationConfigurationName the calculation configuration
    * @param resolver For looking up data used in the selection criteria, e.g. securities
    * @return the underlying selector that matches the specified market data structure, null if there is no match
    */
-  DistinctMarketDataSelector findMatchingSelector(StructureIdentifier<?> structureId,
+  DistinctMarketDataSelector findMatchingSelector(ValueSpecification valueSpecification,
                                                   String calculationConfigurationName,
                                                   SelectorResolver resolver);
-
-  /**
-   * Gets the set of structure types that a selector matches. Most selectors will match just
-   * one, but some may be capable of selecting multiple types.
-   *
-   * @return the set of structure types that a match can be made against, not null
-   */
-  Set<StructureType> getApplicableStructureTypes();
 }

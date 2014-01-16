@@ -18,6 +18,7 @@ import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.master.convention.ConventionSearchSortOrder;
 import com.opengamma.master.convention.ManageableConvention;
+import com.opengamma.masterdb.ConfigurableDbChangeProvidingMaster;
 import com.opengamma.masterdb.bean.AbstractDelegatingBeanMaster;
 import com.opengamma.masterdb.bean.BeanMasterSearchRequest;
 import com.opengamma.masterdb.bean.DbBeanMaster;
@@ -36,7 +37,7 @@ import com.opengamma.util.db.DbConnector;
  */
 public class DbConventionBeanMaster
     extends AbstractDelegatingBeanMaster<ConventionDocument, ManageableConvention>
-    implements ConventionMaster {
+    implements ConventionMaster, ConfigurableDbChangeProvidingMaster {
 
   /**
    * The default scheme for unique identifiers.

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -19,12 +19,18 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Converts {@link CashSecurity} to the equivalent OG-Analytics object ({@link CashDefinition}).
  */
 public class CashSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** The holiday source */
   private final HolidaySource _holidaySource;
+  /** The region source */
   private final RegionSource _regionSource;
 
+  /**
+   * @param holidaySource The holiday source, not null
+   * @param regionSource The region source, not null
+   */
   public CashSecurityConverter(final HolidaySource holidaySource, final RegionSource regionSource) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");

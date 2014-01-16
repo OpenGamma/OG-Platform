@@ -36,6 +36,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.CashFlowSecurityConverter;
 import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
@@ -55,8 +56,12 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -65,7 +70,20 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
  * Base function for all pricing and risk functions that use curves constructed using
- * the Hull-White discounting method.
+ * the Hull-White discounting method. Produces results for trades with
+ * following underlying securities: <p>
+ * <ul>
+ *   <li> {@link CashSecurity}
+ *   <li> {@link CashFlowSecurity}
+ *   <li> {@link FRASecurity}
+ *   <li> {@link SwapSecurity}
+ *   <li> {@link SwaptionSecurity}
+ *   <li> {@link InterestRateFutureSecurity}
+ *   <li> {@link FXForwardSecurity}
+ *   <li> {@link NonDeliverableFXForwardSecurity}
+ *   <li> {@link DeliverableSwapFutureSecurity}
+ *   <li> {@link FederalFundsFutureSecurity}
+ * </ul>
  */
 public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunction {
 
@@ -84,6 +102,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     final ConventionBundleSource conventionBundleSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
+    final CashFlowSecurityConverter cashFlowConverter = new CashFlowSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, conventionBundleSource, regionSource);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(securitySource, swapConverter);
@@ -93,6 +112,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(holidaySource, conventionSource, regionSource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
+        .cashFlowSecurityVisitor(cashFlowConverter)
         .deliverableSwapFutureSecurityVisitor(dsfConverter)
         .fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter)
@@ -137,10 +157,11 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
           || security instanceof DeliverableSwapFutureSecurity
           || security instanceof FederalFundsFutureSecurity;
     }
-    
+
+    @SuppressWarnings("synthetic-access")
     @Override
     protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-      final ValueProperties.Builder properties =  createValueProperties()
+      final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
           .withAny(CURVE_EXPOSURES)
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS);
@@ -186,6 +207,14 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
           .with(PROPERTY_HULL_WHITE_CURRENCY, currency);
     }
 
+
+    /**
+     * Merges any {@link HullWhiteOneFactorProviderDiscount} curve bundles and FX matrices that are present in
+     * the inputs and creates a curve bundle with information for pricing using the Hull-White one factor model.
+     * @param inputs The function inputs
+     * @param matrix The FX matrix
+     * @return A curve bundle that can be used in Hull-White one factor model pricing functions
+     */
     protected HullWhiteOneFactorProviderDiscount getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
       final Collection<HullWhiteOneFactorProviderDiscount> providers = new HashSet<>();
       for (final ComputedValue input : inputs.getAllValues()) {
@@ -198,6 +227,12 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
       return ProviderUtils.mergeHullWhiteProviders(result, matrix);
     }
 
+    /**
+     * Merges any {@link CurveBuildingBlockBundle}s in the function inputs.
+     * @param inputs The function inputs
+     * @return A curve building block bundle that contains all of the information used to construct
+     * the curves used in pricing
+     */
     protected CurveBuildingBlockBundle getMergedCurveBuildingBlocks(final FunctionInputs inputs) {
       final CurveBuildingBlockBundle result = new CurveBuildingBlockBundle();
       for (final ComputedValue input : inputs.getAllValues()) {

@@ -43,16 +43,16 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
   private static final double TRAN_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final int QUANTITY = 1234;
   private static final SwapFuturesPriceDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
-      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
+      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, QUANTITY, TRAN_DATE, TRAN_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullUnderlying() {
-    new SwapFuturesPriceDeliverableTransactionDefinition(null, TRAN_DATE, TRAN_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransactionDefinition(null, QUANTITY, TRAN_DATE, TRAN_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullTrDate() {
-    new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, null, TRAN_PRICE, QUANTITY);
+    new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, QUANTITY, null, TRAN_PRICE);
   }
 
   @Test
@@ -60,9 +60,9 @@ public class SwapFuturesPriceDeliverableTransactionDefinitionTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", SWAP_FUTURES_SECURITY_DEFINITION, SWAP_FUTURES_TRANSACTION_DEFINITION.getUnderlying());
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_DATE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTransactionDate());
-    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_PRICE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTransactionPrice());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", SWAP_FUTURES_SECURITY_DEFINITION, SWAP_FUTURES_TRANSACTION_DEFINITION.getUnderlyingFuture());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_DATE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTradeDate());
+    assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", TRAN_PRICE, SWAP_FUTURES_TRANSACTION_DEFINITION.getTradePrice());
     assertEquals("DeliverableSwapFuturesTransactionDefinition: getter", QUANTITY, SWAP_FUTURES_TRANSACTION_DEFINITION.getQuantity());
   }
 

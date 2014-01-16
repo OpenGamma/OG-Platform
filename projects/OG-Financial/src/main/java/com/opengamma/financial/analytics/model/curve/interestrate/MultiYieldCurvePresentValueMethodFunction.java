@@ -170,7 +170,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
             InstrumentDefinition<?> unitNotional;
             if (definition instanceof InterestRateFutureSecurityDefinition) {
               final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
-              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+              unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, marketValue);
             } else {
               unitNotional = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1, marketValue);
               // Implementation note: to have the same notional for OTC and futures (and thus not near-singular Jacobian)

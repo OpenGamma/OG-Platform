@@ -21,5 +21,9 @@ public interface ExposureFunction extends FinancialSecurityVisitor<List<External
   /** Contract identifier */
   String CONTRACT_IDENTIFIER = "ContractType";
 
+  /**
+   * Gets the name of the exposure function.
+   * @return The name
+   */
   String getName();
 }

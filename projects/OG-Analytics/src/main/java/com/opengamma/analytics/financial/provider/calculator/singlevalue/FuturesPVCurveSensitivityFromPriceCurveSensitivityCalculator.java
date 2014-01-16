@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.provider.calculator.singlevalue;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
@@ -37,9 +39,19 @@ public final class FuturesPVCurveSensitivityFromPriceCurveSensitivityCalculator 
   //     -----     Futures     -----
 
   @Override
+  public MultipleCurrencyMulticurveSensitivity visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction futures, final MulticurveSensitivity priceSensitivity) {
+    return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(),
+        priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity() * futures.getUnderlyingFuture().getPaymentAccrualFactor()));
+  }
+
+  @Override
   public MultipleCurrencyMulticurveSensitivity visitBondFuturesTransaction(final BondFuturesTransaction futures, final MulticurveSensitivity priceSensitivity) {
-    return MultipleCurrencyMulticurveSensitivity.of(futures.getUnderlyingFuture().getCurrency(),
-        priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity()));
+    return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity()));
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final MulticurveSensitivity priceSensitivity) {
+    return MultipleCurrencyMulticurveSensitivity.of(futures.getCurrency(), priceSensitivity.multipliedBy(futures.getUnderlyingFuture().getNotional() * futures.getQuantity()));
   }
 
 }

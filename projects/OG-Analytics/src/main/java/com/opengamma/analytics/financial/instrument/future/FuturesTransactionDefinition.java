@@ -6,24 +6,21 @@
 package com.opengamma.analytics.financial.instrument.future;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Abstract class for transactions on generic futures.
- * @param <F> The futures type of the underlying security.
+ * @param <FS> The futures type of the underlying security.
  */
-public abstract class FuturesTransactionDefinition<F extends FuturesSecurityDefinition> implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
+public abstract class FuturesTransactionDefinition<FS extends FuturesSecurityDefinition<? extends FuturesSecurity>> {
 
   /**
    * Underlying future security. Not null;
    */
-  private final F _underlyingFuture;
+  private final FS _underlyingFuture;
   /**
    * Quantity of future. Can be positive or negative.
    */
@@ -36,7 +33,7 @@ public abstract class FuturesTransactionDefinition<F extends FuturesSecurityDefi
    * Transaction price. The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
    */
   private final double _tradePrice;
-  
+
   /**
    * Constructor.
    * @param underlyingFuture The underlying futures security.
@@ -44,7 +41,7 @@ public abstract class FuturesTransactionDefinition<F extends FuturesSecurityDefi
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price (in the convention of the futures).
    */
-  public FuturesTransactionDefinition(final F underlyingFuture, int quantity, ZonedDateTime tradeDate, double tradePrice) {
+  public FuturesTransactionDefinition(final FS underlyingFuture, int quantity, ZonedDateTime tradeDate, double tradePrice) {
     super();
     ArgumentChecker.notNull(underlyingFuture, "Underlying futures");
     ArgumentChecker.notNull(tradeDate, "Trade date");
@@ -58,7 +55,7 @@ public abstract class FuturesTransactionDefinition<F extends FuturesSecurityDefi
    * Returns the underlying futures security.
    * @return The security.
    */
-  public F getUnderlyingFuture() {
+  public FS getUnderlyingFuture() {
     return _underlyingFuture;
   }
 
@@ -85,11 +82,17 @@ public abstract class FuturesTransactionDefinition<F extends FuturesSecurityDefi
   public double getTradePrice() {
     return _tradePrice;
   }
-  
+
   @Override
-  public FuturesTransaction<?> toDerivative(final ZonedDateTime date) {
-    throw new UnsupportedOperationException("The method toDerivative of FutureTransactionDefinition does not support the one argument method (without margin price data).");
+  public String toString() {
+    final String result = "Quantity: " + _quantity + " of " + _underlyingFuture.toString();
+    return result;
   }
+
+  //  @Override
+  //  public FuturesTransaction<?> toDerivative(final ZonedDateTime date) {
+  //    throw new UnsupportedOperationException("The method toDerivative of FutureTransactionDefinition does not support the one argument method (without margin price data).");
+  //  }
 
   @Override
   public int hashCode() {

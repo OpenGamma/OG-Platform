@@ -131,7 +131,7 @@ public class FutureTradeConverterDeprecated {
 
           @Override
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
-            return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, quantity);
+            return new InterestRateFutureTransactionDefinition(futures, quantity, tradeDate, tradePrice);
           }
 
           @Override

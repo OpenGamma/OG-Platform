@@ -7,6 +7,8 @@ package com.opengamma.analytics.financial.provider.calculator.singlevalue;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuturesSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
 
 /**
@@ -36,15 +38,25 @@ public final class FuturesMarginIndexFromPriceCalculator extends InstrumentDeriv
   //     -----     Futures     -----
 
   @Override
+  public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final Double quotedPrice) {
+    return quotedPrice * futures.getNotional();
+  }
+
+  @Override
+  public Double visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity futures, final Double quotedPrice) {
+    return quotedPrice * futures.getNotional() * futures.getPaymentAccrualFactor();
+  }
+
+  @Override
+  public Double visitSwapFuturesPriceDeliverableSecurity(final SwapFuturesPriceDeliverableSecurity futures, final Double quotedPrice) {
+    return quotedPrice * futures.getNotional();
+  }
+
+  @Override
   public Double visitYieldAverageBondFuturesSecurity(final YieldAverageBondFuturesSecurity futures, final Double quotedPrice) {
     final double yield = 1.0d - quotedPrice;
     final double dirtyPrice = dirtyPriceFromYield(yield, futures.getCouponRate(), futures.getTenor(), futures.getNumberCouponPerYear());
     return dirtyPrice * futures.getNotional();
-  }
-
-  @Override
-  public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final Double quotedPrice) {
-    return quotedPrice * futures.getNotional();
   }
 
   /**

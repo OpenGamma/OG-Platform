@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * {@link StructureManipulator} that shifts all points on a curve up or down by the same amount.
@@ -38,7 +39,7 @@ public class YieldCurveParallelShift implements StructureManipulator<YieldCurve>
   }
 
   @Override
-  public YieldCurve execute(YieldCurve structure) {
+  public YieldCurve execute(YieldCurve structure, ValueSpecification valueSpecification) {
     s_logger.debug("Shifting curve {} by {}", structure.getName(), _shift);
     return YieldCurveUtils.withParallelShift(structure, _shift, ShiftType.ABSOLUTE);
   }

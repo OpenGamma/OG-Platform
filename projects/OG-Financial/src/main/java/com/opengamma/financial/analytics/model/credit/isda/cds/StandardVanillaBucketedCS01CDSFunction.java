@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
+import static com.opengamma.financial.analytics.model.credit.CreditFunctionUtils.getCoupon;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -42,12 +42,11 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
-import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01CDSFunction {
   private static final FiniteDifferenceSpreadSensitivityCalculator CALCULATOR = new FiniteDifferenceSpreadSensitivityCalculator();
@@ -65,29 +64,29 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
     //TODO: bump type
-    Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
+    final Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final LocalDateLabelledMatrix1D cs01Matrix = getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4, valuationDate, tenors);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));
   }
 
-  public static LocalDateLabelledMatrix1D getBucketedCS01(CreditDefaultSwapDefinition definition,
-                                                    ISDACompliantYieldCurve yieldCurve,
-                                                    ZonedDateTime[] times,
-                                                    ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, double bump,
-                                                    ZonedDateTime valuationDate, Tenor[] tenors) {
+  public static LocalDateLabelledMatrix1D getBucketedCS01(final CreditDefaultSwapDefinition definition,
+                                                    final ISDACompliantYieldCurve yieldCurve,
+                                                    final ZonedDateTime[] times,
+                                                    final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final double bump,
+                                                    final ZonedDateTime valuationDate, final Tenor[] tenors) {
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
         .withAccrualDCC(definition.getDayCountFractionConvention());
 
-    Period[] periods = new Period[tenors.length];
+    final Period[] periods = new Period[tenors.length];
     for (int i = 0; i < tenors.length; i++) {
       periods[i] = tenors[i].getPeriod();
     }
-    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), periods);
+    final CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), periods);
 
     double[] cs01Values;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
@@ -113,10 +112,6 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> cdsPriceTypes = constraints.getValues(PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = security.accept(new CreditSecurityToIdentifierVisitor(
         OpenGammaCompilationContext.getSecuritySource(context))).getUniqueId().getValue();

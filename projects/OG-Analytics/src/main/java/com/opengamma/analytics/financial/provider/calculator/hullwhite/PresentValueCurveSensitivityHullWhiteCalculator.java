@@ -86,7 +86,7 @@ public final class PresentValueCurveSensitivityHullWhiteCalculator extends Instr
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyMulticurveSensitivity visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAPFUT.presentValueCurveSensitivity(futures, hullWhite);
   }
 

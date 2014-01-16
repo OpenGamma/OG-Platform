@@ -3,12 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.hullwhite;
+package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
@@ -21,39 +18,35 @@ import com.opengamma.analytics.financial.provider.description.interestrate.HullW
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscountingDecoratedIssuer;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 
 /**
- * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
+ * Computes the price for different types of futures. Calculator using a multi-curve, issuer and Hull-White one-factor parameters provider.
  */
-public final class FuturesPriceADHullWhiteIssuerCalculator extends InstrumentDerivativeVisitorAdapter<HullWhiteIssuerProviderInterface, Pair<Double, MulticurveSensitivity>> {
+public final class FuturesPriceHullWhiteIssuerCalculator extends InstrumentDerivativeVisitorAdapter<HullWhiteIssuerProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final FuturesPriceADHullWhiteIssuerCalculator INSTANCE = new FuturesPriceADHullWhiteIssuerCalculator();
+  private static final FuturesPriceHullWhiteIssuerCalculator INSTANCE = new FuturesPriceHullWhiteIssuerCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static FuturesPriceADHullWhiteIssuerCalculator getInstance() {
+  public static FuturesPriceHullWhiteIssuerCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private FuturesPriceADHullWhiteIssuerCalculator() {
+  private FuturesPriceHullWhiteIssuerCalculator() {
   }
 
   /**
@@ -76,11 +69,11 @@ public final class FuturesPriceADHullWhiteIssuerCalculator extends InstrumentDer
   //     -----     Futures     -----
 
   @Override
-  public Pair<Double, MulticurveSensitivity> visitBondFuturesSecurity(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface multicurve) {
+  public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface multicurve) {
     return visitBondFuturesSecurity(futures, multicurve, DEFAULT_NB_POINTS);
   }
 
-  public Pair<Double, MulticurveSensitivity> visitBondFuturesSecurity(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
+  public Double visitBondFuturesSecurity(final BondFuturesSecurity futures, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
     final int nbBond = futures.getDeliveryBasketAtDeliveryDate().length;
@@ -88,7 +81,6 @@ public final class FuturesPriceADHullWhiteIssuerCalculator extends InstrumentDer
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = data.getHullWhiteParameters();
     final IssuerProviderInterface issuerProvider = data.getIssuerProvider();
     final MulticurveProviderInterface multicurvesDecorated = new MulticurveProviderDiscountingDecoratedIssuer(issuerProvider, futures.getCurrency(), issuer);
-
     final double expiry = futures.getNoticeLastTime();
     final double delivery = futures.getDeliveryLastTime();
     final double dfdelivery = data.getIssuerProvider().getDiscountFactor(issuer, delivery);
@@ -198,54 +190,8 @@ public final class FuturesPriceADHullWhiteIssuerCalculator extends InstrumentDer
       }
       price -= e[ctd.get(nbInt - 1)] * (1 - NORMAL.getCDF(kappa[nbInt - 2]));
     }
+    return price;
 
-    // === Backward Sweep ===
-    final double priceBar = 1.0;
-    final double[][] cfaAdjustedBar = new double[nbBond][];
-    final double[][] dfBar = new double[nbBond][];
-    for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) {
-      final int nbCf = cf[loopbnd].getNumberOfPayments();
-      cfaAdjustedBar[loopbnd] = new double[nbCf];
-      dfBar[loopbnd] = new double[nbCf];
-    }
-    double dfdeliveryBar = 0.0;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
-    final List<DoublesPair> listCredit = new ArrayList<>();
-    if (nbInt == 1) {
-      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
-        cfaAdjustedBar[ctd.get(0)][loopcf] = priceBar;
-        dfBar[ctd.get(0)][loopcf] = beta[ctd.get(0)][loopcf] / dfdelivery * cf[ctd.get(0)].getNthPayment(loopcf).getAmount() / futures.getConversionFactor()[ctd.get(0)]
-            * cfaAdjustedBar[ctd.get(0)][loopcf];
-        listCredit.add(DoublesPair.of(cfTime[ctd.get(0)][loopcf], -cfTime[ctd.get(0)][loopcf] * df[ctd.get(0)][loopcf] * dfBar[ctd.get(0)][loopcf]));
-        dfdeliveryBar += -cfaAdjusted[ctd.get(0)][loopcf] / dfdelivery * cfaAdjustedBar[ctd.get(0)][loopcf];
-      }
-      listCredit.add(DoublesPair.of(delivery, -delivery * dfdelivery * dfdeliveryBar));
-    } else {
-      // From -infinity to first cross.
-      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
-        cfaAdjustedBar[ctd.get(0)][loopcf] = NORMAL.getCDF(kappa[0] + alpha[ctd.get(0)][loopcf]) * priceBar;
-      }
-      // Between cross
-      for (int loopint = 1; loopint < nbInt - 1; loopint++) {
-        for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(loopint)].length; loopcf++) {
-          cfaAdjustedBar[ctd.get(loopint)][loopcf] = (NORMAL.getCDF(kappa[loopint] + alpha[ctd.get(loopint)][loopcf]) - NORMAL.getCDF(kappa[loopint - 1] + alpha[ctd.get(loopint)][loopcf])) * priceBar;
-        }
-      }
-      // From last cross to +infinity
-      for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(nbInt - 1)].length; loopcf++) {
-        cfaAdjustedBar[ctd.get(nbInt - 1)][loopcf] = (1.0 - NORMAL.getCDF(kappa[nbInt - 2] + alpha[ctd.get(nbInt - 1)][loopcf])) * priceBar;
-      }
-      for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) { // Could be reduced to only the ctd intervals.
-        for (int loopcf = 0; loopcf < cfaAdjusted[loopbnd].length; loopcf++) {
-          dfBar[loopbnd][loopcf] = beta[loopbnd][loopcf] / dfdelivery * cf[loopbnd].getNthPayment(loopcf).getAmount() / futures.getConversionFactor()[loopbnd] * cfaAdjustedBar[loopbnd][loopcf];
-          listCredit.add(DoublesPair.of(cfTime[loopbnd][loopcf], -cfTime[loopbnd][loopcf] * df[loopbnd][loopcf] * dfBar[loopbnd][loopcf]));
-          dfdeliveryBar += -cfaAdjusted[loopbnd][loopcf] / dfdelivery * cfaAdjustedBar[loopbnd][loopcf];
-        }
-      }
-      listCredit.add(DoublesPair.of(delivery, -delivery * dfdelivery * dfdeliveryBar));
-    }
-    resultMap.put(data.getIssuerProvider().getName(issuer), listCredit);
-    return Pairs.of(price, MulticurveSensitivity.ofYieldDiscounting(resultMap));
   }
 
   /**

@@ -136,7 +136,7 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitInterestRateSwapSecurity(InterestRateSwapSecurity security) {
+    public InterestRateInstrumentType visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
       return InterestRateSwapSecurityUtils.getSwapType(security);
     }
   }
@@ -149,6 +149,7 @@ public enum InterestRateInstrumentType {
       .or(FinancialSecurityTypes.FORWARD_RATE_AGREEMENT_SECURITY)
       .or(FinancialSecurityTypes.INTEREST_RATE_FUTURE_SECURITY)
       .or(FinancialSecurityTypes.SWAP_SECURITY)
-      .or(FinancialSecurityTypes.INTEREST_RATE_SWAP_SECURITY);
+      .or(FinancialSecurityTypes.INTEREST_RATE_SWAP_SECURITY)
+      .or(FinancialSecurityTypes.CASH_FLOW_SECURITY);
 
 }

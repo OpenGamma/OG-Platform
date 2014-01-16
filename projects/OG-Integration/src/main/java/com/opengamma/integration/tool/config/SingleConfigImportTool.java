@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchSortOrder;
@@ -36,6 +37,7 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.scripts.Scriptable;
+import com.opengamma.util.result.FailureResult;
 
 /**
  * Tool to read currency pairs from a text file and store them in the config master. The pairs must be in the format AAA/BBB, one per line in the file.
@@ -58,6 +60,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
   protected void doRun() {
     ToolContext toolContext = getToolContext();
     ConfigMaster configMaster = toolContext.getConfigMaster();
+    ConfigSource configSource = toolContext.getConfigSource();
     ConventionMaster conventionMaster = toolContext.getConventionMaster();
     MarketDataSnapshotMaster marketDataSnapshotMaster = toolContext.getMarketDataSnapshotMaster();
     CommandLine commandLine = getCommandLine();
@@ -69,7 +72,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
     boolean verbose = commandLine.hasOption("verbose");
     if (commandLine.hasOption("load")) {
       checkForInvalidOption("type");
-      SingleConfigLoader configLoader = new SingleConfigLoader(configMaster, conventionMaster, marketDataSnapshotMaster);
+      SingleConfigLoader configLoader = new SingleConfigLoader(configMaster, configSource, conventionMaster, marketDataSnapshotMaster, commandLine.hasOption("do-not-update"));
       if (fileList.size() > 0) {
         boolean problems = false;
         for (String fileName : fileList) {
@@ -223,6 +226,7 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
     options.addOption(createTypeOption());
     options.addOption(createLoadOption());
     options.addOption(createVerboseOption());
+    options.addOption(createDontUpdateOption());
     return options;
   }
 
@@ -234,6 +238,11 @@ public class SingleConfigImportTool extends AbstractTool<ToolContext> {
   @SuppressWarnings("static-access")
   private Option createLoadOption() {
     return OptionBuilder.isRequired(false).hasArg(false).withDescription("Load from file to config database").withLongOpt("load").create("load");
+  }
+  
+  @SuppressWarnings("static-access")
+  private Option createDontUpdateOption() {
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Don't update configs that already exist").withLongOpt("do-not-update").create("n");
   }
 
   @SuppressWarnings("static-access")

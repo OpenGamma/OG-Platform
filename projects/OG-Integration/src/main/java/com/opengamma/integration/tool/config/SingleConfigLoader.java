@@ -17,6 +17,7 @@ import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -42,13 +43,17 @@ public class SingleConfigLoader {
   private ConfigMaster _configMaster;
   private ConventionMaster _conventionMaster;
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
+  private boolean _doNotUpdateExisting;
+  private ConfigSource _configSource;
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
-  public SingleConfigLoader(ConfigMaster configMaster, ConventionMaster conventionMaster, MarketDataSnapshotMaster marketDataSnapshotMaster) {
+  public SingleConfigLoader(ConfigMaster configMaster, ConfigSource configSource, ConventionMaster conventionMaster, MarketDataSnapshotMaster marketDataSnapshotMaster, boolean doNotUpdateExisting) {
     _configMaster = configMaster;
+    _configSource = configSource;
     _conventionMaster = conventionMaster;
     _marketDataSnapshotMaster = marketDataSnapshotMaster;
+    _doNotUpdateExisting = doNotUpdateExisting;
   }
   
   private ManageableConvention addOrUpdateConvention(ManageableConvention convention) {
@@ -65,9 +70,14 @@ public class SingleConfigLoader {
       }
     }
     if (match != null) {
-      s_logger.info("Found existing convention, updating it");
-      match.setConvention(convention);
-      return _conventionMaster.update(match).getConvention();
+      if (_doNotUpdateExisting) {
+        s_logger.info("Found existing convention, skipping update");
+        return match.getConvention();
+      } else {
+        s_logger.info("Found existing convention, updating it");
+        match.setConvention(convention);
+        return _conventionMaster.update(match).getConvention();
+      }
     } else {
       s_logger.info("No existing convention, creating a new one");
       ConventionDocument doc = new ConventionDocument(convention);
@@ -90,9 +100,14 @@ public class SingleConfigLoader {
       }
     }
     if (match != null) {
-      s_logger.info("Found existing market data snapshot, updating it");
-      match.setSnapshot(snapshot);
-      return _marketDataSnapshotMaster.update(match).getSnapshot();
+      if (_doNotUpdateExisting) {
+        s_logger.info("Found existing market data snapshot, skipping update");
+        return match.getSnapshot(); 
+      } else {
+        s_logger.info("Found existing market data snapshot, updating it");
+        match.setSnapshot(snapshot);
+        return _marketDataSnapshotMaster.update(match).getSnapshot();
+      }
     } else {
       s_logger.info("No existing market data snapshot, creating a new one");
       MarketDataSnapshotDocument doc = new MarketDataSnapshotDocument(snapshot);
@@ -108,7 +123,11 @@ public class SingleConfigLoader {
       addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
     } else if (config instanceof Bean) {
       ConfigItem<T> item = ConfigItem.of(config);
-      ConfigMasterUtils.storeByName(_configMaster, item);          
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }
     } else {
       s_logger.error("Unsupported type {} is not a JodaBean", config.getClass());
     }
@@ -125,7 +144,11 @@ public class SingleConfigLoader {
       ConfigMasterUtils.storeByName(_configMaster, item);          
     } else if (config instanceof Bean) {
       ConfigItem<?> item = ConfigItem.of(config);
-      ConfigMasterUtils.storeByName(_configMaster, item);          
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }
     } else {
       s_logger.error("Unsupported type {} is not a JodaBean", config.getClass());
     }
@@ -143,6 +166,14 @@ public class SingleConfigLoader {
     } else {
       item = ConfigItem.of(config);
     }
-    ConfigMasterUtils.storeByName(_configMaster, item);          
+    if (_doNotUpdateExisting  && configExists(item)) {
+      s_logger.info("Existing config present, skipping");
+    } else {
+      ConfigMasterUtils.storeByName(_configMaster, item);          
+    }
+  }
+  
+  private boolean configExists(ConfigItem<?> configItem) {
+    return _configSource.getLatestByName(configItem.getType(), configItem.getName()) != null;
   }
 }

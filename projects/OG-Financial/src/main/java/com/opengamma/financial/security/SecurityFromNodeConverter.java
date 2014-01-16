@@ -372,9 +372,9 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                                                              fixingCalendar);
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(
         securityDefinition,
+        1,
         _tradeDateTime,
-        price,
-        1);
+        price);
     //return transactionDefinition;
 
     final Expiry expiry = new Expiry(expiryDate);

@@ -63,6 +63,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.BarrierDirection;
@@ -97,6 +98,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.InterpolationMethod;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.VolatilitySwapType;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -420,6 +422,13 @@ public class ExposureFunctionTestHelper {
   public static FXOptionSecurity getFXOptionSecurity() {
     final FXOptionSecurity security = new FXOptionSecurity(EUR, USD, 1200, 1000, new Expiry(DateUtils.getUTCDate(2015, 1, 1)), DateUtils.getUTCDate(2015, 1, 3), false, new AmericanExerciseType());
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "54"));
+    return security;
+  }
+
+  public static FXVolatilitySwapSecurity getFXVolatilitySwapSecurity() {
+    final FXVolatilitySwapSecurity security = new FXVolatilitySwapSecurity(USD, 10000, VolatilitySwapType.VEGA, 1, DateUtils.getUTCDate(2014, 1, 1),
+        DateUtils.getUTCDate(2018, 1, 1), 252, DateUtils.getUTCDate(2014, 1, 1), DateUtils.getUTCDate(2018, 1, 1), PeriodFrequency.DAILY, EUR, USD);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "867786"));
     return security;
   }
 

@@ -53,7 +53,7 @@ public class CurveSpecificationFunction extends AbstractFunction {
 
   /**
    * Gets the curve name.
-   * 
+   *
    * @return The curve name
    */
   public String getCurveName() {
@@ -97,8 +97,8 @@ public class CurveSpecificationFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-        throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
       return _result;
     }
 

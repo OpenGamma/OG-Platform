@@ -194,7 +194,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
         }
       }
     }
-    return null;
+    return latestTimestamp;
 
   }
 

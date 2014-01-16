@@ -14,6 +14,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utils function related to YieldAndDiscount curves and MulticurveProvider.
@@ -30,6 +31,11 @@ public class YieldAndDiscountCurveUtils {
    * @return The forward.
    */
   public static double forwardRateFromCurve(final YieldAndDiscountCurve curve, final ZonedDateTime curveDate, final ZonedDateTime fixingDate, final IborIndex index, final Calendar cal) {
+    ArgumentChecker.notNull(curve, "curve");
+    ArgumentChecker.notNull(curveDate, "curveDate");
+    ArgumentChecker.notNull(fixingDate, "fixingDate");
+    ArgumentChecker.notNull(index, "iborIndex");
+    ArgumentChecker.notNull(cal, "calendar");
     final ZonedDateTime fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, index.getSpotLag(), cal);
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(curveDate, fixingPeriodStartDate);
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingDate, index, cal);
@@ -52,6 +58,11 @@ public class YieldAndDiscountCurveUtils {
    */
   public static double forwardRateFromProvider(final MulticurveProviderInterface multicurve, final ZonedDateTime curveDate, final ZonedDateTime fixingDate,
       final IborIndex index, final Calendar cal) {
+    ArgumentChecker.notNull(multicurve, "multicurve provider");
+    ArgumentChecker.notNull(curveDate, "curveDate");
+    ArgumentChecker.notNull(fixingDate, "fixingDate");
+    ArgumentChecker.notNull(index, "iborIndex");
+    ArgumentChecker.notNull(cal, "calendar");
     final ZonedDateTime fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(fixingDate, index.getSpotLag(), cal);
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(curveDate, fixingPeriodStartDate);
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingDate, index, cal);
@@ -71,6 +82,10 @@ public class YieldAndDiscountCurveUtils {
    * @return The rate
    */
   public static double zeroCouponRate(final YieldAndDiscountCurve curve, final ZonedDateTime curveDate, final ZonedDateTime payDate, final DayCount dc, final int paymentPerYear) {
+    ArgumentChecker.notNull(curve, "curve");
+    ArgumentChecker.notNull(curveDate, "curveDate");
+    ArgumentChecker.notNull(payDate, "payDate");
+    ArgumentChecker.notNull(dc, "dayCount");
     final double timeCurve = TimeCalculator.getTimeBetween(curveDate, payDate);
     final double df = curve.getDiscountFactor(timeCurve);
     final double timeDc = dc.getDayCountFraction(curveDate, payDate);
@@ -90,6 +105,9 @@ public class YieldAndDiscountCurveUtils {
    * @return The rate
    */
   public static double discountFactor(final YieldAndDiscountCurve curve, final ZonedDateTime curveDate, final ZonedDateTime payDate) {
+    ArgumentChecker.notNull(curve, "curve");
+    ArgumentChecker.notNull(curveDate, "curveDate");
+    ArgumentChecker.notNull(payDate, "payDate");
     final double timeCurve = TimeCalculator.getTimeBetween(curveDate, payDate);
     final double df = curve.getDiscountFactor(timeCurve);
     return df;

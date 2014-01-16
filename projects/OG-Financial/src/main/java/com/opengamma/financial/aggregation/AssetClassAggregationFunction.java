@@ -56,6 +56,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -123,6 +124,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CDX = "CDS Indices";
   /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
   /* package */static final String INFLATION_SWAPS = "Inflation Swaps";
+  /* package */static final String FX_VOLATILITY_SWAPS = "FX Volatility Swaps";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -130,7 +132,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS,
+      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS, FX_VOLATILITY_SWAPS,
       UNKNOWN);
 
   private final boolean _includeEmptyCategories;
@@ -475,6 +477,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
           return SWAPS;
+        }
+
+        @Override
+        public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+          return FX_VOLATILITY_SWAPS;
         }
       });
     } else {

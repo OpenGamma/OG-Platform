@@ -83,7 +83,7 @@ public class YieldAverageBondFuturesSecurityDefinitionTest {
   
   @Test
   public void getter() {
-    assertEquals("YieldAverageBondFuturesSecurityDefinition: getter", LAST_TRADING_DATE, FUT_SEC_DEFINITION.getTradingLastDate());
+    assertEquals("YieldAverageBondFuturesSecurityDefinition: getter", LAST_TRADING_DATE, FUT_SEC_DEFINITION.getLastTradingDate());
     assertEquals("YieldAverageBondFuturesSecurityDefinition: getter", SETTLEMENT_DAYS, FUT_SEC_DEFINITION.getSettlementDays());
     assertEquals("YieldAverageBondFuturesSecurityDefinition: getter", ScheduleCalculator.getAdjustedDate(LAST_TRADING_DATE, SETTLEMENT_DAYS, CALENDAR), 
         FUT_SEC_DEFINITION.getDeliveryDate());

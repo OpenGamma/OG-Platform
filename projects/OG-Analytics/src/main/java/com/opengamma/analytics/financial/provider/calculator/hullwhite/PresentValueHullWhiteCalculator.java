@@ -85,7 +85,7 @@ public final class PresentValueHullWhiteCalculator extends InstrumentDerivativeV
   }
 
   @Override
-  public MultipleCurrencyAmount visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+  public MultipleCurrencyAmount visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_SWAPFUT.presentValue(futures, hullWhite);
   }
 

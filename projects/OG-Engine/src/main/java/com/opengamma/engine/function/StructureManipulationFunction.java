@@ -8,6 +8,9 @@ package com.opengamma.engine.function;
 import java.util.Collection;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
@@ -24,6 +27,8 @@ import com.opengamma.engine.value.ValueSpecification;
  * executionContext passed in through the execute method.
  */
 public final class StructureManipulationFunction extends IntrinsicFunction {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(StructureManipulationFunction.class);
 
   /**
    * Shared instance.
@@ -75,7 +80,8 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
       final Object inputValueObject = inputValue.getValue();
       final Object outputValueObject;
       if ((inputValueObject != null) && (structureManipulator != null) && structureManipulator.getExpectedType().isAssignableFrom(inputValueObject.getClass())) {
-        outputValueObject = structureManipulator.execute(inputValueObject);
+        outputValueObject = structureManipulator.execute(inputValueObject, inputValue.getSpecification());
+        s_logger.debug("changed value for target {} from {} to {}", target, inputValueObject, outputValueObject);
       } else {
         outputValueObject = inputValueObject;
       }

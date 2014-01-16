@@ -10,7 +10,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesTransaction;
 import com.opengamma.util.ArgumentChecker;
@@ -19,7 +19,8 @@ import com.opengamma.util.ArgumentChecker;
  * Transaction on a bond future security with cash settlement against a price deduced from a yield average. 
  * In particular used for AUD-SFE bond futures.
  */
-public class YieldAverageBondFuturesTransactionDefinition extends FuturesTransactionDefinition<YieldAverageBondFuturesSecurityDefinition> {
+public class YieldAverageBondFuturesTransactionDefinition extends FuturesTransactionDefinition<YieldAverageBondFuturesSecurityDefinition>
+    implements InstrumentDefinitionWithData<YieldAverageBondFuturesTransaction, Double> {
 
   /**
    * Constructor.
@@ -28,16 +29,16 @@ public class YieldAverageBondFuturesTransactionDefinition extends FuturesTransac
    * @param tradeDate The transaction date.
    * @param tradePrice The transaction price (in the convention of the futures).
    */
-  public YieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesSecurityDefinition underlyingFuture, final int quantity, 
+  public YieldAverageBondFuturesTransactionDefinition(final YieldAverageBondFuturesSecurityDefinition underlyingFuture, final int quantity,
       final ZonedDateTime tradeDate, final double tradePrice) {
     super(underlyingFuture, quantity, tradeDate, tradePrice);
   }
-  
+
   @Override
   public YieldAverageBondFuturesTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getTradingLastDate().toLocalDate()), "Date is after last trade date");
+    ArgumentChecker.isTrue(!date.isAfter(getUnderlyingFuture().getLastTradingDate().toLocalDate()), "Date is after last trade date");
     final LocalDate tradeDate = getTradeDate().toLocalDate();
     ArgumentChecker.isTrue(!date.isBefore(tradeDate), "Date is before trade date");
     final YieldAverageBondFuturesSecurity underlyingFuture = getUnderlyingFuture().toDerivative(dateTime);
@@ -51,13 +52,18 @@ public class YieldAverageBondFuturesTransactionDefinition extends FuturesTransac
   }
 
   @Override
-  public InstrumentDerivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public YieldAverageBondFuturesTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     throw new NotImplementedException("The method toDerivative of YieldAverageBondFuturesTransactionDefinition is not implemented with curve names.");
   }
 
   @Override
-  public InstrumentDerivative toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
+  public YieldAverageBondFuturesTransaction toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
     throw new NotImplementedException("The method toDerivative of YieldAverageBondFuturesTransactionDefinition is not implemented with curve names.");
+  }
+
+  @Override
+  public YieldAverageBondFuturesTransaction toDerivative(ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of YieldAverageBondFuturesTransactionDefinition does not support the one argument method (without margin price data).");
   }
 
   @Override

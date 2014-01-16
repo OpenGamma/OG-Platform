@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.issuer;
+package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import org.apache.commons.math.stat.descriptive.moment.Mean;
 import org.apache.commons.math.stat.descriptive.rank.Min;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Param
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
+ * Computes the price for different types of futures. Calculator using a multi-curve and issuer provider.
  */
 public final class FuturesPriceIssuerCalculator extends InstrumentDerivativeVisitorAdapter<ParameterIssuerProviderInterface, Double> {
 

@@ -82,7 +82,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   private final String _configurationName;
   /** The maturity calculator */
   private static final LastTimeCalculator MATURITY_CALCULATOR = LastTimeCalculator.getInstance();
-
+  /** A curve construction configuration source */
   private CurveConstructionConfigurationSource _curveConstructionConfigurationSource;
 
   /**
@@ -201,7 +201,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       final T knownData = getKnownData(inputs);
       final Clock snapshotClock = executionContext.getValuationClock();
       final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-      ValueProperties bundleProperties = desiredValues.iterator().next().getConstraints().copy()
+      final ValueProperties bundleProperties = desiredValues.iterator().next().getConstraints().copy()
           .withoutAny(CURVE)
           .with(CURVE, Arrays.asList(_curveNames))
           .get();
@@ -275,13 +275,13 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the curve construction configuration name.
-     * 
+     *
      * @return The curve construction configuration name
      */
     protected String getCurveConstructionConfigurationName() {
       return _configurationName;
     }
-    
+
     /**
      * Gets the known data from the FX matrix.
      *

@@ -28,6 +28,7 @@ import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -66,7 +67,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   
   
   @Override
-  public YieldCurve execute(YieldCurve structure) {
+  public YieldCurve execute(YieldCurve structure, ValueSpecification valueSpecification) {
     final List<DoublesPair> buckets = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
     ShiftType shiftType = null;

@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceCurveSensitivityIssuerCalculator;
+import com.opengamma.analytics.financial.interestrate.future.calculator.FuturesPriceIssuerCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
-import com.opengamma.analytics.financial.provider.calculator.issuer.FuturesPriceCurveSensitivityIssuerCalculator;
-import com.opengamma.analytics.financial.provider.calculator.issuer.FuturesPriceIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 
 /**
- * Interface to generic futures security pricing method for multi-curve provider.
+ * Interface to generic futures security pricing method for multi-curve and issuer provider.
  */
 public class FuturesSecurityIssuerMethod extends FuturesSecurityMethod {
 
@@ -27,7 +27,7 @@ public class FuturesSecurityIssuerMethod extends FuturesSecurityMethod {
    * @param multicurve The multicurve provider.
    * @return The price.
    */
-  double price(final FuturesSecurity futures, final ParameterIssuerProviderInterface multicurve) {
+  public double price(final FuturesSecurity futures, final ParameterIssuerProviderInterface multicurve) {
     return futures.accept(FPIC, multicurve);
   }
 

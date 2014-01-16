@@ -59,8 +59,8 @@ public final class ParSpreadMarketQuoteCurveSensitivityHullWhiteCalculator exten
   }
 
   @Override
-  public MulticurveSensitivity visitSwapFuturesDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_SWAP_FUT.priceCurveSensitivity(futures.getUnderlying(), multicurves);
+  public MulticurveSensitivity visitSwapFuturesPriceDeliverableTransaction(final SwapFuturesPriceDeliverableTransaction futures, final HullWhiteOneFactorProviderInterface multicurves) {
+    return METHOD_SWAP_FUT.priceCurveSensitivity(futures.getUnderlyingFuture(), multicurves);
   }
 
 }

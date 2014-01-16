@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -15,7 +14,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.FuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.YieldAverageBondFuturesSecurity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -27,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  * In particular used for AUD-SFE bond futures.
  * <P>Reference: Add a reference.
  */
-public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDefinition {
+public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDefinition<YieldAverageBondFuturesSecurity> {
 
   /**
    * The number of days between notice date and delivery date.
@@ -66,7 +64,7 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
    * @param tenor The underlying synthetic bond tenor (in years).
    * @param notional The bond future notional.
    */
-  public YieldAverageBondFuturesSecurityDefinition(final ZonedDateTime tradingLastDate, final BondFixedSecurityDefinition[] deliveryBasket, final double couponRate, 
+  public YieldAverageBondFuturesSecurityDefinition(final ZonedDateTime tradingLastDate, final BondFixedSecurityDefinition[] deliveryBasket, final double couponRate,
       final int tenor, final double notional) {
     super(tradingLastDate);
     ArgumentChecker.notNull(tradingLastDate, "Last trading date");
@@ -143,16 +141,15 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
    */
   @Deprecated
   @Override
-  public FuturesSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public YieldAverageBondFuturesSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new NotImplementedException("toDerivative with curve names not implemented.");
   }
-
 
   @Override
   public YieldAverageBondFuturesSecurity toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getTradingLastDate()), "Date is after last trading date");
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getTradingLastDate());
+    ArgumentChecker.isTrue(!date.isAfter(getLastTradingDate()), "Date is after last trading date");
+    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(date, _settlementDays, _calendar);
     final BondFixedSecurity[] basketAtDelivery = new BondFixedSecurity[_deliveryBasket.length];
     final BondFixedSecurity[] basketAtSpot = new BondFixedSecurity[_deliveryBasket.length];
@@ -176,7 +173,7 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
   @Override
   public int hashCode() {
     final int prime = 31;
-    int result = 1;
+    int result = super.hashCode();
     result = prime * result + _calendar.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_couponRate);
@@ -194,6 +191,9 @@ public class YieldAverageBondFuturesSecurityDefinition extends FuturesSecurityDe
   public boolean equals(Object obj) {
     if (this == obj) {
       return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
     }
     if (obj == null) {
       return false;

@@ -28,6 +28,7 @@ import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * A manipulator which applies a list of point shifts.
@@ -47,7 +48,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   private final ImmutableList<YieldCurvePointShift> _pointShifts;
 
   @Override
-  public YieldCurve execute(YieldCurve structure) {
+  public YieldCurve execute(YieldCurve structure, ValueSpecification valueSpecification) {
     final List<Double> points = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
     for (YieldCurvePointShift pointShift : _pointShifts) {
