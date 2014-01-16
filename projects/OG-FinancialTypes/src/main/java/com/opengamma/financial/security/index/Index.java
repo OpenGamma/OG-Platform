@@ -29,12 +29,6 @@ public abstract class Index extends ManageableSecurity {
   private static final long serialVersionUID = 1L;
 
   /**
-   * The index name.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private String _name;
-
-  /**
    * The index description.
    */
   @PropertyDefinition
@@ -104,32 +98,6 @@ public abstract class Index extends ManageableSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the index name.
-   * @return the value of the property, not null
-   */
-  public String getName() {
-    return _name;
-  }
-
-  /**
-   * Sets the index name.
-   * @param name  the new value of the property, not null
-   */
-  public void setName(String name) {
-    JodaBeanUtils.notNull(name, "name");
-    this._name = name;
-  }
-
-  /**
-   * Gets the the {@code name} property.
-   * @return the property, not null
-   */
-  public final Property<String> name() {
-    return metaBean().name().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the index description.
    * @return the value of the property
    */
@@ -186,8 +154,7 @@ public abstract class Index extends ManageableSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       Index other = (Index) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getDescription(), other.getDescription()) &&
+      return JodaBeanUtils.equal(getDescription(), other.getDescription()) &&
           JodaBeanUtils.equal(getIndexWeightingType(), other.getIndexWeightingType()) &&
           super.equals(obj);
     }
@@ -197,7 +164,6 @@ public abstract class Index extends ManageableSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDescription());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndexWeightingType());
     return hash ^ super.hashCode();
@@ -205,7 +171,7 @@ public abstract class Index extends ManageableSecurity {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("Index{");
     int len = buf.length();
     toString(buf);
@@ -219,7 +185,6 @@ public abstract class Index extends ManageableSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("description").append('=').append(JodaBeanUtils.toString(getDescription())).append(',').append(' ');
     buf.append("indexWeightingType").append('=').append(JodaBeanUtils.toString(getIndexWeightingType())).append(',').append(' ');
   }
@@ -235,11 +200,6 @@ public abstract class Index extends ManageableSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
-        this, "name", Index.class, String.class);
-    /**
      * The meta-property for the {@code description} property.
      */
     private final MetaProperty<String> _description = DirectMetaProperty.ofReadWrite(
@@ -254,7 +214,6 @@ public abstract class Index extends ManageableSecurity {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "name",
         "description",
         "indexWeightingType");
 
@@ -267,8 +226,6 @@ public abstract class Index extends ManageableSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return _name;
         case -1724546052:  // description
           return _description;
         case -300364526:  // indexWeightingType
@@ -294,14 +251,6 @@ public abstract class Index extends ManageableSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> name() {
-      return _name;
-    }
-
-    /**
      * The meta-property for the {@code description} property.
      * @return the meta-property, not null
      */
@@ -321,8 +270,6 @@ public abstract class Index extends ManageableSecurity {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return ((Index) bean).getName();
         case -1724546052:  // description
           return ((Index) bean).getDescription();
         case -300364526:  // indexWeightingType
@@ -334,9 +281,6 @@ public abstract class Index extends ManageableSecurity {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          ((Index) bean).setName((String) newValue);
-          return;
         case -1724546052:  // description
           ((Index) bean).setDescription((String) newValue);
           return;
@@ -345,12 +289,6 @@ public abstract class Index extends ManageableSecurity {
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((Index) bean)._name, "name");
-      super.validate(bean);
     }
 
   }
