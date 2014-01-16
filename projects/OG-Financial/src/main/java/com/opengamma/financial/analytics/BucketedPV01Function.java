@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * <p/>
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.analytics;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -22,22 +27,18 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.lambdava.functions.Function3;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * <p/>
- * Please see distribution for license.
+ * Generic function to compute the bucketed PV01 of XXX from the YieldCurveNodeSensitivity (scaling to 1 bp).
  */
 public class BucketedPV01Function extends BaseNonCompiledInvoker {
 
   @Override
   protected FunctionSignature functionSignature() {
 
-    return function("Bucketed PV01", ComputationTargetType.POSITION)
+    return function("Bucketed PV01", ComputationTargetType.POSITION_OR_TRADE)
         .outputs(
             output(BUCKETED_PV01)
                 .targetSpec(originalTarget())
@@ -75,4 +76,5 @@ public class BucketedPV01Function extends BaseNonCompiledInvoker {
   public String getUniqueId() {
     return "Bucketed PV01 Function";
   }
+  
 }
