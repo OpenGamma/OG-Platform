@@ -68,7 +68,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   /**
    * Interval (in seconds) at which to check permissions for market
-   * data. Permissions aree checked on view compilation. Then, when
+   * data. Permissions are checked on view compilation. Then, when
    * each cycle is run, a check is made to see if a further permission
    * check should be undertaken. A zero value indicates that no
    * additional permission checks should be done.
@@ -486,7 +486,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
                                   MarketDataPermissionProvider permissionProvider,
                                   Set<ValueSpecification> marketDataRequirements) {
 
-    if (isPermissionCheckDue || !_userPermissions.containsKey(user)) {
+    if (user == null) {
+      // No permissions checking if we're not logging in
+      return true;
+    } else if (isPermissionCheckDue || !_userPermissions.containsKey(user)) {
       s_logger.info("Performing permissions check for market data");
       final boolean allowed = permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
       _userPermissions.put(user, allowed);
