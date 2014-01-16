@@ -46,7 +46,7 @@ public class CommodityUnderlying {
   }
 
   /**
-   * Gets the name of the price index.
+   * Gets the identifier of the commodity underlying.
    * @return The name.
    */
   public ExternalId getIdentifier() {
@@ -54,7 +54,7 @@ public class CommodityUnderlying {
   }
 
   /**
-   * Gets the name of the price index.
+   * Gets the Name of the commodity underlying.
    * @return The name.
    */
   public String getName() {

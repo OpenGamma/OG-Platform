@@ -48,6 +48,23 @@ public class CouponCommodityCashSettleDefinition extends CouponCommodityDefiniti
   }
 
   /**
+   * Constructor with all details. With a payment year fraction of 1.
+   * @param underlying The commodity underlying, not null
+   * @param notional notional
+   * @param settlementDate The settlement date, not null
+   * @param calendar The holiday calendar, not null
+   * @param fixingDate the fixing date
+   */
+  public CouponCommodityCashSettleDefinition(final CommodityUnderlying underlying, final double notional, final ZonedDateTime settlementDate,
+      final Calendar calendar, final ZonedDateTime fixingDate) {
+    super(1.0, underlying, underlying.getName(), notional, settlementDate, calendar);
+    ArgumentChecker.notNull(fixingDate, "fixing date");
+    ArgumentChecker.isTrue(settlementDate.isAfter(fixingDate), "settlement date must be after the fixing date");
+    _fixingDate = fixingDate;
+
+  }
+
+  /**
    * Gets the payment date.
    * @return The payment date.
    */
