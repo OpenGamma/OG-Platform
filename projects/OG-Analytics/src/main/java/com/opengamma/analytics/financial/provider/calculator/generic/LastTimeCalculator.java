@@ -410,21 +410,21 @@ public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Objec
 
   @Override
   public Double visitCouponCommodityCashSettle(final CouponCommodityCashSettle future) {
-    return future.getUnderlying().getLastTradingTime();
+    return future.getSettlementTime();
   }
 
   @Override
   public Double visitCouponCommodityPhysicalSettle(final CouponCommodityPhysicalSettle future) {
-    return future.getUnderlying().getLastTradingTime();
+    return future.getSettlementTime();
   }
 
   @Override
   public Double visitForwardCommodityCashSettle(final ForwardCommodityCashSettle future) {
-    return future.getUnderlying().getLastTradingTime();
+    return future.getSettlementTime();
   }
 
   @Override
   public Double visitForwardCommodityPhysicalSettle(final ForwardCommodityPhysicalSettle future) {
-    return future.getUnderlying().getLastTradingTime();
+    return future.getSettlementTime();
   }
 }
