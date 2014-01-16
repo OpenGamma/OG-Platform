@@ -45,6 +45,7 @@ public class PointShiftManipulatorBuilder {
   /**
    * Adds the configured shifts to the scenario.
    * Should only be called once per {@link PointShiftManipulatorBuilder}.
+   * TODO can this be got rid of?
    */
   public void apply() {
     YieldCurvePointShiftManipulator pointShifts = YieldCurvePointShiftManipulator.create(_shiftList);

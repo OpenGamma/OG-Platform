@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 
 /**
- * {@link StructureManipulator} that shifts all points on a curve up or down by the same amount.
- * Uses {@link YieldAndDiscountCurve#withParallelShift(double)} to perform the transformation.
+ * Uses {@link YieldAndDiscountCurve#withSingleShift} to perform the transformation.
+ * TODO can this be deleted in favour of pointShift with a single point?
  */
 public class YieldCurveSingleShift implements StructureManipulator<YieldAndDiscountCurve> {
 

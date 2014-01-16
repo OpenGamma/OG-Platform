@@ -159,6 +159,17 @@ public abstract class SimulationScript extends Script {
   }
 
   /**
+   * Defines a method in the DSL that takes a closure which defines how to select and transform a curve.
+   * @param body The block that defines the selection and transformation
+   */
+  public void curveData(Closure<?> body) {
+    CurveDataBuilder selector = new CurveDataBuilder(_scenario);
+    body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
+    body.call();
+  }
+
+  /**
    * Defines a method in the DSL that takes a closure which defines how to select and transform a market data point.
    * @param body The block that defines the selection and transformation
    */
@@ -233,27 +244,45 @@ public abstract class SimulationScript extends Script {
       body.call();
     }
   }
+
+  /**
+   * Delegate class for closures that define a curve data transformation in the DSL.
+   * This affects raw curve data before it's fitted.
+   */
+  private static final class CurveDataBuilder extends YieldCurveSelector.Builder {
+
+    private CurveDataBuilder(Scenario scenario) {
+      super(scenario);
+    }
+
+    @SuppressWarnings("unused")
+    public void apply(Closure<?> body) {
+      YieldCurveDataManipulatorBuilder builder = new YieldCurveDataManipulatorBuilder(getSelector(), getScenario());
+      body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
+      body.call();
+    }
+  }
   
   /**
    * Delegate class for closures that defines closure compatible builder methods
    * for {@link YieldCurveManipulatorBuilder} in the DSL.
    */
   private static final class GroovyYieldCurveManipulatorBuilder extends YieldCurveManipulatorBuilder {
-    
-    
+
     GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
       super(selector, scenario);
     }
-    
+
     @SuppressWarnings("unused")
-    public void bucketedShifts(BucketedShiftType type, Closure<?> body) {
-      BucketedShiftManipulatorBuilder builder = new BucketedShiftManipulatorBuilder(getSelector(), getScenario(), type);
+    public void bucketedShifts(/*BucketedShiftType type, */Closure<?> body) {
+      BucketedShiftManipulatorBuilder builder = new BucketedShiftManipulatorBuilder(getSelector(), getScenario()/*, type*/);
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
       builder.apply();
     }
-    
+
     @SuppressWarnings("unused")
     public void pointShifts(Closure<?> body) {
       PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario());

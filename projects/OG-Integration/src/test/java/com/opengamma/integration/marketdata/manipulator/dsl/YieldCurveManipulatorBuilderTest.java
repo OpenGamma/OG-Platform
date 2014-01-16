@@ -39,14 +39,14 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(BucketedShiftType.FORWARD)
+    _builder.bucketedShifts(/*BucketedShiftType.FORWARD*/)
       .shift(1, 2, 3, CurveShiftType.ABSOLUTE)
       .apply();
     
     YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator)_manipulatorResult;
     
     assertTrue("One shift expected", 1 == result.getShifts().size());
-    assertEquals(BucketedShiftType.FORWARD, result.getBucketedShiftType());
+    //assertEquals(BucketedShiftType.FORWARD, result.getBucketedShiftType());
     
     YieldCurveBucketedShift shift = result.getShifts().get(0);
     

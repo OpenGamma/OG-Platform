@@ -20,14 +20,15 @@ public class BucketedShiftManipulatorBuilder {
   /** The scenario to which manipulations are added. */
   private final Scenario _scenario;
 
-  private final BucketedShiftType _type;
+  // TODO is this ever used?
+  //private final BucketedShiftType _type;
 
   private final List<YieldCurveBucketedShift> _shiftList = Lists.newArrayList();
 
-  BucketedShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, BucketedShiftType type) {
+  BucketedShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario/*, BucketedShiftType type*/) {
     _selector = selector;
     _scenario = scenario;
-    _type = type;
+    //_type = type;
   }
   
   
@@ -49,9 +50,13 @@ public class BucketedShiftManipulatorBuilder {
   /**
    * Apply shifts to the scenario.
    * Should only be called once per {@link BucketedShiftManipulatorBuilder}.
+   * TODO this smells a bit bad when using the Java API. nest shifts into a single call with the shift?
+   * that means shift() would have to be a static method. would probably have to qualify it because 'shift' is
+   * a common method name in scenarios. bucket(start, end, shift, shiftType)?
+   * at the very least it should return a YieldCurveManipulatorBuilder to be consistent with the rest of the API
    */
   public void apply() {
-    YieldCurveBucketedShiftManipulator shifts = YieldCurveBucketedShiftManipulator.create(_type, ImmutableList.copyOf(_shiftList));
+    YieldCurveBucketedShiftManipulator shifts = YieldCurveBucketedShiftManipulator.create(/*_type, */ImmutableList.copyOf(_shiftList));
     _scenario.add(_selector, shifts);
   }
   
