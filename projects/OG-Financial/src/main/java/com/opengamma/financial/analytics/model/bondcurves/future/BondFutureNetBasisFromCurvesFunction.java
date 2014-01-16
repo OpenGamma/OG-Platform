@@ -30,8 +30,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.StringLabelledMatrix1D;
-import com.opengamma.financial.analytics.model.BondFunctionUtils;
-import com.opengamma.financial.analytics.model.bondcurves.BondFromCurvesFunction;
+import com.opengamma.financial.analytics.model.BondAndBondFutureFunctionUtils;
+import com.opengamma.financial.analytics.model.bondcurves.BondAndBondFutureFromCurvesFunction;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -39,7 +39,7 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Calculates the net basis of all bonds in the deliverable basket using
  * the future price and issuer curves.
  */
-public class BondFutureNetBasisFromCurvesFunction extends BondFromCurvesFunction<IssuerProviderInterface, Void> {
+public class BondFutureNetBasisFromCurvesFunction extends BondAndBondFutureFromCurvesFunction<IssuerProviderInterface, Void> {
 
   /**
    * Sets the value requirement name to {@link ValueRequirementNames#NET_BASIS} and
@@ -57,7 +57,7 @@ public class BondFutureNetBasisFromCurvesFunction extends BondFromCurvesFunction
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final BondFutureSecurity security = (BondFutureSecurity) target.getTrade().getSecurity();
-    final BondFuturesTransaction transaction = (BondFuturesTransaction) BondFunctionUtils.getDerivative(executionContext, target, now);
+    final BondFuturesTransaction transaction = (BondFuturesTransaction) BondAndBondFutureFunctionUtils.getBondOrBondFutureDerivative(executionContext, target, now, inputs);
     final IssuerProviderInterface issuerCurves = (IssuerProviderInterface) inputs.getValue(CURVE_BUNDLE);
     final ValueSpecification spec = new ValueSpecification(NET_BASIS, target.toSpecification(), properties);
     final double[] netBasis = BondFuturesSecurityDiscountingMethod.getInstance().netBasisAllBonds(transaction.getUnderlyingFuture(), issuerCurves, price);

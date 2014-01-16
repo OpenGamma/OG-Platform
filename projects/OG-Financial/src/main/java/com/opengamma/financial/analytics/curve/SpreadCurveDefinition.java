@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 
 /**
  * Definition for spread curves. It contains the curve name and two curves and the operation
@@ -27,7 +28,7 @@ import com.opengamma.core.config.Config;
  * Note that the operation might not be commutative, so the order of the curves is important.
  */
 @BeanDefinition
-@Config(description = "Spread curve definition")
+@Config(description = "Spread curve definition", group = ConfigGroups.CURVES)
 public class SpreadCurveDefinition extends AbstractCurveDefinition {
 
   /** Serialization version */

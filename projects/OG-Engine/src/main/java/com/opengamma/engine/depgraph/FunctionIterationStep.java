@@ -36,6 +36,15 @@ import com.opengamma.util.tuple.Triple;
       super(task);
     }
 
+    /**
+     * Attempts a function application.
+     * <p>
+     * The {@code resolvedOutput} value must be normalized.
+     * 
+     * @param context the graph building context, not null
+     * @param resolvedOutput the provisional resolved value specification, not null
+     * @param resolvedFunction the function to apply, containing the definition, satisfying maximal specification, and all maximal output specifications
+     */
     protected void functionApplication(final GraphBuildingContext context, final ValueSpecification resolvedOutput,
         final Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>> resolvedFunction) {
       final Pair<ResolveTask[], ResolvedValueProducer[]> existing = context.getTasksProducing(resolvedOutput);
@@ -109,6 +118,17 @@ import com.opengamma.util.tuple.Triple;
      */
     protected abstract ValueRequirement getDesiredValue();
 
+    /**
+     * Resolves the output values declared by a function at late resolution against the current requirement. The one that satisfies the requirement is composed, added to the set, and returned. All
+     * other output specifications are added to the output set unchanged.
+     * <p>
+     * The returned specification must be normalized.
+     * 
+     * @param context the graph building context, not null
+     * @param newOutputValues the output values returned by the function, not null
+     * @param resolvedOutputValues the composed output values, not null
+     * @return the satisfying resolved output, or null if none satisfy
+     */
     protected abstract ValueSpecification getResolvedOutputs(GraphBuildingContext context, Set<ValueSpecification> newOutputValues, Set<ValueSpecification> resolvedOutputValues);
 
     /**

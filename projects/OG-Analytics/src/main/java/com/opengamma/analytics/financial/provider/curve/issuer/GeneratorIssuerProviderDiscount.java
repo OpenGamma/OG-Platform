@@ -7,8 +7,10 @@ package com.opengamma.analytics.financial.provider.curve.issuer;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.LinkedListMultimap;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -43,8 +45,7 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
   /**
    * The map with the issuers and the related discounting curves names.
    */
-//  private final LinkedHashMap<String, Pair<String, Currency>> _issuerMap;
-  private final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> _issuerMap;
+  private final LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> _issuerMap;
   /**
    * The map with the names and the related curves generators.
    */
@@ -64,7 +65,8 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
    * @param generatorsMap The generators map.
    */
   public GeneratorIssuerProviderDiscount(final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
-      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
+      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedListMultimap<String, Pair<Object, LegalEntityFilter<LegalEntity>>> issuerMap,
+      final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
     ArgumentChecker.notNull(discountingMap, "Discounting curves names map");
     ArgumentChecker.notNull(forwardIborMap, "Forward curves names map");
     ArgumentChecker.notNull(forwardONMap, "Forward curves names map");
@@ -75,19 +77,6 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
     _issuerMap = issuerMap;
     _generatorsMap = generatorsMap;
   }
-
-//  public GeneratorIssuerProviderDiscount(final IssuerProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap, final LinkedHashMap<String, IborIndex[]> forwardIborMap,
-//      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, Pair<String, Currency>> issuerMap, final LinkedHashMap<String, GeneratorYDCurve> generatorsMap) {
-//    ArgumentChecker.notNull(discountingMap, "Discounting curves names map");
-//    ArgumentChecker.notNull(forwardIborMap, "Forward curves names map");
-//    ArgumentChecker.notNull(forwardONMap, "Forward curves names map");
-//    _knownData = knownData;
-//    _discountingMap = discountingMap;
-//    _forwardIborMap = forwardIborMap;
-//    _forwardONMap = forwardONMap;
-//    _issuerMap = issuerMap;
-//    _generatorsMap = generatorsMap;
-//  }
 
   /**
    * Gets the know data.
@@ -131,7 +120,10 @@ public class GeneratorIssuerProviderDiscount extends Function1D<DoubleMatrix1D, 
         }
       }
       if (_issuerMap.containsKey(name)) {
-        provider.setCurve(_issuerMap.get(name), curve);
+        final List<Pair<Object, LegalEntityFilter<LegalEntity>>> issuers = _issuerMap.get(name);
+        for (final Pair<Object, LegalEntityFilter<LegalEntity>> issuer : issuers) {
+          provider.setCurve(issuer, curve);
+        }
       }
       // TODO: Do we need to check that the curve is used at least once?
     }

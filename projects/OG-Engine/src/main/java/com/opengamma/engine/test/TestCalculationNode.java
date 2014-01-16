@@ -21,6 +21,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.util.InetAddressUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
@@ -35,7 +36,9 @@ public class TestCalculationNode extends SimpleCalculationNode implements Lifecy
   }
 
   private static CompiledFunctionService initializedCFS() {
-    final CompiledFunctionService cfs = new CompiledFunctionService(new InMemoryFunctionRepository(), new CachingFunctionRepositoryCompiler(), compilationContext());
+    final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
+    final CompiledFunctionService cfs = new CompiledFunctionService(FunctionRepositoryFactory.constructRepositoryFactory(repository), new CachingFunctionRepositoryCompiler(),
+        compilationContext());
     cfs.initialize();
     return cfs;
   }

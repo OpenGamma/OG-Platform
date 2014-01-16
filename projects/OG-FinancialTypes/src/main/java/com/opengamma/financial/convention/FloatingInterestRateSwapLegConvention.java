@@ -19,18 +19,19 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
+import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
 import com.opengamma.core.convention.ConventionType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
-import com.opengamma.financial.security.irs.CompoundingMethod;
-import com.opengamma.financial.security.irs.DayType;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapNotional;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.security.irs.PeriodRelationship;
 import com.opengamma.financial.security.irs.Rate;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
@@ -70,7 +71,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * The day type (calendar or business) for the fixing lag.
    */
   @PropertyDefinition(validate = "notNull")
-  private DayType _settlementDayType = DayType.BUSINESS;
+  private OffsetType _settlementDayType = OffsetType.BUSINESS;
   /**
    * The reset frequency.
    */
@@ -90,7 +91,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * The reset relative to either the start or end of the period.
    */
   @PropertyDefinition(validate = "notNull")
-  private PeriodRelationship _resetRelativeTo = PeriodRelationship.BEGINNING;
+  private DateRelativeTo _resetRelativeTo = DateRelativeTo.START;
 
   /**
    * Creates an instance.
@@ -149,7 +150,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
       DayCount dayCountConvention,
       Frequency paymentFrequency,
       Frequency calculationFrequency,
-      PeriodRelationship paymentRelativeTo,
+      DateRelativeTo paymentRelativeTo,
       boolean adjustedAccrual,
       int settlementDays,
       RollConvention rollConvention,
@@ -157,11 +158,11 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
       FloatingRateType rateType,
       Set<ExternalId> fixingCalendars,
       BusinessDayConvention fixingBusinessDayConvention,
-      DayType settlementDayType,
+      OffsetType settlementDayType,
       Frequency resetFrequency,
       Set<ExternalId> resetCalendars,
       BusinessDayConvention resetBusinessDayConvention,
-      PeriodRelationship resetRelativeTo) {
+      DateRelativeTo resetRelativeTo) {
     super(name, externalIdBundle, paymentCalendars, calculationCalendars, maturityCalendars,
         paymentDayConvention, calculationBusinessDayConvention, maturityBusinessDayConvention,
         dayCountConvention, paymentFrequency, calculationFrequency, paymentRelativeTo,
@@ -213,7 +214,34 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     FloatingInterestRateSwapLeg leg = new FloatingInterestRateSwapLeg();
     leg.setPayReceiveType(payOrReceive);
     leg.setNotional(notional);
-    leg.setConvention(this);
+    leg.setDayCountConvention(getDayCountConvention());
+    leg.setRollConvention(getRollConvention());
+    // float leg specific parameters
+    leg.setFloatingReferenceRateId(Iterators.getOnlyElement(getExternalIdBundle().iterator()));
+    leg.setFloatingRateType(_rateType);
+    // maturity date parameters
+    leg.setMaturityDateBusinessDayConvention(getMaturityBusinessDayConvention());
+    leg.setMaturityDateCalendars(getMaturityCalendars());
+    // payment date parameters
+    leg.setPaymentDateBusinessDayConvention(getPaymentDayConvention());
+    leg.setPaymentDateCalendars(getPaymentCalendars());
+    leg.setPaymentDateFrequency(getPaymentFrequency());
+    leg.setPaymentDateRelativeTo(getPaymentRelativeTo());
+    // accrual period parameters
+    leg.setAccrualPeriodBusinessDayConvention(getCalculationBusinessDayConvention());
+    leg.setAccrualPeriodCalendars(getCalculationCalendars());
+    leg.setAccrualPeriodFrequency(getCalculationFrequency());
+    // reset period parameters
+    leg.setResetPeriodBusinessDayConvention(_resetBusinessDayConvention);
+    leg.setResetPeriodCalendars(_resetCalendars);
+    leg.setResetDateRelativeTo(_resetRelativeTo);
+    leg.setResetPeriodFrequency(getResetFrequency());
+    leg.setCompoundingMethod(getCompoundingMethod());
+    // fixing period parameters
+    leg.setFixingDateBusinessDayConvention(_fixingBusinessDayConvention);
+    leg.setFixingDateCalendars(_fixingCalendars);
+    leg.setFixingDateOffset(getSettlementDays());
+    leg.setFixingDateOffsetType(getSettlementDayType());
     return leg;
   }
 
@@ -345,7 +373,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the day type (calendar or business) for the fixing lag.
    * @return the value of the property, not null
    */
-  public DayType getSettlementDayType() {
+  public OffsetType getSettlementDayType() {
     return _settlementDayType;
   }
 
@@ -353,7 +381,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Sets the day type (calendar or business) for the fixing lag.
    * @param settlementDayType  the new value of the property, not null
    */
-  public void setSettlementDayType(DayType settlementDayType) {
+  public void setSettlementDayType(OffsetType settlementDayType) {
     JodaBeanUtils.notNull(settlementDayType, "settlementDayType");
     this._settlementDayType = settlementDayType;
   }
@@ -362,7 +390,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the the {@code settlementDayType} property.
    * @return the property, not null
    */
-  public final Property<DayType> settlementDayType() {
+  public final Property<OffsetType> settlementDayType() {
     return metaBean().settlementDayType().createProperty(this);
   }
 
@@ -450,7 +478,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the reset relative to either the start or end of the period.
    * @return the value of the property, not null
    */
-  public PeriodRelationship getResetRelativeTo() {
+  public DateRelativeTo getResetRelativeTo() {
     return _resetRelativeTo;
   }
 
@@ -458,7 +486,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Sets the reset relative to either the start or end of the period.
    * @param resetRelativeTo  the new value of the property, not null
    */
-  public void setResetRelativeTo(PeriodRelationship resetRelativeTo) {
+  public void setResetRelativeTo(DateRelativeTo resetRelativeTo) {
     JodaBeanUtils.notNull(resetRelativeTo, "resetRelativeTo");
     this._resetRelativeTo = resetRelativeTo;
   }
@@ -467,7 +495,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
    * Gets the the {@code resetRelativeTo} property.
    * @return the property, not null
    */
-  public final Property<PeriodRelationship> resetRelativeTo() {
+  public final Property<DateRelativeTo> resetRelativeTo() {
     return metaBean().resetRelativeTo().createProperty(this);
   }
 
@@ -566,8 +594,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     /**
      * The meta-property for the {@code settlementDayType} property.
      */
-    private final MetaProperty<DayType> _settlementDayType = DirectMetaProperty.ofReadWrite(
-        this, "settlementDayType", FloatingInterestRateSwapLegConvention.class, DayType.class);
+    private final MetaProperty<OffsetType> _settlementDayType = DirectMetaProperty.ofReadWrite(
+        this, "settlementDayType", FloatingInterestRateSwapLegConvention.class, OffsetType.class);
     /**
      * The meta-property for the {@code resetFrequency} property.
      */
@@ -587,8 +615,8 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
     /**
      * The meta-property for the {@code resetRelativeTo} property.
      */
-    private final MetaProperty<PeriodRelationship> _resetRelativeTo = DirectMetaProperty.ofReadWrite(
-        this, "resetRelativeTo", FloatingInterestRateSwapLegConvention.class, PeriodRelationship.class);
+    private final MetaProperty<DateRelativeTo> _resetRelativeTo = DirectMetaProperty.ofReadWrite(
+        this, "resetRelativeTo", FloatingInterestRateSwapLegConvention.class, DateRelativeTo.class);
     /**
      * The meta-properties.
      */
@@ -676,7 +704,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
      * The meta-property for the {@code settlementDayType} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayType> settlementDayType() {
+    public final MetaProperty<OffsetType> settlementDayType() {
       return _settlementDayType;
     }
 
@@ -708,7 +736,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
      * The meta-property for the {@code resetRelativeTo} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PeriodRelationship> resetRelativeTo() {
+    public final MetaProperty<DateRelativeTo> resetRelativeTo() {
       return _resetRelativeTo;
     }
 
@@ -750,7 +778,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           ((FloatingInterestRateSwapLegConvention) bean).setFixingBusinessDayConvention((BusinessDayConvention) newValue);
           return;
         case 980187021:  // settlementDayType
-          ((FloatingInterestRateSwapLegConvention) bean).setSettlementDayType((DayType) newValue);
+          ((FloatingInterestRateSwapLegConvention) bean).setSettlementDayType((OffsetType) newValue);
           return;
         case 101322957:  // resetFrequency
           ((FloatingInterestRateSwapLegConvention) bean).setResetFrequency((Frequency) newValue);
@@ -762,7 +790,7 @@ public class FloatingInterestRateSwapLegConvention extends InterestRateSwapLegCo
           ((FloatingInterestRateSwapLegConvention) bean).setResetBusinessDayConvention((BusinessDayConvention) newValue);
           return;
         case 779838742:  // resetRelativeTo
-          ((FloatingInterestRateSwapLegConvention) bean).setResetRelativeTo((PeriodRelationship) newValue);
+          ((FloatingInterestRateSwapLegConvention) bean).setResetRelativeTo((DateRelativeTo) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

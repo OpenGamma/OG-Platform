@@ -25,27 +25,15 @@ import com.opengamma.master.orgs.OrganizationSearchRequest;
 /**
  * Organization source based on the master.
  */
-public class MasterOrganizationSource
-    extends AbstractMasterSource<Organization, OrganizationDocument, OrganizationMaster>
-    implements OrganizationSource {
+public class MasterOrganizationSource extends AbstractMasterSource<Organization, OrganizationDocument, OrganizationMaster> implements OrganizationSource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
-   *
+   * Creates an instance with an underlying master.
+   * 
    * @param master the master, not null
    */
   public MasterOrganizationSource(final OrganizationMaster master) {
     super(master);
-  }
-
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   *
-   * @param master the master, not null
-   * @param versionCorrection  the version-correction locator to search at, null to not override versions
-   */
-  public MasterOrganizationSource(final OrganizationMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
   }
 
   @Override
@@ -87,13 +75,12 @@ public class MasterOrganizationSource
   public Map<UniqueId, Organization> get(Collection<UniqueId> uniqueIds) {
 
     Map<UniqueId, OrganizationDocument> documents = getMaster().get(uniqueIds);
-    return Maps.transformValues(documents,
-        new Function<OrganizationDocument, Organization>() {
-          @Override
-          public Organization apply(OrganizationDocument organizationDocument) {
-            return organizationDocument.getOrganization();
-          }
-        });
+    return Maps.transformValues(documents, new Function<OrganizationDocument, Organization>() {
+      @Override
+      public Organization apply(OrganizationDocument organizationDocument) {
+        return organizationDocument.getOrganization();
+      }
+    });
   }
 
 }

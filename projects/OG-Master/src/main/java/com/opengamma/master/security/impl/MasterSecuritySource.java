@@ -33,7 +33,7 @@ import com.opengamma.util.PublicSPI;
 public class MasterSecuritySource extends AbstractMasterSource<Security, SecurityDocument, SecurityMaster> implements SecuritySource {
 
   /**
-   * Creates an instance with an underlying master which does not override versions.
+   * Creates an instance with an underlying master.
    * 
    * @param master the master, not null
    */
@@ -41,35 +41,18 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
     super(master);
   }
 
-  /**
-   * Creates an instance with an underlying master optionally overriding the requested version.
-   * 
-   * @param master the master, not null
-   * @param versionCorrection the version-correction locator to search at, null to not override versions
-   */
-  public MasterSecuritySource(final SecurityMaster master, VersionCorrection versionCorrection) {
-    super(master, versionCorrection);
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public Collection<Security> get(final ExternalIdBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    Collection<Security> securities = new ArrayList<Security>();
-    for (ManageableSecurity manageableSecurity : getSecuritiesInternal(bundle, getVersionCorrection())) {
-      securities.add(manageableSecurity);
-    }
-    return securities;
+    return get(bundle, VersionCorrection.LATEST);
   }
 
   @Override
   public Collection<Security> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-
     Collection<Security> securities = new ArrayList<Security>();
-    for (ManageableSecurity manageableSecurity : getSecuritiesInternal(bundle, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection)) {
+    for (ManageableSecurity manageableSecurity : getSecuritiesInternal(bundle, versionCorrection)) {
       securities.add(manageableSecurity);
     }
     return securities;
@@ -82,18 +65,14 @@ public class MasterSecuritySource extends AbstractMasterSource<Security, Securit
 
   @Override
   public ManageableSecurity getSingle(final ExternalIdBundle bundle) {
-    ArgumentChecker.notNull(bundle, "bundle");
-    Collection<ManageableSecurity> securities = getSecuritiesInternal(bundle, getVersionCorrection());
-    // simply picks the first returned security
-    return securities.isEmpty() ? null : securities.iterator().next();
+    return getSingle(bundle, VersionCorrection.LATEST);
   }
 
   @Override
   public ManageableSecurity getSingle(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    VersionCorrection overrideVersionCorrection = getVersionCorrection();
-    final Collection<ManageableSecurity> securities = getSecuritiesInternal(bundle, overrideVersionCorrection != null ? overrideVersionCorrection : versionCorrection);
+    final Collection<ManageableSecurity> securities = getSecuritiesInternal(bundle, versionCorrection);
     // simply picks the first returned security
     return securities.isEmpty() ? null : securities.iterator().next();
   }

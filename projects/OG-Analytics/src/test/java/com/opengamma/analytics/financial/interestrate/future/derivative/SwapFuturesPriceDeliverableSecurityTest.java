@@ -56,7 +56,7 @@ public class SwapFuturesPriceDeliverableSecurityTest {
    * Tests the getter methods.
    */
   public void getter() {
-    assertEquals("DeliverableSwapFuturesSecurity: getter", LAST_TRADING_TIME, SWAP_FUTURES_SECURITY.getLastTradingTime());
+    assertEquals("DeliverableSwapFuturesSecurity: getter", LAST_TRADING_TIME, SWAP_FUTURES_SECURITY.getTradingLastTime());
     assertEquals("DeliverableSwapFuturesSecurity: getter", EFFECTIVE_TIME, SWAP_FUTURES_SECURITY.getDeliveryTime());
     assertEquals("DeliverableSwapFuturesSecurity: getter", SWAP, SWAP_FUTURES_SECURITY.getUnderlyingSwap());
     assertEquals("DeliverableSwapFuturesSecurity: getter", NOTIONAL, SWAP_FUTURES_SECURITY.getNotional());

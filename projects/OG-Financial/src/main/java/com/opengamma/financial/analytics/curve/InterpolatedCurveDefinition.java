@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 
 /**
@@ -27,7 +28,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
  * must be provided, but the left and right extrapolation methods are optional.
  */
 @BeanDefinition
-@Config(description = "Interpolated curve definition")
+@Config(description = "Interpolated curve definition", group = ConfigGroups.CURVES)
 public class InterpolatedCurveDefinition extends CurveDefinition {
 
   /** Serialization version */

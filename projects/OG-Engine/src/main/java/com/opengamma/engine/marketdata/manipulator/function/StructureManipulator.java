@@ -7,6 +7,8 @@ package com.opengamma.engine.marketdata.manipulator.function;
 
 import java.io.Serializable;
 
+import com.opengamma.engine.value.ValueSpecification;
+
 /**
  * Interface defining the manipulation of a structured object (yield curve, vol surface etc) to be
  * undertaken.
@@ -21,10 +23,12 @@ public interface StructureManipulator<T> extends Serializable {
    *
    * For example, take a YieldCurve and shift it by 10%.
    *
+   *
    * @param structure the structured object to transform, not null
+   * @param valueSpecification The specification for the object, not null
    * @return a transformed structure
    */
-  T execute(T structure);
+  T execute(T structure, ValueSpecification valueSpecification);
 
   /**
    * Indicates the type of structure that this class can handle. This method should be called before

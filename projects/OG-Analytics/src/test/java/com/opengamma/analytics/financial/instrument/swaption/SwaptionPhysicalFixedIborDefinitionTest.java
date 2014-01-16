@@ -63,25 +63,40 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER, CALENDAR);
   // Swaption construction
   private static final SwapFixedIborDefinition SWAP = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
-  private static final SwaptionPhysicalFixedIborDefinition SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION_DEPRECATED = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+  private static final SwaptionPhysicalFixedIborDefinition SWAPTION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, FIXED_IS_PAYER, IS_LONG);
   // Conversion toDerivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullExpiryDate() {
+  public void testNullExpiryDate1() {
     SwaptionPhysicalFixedIborDefinition.from(null, SWAP, IS_LONG);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullSwap() {
+  public void testNullSwap1() {
     SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, null, IS_LONG);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullExpiryDate2() {
+    SwaptionPhysicalFixedIborDefinition.from(null, SWAP, true, IS_LONG);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSwap2() {
+    SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, null, true, IS_LONG);
   }
 
   @Test
   public void testGetter() {
+    assertEquals(SWAPTION_DEPRECATED.getExpiry().getExpiry(), EXPIRY_DATE);
+    assertEquals(SWAPTION_DEPRECATED.getUnderlyingSwap(), SWAP);
+    assertEquals(SWAPTION_DEPRECATED.isLong(), IS_LONG);
     assertEquals(SWAPTION.getExpiry().getExpiry(), EXPIRY_DATE);
     assertEquals(SWAPTION.getUnderlyingSwap(), SWAP);
     assertEquals(SWAPTION.isLong(), IS_LONG);
+    assertEquals(SWAPTION.isCall(), FIXED_IS_PAYER);
   }
 
   @SuppressWarnings("deprecation")
@@ -93,7 +108,10 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
     final String[] curves = {fundingCurve, forwardCurve};
-    final SwaptionPhysicalFixedIbor convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE, curves);
+    SwaptionPhysicalFixedIbor convertedSwaption = SWAPTION_DEPRECATED.toDerivative(REFERENCE_DATE, curves);
+    assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
+    assertEquals(SWAPTION_DEPRECATED.getUnderlyingSwap().toDerivative(REFERENCE_DATE, curves), convertedSwaption.getUnderlyingSwap());
+    convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE, curves);
     assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
     assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE, curves), convertedSwaption.getUnderlyingSwap());
   }
@@ -103,29 +121,48 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     final DayCount actAct = DayCounts.ACT_ACT_ISDA;
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, EXPIRY_DATE);
-    final SwaptionPhysicalFixedIbor convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE);
+    SwaptionPhysicalFixedIbor convertedSwaption = SWAPTION_DEPRECATED.toDerivative(REFERENCE_DATE);
+    assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
+    assertEquals(SWAPTION_DEPRECATED.getUnderlyingSwap().toDerivative(REFERENCE_DATE), convertedSwaption.getUnderlyingSwap());
+    convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE);
     assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
     assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE), convertedSwaption.getUnderlyingSwap());
   }
-  @Test
+
   /**
    * Tests the equal and hashCode methods.
    */
+  @Test
   public void equalHash() {
-    assertTrue(SWAPTION.equals(SWAPTION));
-    final SwaptionPhysicalFixedIborDefinition other = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
-    assertTrue(SWAPTION.equals(other));
-    assertTrue(SWAPTION.hashCode() == other.hashCode());
-    assertEquals(SWAPTION.toString(), other.toString());
-    SwaptionPhysicalFixedIborDefinition modifiedSwaption;
-    modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, !IS_LONG);
-    assertFalse(SWAPTION.equals(modifiedSwaption));
-    assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
+    assertTrue(SWAPTION_DEPRECATED.equals(SWAPTION_DEPRECATED));
+    SwaptionPhysicalFixedIborDefinition other = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
+    assertTrue(SWAPTION_DEPRECATED.equals(other));
+    assertTrue(SWAPTION_DEPRECATED.hashCode() == other.hashCode());
+    assertEquals(SWAPTION_DEPRECATED.toString(), other.toString());
+    SwaptionPhysicalFixedIborDefinition modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, !IS_LONG);
+    assertFalse(SWAPTION_DEPRECATED.equals(modifiedSwaption));
+    assertFalse(SWAPTION_DEPRECATED.hashCode() == modifiedSwaption.hashCode());
     modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, IS_LONG);
-    assertFalse(SWAPTION.equals(modifiedSwaption));
+    assertFalse(SWAPTION_DEPRECATED.equals(modifiedSwaption));
     final IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, ANNUITY_TENOR, CALENDAR);
     final SwapFixedIborDefinition otherSwap = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, 2 * NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
     modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, otherSwap, IS_LONG);
+    assertFalse(SWAPTION_DEPRECATED.equals(modifiedSwaption));
+    assertFalse(SWAPTION_DEPRECATED.equals(EXPIRY_DATE));
+    assertFalse(SWAPTION_DEPRECATED.equals(null));
+    assertTrue(SWAPTION.equals(SWAPTION));
+    other = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, true, IS_LONG);
+    assertTrue(SWAPTION.equals(other));
+    assertTrue(SWAPTION.hashCode() == other.hashCode());
+    assertEquals(SWAPTION.toString(), other.toString());
+    modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP, true, !IS_LONG);
+    assertFalse(SWAPTION.equals(modifiedSwaption));
+    assertFalse(SWAPTION.hashCode() == modifiedSwaption.hashCode());
+    modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, true, IS_LONG);
+    assertFalse(SWAPTION.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(SETTLEMENT_DATE, SWAP, false, IS_LONG);
+    assertFalse(SWAPTION.equals(modifiedSwaption));
+    modifiedSwaption = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, otherSwap, true, IS_LONG);
     assertFalse(SWAPTION.equals(modifiedSwaption));
     assertFalse(SWAPTION.equals(EXPIRY_DATE));
     assertFalse(SWAPTION.equals(null));

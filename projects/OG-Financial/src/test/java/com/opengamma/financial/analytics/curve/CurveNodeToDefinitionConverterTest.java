@@ -718,25 +718,25 @@ public class CurveNodeToDefinitionConverterTest {
     InstrumentDefinition<?> definition = futureNode.accept(converter);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), index, 1, 0.25, "", CALENDAR);
-    InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 9, 16), index, 1, 0.25, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2014, 3, 17), index, 1, 0.25, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2015, 6, 15), index, 1, 0.25, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
   }
 
@@ -753,25 +753,25 @@ public class CurveNodeToDefinitionConverterTest {
     InstrumentDefinition<?> definition = futureNode.accept(converter);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 5, 13), index, 1, 0.25, "", CALENDAR);
-    InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 7, 15), index, 1, 0.25, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 8, 19), index, 1, 0.25, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2014, 9, 15), index, 1, 0.25, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
   }
 
@@ -789,25 +789,25 @@ public class CurveNodeToDefinitionConverterTest {
     InstrumentDefinition<?> definition = futureNode.accept(converter);
     InterestRateFutureTransactionDefinition future = (InterestRateFutureTransactionDefinition) definition;
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), index, 1, accrual, "", CALENDAR);
-    InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 9, 16), index, 1, accrual, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2014, 3, 17), index, 1, accrual, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
     futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2015, 6, 15), index, 1, accrual, "", CALENDAR);
-    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
+    expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, rate).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
   }
 
@@ -1273,7 +1273,7 @@ public class CurveNodeToDefinitionConverterTest {
     final GeneratorSwapFixedIbor generator = new GeneratorSwapFixedIbor("", Period.ofMonths(6), ACT_360, iborIndex, CALENDAR);
     final SwapFixedIborDefinition underlying = SwapFixedIborDefinition.from(DateUtils.getUTCDate(2013, 6, 19), Period.ofYears(10), generator, 1, rate, false);
     final SwapFuturesPriceDeliverableSecurityDefinition securityDefinition = new SwapFuturesPriceDeliverableSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), underlying, 1);
-    final SwapFuturesPriceDeliverableTransactionDefinition transaction = new SwapFuturesPriceDeliverableTransactionDefinition(securityDefinition, NOW, price, 1);
+    final SwapFuturesPriceDeliverableTransactionDefinition transaction = new SwapFuturesPriceDeliverableTransactionDefinition(securityDefinition, 1, NOW, price);
     assertEquals(transaction, definition);
   }
 

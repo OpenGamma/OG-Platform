@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.function;
 
+import org.threeten.bp.Instant;
+
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
@@ -13,6 +15,7 @@ import com.opengamma.engine.function.blacklist.DummyFunctionBlacklistQuery;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -35,6 +38,10 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * The name under which the initialization reference of the functions should be bound.
    */
   public static final String FUNCTION_INIT_ID_NAME = "functionInitialization";
+  /**
+   * The name under which the initialization timestamp should be bound.
+   */
+  public static final String FUNCTION_INIT_TIMESTAMP_NAME = "functionInitializationTimestamp";
   /**
    * The name under which a re-initialization hook should be bound.
    */
@@ -168,7 +175,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Gets the source of organizations.
-   *
+   * 
    * @return the source of organizations, null if not in the context
    */
   public OrganizationSource getOrganizationSource() {
@@ -177,7 +184,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of organizations.
-   *
+   * 
    * @param organizationSource the source of organizations to bind
    */
   public void setOrganizationSource(final OrganizationSource organizationSource) {
@@ -254,6 +261,9 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    */
   public void setFunctionInitId(final long id) {
     put(FUNCTION_INIT_ID_NAME, id);
+    // TODO: Note that the behaviour below is closely coupled to the implementation of initialization identifiers in CompiledFunctionService
+    final Instant instant = Instant.ofEpochMilli(id);
+    put(FUNCTION_INIT_TIMESTAMP_NAME, VersionCorrection.of(instant, instant));
   }
 
   /**
@@ -276,6 +286,18 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
     } else {
       put(FUNCTION_REINITIALIZER_NAME, reinitializer);
     }
+  }
+
+  /**
+   * Returns the version/correction timestamp that should be used to obtain initialization data.
+   * <p>
+   * There is no explicit setter for this context member as the current implementation of {@link CompiledFunctionService} uses the initialization identifier in a particular fashion. Functions should
+   * not rely on this relationship as it may be removed/changed in future releases.
+   * 
+   * @return the initialization timestamp - functions should use this to query their initialization configuration instead of {@link VersionCorrection#LATEST}.
+   */
+  public VersionCorrection getFunctionInitializationVersionCorrection() {
+    return (VersionCorrection) get(FUNCTION_INIT_TIMESTAMP_NAME);
   }
 
   /**

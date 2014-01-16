@@ -119,8 +119,8 @@ public abstract class BondSecurityDefinition<N extends PaymentDefinition, C exte
     ArgumentChecker.notNull(coupon, "Coupons");
     ArgumentChecker.isTrue(nominal.getCurrency().equals(coupon.getCurrency()), "Currency of nominal {} and coupons {} should be the same", nominal.getCurrency(),
         coupon.getCurrency());
-    ArgumentChecker.isTrue(!nominal.isPayer(), "Notional should be positive");
-    ArgumentChecker.isTrue(!coupon.isPayer(), "Coupon notional should be positive");
+    ArgumentChecker.isTrue(nominal.getNthPayment(nominal.getNumberOfPayments() - 1).getReferenceAmount() > 0, "Notional should be positive");
+    ArgumentChecker.isTrue(coupon.getNthPayment(coupon.getNumberOfPayments() - 1).getReferenceAmount() > 0, "Coupon notional should be positive");
     ArgumentChecker.notNull(issuer, "issuer");
     ArgumentChecker.notNull(repoType, "repo type");
     _nominal = nominal;

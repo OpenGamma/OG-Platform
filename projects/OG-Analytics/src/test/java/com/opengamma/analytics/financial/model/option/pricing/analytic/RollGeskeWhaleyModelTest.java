@@ -43,7 +43,7 @@ public class RollGeskeWhaleyModelTest {
     final int nStrikes = STRIKES_INPUT.length;
     final int nVols = VOLS.length;
     final int nInt = INTEREST_RATES.length;
-    final double eps = 1.e-3;
+    final double eps = 1.e-5;
 
     for (int i = 0; i < nStrikes; ++i) {
       for (int j = 0; j < nVols; ++j) {
@@ -58,14 +58,15 @@ public class RollGeskeWhaleyModelTest {
           //            System.out.println(i + "\t" + j + "\t" + k);
           final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], dividend, dividendTimes);
           final double priceZeroDiv = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], 0., dividendTimes);
-          final double priceZeroTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], dividend, 0.);
+          final double priceZeroTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[0], 0.);
+          final double priceSmallTime = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[0], eps);
 
           final double bs = BlackScholesFormulaRepository.price(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
           final double bsMod = BlackScholesFormulaRepository.price(SPOT - dividend, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
 
-          assertEquals(bs, price, Math.max(eps, Math.abs(bs) * eps));
+          assertEquals(bsMod, price, Math.max(eps, Math.abs(bs) * eps));
           assertEquals(bs, priceZeroDiv, 1.e-14);
-          assertEquals(bsMod, priceZeroTime, 1.e-14);
+          assertEquals(priceSmallTime, priceZeroTime, Math.max(eps, Math.abs(priceZeroTime) * eps));
         }
       }
     }
@@ -147,8 +148,8 @@ public class RollGeskeWhaleyModelTest {
    */
   @Test
   public void greeksFiniteDiffTest() {
-    final double[][] divLocal = new double[][] { {5., 5., 5., 5. }, {5., 8., 11., 12. }, {0., 0., 0., 0. } };
-    final double[][] divTimeLocal = new double[][] { {0.1, 0.35, 0.6, 0.85 }, {0.4, 0.7, 0.95, 1.2 }, {0., 0., 0., 0. } };
+    final double[] divLocal = new double[] {5., 12., 0. };
+    final double[] divTimeLocal = new double[] {0.1, 0.85, 0.4, 0.7, 0. };
 
     final int nStrikes = STRIKES_INPUT.length;
     final int nVols = VOLS.length;
@@ -187,8 +188,6 @@ public class RollGeskeWhaleyModelTest {
             for (int m = 0; m < nDivT; ++m) {
               //              System.out.println(i + "\t" + j + "\t" + k + "\t" + l + "\t" + m);
 
-              //              if (DIVIDENDS[l] > (1. - Math.exp(-INTEREST_RATES[k] * TIME_TO_EXPIRY)) * STRIKES_INPUT[i]) {
-
               final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
               final double[] greeks = MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocal[m]);
 
@@ -215,22 +214,23 @@ public class RollGeskeWhaleyModelTest {
               assertEquals(price, greeks[0], 1.e-12);
               assertEquals(deltaFin, greeks[1], Math.max(DELTA, Math.abs(deltaFin) * DELTA));
               assertEquals(dualDeltaFin, greeks[2], Math.max(DELTA, Math.abs(dualDeltaFin) * DELTA));
-              assertEquals(rhoFin, greeks[3], Math.max(DELTA, Math.abs(rhoFin) * DELTA) * 10.);
-              assertEquals(thetaFin, greeks[4], Math.max(DELTA, Math.abs(thetaFin) * DELTA) * 10.);
-              assertEquals(vegaFin, greeks[5], Math.max(DELTA, Math.abs(vegaFin) * DELTA));
-              assertEquals(gammaFin, greeks[6], Math.max(DELTA, Math.abs(gammaFin) * DELTA));
-              //              } else {
-              //                try {
-              //                  MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              //                } catch (Exception e) {
-              //                  assertTrue(e instanceof IllegalArgumentException);
-              //                }
-              //                try {
-              //                  MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], DIVIDENDS[l], DIVIDEND_TIMES[m]);
-              //                } catch (Exception e) {
-              //                  assertTrue(e instanceof IllegalArgumentException);
-              //                }
-              //              }
+              assertEquals(rhoFin, greeks[3], Math.max(DELTA, Math.abs(rhoFin) * DELTA));
+              assertEquals(thetaFin, greeks[4], Math.max(DELTA, Math.abs(thetaFin) * DELTA));
+              assertEquals(vegaFin, greeks[6], Math.max(DELTA, Math.abs(vegaFin) * DELTA));
+              assertEquals(gammaFin, greeks[7], Math.max(DELTA, Math.abs(gammaFin) * DELTA));
+
+              final boolean zeroTime = divTimeLocal[m] == 0.;
+              final double base = zeroTime ? 1. : divTimeLocal[m];
+              final double delta = zeroTime ? 1.e-7 : DELTA;
+              final double divTimeLocalUp = zeroTime ? delta : divTimeLocal[m] * (1. + delta);
+              final double divTimeLocalDw = zeroTime ? 0. : divTimeLocal[m] * (1. - delta);
+              final double coeff = zeroTime ? 1. : 0.5;
+
+              final double priceDivTimeUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocalUp);
+              final double priceDivTimeDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], divLocal[l], divTimeLocalDw);
+              final double thetaDivFin = coeff * (priceDivTimeUp - priceDivTimeDw) / base / delta;
+              assertEquals(thetaDivFin, greeks[5], Math.max(DELTA, Math.abs(thetaDivFin) * DELTA));
+
             }
           }
         }
@@ -326,6 +326,14 @@ public class RollGeskeWhaleyModelTest {
             for (int m = 0; m < nDivT; ++m) {
               //              System.out.println(i + "\t" + j + "\t" + k + "\t" + l + "\t" + m);
 
+              final int nPymnts = MULTI_DIVIDEND_TIMES[m].length;
+              final double[] divTimeUp = new double[nPymnts];
+              final double[] divTimeDw = new double[nPymnts];
+              for (int n = 0; n < nPymnts; ++n) {
+                divTimeUp[n] = MULTI_DIVIDEND_TIMES[m][n] + DELTA;
+                divTimeDw[n] = MULTI_DIVIDEND_TIMES[m][n] - DELTA;
+              }
+
               final double price = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
               final double[] greeks = MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
 
@@ -339,6 +347,8 @@ public class RollGeskeWhaleyModelTest {
               final double priceRateDw = MODEL.price(SPOT, STRIKES_INPUT[i], dwInt[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
               final double priceTimeUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], upTime, VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
               final double priceTimeDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], dwTime, VOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
+              final double priceDivTimeUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l], divTimeUp);
+              final double priceDivTimeDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], MULTI_DIVIDENDS[l], divTimeDw);
               final double priceVolUp = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, upVOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
               final double priceVolDw = MODEL.price(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, dwVOLS[j], MULTI_DIVIDENDS[l], MULTI_DIVIDEND_TIMES[m]);
 
@@ -346,6 +356,7 @@ public class RollGeskeWhaleyModelTest {
               final double dualDeltaFin = 0.5 * (priceStrikeUp - priceStrikeDw) / STRIKES_INPUT[i] / DELTA;
               final double rhoFin = INTEREST_RATES[k] == 0. ? 0.5 * (priceRateUp - priceRateDw) / DELTA : 0.5 * (priceRateUp - priceRateDw) / INTEREST_RATES[k] / DELTA;
               final double thetaFin = 0.5 * (priceTimeUp - priceTimeDw) / TIME_TO_EXPIRY / DELTA;
+              final double thetaDivFin = 0.5 * (priceDivTimeUp - priceDivTimeDw) / DELTA;
               final double vegaFin = 0.5 * (priceVolUp - priceVolDw) / VOLS[j] / DELTA;
               final double gammaFin = 0.5 * (greeksUp[1] - greeksDw[1]) / SPOT / DELTA;
 
@@ -353,9 +364,10 @@ public class RollGeskeWhaleyModelTest {
               assertEquals(deltaFin, greeks[1], Math.max(DELTA, Math.abs(deltaFin) * DELTA));
               assertEquals(dualDeltaFin, greeks[2], Math.max(DELTA, Math.abs(dualDeltaFin) * DELTA));
               assertEquals(rhoFin, greeks[3], Math.max(DELTA, Math.abs(rhoFin) * DELTA));
-              assertEquals(thetaFin, greeks[4], Math.max(DELTA, Math.abs(thetaFin) * DELTA) * 10.);
-              assertEquals(vegaFin, greeks[5], Math.max(DELTA, Math.abs(vegaFin) * DELTA));
-              assertEquals(gammaFin, greeks[6], Math.max(DELTA, Math.abs(gammaFin) * DELTA));
+              assertEquals(thetaFin, greeks[4], Math.max(DELTA, Math.abs(thetaFin) * DELTA));
+              assertEquals(thetaDivFin, greeks[5], Math.max(DELTA, Math.abs(thetaDivFin) * DELTA));
+              assertEquals(vegaFin, greeks[6], Math.max(DELTA, Math.abs(vegaFin) * DELTA));
+              assertEquals(gammaFin, greeks[7], Math.max(DELTA, Math.abs(gammaFin) * DELTA));
             }
           }
         }

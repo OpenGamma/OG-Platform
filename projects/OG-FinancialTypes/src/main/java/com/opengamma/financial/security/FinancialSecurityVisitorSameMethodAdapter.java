@@ -45,6 +45,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -107,7 +108,7 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return _value.visit(security);
   }
-  
+
   @Override
   public T visitInflationBondSecurity(final InflationBondSecurity security) {
     return _value.visit(security);
@@ -309,7 +310,7 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
   }
 
   @Override
-  public T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return _value.visit(security);
   }
 
@@ -395,6 +396,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
 
   @Override
   public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return _value.visit(security);
+  }
+
+  @Override
+  public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return _value.visit(security);
   }
 }

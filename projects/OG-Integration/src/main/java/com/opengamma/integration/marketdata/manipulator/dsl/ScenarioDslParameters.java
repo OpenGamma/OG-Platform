@@ -5,9 +5,6 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import groovy.lang.GroovyShell;
-import groovy.lang.Script;
-
 import java.io.StringReader;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -31,7 +28,11 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
+
+import groovy.lang.GroovyShell;
+import groovy.lang.Script;
 
 /**
  * Config object for storing parameters required to build a scenario.
@@ -43,7 +44,7 @@ import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
  * aMap = [key1: "val1", key2: "val2"]
  * </pre>
  */
-@Config(description = "Scenario DSL parameters")
+@Config(description = "Scenario DSL parameters", group = ConfigGroups.SCENARIOS)
 @BeanDefinition
 public final class ScenarioDslParameters implements ImmutableBean, ScenarioParameters {
 

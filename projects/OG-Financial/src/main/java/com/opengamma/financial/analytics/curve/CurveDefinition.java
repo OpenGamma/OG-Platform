@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.id.UniqueId;
 
@@ -31,7 +32,7 @@ import com.opengamma.id.UniqueId;
  * but this can be used as a nodal curve definition.
  */
 @BeanDefinition
-@Config(description = "Curve definition")
+@Config(description = "Curve definition", group = ConfigGroups.CURVES)
 public class CurveDefinition extends AbstractCurveDefinition {
 
   /** Serialization version */

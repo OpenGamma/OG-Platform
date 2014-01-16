@@ -46,7 +46,7 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor);
 
   /**
-   * Gets the forward for one Ibor index between start and end times.The accrual factor is computed withh the start and the end time (end time -start time).
+   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.
@@ -66,7 +66,7 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor);
 
   /**
-   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed withh the start and the end time (end time -start time).
+   * Gets the forward for one Ibor index between start and end times. The accrual factor is computed with the start and the end time (end time -start time).
    * @param index The Ibor index.
    * @param startTime The start time.
    * @param endTime The end time.

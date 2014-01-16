@@ -33,7 +33,7 @@ import com.opengamma.util.metric.MetricProducer;
  * @param <D>  the document type
  * @param <V>  the bean type
  */
-public class AbstractDelegatingBeanMaster<D extends AbstractDocument, V extends Bean>
+public class AbstractDelegatingBeanMaster<D extends AbstractDocument, V extends Bean> 
     implements AbstractChangeProvidingMaster<D>, MetricProducer {
 
   /**

@@ -25,13 +25,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
  * Definition of an FX forward curve.
  */
-@Config(description = "FX forward curve definition")
+@Config(description = "FX forward curve definition", group = ConfigGroups.CURVES_LEGACY)
 @BeanDefinition
 public final class FXForwardCurveDefinition implements ImmutableBean {
 

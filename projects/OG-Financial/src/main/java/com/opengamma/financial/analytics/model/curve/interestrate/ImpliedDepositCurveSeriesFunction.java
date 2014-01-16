@@ -57,6 +57,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -68,7 +69,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.opengamma.core.config.ConfigSource;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
@@ -87,7 +88,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;
@@ -98,13 +98,14 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCounts;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -115,9 +116,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Constructs a single yield curve and its Jacobian from an FX-implied yield curve calculation configuration
- * and a yield curve definition that contains <b>only</b> {@link StripInstrumentType#CASH} strips. The transformation
- * of the yield curve allows risk to be displayed with respect to implied deposit rates, not FX forwards.
+ * Constructs a single yield curve and its Jacobian from an FX-implied yield curve calculation configuration and a yield curve definition that contains <b>only</b> {@link StripInstrumentType#CASH}
+ * strips. The transformation of the yield curve allows risk to be displayed with respect to implied deposit rates, not FX forwards.
  */
 public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
   /** The calculation method property value */
@@ -135,6 +135,9 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
   /** The curve name */
   private final String _impliedCurveCalculationConfig;
 
+  private ConfigSourceQuery<MultiCurveCalculationConfig> _multiCurveCalculationConfig;
+  private ConfigSourceQuery<YieldCurveDefinition> _yieldCurveDefinition;
+
   /**
    * @param curveCalculationConfig The curve name, not null
    */
@@ -145,14 +148,13 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, MultiCurveCalculationConfig.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, YieldCurveDefinition.class);
+    _multiCurveCalculationConfig = ConfigSourceQuery.init(context, this, MultiCurveCalculationConfig.class);
+    _yieldCurveDefinition = ConfigSourceQuery.init(context, this, YieldCurveDefinition.class);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    final ConfigSource configurationSource = OpenGammaCompilationContext.getConfigSource(context);
-    final MultiCurveCalculationConfig impliedConfiguration = configurationSource.getLatestByName(MultiCurveCalculationConfig.class, _impliedCurveCalculationConfig);
+    final MultiCurveCalculationConfig impliedConfiguration = _multiCurveCalculationConfig.get(_impliedCurveCalculationConfig);
     if (impliedConfiguration == null) {
       throw new OpenGammaRuntimeException("Multi-curve calculation called " + _impliedCurveCalculationConfig + " was null");
     }
@@ -177,7 +179,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     if (originalCurveNames.length != 1) {
       s_logger.warn("Found more than one exogenous configuration name; using only the first");
     }
-    final MultiCurveCalculationConfig originalConfiguration = configurationSource.getLatestByName(MultiCurveCalculationConfig.class, entry.getKey());
+    final MultiCurveCalculationConfig originalConfiguration = _multiCurveCalculationConfig.get(entry.getKey());
     if (originalConfiguration == null) {
       throw new OpenGammaRuntimeException("Multi-curve calculation called " + entry.getKey() + " was null");
     }
@@ -189,7 +191,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     if (!originalCurrency.equals(impliedCurrency)) {
       throw new OpenGammaRuntimeException("Currency targets for configurations " + _impliedCurveCalculationConfig + " and " + entry.getKey() + " did not match");
     }
-    final YieldCurveDefinition impliedDefinition = configurationSource.getLatestByName(YieldCurveDefinition.class, impliedCurveNames[0] + "_" + impliedCurrency.getCode());
+    final YieldCurveDefinition impliedDefinition = _yieldCurveDefinition.get(impliedCurveNames[0] + "_" + impliedCurrency.getCode());
     if (impliedDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get implied definition called " + impliedCurveNames[0] + "_" + impliedCurrency.getCode());
     }
@@ -200,8 +202,8 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
       }
     }
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000),
-        impliedDefinition, originalConfiguration, originalCurveNames[0]);
+    return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), impliedDefinition, originalConfiguration,
+        originalCurveNames[0]);
   };
 
   private class MyCompiledFunction extends AbstractInvokingCompiledFunction {
@@ -223,14 +225,14 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     private final String _rightExtrapolatorName;
 
     /**
-    * @param earliestInvokation The earliest time for which this function is valid
-    * @param latestInvokation The latest time for which this function is valid
-    * @param impliedDefinition The implied curve definition
-    * @param originalConfiguration The original curve configuration
-    * @param originalCurveName The original curve name
-    */
+     * @param earliestInvokation The earliest time for which this function is valid
+     * @param latestInvokation The latest time for which this function is valid
+     * @param impliedDefinition The implied curve definition
+     * @param originalConfiguration The original curve configuration
+     * @param originalCurveName The original curve name
+     */
     public MyCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final YieldCurveDefinition impliedDefinition,
-      final MultiCurveCalculationConfig originalConfiguration, final String originalCurveName) {
+        final MultiCurveCalculationConfig originalConfiguration, final String originalCurveName) {
       super(earliestInvokation, latestInvokation);
       _impliedDefinition = impliedDefinition;
       _originalConfiguration = originalConfiguration;
@@ -243,10 +245,9 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
     }
 
     @Override
-    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-        final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+        throws AsynchronousExecution {
       try {
-        final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final Object originalCurveObject = inputs.getValue(YIELD_CURVE_SERIES);
         if (originalCurveObject == null) {
           throw new OpenGammaRuntimeException("Could not get original curve");
@@ -281,24 +282,25 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
         final DayCount dayCount = DayCounts.ACT_365; //TODO
         final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
-        final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
-            _rightExtrapolatorName);
+        final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName, _rightExtrapolatorName);
         final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
         final double relativeTolerance = Double.parseDouble(relativeToleranceName);
         final int iterations = Integer.parseInt(iterationsName);
         final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
         final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
 
+        final FXSpotConvention fxSpotConvention = conventionSource.getSingle(ExternalId.of("CONVENTION", "FX Spot"), FXSpotConvention.class);
+        final int spotLag = fxSpotConvention.getSettlementDays();
+        
         for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : originalCurveSeries.entrySet()) {
           final LocalDate valuationDate = entry.getKey();
-          final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
-          final int spotLag = 0;
+          final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, LocalTime.MIDNIGHT, executionContext.getValuationClock().getZone());
           final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
           ZonedDateTime spotDate;
           if (spotLag == 0 && conventionSettlementRegion == null) {
             spotDate = valuationDateTime;
           } else {
-            spotDate = valuationDateTime;
+            spotDate = ScheduleCalculator.getAdjustedDate(valuationDateTime, spotLag, calendar);
           }
           final YieldCurveBundle curves = new YieldCurveBundle();
           final String fullYieldCurveName = _originalCurveName + "_" + _currency;
@@ -310,9 +312,14 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
           final List<InstrumentDerivative> derivatives = new ArrayList<>();
           for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
             final Tenor tenor = strip.getCurveNodePointTime();
-            final ZonedDateTime paymentDate = spotDate.plus(tenor.getPeriod()); // ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
-            final double startTime = 0.0; // TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
-            final double endTime = tenor.getPeriod().toTotalMonths() / 12.0d; // TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
+            final ZonedDateTime paymentDate;
+            if (spotLag == 0 && conventionSettlementRegion == null) {
+              paymentDate = spotDate.plus(tenor.getPeriod()); 
+            } else {
+              paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+            }
+            final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
+            final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
             final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
             final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
             final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
@@ -351,7 +358,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
               }
             }
           } catch (final Throwable t2) {
-            t2.printStackTrace();
+            s_logger.error("Exception building implied deposit curve for valuation date " + valuationDate, t2);
             continue;
           }
         }
@@ -364,12 +371,11 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
             final UniqueId uid = UniqueId.of(securityIdentifier.getScheme().getName(), securityIdentifier.getValue());
             final ExternalIdBundle id = ExternalIdBundle.of(securityIdentifier);
 
-            final HistoricalTimeSeries ts = new SimpleHistoricalTimeSeries(uid,
-                ImmutableLocalDateDoubleTimeSeries.of(impliedRateDates, results.get(strip.getStrip())));
+            final HistoricalTimeSeries ts = new SimpleHistoricalTimeSeries(uid, ImmutableLocalDateDoubleTimeSeries.of(impliedRateDates, results.get(strip.getStrip())));
 
             bundle.add(MarketDataRequirementNames.MARKET_VALUE, id, ts);
           } catch (final Exception e) {
-            e.printStackTrace();
+            s_logger.error("Exception building implied deposit curve series when adding timeseries to bundle for " + strip.getSecurityIdentifier(), e);
             break;
           }
         }
@@ -378,7 +384,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         return Collections.singleton(new ComputedValue(curveSpec, bundle));
 
       } catch (final Throwable t3) {
-        t3.printStackTrace();
+        s_logger.error("Exception building implied deposit curve series", t3);
         throw t3;
       }
 
@@ -403,8 +409,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
       if ((values == null) || values.isEmpty()) {
         seriesConstraints = desiredValue.getConstraints().copy().with(DATA_FIELD_PROPERTY, MarketDataRequirementNames.MARKET_VALUE);
       } else if (values.size() > 1) {
-        seriesConstraints = desiredValue.getConstraints().copy().withoutAny(DATA_FIELD_PROPERTY)
-            .with(DATA_FIELD_PROPERTY, values.iterator().next());
+        seriesConstraints = desiredValue.getConstraints().copy().withoutAny(DATA_FIELD_PROPERTY).with(DATA_FIELD_PROPERTY, values.iterator().next());
       }
       values = desiredValue.getConstraints().getValues(RESOLUTION_KEY_PROPERTY);
       if ((values == null) || values.isEmpty()) {
@@ -503,17 +508,9 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         s_logger.info("Invalid target, was {} - expected {}", target, _originalConfiguration.getTarget());
         return null;
       }
-      final ValueProperties properties = constraints.copy()
-          .withoutAny(CURVE_CALCULATION_METHOD)
-          .with(CURVE_CALCULATION_METHOD, _originalConfiguration.getCalculationMethod())
-          .withoutAny(CURVE_CALCULATION_CONFIG)
-          .with(CURVE_CALCULATION_CONFIG, _originalConfiguration.getCalculationConfigName())
-          .withoutAny(CURVE)
-          .with(CURVE, _originalCurveName)
-          .get();
-      final ValueProperties curveProperties = ValueProperties.builder()
-          .with(CURVE, _impliedCurveName)
-          .get();
+      final ValueProperties properties = constraints.copy().withoutAny(CURVE_CALCULATION_METHOD).with(CURVE_CALCULATION_METHOD, _originalConfiguration.getCalculationMethod())
+          .withoutAny(CURVE_CALCULATION_CONFIG).with(CURVE_CALCULATION_CONFIG, _originalConfiguration.getCalculationConfigName()).withoutAny(CURVE).with(CURVE, _originalCurveName).get();
+      final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, _impliedCurveName).get();
       final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(_currency);
       final ValueRequirement curveSpec = new ValueRequirement(YIELD_CURVE_SPEC, targetSpec, curveProperties);
       final ValueRequirement curveSeries = new ValueRequirement(YIELD_CURVE_SERIES, targetSpec, properties);
@@ -532,26 +529,18 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
 
     /**
      * Gets the properties of the implied yield curve.
+     * 
      * @param curveName The implied curve name
      * @return The properties
      */
     private ValueProperties getCurveTSProperties(final String curveCalculationMethod, final String curveName, final String curveCalculationConfig) {
-      return createValueProperties()
-          .with(CURVE_CALCULATION_METHOD, curveCalculationMethod)
-          .with(CURVE, curveName)
-          .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-          .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-          .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-          .withAny(PROPERTY_DECOMPOSITION)
-          .withAny(PROPERTY_USE_FINITE_DIFFERENCE)
-          .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
-          .withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
+      return createValueProperties().with(CURVE_CALCULATION_METHOD, curveCalculationMethod).with(CURVE, curveName).with(CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+          .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION)
+          .withAny(PROPERTY_USE_FINITE_DIFFERENCE).withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY).withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
           .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
           .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
           .withAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
-          .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
-          .get();
+          .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE).get();
     }
 
   }

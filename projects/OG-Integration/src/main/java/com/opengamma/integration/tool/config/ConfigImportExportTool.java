@@ -31,8 +31,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.scripts.Scriptable;
 
 /**
- * Tool to read currency pairs from a text file and store them in the config master.
- * The pairs must be in the format AAA/BBB, one per line in the file.
+ * Tool to read currency pairs from a text file and store them in the config master. The pairs must be in the format AAA/BBB, one per line in the file.
  */
 @Scriptable
 public class ConfigImportExportTool extends AbstractTool<ToolContext> {
@@ -41,7 +40,7 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(String[] args) { // CSIGNORE
     new ConfigImportExportTool().initAndRun(args, ToolContext.class);
     System.exit(0);
   }
@@ -55,6 +54,9 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
     CommandLine commandLine = getCommandLine();
     @SuppressWarnings("unchecked")
     List<String> fileList = commandLine.getArgList();
+    for (String file : fileList) {
+      System.err.println(file);
+    }
     boolean portPortfolioRefs = commandLine.hasOption("portable-portfolios");
     boolean verbose = commandLine.hasOption("verbose");
     if (commandLine.hasOption("load")) {
@@ -130,14 +132,14 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
       System.out.println("Warning: file may have been created in installation base directory");
     }
   }
-  
+
   private List<String> getTypes() {
     if (getCommandLine().hasOption("type")) {
       String[] typeValues = getCommandLine().getOptionValues("type");
       return Arrays.asList(typeValues);
     } else {
       return Collections.emptyList();
-    }    
+    }
   }
 
   private List<String> getNames() {
@@ -149,7 +151,6 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
     }
   }
 
-  
   private void checkForInvalidOption(String longOpt) {
     if (getCommandLine().hasOption(longOpt)) {
       System.err.println("Option " + longOpt + " is invalid in this context");
@@ -173,78 +174,46 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
 
   @SuppressWarnings("static-access")
   private Option createTypeOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArgs()
-                        .withArgName("full class name")
-                        .withDescription("The type(s) you want to export")
-                        .withLongOpt("type")
-                        .create("t");
+    return OptionBuilder.isRequired(false).hasArgs().withArgName("full class name").withDescription("The type(s) you want to export").withLongOpt("type").create("t");
   }
-  
+
   @SuppressWarnings("static-access")
   private Option createSearchOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArgs()
-                        .withArgName("name search string")
-                        .withDescription("The name(s) you want to search for (globbing available)")
-                        .withLongOpt("name")
-                        .create("n");
+    return OptionBuilder.isRequired(false).hasArgs().withArgName("name search string").withDescription("The name(s) you want to search for (globbing available)").withLongOpt("name")
+        .create("n");
   }
 
   @SuppressWarnings("static-access")
   private Option createLoadOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArg(false)
-                        .withDescription("Load from file to config database")
-                        .withLongOpt("load")
-                        .create("load");
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Load from file to config database").withLongOpt("load").create("load");
   }
-  
+
   @SuppressWarnings("static-access")
   private Option createSaveOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArg(false)
-                        .withDescription("Save to file from config database")
-                        .withLongOpt("save")
-                        .create("save");
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Save to file from config database").withLongOpt("save").create("save");
   }
-  
+
   @SuppressWarnings("static-access")
   private Option createPortablePortfolioReferencesOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArg(false)
-                        .withDescription("Attempt to port portfolio reference ids")
-                        .withLongOpt("portable-portfolios")
-                        .create("p");
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Attempt to port portfolio reference ids").withLongOpt("portable-portfolios").create("p");
   }
-  
+
   @SuppressWarnings("static-access")
   private Option createDoNotPersistOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArg(false)
-                        .withDescription("Simulate writing rather than actually writing to DB")
-                        .withLongOpt("do-not-persist")
-                        .create("d");
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Simulate writing rather than actually writing to DB").withLongOpt("do-not-persist").create("d");
   }
-  
+
   @SuppressWarnings("static-access")
   private Option createVerboseOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArg(false)
-                        .withDescription("Display extra error messages")
-                        .withLongOpt("verbose")
-                        .create("v");
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Display extra error messages").withLongOpt("verbose").create("v");
   }
-  
+
   @SuppressWarnings("static-access")
   private Option createSortOption() {
-    return OptionBuilder.isRequired(false)
-                        .hasArg(false)
-                        .withDescription("Sort output by config name (default=most recent first)")
-                        .withLongOpt("sort-by-name")
-                        .create("s");
+    return OptionBuilder.isRequired(false).hasArg(false).withDescription("Sort output by config name (default=most recent first)").withLongOpt("sort-by-name").create("s");
   }
-  
+
+  @Override
   protected Class<?> getEntryPointClass() {
     return getClass();
   }
@@ -255,5 +224,5 @@ public class ConfigImportExportTool extends AbstractTool<ToolContext> {
     formatter.setWidth(120);
     formatter.printHelp("config-import-export-tool.sh [file...]", options, true);
   }
-  
+
 }

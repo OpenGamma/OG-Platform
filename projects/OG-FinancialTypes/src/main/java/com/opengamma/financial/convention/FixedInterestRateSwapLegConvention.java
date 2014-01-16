@@ -19,16 +19,16 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
 import com.opengamma.core.convention.ConventionType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.rolldate.RollConvention;
-import com.opengamma.financial.security.irs.CompoundingMethod;
 import com.opengamma.financial.security.irs.FixedInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapNotional;
 import com.opengamma.financial.security.irs.PayReceiveType;
-import com.opengamma.financial.security.irs.PeriodRelationship;
 import com.opengamma.financial.security.irs.Rate;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -103,7 +103,7 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
       DayCount dayCountConvention,
       Frequency paymentFrequency,
       Frequency calculationFrequency,
-      PeriodRelationship paymentRelativeTo,
+      DateRelativeTo paymentRelativeTo,
       boolean adjustedAccrual,
       int settlementDays,
       RollConvention rollConvention,
@@ -155,7 +155,21 @@ public final class FixedInterestRateSwapLegConvention extends InterestRateSwapLe
     leg.setRate(rate);
     leg.setPayReceiveType(payOrReceive);
     leg.setNotional(notional);
-    leg.setConvention(this);
+    leg.setDayCountConvention(getDayCountConvention());
+    leg.setRollConvention(getRollConvention());
+    // maturity date parameters
+    leg.setMaturityDateBusinessDayConvention(getMaturityBusinessDayConvention());
+    leg.setMaturityDateCalendars(getMaturityCalendars());
+    // payment
+    leg.setPaymentDateBusinessDayConvention(getPaymentDayConvention());
+    leg.setPaymentDateCalendars(getPaymentCalendars());
+    leg.setPaymentDateFrequency(getPaymentFrequency());
+    leg.setPaymentOffset(-_paymentLag);
+    leg.setPaymentDateRelativeTo(getPaymentRelativeTo());
+    // accrual period parameters
+    leg.setAccrualPeriodBusinessDayConvention(getCalculationBusinessDayConvention());
+    leg.setAccrualPeriodCalendars(getCalculationCalendars());
+    leg.setAccrualPeriodFrequency(getCalculationFrequency());
     return leg;
   }
 

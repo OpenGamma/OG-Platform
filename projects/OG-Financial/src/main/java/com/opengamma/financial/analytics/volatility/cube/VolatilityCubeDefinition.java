@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -32,7 +33,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-@Config(description = "Volatility cube definition")
+@Config(description = "Volatility cube definition", group = ConfigGroups.VOL)
 @BeanDefinition
 public class VolatilityCubeDefinition extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
 

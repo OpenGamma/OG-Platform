@@ -18,7 +18,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -36,25 +35,28 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.analytics.curve.credit.CurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.strips.BondNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
-import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- * For a given curve name, returns a {@link SnapshotDataBundle} containing the market data for the nodes
- * of that curve. This function does not require that any or all of the market data is available for
- * it to return the snapshot.
+ * For a given curve name, returns a {@link SnapshotDataBundle} containing the market data for the nodes of that curve. This function does not require that any or all of the market data is available
+ * for it to return the snapshot.
  */
 public class CurveMarketDataFunction extends AbstractFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(CurveMarketDataFunction.class);
   /** The curve name */
   private final String _curveName;
+
+  private CurveDefinitionSource _curveDefinitionSource;
+  private CurveSpecificationBuilder _curveSpecificationBuilder;
 
   /**
    * @param curveName The curve name, not null
@@ -66,6 +68,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
 
   /**
    * Gets the curve name.
+   *
    * @return The curve name
    */
   public String getCurveName() {
@@ -74,22 +77,17 @@ public class CurveMarketDataFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ConstantCurveDefinition.class);
-    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, SpreadCurveDefinition.class);
+    _curveDefinitionSource = ConfigDBCurveDefinitionSource.init(context, this);
+    _curveSpecificationBuilder = ConfigDBCurveSpecificationBuilder.init(context, this);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, _curveName)
-        .get();
+    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties);
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     try {
-      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, configSource, atZDT.toLocalDate(), _curveName);
+      final AbstractCurveSpecification specification = CurveUtils.getSpecification(atInstant, _curveDefinitionSource, _curveSpecificationBuilder, atZDT.toLocalDate(), _curveName);
       return new MyCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), specification, spec);
     } catch (final Exception e) {
       throw new OpenGammaRuntimeException(e.getMessage() + ": problem in CurveDefinition called " + _curveName);
@@ -113,8 +111,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
      * @param specification The curve specification
      * @param spec The result specification
      */
-    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification,
-        final ValueSpecification spec) {
+    public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final AbstractCurveSpecification specification, final ValueSpecification spec) {
       super(earliestInvocation, latestInvocation);
       _specification = specification;
       _spec = spec;
@@ -159,7 +156,7 @@ public class CurveMarketDataFunction extends AbstractFunction {
     }
   }
 
-  /* package */ static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
+  /* package */static Set<ValueRequirement> getRequirements(final AbstractCurveSpecification abstractSpecification, final String curveName) {
     final Set<ValueRequirement> requirements = new HashSet<>();
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
@@ -203,8 +200,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
     return requirements;
   }
 
-  /* package */ static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs,
-      final SnapshotDataBundle marketData, final ExternalIdBundleResolver resolver) {
+  /* package */static SnapshotDataBundle populateSnapshot(final AbstractCurveSpecification abstractSpecification, final FunctionInputs inputs, final SnapshotDataBundle marketData,
+      final ExternalIdBundleResolver resolver) {
     if (abstractSpecification instanceof ConstantCurveSpecification) {
       final ConstantCurveSpecification constant = (ConstantCurveSpecification) abstractSpecification;
       final ComputedValue value = inputs.getComputedValue(new ValueRequirement(constant.getDataField(), ComputationTargetType.PRIMITIVE, constant.getIdentifier()));
@@ -236,7 +233,8 @@ public class CurveMarketDataFunction extends AbstractFunction {
             final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
             if (id instanceof PointsCurveNodeWithIdentifier) {
               final PointsCurveNodeWithIdentifier pointsId = (PointsCurveNodeWithIdentifier) id;
-              final ComputedValue base = inputs.getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
+              final ComputedValue base = inputs
+                  .getComputedValue(new ValueRequirement(pointsId.getUnderlyingDataField(), ComputationTargetType.PRIMITIVE, pointsId.getUnderlyingIdentifier()));
               if (base != null) {
                 final Object baseObject = base.getValue();
                 if (!(baseObject instanceof Double)) {

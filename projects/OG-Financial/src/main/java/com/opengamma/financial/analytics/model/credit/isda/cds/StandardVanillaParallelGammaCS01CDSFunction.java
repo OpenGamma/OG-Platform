@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -40,7 +39,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanillaCS01CDSFunction {
   private static final CreditSpreadBumpersNew SPREAD_BUMPER = new CreditSpreadBumpersNew();
@@ -58,7 +57,7 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
@@ -69,8 +68,8 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
     return Collections.singleton(new ComputedValue(spec, gammaCS01));
   }
 
-  public static double parallelGammaCS01(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve, ISDACompliantCreditCurve hazardCurve,
-                                   CDSAnalytic analytic, double spreadCurveBump, SpreadBumpType spreadBumpType) {
+  public static double parallelGammaCS01(final CreditDefaultSwapDefinition definition, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve hazardCurve,
+                                   final CDSAnalytic analytic, final double spreadCurveBump, final SpreadBumpType spreadBumpType) {
     final double[] rates = hazardCurve.getKnotZeroRates();
     final double[] bumpedUpRates = SPREAD_BUMPER.getBumpedCreditSpreads(rates, spreadCurveBump * 1e-4, spreadBumpType);
     final double[] bumpedDownRates = SPREAD_BUMPER.getBumpedCreditSpreads(rates, -spreadCurveBump * 1e-4, spreadBumpType);
@@ -89,10 +88,6 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
       return null;
     }
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> cdsPriceTypes = constraints.getValues(PROPERTY_CDS_PRICE_TYPE);
-    if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
-      return null;
-    }
     final Set<String> bumptype = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
     if (bumptype == null || bumptype.size() != 1) {
       return null;
@@ -101,10 +96,6 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
     if (bump == null || bump.size() != 1) {
       return null;
     }
-    //final Set<String> hazardRateCurveCalculationMethodNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD);
-    //if (hazardRateCurveCalculationMethodNames == null || hazardRateCurveCalculationMethodNames.size() != 1) {
-    //  return null;
-    //}
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final String spreadCurveName = security.accept(new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(
         context))).getUniqueId().getValue();

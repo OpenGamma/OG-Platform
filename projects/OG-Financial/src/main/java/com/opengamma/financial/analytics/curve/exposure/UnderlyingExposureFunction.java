@@ -50,6 +50,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.FloatingInterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapLeg;
@@ -471,7 +472,7 @@ public class UnderlyingExposureFunction implements ExposureFunction {
     final List<ExternalId> result = new ArrayList<>();
     for (final InterestRateSwapLeg leg : security.getLegs()) {
       if (leg instanceof FloatingInterestRateSwapLeg) {
-        final ExternalIdBundle ids = ((FloatingInterestRateSwapLeg) leg).getConvention().getExternalIdBundle();
+        final ExternalIdBundle ids = ((FloatingInterestRateSwapLeg) leg).getFloatingReferenceRateId().toBundle();
         for (final ExternalId id : ids) {
           result.add(id);
           // only add the first id per leg, if multiple ids resolving to the same rate were returned
@@ -484,6 +485,11 @@ public class UnderlyingExposureFunction implements ExposureFunction {
       return null;
     }
     return result;
+  }
+
+  @Override
+  public List<ExternalId> visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return null;
   }
 
 }

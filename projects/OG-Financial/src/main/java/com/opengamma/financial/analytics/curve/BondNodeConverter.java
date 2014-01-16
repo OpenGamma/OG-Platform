@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import static com.opengamma.financial.analytics.conversion.BondTradeWithEntityConverter.MARKET_STRING;
+import static com.opengamma.financial.analytics.conversion.BondAndBondFutureTradeWithEntityConverter.MARKET_STRING;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.threeten.bp.Period;
@@ -17,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.legalentity.CreditRating;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.Region;
 import com.opengamma.analytics.financial.legalentity.Sector;
@@ -64,6 +69,8 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
   private final ExternalId _dataId;
   /** The valuation time */
   private final ZonedDateTime _valuationTime;
+  /** Rating agency strings */
+  private static final String[] RATING_STRINGS = new String[] {"RatingMoody", "RatingFitch"};
 
   /**
    * @param regionSource The region source, not null
@@ -148,7 +155,17 @@ public class BondNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     classifications.put(MARKET_STRING, bondSecurity.getMarket());
     final Sector sector = Sector.of(sectorName, classifications);
     final Region region = Region.of(bondSecurity.getIssuerDomicile(), Country.of(bondSecurity.getIssuerDomicile()), bondSecurity.getCurrency());
-    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, null, sector, region);
+    final Map<String, String> securityAttributes = security.getAttributes();
+    Set<CreditRating> creditRatings = null;
+    for (final String ratingString : RATING_STRINGS) {
+      if (securityAttributes.containsKey(ratingString)) {
+        if (creditRatings == null) {
+          creditRatings = new HashSet<>();
+        }
+        creditRatings.add(CreditRating.of(securityAttributes.get(ratingString), ratingString, true));
+      }
+    }
+    final LegalEntity legalEntity = new LegalEntity(ticker, shortName, creditRatings, sector, region);
     final BondFixedSecurityDefinition securityDefinition = BondFixedSecurityDefinition.from(currency, firstAccrualDate,
         firstCouponDate, maturityDate, paymentPeriod, rate, settlementDays, calendar, dayCount, businessDay, yieldConvention, isEOM,
         legalEntity);

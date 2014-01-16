@@ -62,7 +62,7 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     final InterestRateFutureConvention convention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, conventionName), InterestRateFutureConvention.class); // PLAT-4532
     final IborIndexConvention iborIndexConvention = _conventionSource.getSingle(convention.getIndexConvention(), IborIndexConvention.class);
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
-    final Period period = Period.ofMonths(3); //TODO
+    final Period period = Period.ofMonths(3); //TODO [PLAT-5394] Link to the actual Ibor underlying.
     final double paymentAccrualFactor = getAccrualFactor(period);
     final int spotLag = iborIndexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, period, spotLag, iborIndexConvention.getDayCount(),

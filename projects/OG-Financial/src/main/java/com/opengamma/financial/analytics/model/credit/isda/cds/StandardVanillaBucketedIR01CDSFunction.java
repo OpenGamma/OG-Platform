@@ -1,9 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
+
+import static com.opengamma.financial.analytics.model.credit.CreditFunctionUtils.getCoupon;
 
 import java.util.Collections;
 import java.util.Set;
@@ -28,7 +30,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaIR01CDSFunction {
   private static final InterestRateSensitivityCalculator CALCULATOR = new InterestRateSensitivityCalculator();
@@ -46,7 +48,7 @@ public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaIR01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, Tenor[] tenors) {
+                                                final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final Tenor[] tenors) {
 
     final LocalDate[] dates = new LocalDate[yieldCurve.getNumberOfKnots()];
 
@@ -58,11 +60,11 @@ public class StandardVanillaBucketedIR01CDSFunction extends StandardVanillaIR01C
     return Collections.singleton(new ComputedValue(spec, ir01Matrix));
   }
 
-  public static double[] getBucketedIR01(CreditDefaultSwapDefinition definition,
-                                   ISDACompliantYieldCurve yieldCurve,
-                                   ZonedDateTime valuationDate,
-                                   ValueProperties properties,
-                                   ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, LocalDate[] dates) {
+  public static double[] getBucketedIR01(final CreditDefaultSwapDefinition definition,
+                                   final ISDACompliantYieldCurve yieldCurve,
+                                   final ZonedDateTime valuationDate,
+                                   final ValueProperties properties,
+                                   final ISDACompliantCreditCurve hazardCurve, final CDSAnalytic analytic, final LocalDate[] dates) {
     final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
     //final InterestRateBumpType interestRateBumpType = InterestRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)));

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.xml.FormattingXmlStreamWriter;
 
 /**
  * Implementation of I/O using an XML representation of the Fudge binary encoding. Note that this is simply a human readable form of the Fudge binary data - as a result it is not as efficient or
@@ -97,7 +98,10 @@ public class FudgeXMLFormat implements RegressionIO.Format {
   public void write(final Object context, final Object o, final OutputStream dest) throws IOException {
     final Context ctx = (Context) context;
     final Writer writer = new OutputStreamWriter(dest);
-    final FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx._ctx, writer);
+    FormattingXmlStreamWriter xmlStreamWriter = FormattingXmlStreamWriter.builder(writer)
+                                               .indent(true)
+                                               .build();
+    final FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx._ctx, xmlStreamWriter);
     // Don't close fudgeMsgWriter; the caller will close the stream later
     @SuppressWarnings("resource")
     FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);

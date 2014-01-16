@@ -17,6 +17,8 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.FunctionRepository;
@@ -35,15 +37,20 @@ public class DataFunctionRepositoryResource extends AbstractDataResource {
   /**
    * The repository.
    */
-  private final FunctionRepository _underlying;
+  private final Supplier<FunctionRepository> _underlying;
 
   /**
    * Creates the resource, exposing the underlying repository over REST.
    * 
-   * @param functionRepo  the underlying repository, not null
+   * @param functionRepo the underlying repository, not null
    */
   public DataFunctionRepositoryResource(final FunctionRepository functionRepo) {
-    ArgumentChecker.notNull(functionRepo, "underlying");
+    ArgumentChecker.notNull(functionRepo, "functionRepo");
+    _underlying = Suppliers.ofInstance(functionRepo);
+  }
+
+  public DataFunctionRepositoryResource(final Supplier<FunctionRepository> functionRepo) {
+    ArgumentChecker.notNull(functionRepo, "functionRepo");
     _underlying = functionRepo;
   }
 
@@ -54,7 +61,7 @@ public class DataFunctionRepositoryResource extends AbstractDataResource {
    * @return the repository, not null
    */
   public FunctionRepository getFunctionRepository() {
-    return _underlying;
+    return _underlying.get();
   }
 
   //-------------------------------------------------------------------------
@@ -92,7 +99,7 @@ public class DataFunctionRepositoryResource extends AbstractDataResource {
   /**
    * Builds a URI.
    * 
-   * @param baseUri  the base URI, not null
+   * @param baseUri the base URI, not null
    * @return the URI, not null
    */
   public static URI uriGetFunctionsByUniqueId(URI baseUri) {
@@ -103,7 +110,7 @@ public class DataFunctionRepositoryResource extends AbstractDataResource {
   /**
    * Builds a URI.
    * 
-   * @param baseUri  the base URI, not null
+   * @param baseUri the base URI, not null
    * @return the URI, not null
    */
   public static URI uriGetFunctionsByShortName(URI baseUri) {

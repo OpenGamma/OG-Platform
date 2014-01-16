@@ -5,14 +5,23 @@
  */
 package com.opengamma.core.config.impl;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.FudgeMsgWriter;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -31,6 +40,7 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ClassUtils;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An item stored in the config master.
@@ -38,7 +48,9 @@ import com.opengamma.util.ClassUtils;
  * @param <T> the type of the underlying item
  */
 @BeanDefinition
-public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, ObjectIdentifiable {
+public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, ObjectIdentifiable, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * The underlying value.
@@ -504,16 +516,44 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     serializer.addToMessageWithClassHeaders(msg, Meta.INSTANCE.value().name(), null, getValue(), getType());
   }
 
-  public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final Class<?> type = ClassUtils.loadClassRuntime(msg.getString(Meta.INSTANCE.type().name()));
-    final String name = msg.getString(Meta.INSTANCE.name().name());
-    final Object value = deserializer.fieldValueToObject(type, msg.getByName(Meta.INSTANCE.value().name()));
-    final ConfigItem<?> item = ConfigItem.of(value, name, type);
+  @SuppressWarnings("unchecked")
+  private void fromFudgeMsgImpl(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    _type = ClassUtils.loadClassRuntime(msg.getString(Meta.INSTANCE.type().name()));
+    _name = msg.getString(Meta.INSTANCE.name().name());
+    _value = deserializer.fieldValueToObject((Class<T>) _type, msg.getByName(Meta.INSTANCE.value().name()));
     final FudgeField uniqueId = msg.getByName(Meta.INSTANCE.uniqueId().name());
     if (uniqueId != null) {
-      item.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueId));
+      _uniqueId = deserializer.fieldValueToObject(UniqueId.class, uniqueId);
     }
-    return item;
+  }
+
+  public static ConfigItem<?> fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final ConfigItem<?> instance = new ConfigItem<Object>();
+    instance.fromFudgeMsgImpl(deserializer, msg);
+    return instance;
+  }
+
+  /**
+   * The fields of a configuration item, specifically the value, are not always serializable but can be Fudge encoded. We can use Java serialization by writing out the binary Fudge encoding.
+   */
+  private void writeObject(final ObjectOutputStream out) throws IOException {
+    final FudgeContext context = OpenGammaFudgeContext.getInstance();
+    final FudgeMsgWriter writer = context.createMessageWriter((DataOutput) out);
+    final MutableFudgeMsg msg = context.newMessage();
+    toFudgeMsg(new FudgeSerializer(context), msg);
+    writer.writeMessage(msg);
+    // Note - don't close the writer as we don't want to close the underlying stream
+  }
+
+  /**
+   * The fields of a configuration item, specifically the value, are not always serializable but can be decoded from a binary Fudge encoding written by {@link #writeObject}.
+   */
+  private void readObject(final ObjectInputStream in) throws IOException {
+    final FudgeContext context = OpenGammaFudgeContext.getInstance();
+    final FudgeMsgReader reader = context.createMessageReader((DataInput) in);
+    final FudgeMsg msg = reader.nextMessage();
+    // Note - don't close the reader as we don't want to close the underlying stream
+    fromFudgeMsgImpl(new FudgeDeserializer(context), msg);
   }
 
 }

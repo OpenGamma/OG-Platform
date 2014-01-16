@@ -14,9 +14,13 @@ import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.manipulator.SelectorResolver;
-import com.opengamma.engine.marketdata.manipulator.StructureIdentifier;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
@@ -26,71 +30,79 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Expiry;
 
-/**
- * Test.
- */
 @Test(groups = TestGroup.UNIT)
 public class PointSelectorTest {
 
   private final SelectorResolver _noOpResolver = mock(SelectorResolver.class);
-  private final StructureIdentifier<ExternalId> _structureId = structureId("scheme", "id");
+  private final ValueSpecification _valueSpec = valueSpec("scheme", "id");
 
   private PointSelector.Builder builder() {
     return new PointSelector.Builder(new Scenario("scenarioName"));
   }
 
-  private StructureIdentifier<ExternalId> structureId(String scheme, String value) {
-    return StructureIdentifier.of(ExternalId.of(scheme, value));
+  private ValueSpecification valueSpec(String scheme, String value) {
+    return valueSpec(ExternalId.of(scheme, value));
+  }
+
+  private ValueSpecification valueSpec(ExternalId id) {
+    ValueProperties properties =
+        ValueProperties
+            .with("Id", id.toString())
+            .with(ValuePropertyNames.FUNCTION, "foo")
+            .get();
+    return new ValueSpecification(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.NULL, properties);
   }
 
   @Test
-  public void structureType() {
+  public void valueName() {
     PointSelector selector = builder().getSelector(); // will match any ExternalId
-    assertNotNull(selector.findMatchingSelector(_structureId, "default", _noOpResolver));
-    StructureIdentifier<YieldCurveKey> structureId = StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, "a curve"));
-    assertNull(selector.findMatchingSelector(structureId, "default", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(_valueSpec, "default", _noOpResolver));
+    ValueSpecification valueSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE,
+                                                          ComputationTargetSpecification.NULL,
+                                                          ValueProperties.with(ValuePropertyNames.FUNCTION, "foo").get());
+    assertNull(selector.findMatchingSelector(valueSpec, "default", _noOpResolver));
   }
 
   @Test
   public void ids() {
     PointSelector selector = builder().ids("scheme~value1", "scheme~value2").getSelector();
-    assertNotNull(selector.findMatchingSelector(structureId("scheme", "value1"), "calcConfig", _noOpResolver));
-    assertNotNull(selector.findMatchingSelector(structureId("scheme", "value2"), "calcConfig", _noOpResolver));
-    assertNull(selector.findMatchingSelector(structureId("scheme", "value3"), "calcConfig", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(valueSpec("scheme", "value1"), "calcConfig", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(valueSpec("scheme", "value2"), "calcConfig", _noOpResolver));
+    assertNull(selector.findMatchingSelector(valueSpec("scheme", "value3"), "calcConfig", _noOpResolver));
   }
 
   @Test
   public void calcConfigNames() {
     PointSelector selector = new PointSelector(Sets.newHashSet("default", "cc1"), null, null, null, null, null, null);
-    assertNotNull(selector.findMatchingSelector(_structureId, "default", _noOpResolver));
-    assertNotNull(selector.findMatchingSelector(_structureId, "cc1", _noOpResolver));
-    assertNull(selector.findMatchingSelector(_structureId, "cc2", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(_valueSpec, "default", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(_valueSpec, "cc1", _noOpResolver));
+    assertNull(selector.findMatchingSelector(_valueSpec, "cc2", _noOpResolver));
   }
 
   @Test
   public void idMatches() {
     PointSelector selector = builder().idMatches("scheme", "value\\d").getSelector();
-    assertNotNull(selector.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
-    assertNotNull(selector.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
-    assertNull(selector.findMatchingSelector(structureId("scheme", "value"), "default", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(valueSpec("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector.findMatchingSelector(valueSpec("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector.findMatchingSelector(valueSpec("scheme", "value"), "default", _noOpResolver));
   }
 
   @Test
   public void idLike() {
     PointSelector selector1 = builder().idLike("scheme", "value?").getSelector();
-    assertNotNull(selector1.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
-    assertNotNull(selector1.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
-    assertNull(selector1.findMatchingSelector(structureId("scheme", "value"), "default", _noOpResolver));
+    assertNotNull(selector1.findMatchingSelector(valueSpec("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector1.findMatchingSelector(valueSpec("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector1.findMatchingSelector(valueSpec("scheme", "value"), "default", _noOpResolver));
 
     PointSelector selector2 = builder().idLike("scheme", "val*").getSelector();
-    assertNotNull(selector2.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
-    assertNotNull(selector2.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
-    assertNull(selector2.findMatchingSelector(structureId("scheme", "xvalue"), "default", _noOpResolver));
+    assertNotNull(selector2.findMatchingSelector(valueSpec("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector2.findMatchingSelector(valueSpec("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector2.findMatchingSelector(valueSpec("scheme", "xvalue"), "default", _noOpResolver));
 
     PointSelector selector3 = builder().idLike("scheme", "val%").getSelector();
-    assertNotNull(selector3.findMatchingSelector(structureId("scheme", "value1"), "default", _noOpResolver));
-    assertNotNull(selector3.findMatchingSelector(structureId("scheme", "value2"), "default", _noOpResolver));
-    assertNull(selector3.findMatchingSelector(structureId("scheme", "xvalue"), "default", _noOpResolver));
+    assertNotNull(selector3.findMatchingSelector(valueSpec("scheme", "value1"), "default", _noOpResolver));
+    assertNotNull(selector3.findMatchingSelector(valueSpec("scheme", "value2"), "default", _noOpResolver));
+    assertNull(selector3.findMatchingSelector(valueSpec("scheme", "xvalue"), "default", _noOpResolver));
   }
 
   @Test
@@ -110,13 +122,13 @@ public class PointSelectorTest {
     when(resolver.resolveSecurity(optionId)).thenReturn(fxOption);
 
     PointSelector lCaseSelector = builder().securityTypes("equity", "fx_forward").getSelector();
-    assertNotNull(lCaseSelector.findMatchingSelector(StructureIdentifier.of(equityId), "default", resolver));
-    assertNotNull(lCaseSelector.findMatchingSelector(StructureIdentifier.of(forwardId), "default", resolver));
-    assertNull(lCaseSelector.findMatchingSelector(StructureIdentifier.of(optionId), "default", resolver));
+    assertNotNull(lCaseSelector.findMatchingSelector(valueSpec(equityId), "default", resolver));
+    assertNotNull(lCaseSelector.findMatchingSelector(valueSpec(forwardId), "default", resolver));
+    assertNull(lCaseSelector.findMatchingSelector(valueSpec(optionId), "default", resolver));
 
     PointSelector mixedCaseSelector = builder().securityTypes("Equity", "FX_Forward").getSelector();
-    assertNotNull(mixedCaseSelector.findMatchingSelector(StructureIdentifier.of(equityId), "default", resolver));
-    assertNotNull(mixedCaseSelector.findMatchingSelector(StructureIdentifier.of(forwardId), "default", resolver));
-    assertNull(mixedCaseSelector.findMatchingSelector(StructureIdentifier.of(optionId), "default", resolver));
+    assertNotNull(mixedCaseSelector.findMatchingSelector(valueSpec(equityId), "default", resolver));
+    assertNotNull(mixedCaseSelector.findMatchingSelector(valueSpec(forwardId), "default", resolver));
+    assertNull(mixedCaseSelector.findMatchingSelector(valueSpec(optionId), "default", resolver));
   }
 }

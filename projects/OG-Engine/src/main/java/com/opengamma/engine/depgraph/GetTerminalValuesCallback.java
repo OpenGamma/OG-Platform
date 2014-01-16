@@ -195,6 +195,13 @@ import com.opengamma.util.tuple.Pairs;
     _targetDigests = targetDigests;
   }
 
+  /**
+   * Looks up an existing production - for which all inputs are resolved - for a potential value specification.
+   * <p>
+   * The {@code specification} parameter must be normalized.
+   * 
+   * @param specification the potential specification, not null
+   */
   public ResolvedValue getProduction(final ValueSpecification specification) {
     final ResolvedValue value = _resolvedBuffer.get(specification);
     if (value != null) {

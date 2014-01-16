@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.GenericApplicationContext;
 
+import com.google.common.base.Supplier;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
@@ -243,6 +244,20 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     registerInfrastructureByType(repo, UserPrincipal.class, appContext);
   }
 
+  private static class FunctionRepositorySupplier implements Supplier<FunctionRepository> {
+
+    private final CompiledFunctionService _cfs;
+
+    public FunctionRepositorySupplier(final CompiledFunctionService cfs) {
+      _cfs = cfs;
+    }
+
+    @Override
+    public FunctionRepository get() {
+      return _cfs.getFunctionRepository();
+    }
+  }
+
   /**
    * Registers the compiled function service and function .
    * 
@@ -253,14 +268,15 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
     final ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
     repo.registerComponent(infoCFS, compiledFunctionService);
-    final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
-    repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
+    // TODO: This is wrong; what is using the function repository we've registered here? It needs to use a supplier, factory, or source
+    //final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
+    //repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
     final FunctionExclusionGroups functionExclusionGroups = appContext.getBean(FunctionExclusionGroups.class);
     repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
     final FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
     if (isPublishRest()) {
-      repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
+      repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(new FunctionRepositorySupplier(compiledFunctionService)));
     }
   }
 

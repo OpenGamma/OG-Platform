@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDiv
 import com.opengamma.analytics.financial.equity.future.definition.IndexFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.SwapFuturesPriceDeliverableSecurityDefinition;
@@ -54,9 +53,7 @@ public class FutureTradeConverter {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, conventionBundleSource, regionSource);
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
-    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
-    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
-    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter, dsfConverter);
+    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, dsfConverter);
   }
 
   /**
@@ -85,7 +82,7 @@ public class FutureTradeConverter {
   }
 
   /**
-   * Creates the OG-Analytics tradeDefinition from the OG-Analytics securityDefinition and the trade details (price and date).
+   * Creates an OG-Analytics trade definition from the OG-Analytics security definition and the trade details (price and date).
    * @param securityDefinition The security definition (OG-Analytics object).
    * @param tradePrice The trade price.
    * @param tradeDate The trade date.
@@ -125,19 +122,14 @@ public class FutureTradeConverter {
             return new EquityFutureDefinition(futures.getExpiryDate(), futures.getSettlementDate(), tradePrice, futures.getCurrency(), futures.getUnitAmount());
           }
 
-          @Override
-          public InstrumentDefinitionWithData<?, Double> visitBondFutureDefinition(final BondFutureDefinition futures) {
-            return futures;
-          }
-
-          @Override
+          @Override // [PLAT-5535] Futures security should not be of the type "InstrumentDefinitionWithData"; no data is required at the security level, only at the transaction level.
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
-            return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, quantity);
+            return new InterestRateFutureTransactionDefinition(futures, quantity, tradeDate, tradePrice);
           }
 
-          @Override
+          @Override // [PLAT-5535] Futures security should not be of the type "InstrumentDefinitionWithData"; no data is required at the security level, only at the transaction level.
           public InstrumentDefinitionWithData<?, Double> visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesPriceDeliverableSecurityDefinition future) {
-            return new SwapFuturesPriceDeliverableTransactionDefinition(future, tradeDate, tradePrice, quantity);
+            return new SwapFuturesPriceDeliverableTransactionDefinition(future, quantity, tradeDate, tradePrice);
           }
 
           @Override

@@ -34,7 +34,7 @@ $.register_module({
                         title: 'Add configuration',
                         width: 400,
                         height: 190,
-                        fields: [{type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types,
+                        fields: [{type: 'optselect', name: 'Configuration Type', id: 'config_type', options: config_types,
                             value: function () {return current_type; }}],
                         buttons: {
                             'OK': function () {
@@ -87,9 +87,7 @@ $.register_module({
                 api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
-                        config_types = result.data.types.sort().map(function (val) {
-                            return {name: val.name, value: val.value};
-                        });
+                        config_types = result.data.groups;
                         ui.toolbar(options);
                     },
                     cache_for: 60 * 60 * 1000 // an hour
@@ -248,6 +246,19 @@ $.register_module({
             form_inst = form_state = null;
             return true;
         });
+        var build_menu = function (list) {
+            var menu_html = '<select class="og-js-type-filter" style="width: 80px">' +
+                '<option value="">Type</option>';
+            list.forEach(function (entry) {
+                menu_html += '<optgroup label="' + entry.group + '">';
+                entry.types.forEach(function (type) {
+                    menu_html += '<option value="' + type.value + '">' + type.name + '</option>';
+                });
+                menu_html += '</optgroup>';
+            });
+            menu_html += "</select>";
+            return menu_html;
+        };
         return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
                 // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
@@ -330,13 +341,7 @@ $.register_module({
                             if (result.error) {
                                 return view.error(result.message);
                             }
-                            view.options.slickgrid.columns[0].name = [
-                                '<select class="og-js-type-filter" style="width: 80px">',
-                                result.data.types.sort().reduce(function (acc, type) {
-                                    return acc + '<option value="' + type.value + '">' + type.name + '</option>';
-                                }, '<option value="">Type</option>'),
-                                '</select>'
-                            ].join('');
+                            view.options.slickgrid.columns[0].name = build_menu(result.data.groups);
                             view.search(args);
                         },
                         loading: function () {

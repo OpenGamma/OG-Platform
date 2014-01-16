@@ -16,11 +16,7 @@ import com.opengamma.util.ArgumentChecker;
 public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
   /*
-   * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
-   * TODO test Dividend provider for full coverage
-   * TODO check convergence of theta
-   *
-   * TODO More accuracy for barrier case??? such as barrier options(-> adaptive mesh method) , two asset correlation option
+   * TODO More accuracy for barrier case??? such as barrier options(-> adaptive mesh method) , two asset correlation option  PLAT-4579
    */
 
   @Override

@@ -48,7 +48,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -73,7 +72,6 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
@@ -106,7 +104,8 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
-    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver().getVersionCorrection());
+    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver()
+        .getVersionCorrection());
   }
 
   @Override
@@ -128,8 +127,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final String iterationsName = desiredValue.getConstraint(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
     final String decompositionName = desiredValue.getConstraint(PROPERTY_DECOMPOSITION);
     final String useFiniteDifferenceName = desiredValue.getConstraint(PROPERTY_USE_FINITE_DIFFERENCE);
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfigSource().getConfig(curveCalculationConfigName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
@@ -166,7 +164,7 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
         if (derivative != null) {
           if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
             final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
-            InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+            InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, marketValue);
             unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
             final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
             derivatives.add(unitNotionalDerivative);
@@ -197,15 +195,15 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
     final Set<ComputedValue> results = new HashSet<>();
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
-    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference,
-        new FXMatrix(currency));
+    final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators,
+        useFiniteDifference, new FXMatrix(currency));
     final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_SPREAD_RATE_CALCULATOR);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderIRSJacobian(data, PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR);
     final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
     final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
-    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName,
-        decompositionName, useFiniteDifferenceName);
+    final ValueProperties properties = getJacobianProperties(curveCalculationConfigName, absoluteToleranceName, relativeToleranceName, iterationsName, decompositionName,
+        useFiniteDifferenceName);
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties), jacobianMatrix.getData()));
     int i = 0;
     final YieldCurveBundle curveBundle = new YieldCurveBundle();
@@ -216,8 +214,8 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
       }
       final double[] yields = Arrays.copyOfRange(fittedYields, i, i + offset);
       final YieldCurve yieldCurve = YieldCurve.from(InterpolatedDoublesCurve.from(curveNodes.get(curveName), yields, interpolators.get(curveName)));
-      final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName, absoluteToleranceName,
-          relativeToleranceName, iterationsName, decompositionName, useFiniteDifferenceName);
+      final ValueProperties curveProperties = getCurveProperties(curveCalculationConfigName, curveName, absoluteToleranceName, relativeToleranceName, iterationsName, decompositionName,
+          useFiniteDifferenceName);
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, targetSpec, curveProperties);
       results.add(new ComputedValue(spec, yieldCurve));
       curveBundle.setCurve(curveName, yieldCurve);
@@ -228,78 +226,46 @@ public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunctio
 
   @Override
   protected ValueProperties getJacobianProperties() {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-        .withAny(PROPERTY_DECOMPOSITION)
+    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION)
         .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
   }
 
   @Override
   protected ValueProperties getCurveProperties() {
-    return createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-        .withAny(PROPERTY_DECOMPOSITION)
+    return createValueProperties().withAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION)
         .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
   }
 
   @Override
   protected ValueProperties getJacobianProperties(final String curveCalculationConfigName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-        .withAny(PROPERTY_DECOMPOSITION)
+    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION)
         .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
   }
 
   @Override
   protected ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-        .withAny(PROPERTY_DECOMPOSITION)
-        .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
+    return createValueProperties().with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION).withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
   }
 
   @Override
   protected ValueProperties getJacobianProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance, final String maxIterations,
       final String decomposition, final String useFiniteDifference) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
-        .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
-        .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations)
-        .with(PROPERTY_DECOMPOSITION, decomposition)
-        .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
+    return createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance).with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
+        .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(PROPERTY_DECOMPOSITION, decomposition).with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 
   @Override
   protected ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance, final String relativeTolerance,
       final String maxIterations, final String decomposition, final String useFiniteDifference) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
-        .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance)
-        .with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations)
-        .with(PROPERTY_DECOMPOSITION, decomposition)
+    return createValueProperties().with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE, absoluteTolerance)
+        .with(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE, relativeTolerance).with(PROPERTY_ROOT_FINDER_MAX_ITERATIONS, maxIterations).with(PROPERTY_DECOMPOSITION, decomposition)
         .with(PROPERTY_USE_FINITE_DIFFERENCE, useFiniteDifference).get();
   }
 

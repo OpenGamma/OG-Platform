@@ -10,6 +10,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 public class MarketDataPointScalingManipulator implements StructureManipulator<Double> {
@@ -22,7 +23,7 @@ public class MarketDataPointScalingManipulator implements StructureManipulator<D
   }
 
   @Override
-  public Double execute(Double structure) {
+  public Double execute(Double structure, ValueSpecification valueSpecification) {
     return structure * _scalingFactor;
   }
 

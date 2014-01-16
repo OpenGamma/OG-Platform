@@ -55,6 +55,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapLeg;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
@@ -172,12 +173,11 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
       final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
       if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
         return Collections.singletonList(payLeg.getCurrency());
-      } else {
-        final Collection<Currency> collection = new ArrayList<Currency>();
-        collection.add(payLeg.getCurrency());
-        collection.add(receiveLeg.getCurrency());
-        return collection;
       }
+      final Collection<Currency> collection = new ArrayList<>();
+      collection.add(payLeg.getCurrency());
+      collection.add(receiveLeg.getCurrency());
+      return collection;
     }
     return null;
   }
@@ -189,12 +189,11 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
       final InterestRateNotional receiveLeg = (InterestRateNotional) security.getReceiveLeg().getNotional();
       if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
         return Collections.singletonList(payLeg.getCurrency());
-      } else {
-        final Collection<Currency> collection = new ArrayList<Currency>();
-        collection.add(payLeg.getCurrency());
-        collection.add(receiveLeg.getCurrency());
-        return collection;
       }
+      final Collection<Currency> collection = new ArrayList<>();
+      collection.add(payLeg.getCurrency());
+      collection.add(receiveLeg.getCurrency());
+      return collection;
     }
     return null;
   }
@@ -216,7 +215,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitFXOptionSecurity(final FXOptionSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getCallCurrency());
     currencies.add(security.getPutCurrency());
     return currencies;
@@ -224,7 +223,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getCallCurrency());
     currencies.add(security.getPutCurrency());
     //deliveryCurrency is always already covered
@@ -269,7 +268,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getCallCurrency());
     currencies.add(security.getPutCurrency());
     return currencies;
@@ -277,7 +276,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getPayCurrency());
     currencies.add(security.getReceiveCurrency());
     return currencies;
@@ -285,7 +284,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getPayCurrency());
     currencies.add(security.getReceiveCurrency());
     return currencies;
@@ -308,7 +307,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getCallCurrency());
     currencies.add(security.getPutCurrency());
     return currencies;
@@ -316,7 +315,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
-    final Collection<Currency> currencies = new ArrayList<Currency>();
+    final Collection<Currency> currencies = new ArrayList<>();
     currencies.add(security.getCallCurrency());
     currencies.add(security.getPutCurrency());
     return currencies;
@@ -470,7 +469,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
       if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
         return Collections.singletonList(payLeg.getCurrency());
       }
-      final Collection<Currency> collection = new ArrayList<Currency>();
+      final Collection<Currency> collection = new ArrayList<>();
       collection.add(payLeg.getCurrency());
       collection.add(receiveLeg.getCurrency());
       return collection;
@@ -486,7 +485,7 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
       if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
         return Collections.singletonList(payLeg.getCurrency());
       }
-      final Collection<Currency> collection = new ArrayList<Currency>();
+      final Collection<Currency> collection = new ArrayList<>();
       collection.add(payLeg.getCurrency());
       collection.add(receiveLeg.getCurrency());
       return collection;
@@ -496,10 +495,15 @@ public class CurrenciesVisitor extends FinancialSecurityVisitorSameValueAdapter<
 
   @Override
   public Collection<Currency> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
-    final Collection<Currency> collection = new HashSet<Currency>();
-    for (InterestRateSwapLeg leg : security.getLegs()) {
+    final Collection<Currency> collection = new HashSet<>();
+    for (final InterestRateSwapLeg leg : security.getLegs()) {
       collection.add(leg.getNotional().getCurrency());
     }
     return collection;
+  }
+
+  @Override
+  public Collection<Currency> visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return Collections.singletonList(security.getCurrency());
   }
 }

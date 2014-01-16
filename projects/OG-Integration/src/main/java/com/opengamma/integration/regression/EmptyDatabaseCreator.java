@@ -5,18 +5,15 @@
  */
 package com.opengamma.integration.regression;
 
-import java.io.FileNotFoundException;
+import static com.opengamma.integration.regression.PropertiesUtils.createProperties;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.db.tool.DbTool;
 
 /**
@@ -48,19 +45,11 @@ public class EmptyDatabaseCreator {
     EmptyDatabaseCreator.createDatabases(createProperties(args[0]));
   }
 
-  private static Properties createProperties(String configFile) {
-    Resource res = ResourceUtils.createResource(configFile);
-    Properties props = new Properties();
-    try (InputStream in = res.getInputStream()) {
-      if (in == null) {
-        throw new FileNotFoundException(configFile);
-      }
-      props.load(in);
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Failed to load config", e);
-    }
-    return props;
+  public static void createForConfig(String configFile) {
+    Properties properties = createProperties(configFile);
+    createDatabases(properties);
   }
+  
 
   public static void createDatabases(Properties props) {
     // create main database

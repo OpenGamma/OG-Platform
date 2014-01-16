@@ -46,11 +46,11 @@ public class InterestRateFutureTransactionDefinition implements InstrumentDefini
   /**
    * Constructor.
    * @param underlying The underlying futures.
+   * @param quantity The quantity/number of contract.
    * @param transactionDate The date at which the transaction was done.
    * @param transactionPrice The price at which the transaction was done.
-   * @param quantity The quantity/number of contract.
    */
-  public InterestRateFutureTransactionDefinition(final InterestRateFutureSecurityDefinition underlying, final ZonedDateTime transactionDate, final double transactionPrice, final int quantity) {
+  public InterestRateFutureTransactionDefinition(final InterestRateFutureSecurityDefinition underlying, final int quantity, final ZonedDateTime transactionDate, final double transactionPrice) {
     _underlying = underlying;
     _transactionDate = transactionDate;
     _transactionPrice = transactionPrice;

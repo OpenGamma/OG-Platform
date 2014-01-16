@@ -38,7 +38,6 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionRepositoryFactory;
@@ -212,8 +211,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
-   * Indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
@@ -229,8 +227,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
     MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(), getUserConfigMaster(),
-        getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(),
+        getUserConfigMaster(), getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
@@ -274,15 +272,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     });
   }
 
-  protected FunctionRepository getFunctionRepository() {
+  protected FunctionRepositoryFactory getFunctionRepository() {
     // TODO: This is slightly wasteful if the view processor is in the same process and has created its own repository. Ideally we
     // should be able to inject either the constructed repository or a configuration source depending on what's available
     final FunctionConfigurationSource functions = getFunctions();
     if (functions == null) {
       // Supply an empty repo if the configuration is omitted
-      return new InMemoryFunctionRepository();
+      return FunctionRepositoryFactory.constructRepositoryFactory(new InMemoryFunctionRepository());
     }
-    return FunctionRepositoryFactory.constructRepository(functions.getFunctionConfiguration());
+    return FunctionRepositoryFactory.constructRepositoryFactory(functions);
   }
 
   protected LongPollingConnectionManager buildLongPolling() {
@@ -910,8 +908,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the value of the property
    */
@@ -920,8 +917,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates if currency amounts should be displayed in the UI without the currency code.
-   * Note that this will affect all views and should only be used where all results for all views will always be
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @param suppressCurrencyDisplay  the new value of the property
    */
@@ -931,7 +927,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code suppressCurrencyDisplay} property.
-   * Note that this will affect all views and should only be used where all results for all views will always be
    * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the property, not null
    */

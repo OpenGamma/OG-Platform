@@ -5,11 +5,6 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import groovy.lang.Binding;
-import groovy.lang.Closure;
-import groovy.lang.GroovyObjectSupport;
-import groovy.lang.Script;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -20,6 +15,11 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+
+import groovy.lang.Binding;
+import groovy.lang.Closure;
+import groovy.lang.GroovyObjectSupport;
+import groovy.lang.Script;
 
 /**
  * Base class for scripts that create {@link Simulation}s and {@link Scenario}s. The methods in this class are available
@@ -192,6 +192,17 @@ public abstract class SimulationScript extends Script {
   }
 
   /**
+   * Defines a method in the DSL that takes a closure which defines how to select and transform spot rates.
+   * @param body The block that defines the selection and transformation
+   */
+  public void spotRate(Closure<?> body) {
+    SpotRateBuilder builder = new SpotRateBuilder(_scenario);
+    body.setDelegate(builder);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
+    body.call();
+  }
+
+  /**
    * Delegate class for closures that define a surface transformation in the DSL.
    */
   private static final class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
@@ -239,6 +250,23 @@ public abstract class SimulationScript extends Script {
     @SuppressWarnings("unused")
     public void apply(Closure<?> body) {
       YieldCurveManipulatorBuilder builder = new GroovyYieldCurveManipulatorBuilder(getSelector(), getScenario());
+      body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
+      body.call();
+    }
+  }
+
+  /**
+   * Delegate class for closures that define a spot rate transformation in the DSL.
+   */
+  private static final class SpotRateBuilder extends SpotRateSelectorBuilder {
+
+    private SpotRateBuilder(Scenario scenario) {
+      super(scenario);
+    }
+
+    public void apply(Closure<?> body) {
+      SpotRateManipulatorBuilder builder = new SpotRateManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();

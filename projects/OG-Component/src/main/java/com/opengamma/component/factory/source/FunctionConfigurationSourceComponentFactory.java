@@ -23,11 +23,13 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationBundle;
@@ -80,12 +82,13 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
 
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataRepositoryConfigurationSourceResource(source));
+      // TODO: The REST resource will be incorrect; we should publish a facade of the ViewProcessor form so that calc nodes see the same version of the repository as the one last queried here
     }
   }
 
   /**
    * Debug utility to sort a repository. This allows two to be compared more easily.
-   *
+   * 
    * @param source the raw repository configuration source
    * @return a source that return a sorted list of functions
    */
@@ -93,8 +96,8 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     return new FunctionConfigurationSource() {
 
       @Override
-      public FunctionConfigurationBundle getFunctionConfiguration() {
-        final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getFunctionConfiguration().getFunctions());
+      public FunctionConfigurationBundle getFunctionConfiguration(final Instant version) {
+        final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>(source.getFunctionConfiguration(version).getFunctions());
         Collections.sort(functions, new Comparator<FunctionConfiguration>() {
 
           @Override
@@ -143,6 +146,11 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
         return new FunctionConfigurationBundle(functions);
       }
 
+      @Override
+      public ChangeManager changeManager() {
+        return source.changeManager();
+      }
+
     };
   }
 
@@ -150,7 +158,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * Initializes the source.
    * <p>
    * Calls {@link #initSources()} and combines the result using {@link CombiningFunctionConfigurationSource}.
-   *
+   * 
    * @return the list of base sources to be combined, not null
    */
   protected FunctionConfigurationSource initSource() {
@@ -182,18 +190,18 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource curveParameterConfigurations() {
     return CurveFunctions.parameterProviders(getConfigMaster());
   }
-  
+
   protected FunctionConfigurationSource timeSeriesConfigurations() {
     return TimeSeriesFunctions.providers(getConfigMaster());
   }
 
   /**
    * Initializes the list of sources to be combined.
-   *
+   * 
    * @return the list of base sources to be combined, not null
    */
   protected List<FunctionConfigurationSource> initSources() {
@@ -204,14 +212,14 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     sources.addAll(curveAndSurfaceSources());
     return sources;
   }
-  
+
   /**
    * Gets the list of curve and surface function configuration sources.
    * 
    * @return the curve and surface function configuration sources, not null
    */
   protected List<FunctionConfigurationSource> curveAndSurfaceSources() {
-    final List<FunctionConfigurationSource> sources = new LinkedList<>();    
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(yieldCurveConfigurations());
     sources.add(curveConfigurations());
     sources.add(curveParameterConfigurations());

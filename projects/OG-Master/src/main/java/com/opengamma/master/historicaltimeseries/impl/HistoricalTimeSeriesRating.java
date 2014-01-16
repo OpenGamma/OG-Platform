@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.Config;
+import com.opengamma.core.config.ConfigGroups;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.ArgumentChecker;
 
@@ -40,7 +41,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@Config(description = "Historical time-series rating")
+@Config(description = "Historical time-series rating", group = ConfigGroups.MISC)
 @BeanDefinition
 public final class HistoricalTimeSeriesRating implements ImmutableBean {
 

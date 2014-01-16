@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -68,6 +69,7 @@ public class DiscountingPVFunction extends DiscountingFunction {
           return false;
         }
         return security instanceof CashSecurity ||
+            security instanceof CashFlowSecurity ||
             security instanceof FRASecurity ||
             security instanceof SwapSecurity ||
             security instanceof InterestRateFutureSecurity ||

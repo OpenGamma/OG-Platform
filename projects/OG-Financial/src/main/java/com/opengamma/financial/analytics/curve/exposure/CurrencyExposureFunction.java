@@ -53,6 +53,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -96,6 +97,11 @@ public class CurrencyExposureFunction implements ExposureFunction {
     return "Currency";
   }
 
+  /**
+   * Gets a list of currency external ids.
+   * @param security The security
+   * @return A list of currency ids or null if none are found
+   */
   private List<ExternalId> getExternalIds(final Security security) {
     final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, _securitySource);
     if (currencies.isEmpty()) {
@@ -125,8 +131,7 @@ public class CurrencyExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitFXFutureSecurity(final FXFutureSecurity security) {
-    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, security.getDenominator().getCode()),
-        ExternalId.of(Currency.OBJECT_SCHEME, security.getNumerator().getCode()));
+    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, security.getDenominator().getCode()), ExternalId.of(Currency.OBJECT_SCHEME, security.getNumerator().getCode()));
   }
 
   @Override
@@ -192,8 +197,7 @@ public class CurrencyExposureFunction implements ExposureFunction {
   @Override
   public List<ExternalId> visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
     final FXFutureSecurity fxFuture = (FXFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
-    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getDenominator().getCode()),
-        ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getNumerator().getCode()));
+    return Arrays.asList(ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getDenominator().getCode()), ExternalId.of(Currency.OBJECT_SCHEME, fxFuture.getNumerator().getCode()));
   }
 
   @Override
@@ -420,4 +424,10 @@ public class CurrencyExposureFunction implements ExposureFunction {
   public List<ExternalId> visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
     return getExternalIds(security);
   }
+
+  @Override
+  public List<ExternalId> visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    return getExternalIds(security);
+  }
+
 }

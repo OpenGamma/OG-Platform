@@ -48,7 +48,7 @@ public class GeneratorSwapFuturesDeliverable extends GeneratorInstrument<Generat
   @Override
   public SwapFuturesPriceDeliverableTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
     final int quantity = (int) Math.ceil(notional / _security.getNotional());
-    return new SwapFuturesPriceDeliverableTransactionDefinition(_security, date, marketQuote, quantity);
+    return new SwapFuturesPriceDeliverableTransactionDefinition(_security, quantity, date, marketQuote);
   }
 
   @Override

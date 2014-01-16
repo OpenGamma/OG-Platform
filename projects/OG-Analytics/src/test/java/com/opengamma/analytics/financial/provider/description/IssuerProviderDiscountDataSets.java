@@ -49,17 +49,22 @@ public class IssuerProviderDiscountDataSets {
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
 
-  /** US government issuer name */
-  private static final String US_NAME = "US GOVT";
+  /** Australian government issuer name */
+  private static final String AUS_NAME = "AUSTRALIAN GOVT";
   /** Belgian government issuer name */
   private static final String BEL_NAME = "BELGIUM GOVT";
   /** German government issuer name */
   private static final String GER_NAME = "GERMANY GOVT";
-  /** UK government issuer name */
-  private static final String UK_NAME = "UK GOVT";
   /** ITALY government issuer name */
   private static final String IT_NAME = "IT GOVT";
+  /** UK government issuer name */
+  private static final String UK_NAME = "UK GOVT";
+  /** US government issuer name */
+  private static final String US_NAME = "US GOVT";
 
+  /** US government legal entity */
+  private static final LegalEntity AUS_GOVT = new LegalEntity(AUS_NAME, AUS_NAME, Sets.newHashSet(CreditRating.of("AAA", "S&P", true)), Sector.of("Government"),
+      Region.of("Australia", Country.AU, Currency.AUD));
   /** US government legal entity */
   private static final LegalEntity US_GOVT = new LegalEntity(US_NAME, US_NAME, Sets.newHashSet(CreditRating.of("AA", "S&P", true)), Sector.of("Government"), Region.of("United States", Country.US,
       Currency.USD));
@@ -118,6 +123,12 @@ public class IssuerProviderDiscountDataSets {
   private static final double[] UK_GBP_RATE = new double[] {0.0250, 0.0225, 0.0250, 0.0275, 0.0250, 0.0250 };
   private static final String UK_GBP_CURVE_NAME = "GBP " + UK_NAME;
   private static final YieldAndDiscountCurve UK_GBP_CURVE = new YieldCurve(UK_GBP_CURVE_NAME, new InterpolatedDoublesCurve(UK_GBP_TIME, UK_GBP_RATE, LINEAR_FLAT, true, UK_GBP_CURVE_NAME));
+  // AUD
+  private static final String AUD_DSC_NAME = "AUD Dsc";
+  private static final YieldAndDiscountCurve AUD_DSC = new YieldCurve(AUD_DSC_NAME, new InterpolatedDoublesCurve(USD_DSC_TIME, USD_DSC_RATE, LINEAR_FLAT, true, AUD_DSC_NAME));
+  private static final String AUS_AUD_CURVE_NAME = "EUR " + AUS_NAME;
+  private static final YieldAndDiscountCurve AUS_AUD_CURVE = new YieldCurve(AUS_AUD_CURVE_NAME, new InterpolatedDoublesCurve(EUR_GER_TIME, EUR_GER_RATE, LINEAR_FLAT, true, AUS_AUD_CURVE_NAME));
+  
   /** Extracts the short name (i.e. issuer name) from a legal entity */
   private static final LegalEntityFilter<LegalEntity> SHORT_NAME_FILTER = new LegalEntityShortName();
   /** A set of discounting curves for EUR, USD and GBP */
@@ -136,6 +147,15 @@ public class IssuerProviderDiscountDataSets {
     ISSUER_SPECIFIC.put(Pairs.of((Object) GER_NAME, SHORT_NAME_FILTER), GER_EUR_CURVE);
     ISSUER_SPECIFIC.put(Pairs.of((Object) UK_NAME, SHORT_NAME_FILTER), UK_GBP_CURVE);
     ISSUER_SPECIFIC.put(Pairs.of((Object) IT_NAME, SHORT_NAME_FILTER), BEL_EUR_CURVE);
+  }
+  private static final MulticurveProviderDiscount DISCOUNTING_CURVES_AUD = new MulticurveProviderDiscount();
+  static {
+    DISCOUNTING_CURVES_AUD.setCurve(Currency.AUD, AUD_DSC);
+  }
+  /** A set of issuer-specific curves for AUS */
+  private static final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> ISSUER_SPECIFIC_AUS = new LinkedHashMap<>();
+  static {
+    ISSUER_SPECIFIC_AUS.put(Pairs.of((Object) AUS_NAME, SHORT_NAME_FILTER), AUS_AUD_CURVE);
   }
   /** Extracts the country from a legal entity */
   private static final LegalEntityRegion COUNTRY_FILTER;
@@ -208,6 +228,8 @@ public class IssuerProviderDiscountDataSets {
   private static final IssuerProviderDiscount CURRENCY_SPECIFIC_MULTICURVE = new IssuerProviderDiscount(DISCOUNTING_CURVES, CURRENCY_SPECIFIC);
   /** Curves for pricing bonds with country and rating-specific risky curves */
   private static final IssuerProviderDiscount COUNTRY_RATING_SPECIFIC_MULTICURVE = new IssuerProviderDiscount(DISCOUNTING_CURVES, COUNTRY_RATING_SPECIFIC);
+  /** Curves for pricing bonds with issuer-specific risky curves AUS*/
+  private static final IssuerProviderDiscount ISSUER_SPECIFIC_MULTICURVE_AUS = new IssuerProviderDiscount(DISCOUNTING_CURVES_AUD, ISSUER_SPECIFIC_AUS);
 
   /**
    * Returns a multi-curves provider with three discounting currencies (USD, EUR, GBP), one Ibor (EURIBOR3M) and five issuers
@@ -216,6 +238,13 @@ public class IssuerProviderDiscountDataSets {
    */
   public static IssuerProviderDiscount getIssuerSpecificProvider() {
     return ISSUER_SPECIFIC_MULTICURVE;
+  }
+  /**
+   * Returns a multi-curves provider with a discounting currency (AUD) and an issuers (AUS Govt).
+   * @return The provider.
+   */
+  public static IssuerProviderDiscount getIssuerSpecificProviderAus() {
+    return ISSUER_SPECIFIC_MULTICURVE_AUS;
   }
 
   /**
@@ -267,4 +296,13 @@ public class IssuerProviderDiscountDataSets {
   public static LegalEntity[] getIssuers() {
     return new LegalEntity[] {US_GOVT, BEL_GOVT, GER_GOVT, UK_GOVT, IT_GOVT };
   }
+
+  /**
+   * Gets the issuers Australia
+   * @return The issuers AUS
+   */
+  public static LegalEntity getIssuersAUS() {
+    return AUS_GOVT;
+  }
+
 }

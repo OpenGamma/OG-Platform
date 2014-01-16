@@ -100,7 +100,7 @@ public class CommoditySensitivity {
    * @param sensitivityCommodityForwardCurve The map.
    * @return The sensitivity.
    */
-  public static CommoditySensitivity ofYieldDiscountingAndPriceIndex(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
+  public static CommoditySensitivity of(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting,
       final Map<String, List<DoublesPair>> sensitivityCommodityForwardCurve) {
     ArgumentChecker.notNull(sensitivityYieldDiscounting, "Sensitivity yield curve");
     ArgumentChecker.notNull(sensitivityCommodityForwardCurve, "Sensitivity commodity forward curve");

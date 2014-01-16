@@ -69,7 +69,7 @@ public class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethodTest {
       .from(SETTLE_DATE, SWAP_TENOR, NOTIONAL, GENERATOR_OIS_BRL, RATE, false);
   private static final boolean IS_LONG = false;
   private static final SwaptionPhysicalFixedCompoundedONCompoundedDefinition SWAPTION_DEFINITION_LONG_REC =
-      SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, IS_LONG);
+      SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(EXPIRY_DATE, SWAP_DEFINITION_REC, false, IS_LONG);
   private static final SwaptionPhysicalFixedCompoundedONCompounded SWAPTION_LONG_REC = SWAPTION_DEFINITION_LONG_REC.toDerivative(REFERENCE_DATE, CURVES_NAME[0], CURVES_NAME[0]);
 
   private static final SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod METHOD_BLACK = SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.getInstance();

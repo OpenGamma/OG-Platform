@@ -38,7 +38,7 @@ import com.opengamma.util.money.Currency;
  */
 public class AnnuityDefinitionBuilder {
 
-  /**
+  /*
    *  TODO:
    *  Add versions with payment lag
    *  Add CouponONSimpleCoumpounded (standard, simplified, spread, simplified spread)
@@ -179,10 +179,10 @@ public class AnnuityDefinitionBuilder {
    * Create an fixed coupon leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster (see payment period for more details).
    * @param currency The leg currency
    * @param startDate The start/reference date of the computation.
-   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap.
    * @param endNumberRollDate The number of roll dates to the maturity of the swap.
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
-   * @param paymentPeriod The payment period. The payment period is used in the following way: the ratio "n" of number of month in the payment period 
+   * @param paymentPeriod The payment period. The payment period is used in the following way: the ratio "n" of number of month in the payment period
    * and of the "MonthsToAdjust" of the "adjuster" is computed. The ratio is computed with the long division. The payment dates are the adjuster n-th dates.
    * Examples: If the payment period is P6M and the period in the adjuster is P3M, n is 2. If the payment period is P3M and the period in the adjuster is P3M, n is 1.
    * If the payment period is P1M and the period in the adjuster is P3M, n is 1.
@@ -326,7 +326,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(dayCount, "Day count convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional <= 0");
     final ZonedDateTime[] adjustedEndAccrualDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
         businessDayConvention, calendar, endOfMonth, adjuster);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
@@ -389,7 +389,7 @@ public class AnnuityDefinitionBuilder {
   /**
    * Create an Ibor leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster.
    * @param startDate The start/reference date of the computation.
-   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap.
    * @param endNumberRollDate The number of roll dates to the maturity of the swap.
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
    * @param index The Ibor index. There is no check that the index is coherent with the adjuster. It is possible to use a monthly adjuster with a three month index.
@@ -423,13 +423,13 @@ public class AnnuityDefinitionBuilder {
   /**
    * Create an Ibor leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster (see index for more details).
    * @param startDate The start/reference date of the computation.
-   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap.
    * @param endNumberRollDate The number of roll dates to the maturity of the swap.
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
-   * @param index The Ibor index. There is no check that the index is coherent with the adjuster. 
-   * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed. 
+   * @param index The Ibor index. There is no check that the index is coherent with the adjuster.
+   * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed.
    * The ratio is computed with the long division (i.e. with rounding). The payment and accrual dates are the adjuster n-th dates.
-   * The start and end dates of the fixing period are given by the end and start accrual dates of the coupon that are given by the adjuster. 
+   * The start and end dates of the fixing period are given by the end and start accrual dates of the coupon that are given by the adjuster.
    * The may differ from the theoretical date of the index.
    * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
    * If the index tenor is P1M and the period in the adjuster is P3M, n is 1.
@@ -528,7 +528,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(dayCount, "Day count convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final ZonedDateTime[] adjustedEndAccrualDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
         businessDayConvention, calendar, endOfMonth);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
@@ -572,7 +572,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
     ArgumentChecker.notNull(dayCount, "Day count convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final ZonedDateTime[] adjustedEndAccrualDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stub,
         businessDayConvention, calendar, endOfMonth, adjuster);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDate(adjustedEndAccrualDates, paymentLag, calendar);
@@ -673,12 +673,12 @@ public class AnnuityDefinitionBuilder {
   /**
    * Create an Ibor leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster (see payment period for more details).
    * @param startDate The start/reference date of the computation.
-   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap.
    * @param endNumberRollDate The number of roll dates to the maturity of the swap.
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
    * @param notional The swap notional.
-   * @param index The Ibor index. There is no check that the index is coherent with the adjuster. 
-   * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed. 
+   * @param index The Ibor index. There is no check that the index is coherent with the adjuster.
+   * The index period is used in the following way: the ratio "n" of number of month in the index period and of the "MonthsToAdjust" of the "adjuster" is computed.
    * The ratio is computed with the long division (i.e. with rounding toward 0) and minimum at 1. The payment and accrual dates are the adjuster n-th dates.
    * The start and end dates of the fixing period are given by the start and end accrual dates of the coupon that are given by the adjuster, they may differ from the theoretical index dates.
    * Examples: If the index tenor is P6M and the period in the adjuster is P3M, n is 2. If the index tenor is P3M and the period in the adjuster is P3M, n is 1.
@@ -779,7 +779,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg, businessDayConvention, calendar, endOfMonth);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingDefinition[] coupons = new CouponIborCompoundingDefinition[adjustedDateSchedule.length];
@@ -815,7 +815,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg, businessDayConvention, calendar, endOfMonth);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingDefinition[] coupons = new CouponIborCompoundingDefinition[adjustedDateSchedule.length];
@@ -892,7 +892,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg, businessDayConvention, calendar, endOfMonth);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingSpreadDefinition[] coupons = new CouponIborCompoundingSpreadDefinition[adjustedDateSchedule.length];
@@ -929,7 +929,7 @@ public class AnnuityDefinitionBuilder {
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     ArgumentChecker.notNull(index, "index");
     ArgumentChecker.notNull(businessDayConvention, "Business day convention");
-    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.isTrue(notional >= 0, "notional < 0");
     final ZonedDateTime[] adjustedDateSchedule = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, stubLeg, businessDayConvention, calendar, endOfMonth);
     final double signedNotional = isPayer ? -notional : notional;
     final CouponIborCompoundingSpreadDefinition[] coupons = new CouponIborCompoundingSpreadDefinition[adjustedDateSchedule.length];
@@ -1117,7 +1117,7 @@ public class AnnuityDefinitionBuilder {
    * @param endOfMonth The leg end-of-month convention.
    * @param calendar The calendar associated to the payments.
    * @param stubLeg The type of stub for the leg.
-   * @param paymentLag 
+   * @param paymentLag The payment lag
    * @return The annuity.
    */
   public static AnnuityDefinition<CouponONSpreadSimplifiedDefinition> couponONSimpleCompoundedSpreadSimplified(final ZonedDateTime settlementDate,
@@ -1148,7 +1148,7 @@ public class AnnuityDefinitionBuilder {
   /**
    * Annuity of coupon with compunded of ON simple rates. Simplified version (i.e. only the start date and end date of coupon periods are computed) with spread.
    * @param startDate The start/reference date of the computation.
-   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap.
    * @param endNumberRollDate The number of roll dates to the maturity of the swap.
    * @param adjuster The date adjuster, e.g. IMM quarterly dates.
    * @param paymentPeriod The annuity payment period.

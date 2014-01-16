@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
 
+import static com.opengamma.financial.convention.yield.SimpleYieldConvention.AUSTRALIA_EX_DIVIDEND;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.FRANCE_COMPOUND_METHOD;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.GERMAN_BOND;
 import static com.opengamma.financial.convention.yield.SimpleYieldConvention.ITALY_TREASURY_BONDS;
@@ -200,14 +201,16 @@ public final class BondSecurityDiscountingMethod {
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
-      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)) {
+      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)
+          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND)) {
         return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear()) / nominal;
-      } else if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
+      }
+      if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
         return (nominal + bond.getCoupon().getNthPayment(0).getAmount()) / nominal * Math.pow(1.0 + yield / bond.getCouponPerYear(), -bond.getFactorToNextCoupon());
       }
     }
-    if ((yieldConvention.equals(SimpleYieldConvention.US_STREET)) || (yieldConvention.equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD)) ||
-        (yieldConvention.equals(SimpleYieldConvention.GERMAN_BOND)) || (yieldConvention.equals(SimpleYieldConvention.FRANCE_COMPOUND_METHOD))) {
+    if ((yieldConvention.equals(US_STREET)) || (yieldConvention.equals(UK_BUMP_DMO_METHOD)) || (yieldConvention.equals(GERMAN_BOND))
+        || (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) || (yieldConvention.equals(AUSTRALIA_EX_DIVIDEND))) {
       return dirtyPriceFromYieldStandard(bond, yield);
     }
     if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {
@@ -351,14 +354,16 @@ public final class BondSecurityDiscountingMethod {
     //    final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
-      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)) {
+      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)
+          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND)) {
         return bond.getFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
       }
       if (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
         return bond.getFactorToNextCoupon() / bond.getCouponPerYear() / (1.0 + yield / bond.getCouponPerYear());
       }
     }
-    if (yieldConvention.equals(US_STREET) || yieldConvention.equals(UK_BUMP_DMO_METHOD) || yieldConvention.equals(GERMAN_BOND) || (yieldConvention.equals(FRANCE_COMPOUND_METHOD))) {
+    if (yieldConvention.equals(US_STREET) || yieldConvention.equals(UK_BUMP_DMO_METHOD) || yieldConvention.equals(GERMAN_BOND)
+        || (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) || (yieldConvention.equals(AUSTRALIA_EX_DIVIDEND))) {
       return modifiedDurationFromYieldStandard(bond, yield);
     }
     if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {
@@ -491,7 +496,8 @@ public final class BondSecurityDiscountingMethod {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final YieldConvention yieldConvention = bond.getYieldConvention();
     if (nbCoupon == 1) {
-      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND)) {
+      if (yieldConvention.equals(US_STREET) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(ITALY_TREASURY_BONDS)
+          || yieldConvention.equals(AUSTRALIA_EX_DIVIDEND)) {
         final double timeToPay = bond.getFactorToNextCoupon() / bond.getCouponPerYear();
         final double disc = (1.0 + bond.getFactorToNextCoupon() * yield / bond.getCouponPerYear());
         return 2 * timeToPay * timeToPay / (disc * disc);
@@ -500,7 +506,8 @@ public final class BondSecurityDiscountingMethod {
         throw new UnsupportedOperationException("The convention " + bond.getYieldConvention().getName() + "with only one coupon is not supported.");
       }
     }
-    if ((yieldConvention.equals(US_STREET)) || (yieldConvention.equals(UK_BUMP_DMO_METHOD)) || yieldConvention.equals(GERMAN_BOND) || yieldConvention.equals(FRANCE_COMPOUND_METHOD)) {
+    if (yieldConvention.equals(US_STREET) || yieldConvention.equals(UK_BUMP_DMO_METHOD) || yieldConvention.equals(GERMAN_BOND)
+        || (yieldConvention.equals(FRANCE_COMPOUND_METHOD)) || (yieldConvention.equals(AUSTRALIA_EX_DIVIDEND))) {
       return convexityFromYieldStandard(bond, yield);
     }
     if (yieldConvention.equals(ITALY_TREASURY_BONDS)) {

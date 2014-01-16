@@ -43,7 +43,7 @@ public class CalculationNodeUtils {
   }
 
   public static void configureTestCalcNode(final TestCalculationNode calcNode, final MockFunction mockFunction) {
-    final InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepository();
+    final InMemoryFunctionRepository functionRepo = (InMemoryFunctionRepository) calcNode.getFunctionCompilationService().getFunctionRepositoryFactory().constructRepository(Instant.now());
     functionRepo.addFunction(mockFunction);
     calcNode.getFunctionCompilationService().initialize();
   }

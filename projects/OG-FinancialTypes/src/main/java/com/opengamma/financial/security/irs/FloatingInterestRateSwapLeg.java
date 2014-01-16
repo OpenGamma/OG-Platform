@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.irs;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -18,7 +19,13 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.convention.FloatingInterestRateSwapLegConvention;
+import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.instrument.annuity.CompoundingMethod;
+import com.opengamma.analytics.financial.instrument.annuity.DateRelativeTo;
+import com.opengamma.analytics.financial.instrument.annuity.OffsetType;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,6 +46,12 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
    */
   @PropertyDefinition
   private RateAveragingMethod _rateAveragingMethod;
+  
+  /**
+   * The number of days to cutoff the rate averaging.
+   */
+  @PropertyDefinition
+  private int _rateCutoffDaysOffset;
 
   /**
    * The cap.
@@ -68,37 +81,95 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
   private Rate _spreadSchedule;
 
   /**
-   * The floating rate convention.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private FloatingInterestRateSwapLegConvention _convention;
-
-  /**
    * The schedule for the dates on this leg.
    * Allows the conventions to be overridden with specific dates.
    */
   @PropertyDefinition
   private FloatingInterestRateSwapLegSchedule _schedule;
+  
+  /**
+   * The reference rate external id.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _floatingReferenceRateId;
+  
+  /**
+   * The floating rate type.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private FloatingRateType _floatingRateType;
+  
+  /*
+   * Reset period parameters
+   */
+  
+  /**
+   * The calendars used to adjust the reset period dates.
+   */
+  @PropertyDefinition
+  private Set<ExternalId> _resetPeriodCalendars = Sets.newHashSet();
+  
+  /**
+   * The business day convention used to adjust the reset period dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConvention _resetPeriodBusinessDayConvention;
+  
+  /**
+   * The frequency of the reset periods.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Frequency _resetPeriodFrequency;
+  
+  /**
+   * Flag that describes whether the reset date is relative to the start or end of the accrual periods.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DateRelativeTo _resetDateRelativeTo = DateRelativeTo.START;
+ 
+  /**
+   * The compounding method used when the reset frequency is higher than the payment frequency.
+   */
+  @PropertyDefinition
+  private CompoundingMethod _compoundingMethod = CompoundingMethod.NONE;
+  
+  /*
+   * Fixing date parameters
+   */
+  
+  /**
+   * The calendars used to adjust the fixing dates.
+   */
+  @PropertyDefinition
+  private Set<ExternalId> _fixingDateCalendars = Sets.newHashSet();
+  
+  /**
+   * The business day convention used to adjust the fixing dates.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private BusinessDayConvention _fixingDateBusinessDayConvention;
+  
+  /**
+   * The number of days offset of the fixing dates, relative to the accrual periods.
+   */
+  @PropertyDefinition
+  private int _fixingDateOffset;
+  
+  /**
+   * The type of days offset, relative to the accrual periods.
+   */
+  @PropertyDefinition
+  private OffsetType _fixingDateOffsetType;
 
   @Override
   public <T> T accept(InterestRateSwapLegVisitor<T> visitor) {
     return visitor.visitFloatingInterestRateSwapLeg(this);
   }
 
-  /**
-   * Get the floating rate id
-   *
-   * @return the floating rate id
-   */
-  public ExternalId getFloatingReferenceRateId() {
-    ArgumentChecker.isTrue(!getConvention().getExternalIdBundle().isEmpty(), "FloatingRateId not set");
-    return getConvention().getExternalIdBundle().iterator().next().getExternalId();
-  }
-
   @Override
   public String toString() {
-    return String.format("Float %s swap leg: %s %s %s %d", _convention.getRateType(), getPayReceiveType(),
-                         _convention.getExternalIdBundle().getExternalIds().first().getValue(),
+    return String.format("Float %s swap leg: %s %s %s %d", _floatingRateType, getPayReceiveType(),
+                         _floatingReferenceRateId,
                          getNotional().getCurrency(), (long) getNotional().getInitialAmount());
   }
 
@@ -169,6 +240,31 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
    */
   public final Property<RateAveragingMethod> rateAveragingMethod() {
     return metaBean().rateAveragingMethod().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the number of days to cutoff the rate averaging.
+   * @return the value of the property
+   */
+  public int getRateCutoffDaysOffset() {
+    return _rateCutoffDaysOffset;
+  }
+
+  /**
+   * Sets the number of days to cutoff the rate averaging.
+   * @param rateCutoffDaysOffset  the new value of the property
+   */
+  public void setRateCutoffDaysOffset(int rateCutoffDaysOffset) {
+    this._rateCutoffDaysOffset = rateCutoffDaysOffset;
+  }
+
+  /**
+   * Gets the the {@code rateCutoffDaysOffset} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> rateCutoffDaysOffset() {
+    return metaBean().rateCutoffDaysOffset().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -274,32 +370,6 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the floating rate convention.
-   * @return the value of the property, not null
-   */
-  public FloatingInterestRateSwapLegConvention getConvention() {
-    return _convention;
-  }
-
-  /**
-   * Sets the floating rate convention.
-   * @param convention  the new value of the property, not null
-   */
-  public void setConvention(FloatingInterestRateSwapLegConvention convention) {
-    JodaBeanUtils.notNull(convention, "convention");
-    this._convention = convention;
-  }
-
-  /**
-   * Gets the the {@code convention} property.
-   * @return the property, not null
-   */
-  public final Property<FloatingInterestRateSwapLegConvention> convention() {
-    return metaBean().convention().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the schedule for the dates on this leg.
    * Allows the conventions to be overridden with specific dates.
    * @return the value of the property
@@ -327,6 +397,287 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the reference rate external id.
+   * @return the value of the property, not null
+   */
+  public ExternalId getFloatingReferenceRateId() {
+    return _floatingReferenceRateId;
+  }
+
+  /**
+   * Sets the reference rate external id.
+   * @param floatingReferenceRateId  the new value of the property, not null
+   */
+  public void setFloatingReferenceRateId(ExternalId floatingReferenceRateId) {
+    JodaBeanUtils.notNull(floatingReferenceRateId, "floatingReferenceRateId");
+    this._floatingReferenceRateId = floatingReferenceRateId;
+  }
+
+  /**
+   * Gets the the {@code floatingReferenceRateId} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> floatingReferenceRateId() {
+    return metaBean().floatingReferenceRateId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the floating rate type.
+   * @return the value of the property, not null
+   */
+  public FloatingRateType getFloatingRateType() {
+    return _floatingRateType;
+  }
+
+  /**
+   * Sets the floating rate type.
+   * @param floatingRateType  the new value of the property, not null
+   */
+  public void setFloatingRateType(FloatingRateType floatingRateType) {
+    JodaBeanUtils.notNull(floatingRateType, "floatingRateType");
+    this._floatingRateType = floatingRateType;
+  }
+
+  /**
+   * Gets the the {@code floatingRateType} property.
+   * @return the property, not null
+   */
+  public final Property<FloatingRateType> floatingRateType() {
+    return metaBean().floatingRateType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the calendars used to adjust the reset period dates.
+   * @return the value of the property
+   */
+  public Set<ExternalId> getResetPeriodCalendars() {
+    return _resetPeriodCalendars;
+  }
+
+  /**
+   * Sets the calendars used to adjust the reset period dates.
+   * @param resetPeriodCalendars  the new value of the property
+   */
+  public void setResetPeriodCalendars(Set<ExternalId> resetPeriodCalendars) {
+    this._resetPeriodCalendars = resetPeriodCalendars;
+  }
+
+  /**
+   * Gets the the {@code resetPeriodCalendars} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ExternalId>> resetPeriodCalendars() {
+    return metaBean().resetPeriodCalendars().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention used to adjust the reset period dates.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getResetPeriodBusinessDayConvention() {
+    return _resetPeriodBusinessDayConvention;
+  }
+
+  /**
+   * Sets the business day convention used to adjust the reset period dates.
+   * @param resetPeriodBusinessDayConvention  the new value of the property, not null
+   */
+  public void setResetPeriodBusinessDayConvention(BusinessDayConvention resetPeriodBusinessDayConvention) {
+    JodaBeanUtils.notNull(resetPeriodBusinessDayConvention, "resetPeriodBusinessDayConvention");
+    this._resetPeriodBusinessDayConvention = resetPeriodBusinessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code resetPeriodBusinessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> resetPeriodBusinessDayConvention() {
+    return metaBean().resetPeriodBusinessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the frequency of the reset periods.
+   * @return the value of the property, not null
+   */
+  public Frequency getResetPeriodFrequency() {
+    return _resetPeriodFrequency;
+  }
+
+  /**
+   * Sets the frequency of the reset periods.
+   * @param resetPeriodFrequency  the new value of the property, not null
+   */
+  public void setResetPeriodFrequency(Frequency resetPeriodFrequency) {
+    JodaBeanUtils.notNull(resetPeriodFrequency, "resetPeriodFrequency");
+    this._resetPeriodFrequency = resetPeriodFrequency;
+  }
+
+  /**
+   * Gets the the {@code resetPeriodFrequency} property.
+   * @return the property, not null
+   */
+  public final Property<Frequency> resetPeriodFrequency() {
+    return metaBean().resetPeriodFrequency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets flag that describes whether the reset date is relative to the start or end of the accrual periods.
+   * @return the value of the property, not null
+   */
+  public DateRelativeTo getResetDateRelativeTo() {
+    return _resetDateRelativeTo;
+  }
+
+  /**
+   * Sets flag that describes whether the reset date is relative to the start or end of the accrual periods.
+   * @param resetDateRelativeTo  the new value of the property, not null
+   */
+  public void setResetDateRelativeTo(DateRelativeTo resetDateRelativeTo) {
+    JodaBeanUtils.notNull(resetDateRelativeTo, "resetDateRelativeTo");
+    this._resetDateRelativeTo = resetDateRelativeTo;
+  }
+
+  /**
+   * Gets the the {@code resetDateRelativeTo} property.
+   * @return the property, not null
+   */
+  public final Property<DateRelativeTo> resetDateRelativeTo() {
+    return metaBean().resetDateRelativeTo().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the compounding method used when the reset frequency is higher than the payment frequency.
+   * @return the value of the property
+   */
+  public CompoundingMethod getCompoundingMethod() {
+    return _compoundingMethod;
+  }
+
+  /**
+   * Sets the compounding method used when the reset frequency is higher than the payment frequency.
+   * @param compoundingMethod  the new value of the property
+   */
+  public void setCompoundingMethod(CompoundingMethod compoundingMethod) {
+    this._compoundingMethod = compoundingMethod;
+  }
+
+  /**
+   * Gets the the {@code compoundingMethod} property.
+   * @return the property, not null
+   */
+  public final Property<CompoundingMethod> compoundingMethod() {
+    return metaBean().compoundingMethod().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the calendars used to adjust the fixing dates.
+   * @return the value of the property
+   */
+  public Set<ExternalId> getFixingDateCalendars() {
+    return _fixingDateCalendars;
+  }
+
+  /**
+   * Sets the calendars used to adjust the fixing dates.
+   * @param fixingDateCalendars  the new value of the property
+   */
+  public void setFixingDateCalendars(Set<ExternalId> fixingDateCalendars) {
+    this._fixingDateCalendars = fixingDateCalendars;
+  }
+
+  /**
+   * Gets the the {@code fixingDateCalendars} property.
+   * @return the property, not null
+   */
+  public final Property<Set<ExternalId>> fixingDateCalendars() {
+    return metaBean().fixingDateCalendars().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the business day convention used to adjust the fixing dates.
+   * @return the value of the property, not null
+   */
+  public BusinessDayConvention getFixingDateBusinessDayConvention() {
+    return _fixingDateBusinessDayConvention;
+  }
+
+  /**
+   * Sets the business day convention used to adjust the fixing dates.
+   * @param fixingDateBusinessDayConvention  the new value of the property, not null
+   */
+  public void setFixingDateBusinessDayConvention(BusinessDayConvention fixingDateBusinessDayConvention) {
+    JodaBeanUtils.notNull(fixingDateBusinessDayConvention, "fixingDateBusinessDayConvention");
+    this._fixingDateBusinessDayConvention = fixingDateBusinessDayConvention;
+  }
+
+  /**
+   * Gets the the {@code fixingDateBusinessDayConvention} property.
+   * @return the property, not null
+   */
+  public final Property<BusinessDayConvention> fixingDateBusinessDayConvention() {
+    return metaBean().fixingDateBusinessDayConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the number of days offset of the fixing dates, relative to the accrual periods.
+   * @return the value of the property
+   */
+  public int getFixingDateOffset() {
+    return _fixingDateOffset;
+  }
+
+  /**
+   * Sets the number of days offset of the fixing dates, relative to the accrual periods.
+   * @param fixingDateOffset  the new value of the property
+   */
+  public void setFixingDateOffset(int fixingDateOffset) {
+    this._fixingDateOffset = fixingDateOffset;
+  }
+
+  /**
+   * Gets the the {@code fixingDateOffset} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> fixingDateOffset() {
+    return metaBean().fixingDateOffset().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the type of days offset, relative to the accrual periods.
+   * @return the value of the property
+   */
+  public OffsetType getFixingDateOffsetType() {
+    return _fixingDateOffsetType;
+  }
+
+  /**
+   * Sets the type of days offset, relative to the accrual periods.
+   * @param fixingDateOffsetType  the new value of the property
+   */
+  public void setFixingDateOffsetType(OffsetType fixingDateOffsetType) {
+    this._fixingDateOffsetType = fixingDateOffsetType;
+  }
+
+  /**
+   * Gets the the {@code fixingDateOffsetType} property.
+   * @return the property, not null
+   */
+  public final Property<OffsetType> fixingDateOffsetType() {
+    return metaBean().fixingDateOffsetType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public FloatingInterestRateSwapLeg clone() {
     return (FloatingInterestRateSwapLeg) super.clone();
@@ -341,12 +692,23 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
       FloatingInterestRateSwapLeg other = (FloatingInterestRateSwapLeg) obj;
       return JodaBeanUtils.equal(getCustomRates(), other.getCustomRates()) &&
           JodaBeanUtils.equal(getRateAveragingMethod(), other.getRateAveragingMethod()) &&
+          (getRateCutoffDaysOffset() == other.getRateCutoffDaysOffset()) &&
           JodaBeanUtils.equal(getCapRate(), other.getCapRate()) &&
           JodaBeanUtils.equal(getFloorRate(), other.getFloorRate()) &&
           JodaBeanUtils.equal(getGearing(), other.getGearing()) &&
           JodaBeanUtils.equal(getSpreadSchedule(), other.getSpreadSchedule()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
           JodaBeanUtils.equal(getSchedule(), other.getSchedule()) &&
+          JodaBeanUtils.equal(getFloatingReferenceRateId(), other.getFloatingReferenceRateId()) &&
+          JodaBeanUtils.equal(getFloatingRateType(), other.getFloatingRateType()) &&
+          JodaBeanUtils.equal(getResetPeriodCalendars(), other.getResetPeriodCalendars()) &&
+          JodaBeanUtils.equal(getResetPeriodBusinessDayConvention(), other.getResetPeriodBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getResetPeriodFrequency(), other.getResetPeriodFrequency()) &&
+          JodaBeanUtils.equal(getResetDateRelativeTo(), other.getResetDateRelativeTo()) &&
+          JodaBeanUtils.equal(getCompoundingMethod(), other.getCompoundingMethod()) &&
+          JodaBeanUtils.equal(getFixingDateCalendars(), other.getFixingDateCalendars()) &&
+          JodaBeanUtils.equal(getFixingDateBusinessDayConvention(), other.getFixingDateBusinessDayConvention()) &&
+          (getFixingDateOffset() == other.getFixingDateOffset()) &&
+          JodaBeanUtils.equal(getFixingDateOffsetType(), other.getFixingDateOffsetType()) &&
           super.equals(obj);
     }
     return false;
@@ -357,12 +719,23 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCustomRates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRateAveragingMethod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRateCutoffDaysOffset());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCapRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFloorRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getGearing());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpreadSchedule());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSchedule());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingReferenceRateId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFloatingRateType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResetPeriodFrequency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResetDateRelativeTo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingMethod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateCalendars());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffset());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingDateOffsetType());
     return hash ^ super.hashCode();
   }
 
@@ -387,6 +760,11 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     private final MetaProperty<RateAveragingMethod> _rateAveragingMethod = DirectMetaProperty.ofReadWrite(
         this, "rateAveragingMethod", FloatingInterestRateSwapLeg.class, RateAveragingMethod.class);
     /**
+     * The meta-property for the {@code rateCutoffDaysOffset} property.
+     */
+    private final MetaProperty<Integer> _rateCutoffDaysOffset = DirectMetaProperty.ofReadWrite(
+        this, "rateCutoffDaysOffset", FloatingInterestRateSwapLeg.class, Integer.TYPE);
+    /**
      * The meta-property for the {@code capRate} property.
      */
     private final MetaProperty<Double> _capRate = DirectMetaProperty.ofReadWrite(
@@ -407,15 +785,67 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     private final MetaProperty<Rate> _spreadSchedule = DirectMetaProperty.ofReadWrite(
         this, "spreadSchedule", FloatingInterestRateSwapLeg.class, Rate.class);
     /**
-     * The meta-property for the {@code convention} property.
-     */
-    private final MetaProperty<FloatingInterestRateSwapLegConvention> _convention = DirectMetaProperty.ofReadWrite(
-        this, "convention", FloatingInterestRateSwapLeg.class, FloatingInterestRateSwapLegConvention.class);
-    /**
      * The meta-property for the {@code schedule} property.
      */
     private final MetaProperty<FloatingInterestRateSwapLegSchedule> _schedule = DirectMetaProperty.ofReadWrite(
         this, "schedule", FloatingInterestRateSwapLeg.class, FloatingInterestRateSwapLegSchedule.class);
+    /**
+     * The meta-property for the {@code floatingReferenceRateId} property.
+     */
+    private final MetaProperty<ExternalId> _floatingReferenceRateId = DirectMetaProperty.ofReadWrite(
+        this, "floatingReferenceRateId", FloatingInterestRateSwapLeg.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code floatingRateType} property.
+     */
+    private final MetaProperty<FloatingRateType> _floatingRateType = DirectMetaProperty.ofReadWrite(
+        this, "floatingRateType", FloatingInterestRateSwapLeg.class, FloatingRateType.class);
+    /**
+     * The meta-property for the {@code resetPeriodCalendars} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _resetPeriodCalendars = DirectMetaProperty.ofReadWrite(
+        this, "resetPeriodCalendars", FloatingInterestRateSwapLeg.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code resetPeriodBusinessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _resetPeriodBusinessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "resetPeriodBusinessDayConvention", FloatingInterestRateSwapLeg.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code resetPeriodFrequency} property.
+     */
+    private final MetaProperty<Frequency> _resetPeriodFrequency = DirectMetaProperty.ofReadWrite(
+        this, "resetPeriodFrequency", FloatingInterestRateSwapLeg.class, Frequency.class);
+    /**
+     * The meta-property for the {@code resetDateRelativeTo} property.
+     */
+    private final MetaProperty<DateRelativeTo> _resetDateRelativeTo = DirectMetaProperty.ofReadWrite(
+        this, "resetDateRelativeTo", FloatingInterestRateSwapLeg.class, DateRelativeTo.class);
+    /**
+     * The meta-property for the {@code compoundingMethod} property.
+     */
+    private final MetaProperty<CompoundingMethod> _compoundingMethod = DirectMetaProperty.ofReadWrite(
+        this, "compoundingMethod", FloatingInterestRateSwapLeg.class, CompoundingMethod.class);
+    /**
+     * The meta-property for the {@code fixingDateCalendars} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<ExternalId>> _fixingDateCalendars = DirectMetaProperty.ofReadWrite(
+        this, "fixingDateCalendars", FloatingInterestRateSwapLeg.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code fixingDateBusinessDayConvention} property.
+     */
+    private final MetaProperty<BusinessDayConvention> _fixingDateBusinessDayConvention = DirectMetaProperty.ofReadWrite(
+        this, "fixingDateBusinessDayConvention", FloatingInterestRateSwapLeg.class, BusinessDayConvention.class);
+    /**
+     * The meta-property for the {@code fixingDateOffset} property.
+     */
+    private final MetaProperty<Integer> _fixingDateOffset = DirectMetaProperty.ofReadWrite(
+        this, "fixingDateOffset", FloatingInterestRateSwapLeg.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code fixingDateOffsetType} property.
+     */
+    private final MetaProperty<OffsetType> _fixingDateOffsetType = DirectMetaProperty.ofReadWrite(
+        this, "fixingDateOffsetType", FloatingInterestRateSwapLeg.class, OffsetType.class);
     /**
      * The meta-properties.
      */
@@ -423,12 +853,23 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "customRates",
         "rateAveragingMethod",
+        "rateCutoffDaysOffset",
         "capRate",
         "floorRate",
         "gearing",
         "spreadSchedule",
-        "convention",
-        "schedule");
+        "schedule",
+        "floatingReferenceRateId",
+        "floatingRateType",
+        "resetPeriodCalendars",
+        "resetPeriodBusinessDayConvention",
+        "resetPeriodFrequency",
+        "resetDateRelativeTo",
+        "compoundingMethod",
+        "fixingDateCalendars",
+        "fixingDateBusinessDayConvention",
+        "fixingDateOffset",
+        "fixingDateOffsetType");
 
     /**
      * Restricted constructor.
@@ -443,6 +884,8 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return _customRates;
         case 154998811:  // rateAveragingMethod
           return _rateAveragingMethod;
+        case -1252935529:  // rateCutoffDaysOffset
+          return _rateCutoffDaysOffset;
         case 551552978:  // capRate
           return _capRate;
         case -1712455924:  // floorRate
@@ -451,10 +894,30 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return _gearing;
         case 1343931690:  // spreadSchedule
           return _spreadSchedule;
-        case 2039569265:  // convention
-          return _convention;
         case -697920873:  // schedule
           return _schedule;
+        case -1120221088:  // floatingReferenceRateId
+          return _floatingReferenceRateId;
+        case 1642653280:  // floatingRateType
+          return _floatingRateType;
+        case 1510175461:  // resetPeriodCalendars
+          return _resetPeriodCalendars;
+        case 1697877565:  // resetPeriodBusinessDayConvention
+          return _resetPeriodBusinessDayConvention;
+        case -1621718196:  // resetPeriodFrequency
+          return _resetPeriodFrequency;
+        case 397410276:  // resetDateRelativeTo
+          return _resetDateRelativeTo;
+        case -1376171496:  // compoundingMethod
+          return _compoundingMethod;
+        case -1369761222:  // fixingDateCalendars
+          return _fixingDateCalendars;
+        case -1714823662:  // fixingDateBusinessDayConvention
+          return _fixingDateBusinessDayConvention;
+        case 873743726:  // fixingDateOffset
+          return _fixingDateOffset;
+        case -593501752:  // fixingDateOffsetType
+          return _fixingDateOffsetType;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -492,6 +955,14 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     }
 
     /**
+     * The meta-property for the {@code rateCutoffDaysOffset} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> rateCutoffDaysOffset() {
+      return _rateCutoffDaysOffset;
+    }
+
+    /**
      * The meta-property for the {@code capRate} property.
      * @return the meta-property, not null
      */
@@ -524,19 +995,99 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     }
 
     /**
-     * The meta-property for the {@code convention} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<FloatingInterestRateSwapLegConvention> convention() {
-      return _convention;
-    }
-
-    /**
      * The meta-property for the {@code schedule} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<FloatingInterestRateSwapLegSchedule> schedule() {
       return _schedule;
+    }
+
+    /**
+     * The meta-property for the {@code floatingReferenceRateId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> floatingReferenceRateId() {
+      return _floatingReferenceRateId;
+    }
+
+    /**
+     * The meta-property for the {@code floatingRateType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FloatingRateType> floatingRateType() {
+      return _floatingRateType;
+    }
+
+    /**
+     * The meta-property for the {@code resetPeriodCalendars} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ExternalId>> resetPeriodCalendars() {
+      return _resetPeriodCalendars;
+    }
+
+    /**
+     * The meta-property for the {@code resetPeriodBusinessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> resetPeriodBusinessDayConvention() {
+      return _resetPeriodBusinessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code resetPeriodFrequency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Frequency> resetPeriodFrequency() {
+      return _resetPeriodFrequency;
+    }
+
+    /**
+     * The meta-property for the {@code resetDateRelativeTo} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DateRelativeTo> resetDateRelativeTo() {
+      return _resetDateRelativeTo;
+    }
+
+    /**
+     * The meta-property for the {@code compoundingMethod} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CompoundingMethod> compoundingMethod() {
+      return _compoundingMethod;
+    }
+
+    /**
+     * The meta-property for the {@code fixingDateCalendars} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<ExternalId>> fixingDateCalendars() {
+      return _fixingDateCalendars;
+    }
+
+    /**
+     * The meta-property for the {@code fixingDateBusinessDayConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BusinessDayConvention> fixingDateBusinessDayConvention() {
+      return _fixingDateBusinessDayConvention;
+    }
+
+    /**
+     * The meta-property for the {@code fixingDateOffset} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> fixingDateOffset() {
+      return _fixingDateOffset;
+    }
+
+    /**
+     * The meta-property for the {@code fixingDateOffsetType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<OffsetType> fixingDateOffsetType() {
+      return _fixingDateOffsetType;
     }
 
     //-----------------------------------------------------------------------
@@ -547,6 +1098,8 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return ((FloatingInterestRateSwapLeg) bean).getCustomRates();
         case 154998811:  // rateAveragingMethod
           return ((FloatingInterestRateSwapLeg) bean).getRateAveragingMethod();
+        case -1252935529:  // rateCutoffDaysOffset
+          return ((FloatingInterestRateSwapLeg) bean).getRateCutoffDaysOffset();
         case 551552978:  // capRate
           return ((FloatingInterestRateSwapLeg) bean).getCapRate();
         case -1712455924:  // floorRate
@@ -555,14 +1108,35 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return ((FloatingInterestRateSwapLeg) bean).getGearing();
         case 1343931690:  // spreadSchedule
           return ((FloatingInterestRateSwapLeg) bean).getSpreadSchedule();
-        case 2039569265:  // convention
-          return ((FloatingInterestRateSwapLeg) bean).getConvention();
         case -697920873:  // schedule
           return ((FloatingInterestRateSwapLeg) bean).getSchedule();
+        case -1120221088:  // floatingReferenceRateId
+          return ((FloatingInterestRateSwapLeg) bean).getFloatingReferenceRateId();
+        case 1642653280:  // floatingRateType
+          return ((FloatingInterestRateSwapLeg) bean).getFloatingRateType();
+        case 1510175461:  // resetPeriodCalendars
+          return ((FloatingInterestRateSwapLeg) bean).getResetPeriodCalendars();
+        case 1697877565:  // resetPeriodBusinessDayConvention
+          return ((FloatingInterestRateSwapLeg) bean).getResetPeriodBusinessDayConvention();
+        case -1621718196:  // resetPeriodFrequency
+          return ((FloatingInterestRateSwapLeg) bean).getResetPeriodFrequency();
+        case 397410276:  // resetDateRelativeTo
+          return ((FloatingInterestRateSwapLeg) bean).getResetDateRelativeTo();
+        case -1376171496:  // compoundingMethod
+          return ((FloatingInterestRateSwapLeg) bean).getCompoundingMethod();
+        case -1369761222:  // fixingDateCalendars
+          return ((FloatingInterestRateSwapLeg) bean).getFixingDateCalendars();
+        case -1714823662:  // fixingDateBusinessDayConvention
+          return ((FloatingInterestRateSwapLeg) bean).getFixingDateBusinessDayConvention();
+        case 873743726:  // fixingDateOffset
+          return ((FloatingInterestRateSwapLeg) bean).getFixingDateOffset();
+        case -593501752:  // fixingDateOffsetType
+          return ((FloatingInterestRateSwapLeg) bean).getFixingDateOffsetType();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
@@ -571,6 +1145,9 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
           return;
         case 154998811:  // rateAveragingMethod
           ((FloatingInterestRateSwapLeg) bean).setRateAveragingMethod((RateAveragingMethod) newValue);
+          return;
+        case -1252935529:  // rateCutoffDaysOffset
+          ((FloatingInterestRateSwapLeg) bean).setRateCutoffDaysOffset((Integer) newValue);
           return;
         case 551552978:  // capRate
           ((FloatingInterestRateSwapLeg) bean).setCapRate((Double) newValue);
@@ -584,11 +1161,41 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
         case 1343931690:  // spreadSchedule
           ((FloatingInterestRateSwapLeg) bean).setSpreadSchedule((Rate) newValue);
           return;
-        case 2039569265:  // convention
-          ((FloatingInterestRateSwapLeg) bean).setConvention((FloatingInterestRateSwapLegConvention) newValue);
-          return;
         case -697920873:  // schedule
           ((FloatingInterestRateSwapLeg) bean).setSchedule((FloatingInterestRateSwapLegSchedule) newValue);
+          return;
+        case -1120221088:  // floatingReferenceRateId
+          ((FloatingInterestRateSwapLeg) bean).setFloatingReferenceRateId((ExternalId) newValue);
+          return;
+        case 1642653280:  // floatingRateType
+          ((FloatingInterestRateSwapLeg) bean).setFloatingRateType((FloatingRateType) newValue);
+          return;
+        case 1510175461:  // resetPeriodCalendars
+          ((FloatingInterestRateSwapLeg) bean).setResetPeriodCalendars((Set<ExternalId>) newValue);
+          return;
+        case 1697877565:  // resetPeriodBusinessDayConvention
+          ((FloatingInterestRateSwapLeg) bean).setResetPeriodBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case -1621718196:  // resetPeriodFrequency
+          ((FloatingInterestRateSwapLeg) bean).setResetPeriodFrequency((Frequency) newValue);
+          return;
+        case 397410276:  // resetDateRelativeTo
+          ((FloatingInterestRateSwapLeg) bean).setResetDateRelativeTo((DateRelativeTo) newValue);
+          return;
+        case -1376171496:  // compoundingMethod
+          ((FloatingInterestRateSwapLeg) bean).setCompoundingMethod((CompoundingMethod) newValue);
+          return;
+        case -1369761222:  // fixingDateCalendars
+          ((FloatingInterestRateSwapLeg) bean).setFixingDateCalendars((Set<ExternalId>) newValue);
+          return;
+        case -1714823662:  // fixingDateBusinessDayConvention
+          ((FloatingInterestRateSwapLeg) bean).setFixingDateBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 873743726:  // fixingDateOffset
+          ((FloatingInterestRateSwapLeg) bean).setFixingDateOffset((Integer) newValue);
+          return;
+        case -593501752:  // fixingDateOffsetType
+          ((FloatingInterestRateSwapLeg) bean).setFixingDateOffsetType((OffsetType) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -597,7 +1204,12 @@ public class FloatingInterestRateSwapLeg extends InterestRateSwapLeg {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._gearing, "gearing");
-      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._convention, "convention");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._floatingReferenceRateId, "floatingReferenceRateId");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._floatingRateType, "floatingRateType");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._resetPeriodBusinessDayConvention, "resetPeriodBusinessDayConvention");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._resetPeriodFrequency, "resetPeriodFrequency");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._resetDateRelativeTo, "resetDateRelativeTo");
+      JodaBeanUtils.notNull(((FloatingInterestRateSwapLeg) bean)._fixingDateBusinessDayConvention, "fixingDateBusinessDayConvention");
       super.validate(bean);
     }
 

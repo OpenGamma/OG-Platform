@@ -175,8 +175,7 @@ import com.opengamma.util.tuple.Pairs;
     ExceptionWrapper.createAndPut(t, _exceptions);
   }
 
-  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent,
-      final Collection<FunctionExclusionGroup> functionExclusion) {
+  public ResolvedValueProducer resolveRequirement(final ValueRequirement rawRequirement, final ResolveTask dependent, final Collection<FunctionExclusionGroup> functionExclusion) {
     final ValueRequirement requirement = simplifyType(rawRequirement);
     s_logger.debug("Resolve requirement {}", requirement);
     if ((dependent != null) && dependent.hasParent(requirement)) {
@@ -231,8 +230,7 @@ import com.opengamma.util.tuple.Pairs;
     }
   }
 
-  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask,
-      final Collection<FunctionExclusionGroup> functionExclusion) {
+  public ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask, final Collection<FunctionExclusionGroup> functionExclusion) {
     final ResolveTask newTask = new ResolveTask(valueRequirement, parentTask, functionExclusion);
     do {
       ResolveTask task;
@@ -318,6 +316,14 @@ import com.opengamma.util.tuple.Pairs;
     } while (true);
   }
 
+  /**
+   * Fetches an existing resolution of the given value specification.
+   * <p>
+   * The {@code valueSpecification} parameter must be normalized.
+   * 
+   * @param valueSpecification the specification to search for, not null
+   * @return the resolved value, or null if not resolved
+   */
   public ResolvedValue getProduction(final ValueSpecification valueSpecification) {
     return getBuilder().getResolvedValue(valueSpecification);
   }
@@ -415,6 +421,16 @@ import com.opengamma.util.tuple.Pairs;
     } while (true);
   }
 
+  /**
+   * Declares a task that has been created to deliver a potential resolution.
+   * <p>
+   * The {@code valueSpecification} parameter must be normalized
+   * 
+   * @param valueSpecification the tentative resolution the value producer will attempt to deliver, not null
+   * @param task the task to perform the resolution, not null
+   * @param producer the value producer managed by the task which will deliver the value specification, not null
+   * @return an existing producer, otherwise null if the new task is now declared for the work
+   */
   public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
     do {
       final MapEx<ResolveTask, ResolvedValueProducer> tasks = getBuilder().getOrCreateTasks(valueSpecification);
@@ -499,6 +515,8 @@ import com.opengamma.util.tuple.Pairs;
 
   /**
    * Simplifies the type based on the associated {@link ComputationTargetResolver}.
+   * <p>
+   * This returns a normalized form of the value specification.
    * 
    * @param valueSpec the specification to process, not null
    * @return the possibly simplified specification, not null

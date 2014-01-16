@@ -13,11 +13,10 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.config.ConfigSourceQuery;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -32,22 +31,15 @@ public class VolatilityCubeFunctionHelper {
   private final String _definitionName;
   private VolatilityCubeDefinition _definition;
 
-
   public VolatilityCubeFunctionHelper(final Currency currency, final String definitionName) {
     _definitionName = definitionName;
     _currency = currency;
   }
 
   public VolatilityCubeDefinition init(final FunctionCompilationContext context, final FunctionDefinition defnToReInit) {
-    _definition = getDefinition(context);
+    _definition = ConfigSourceQuery.init(context, defnToReInit, VolatilityCubeDefinition.class).get(_definitionName + "_" + _currency);
     if (_definition == null) {
       s_logger.warn("No cube definition for {} on {}", _definitionName, _currency);
-    } else {
-      if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
-      } else {
-        s_logger.warn("Cube {} on {} has no identifier - cannot subscribe to updates", _definitionName, _currency);
-      }
     }
     return _definition;
   }
@@ -64,8 +56,7 @@ public class VolatilityCubeFunctionHelper {
     return _definitionName;
   }
 
-  public Triple<Instant, Instant, VolatilityCubeSpecification> compile(
-    final FunctionCompilationContext context, final Instant atInstant) {
+  public Triple<Instant, Instant, VolatilityCubeSpecification> compile(final FunctionCompilationContext context, final Instant atInstant) {
     //TODO: avoid doing this compile twice all the time
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final LocalDate curveDate = atZDT.toLocalDate();
@@ -75,13 +66,7 @@ public class VolatilityCubeFunctionHelper {
     final Instant eod = atZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant();
     Instant expiry = null;
     expiry = eod;
-    return new Triple<>(atZDT.with(LocalTime.MIDNIGHT).toInstant(),
-      expiry, specification);
-  }
-
-  private VolatilityCubeDefinition getDefinition(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    return configSource.getLatestByName(VolatilityCubeDefinition.class, _definitionName + "_" + _currency);
+    return new Triple<>(atZDT.with(LocalTime.MIDNIGHT).toInstant(), expiry, specification);
   }
 
   private VolatilityCubeSpecification buildSpecification(final LocalDate curveDate) {

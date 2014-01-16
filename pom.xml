@@ -449,6 +449,12 @@
         <artifactId>groovy-all</artifactId>
         <version>2.1.5</version>
       </dependency>
+      <dependency>
+        <groupId>org.jdeferred</groupId>
+        <artifactId>jdeferred-core</artifactId>
+        <version>1.1.1</version>
+      </dependency>
+      
 
       <!-- Logging -->
       <dependency>
@@ -1228,7 +1234,7 @@
     <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version><!-- downgrade to fix site plugin -->
     <!-- Testing properties -->
     <tests.testng.maxheap>2G</tests.testng.maxheap>
-    <tests.testng.logback>com/opengamma/util/test/warn-logback.xml</tests.testng.logback>
+    <tests.testng.logback>com/opengamma/util/warn-logback.xml</tests.testng.logback>
     <tests.testng.parallel>classes</tests.testng.parallel>
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups>unit</tests.testng.includedgroups>

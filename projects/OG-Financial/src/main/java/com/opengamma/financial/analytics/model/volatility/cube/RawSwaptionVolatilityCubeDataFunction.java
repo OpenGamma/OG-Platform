@@ -18,7 +18,6 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
@@ -36,7 +35,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
 import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
@@ -55,9 +53,17 @@ import com.opengamma.util.time.Tenor;
 public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(RawSwaptionVolatilityCubeDataFunction.class);
 
-  public static Set<ValueRequirement> buildDataRequirements(final SwaptionVolatilityCubeSpecificationSource specificationSource,
-      final VolatilityCubeDefinitionSource definitionSource, final ZonedDateTime atInstant, final ComputationTarget target,
-      final String specificationName, final String definitionName) {
+  private SyntheticSwaptionVolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
+  private ConfigDBSwaptionVolatilityCubeSpecificationSource _volatilityCubeSpecificationSource;
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    _volatilityCubeDefinitionSource = SyntheticSwaptionVolatilityCubeDefinitionSource.init(context, this);
+    _volatilityCubeSpecificationSource = ConfigDBSwaptionVolatilityCubeSpecificationSource.init(context, this);
+  }
+
+  public static Set<ValueRequirement> buildDataRequirements(final SwaptionVolatilityCubeSpecificationSource specificationSource, final VolatilityCubeDefinitionSource definitionSource,
+      final ZonedDateTime atInstant, final ComputationTarget target, final String specificationName, final String definitionName) {
     final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     final String fullSpecificationName = specificationName + "_" + currency.getCode();
     final String fullDefinitionName = definitionName + "_" + currency.getCode();
@@ -84,15 +90,13 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(compilationContext);
-    final SyntheticSwaptionVolatilityCubeDefinitionSource definitionSource = new SyntheticSwaptionVolatilityCubeDefinitionSource(configSource);
-    final ConfigDBSwaptionVolatilityCubeSpecificationSource specificationSource = new ConfigDBSwaptionVolatilityCubeSpecificationSource(configSource);
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new AbstractInvokingCompiledFunction() {
 
       @SuppressWarnings("synthetic-access")
       @Override
-      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+      public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+          final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
         final String definitionName = desiredValue.getConstraint(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION);
@@ -100,11 +104,11 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final String fullSpecificationName = specificationName + "_" + currency.getCode();
         final String fullDefinitionName = definitionName + "_" + currency.getCode();
-        final SwaptionVolatilityCubeSpecification specification = specificationSource.getSpecification(fullSpecificationName);
+        final SwaptionVolatilityCubeSpecification specification = _volatilityCubeSpecificationSource.getSpecification(fullSpecificationName);
         if (specification == null) {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification named " + fullSpecificationName);
         }
-        final VolatilityCubeDefinition definition = definitionSource.getDefinition(currency, fullDefinitionName);
+        final VolatilityCubeDefinition definition = _volatilityCubeDefinitionSource.getDefinition(currency, fullDefinitionName);
         if (definition == null) {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition named " + fullDefinitionName);
         }
@@ -129,11 +133,8 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         final VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
         volatilityCubeData.setDataPoints(data);
         volatilityCubeData.setDataIds(ids);
-        final ValueProperties properties = createValueProperties()
-            .with(ValuePropertyNames.CUBE, cubeName)
-            .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION, definitionName)
-            .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION, specificationName)
-            .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, specification.getCubeQuoteType())
+        final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CUBE, cubeName).with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION, definitionName)
+            .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION, specificationName).with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, specification.getCubeQuoteType())
             .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS, specification.getQuoteUnits()).get();
         return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties), volatilityCubeData));
       }
@@ -156,11 +157,8 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
       @SuppressWarnings("synthetic-access")
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        final ValueProperties properties = createValueProperties()
-            .withAny(ValuePropertyNames.CUBE)
-            .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION)
-            .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION)
-            .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE)
+        final ValueProperties properties = createValueProperties().withAny(ValuePropertyNames.CUBE).withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION)
+            .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION).withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE)
             .withAny(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS).get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties));
       }
@@ -184,7 +182,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         }
         final String definitionName = definitionNames.iterator().next();
         final String specificationName = specificationNames.iterator().next();
-        return buildDataRequirements(specificationSource, definitionSource, atZDT, target, specificationName, definitionName);
+        return buildDataRequirements(_volatilityCubeSpecificationSource, _volatilityCubeDefinitionSource, atZDT, target, specificationName, definitionName);
       }
     };
   }

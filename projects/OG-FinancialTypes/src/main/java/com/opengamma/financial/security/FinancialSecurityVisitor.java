@@ -31,7 +31,9 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -51,7 +53,6 @@ import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
-import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 
 /**
  * General visitor for top level asset classes.
@@ -145,7 +146,7 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitIRFutureOptionSecurity(IRFutureOptionSecurity security);
 
   T visitMunicipalBondSecurity(MunicipalBondSecurity security);
-  
+
   T visitInflationBondSecurity(InflationBondSecurity security);
 
   T visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security);
@@ -163,9 +164,11 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitSwaptionSecurity(SwaptionSecurity security);
 
   T visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security);
-  
+
   T visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security);
 
   T visitInterestRateSwapSecurity(InterestRateSwapSecurity security);
+
+  T visitFXVolatilitySwapSecurity(FXVolatilitySwapSecurity security);
 }
 

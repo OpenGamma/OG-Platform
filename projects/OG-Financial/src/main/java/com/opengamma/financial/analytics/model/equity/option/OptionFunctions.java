@@ -54,7 +54,7 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
   }
 
   /**
-   * Function repository configuration source for the default functions contained in this package.
+   * Function repository configuration source for the default function for equity barrier options contained in this package.
    */
   public static class Defaults extends AbstractFunctionConfigurationBean {
 
@@ -124,9 +124,9 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(EquityOptionBlackVommaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackValueGammaFunction.class));
-    
+
     functions.add(functionConfiguration(EquityOptionBlackBasicPresentValueFunction.class));
-    
+
     functions.add(functionConfiguration(ListedEquityOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBlackRhoFunction.class));
@@ -145,6 +145,12 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandValueDeltaFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandValueGammaFunction.class));
     functions.add(functionConfiguration(ListedEquityOptionBjerksundStenslandScenarioPnLFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyPresentValueFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyGreeksFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyImpliedVolFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyValueDeltaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyValueGammaFunction.class));
+    functions.add(functionConfiguration(ListedEquityOptionRollGeskeWhaleyScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionForwardValueFunction.class));
     functions.add(functionConfiguration(EquityOptionSpotIndexFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionForwardValueFunction.class));

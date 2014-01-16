@@ -114,8 +114,26 @@ $.register_module({
                                 str += '<select id="[PLACEHOLDER]" name="[PLACEHOLDER]">';
                                 $.each(val.options, function (i, v) {
                                     var selected = value === v.value ? ' selected="selected"' : '';
-                                    str += '<option value="' + v.value + '"' + selected + '>'+ v.name +'</option>';
+                                    str += '<option value="' + v.value + '"' + selected + '>' + v.name + '</option>';
                                 });
+                                str += '</select>';
+                                str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
+                            }
+                            if (val.type === 'optselect') {
+                                value = typeof val.value === 'function' ? val.value() : val.value;
+                                if (!val.name) throw new Error('val.name is required for a select');
+                                if (!val.id) throw new Error('val.id is required for a select');
+                                if (!val.options) throw new Error('val.options is required for a select');
+                                str = '<label for="[PLACEHOLDER]">' + val.name + '</label>';
+                                str += '<select id="[PLACEHOLDER]" name="[PLACEHOLDER]">';
+                                $.each(val.options, function (gi, gv) {
+                                    str += '<optgroup label="' + gv.group + '">';
+                                    $.each(gv.types, function (i, v) {
+                                        var selected = value === v.value ? ' selected="selected"' : '';
+                                        str += '<option value="' + v.value + '"' + selected + '>' + v.name +'</option>';
+                                    });
+                                    str += '</optgroup>';
+                                })
                                 str += '</select>';
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
                             }

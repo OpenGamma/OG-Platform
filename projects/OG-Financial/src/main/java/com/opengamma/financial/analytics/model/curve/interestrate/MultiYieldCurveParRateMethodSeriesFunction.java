@@ -61,7 +61,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -87,7 +86,6 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -122,7 +120,8 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(context);
-    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver().getVersionCorrection());
+    return new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true, context.getComputationTargetResolver()
+        .getVersionCorrection());
   }
 
   @Override
@@ -192,8 +191,8 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     }
   }
 
-  private CurveDataBundle[] getCurveData(final ZonedDateTime now, final InterestRateInstrumentTradeOrSecurityConverter securityConverter, final MultiCurveCalculationConfig curveCalculationConfig,
-      final FunctionInputs inputs, final ComputationTargetSpecification targetSpec) {
+  private CurveDataBundle[] getCurveData(final ZonedDateTime now, final InterestRateInstrumentTradeOrSecurityConverter securityConverter,
+      final MultiCurveCalculationConfig curveCalculationConfig, final FunctionInputs inputs, final ComputationTargetSpecification targetSpec) {
     final String[] names = curveCalculationConfig.getYieldCurveNames();
     final CurveDataBundle[] curves = new CurveDataBundle[names.length];
     for (int i = 0; i < names.length; i++) {
@@ -241,8 +240,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     final String useFiniteDifferenceName = desiredValue.getConstraint(PROPERTY_USE_FINITE_DIFFERENCE);
     final LocalDate startDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(START_DATE_PROPERTY));
     final LocalDate endDate = DateConstraint.evaluate(executionContext, desiredValue.getConstraint(END_DATE_PROPERTY));
-    final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
+    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfigSource().getConfig(curveCalculationConfigName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final double relativeTolerance = Double.parseDouble(relativeToleranceName);
@@ -275,7 +273,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
           if (derivative != null) {
             if (strip._strip.getInstrumentType() == StripInstrumentType.FUTURE) {
               final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) strip._definition;
-              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, marketValue);
               unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
               InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(strip._strip.getSecurity(), unitNotional, now, strip._curveNames, curve._timeSeries);
               unitNotionalDerivative = unitNotionalDerivative.accept(RateReplacingInterestRateDerivativeVisitor.getInstance(), marketValueObject);
@@ -306,8 +304,8 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
         continue;
       }
       try {
-        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference,
-            new FXMatrix(currency));
+        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators,
+            useFiniteDifference, new FXMatrix(currency));
         final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
         final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_SPREAD_RATE_CALCULATOR);
         final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderIRSJacobian(data, PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR);
@@ -332,42 +330,18 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
 
   @Override
   protected ValueProperties getCurveSeriesProperties() {
-    return createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-        .withAny(PROPERTY_DECOMPOSITION)
-        .withAny(PROPERTY_USE_FINITE_DIFFERENCE)
-        .withAny(DATA_FIELD_PROPERTY)
-        .withAny(RESOLUTION_KEY_PROPERTY)
-        .withAny(START_DATE_PROPERTY)
-        .with(INCLUDE_START_PROPERTY, YES_VALUE, NO_VALUE)
-        .withAny(END_DATE_PROPERTY)
-        .with(INCLUDE_END_PROPERTY, YES_VALUE, NO_VALUE)
-        .get();
+    return createValueProperties().withAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING).withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION)
+        .withAny(PROPERTY_USE_FINITE_DIFFERENCE).withAny(DATA_FIELD_PROPERTY).withAny(RESOLUTION_KEY_PROPERTY).withAny(START_DATE_PROPERTY).with(INCLUDE_START_PROPERTY, YES_VALUE, NO_VALUE)
+        .withAny(END_DATE_PROPERTY).with(INCLUDE_END_PROPERTY, YES_VALUE, NO_VALUE).get();
   }
 
   @Override
   protected ValueProperties getCurveSeriesProperties(final String curveCalculationConfigName, final String curveName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-        .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
-        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
-        .withAny(PROPERTY_DECOMPOSITION)
-        .withAny(PROPERTY_USE_FINITE_DIFFERENCE)
-        .withAny(DATA_FIELD_PROPERTY)
-        .withAny(RESOLUTION_KEY_PROPERTY)
-        .withAny(START_DATE_PROPERTY)
-        .with(INCLUDE_START_PROPERTY, YES_VALUE, NO_VALUE)
-        .withAny(END_DATE_PROPERTY)
-        .with(INCLUDE_END_PROPERTY, YES_VALUE, NO_VALUE)
-        .get();
+    return createValueProperties().with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, PAR_RATE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE).withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
+        .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS).withAny(PROPERTY_DECOMPOSITION).withAny(PROPERTY_USE_FINITE_DIFFERENCE).withAny(DATA_FIELD_PROPERTY).withAny(RESOLUTION_KEY_PROPERTY)
+        .withAny(START_DATE_PROPERTY).with(INCLUDE_START_PROPERTY, YES_VALUE, NO_VALUE).withAny(END_DATE_PROPERTY).with(INCLUDE_END_PROPERTY, YES_VALUE, NO_VALUE).get();
   }
 
   @Override

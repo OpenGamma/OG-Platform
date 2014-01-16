@@ -13,6 +13,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -102,6 +103,12 @@ public class FinancialSecurityTypes {
    * The CAP/Floor security type.
    */
   public static final ObjectComputationTargetType<CapFloorSecurity> CAP_FLOOR_SECURITY = ObjectComputationTargetType.of(CapFloorSecurity.class);
+
+  /**
+   * The cash-flow security type.
+   */
+  public static final ObjectComputationTargetType<CashFlowSecurity> CASH_FLOW_SECURITY = ObjectComputationTargetType.of(CashFlowSecurity.class);
+
 
   /**
    * The Cash security type.

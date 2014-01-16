@@ -45,6 +45,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXVolatilitySwapSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.irs.InterestRateSwapSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
@@ -74,9 +75,12 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
  * @param <T> Return type for visitor.
  */
 public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSecurityVisitor<T> {
-
+  /** The value to return for each security */
   private final T _value;
 
+  /**
+   * @param value The value to return
+   */
   public FinancialSecurityVisitorSameValueAdapter(final T value) {
     _value = value;
   }
@@ -100,7 +104,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return _value;
   }
-  
+
   @Override
   public T visitInflationBondSecurity(final InflationBondSecurity security) {
     return _value;
@@ -302,7 +306,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   }
 
   @Override
-  public T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return _value;
   }
 
@@ -319,7 +323,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   @Override
   public T visitMetalForwardSecurity(final MetalForwardSecurity security) {
     return _value;
-  }  
+  }
 
   @Override
   public T visitCDSSecurity(final CDSSecurity security) {
@@ -388,6 +392,11 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitInterestRateSwapSecurity(final InterestRateSwapSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return _value;
   }
 }

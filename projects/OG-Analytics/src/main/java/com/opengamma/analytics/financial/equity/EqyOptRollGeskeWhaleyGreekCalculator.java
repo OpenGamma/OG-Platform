@@ -73,9 +73,9 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100.);
     result.put(Greek.CARRY_RHO, 0.);
-    result.put(Greek.THETA, -greeks[4] / 365.);
-    result.put(Greek.VEGA, greeks[5] / 100.);
-    result.put(Greek.GAMMA, greeks[6]);
+    result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    result.put(Greek.GAMMA, greeks[7]);
     return result;
   }
 
@@ -115,9 +115,9 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100.);
     result.put(Greek.CARRY_RHO, 0.);
-    result.put(Greek.THETA, -greeks[4] / 365.);
-    result.put(Greek.VEGA, greeks[5] / 100.);
-    result.put(Greek.GAMMA, greeks[6]);
+    result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    result.put(Greek.GAMMA, greeks[7]);
     return result;
   }
 
@@ -155,9 +155,9 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
     result.put(Greek.DUAL_DELTA, greeks[2]);
     result.put(Greek.RHO, greeks[3] / 100.);
     result.put(Greek.CARRY_RHO, 0.);
-    result.put(Greek.THETA, -greeks[4] / 365.);
-    result.put(Greek.VEGA, greeks[5] / 100.);
-    result.put(Greek.GAMMA, greeks[6]);
+    result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+    result.put(Greek.VEGA, greeks[6] / 100.);
+    result.put(Greek.GAMMA, greeks[7]);
     return result;
   }
 
@@ -207,11 +207,10 @@ public final class EqyOptRollGeskeWhaleyGreekCalculator extends InstrumentDeriva
       result.put(Greek.DUAL_DELTA, greeks[2]);
       result.put(Greek.RHO, greeks[3] / 100.);
       result.put(Greek.CARRY_RHO, 0.);
-      result.put(Greek.THETA, -greeks[4] / 365.);
-      result.put(Greek.VEGA, greeks[5] / 100.);
-      result.put(Greek.GAMMA, greeks[6]);
+      result.put(Greek.THETA, -greeks[4] / 365. - greeks[5] / 365.);
+      result.put(Greek.VEGA, greeks[6] / 100.);
+      result.put(Greek.GAMMA, greeks[7]);
     }
     return result;
   }
-
 }

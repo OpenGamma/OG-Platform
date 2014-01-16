@@ -6,8 +6,8 @@
 package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
 /**
@@ -17,13 +17,13 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
   private final PrimitivesGridStructure _gridStructure;
 
-  /* package */PrimitivesAnalyticsGrid(final CompiledViewDefinition compiledViewDef, final String gridId, final ComputationTargetResolver targetResolver, final FunctionRepository functions,
-      final ViewportListener viewportListener) {
+  /* package */PrimitivesAnalyticsGrid(final CompiledViewDefinition compiledViewDef, final String gridId, final ComputationTargetResolver targetResolver,
+      final FunctionRepositoryFactory functions, final ViewportListener viewportListener) {
     this(PrimitivesGridStructure.create(compiledViewDef), gridId, targetResolver, functions, viewportListener);
   }
 
-  /* package */PrimitivesAnalyticsGrid(final PrimitivesGridStructure gridStructure, final String gridId, final ComputationTargetResolver targetResolver, final FunctionRepository functions,
-      final ViewportListener viewportListener) {
+  /* package */PrimitivesAnalyticsGrid(final PrimitivesGridStructure gridStructure, final String gridId, final ComputationTargetResolver targetResolver,
+      final FunctionRepositoryFactory functions, final ViewportListener viewportListener) {
     super(AnalyticsView.GridType.PRIMITIVES, gridId, targetResolver, functions, viewportListener);
     _gridStructure = gridStructure;
   }
@@ -51,7 +51,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @return An empty primitives grid
    */
   /* package */static PrimitivesAnalyticsGrid empty(String gridId) {
-    return new PrimitivesAnalyticsGrid(PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver(), new InMemoryFunctionRepository(), new NoOpViewportListener());
+    return new PrimitivesAnalyticsGrid(PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver(),
+        FunctionRepositoryFactory.constructRepositoryFactory(new InMemoryFunctionRepository()), new NoOpViewportListener());
   }
 
 }

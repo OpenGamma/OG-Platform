@@ -30,8 +30,7 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * Publishes asynchronous results over JMS.
  * <p>
- * Always call {@link #stopPublishingResults()} when this result publisher is no longer
- * required to ensure that associated resources are tidied up.
+ * Always call {@link #stopPublishingResults()} when this result publisher is no longer required to ensure that associated resources are tidied up.
  */
 public abstract class AbstractJmsResultPublisher {
 
@@ -55,8 +54,8 @@ public abstract class AbstractJmsResultPublisher {
   /**
    * Creates an instance.
    * 
-   * @param fudgeContext  the Fudge context, not null
-   * @param jmsConnector  the JMS connector, may be null
+   * @param fudgeContext the Fudge context, not null
+   * @param jmsConnector the JMS connector, may be null
    */
   public AbstractJmsResultPublisher(FudgeContext fudgeContext, JmsConnector jmsConnector) {
     _fudgeContext = fudgeContext;
@@ -66,13 +65,12 @@ public abstract class AbstractJmsResultPublisher {
 
   //-------------------------------------------------------------------------
   /**
-   * Stops listening to results from the underlying provider. 
+   * Stops listening to results from the underlying provider.
    */
   protected abstract void stopListener();
 
   /**
-   * Begins listening to results from the underlying provider. When a result occurs, {@code #send(Object)} should be
-   * called to publish that result over JMS.
+   * Begins listening to results from the underlying provider. When a result occurs, {@code #send(Object)} should be called to publish that result over JMS.
    */
   protected abstract void startListener();
 
@@ -81,11 +79,14 @@ public abstract class AbstractJmsResultPublisher {
    * <p>
    * This should only be called once results are required, as indicated by a call to {@link #startListener()}.
    * 
-   * @param result  the result, not null
+   * @param result the result, not null
    */
   protected void send(Object result) {
-    s_logger.debug("Result received to forward over JMS: {}", result);    
-    MutableFudgeMsg resultMsg = _fudgeSerializationContext.objectToFudgeMsg(result);
+    s_logger.debug("Result received to forward over JMS: {}", result);
+    MutableFudgeMsg resultMsg;
+    synchronized (_fudgeSerializationContext) {
+      resultMsg = _fudgeSerializationContext.objectToFudgeMsg(result);
+    }
     FudgeSerializer.addClassHeader(resultMsg, result.getClass());
     long sequenceNumber = _sequenceNumber.getAndIncrement();
     resultMsg.add(SEQUENCE_NUMBER_FIELD_NAME, sequenceNumber);
@@ -124,10 +125,10 @@ public abstract class AbstractJmsResultPublisher {
       }
     }
   }
-  
+
   private void sendStartedSignal() {
     s_logger.debug("Sending started signal");
-    
+
     // REVIEW jonathan 2012-02-03 -- until we have more than one control signal, it's sufficient to push through an
     // empty message.
     _messageQueue.add(_fudgeContext.toByteArray(_fudgeContext.newMessage()));
