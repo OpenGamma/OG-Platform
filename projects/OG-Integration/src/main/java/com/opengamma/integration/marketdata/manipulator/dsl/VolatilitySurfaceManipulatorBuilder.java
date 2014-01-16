@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class VolatilitySurfaceManipulatorBuilder {
+public class VolatilitySurfaceManipulatorBuilder {
 
   /** Selector whose selected items will be modified by the manipulators from this builder. */
   private final VolatilitySurfaceSelector _selector;
