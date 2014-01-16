@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multicu
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Interface to generic futures security pricing method for multi-curve provider.
+ * Interface to generic futures security pricing method for multi-curve, issuer and Hull-White one factor parameter provider.
  */
 public class FuturesSecurityHullWhiteIssuerMethod extends FuturesSecurityMethod {
 

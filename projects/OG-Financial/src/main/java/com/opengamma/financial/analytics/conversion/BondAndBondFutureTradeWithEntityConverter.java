@@ -138,9 +138,10 @@ public class BondAndBondFutureTradeWithEntityConverter {
     final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
     final double price = trade.getPremium().doubleValue();
     if (security instanceof BondFutureSecurity) {
+      final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
-      return new BondFuturesTransactionDefinition(bondFuture, quantity, settlementDate, price);
+      return new BondFuturesTransactionDefinition(bondFuture, quantity, tradeDateTime, price);
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
     final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);

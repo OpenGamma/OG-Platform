@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Abstract class for generic futures securities.
  */
-public abstract class FuturesSecurity  implements InstrumentDerivative {
+public abstract class FuturesSecurity implements InstrumentDerivative {
 
   /**
    * The last trading time.
@@ -34,7 +34,7 @@ public abstract class FuturesSecurity  implements InstrumentDerivative {
   public double getTradingLastTime() {
     return _tradingLastTime;
   }
-  
+
   /**
    * Returns the currency of the futures security.
    * @return The currency.
@@ -68,11 +68,5 @@ public abstract class FuturesSecurity  implements InstrumentDerivative {
     }
     return true;
   }
-  
-  
-  
-  
-  
-  
 
 }

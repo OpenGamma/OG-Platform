@@ -51,7 +51,14 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
     _regionSource = regionSource;
   }
 
+  /**
+   * @param security The security.
+   * @return Security definition.
+   * @deprecated Use InterestRateFutureSecurityConverter.
+   */
   @Override
+  @Deprecated
+  // [PLAT-5535] This method will be removed soon.
   public FederalFundsFutureSecurityDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
@@ -66,7 +73,7 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
   }
 
   @Override
-  public InstrumentDefinition<?> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+  public FederalFundsFutureSecurityDefinition visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry().withHour(0);
     final Currency currency = security.getCurrency();

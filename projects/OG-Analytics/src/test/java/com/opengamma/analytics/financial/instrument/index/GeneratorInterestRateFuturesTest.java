@@ -50,7 +50,7 @@ public class GeneratorInterestRateFuturesTest {
     final int quantity = (int) Math.ceil(notional / NOTIONAL);
     final GeneratorAttribute attribute = new GeneratorAttribute();
     final InterestRateFutureTransactionDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
-    final InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, referenceDate, price, quantity);
+    final InterestRateFutureTransactionDefinition insExpected = new InterestRateFutureTransactionDefinition(FUTURES_DEFINITION, quantity, referenceDate, price);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

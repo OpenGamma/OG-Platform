@@ -59,7 +59,7 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
   private static final double TRAN_PRICE = 0.98 + 31.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
   private static final int QUANTITY = 1234;
   private static final SwapFuturesPriceDeliverableTransactionDefinition SWAP_FUTURES_TRANSACTION_DEFINITION =
-      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, TRAN_DATE, TRAN_PRICE, QUANTITY);
+      new SwapFuturesPriceDeliverableTransactionDefinition(SWAP_FUTURES_SECURITY_DEFINITION, QUANTITY, TRAN_DATE, TRAN_PRICE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
   private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0; // price quoted in 32nd of 1%

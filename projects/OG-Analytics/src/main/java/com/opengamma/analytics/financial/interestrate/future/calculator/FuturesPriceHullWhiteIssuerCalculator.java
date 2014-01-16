@@ -26,7 +26,7 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
+ * Computes the price for different types of futures. Calculator using a multi-curve, issuer and Hull-White one-factor parameters provider.
  */
 public final class FuturesPriceHullWhiteIssuerCalculator extends InstrumentDerivativeVisitorAdapter<HullWhiteIssuerProviderInterface, Double> {
 

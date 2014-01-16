@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Param
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
+ * Computes the price for different types of futures. Calculator using a multi-curve and issuer provider.
  */
 public final class FuturesPriceIssuerCalculator extends InstrumentDerivativeVisitorAdapter<ParameterIssuerProviderInterface, Double> {
 

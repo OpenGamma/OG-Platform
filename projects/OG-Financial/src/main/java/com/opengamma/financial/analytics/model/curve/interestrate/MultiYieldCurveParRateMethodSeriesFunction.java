@@ -273,7 +273,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
           if (derivative != null) {
             if (strip._strip.getInstrumentType() == StripInstrumentType.FUTURE) {
               final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) strip._definition;
-              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
+              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, 1, now, marketValue);
               unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
               InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(strip._strip.getSecurity(), unitNotional, now, strip._curveNames, curve._timeSeries);
               unitNotionalDerivative = unitNotionalDerivative.accept(RateReplacingInterestRateDerivativeVisitor.getInstance(), marketValueObject);

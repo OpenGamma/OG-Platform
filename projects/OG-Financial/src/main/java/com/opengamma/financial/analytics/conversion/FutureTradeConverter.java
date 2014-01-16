@@ -122,14 +122,14 @@ public class FutureTradeConverter {
             return new EquityFutureDefinition(futures.getExpiryDate(), futures.getSettlementDate(), tradePrice, futures.getCurrency(), futures.getUnitAmount());
           }
 
-          @Override
+          @Override // [PLAT-5535] Futures security should not be of the type "InstrumentDefinitionWithData"; no data is required at the security level, only at the transaction level.
           public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurityDefinition(final InterestRateFutureSecurityDefinition futures) {
-            return new InterestRateFutureTransactionDefinition(futures, tradeDate, tradePrice, quantity);
+            return new InterestRateFutureTransactionDefinition(futures, quantity, tradeDate, tradePrice);
           }
 
-          @Override
+          @Override // [PLAT-5535] Futures security should not be of the type "InstrumentDefinitionWithData"; no data is required at the security level, only at the transaction level.
           public InstrumentDefinitionWithData<?, Double> visitDeliverableSwapFuturesSecurityDefinition(final SwapFuturesPriceDeliverableSecurityDefinition future) {
-            return new SwapFuturesPriceDeliverableTransactionDefinition(future, tradeDate, tradePrice, quantity);
+            return new SwapFuturesPriceDeliverableTransactionDefinition(future, quantity, tradeDate, tradePrice);
           }
 
           @Override

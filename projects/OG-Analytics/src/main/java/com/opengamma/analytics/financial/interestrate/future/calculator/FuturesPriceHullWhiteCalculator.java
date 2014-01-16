@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Computes the par rate for different instrument. The meaning of "par rate" is instrument dependent.
+ * Computes the price for different types of futures. Calculator using a multi-curve and Hull-White one-factor parameters provider.
  */
 public final class FuturesPriceHullWhiteCalculator extends InstrumentDerivativeVisitorAdapter<HullWhiteOneFactorProviderInterface, Double> {
 

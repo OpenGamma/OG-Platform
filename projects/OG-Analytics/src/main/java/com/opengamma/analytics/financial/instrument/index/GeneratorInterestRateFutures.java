@@ -48,7 +48,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
   @Override
   public InterestRateFutureTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
     final int quantity = (int) Math.ceil(notional / _security.getNotional());
-    return new InterestRateFutureTransactionDefinition(_security, date, marketQuote, quantity);
+    return new InterestRateFutureTransactionDefinition(_security, quantity, date, marketQuote);
   }
 
   @Override

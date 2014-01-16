@@ -6,11 +6,12 @@
 package com.opengamma.financial.analytics.conversion;
 
 import org.apache.commons.lang.Validate;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.ZoneId;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.core.position.Trade;
@@ -22,6 +23,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
  */
 @Deprecated
 public class InterestRateFutureTradeConverter {
+  
   private final InterestRateFutureSecurityConverterDeprecated _securityConverter;
 
   public InterestRateFutureTradeConverter(final InterestRateFutureSecurityConverterDeprecated securityConverter) {
@@ -33,19 +35,21 @@ public class InterestRateFutureTradeConverter {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof InterestRateFutureSecurity, "Can only handle trades with security type InterestRateFutureSecurity");
     final InterestRateFutureSecurityDefinition securityDefinition = _securityConverter.visitInterestRateFutureSecurity((InterestRateFutureSecurity) trade.getSecurity());
-    // REVIEW: Setting this quantity to one so that we don't double-count the number of trades when the position scaling takes place
     final int quantity = trade.getQuantity().intValue();
-    ZonedDateTime tradeDate;
-    if (trade.getTradeTime() != null) {
-      final ZoneId zone = trade.getTradeTime().getOffset();
-      tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(zone);
-    } else {
-      tradeDate = trade.getTradeDate().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
+    final LocalDate tradeDate = trade.getTradeDate();
+    if (tradeDate == null) {
+      throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium(); //TODO remove the default value and throw an exception
-    return new InterestRateFutureTransactionDefinition(securityDefinition, tradeDate, tradePrice, quantity);
-    //tradeDate, tradePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-    //securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), quantity, securityDefinition.getName());
+    final OffsetTime tradeTime = trade.getTradeTime();
+    if (tradeTime == null) {
+      throw new OpenGammaRuntimeException("Trade time should not be null");
+    }
+    final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
+    Double tradePrice = trade.getPremium(); // TODO: [PLAT-1958] The trade price is stored in the trade premium.
+    if (tradePrice == null) {
+      throw new OpenGammaRuntimeException("Trade premium should not be null.");
+    }
+    return new InterestRateFutureTransactionDefinition(securityDefinition, quantity, tradeDateTime, tradePrice);
   }
 
 }
