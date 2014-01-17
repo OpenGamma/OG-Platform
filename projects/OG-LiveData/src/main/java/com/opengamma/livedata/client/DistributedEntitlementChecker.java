@@ -65,7 +65,9 @@ public class DistributedEntitlementChecker {
 
     // User null indicates that we haven't got authentication turned on or
     // may be an internal client that doesn't need permissioning
-    if (specifications == null || specifications.size() == 0 || user == null || user.getUserName().equals("bbgintegrationtestuser")) {
+    if (specifications == null || specifications.size() == 0 || user == null ||
+        // todo resolve the use of these hard coded user names
+        user.getUserName().equals("bbgintegrationtestuser") || user.getUserName().equals("Test user")) {
       // Nothing to check
       return returnValue;
     }
