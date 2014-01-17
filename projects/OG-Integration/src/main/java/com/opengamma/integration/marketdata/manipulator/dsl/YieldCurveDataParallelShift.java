@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -42,7 +43,7 @@ public class YieldCurveDataParallelShift implements StructureManipulator<YieldCu
   }
 
   @Override
-  public YieldCurveData execute(YieldCurveData curveData) {
+  public YieldCurveData execute(YieldCurveData curveData, ValueSpecification valueSpec) {
     s_logger.debug("Shifting curve data {} by {}", curveData.getCurveSpecification().getName(), _shift);
     Map<ExternalIdBundle, Double> dataPoints = curveData.getDataPoints();
     Map<ExternalIdBundle, Double> shiftedPoints = Maps.newHashMapWithExpectedSize(dataPoints.size());

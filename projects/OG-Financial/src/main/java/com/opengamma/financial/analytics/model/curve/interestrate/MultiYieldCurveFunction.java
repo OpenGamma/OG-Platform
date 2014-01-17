@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -36,6 +35,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.ircurve.YieldCurveData;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
@@ -119,7 +119,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
       final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
           .withOptional(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
       final ValueProperties curveTSProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).get();
-      requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, properties));
+      requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_DATA, targetSpec, properties));
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, properties));
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, curveTSProperties));
     }
@@ -243,14 +243,15 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
    * @return The market data snapshot
    * @throws OpenGammaRuntimeException if the snapshot is not present in the inputs
    */
-  protected SnapshotDataBundle getMarketData(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {
-    final ValueRequirement marketDataRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, curveName)
-        .get());
+  protected YieldCurveData getMarketData(final FunctionInputs inputs, final ComputationTargetSpecification targetSpec, final String curveName) {
+    ValueProperties constraints = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
+    final ValueRequirement marketDataRequirement =
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE_DATA, targetSpec, constraints);
     final Object marketDataObject = inputs.getValue(marketDataRequirement);
     if (marketDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get a value for requirement " + marketDataRequirement);
     }
-    return (SnapshotDataBundle) marketDataObject;
+    return (YieldCurveData) marketDataObject;
   }
 
   /**

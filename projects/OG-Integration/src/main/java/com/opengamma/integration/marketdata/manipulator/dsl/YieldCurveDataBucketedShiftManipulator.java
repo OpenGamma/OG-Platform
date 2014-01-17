@@ -26,8 +26,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveData;
@@ -56,7 +56,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
 
 
   @Override
-  public YieldCurveData execute(YieldCurveData curveData) {
+  public YieldCurveData execute(YieldCurveData curveData, ValueSpecification valueSpec) {
     final List<DoublesPair> buckets = new ArrayList<>();
     final List<Double> shifts = new ArrayList<>();
     ShiftType shiftType = null;
