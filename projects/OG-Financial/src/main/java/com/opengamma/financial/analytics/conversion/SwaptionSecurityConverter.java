@@ -65,9 +65,6 @@ public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<I
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");
     }
-    if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
-      throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");
-    }
     final SwapFixedIborDefinition fixedIbor = (SwapFixedIborDefinition) swapDefinition;
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedIbor, isCall, isLong)
         : SwaptionPhysicalFixedIborDefinition.from(expiry, fixedIbor, isCall, isLong);

@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundin
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapCouponFixedCouponDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.core.convention.ConventionSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -186,8 +187,13 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
       }
       iborLegDefinition = new AnnuityDefinition<>(payments, calendarIbor);
     } else {
-      iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, spread, indexIbor, 
+      if (swapSecurity.isExchangeInitialNotional() || swapSecurity.isExchangeFinalNotional() || hasSpread) {
+        iborLegDefinition = AnnuityDefinitionBuilder.couponIborSpreadWithNotional(effectiveDate, maturityDate, iborLegNotional, spread, indexIbor, 
           !payFixed, calendarIbor, StubType.SHORT_START, 0, swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
+      } else {
+        iborLegDefinition = AnnuityDefinitionBuilder.couponIbor(effectiveDate, maturityDate, indexIbor.getTenor(), iborLegNotional, indexIbor, 
+            !payFixed, indexIbor.getDayCount(), indexIbor.getBusinessDayConvention(), indexIbor.isEndOfMonth(), calendarIbor, StubType.SHORT_START, 0);
+      }
     }
     // Fixed Leg
     final ExternalId regionIdFixed = fixedLeg.getRegionId();
@@ -215,7 +221,11 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
           fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(), fixedLeg.isEom(), fixedLegNotional, fixedLeg.getRate(), payFixed, StubType.SHORT_START, 0,
           swapSecurity.isExchangeInitialNotional(), swapSecurity.isExchangeFinalNotional());
     }
-    return new SwapCouponFixedCouponDefinition(fixedLegDefinition, iborLegDefinition);
+    if (swapSecurity.isExchangeInitialNotional() || swapSecurity.isExchangeFinalNotional() || hasSpread) {
+      return new SwapCouponFixedCouponDefinition(fixedLegDefinition, iborLegDefinition);
+    } else {
+      return new SwapFixedIborDefinition(fixedLegDefinition, iborLegDefinition);
+    }
   }
 
   private IborIndexConvention getIborLegConvention(final Currency currency) {

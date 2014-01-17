@@ -43,6 +43,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    */
   public SwapFixedIborDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityDefinition<? extends PaymentDefinition> iborLeg) {
     super(fixedLeg, iborLeg);
+    ArgumentChecker.isTrue(iborLeg instanceof AnnuityCouponIborDefinition, "iborLeg should be of the type AnnuityCouponIborDefinition");
     ArgumentChecker.isTrue(fixedLeg.getCurrency().equals(iborLeg.getCurrency()), "legs should have the same currency");
   }
 
