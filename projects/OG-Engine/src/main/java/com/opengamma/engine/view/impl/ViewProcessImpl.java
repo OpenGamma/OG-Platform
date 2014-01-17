@@ -711,11 +711,17 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         final CompiledViewDefinitionWithGraphs compiledViewDefinition = latestCompilation.getFirst();
         final MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
         final Set<ValueSpecification> marketData = compiledViewDefinition.getMarketDataRequirements();
-        final Set<ValueSpecification> deniedRequirements = permissionProvider.checkMarketDataPermissions(listener.getUser(), marketData);
-        final boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
+        final UserPrincipal user = listener.getUser();
+        final boolean hasMarketDataPermissions = userIsPermitted(true, user, permissionProvider, marketData);
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+
         if (latestResult != null) {
-          listener.cycleCompleted(latestResult, null);
+          if (hasMarketDataPermissions) {
+            listener.cycleCompleted(latestResult, null);
+          } else {
+            listener.cycleExecutionFailed(latestResult.getViewCycleExecutionOptions(),
+                                          new Exception("User: " + user + " does not have permission for data in this view"));
+          }
         }
       } catch (final Exception e) {
         s_logger.error("Failed to push initial state to listener during attachment");
