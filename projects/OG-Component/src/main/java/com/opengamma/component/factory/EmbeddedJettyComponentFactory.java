@@ -213,6 +213,11 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     publicStyles.setConstraint(noAuthenticationConstraint);
     publicStyles.setPathSpec("/prototype/styles/*");
     security.addConstraintMapping(publicStyles);
+    
+    ConstraintMapping publicComponents = new ConstraintMapping();
+    publicComponents.setConstraint(noAuthenticationConstraint);
+    publicComponents.setPathSpec("/jax/components/*");
+    security.addConstraintMapping(publicComponents);
 
     FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/error.html", false);
     security.setAuthenticator(authenticator);
