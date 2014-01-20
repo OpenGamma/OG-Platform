@@ -152,7 +152,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void curve(Closure<?> body) {
-    CurveBuilder selector = new CurveBuilder(_scenario);
+    YieldCurveBuilder selector = new YieldCurveBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -163,7 +163,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void curveData(Closure<?> body) {
-    CurveDataBuilder selector = new CurveDataBuilder(_scenario);
+    YieldCurveDataBuilder selector = new YieldCurveDataBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -241,9 +241,9 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for closures that define a curve transformation in the DSL.
    */
-  private static final class CurveBuilder extends YieldCurveSelector.Builder {
+  private static final class YieldCurveBuilder extends YieldCurveSelector.Builder {
 
-    private CurveBuilder(Scenario scenario) {
+    private YieldCurveBuilder(Scenario scenario) {
       super(scenario);
     }
 
@@ -277,28 +277,44 @@ public abstract class SimulationScript extends Script {
    * Delegate class for closures that define a curve data transformation in the DSL.
    * This affects raw curve data before it's fitted.
    */
-  private static final class CurveDataBuilder extends YieldCurveSelector.Builder {
+  private static final class YieldCurveDataBuilder extends YieldCurveDataSelectorBuilder {
 
-    private CurveDataBuilder(Scenario scenario) {
+    private YieldCurveDataBuilder(Scenario scenario) {
       super(scenario);
     }
 
     @SuppressWarnings("unused")
     public void apply(Closure<?> body) {
-      YieldCurveDataManipulatorBuilder builder = new YieldCurveDataManipulatorBuilder(getSelector(), getScenario());
+      YieldCurveDataManipulatorBuilder builder = new GroovyYieldCurveDataManipulatorBuilder(getSelector(), getScenario());
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }
-  
-  /**
+
+  private static final class GroovyYieldCurveDataManipulatorBuilder extends YieldCurveDataManipulatorBuilder {
+
+    /* package */ GroovyYieldCurveDataManipulatorBuilder(YieldCurveDataSelector selector, Scenario scenario) {
+      super(selector, scenario);
+    }
+
+    public void bucketedShifts(/*BucketedShiftType type, */Closure<?> body) {
+      // TODO need a builder specifically for the DSL. YieldCurveDataBucketedShiftsManipulatorBuilder. phew
+    }
+
+    public void pointsShifts(/*BucketedShiftType type, */Closure<?> body) {
+      // TODO need a builder specifically for the DSL. YieldCurveDataPointShiftsManipulatorBuilder. phew
+    }
+
+  }
+
+    /**
    * Delegate class for closures that defines closure compatible builder methods
    * for {@link YieldCurveManipulatorBuilder} in the DSL.
    */
   private static final class GroovyYieldCurveManipulatorBuilder extends YieldCurveManipulatorBuilder {
 
-    GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
+    /* package */ GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
       super(selector, scenario);
     }
 

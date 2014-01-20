@@ -14,12 +14,12 @@ import com.opengamma.util.ArgumentChecker;
 public class YieldCurveDataManipulatorBuilder {
 
   /** Selector whose selected items will be modified by the manipulators from this builder. */
-  // TODO this needs to be a YieldCurveDataSelector
-  private final YieldCurveSelector _selector;
+  private final YieldCurveDataSelector _selector;
+
   /** The scenario to which manipulations are added. */
   private final Scenario _scenario;
 
-  /* package */ YieldCurveDataManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
+  /* package */ YieldCurveDataManipulatorBuilder(YieldCurveDataSelector selector, Scenario scenario) {
     ArgumentChecker.notNull(selector, "selector");
     ArgumentChecker.notNull(scenario, "scenario");
     _selector = selector;
@@ -29,7 +29,7 @@ public class YieldCurveDataManipulatorBuilder {
   /**
    * @return the configured selector
    */
-  public YieldCurveSelector getSelector() {
+  public YieldCurveDataSelector getSelector() {
     return _selector;
   }
 
@@ -57,29 +57,29 @@ public class YieldCurveDataManipulatorBuilder {
    * @return This builder
    * TODO can this be replaced with a point shift with one point?
    */
-  public YieldCurveDataManipulatorBuilder singleShift(Number t, Number shift) {
-    _scenario.add(_selector, new YieldCurveSingleShift(t.doubleValue(), shift.doubleValue()));
-    return this;
-  }
+  /*public YieldCurveDataManipulatorBuilder singleShift(Number t, Number shift) {
 
-  
+  }*/
+
   /**
    * Creates a bucketed shift builder with the given type
    * @param type the type of the shift
    * @return the bucketed shift builder
+   * TODO varargs for the buckets - new class required. Bucket? ShiftBucket?
    */
-  public final BucketedShiftManipulatorBuilder bucketedShifts(/*BucketedShiftType type*/) {
-    return new BucketedShiftManipulatorBuilder(_selector, _scenario/*, type*/);
+  public final YieldCurveDataManipulatorBuilder bucketedShifts(/*BucketedShiftType type*/) {
+    // TODO add something to the scenario - need to define YieldCurveDataBucketedShifts
+    throw new UnsupportedOperationException();
   }
   
 
   /**
    * Creates a point shift builder
    * @return the point shifts builder
+   * TODO varargs for the shifts - new class required. PointShift?
    */
-  public final PointShiftManipulatorBuilder pointShifts() {
-    return new PointShiftManipulatorBuilder(_selector, _scenario);
+  public final YieldCurveDataManipulatorBuilder pointShifts() {
+    // TODO add something to the scenario - need to define YieldCurveDataPointShifts
+    throw new UnsupportedOperationException();
   }
-  
-  
 }

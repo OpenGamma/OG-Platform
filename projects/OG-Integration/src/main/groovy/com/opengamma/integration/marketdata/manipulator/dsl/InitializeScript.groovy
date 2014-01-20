@@ -27,7 +27,9 @@ Number.metaClass.getBp = { -> delegate / 10000 }
 Number.metaClass.getPc = { -> delegate / 100 }
 Number.metaClass.getPercent = { -> delegate / 100 }
 
-// TODO are these safe? should they create a period? or a tenor?
+// TODO these aren't safe in their current form. need to be converted for use in analytics
+// also need a different meaning for pre and post fitted curve data. create period or tenor
+// use TimeCalculator for fitted curves? but would need to know the start
 Number.metaClass.getD = { -> delegate / 365 }
 Number.metaClass.getM = { -> delegate / 12 }
 Number.metaClass.getY = { -> delegate }
