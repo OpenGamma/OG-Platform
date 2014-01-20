@@ -5,12 +5,10 @@
  */
 package com.opengamma.integration.regression;
 
-import static com.google.common.collect.Iterators.filter;
-import static com.google.common.collect.Iterators.transform;
+import static com.google.common.collect.Iterables.transform;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -26,48 +24,30 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ManageableExchange;
-import com.opengamma.master.exchange.impl.ExchangeSearchIterator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesInfoSearchIterator;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.master.holiday.impl.HolidaySearchIterator;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.impl.MarketDataSnapshotSearchIterator;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.master.orgs.OrganizationMaster;
-import com.opengamma.master.orgs.OrganizationSearchRequest;
-import com.opengamma.master.orgs.impl.OrganizationSearchIterator;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.portfolio.PortfolioSearchRequest;
-import com.opengamma.master.portfolio.impl.PortfolioSearchIterator;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -90,7 +70,7 @@ import com.opengamma.util.ArgumentChecker;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
   
-  private final MasterFilterManager _masterFilterManager;
+  private final MasterQueryManager _masterQueryManager;
   
   
   private final IdMappings _idMappings;
@@ -100,12 +80,12 @@ import com.opengamma.util.ArgumentChecker;
   /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
       HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster) {
     this(outputDir, securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
-        exchangeMaster, snapshotMaster, organizationMaster, MasterFilterManager.alwaysTrue());
+        exchangeMaster, snapshotMaster, organizationMaster, MasterQueryManager.queryAll());
   }
 
   /* package */DatabaseDump(String outputDir, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
       HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster,
-      MasterFilterManager masterFilterManager) {
+      MasterQueryManager masterFilterManager) {
     this(new SubdirsRegressionIO(new File(outputDir), new FudgeXMLFormat(), true), securityMaster, positionMaster, portfolioMaster, configMaster, timeSeriesMaster, holidayMaster,
         exchangeMaster, snapshotMaster, organizationMaster, masterFilterManager);
   }
@@ -113,14 +93,14 @@ import com.opengamma.util.ArgumentChecker;
   
   /* package */DatabaseDump(RegressionIO io, SecurityMaster securityMaster, PositionMaster positionMaster, PortfolioMaster portfolioMaster, ConfigMaster configMaster,
       HistoricalTimeSeriesMaster timeSeriesMaster, HolidayMaster holidayMaster, ExchangeMaster exchangeMaster, MarketDataSnapshotMaster snapshotMaster, OrganizationMaster organizationMaster, 
-      MasterFilterManager masterFilterManager) {
+      MasterQueryManager masterQueryManager) {
     ArgumentChecker.notNull(io, "io");
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    ArgumentChecker.notNull(masterFilterManager, "_masterFilterManager");
+    ArgumentChecker.notNull(masterQueryManager, "_masterFilterManager");
     _io = io;
     _organizationMaster = organizationMaster;
     _snapshotMaster = snapshotMaster;
@@ -131,7 +111,7 @@ import com.opengamma.util.ArgumentChecker;
     _portfolioMaster = portfolioMaster;
     _configMaster = configMaster;
     _securityMaster = securityMaster;
-    _masterFilterManager = masterFilterManager;
+    _masterQueryManager = masterQueryManager;
     ConfigItem<IdMappings> mappingsConfigItem = RegressionUtils.loadIdMappings(_configMaster);
     if (mappingsConfigItem != null) {
       _idMappings = mappingsConfigItem.getValue();
@@ -185,66 +165,56 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   private Map<ObjectId, Integer> writeSecurities() throws IOException {
-    SecuritySearchIterator searchIterator = new SecuritySearchIterator(_securityMaster, new SecuritySearchRequest());
-    Iterator<SecurityDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getSecurityFilter());
-    return write(transform(filteredDocuments, new SecurityTransformer()), "securities", "sec");
+    Iterable<SecurityDocument> result = _masterQueryManager.getSecurityQuery().apply(_securityMaster);
+    return write(transform(result, new SecurityTransformer()), "securities", "sec");
   }
 
   private Map<ObjectId, Integer> writePositions() throws IOException {
-    PositionSearchIterator searchIterator = new PositionSearchIterator(_positionMaster, new PositionSearchRequest());
-    Iterator<PositionDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getPositionFilter());
-    return write(transform(filteredDocuments, new PositionTransformer()), "positions", "pos");
+    Iterable<PositionDocument> result = _masterQueryManager.getPositionQuery().apply(_positionMaster);
+    return write(transform(result, new PositionTransformer()), "positions", "pos");
   }
 
   private Map<ObjectId, Integer> writeConfig() throws IOException {
-    ConfigSearchIterator<Object> searchIterator = new ConfigSearchIterator<>(_configMaster, new ConfigSearchRequest<>(Object.class));
-    Iterator<ConfigDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getConfigFilter());
-    return write(transform(filteredDocuments, new ConfigTransformer()), "configs", "cfg");
+    Iterable<ConfigDocument> result = _masterQueryManager.getConfigQuery().apply(_configMaster);
+    return write(transform(result, new ConfigTransformer()), "configs", "cfg");
   }
 
   private Map<ObjectId, Integer> writePortfolios() throws IOException {
-    PortfolioSearchIterator searchIterator = new PortfolioSearchIterator(_portfolioMaster, new PortfolioSearchRequest());
-    Iterator<PortfolioDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getPortfolioFilter());
-    return write(transform(filteredDocuments, new PortfolioTransformer()), "portfolios", "prt");
+    Iterable<PortfolioDocument> result = _masterQueryManager.getPortfolioQuery().apply(_portfolioMaster);
+    return write(transform(result, new PortfolioTransformer()), "portfolios", "prt");
   }
 
   private Map<ObjectId, Integer> writeTimeSeries() throws IOException {
-    HistoricalTimeSeriesInfoSearchIterator searchIterator = new HistoricalTimeSeriesInfoSearchIterator(_timeSeriesMaster, new HistoricalTimeSeriesInfoSearchRequest());
-    Iterator<HistoricalTimeSeriesInfoDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getHtsFilter());
-    return write(transform(filteredDocuments, new TimeSeriesTransformer()), "timeseries", "hts");
+    Iterable<HistoricalTimeSeriesInfoDocument> result = _masterQueryManager.getHtsQuery().apply(_timeSeriesMaster);
+    return write(transform(result, new TimeSeriesTransformer()), "timeseries", "hts");
   }
 
   private Map<ObjectId, Integer> writeHolidays() throws IOException {
-    HolidaySearchIterator searchIterator = new HolidaySearchIterator(_holidayMaster, new HolidaySearchRequest());
-    Iterator<HolidayDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getHolidayFilter());
-    return write(transform(filteredDocuments, new HolidayTransformer()), "holidays", "hol");
+    Iterable<HolidayDocument> result = _masterQueryManager.getHolidayQuery().apply(_holidayMaster);
+    return write(transform(result, new HolidayTransformer()), "holidays", "hol");
   }
 
   private Map<ObjectId, Integer> writeExchanges() throws IOException {
-    ExchangeSearchIterator searchIterator = new ExchangeSearchIterator(_exchangeMaster, new ExchangeSearchRequest());
-    Iterator<ExchangeDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getExchangeFilter());
-    return write(transform(filteredDocuments, new ExchangeTransformer()), "exchanges", "exg");
+    Iterable<ExchangeDocument> result = _masterQueryManager.getExchangeQuery().apply(_exchangeMaster);
+    return write(transform(result, new ExchangeTransformer()), "exchanges", "exg");
   }
 
   private Map<ObjectId, Integer> writeSnapshots() throws IOException {
-    MarketDataSnapshotSearchIterator searchIterator = new MarketDataSnapshotSearchIterator(_snapshotMaster, new MarketDataSnapshotSearchRequest());
-    Iterator<MarketDataSnapshotDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getMarketDataSnapshotFilter());
-    return write(transform(filteredDocuments, new SnapshotTransformer()), "snapshots", "snp");
+    Iterable<MarketDataSnapshotDocument> result = _masterQueryManager.getMarketDataSnapshotQuery().apply(_snapshotMaster);
+    return write(transform(result, new SnapshotTransformer()), "snapshots", "snp");
   }
 
   private Map<ObjectId, Integer> writeOrganizations() throws IOException {
-    OrganizationSearchIterator searchIterator = new OrganizationSearchIterator(_organizationMaster, new OrganizationSearchRequest());
-    Iterator<OrganizationDocument> filteredDocuments = filter(searchIterator, _masterFilterManager.getOrganizationFilter());
-    return write(transform(filteredDocuments, new OrganizationTransformer()), "organizations", "org");
+    Iterable<OrganizationDocument> result = _masterQueryManager.getOrganizationQuery().apply(_organizationMaster);
+    return write(transform(result, new OrganizationTransformer()), "organizations", "org");
   }
 
-  private Map<ObjectId, Integer> write(Iterator<? extends UniqueIdentifiable> objects, String type, String prefix) throws IOException {
+  private Map<ObjectId, Integer> write(Iterable<? extends UniqueIdentifiable> objects, String type, String prefix) throws IOException {
     s_logger.info("Writing {} to {}", type, _io.getBaseFile().getAbsolutePath());
     final Map<ObjectId, Integer> ids = Maps.newHashMap();
     final Map<String, Object> toWrite = Maps.newHashMap();
     int count = 0;
-    while (objects.hasNext()) {
-      UniqueIdentifiable object = objects.next();
+    for (UniqueIdentifiable object : objects) {
       ObjectId objectId = object.getUniqueId().getObjectId();
       Integer previousId = _idMappings.getId(objectId);
       int id;

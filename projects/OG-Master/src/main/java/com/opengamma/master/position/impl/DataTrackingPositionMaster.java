@@ -40,9 +40,9 @@ public class DataTrackingPositionMaster extends AbstractDataTrackingMaster<Posit
 
   @Override
   public ManageableTrade getTrade(UniqueId tradeId) {
-    ManageableTrade trade = delegate().getTrade(tradeId);
-    trackId(trade.getUniqueId());
-    return trade;
+    //trades are wrapped by positions so don't need to
+    //be tracked
+    return delegate().getTrade(tradeId);
   }
 
   

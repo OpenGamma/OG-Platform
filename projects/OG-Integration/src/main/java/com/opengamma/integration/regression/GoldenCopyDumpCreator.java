@@ -6,28 +6,40 @@
 package com.opengamma.integration.regression;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 
-import com.google.common.base.Predicate;
+import com.google.common.base.Function;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.AbstractMaster;
 import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.DataTrackingConfigMaster;
 import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapshotMaster;
 import com.opengamma.master.organization.impl.DataTrackingOrganizationMaster;
 import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
 import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.DataTrackingPositionMaster;
 import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
 
 /**
@@ -72,7 +84,7 @@ class GoldenCopyDumpCreator {
    */
   public void execute() throws IOException {
     
-    MasterFilterManager filterManager = buildFilterManager();
+    MasterQueryManager filterManager = buildFilterManager();
     
     DatabaseDump databaseDump = new DatabaseDump(_regressionIO, 
                                                 _securityMaster, 
@@ -92,19 +104,18 @@ class GoldenCopyDumpCreator {
   }
   
   
-  private MasterFilterManager buildFilterManager() {
-    //specific predicate types declared here for guaranteed type-safety in the MasterFilterManager constructor call
-    Predicate<? super SecurityDocument> secFilter                 = new UniqueIdentifiableFilter(_securityMaster.getIdsAccessed());
-    Predicate<? super PositionDocument> posFilter                 = new UniqueIdentifiableFilter(_positionMaster.getIdsAccessed());
-    Predicate<? super PortfolioDocument> porFilter                = new UniqueIdentifiableFilter(_portfolioMaster.getIdsAccessed());
-    Predicate<? super ConfigDocument> conFilter                   = new UniqueIdentifiableFilter(_configMaster.getIdsAccessed());
-    Predicate<? super HistoricalTimeSeriesInfoDocument> htsFilter = new UniqueIdentifiableFilter(_timeSeriesMaster.getIdsAccessed());
-    Predicate<? super HolidayDocument> holFilter                  = new UniqueIdentifiableFilter(_holidayMaster.getIdsAccessed());
-    Predicate<? super ExchangeDocument> exhFilter                 = new UniqueIdentifiableFilter(_exchangeMaster.getIdsAccessed());
-    Predicate<? super MarketDataSnapshotDocument> snpFilter       = new UniqueIdentifiableFilter(_snapshotMaster.getIdsAccessed());
-    Predicate<? super OrganizationDocument> orgFilter             = new UniqueIdentifiableFilter(_organizationMaster.getIdsAccessed());
+  private MasterQueryManager buildFilterManager() {
     
-    return new MasterFilterManager(secFilter, posFilter, porFilter, conFilter, htsFilter, holFilter, exhFilter, snpFilter, orgFilter);
+    return new MasterQueryManager(
+        new UniqueIdentifiableQuery<SecurityDocument, SecurityMaster>(_securityMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<PositionDocument, PositionMaster>(_positionMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<PortfolioDocument, PortfolioMaster>(_portfolioMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<ConfigDocument, ConfigMaster>(_configMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster>(_timeSeriesMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<HolidayDocument, HolidayMaster>(_holidayMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<ExchangeDocument, ExchangeMaster>(_exchangeMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<MarketDataSnapshotDocument, MarketDataSnapshotMaster>(_snapshotMaster.getIdsAccessed()),
+        new UniqueIdentifiableQuery<OrganizationDocument, OrganizationMaster>(_organizationMaster.getIdsAccessed()));
   }
 
 
@@ -112,18 +123,19 @@ class GoldenCopyDumpCreator {
    * Filter which checks a {@link UniqueIdentifiable} object is identified by one of
    * a set of ids.
    */
-  private static class UniqueIdentifiableFilter implements Predicate<UniqueIdentifiable> {
+  private static class UniqueIdentifiableQuery<D extends AbstractDocument, M extends AbstractMaster<D>> implements Function<M, Collection<D>> {
     
     private Set<UniqueId> _idsToInclude;
     
-    public UniqueIdentifiableFilter(Set<UniqueId> uniqueId) {
+    public UniqueIdentifiableQuery(Set<UniqueId> uniqueId) {
       _idsToInclude = uniqueId;
     }
 
     @Override
-    public boolean apply(UniqueIdentifiable input) {
-      return _idsToInclude.contains(input.getUniqueId());
+    public Collection<D> apply(M input) {
+      return input.get(_idsToInclude).values();
     }
+
     
   }
   
