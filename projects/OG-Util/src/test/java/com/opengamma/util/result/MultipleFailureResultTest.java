@@ -5,8 +5,6 @@
  */
 package com.opengamma.util.result;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.util.List;
 
 import org.testng.AssertJUnit;

@@ -7,13 +7,10 @@ package com.opengamma.livedata;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collection;
 
-import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;

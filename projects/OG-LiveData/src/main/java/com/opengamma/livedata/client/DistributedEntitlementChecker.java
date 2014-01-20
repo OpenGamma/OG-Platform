@@ -56,7 +56,6 @@ public class DistributedEntitlementChecker {
     _fudgeContext = fudgeContext;
   }
 
-  @SuppressWarnings("unused")
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user,
       Collection<LiveDataSpecification> specifications) {
     s_logger.info("Checking entitlements by {} to {}", user, specifications);

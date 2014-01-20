@@ -41,7 +41,7 @@ public class ResultGeneratorTest {
                                                                   success2,
                                                                   failure1,
                                                                   failure2);
-    List failures = ((MultipleFailureResult) composite1).getFailures();
+    List<?> failures = ((MultipleFailureResult<?>) composite1).getFailures();
     assertEquals(Lists.newArrayList(failure1, failure2), failures);
   }
 

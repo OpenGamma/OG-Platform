@@ -9,6 +9,7 @@ package com.opengamma.util.result;
  * Represents the status of a function call which has completed successfully.
  */
 public enum SuccessStatus implements ResultStatus {
+
   /**
    * The function call completed successfully.
    */
@@ -24,7 +25,13 @@ public enum SuccessStatus implements ResultStatus {
    */
   //AWAITING_MARKET_DATA;
 
+  /**
+   * Indicates if a Result with this status has a return value populated.
+   *
+   * @return true if the Result has its return value populated
+   */
   public boolean isResultAvailable() {
     return true;
   }
+
 }

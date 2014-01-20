@@ -20,7 +20,6 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
