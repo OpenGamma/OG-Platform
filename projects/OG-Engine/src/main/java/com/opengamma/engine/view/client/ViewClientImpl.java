@@ -31,6 +31,7 @@ import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
@@ -373,6 +374,17 @@ public class ViewClientImpl implements ViewClient {
   @Override
   public ViewDefinition getLatestViewDefinition() {
     return getViewProcessor().getLatestViewDefinition(getUniqueId());
+  }
+  
+  @Override
+  public ViewProcess getViewProcess() {
+    _clientLock.lock();
+    try {
+      checkAttached();
+      return getViewProcessor().getViewProcessForClient(getUniqueId());
+    } finally {
+      _clientLock.unlock();
+    }
   }
 
   //-------------------------------------------------------------------------

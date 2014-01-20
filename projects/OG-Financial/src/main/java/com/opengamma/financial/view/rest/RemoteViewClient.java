@@ -28,6 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
@@ -209,6 +210,12 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     return getClient().accessFudge(uri).get(ViewDefinition.class);
   }
 
+  @Override
+  public ViewProcess getViewProcess() {
+    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_PROCESS);
+    return new RemoteViewProcess(uri, getClient());
+  }
+  
   private void processCompleted() {
     if (_completionLatch != null) {
       _completionLatch.countDown();
