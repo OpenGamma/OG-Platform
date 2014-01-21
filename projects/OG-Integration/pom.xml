@@ -111,7 +111,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
         <reportSets>
           <reportSet>
             <id>single</id>
