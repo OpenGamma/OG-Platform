@@ -54,7 +54,8 @@ import com.opengamma.util.ArgumentChecker;
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
   private final AggregatedViewDefinition _aggregatedViewDef;
-  private final ViewExecutionOptions _executionOptions;
+  private final ViewRequest _viewRequest;
+  private final ExecutionFlags.ParallelRecompilationMode _parallelViewRecompilation;
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
   private final List<AutoCloseable> _listeners;
   private final ExecutorService _executor;
@@ -90,27 +91,12 @@ import com.opengamma.util.ArgumentChecker;
     _executor = executor;
     _securitySource = securitySource;
     _view = view;
+    _viewRequest = viewRequest;
     _viewClient = viewClient;
     _aggregatedViewDef = aggregatedViewDef;
     _marketDataSpecRepo = marketDataSpecificationRepository;
-    List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
-    List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
-
-    // TODO - At this point we need to pick up a shift specification from the UI - for now we'll add the NoOp
-    MarketDataSelector marketDataSelector = NoOpMarketDataSelector.getInstance();
-
-    ViewCycleExecutionOptions defaultOptions =
-        ViewCycleExecutionOptions
-            .builder()
-            .setValuationTime(viewRequest.getValuationTime())
-            .setMarketDataSpecifications(actualMarketDataSpecs)
-            .setMarketDataSelector(marketDataSelector)
-            .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection())
-            .create();
-    EnumSet<ViewExecutionFlags> flags =
-        ExecutionFlags.triggersEnabled().parallelCompilation(parallelViewRecompilation).get();
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, flags);
     _listeners = listeners;
+    _parallelViewRecompilation = parallelViewRecompilation;
     // this recalcs periodically or when market data changes. might need to give
     // the user the option to specify the behaviour
   }
@@ -155,7 +141,28 @@ import com.opengamma.util.ArgumentChecker;
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
     try {
-      _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), _executionOptions);
+      if (_viewRequest.getViewProcessId() == null) {
+        List<MarketDataSpecification> requestedMarketDataSpecs = _viewRequest.getMarketDataSpecs();
+        List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
+
+        // TODO - At this point we need to pick up a shift specification from the UI - for now we'll add the NoOp
+        MarketDataSelector marketDataSelector = NoOpMarketDataSelector.getInstance();
+
+        ViewCycleExecutionOptions defaultOptions =
+            ViewCycleExecutionOptions
+                .builder()
+                .setValuationTime(_viewRequest.getValuationTime())
+                .setMarketDataSpecifications(actualMarketDataSpecs)
+                .setMarketDataSelector(marketDataSelector)
+                .setResolverVersionCorrection(_viewRequest.getPortfolioVersionCorrection())
+                .create();
+        EnumSet<ViewExecutionFlags> flags =
+            ExecutionFlags.triggersEnabled().parallelCompilation(_parallelViewRecompilation).get();
+        ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, flags);
+        _viewClient.attachToViewProcess(_aggregatedViewDef.getUniqueId(), executionOptions);
+      } else {
+        _viewClient.attachToViewProcess(_viewRequest.getViewProcessId());
+      }
     } catch (Exception e) {
       _aggregatedViewDef.close();
       throw new OpenGammaRuntimeException("Failed to attach view client to view process", e);

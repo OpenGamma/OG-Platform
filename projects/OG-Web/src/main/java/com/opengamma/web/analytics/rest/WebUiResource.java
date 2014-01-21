@@ -109,7 +109,7 @@ public class WebUiResource {
         MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
     VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
                                                                parseInstant(portfolioCorrectionTime));
-    ViewRequest viewRequest = new ViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
+    ViewRequest viewRequest = _viewManager.createViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
                                               parseInstant(valuationTime), versionCorrection, blotterColumns);
     String viewId = Long.toString(s_nextViewId.getAndIncrement());
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
