@@ -26,6 +26,7 @@ public abstract class AbstractRegressionTest {
   private RegressionTestToolContextManager _contextManager;
   private GoldenCopyPersistenceHelper _goldenCopyPersistenceHelper;
   
+  private static final String s_defaultRegressionToolContext = "classpath:regression/regression-toolcontext.properties";
   
   /**
    * Initializes the test. A valid tool context properties file is required - this cut down context is used to
@@ -42,6 +43,10 @@ public abstract class AbstractRegressionTest {
   public AbstractRegressionTest(File regressionRoot, String toolContextPropertiesFile, String regressionPropertiesFile) {
     _contextManager = new RegressionTestToolContextManager(new File(regressionRoot, GoldenCopyDumpCreator.DB_DUMP_ZIP), toolContextPropertiesFile, regressionPropertiesFile);
     _goldenCopyPersistenceHelper = new GoldenCopyPersistenceHelper(regressionRoot);
+  }
+  
+  public AbstractRegressionTest(File regressionRoot, String regressionPropertiesFile) {
+    this(regressionRoot, s_defaultRegressionToolContext, regressionPropertiesFile);
   }
   
   

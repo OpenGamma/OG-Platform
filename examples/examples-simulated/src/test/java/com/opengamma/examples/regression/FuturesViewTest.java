@@ -21,7 +21,7 @@ import com.opengamma.util.test.TestGroup;
 public class FuturesViewTest extends AbstractRegressionTest {
   
   public FuturesViewTest() {
-    super(new File("src/test/resources/FuturesView_example"), "classpath:regression/regression-toolcontext.properties", "classpath:regression/regression-testdb.properties");
+    super(new File("src/test/resources/FuturesView_example"), "classpath:regression/regression-testdb.properties");
   }
   
   
