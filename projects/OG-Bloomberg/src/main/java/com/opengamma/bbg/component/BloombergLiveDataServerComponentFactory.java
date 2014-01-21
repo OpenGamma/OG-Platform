@@ -20,10 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
-import com.opengamma.livedata.entitlement.UserEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-import com.opengamma.security.user.HibernateUserManager;
-import com.opengamma.security.user.UserManager;
 import com.opengamma.util.db.DbConnector;
 
 /**
