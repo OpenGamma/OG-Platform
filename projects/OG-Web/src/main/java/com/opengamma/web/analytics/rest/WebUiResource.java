@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -90,6 +91,7 @@ public class WebUiResource {
   @POST
   public Response createView(@Context SecurityContext securityContext,
                              @Context UriInfo uriInfo,
+                             @Context HttpServletRequest httpRequest,
                              @FormParam("requestId") String requestId,
                              @FormParam("viewDefinitionId") String viewDefinitionId,
                              @FormParam("aggregators") List<String> aggregators,
@@ -130,7 +132,10 @@ public class WebUiResource {
         .path(viewId)
         .path("errors")
         .build();
-    UserPrincipal ogUserPrincipal = userName != null ? UserPrincipal.getLocalUser(userName) : UserPrincipal.getTestUser();
+    // Get session id or create one
+    String sessionId = "session-id:" + httpRequest.getSession().getId();
+    // Track user principal using session id rather than ip address
+    UserPrincipal ogUserPrincipal = userName != null ? new UserPrincipal(userName, sessionId) : UserPrincipal.getTestUser();
     _viewManager.createView(viewRequest, clientId, ogUserPrincipal, connection, viewId, callbackMap,
                             portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorUri.getPath());
     return Response.status(Response.Status.CREATED).build();
