@@ -29,11 +29,13 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of Yield average bond futures transaction (in particular for AUD-SFE futures) with discounting method, i.e. without convexity adjustments.
  */
+@Test(groups = TestGroup.UNIT)
 public class YieldAverageBondFuturesTransactionDiscountingMethodTest {
 
   // Bonds: Delivery basket SFE 10Y

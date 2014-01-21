@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.option.pricing.tree.LatticeSpecif
 import com.opengamma.analytics.financial.model.option.pricing.tree.LeisenReimerLatticeSpecification;
 import com.opengamma.analytics.financial.model.option.pricing.tree.OptionFunctionProvider1D;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class RollGeskeWhaleyModelTest {
   private static final double TIME_TO_EXPIRY = 1.;
   private static final double SPOT = 100.;

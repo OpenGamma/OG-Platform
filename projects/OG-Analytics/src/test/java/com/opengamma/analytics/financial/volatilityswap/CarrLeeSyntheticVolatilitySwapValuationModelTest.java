@@ -12,9 +12,12 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class CarrLeeSyntheticVolatilitySwapValuationModelTest {
 
   private final static CarrLeeSyntheticVolatilitySwapValuationModel MODEL = new CarrLeeSyntheticVolatilitySwapValuationModel();

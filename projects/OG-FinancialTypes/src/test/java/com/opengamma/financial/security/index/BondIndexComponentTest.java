@@ -13,11 +13,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * Tests the fields of a bond index component. This test is intended to pick up any changes
  * before databases are affected.
  */
+@Test(groups = TestGroup.UNIT)
 public class BondIndexComponentTest {
   /** The bond ids */
   private static final ExternalIdBundle IDS = ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("AAA"),
