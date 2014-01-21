@@ -47,8 +47,7 @@ public class UserPrincipal implements Serializable {
    */
   public static UserPrincipal getLocalUser(String userName) {
     try {
-      UserPrincipal user = new UserPrincipal(userName, InetAddress.getLocalHost().toString());
-      return user;
+      return new UserPrincipal(userName, InetAddress.getLocalHost().toString());
     } catch (UnknownHostException ex) {
       throw new com.opengamma.OpenGammaRuntimeException("Could not initialize local user", ex);
     }
@@ -106,9 +105,10 @@ public class UserPrincipal implements Serializable {
   }
 
   /**
-   * Gets the IP address of the user.
+   * Gets the location identifier for a user. This may be an IP address
+   * or a session id.
    * 
-   * @return the IP address, not null
+   * @return the location identifier, not null
    */
   public String getIpAddress() {
     return _ipAddress;
