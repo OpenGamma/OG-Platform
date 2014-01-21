@@ -54,19 +54,17 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
    * @param resolver  the resolver used to map from {@link LiveDataSpecification} to {@link DistributionSpecification}, not null
    */
   public UserEntitlementChecker(UserManager userManager, DistributionSpecificationResolver resolver) {
-    ArgumentChecker.notNull(userManager, "User manager");
-    ArgumentChecker.notNull(resolver, "Distribution Specification Resolver");
-    _userManager = userManager;
-    _resolver = resolver;
+    _userManager = ArgumentChecker.notNull(userManager, "User manager");
+    _resolver = ArgumentChecker.notNull(resolver, "Distribution Specification Resolver");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal userPrincipal, Collection<LiveDataSpecification> requestedSpecifications) {
-    Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
+    Map<LiveDataSpecification, Boolean> returnValue = new HashMap<>();
     User user = _userManager.getUser(userPrincipal.getUserName());
     if (user == null) {
-      s_logger.debug("User {} does not exist - no permissions are granted", userPrincipal.getUserName());
+      s_logger.warn("User {} does not exist - no permissions are granted", userPrincipal.getUserName());
       for (LiveDataSpecification spec : requestedSpecifications) {
         returnValue.put(spec, false);                
       }
@@ -82,11 +80,13 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
         boolean hasPermission = user.hasPermission(permission);
         returnValue.put(requestedSpec, hasPermission);                
       } else {
-        s_logger.debug("Could not resolve live data spec {} - no permissions are granted to {}", requestedSpec, userPrincipal.getUserName());
-        returnValue.put(requestedSpec, false);
+        // If we can't resolve the spec, then most likely we've tried
+        // to guess a ticker (e.g. for an option) that doesn't exist. As
+        // there's going to be no data failing it will just cause problems
+        // for downstream users
+        returnValue.put(requestedSpec, true);
       }
     }
     return returnValue;
   }
-
 }
