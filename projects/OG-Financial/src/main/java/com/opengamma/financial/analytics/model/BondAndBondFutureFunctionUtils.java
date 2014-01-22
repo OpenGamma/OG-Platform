@@ -69,7 +69,7 @@ public class BondAndBondFutureFunctionUtils {
           MarketDataRequirementNames.MARKET_VALUE, null);
       if (timeSeries == null) {
         s_logger.error("Could not resolve time series for {}", externalIdBundle);
-        return null;
+        return Collections.emptySet();
       }
       return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
           DateConstraint.VALUATION_TIME.minus(Period.ofMonths(1)).previousWeekDay(), true, DateConstraint.VALUATION_TIME, true));
