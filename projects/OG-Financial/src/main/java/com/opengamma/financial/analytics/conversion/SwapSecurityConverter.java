@@ -5,11 +5,15 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import static com.opengamma.financial.convention.initializer.AUConventions.BBSW;
+import static com.opengamma.financial.convention.initializer.CAConventions.CDOR;
 import static com.opengamma.financial.convention.initializer.EUConventions.EURIBOR;
+import static com.opengamma.financial.convention.initializer.EUConventions.EURIBOR_CONV;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IBOR;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_FIXED_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.IRS_IBOR_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.LIBOR;
+import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.LIBOR_CONV;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OIS_ON_LEG;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.OVERNIGHT;
 import static com.opengamma.financial.convention.initializer.PerCurrencyConventionHelper.SCHEME_NAME;
@@ -235,7 +239,31 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     } catch (DataNotFoundException ex) {
       // continue
     }
+    iborConventionName = getConventionName(currency, EURIBOR_CONV);
+    try {
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
+    } catch (DataNotFoundException ex) {
+      // continue
+    }
     iborConventionName = getConventionName(currency, LIBOR);
+    try {
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
+    } catch (DataNotFoundException ex) {
+      // continue
+    }
+    iborConventionName = getConventionName(currency, LIBOR_CONV);
+    try {
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
+    } catch (DataNotFoundException ex) {
+      // continue
+    }
+    iborConventionName = getConventionName(currency, BBSW);
+    try {
+      return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
+    } catch (DataNotFoundException ex) {
+      // continue
+    }
+    iborConventionName = getConventionName(currency, CDOR);
     try {
       return _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, iborConventionName), IborIndexConvention.class);
     } catch (DataNotFoundException ex) {
@@ -311,14 +339,14 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final InterestRateNotional interestRateNotional = (InterestRateNotional) swapLeg.getNotional();
         final Currency currency = interestRateNotional.getCurrency();
         final String fixedLegConventionName = getConventionName(currency, IRS_FIXED_LEG);
-        final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, fixedLegConventionName), SwapFixedLegConvention.class);
+//        final SwapFixedLegConvention fixedLegConvention = _conventionSource.getSingle(ExternalId.of(SCHEME_NAME, fixedLegConventionName), SwapFixedLegConvention.class);
         final Frequency freqFixed = swapLeg.getFrequency();
         final Period tenorFixed = getTenor(freqFixed);
         final double notional = interestRateNotional.getAmount();
-        final DayCount dayCount = fixedLegConvention.getDayCount();
-        final boolean isEOM = fixedLegConvention.isIsEOM();
+        final DayCount dayCount = swapLeg.getDayCount(); // fixedLegConvention.getDayCount();
+        final boolean isEOM = swapLeg.isEom(); //fixedLegConvention.isIsEOM();
         final double rate = swapLeg.getRate();
-        final BusinessDayConvention businessDayConvention = fixedLegConvention.getBusinessDayConvention();
+        final BusinessDayConvention businessDayConvention = swapLeg.getBusinessDayConvention(); // fixedLegConvention.getBusinessDayConvention();
         return AnnuityCouponFixedDefinition.from(currency, effectiveDate, maturityDate, tenorFixed, calendar, dayCount,
             businessDayConvention, isEOM, notional, rate, isPayer);
       }

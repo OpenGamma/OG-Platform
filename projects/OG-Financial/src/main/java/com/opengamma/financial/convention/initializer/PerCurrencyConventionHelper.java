@@ -23,6 +23,8 @@ public class PerCurrencyConventionHelper {
   public static final String IBOR = "Ibor";
   /** Libor (London interbank offered rate) index string **/
   public static final String LIBOR = "Libor";
+  /** Libor (London interbank offered rate) index string **/
+  public static final String LIBOR_CONV = "LIBOR Convention";
   /** Jibar (Johannesburg interbank agreed rate) index string */
   public static final String JIBOR = "Jibar";
   /** Deposit convention string **/
