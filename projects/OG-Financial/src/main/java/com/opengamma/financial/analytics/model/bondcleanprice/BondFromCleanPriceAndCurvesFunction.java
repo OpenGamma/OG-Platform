@@ -72,8 +72,8 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -139,7 +139,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
 
   /**
    * Gets the value properties of the result
-   * 
+   *
    * @param target The computation target
    * @return The properties
    */
@@ -150,7 +150,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
 
   /**
    * Calculates the result.
-   * 
+   *
    * @param inputs The function inputs
    * @param bond The bond transaction
    * @param issuerCurves The issuer and discounting curves
