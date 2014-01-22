@@ -66,6 +66,13 @@
       <directoryMode>755</directoryMode>
       <fileMode>644</fileMode>
     </fileSet>
+    <!-- marketdata web directory -->
+    <fileSet>
+      <directory>${project.build.directory}/assembly/web-marketdata</directory>
+      <outputDirectory>/web-marketdata</outputDirectory>
+      <directoryMode>755</directoryMode>
+      <fileMode>644</fileMode>
+    </fileSet>
     <!-- directory for data and logs -->
     <fileSet>
       <directory>${project.build.directory}</directory>
