@@ -159,15 +159,20 @@ public class BondAndBondFutureTradeWithEntityConverter {
 
   /**
    * Constructs a legal entity for a {@link BondSecurity}
-   * @param attributes The trade attributes
+   * @param tradeAttributes The trade attributes
    * @param security The bond security
    * @return A legal entity
    */
   private static LegalEntity getLegalEntityForBond(final Map<String, String> tradeAttributes, final BondSecurity security) {
     final Map<String, String> securityAttributes = security.getAttributes();
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
-    final String isin = identifiers.getValue(ExternalSchemes.ISIN);
-    final String ticker = isin == null ? null : isin;
+    final String ticker;
+    if (identifiers != null) {
+      final String isin = identifiers.getValue(ExternalSchemes.ISIN);
+      ticker = isin == null ? null : isin;
+    } else {
+      ticker = null;
+    }
     final String shortName = security.getIssuerName();
     Set<CreditRating> creditRatings = null;
     for (final String ratingString : RATING_STRINGS) {
@@ -375,6 +380,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
     for (int i = 0; i < n; i++) {
       final BondFutureDeliverable deliverable = basket.get(i);
       final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSingle(deliverable.getIdentifiers());
+      if (bondSecurity == null) {
+        throw new OpenGammaRuntimeException("Security with identifier bundle " + deliverable.getIdentifiers() + " not in security source");
+      }
       final LegalEntity issuer = getLegalEntityForBond(new HashMap<String, String>(), bondSecurity);
       final InstrumentDefinition<?> definition = getFixedCouponBond(bondSecurity, issuer);
       if (!(definition instanceof BondFixedSecurityDefinition)) {
