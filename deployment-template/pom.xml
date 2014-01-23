@@ -105,6 +105,26 @@
               </artifactItems>
             </configuration>
           </execution>
+          <execution>
+            <id>unpack-marketdata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.opengamma.platform</groupId>
+                  <artifactId>og-web</artifactId>
+                  <version>${project.version}</version>
+                  <type>zip</type>
+                  <classifier>web-marketdata</classifier>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/assembly/web-marketdata</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <!-- generate deployment bundle -->

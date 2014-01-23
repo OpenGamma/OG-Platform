@@ -245,7 +245,7 @@ public final class AnalyticsParameterProviderBuilders {
       final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves = new LinkedHashMap<>();
       final List<FudgeField> indexIborFields = message.getAllByName(INDEX_IBOR_FIELD);
       final List<FudgeField> forwardIborCurveFields = message.getAllByName(INDEX_IBOR_CURVE);
-      for (int i = 0; i < currencyFields.size(); i++) {
+      for (int i = 0; i < indexIborFields.size(); i++) {
         final IborIndex index = deserializer.fudgeMsgToObject(IborIndex.class, (FudgeMsg) indexIborFields.get(i).getValue());
         final YieldAndDiscountCurve curve = deserializer.fudgeMsgToObject(YieldAndDiscountCurve.class, (FudgeMsg) forwardIborCurveFields.get(i).getValue());
         forwardIborCurves.put(index, curve);
@@ -253,7 +253,7 @@ public final class AnalyticsParameterProviderBuilders {
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves = new LinkedHashMap<>();
       final List<FudgeField> indexONFields = message.getAllByName(INDEX_ON_FIELD);
       final List<FudgeField> forwardONCurveFields = message.getAllByName(OVERNIGHT_CURVE_FIELD);
-      for (int i = 0; i < currencyFields.size(); i++) {
+      for (int i = 0; i < indexONFields.size(); i++) {
         final IndexON index = deserializer.fudgeMsgToObject(IndexON.class, (FudgeMsg) indexONFields.get(i).getValue());
         final YieldAndDiscountCurve curve = deserializer.fudgeMsgToObject(YieldAndDiscountCurve.class, (FudgeMsg) forwardONCurveFields.get(i).getValue());
         forwardONCurves.put(index, curve);
