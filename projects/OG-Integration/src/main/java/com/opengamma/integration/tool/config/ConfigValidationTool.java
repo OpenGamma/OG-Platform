@@ -59,7 +59,12 @@ public class ConfigValidationTool extends AbstractTool<ToolContext> {
     if (verbose) {
       System.out.println("Starting validation...");
     }
-    List<ValidationNode> validateNewCurveSetup = curveValidator.validateNewCurveSetup();
+    curveValidator.validateNewCurveSetup();
+    if (verbose) {
+      System.out.println("CurveConstructionConfiguration and linked objects");
+      System.out.println("-------------------------------------------------");
+    }
+    List<ValidationNode> validateNewCurveSetup = curveValidator.getCurveConstructionConfigResults();
     for (ValidationNode node : validateNewCurveSetup) {
       if (verbose) {
         if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
@@ -82,7 +87,36 @@ public class ConfigValidationTool extends AbstractTool<ToolContext> {
         System.out.println(ValidationTextFormatter.formatTree(node));
       }     
     }
-    System.out.println("Finished validation");
+    if (verbose) {
+      System.out.println("ExposureFunctions");
+      System.out.println("-----------------");
+    }
+    List<ValidationNode> validateExposureConfigs = curveValidator.getExposureFunctionsConfigResults();
+    for (ValidationNode node : validateExposureConfigs) {
+      if (verbose) {
+        if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
+          System.out.println("Exposure functions configuration " + node.getName() + " has errors and/or warnings");
+        } else {
+          System.out.println("Exposure functions configuration " + node.getName() + " is good");
+        }
+      }
+      if (commandLine.hasOption(ERRORS_PARTIAL_GRAPH_OPTION)) {
+        if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
+          ValidationTreeUtils.propagateErrorsAndWarningsUp(node);
+          ValidationTreeUtils.discardNonErrors(node);
+          System.out.println(ValidationTextFormatter.formatTree(node));
+        }
+      } else if (commandLine.hasOption(ERRORS_FULL_GRAPH_OPTION)) {
+        if (ValidationTreeUtils.containsErrorsOrWarnings(node)) {
+          System.out.println(ValidationTextFormatter.formatTree(node));
+        }        
+      } else {
+        System.out.println(ValidationTextFormatter.formatTree(node));
+      }     
+    }    
+    if (verbose) {
+      System.out.println("Finished validation");
+    }
   }
   
   @Override
