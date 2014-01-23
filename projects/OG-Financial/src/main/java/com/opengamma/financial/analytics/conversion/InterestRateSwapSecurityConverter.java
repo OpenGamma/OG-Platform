@@ -371,8 +371,7 @@ public class InterestRateSwapSecurityConverter extends FinancialSecurityVisitorA
   }
 
   private ZonedDateTime getZonedDateTime(LocalDate maturityDate) {
-    //Impl Note: If using a time during the day we can get -0.0 fixing times
-    return maturityDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault());
+    return maturityDate.atStartOfDay(ZoneId.systemDefault());
   }
 
   private double parseFlatSpread(FloatingInterestRateSwapLeg iborLeg) {
