@@ -256,6 +256,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
         }
         final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
         final Currency currency = bond.getCurrency();
+        if (bond.getInterestAccrualDate() == null) {
+          throw new OpenGammaRuntimeException("Bond first interest accrual date was null");
+        }
         final ZoneId zone = bond.getInterestAccrualDate().getZone();
         final ZonedDateTime firstAccrualDate = ZonedDateTime.of(bond.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
         final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
