@@ -78,7 +78,7 @@ public class RollGeskeWhaleyModel {
    * @param volatility The volatility 
    * @param dividends The cash dividend amount
    * @param dividendTimes The time when the dividend is paid
-   * @return The call option price and Greeks as an array {price, delta, dual delta, rho, theta, vega, gamma}
+   * @return The call option price and Greeks as an array {price, delta, dual delta, rho, theta(timeToExpiry), theta(divTime), vega, gamma}
    */
   public double[] getPriceAdjoint(final double spot, final double strike, final double interestRate, final double timeToExpiry, final double volatility, final double[] dividends,
       final double[] dividendTimes) {
@@ -224,7 +224,7 @@ public class RollGeskeWhaleyModel {
    * @param volatility The volatility 
    * @param dividendAmount The cash dividend amount
    * @param dividendTime The time when the dividend is paid
-   * @return The call option price and Greeks as an array {price, delta, dual delta, rho, theta, vega, gamma}
+   * @return The call option price and Greeks as an array {price, delta, dual delta, rho,theta(timeToExpiry), theta(divTime), vega, gamma}
    */
   public double[] getPriceAdjoint(final double spot, final double strike, final double interestRate, final double timeToExpiry, final double volatility, final double dividendAmount,
       final double dividendTime) {
