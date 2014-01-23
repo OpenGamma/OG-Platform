@@ -185,6 +185,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     LocalDate valuationDate = startDate;
     ConfigDBInterpolatedYieldCurveSpecificationBuilder ycSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
     
+    VAL: //CSIGNORE
     while (!valuationDate.isAfter(endDate)) {
       
       final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
@@ -196,12 +197,22 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
       final Map<String, Integer> nodesPerCurve = new HashMap<>();
       for (final String curveName : curveNames) {
         
-        HistoricalTimeSeriesBundle hts = getHts(curveName, inputs);
         
         YieldCurveDefinition curveDefinition = ycDefs.get(curveName);
         InterpolatedYieldCurveSpecification ycSpec = ycSpecBuilder.buildCurve(valuationDate, curveDefinition);
         
+        HistoricalTimeSeriesBundle hts = getHts(curveName, inputs);
         final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveName);
+        SnapshotDataBundle marketDataSnapshot = getMarketDataSnapshot(hts, ycSpec);
+        if (marketDataSnapshot.getDataPointSet().isEmpty()) {
+          valuationDate = valuationDate.plusDays(1);
+          continue VAL;
+        }
+        if (ycSpec.getStrips().size() != marketDataSnapshot.getDataPointSet().size()) {
+          valuationDate = valuationDate.plusDays(1);
+          s_logger.info("Unable to resolve all curve points for " + curveName + " on " + valuationDate + ". Not producing curve for this date.");
+          continue VAL;
+        }
         final InterpolatedYieldCurveSpecificationWithSecurities spec = builder.resolveToSecurity(ycSpec, getMarketDataSnapshot(hts, ycSpec));
         int nInstruments = 0;
         final Interpolator1D interpolator = spec.getInterpolator();
@@ -306,6 +317,9 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
       ExternalId id = strip.getSecurity();
       HistoricalTimeSeries timeSeries = hts.get("Market_Value", id);
       Double value = timeSeries.getTimeSeries().getValue(ycSpec.getCurveDate());
+      if (value == null) {
+        continue;
+      }
       dataBundle.setDataPoint(id, value);
     }
     
