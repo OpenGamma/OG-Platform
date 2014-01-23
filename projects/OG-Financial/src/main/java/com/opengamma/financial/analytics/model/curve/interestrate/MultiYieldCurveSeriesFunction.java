@@ -233,6 +233,7 @@ public abstract class MultiYieldCurveSeriesFunction extends AbstractFunction.Non
       requirements.add(new ValueRequirement(YIELD_CURVE_HISTORICAL_TIME_SERIES, targetSpec, properties));
       requirements.add(new ValueRequirement(YIELD_CURVE_SPEC, targetSpec, properties));
       requirements.add(new ValueRequirement(YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, curveTSProperties));
+      requirements.add(new ValueRequirement(YIELD_CURVE_HISTORICAL_TIME_SERIES, targetSpec, curveTSProperties));
     }
     if (curveCalculationConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurveConfigs = curveCalculationConfig.getExogenousConfigData();
