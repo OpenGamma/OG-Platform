@@ -55,7 +55,7 @@ public abstract class BondFromCleanPriceAndCurvesFunction extends AbstractFuncti
   private static final Logger s_logger = LoggerFactory.getLogger(BondFromCleanPriceAndCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
-
+  /** The instrument exposures provider */
   private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**

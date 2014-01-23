@@ -53,7 +53,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 
 /**
  * Base class for bond and bond future analytic calculations from yield curves.
- * 
+ *
  * @param <S> The type of the curves required by the calculator
  * @param <T> The type of the result
  */
@@ -64,7 +64,7 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   private final String _valueRequirementName;
   /** The calculator */
   private final InstrumentDerivativeVisitor<S, T> _calculator;
-
+  /** The instrument exposures provider */
   private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**
@@ -83,8 +83,8 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -145,14 +145,14 @@ public abstract class BondAndBondFutureFromCurvesFunction<S extends ParameterIss
       requirements.addAll(BondAndBondFutureFunctionUtils.getConversionRequirements(security, timeSeriesResolver));
       return requirements;
     } catch (final Exception e) {
-      s_logger.error(e.getMessage(), e);
+      s_logger.error(e.getMessage());
       return null;
     }
   }
 
   /**
    * Gets the value properties of the result
-   * 
+   *
    * @param target The computation target
    * @return The properties
    */

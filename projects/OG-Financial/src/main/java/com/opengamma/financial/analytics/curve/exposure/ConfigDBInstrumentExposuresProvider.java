@@ -49,13 +49,25 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
     this(new ConfigSourceQuery<>(configSource, ExposureFunctions.class, configVersionCorrection), securitySource);
   }
 
+  /**
+   * @param query Queries the config source
+   * @param securitySource The security source, not null
+   */
   private ConfigDBInstrumentExposuresProvider(final ConfigSourceQuery<ExposureFunctions> query, final SecuritySource securitySource) {
     ArgumentChecker.notNull(securitySource, "security source");
     _query = query;
     _securitySource = securitySource;
   }
 
+  /**
+   * Gets an instrument exposures provider for a function.
+   * @param context The function compilation context, not null
+   * @param function The function definition, not null
+   * @return The instrument exposures provider
+   */
   public static ConfigDBInstrumentExposuresProvider init(final FunctionCompilationContext context, final FunctionDefinition function) {
+    ArgumentChecker.notNull(context, "context");
+    ArgumentChecker.notNull(function, "function");
     return new ConfigDBInstrumentExposuresProvider(ConfigSourceQuery.init(context, function, ExposureFunctions.class), context.getSecuritySource());
   }
 
@@ -87,7 +99,8 @@ public class ConfigDBInstrumentExposuresProvider implements InstrumentExposuresP
         }
       }
     }
-    throw new OpenGammaRuntimeException("Could not get ids for " + security + " from " + instrumentExposureConfigurationName);
+    throw new OpenGammaRuntimeException("Could not find a matching list of ids for " + security + " from "
+      + instrumentExposureConfigurationName);
   }
 
 }
