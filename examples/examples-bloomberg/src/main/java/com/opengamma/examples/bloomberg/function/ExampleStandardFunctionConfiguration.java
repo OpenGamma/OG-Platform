@@ -282,7 +282,7 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   
   @Override
   protected FunctionConfigurationSource createObject() {
-    return CombiningFunctionConfigurationSource.of(super.createObject(), super.curveFunctions());
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions(), multicurvePricingFunctions());
   }
   
 }
