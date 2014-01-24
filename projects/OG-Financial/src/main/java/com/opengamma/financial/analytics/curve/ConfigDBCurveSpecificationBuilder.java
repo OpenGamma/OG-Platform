@@ -131,7 +131,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
       final CurveNodeIdMapper builderConfig = getCurveNodeIdMapper(valuationTime, cache, curveSpecificationName);
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
+        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName + " for node " + node);
       }
       final CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, builderConfig);
       identifiers.add(node.accept(identifierBuilder));
