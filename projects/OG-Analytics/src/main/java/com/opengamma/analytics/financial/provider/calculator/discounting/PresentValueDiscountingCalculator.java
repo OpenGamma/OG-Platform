@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.forex.provider.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMethod;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -36,9 +37,12 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverage;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.DepositIndexCoupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.InterpolatedStubCoupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedAccruedCompoundingDiscountingMethod;
@@ -52,6 +56,7 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIb
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageDiscountingApproxMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONCompoundedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONDiscountingMethod;
@@ -106,6 +111,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final CouponONDiscountingMethod METHOD_CPN_ON = CouponONDiscountingMethod.getInstance();
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON_SPREAD = CouponONSpreadDiscountingMethod.getInstance();
   private static final CouponONArithmeticAverageDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponONArithmeticAverageDiscountingApproxMethod.getInstance();
+  private static final CouponONArithmeticAverageSpreadDiscountingMethod METHOD_CPN_AAON_SPREAD = CouponONArithmeticAverageSpreadDiscountingMethod.getInstance();
   private static final CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod METHOD_CPN_ONAA_SPREADSIMPL_APPROX =
       CouponONArithmeticAverageSpreadSimplifiedDiscountingApproxMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
@@ -116,6 +122,7 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_STIR_FUTURE = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final CouponFixedAccruedCompoundingDiscountingMethod METHOD_CPN_FIXED_ACCRUED_COMPOUNDING = CouponFixedAccruedCompoundingDiscountingMethod.getInstance();
   private static final CouponONCompoundedDiscountingMethod METHOD_CPN_ON_COMPOUNDING = CouponONCompoundedDiscountingMethod.getInstance();
+  private static final InterpolatedStubPresentValueDiscountingCalculator METHOD_CPN_INTERP_STUB = InterpolatedStubPresentValueDiscountingCalculator.getInstance();
 
   //     -----     Deposit     -----
 
@@ -147,10 +154,17 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   }
 
   @Override
+  public MultipleCurrencyAmount visitInterpolatedStubCoupon(
+      final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment,
+      final MulticurveProviderInterface data) {
+    return payment.getFullCoupon().accept(METHOD_CPN_INTERP_STUB, InterpolatedStubData.of(data, payment));
+  }
+  
+  @Override
   public MultipleCurrencyAmount visitCouponIbor(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR.presentValue(coupon, multicurve);
   }
-
+  
   @Override
   public MultipleCurrencyAmount visitCouponIborAverage(final CouponIborAverage coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR_AVERAGE.presentValue(coupon, multicurve);
@@ -194,6 +208,11 @@ public final class PresentValueDiscountingCalculator extends InstrumentDerivativ
   @Override
   public MultipleCurrencyAmount visitCouponONArithmeticAverage(final CouponONArithmeticAverage coupon, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_AAON_APPROX.presentValue(coupon, multicurve);
+  }
+  
+  @Override
+  public MultipleCurrencyAmount visitCouponONArithmeticAverageSpread(CouponONArithmeticAverageSpread coupon, MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_AAON_SPREAD.presentValue(coupon, multicurve);
   }
 
   @Override

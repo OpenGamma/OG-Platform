@@ -42,6 +42,7 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
@@ -110,6 +111,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONArithmeticAverageSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.DepositIndexCoupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.InterpolatedStubCoupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -460,6 +463,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
     return _delegate.visitCouponFixedAccruedCompounding(payment);
+  }
+  
+  @Override
+  public RESULT_TYPE visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment, final DATA_TYPE data) {
+    return _delegate.visitInterpolatedStubCoupon(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitInterpolatedStubCoupon(final InterpolatedStubCoupon<? extends DepositIndexCoupon<? extends IndexDeposit>, ? extends IndexDeposit> payment) {
+    return _delegate.visitInterpolatedStubCoupon(payment);
   }
 
   @Override

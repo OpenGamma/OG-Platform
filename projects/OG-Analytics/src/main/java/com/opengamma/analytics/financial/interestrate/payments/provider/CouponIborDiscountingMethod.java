@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexDeposit;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -50,9 +52,22 @@ public final class CouponIborDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponIbor coupon, final MulticurveProviderInterface multicurves) {
-    ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final double forward = multicurves.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    return presentValue(coupon, multicurves, IborForwardRateProvider.getInstance());
+  }
+  
+  public MultipleCurrencyAmount presentValue(
+      final CouponIbor coupon,
+      final MulticurveProviderInterface multicurves,
+      final ForwardRateProvider<IborIndex> forwardRateProvider) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(multicurves, "multicurves");
+    ArgumentChecker.notNull(forwardRateProvider, "forwardRateProvider");
+    final double forward = forwardRateProvider.getRate(
+        multicurves,
+        coupon,
+        coupon.getFixingPeriodStartTime(),
+        coupon.getFixingPeriodEndTime(),
+        coupon.getFixingAccrualFactor());
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);

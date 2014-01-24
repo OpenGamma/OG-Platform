@@ -27,7 +27,7 @@ import com.opengamma.util.money.Currency;
  * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual
  * dates used to compute the coupon accrual factors.
  */
-public class CouponIborCompounding extends Coupon {
+public class CouponIborCompounding extends Coupon implements DepositIndexCompoundingCoupon<IborIndex> {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.

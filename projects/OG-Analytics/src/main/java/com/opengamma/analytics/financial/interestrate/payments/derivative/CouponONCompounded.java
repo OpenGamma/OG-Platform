@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
  *  Class describing a ON compounded floating coupon (Brazilian OverNight like coupon).
  *
  */
-public class CouponONCompounded extends Coupon {
+public class CouponONCompounded extends Coupon implements DepositIndexCoupon<IndexON> {
 
   /**
    * The OIS-like index on which the coupon fixes. The index currency should be the same as the coupon currency. Not null.
