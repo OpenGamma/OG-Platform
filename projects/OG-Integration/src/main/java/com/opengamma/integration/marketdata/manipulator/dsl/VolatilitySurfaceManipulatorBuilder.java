@@ -16,7 +16,7 @@ import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.Volatilit
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO syntax like curve point and bucket shifts
  */
 public class VolatilitySurfaceManipulatorBuilder {
 
@@ -37,11 +37,14 @@ public class VolatilitySurfaceManipulatorBuilder {
     return this;
   }
 
+  // TODO what are the numbers?
+  // TODO combine with singleMultiplicativeShift, Relative / Absolute arg instead
   public VolatilitySurfaceManipulatorBuilder singleAdditiveShift(Number x, Number y, Number shift) {
     _scenario.add(_selector, new VolatilitySurfaceSingleAdditiveShift(x.doubleValue(), y.doubleValue(), shift.doubleValue()));
     return this;
   }
 
+  // TODO combine with multipleMultiplicativeShifts, builder syntax in the DSL
   public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(List<Number> x, List<Number> y, List<Number> shifts) {
     _scenario.add(_selector, new VolatilitySurfaceMultipleAdditiveShifts(array(x), array(y), array(shifts)));
     return this;

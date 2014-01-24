@@ -53,7 +53,7 @@ public class SpotRateSelectorBuilder {
     if (currencyPair.length() == 7) {
       return CurrencyPair.parse(currencyPair);
     } else {
-      return CurrencyPair.parse(currencyPair.substring(0, 2) + currencyPair.substring(3));
+      return CurrencyPair.parse(currencyPair.substring(0, 3) + "/" + currencyPair.substring(3));
     }
   }
 

@@ -52,11 +52,13 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
                         ValueSpecification valueSpecification,
                         FunctionExecutionContext executionContext) {
     CurrencyPair currencyPair = SpotRateUtils.getCurrencyPair(valueSpecification);
+    // add 1 to scaling factor o be consistent with curves and allow shits to be specified as 10.pc instead of 1.1
+    double scalingFactor = 1.0 + _scalingFactor.doubleValue();
     if (_currencyPairs.contains(currencyPair)) {
-      return spotRate * _scalingFactor.doubleValue();
+      return spotRate * scalingFactor;
     } else if (_currencyPairs.contains(currencyPair.inverse())) {
       double inverseRate = 1 / spotRate;
-      double scaledRate = inverseRate * _scalingFactor.doubleValue();
+      double scaledRate = inverseRate * scalingFactor;
       return 1 / scaledRate;
     } else {
       throw new IllegalArgumentException("Currency pair " + currencyPair + " shouldn't match " + _currencyPairs);
