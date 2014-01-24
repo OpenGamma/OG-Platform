@@ -41,9 +41,9 @@ public class BucketedShiftTest {
     assertEquals(1, manipulators.size());
     List<YieldCurveBucketedShift> shifts =
         ImmutableList.of(
-            new YieldCurveBucketedShift(Period.ofMonths(3), Period.ofMonths(6), 0.1),
-            new YieldCurveBucketedShift(Period.ofYears(1), Period.ofYears(2), 0.2));
-    YieldCurveBucketedShiftManipulator expected = new YieldCurveBucketedShiftManipulator(CurveShiftType.RELATIVE, shifts);
+            new YieldCurveBucketedShift(Period.ofMonths(3), Period.ofMonths(6), 0.001),
+            new YieldCurveBucketedShift(Period.ofYears(1), Period.ofYears(2), 0.002));
+    YieldCurveBucketedShiftManipulator expected = new YieldCurveBucketedShiftManipulator(CurveShiftType.ABSOLUTE, shifts);
     assertEquals(expected, manipulators.get(0));
   }
 

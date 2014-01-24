@@ -69,7 +69,7 @@ public class YieldCurveManipulatorBuilder {
    * @param shiftType The type of shift
    * @return the bucketed shift builder
    * TODO this is only for the benefit of the Java API, not the DSL
-   * TODO change the signature to take varargs YieldCurveBucketedShift
+   * TODO change the signature to take varargs YieldCurveBucketedShift and return YieldCurveManipulatorBuilder
    */
   public final BucketedShiftManipulatorBuilder bucketedShifts(CurveShiftType shiftType) {
     return new BucketedShiftManipulatorBuilder(_selector, _scenario, shiftType);
@@ -81,7 +81,7 @@ public class YieldCurveManipulatorBuilder {
    * @return the point shifts builder
    * @param shiftType The type of shift
    * TODO this is only for the benefit of the Java API, not the DSL
-   * TODO change the signature to take varargs YieldCurvePointShift
+   * TODO change the signature to take varargs YieldCurvePointShift and return YieldCurveManipulatorBuilder
    */
   public final PointShiftManipulatorBuilder pointShifts(CurveShiftType shiftType) {
     return new PointShiftManipulatorBuilder(_selector, _scenario, shiftType);
