@@ -107,9 +107,6 @@ public class BloombergRateClassifier {
       case BOND:
       case CASH:
       case CREDIT_DEFAULT_SWAP:
-      case EQUITY:
-        Integer equityScale = _equityScaleResolver.getBloombergEquityScale(Collections.singleton(buidBundle)).get(buidBundle);
-        return equityScale;
       case FRA:
       case INTEREST_RATE_FUTURE:
       case BOND_FUTURE:
@@ -125,6 +122,9 @@ public class BloombergRateClassifier {
         return 1;
       case INDEX_FUTURE:
         return 1;
+      case EQUITY:
+        Integer equityScale = _equityScaleResolver.getBloombergEquityScale(Collections.singleton(buidBundle)).get(buidBundle);
+        return equityScale;
       default:
         return 1;
     }
