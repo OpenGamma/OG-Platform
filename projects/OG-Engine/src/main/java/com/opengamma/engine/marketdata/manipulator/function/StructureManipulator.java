@@ -7,6 +7,7 @@ package com.opengamma.engine.marketdata.manipulator.function;
 
 import java.io.Serializable;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -26,9 +27,10 @@ public interface StructureManipulator<T> extends Serializable {
    *
    * @param structure the structured object to transform, not null
    * @param valueSpecification The specification for the object, not null
+   * @param executionContext The function execution context
    * @return a transformed structure
    */
-  T execute(T structure, ValueSpecification valueSpecification);
+  T execute(T structure, ValueSpecification valueSpecification, FunctionExecutionContext executionContext);
 
   /**
    * Indicates the type of structure that this class can handle. This method should be called before

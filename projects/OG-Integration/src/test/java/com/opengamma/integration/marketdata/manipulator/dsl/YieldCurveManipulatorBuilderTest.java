@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
@@ -39,19 +40,17 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(BucketedShiftType.FORWARD)
-      .shift(1, 2, 3, CurveShiftType.ABSOLUTE)
-      .apply();
+    _builder.bucketedShifts(CurveShiftType.ABSOLUTE).shift(Period.ofYears(1), Period.ofYears(2), 3).apply();
     
     YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator)_manipulatorResult;
     
     assertTrue("One shift expected", 1 == result.getShifts().size());
-    assertEquals(BucketedShiftType.FORWARD, result.getBucketedShiftType());
+    //assertEquals(BucketedShiftType.FORWARD, result.getBucketedShiftType());
     
     YieldCurveBucketedShift shift = result.getShifts().get(0);
     
-    assertEquals(1., shift.getStartYears());
-    assertEquals(2., shift.getEndYears());
+    assertEquals(Period.ofYears(1), shift.getStart());
+    assertEquals(Period.ofYears(2), shift.getEnd());
     assertEquals(3., shift.getShift());
     
     
@@ -60,9 +59,7 @@ public class YieldCurveManipulatorBuilderTest {
   @Test
   public void pointShifts() {
     
-    _builder.pointShifts()
-      .shift(1, 2, CurveShiftType.ABSOLUTE)
-      .apply();
+    _builder.pointShifts(CurveShiftType.ABSOLUTE).shift(Period.ofYears(1), 2).apply();
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     
@@ -70,8 +67,7 @@ public class YieldCurveManipulatorBuilderTest {
     
     YieldCurvePointShift shift = result.getPointShifts().get(0);
     
-    assertEquals(1., shift.getYear());
+    assertEquals(Period.ofYears(1), shift.getTenor());
     assertEquals(2., shift.getShift());
-    assertEquals(CurveShiftType.ABSOLUTE, shift.getShiftType());
   }
 }

@@ -18,6 +18,7 @@ import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -39,7 +40,9 @@ public class YieldCurveParallelShift implements StructureManipulator<YieldCurve>
   }
 
   @Override
-  public YieldCurve execute(YieldCurve structure, ValueSpecification valueSpecification) {
+  public YieldCurve execute(YieldCurve structure,
+                            ValueSpecification valueSpecification,
+                            FunctionExecutionContext executionContext) {
     s_logger.debug("Shifting curve {} by {}", structure.getName(), _shift);
     return YieldCurveUtils.withParallelShift(structure, _shift, ShiftType.ABSOLUTE);
   }

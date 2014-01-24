@@ -13,6 +13,7 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.PropertyDefinition;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -47,7 +48,9 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   }
 
   @Override
-  public Double execute(Double spotRate, ValueSpecification valueSpecification) {
+  public Double execute(Double spotRate,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
     CurrencyPair currencyPair = SpotRateUtils.getCurrencyPair(valueSpecification);
     if (_currencyPairs.contains(currencyPair)) {
       return spotRate * _scalingFactor.doubleValue();

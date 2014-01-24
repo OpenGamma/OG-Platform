@@ -10,6 +10,7 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.PropertyDefinition;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -40,7 +41,9 @@ public final class SpotRateReplace implements StructureManipulator<Double>, Immu
   }
 
   @Override
-  public Double execute(Double spotRate, ValueSpecification valueSpecification) {
+  public Double execute(Double spotRate,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
     return _value.doubleValue();
   }
 

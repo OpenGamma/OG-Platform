@@ -7,6 +7,8 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.util.List;
 
+import org.threeten.bp.Period;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -17,30 +19,31 @@ public class BucketedShiftManipulatorBuilder {
   
   /** Selector whose selected items will be modified by the manipulators from this builder. */
   private final YieldCurveSelector _selector;
+
   /** The scenario to which manipulations are added. */
   private final Scenario _scenario;
 
-  private final BucketedShiftType _type;
+  /** The type of shift to apply. */
+  private final CurveShiftType _shiftType;
 
   private final List<YieldCurveBucketedShift> _shiftList = Lists.newArrayList();
 
-  BucketedShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, BucketedShiftType type) {
+  /* package */ BucketedShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, CurveShiftType shiftType) {
     _selector = selector;
     _scenario = scenario;
-    _type = type;
+    _shiftType = shiftType;
   }
   
   
   /**
    * Apply a bucketed shift to a range
-   * @param startYears start
-   * @param endYears end
+   * @param start Period between the valuation date and the start of the shift
+   * @param end Period between the valuation date and the end of the shift
    * @param shift shift amount
-   * @param shiftType shift type
    * @return this
    */
-  public BucketedShiftManipulatorBuilder shift(Number startYears, Number endYears, Number shift, CurveShiftType shiftType) {
-    YieldCurveBucketedShift bucketedShift = YieldCurveBucketedShift.create(startYears.doubleValue(), endYears.doubleValue(), shiftType, shift.doubleValue());
+  public BucketedShiftManipulatorBuilder shift(Period start, Period end, Number shift) {
+    YieldCurveBucketedShift bucketedShift = new YieldCurveBucketedShift(start, end, shift.doubleValue());
     _shiftList.add(bucketedShift);
     return this;
   }
@@ -51,7 +54,8 @@ public class BucketedShiftManipulatorBuilder {
    * Should only be called once per {@link BucketedShiftManipulatorBuilder}.
    */
   public void apply() {
-    YieldCurveBucketedShiftManipulator shifts = YieldCurveBucketedShiftManipulator.create(_type, ImmutableList.copyOf(_shiftList));
+    YieldCurveBucketedShiftManipulator shifts =
+        new YieldCurveBucketedShiftManipulator(_shiftType, ImmutableList.copyOf(_shiftList));
     _scenario.add(_selector, shifts);
   }
   

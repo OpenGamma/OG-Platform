@@ -10,6 +10,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -32,7 +33,9 @@ public class MarketDataReplace implements StructureManipulator<Double> {
   }
 
   @Override
-  public Double execute(Double structure, ValueSpecification valueSpecification) {
+  public Double execute(Double structure,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
     return _value;
   }
 

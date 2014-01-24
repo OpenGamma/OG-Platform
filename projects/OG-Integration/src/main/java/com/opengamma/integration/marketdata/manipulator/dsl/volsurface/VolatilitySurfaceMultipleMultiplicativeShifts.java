@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -41,7 +42,9 @@ public class VolatilitySurfaceMultipleMultiplicativeShifts implements StructureM
   }
 
   @Override
-  public VolatilitySurface execute(VolatilitySurface surface, ValueSpecification valueSpecification) {
+  public VolatilitySurface execute(VolatilitySurface surface,
+                                   ValueSpecification valueSpecification,
+                                   FunctionExecutionContext executionContext) {
     return surface.withMultipleMultiplicativeShifts(_x, _y, _shifts);
   }
 

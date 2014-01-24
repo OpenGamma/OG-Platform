@@ -11,13 +11,12 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyPair;
-import com.opengamma.financial.currency.CurrencyPairs;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
@@ -37,14 +36,14 @@ public class SpotRateShiftTest {
 
   @Test
   public void normalPair() {
-    assertEquals(3d, SHIFT.execute(2d, valueSpec("EUR/USD")), DELTA);
-    assertEquals(5d, SHIFT.execute(4d, valueSpec("CHF/JPY")), DELTA);
+    assertEquals(3d, SHIFT.execute(2d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+    assertEquals(5d, SHIFT.execute(4d, valueSpec("CHF/JPY"), new FunctionExecutionContext()), DELTA);
   }
 
   @Test
   public void inversePair() {
-    assertEquals(0.6666666666d, SHIFT.execute(2d, valueSpec("USD/EUR")), DELTA);
-    assertEquals(0.8d, SHIFT.execute(4d, valueSpec("JPY/CHF")), DELTA);
+    assertEquals(0.6666666666d, SHIFT.execute(2d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+    assertEquals(0.8d, SHIFT.execute(4d, valueSpec("JPY/CHF"), new FunctionExecutionContext()), DELTA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -53,11 +52,11 @@ public class SpotRateShiftTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.CURRENCY,
                                                                                    Currency.GBP.getUniqueId());
     ValueSpecification valueSpec = new ValueSpecification("SpotRate", targetSpec, properties);
-    SHIFT.execute(2d, valueSpec);
+    SHIFT.execute(2d, valueSpec, new FunctionExecutionContext());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void unexpectedCurrencyPair() {
-    SHIFT.execute(2d, valueSpec("GBP/USD"));
+    SHIFT.execute(2d, valueSpec("GBP/USD"), new FunctionExecutionContext());
   }
 }

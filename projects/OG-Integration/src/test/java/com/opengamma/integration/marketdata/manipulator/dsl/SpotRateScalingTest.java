@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.function.StructureManipulationFunction;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -36,14 +36,14 @@ public class SpotRateScalingTest {
 
   @Test
   public void normalPair() {
-    assertEquals(8d, SCALING.execute(4d, valueSpec("EUR/USD")), DELTA);
-    assertEquals(10d, SCALING.execute(5d, valueSpec("CHF/JPY")), DELTA);
+    assertEquals(8d, SCALING.execute(4d, valueSpec("EUR/USD"), new FunctionExecutionContext()), DELTA);
+    assertEquals(10d, SCALING.execute(5d, valueSpec("CHF/JPY"), new FunctionExecutionContext()), DELTA);
   }
 
   @Test
   public void inversePair() {
-    assertEquals(2d, SCALING.execute(4d, valueSpec("USD/EUR")), DELTA);
-    assertEquals(3d, SCALING.execute(6d, valueSpec("JPY/CHF")), DELTA);
+    assertEquals(2d, SCALING.execute(4d, valueSpec("USD/EUR"), new FunctionExecutionContext()), DELTA);
+    assertEquals(3d, SCALING.execute(6d, valueSpec("JPY/CHF"), new FunctionExecutionContext()), DELTA);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -52,11 +52,11 @@ public class SpotRateScalingTest {
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.CURRENCY,
                                                                                    Currency.GBP.getUniqueId());
     ValueSpecification valueSpec = new ValueSpecification("SpotRate", targetSpec, properties);
-    SCALING.execute(2d, valueSpec);
+    SCALING.execute(2d, valueSpec, new FunctionExecutionContext());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void unexpectedCurrencyPair() {
-    SCALING.execute(2d, valueSpec("GBP/USD"));
+    SCALING.execute(2d, valueSpec("GBP/USD"), new FunctionExecutionContext());
   }
 }

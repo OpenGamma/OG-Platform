@@ -152,7 +152,7 @@ public abstract class SimulationScript extends Script {
    * @param body The block that defines the selection and transformation
    */
   public void curve(Closure<?> body) {
-    CurveBuilder selector = new CurveBuilder(_scenario);
+    YieldCurveBuilder selector = new YieldCurveBuilder(_scenario);
     body.setDelegate(selector);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
@@ -230,9 +230,9 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for closures that define a curve transformation in the DSL.
    */
-  private static final class CurveBuilder extends YieldCurveSelector.Builder {
+  private static final class YieldCurveBuilder extends YieldCurveSelector.Builder {
 
-    private CurveBuilder(Scenario scenario) {
+    private YieldCurveBuilder(Scenario scenario) {
       super(scenario);
     }
 
@@ -261,30 +261,30 @@ public abstract class SimulationScript extends Script {
       body.call();
     }
   }
-  
+
   /**
    * Delegate class for closures that defines closure compatible builder methods
    * for {@link YieldCurveManipulatorBuilder} in the DSL.
    */
   private static final class GroovyYieldCurveManipulatorBuilder extends YieldCurveManipulatorBuilder {
-    
-    
-    GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
+
+    /* package */ GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
       super(selector, scenario);
     }
-    
+
     @SuppressWarnings("unused")
-    public void bucketedShifts(BucketedShiftType type, Closure<?> body) {
-      BucketedShiftManipulatorBuilder builder = new BucketedShiftManipulatorBuilder(getSelector(), getScenario(), type);
+    public void bucketedShifts(CurveShiftType shiftType, Closure<?> body) {
+      BucketedShiftManipulatorBuilder builder =
+          new BucketedShiftManipulatorBuilder(getSelector(), getScenario()/*, type*/, shiftType);
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
       builder.apply();
     }
-    
+
     @SuppressWarnings("unused")
-    public void pointShifts(Closure<?> body) {
-      PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario());
+    public void pointShifts(CurveShiftType shiftType, Closure<?> body) {
+      PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
