@@ -22,6 +22,8 @@ public final class RollDateAdjusterFactory
   public static final String QUARTERLY_IMM_ROLL_STRING = "Quarterly IMM Roll";
   /** The name of the next monthly IMM roll date adjuster */
   public static final String MONTHLY_IMM_ROLL_STRING = "Monthly IMM Roll";
+  /** The name of the end of month roll date adjuster */
+  public static final String END_OF_MONTH_ROLL_STRING = "End Of Month Roll";
 
   //-------------------------------------------------------------------------
   /**
@@ -44,6 +46,7 @@ public final class RollDateAdjusterFactory
     super(RollDateAdjuster.class);
     addInstance(MonthlyIMMRollDateAdjuster.getAdjuster());
     addInstance(QuarterlyIMMRollDateAdjuster.getAdjuster());
+    addInstance(EndOfMonthRollDateAdjuster.getAdjuster());
   }
 
   /**
