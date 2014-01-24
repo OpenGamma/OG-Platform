@@ -206,6 +206,10 @@ public class SingleConfigLoader {
     ConfigItem<?> item;
     if (config instanceof CurrencyPairs) {
       item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    } else if (config instanceof HistoricalTimeSeriesRating) {
+      item = ConfigItem.of(config, DEFAULT_HTS_RATING_NAME);
+    } else if (config instanceof CurrencyMatrix) {
+      item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME);
     } else {
       item = ConfigItem.of(config);
     }
