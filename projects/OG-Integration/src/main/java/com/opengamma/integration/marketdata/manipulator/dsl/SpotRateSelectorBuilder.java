@@ -49,7 +49,7 @@ public class SpotRateSelectorBuilder {
    * @return The currency pair
    * @throws IllegalArgumentException If the argument can't be parsed as a currency pair
    */
-  private CurrencyPair parse(String currencyPair) {
+  /* package */ static CurrencyPair parse(String currencyPair) {
     if (currencyPair.length() == 7) {
       return CurrencyPair.parse(currencyPair);
     } else {
