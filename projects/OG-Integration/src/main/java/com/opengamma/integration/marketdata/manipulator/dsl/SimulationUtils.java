@@ -24,6 +24,7 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -32,7 +33,10 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
@@ -209,5 +213,26 @@ public final class SimulationUtils {
       builder.append(Pattern.quote(tokenBuilder.toString()));
     }
     return Pattern.compile(builder.toString());
+  }
+
+  public static YieldCurveBucketedShift bucketedShift(Period start, Period end, double shift) {
+    return new YieldCurveBucketedShift(start, end, shift);
+  }
+
+  public static YieldCurvePointShift pointShift(Period tenor, double shift) {
+    return new YieldCurvePointShift(tenor, shift);
+  }
+
+  /* package */ static CurrencyPair getCurrencyPair(ValueSpecification valueSpec) {
+    ComputationTargetType targetType = valueSpec.getTargetSpecification().getType();
+    String idValue = valueSpec.getTargetSpecification().getUniqueId().getValue();
+    if (targetType.equals(CurrencyPair.TYPE)) {
+      return CurrencyPair.parse(idValue);
+    /*} else if (targetType.equals(ComputationTargetType.UNORDERED_CURRENCY_PAIR)) {
+      String quotedPair = valueSpec.getProperties().getStrictValue(ConventionBasedFXRateFunction.QUOTING_CONVENTION_PROPERTY);
+      return CurrencyPair.parse(quotedPair);*/
+    } else {
+      throw new IllegalArgumentException("Only currency pair target types supported. type=" + targetType);
+    }
   }
 }

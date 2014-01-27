@@ -51,7 +51,7 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   public Double execute(Double spotRate,
                         ValueSpecification valueSpecification,
                         FunctionExecutionContext executionContext) {
-    CurrencyPair currencyPair = SpotRateUtils.getCurrencyPair(valueSpecification);
+    CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
     if (_currencyPairs.contains(currencyPair)) {
       return spotRate + _shiftAmount.doubleValue();
     } else if (_currencyPairs.contains(currencyPair.inverse())) {

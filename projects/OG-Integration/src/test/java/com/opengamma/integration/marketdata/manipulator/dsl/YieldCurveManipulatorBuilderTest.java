@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.bucketedShift;
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.pointShift;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -40,13 +42,12 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(CurveShiftType.ABSOLUTE).shift(Period.ofYears(1), Period.ofYears(2), 3).apply();
+    _builder.bucketedShifts(CurveShiftType.ABSOLUTE, bucketedShift(Period.ofYears(1), Period.ofYears(2), 3));
     
-    YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator)_manipulatorResult;
+    YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator) _manipulatorResult;
     
     assertTrue("One shift expected", 1 == result.getShifts().size());
-    //assertEquals(BucketedShiftType.FORWARD, result.getBucketedShiftType());
-    
+
     YieldCurveBucketedShift shift = result.getShifts().get(0);
     
     assertEquals(Period.ofYears(1), shift.getStart());
@@ -58,8 +59,7 @@ public class YieldCurveManipulatorBuilderTest {
 
   @Test
   public void pointShifts() {
-    
-    _builder.pointShifts(CurveShiftType.ABSOLUTE).shift(Period.ofYears(1), 2).apply();
+    _builder.pointShifts(CurveShiftType.ABSOLUTE, pointShift(Period.ofYears(1), 2));
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     

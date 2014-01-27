@@ -51,7 +51,7 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   public Double execute(Double spotRate,
                         ValueSpecification valueSpecification,
                         FunctionExecutionContext executionContext) {
-    CurrencyPair currencyPair = SpotRateUtils.getCurrencyPair(valueSpecification);
+    CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
     // add 1 to scaling factor o be consistent with curves and allow shits to be specified as 10.pc instead of 1.1
     double scalingFactor = 1.0 + _scalingFactor.doubleValue();
     if (_currencyPairs.contains(currencyPair)) {

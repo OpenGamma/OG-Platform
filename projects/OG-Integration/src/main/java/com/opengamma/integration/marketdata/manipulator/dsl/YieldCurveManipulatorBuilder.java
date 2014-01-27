@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
 
@@ -64,28 +66,33 @@ public class YieldCurveManipulatorBuilder {
 
   
   /**
-   * Creates a bucketed shift builder with the given type
+   * Creates a bucketed shift builder with the given type.
+   * This is only for the benefit of the Java API, not the DSL
    *
    * @param shiftType The type of shift
    * @return the bucketed shift builder
-   * TODO this is only for the benefit of the Java API, not the DSL
-   * TODO change the signature to take varargs YieldCurveBucketedShift and return YieldCurveManipulatorBuilder
    */
-  public final BucketedShiftManipulatorBuilder bucketedShifts(CurveShiftType shiftType) {
-    return new BucketedShiftManipulatorBuilder(_selector, _scenario, shiftType);
+  public final YieldCurveManipulatorBuilder bucketedShifts(CurveShiftType shiftType, YieldCurveBucketedShift... shifts) {
+    ArgumentChecker.notNull(shiftType, "shiftType");
+    ArgumentChecker.notEmpty(shifts, "shifts");
+    YieldCurveBucketedShiftManipulator manipulator = new YieldCurveBucketedShiftManipulator(shiftType, Arrays.asList(shifts));
+    _scenario.add(_selector, manipulator);
+    return this;
   }
   
 
   /**
-   * Creates a point shift builder
+   * Creates a point shift builder.
+   * This is only for the benefit of the Java API, not the DSL.
    * @return the point shifts builder
    * @param shiftType The type of shift
-   * TODO this is only for the benefit of the Java API, not the DSL
-   * TODO change the signature to take varargs YieldCurvePointShift and return YieldCurveManipulatorBuilder
    */
-  public final PointShiftManipulatorBuilder pointShifts(CurveShiftType shiftType) {
-    return new PointShiftManipulatorBuilder(_selector, _scenario, shiftType);
+  public final YieldCurveManipulatorBuilder pointShifts(CurveShiftType shiftType, YieldCurvePointShift... shifts) {
+    ArgumentChecker.notNull(shiftType, "shiftType");
+    ArgumentChecker.notEmpty(shifts, "shifts");
+    YieldCurvePointShiftManipulator manipulator = new YieldCurvePointShiftManipulator(shiftType, Arrays.asList(shifts));
+    _scenario.add(_selector, manipulator);
+    return this;
   }
-  
-  
+
 }

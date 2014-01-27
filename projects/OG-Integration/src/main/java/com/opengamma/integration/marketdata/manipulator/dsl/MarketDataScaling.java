@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Manipulator that scales a single market data value.
+ * TODO should be consistent with curve and spot rate scaling - add 1 to scaling factor
  */
 public class MarketDataScaling implements StructureManipulator<Double> {
 
