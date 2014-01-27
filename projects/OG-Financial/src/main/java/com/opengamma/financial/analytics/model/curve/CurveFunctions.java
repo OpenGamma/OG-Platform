@@ -232,6 +232,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));
         functions.add(functionConfiguration(MultiCurveInterpolatedFunction.class, curveConfigName));
       }
+      System.out.println("\t\t\t\t" + curveConfigName);
       functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
     }

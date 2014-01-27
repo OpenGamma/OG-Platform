@@ -105,7 +105,7 @@ public class IssuerProviderDiscountingFunction extends
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(IssuerProviderDiscountingFunction.class);
   /** The calculator */
-//  private static final ParSpreadRateIssuerDiscountingCalculator PSXIC = ParSpreadRateIssuerDiscountingCalculator.getInstance(); 
+//  private static final ParSpreadRateIssuerDiscountingCalculator PSXIC = ParSpreadRateIssuerDiscountingCalculator.getInstance();
   // TODO: [PLAT-5430] A mechanism to change the calculator should be implemented.
   private static final ParSpreadMarketQuoteIssuerDiscountingCalculator PSXIC = ParSpreadMarketQuoteIssuerDiscountingCalculator.getInstance();
   /** The sensitivity calculator */
@@ -117,6 +117,7 @@ public class IssuerProviderDiscountingFunction extends
    */
   public IssuerProviderDiscountingFunction(final String configurationName) {
     super(configurationName);
+    System.err.println(configurationName);
   }
 
   @Override

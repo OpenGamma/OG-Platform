@@ -120,24 +120,16 @@ public class BondAndBondFutureTradeWithEntityConverter {
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    final OffsetTime tradeTime = trade.getTradeTime();
-    if (tradeTime == null) {
-      throw new OpenGammaRuntimeException("Trade time should not be null");
-    }
-    OffsetTime settleTime = trade.getPremiumTime();
-    if (settleTime == null) {
-      settleTime = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC); //TODO get the real time zone
-    }
-    if (trade.getPremium() == null) {
-      throw new OpenGammaRuntimeException("Trade premium should not be null.");
-    }
-    if (trade.getPremiumDate() == null) {
-      throw new OpenGammaRuntimeException("Trade premium date should not be null");
-    }
-    final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
     final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
-    final double price = trade.getPremium().doubleValue();
     if (security instanceof BondFutureSecurity) {
+      final OffsetTime tradeTime = trade.getTradeTime();
+      if (tradeTime == null) {
+        throw new OpenGammaRuntimeException("Trade time should not be null");
+      }
+      if (trade.getPremium() == null) {
+        throw new OpenGammaRuntimeException("Trade premium should not be null.");
+      }
+      final double price = trade.getPremium().doubleValue();
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
@@ -145,14 +137,27 @@ public class BondAndBondFutureTradeWithEntityConverter {
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
     final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
+    final InstrumentDefinition<?> underlying = getFixedCouponBond(bondSecurity, legalEntity);
+    if (underlying instanceof PaymentFixedDefinition) {
+      return underlying;
+    }
+    if (trade.getPremium() == null) {
+      throw new OpenGammaRuntimeException("Trade premium should not be null.");
+    }
+    final double price = trade.getPremium().doubleValue();
+    OffsetTime settleTime = trade.getPremiumTime();
+    if (settleTime == null) {
+      settleTime = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC); //TODO get the real time zone
+    }
+    if (trade.getPremiumDate() == null) {
+      throw new OpenGammaRuntimeException("Trade premium date should not be null");
+    }
     if (FLOATING_RATE_STRINGS.contains(bondSecurity.getCouponType())) {
+      final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondIborSecurityDefinition bond = (BondIborSecurityDefinition) getIborBond(bondSecurity, legalEntity);
       return new BondIborTransactionDefinition(bond, quantity, settlementDate, price);
     }
-    final InstrumentDefinition<?> underlying = getFixedCouponBond(bondSecurity, legalEntity);
-    if (!(underlying instanceof BondFixedSecurityDefinition)) {
-      return underlying;
-    }
+    final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }
