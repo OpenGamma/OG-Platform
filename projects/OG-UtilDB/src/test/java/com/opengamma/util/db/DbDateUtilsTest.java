@@ -19,6 +19,7 @@ import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 
 import com.opengamma.util.test.TestGroup;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Test DbDateUtils.
@@ -26,6 +27,10 @@ import com.opengamma.util.test.TestGroup;
 @SuppressWarnings("deprecation")
 @Test(groups = TestGroup.UNIT)
 public class DbDateUtilsTest {
+  
+  static {
+    DateUtils.initTimeZone();
+  }
 
   //-------------------------------------------------------------------------
   public void test_toSqlTimestamp() {
