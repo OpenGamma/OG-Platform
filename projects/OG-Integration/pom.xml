@@ -75,13 +75,11 @@
       <groupId>org.jdesktop</groupId>
       <artifactId>appframework</artifactId>
       <version>1.0.3</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.swinglabs.swingx</groupId>
       <artifactId>swingx-core</artifactId>
       <version>1.6.5</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
