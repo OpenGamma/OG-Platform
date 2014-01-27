@@ -12,6 +12,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionBlackForwardThetaCalculator;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -34,6 +36,19 @@ public class SwaptionBlackTheoreticalForwardThetaFunction extends SwaptionBlackF
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec) {
     final Double result = swaption.accept(CALCULATOR, data);
-    return Collections.singleton(new ComputedValue(spec, result));
+    return Collections.singleton(new ComputedValue(spec, result / 365.25));
   }
+
+  @Override
+  protected ValueProperties getResultProperties(final String currency) {
+    return super.getResultProperties(currency)
+        .withoutAny(ValuePropertyNames.CURRENCY);
+  }
+
+  @Override
+  protected ValueProperties getResultProperties(final String currency, final String curveCalculationConfigName, final String surfaceName) {
+    return super.getResultProperties(currency, curveCalculationConfigName, surfaceName)
+        .withoutAny(ValuePropertyNames.CURRENCY);
+  }
+
 }

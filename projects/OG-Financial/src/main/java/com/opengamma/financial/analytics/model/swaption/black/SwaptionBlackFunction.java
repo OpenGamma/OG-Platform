@@ -63,7 +63,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for functions that produce risk for swaptions using the Black method.
- * 
+ *
  * @deprecated Use descendants of {@link BlackDiscountingSwaptionFunction}
  */
 @Deprecated
@@ -76,6 +76,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
   private SwaptionSecurityConverterDeprecated _visitor;
   /** Converter {@link InstrumentDefinition} to {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _definitionConverter;
+  /** The curve calculation configuration source */
   private ConfigDBCurveCalculationConfigSource _curveCalculationConfigSource;
 
   /**
@@ -113,7 +114,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
-    String[] curveNames = curveCalculationConfig.getYieldCurveNames(); //TODO
+    String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     if (curveNames.length == 1) {
       curveNames = new String[] {curveNames[0], curveNames[0] };
     }
@@ -193,7 +194,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   /**
    * Calculates the desired results.
-   * 
+   *
    * @param swaption The swaption
    * @param data The yield curve and surface data
    * @param spec The result specification
@@ -203,33 +204,38 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   /**
    * Gets the result properties.
-   * 
+   *
    * @param currency The currency
    * @return The result properties
    */
-  private ValueProperties getResultProperties(final String currency) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD).withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).with(ValuePropertyNames.CURRENCY, currency).get();
+  protected ValueProperties getResultProperties(final String currency) {
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
   /**
    * Gets the result properties.
-   * 
+   *
    * @param currency The currency
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param surfaceName The surface name
    * @return The result properties
    */
-  private ValueProperties getResultProperties(final String currency, final String curveCalculationConfigName, final String surfaceName) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName).with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.SURFACE, surfaceName).get();
+  protected ValueProperties getResultProperties(final String currency, final String curveCalculationConfigName, final String surfaceName) {
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.SURFACE, surfaceName).get();
     return properties;
-
   }
 
   /**
    * Gets the volatility surface requirement.
-   * 
+   *
    * @param surface The surface name
    * @param currency The currency of the surface requirement target
    * @return The volatility surface requirement
