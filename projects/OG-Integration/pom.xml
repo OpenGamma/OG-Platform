@@ -129,7 +129,8 @@
                 <licenseMerge>MIT License|MIT|The MIT License</licenseMerge>
                 <licenseMerge>New BSD License|BSD 3-clause</licenseMerge>
               </licenseMerges>
-              <!--useMissingFile>true</useMissingFile-->
+              <useMissingFile>true</useMissingFile>
+              <useRepositoryMissingFiles>false</useRepositoryMissingFiles>
             </configuration>
           </reportSet>
         </reportSets>
