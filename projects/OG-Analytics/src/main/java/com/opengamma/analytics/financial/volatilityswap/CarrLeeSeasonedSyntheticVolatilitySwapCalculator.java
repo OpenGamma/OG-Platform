@@ -8,8 +8,9 @@ package com.opengamma.analytics.financial.volatilityswap;
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.integration.AdaptiveCompositeIntegrator1D;
 import com.opengamma.analytics.math.integration.Integrator1D;
-import com.opengamma.analytics.math.integration.RombergIntegrator1D;
+import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -17,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  * Peter Carr and Roger Lee, Oct. 26, 2007
  */
 public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
-  private static final Integrator1D<Double, Double> INTEGRATOR = new RombergIntegrator1D();
+  private static final Integrator1D<Double, Double> INTEGRATOR = new AdaptiveCompositeIntegrator1D(new RungeKuttaIntegrator1D());
   private static final double EPS = 1.e-12;
 
   /**
@@ -112,7 +113,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
 
     for (int i = 0; i < nOptions; ++i) {
       final double logKF = Math.log(strikes[i] / forward);
-      final double bound = 97.5 / Math.sqrt(resRV);
+      final double bound = 50. / Math.sqrt(resRV);
       final Function1D<Double, Double> funcFin = integrandFin(logKF, resRV);
       final Function1D<Double, Double> funcInf = integrandInf(logKF, resRV);
       res[i] = reFac * Math.exp(0.5 * logKF) * (INTEGRATOR.integrate(funcFin, 0., 0.5 * Math.PI) + INTEGRATOR.integrate(funcInf, 0., bound)) / strikes[i] / strikes[i];
@@ -135,8 +136,7 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculator {
   private double getCloseIntegrals(final double resRV, final double logKF) {
     final Function1D<Double, Double> funcFin = closeIntegrandFin(logKF, resRV);
     final Function1D<Double, Double> funcInf = closeIntegrandInf(logKF, resRV);
-    final double bound = 97. / Math.sqrt(resRV);
-
+    final double bound = 50. / Math.sqrt(resRV);
     return Math.exp(0.5 * logKF) * (INTEGRATOR.integrate(funcFin, 0., 0.5 * Math.PI) + INTEGRATOR.integrate(funcInf, 0., bound));
   }
 

@@ -16,13 +16,15 @@ import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.PolynomialsLeastSquaresFitter;
 import com.opengamma.analytics.math.regression.LeastSquaresRegressionResult;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
   private static final CarrLeeSeasonedSyntheticVolatilitySwapCalculator calculator = new CarrLeeSeasonedSyntheticVolatilitySwapCalculator();
-  private static final double EPS = 1.e-6;
+  private static final double EPS = 1.e-10;
 
   /**
    * 
@@ -65,14 +67,24 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
     System.arraycopy(strikes, 0, putStrikes, 0, nPuts);
     System.arraycopy(strikes, index + 1, callStrikes, 0, nCalls);
 
+    final double[] putVolsExp = new double[] {0.0804044638015739, 0.0795181724337925, 0.0786617291709581, 0.0778351340130695, 0.0770383869601272, 0.0762714880121314, 0.0755344371690825,
+        0.0748272344309794, 0.0741498797978221, 0.0735023732696123, 0.0728847148463478, 0.0722969045280303, 0.0717389423146585, 0.0712108282062337, 0.0707125622027547, 0.0702441443042227,
+        0.0698055745106365, 0.0693968528219966, 0.0690179792383032, 0.0686689537595561, 0.0683497763857554 };
+
+    final double[] callVolsExp = new double[] {0.0680604471169011, 0.0678009659529931, 0.0675713328940310, 0.0673715479400158, 0.0672016110909465, 0.0670615223468241, 0.0669512817076475,
+        0.0668708891734178, 0.0668203447441340, 0.0667996484197965, 0.0668088002004055, 0.0668478000859608, 0.0669166480764625, 0.0670153441719100, 0.0671438883723045, 0.0673022806776453,
+        0.0674905210879325, 0.0677086096031656, 0.0679565462233450, 0.0682343309484708 };
+
     final PolynomialsLeastSquaresFitter fitter = new PolynomialsLeastSquaresFitter();
     final LeastSquaresRegressionResult polyRes = fitter.regress(strikesData, volData, 2);
     final DoubleFunction1D func = new RealPolynomialFunction1D(polyRes.getBetas());
     for (int i = 0; i < nPuts; ++i) {
       putVols[i] = func.evaluate(putStrikes[i]);
+      assertEquals(putVolsExp[i], putVols[i], 1.e-12);
     }
     for (int i = 0; i < nCalls; ++i) {
       callVols[i] = func.evaluate(callStrikes[i]);
+      assertEquals(callVolsExp[i], callVols[i], 1.e-12);
     }
 
     final double[] putWeightsExp = new double[] {3.86612724961741, 4.26676765505071, 4.68620366756127, 5.12150973652564, 5.56923104329309, 6.02541643821822, 6.48566755627858, 6.94520360550750,
@@ -99,13 +111,13 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
 
     for (int i = 0; i < nPuts; ++i) {
       assertEquals(putWeightsExp[i], putWeights[i], Math.max(Math.abs(putWeightsExp[i]), 1.) * EPS);
-      assertEquals(putPricesExp[i], putPrices[i], Math.max(Math.abs(putPricesExp[i]), 1.) * EPS * 1.e-7);
+      assertEquals(putPricesExp[i], putPrices[i], Math.max(Math.abs(putPricesExp[i]), 1.) * EPS);
     }
     for (int i = 0; i < nCalls; ++i) {
       assertEquals(callWeightsExp[i], callWeights[i], Math.max(Math.abs(callWeightsExp[i]), 1.) * EPS);
-      assertEquals(callPricesExp[i], callPrices[i], Math.max(Math.abs(callPricesExp[i]), 1.) * EPS * 1.e-7);
+      assertEquals(callPricesExp[i], callPrices[i], Math.max(Math.abs(callPricesExp[i]), 1.) * EPS);
     }
-    assertEquals(cashExp, res.getCash(), Math.max(Math.abs(cashExp), 1.) * EPS * 1.e-7);
+    assertEquals(cashExp, res.getCash(), Math.max(Math.abs(cashExp), 1.) * EPS);
     assertEquals(optionTotalExp, res.getOptionTotal(), Math.max(Math.abs(optionTotalExp), 1.) * EPS);
     assertEquals(fairValueExp, res.getFairValue(), Math.max(Math.abs(fairValueExp), 1.) * EPS);
 
@@ -147,13 +159,13 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
 
     for (int i = 0; i < nPuts; ++i) {
       assertEquals(putWeightsExp[i], putWeights[i], Math.max(Math.abs(putWeightsExp[i]), 1.) * EPS);
-      assertEquals(putPricesExp[i], putPrices[i], Math.max(Math.abs(putPricesExp[i]), 1.) * EPS * 1.e-7);
+      assertEquals(putPricesExp[i], putPrices[i], Math.max(Math.abs(putPricesExp[i]), 1.) * EPS);
     }
     for (int i = 0; i < nCalls; ++i) {
       assertEquals(callWeightsExp[i], callWeights[i], Math.max(Math.abs(callWeightsExp[i]), 1.) * EPS);
-      assertEquals(callPricesExp[i], callPrices[i], Math.max(Math.abs(callPricesExp[i]), 1.) * EPS * 1.e-7);
+      assertEquals(callPricesExp[i], callPrices[i], Math.max(Math.abs(callPricesExp[i]), 1.) * EPS);
     }
-    assertEquals(cashExp, res.getCash(), Math.max(Math.abs(cashExp), 1.) * EPS * 1.e-7);
+    assertEquals(cashExp, res.getCash(), Math.max(Math.abs(cashExp), 1.) * EPS);
     assertEquals(optionTotalExp, res.getOptionTotal(), Math.max(Math.abs(optionTotalExp), 1.) * EPS);
     assertEquals(fairValueExp, res.getFairValue(), Math.max(Math.abs(fairValueExp), 1.) * EPS);
 
@@ -235,13 +247,13 @@ public class CarrLeeSeasonedSyntheticVolatilitySwapCalculatorTest {
 
     for (int i = 0; i < nPuts; ++i) {
       assertEquals(putWeightsExp[i], putWeights[i], Math.max(Math.abs(putWeightsExp[i]), 1.) * EPS);
-      assertEquals(putPricesExp[i], putPrices[i], Math.max(Math.abs(putPricesExp[i]), 1.) * EPS * 1.e-7);
+      assertEquals(putPricesExp[i], putPrices[i], Math.max(Math.abs(putPricesExp[i]), 1.) * EPS);
     }
     for (int i = 0; i < nCalls; ++i) {
       assertEquals(callWeightsExp[i], callWeights[i], Math.max(Math.abs(callWeightsExp[i]), 1.) * EPS);
-      assertEquals(callPricesExp[i], callPrices[i], Math.max(Math.abs(callPricesExp[i]), 1.) * EPS * 1.e-7);
+      assertEquals(callPricesExp[i], callPrices[i], Math.max(Math.abs(callPricesExp[i]), 1.) * EPS);
     }
-    assertEquals(cashExp, res.getCash(), Math.max(Math.abs(cashExp), 1.) * EPS * 1.e-7);
+    assertEquals(cashExp, res.getCash(), Math.max(Math.abs(cashExp), 1.) * EPS);
     assertEquals(optionTotalExp, res.getOptionTotal(), Math.max(Math.abs(optionTotalExp), 1.) * EPS);
     assertEquals(fairValueExp, res.getFairValue(), Math.max(Math.abs(fairValueExp), 1.) * EPS);
 
