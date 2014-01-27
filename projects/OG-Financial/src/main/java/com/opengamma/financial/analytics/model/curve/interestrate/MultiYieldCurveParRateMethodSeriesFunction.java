@@ -215,7 +215,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
           s_logger.info("Unable to resolve all curve points for " + curveName + " on " + valuationDate + ". Not producing curve for this date.");
           continue VAL;
         }
-        final InterpolatedYieldCurveSpecificationWithSecurities spec = builder.resolveToSecurity(ycSpec, getMarketDataSnapshot(hts, ycSpec));
+        final InterpolatedYieldCurveSpecificationWithSecurities spec = builder.resolveToSecurity(ycSpec, marketDataSnapshot);
         int nInstruments = 0;
         final Interpolator1D interpolator = spec.getInterpolator();
         final HistoricalTimeSeriesBundle marketData = getHistoricalMarketData(inputs, targetSpec, curveName);
