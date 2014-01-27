@@ -12,8 +12,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.util.time.Tenor;
@@ -30,24 +31,35 @@ public class VolatilityCubeConfigPopulator {
   }
 
   public static ConfigMaster populateVolatilityCubeConfigMaster(ConfigMaster cfgMaster) {
-    ConfigItem<VolatilityCubeDefinition> item = ConfigItem.of(createDefaultDefinition());
+    ConfigItem<VolatilityCubeDefinition<Tenor, Tenor, Double>> item = ConfigItem.of(createDefaultDefinition("DEFAULT_USD", UniqueId.of("WAHT", "WAHT")));  //TODO waht UID ????
     item.setName("DEFAULT_USD");
     s_logger.debug("Populating vol cube defn " + item.getName());
     ConfigMasterUtils.storeByName(cfgMaster, item);
     return cfgMaster;
   }
 
-  private static VolatilityCubeDefinition createDefaultDefinition() {
-    
-    VolatilityCubeDefinition volatilityCubeDefinition = new VolatilityCubeDefinition();
-    volatilityCubeDefinition.setSwapTenors(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofYears(1), Tenor.ofYears(2),
-        Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15), Tenor.ofYears(20), Tenor.ofYears(30)));
-    volatilityCubeDefinition.setOptionExpiries(Lists.newArrayList(Tenor.ofMonths(3), Tenor.ofMonths(6),
-        Tenor.ofYears(1), Tenor.ofYears(2), Tenor.ofYears(4), Tenor.ofYears(5), Tenor.ofYears(10), Tenor.ofYears(15),
-        Tenor.ofYears(20)));
-    
+  private static VolatilityCubeDefinition<Tenor, Tenor, Double> createDefaultDefinition(final String name, final UniqueIdentifiable target) {
+
+    Tenor[] swapTenors = new Tenor[] {Tenor.ofMonths(3),
+      Tenor.ofYears(1),
+      Tenor.ofYears(2),
+      Tenor.ofYears(5),
+      Tenor.ofYears(10),
+      Tenor.ofYears(15),
+      Tenor.ofYears(20),
+      Tenor.ofYears(30) };
+    Tenor[] optionExpiries = new Tenor[] {Tenor.ofMonths(3),
+      Tenor.ofMonths(6),
+      Tenor.ofYears(1),
+      Tenor.ofYears(2),
+      Tenor.ofYears(4),
+      Tenor.ofYears(5),
+      Tenor.ofYears(10),
+      Tenor.ofYears(15),
+      Tenor.ofYears(20) };
+
     int[] values = new int[] {0, 20, 25, 50, 70, 75, 100, 200, 5 };
-    List<Double> relativeStrikes = new ArrayList<Double>(values.length * 2 - 1);
+    List<Double> relativeStrikes = new ArrayList<>(values.length * 2 - 1);
     for (int value : values) {
       relativeStrikes.add(Double.valueOf(value));
       if (value != 0) {
@@ -55,9 +67,8 @@ public class VolatilityCubeConfigPopulator {
       }
     }
     Collections.sort(relativeStrikes);
-    
-    volatilityCubeDefinition.setRelativeStrikes(relativeStrikes);
-    return volatilityCubeDefinition;
+
+    return new VolatilityCubeDefinition<>(name, target, swapTenors, optionExpiries, relativeStrikes.toArray(new Double[0]));
   }
-  
+
 }

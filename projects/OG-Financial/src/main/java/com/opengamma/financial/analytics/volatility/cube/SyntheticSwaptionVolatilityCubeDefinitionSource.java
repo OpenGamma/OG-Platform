@@ -41,12 +41,12 @@ public class SyntheticSwaptionVolatilityCubeDefinitionSource implements Volatili
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {
+  public VolatilityCubeDefinition getDefinition(final String name, final String instrumentType) {
     return _query.get(name);
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final VersionCorrection versionCorrection) {
+  public VolatilityCubeDefinition getDefinition(final String name, final String instrumentType, VersionCorrection versionCorrection) {
     return _query.get(name, versionCorrection);
   }
 

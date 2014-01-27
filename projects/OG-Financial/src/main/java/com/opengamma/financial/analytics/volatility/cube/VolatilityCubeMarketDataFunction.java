@@ -16,7 +16,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -77,14 +76,14 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final Triple<Instant, Instant, VolatilityCubeSpecification> compile = _helper.compile(context, atInstant);
 
-    final Map<ExternalId, VolatilityPoint> pointsById = getPointsById();
+    final Map<ExternalId, Triple<Tenor, Tenor, Double>> pointsById = getPointsById();
     final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = getStrikesById();
 
     final Set<ValueRequirement> reqs = buildRequirements(pointsById, strikesById);
     return new CompiledImpl(compile.getFirst(), compile.getSecond(), reqs, pointsById, strikesById);
   }
 
-  private static Set<ValueRequirement> buildRequirements(final Map<ExternalId, VolatilityPoint> pointsById, final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
+  private static Set<ValueRequirement> buildRequirements(final Map<ExternalId, Triple<Tenor, Tenor, Double>> pointsById, final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
     final HashSet<ValueRequirement> ret = new HashSet<>();
     ret.addAll(getMarketValueReqs(pointsById.keySet()));
     ret.addAll(getMarketValueReqs(strikesById.keySet()));
@@ -92,11 +91,11 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
     return ret;
   }
 
-  private Map<ExternalId, VolatilityPoint> getPointsById() {
-    final Map<ExternalId, VolatilityPoint> pointsById = new HashMap<>();
+  private Map<ExternalId, Triple<Tenor, Tenor, Double>> getPointsById() {
+    final Map<ExternalId, Triple<Tenor, Tenor, Double>> pointsById = new HashMap<>();
 
-    final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
-    for (final VolatilityPoint point : allPoints) {
+    final Iterable<Triple<Tenor, Tenor, Double>> allPoints = _definition.getAllPoints();
+    for (final Triple<Tenor, Tenor, Double> point : allPoints) {
       final Set<ExternalId> instruments = INSTRUMENT_PROVIDER.getInstruments(_helper.getCurrency(), point);
       if (instruments != null) {
         for (final ExternalId identifier : instruments) {
@@ -110,12 +109,12 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   private Map<ExternalId, Pair<Tenor, Tenor>> getStrikesById() {
     final Map<ExternalId, Pair<Tenor, Tenor>> strikesById = new HashMap<>();
 
-    final Iterable<VolatilityPoint> allPoints = _definition.getAllPoints();
-    for (final VolatilityPoint point : allPoints) {
+    final Iterable<Triple<Tenor, Tenor, Double>> allPoints = _definition.getAllPoints();
+    for (final Triple<Tenor, Tenor, Double> point : allPoints) {
 
       final ExternalId strikeInstruments = INSTRUMENT_PROVIDER.getStrikeInstrument(_helper.getCurrency(), point);
       if (strikeInstruments != null) {
-        final Pair<Tenor, Tenor> strikePoint = Pairs.of(point.getSwapTenor(), point.getOptionExpiry());
+        final Pair<Tenor, Tenor> strikePoint = Pairs.of(point.getFirst(), point.getSecond());
         final Pair<Tenor, Tenor> previous = strikesById.put(strikeInstruments, strikePoint);
         if (previous != null && !previous.equals(strikePoint)) {
           throw new OpenGammaRuntimeException("Mismatched volatility strike rate instrument");
@@ -147,11 +146,11 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
   private final class CompiledImpl extends AbstractFunction.AbstractInvokingCompiledFunction {
 
     private final Set<ValueRequirement> _requirements;
-    private final Map<ExternalId, VolatilityPoint> _pointsById;
+    private final Map<ExternalId, Triple<Tenor, Tenor, Double>> _pointsById;
     private final Map<ExternalId, Pair<Tenor, Tenor>> _strikesById;
 
     private CompiledImpl(final Instant earliest, final Instant latest,
-        final Set<ValueRequirement> requirements, final Map<ExternalId, VolatilityPoint> pointsById, final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
+        final Set<ValueRequirement> requirements, final Map<ExternalId, Triple<Tenor, Tenor, Double>> pointsById, final Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
       super(earliest, latest);
       _requirements = requirements;
       _pointsById = pointsById;
@@ -202,10 +201,10 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
       return true;
     }
 
-    private VolatilityCubeData buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
-      final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<>();
-      final HashMap<VolatilityPoint, ExternalIdBundle> dataIds = new HashMap<>();
-      final HashMap<VolatilityPoint, Double> relativeStrikes = new HashMap<>();
+    private VolatilityCubeData<Tenor, Tenor, Double> buildMarketDataMap(final FunctionExecutionContext context, final FunctionInputs inputs) {
+      final HashMap<Triple<Tenor, Tenor, Double>, Double> dataPoints = new HashMap<>();
+      final HashMap<Triple<Tenor, Tenor, Double>, ExternalIdBundle> dataIds = new HashMap<>();
+      final HashMap<Triple<Tenor, Tenor, Double>, Double> relativeStrikes = new HashMap<>();
       final HashMap<Pair<Tenor, Tenor>, Double> strikes = new HashMap<>();
       final SnapshotDataBundle otherData = new SnapshotDataBundle();
       final ExternalIdBundleResolver resolver = new ExternalIdBundleResolver(context.getComputationTargetResolver());
@@ -215,7 +214,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
         }
         final Double dValue = (Double) value.getValue();
         final ExternalIdBundle identifiers = value.getSpecification().getTargetSpecification().accept(resolver);
-        final VolatilityPoint volatilityPoint;
+        final Triple<Tenor, Tenor, Double> volatilityPoint;
         final Pair<Tenor, Tenor> strikePoint;
         if (value.getSpecification().getValueName() == MarketDataRequirementNames.MARKET_VALUE) {
           volatilityPoint = getByIdentifier(_pointsById, identifiers);
@@ -227,10 +226,10 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
         if (volatilityPoint == null && strikePoint == null) {
           otherData.setDataPoint(identifiers, dValue);
         } else if (volatilityPoint != null && strikePoint == null) {
-          if (volatilityPoint.getRelativeStrike() > -50) {
+          if (volatilityPoint.getThird() > -50) {
             final Double previous = dataPoints.put(volatilityPoint, dValue);
             final ExternalIdBundle previousIds = dataIds.put(volatilityPoint, identifiers);
-            final Double previousRelativeStrike = relativeStrikes.put(volatilityPoint, volatilityPoint.getRelativeStrike());
+            final Double previousRelativeStrike = relativeStrikes.put(volatilityPoint, volatilityPoint.getThird());
             if (previous != null && previous > dValue) {
               //TODO: this is a hack because we don't understand which tickers are for straddles, so we presume that the straddle has lower vol
               dataPoints.put(volatilityPoint, previous);
@@ -248,13 +247,7 @@ public class VolatilityCubeMarketDataFunction extends AbstractFunction {
         }
       }
 
-      final VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
-      volatilityCubeData.setDataPoints(dataPoints);
-      volatilityCubeData.setOtherData(otherData);
-      volatilityCubeData.setDataIds(dataIds);
-      volatilityCubeData.setRelativeStrikes(relativeStrikes);
-      volatilityCubeData.setATMStrikes(strikes);
-      return volatilityCubeData;
+      return new VolatilityCubeData<>(_definition.getName(), _marketDataResult.getValueName(), _definition.getTarget(), dataPoints);
     }
 
   }

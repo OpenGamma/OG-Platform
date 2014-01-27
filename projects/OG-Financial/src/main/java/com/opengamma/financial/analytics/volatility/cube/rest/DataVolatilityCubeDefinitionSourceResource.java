@@ -21,7 +21,6 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
@@ -66,16 +65,15 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
   @GET
   @Path("definitions/searchSingle")
   public Response searchSingle(
-      @QueryParam("currency") String currencyStr,
+      @QueryParam("instrumentType") String instrumentType,
       @QueryParam("versionAsOf") String versionAsOfStr,
       @QueryParam("name") String name) {
-    final Currency currency = Currency.parse(currencyStr);
     if (versionAsOfStr != null) {
       final VersionCorrection versionCorrection = VersionCorrection.parse(versionAsOfStr, null);
-      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(currency, name, versionCorrection);
+      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(name, instrumentType, versionCorrection);
       return responseOkFudge(result);
     } else {
-      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(currency, name);
+      VolatilityCubeDefinition result = getVolatilityCubeDefinitionSource().getDefinition(name, instrumentType);
       return responseOkFudge(result);
     }
   }
@@ -84,14 +82,14 @@ public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataReso
    * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param currency  the currency, not null
+   * @param instrumentType  the instrumentType, not null
    * @param name  the name, not null
    * @param versionAsOf  the version to fetch, null means latest
    * @return the URI, not null
    */
-  public static URI uriSearchSingle(URI baseUri, Currency currency, String name, Instant versionAsOf) {
+  public static URI uriSearchSingle(URI baseUri, String instrumentType, String name, Instant versionAsOf) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/definitions/searchSingle");
-    bld.queryParam("currency", currency.toString());
+    bld.queryParam("instrumentType", instrumentType);
     bld.queryParam("name", name);
     if (versionAsOf != null) {
       bld.queryParam("versionAsOf", versionAsOf.toString());

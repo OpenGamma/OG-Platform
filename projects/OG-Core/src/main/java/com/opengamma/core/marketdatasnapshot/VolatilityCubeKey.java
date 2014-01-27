@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -10,8 +10,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -28,6 +27,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -39,45 +41,78 @@ import com.opengamma.util.money.Currency;
 public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketDataKey, Comparable<VolatilityCubeKey>, Serializable {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 3L;
 
   /**
-   * The currency.
+   * The target.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Currency _currency;
+  private final UniqueId _target;
   /**
    * The curve name.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private final String _name;
-
-  //-------------------------------------------------------------------------
   /**
-   * Creates an instance with a currency and name.
-   * 
-   * @param currency  the currency
+   * The instrument type.
+   */
+  @PropertyDefinition
+  private final String _instrumentType;
+  /**
+   * The quote type.
+   */
+  @PropertyDefinition
+  private final String _quoteType;
+  /**
+   * The quote units.
+   */
+  @PropertyDefinition
+  private final String _quoteUnits;
+
+  /**
+   * Creates an instance.
+   *
+   * @param target  the target
    * @param name  the name
+   * @param instrumentType  the instrument type
+   * @param quoteType the quote type
+   * @param quoteUnits the quote units
    * @return the volatility cube key, not null
    */
-  public static VolatilityCubeKey of(Currency currency, String name) {
-    return new VolatilityCubeKey(currency, name);
+  public static VolatilityCubeKey of(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType, final String quoteUnits) {
+    ArgumentChecker.notNull(target, "target");
+    return new VolatilityCubeKey(target.getUniqueId(), name, instrumentType, quoteType, quoteUnits);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Compares this key to another, by currency then name.
-   * 
+   *
    * @param other  the other key, not null
    * @return the comparison value
    */
   @Override
   public int compareTo(VolatilityCubeKey other) {
-    int currCompare = _currency.compareTo(other.getCurrency());
-    if (currCompare != 0) {
-      return currCompare;
+    if (other == null) {
+      throw new NullPointerException();
     }
-    return _name.compareTo(other.getName());
+    int i = _target.compareTo(other.getTarget());
+    if (i != 0) {
+      return i;
+    }
+    i = ObjectUtils.compare(_name, other._name);
+    if (i != 0) {
+      return i;
+    }
+    i = ObjectUtils.compare(_instrumentType, other._instrumentType);
+    if (i != 0) {
+      return i;
+    }
+    i = ObjectUtils.compare(_quoteType, other._quoteType);
+    if (i != 0) {
+      return i;
+    }
+    return ObjectUtils.compare(_quoteUnits, other._quoteUnits);
   }
 
   @Override
@@ -87,23 +122,26 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
 
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
-    msg.add("currency", _currency.getCode());
+    msg.add("target", _target.toString());
     msg.add("name", _name);
+    msg.add("instrumentType", _instrumentType);
+    msg.add("quoteType", _quoteType);
+    msg.add("quoteUnits", _quoteUnits);
     return msg;
   }
 
   public static VolatilityCubeKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    Currency currency = Currency.of(msg.getString("currency"));
-    String name = msg.getString("name");
-    return new VolatilityCubeKey(currency, name);
+    final UniqueId targetUid;
+    String target = msg.getString("target");
+    if (target == null) {
+      //Handle old form of snapshot
+      Currency curr = Currency.of(msg.getString("currency"));
+      targetUid = curr.getUniqueId();
+    } else {
+      targetUid = UniqueId.parse(target);
+    }
+    return new VolatilityCubeKey(targetUid, msg.getString("name"), msg.getString("instrumentType"), msg.getString("quoteType"), msg.getString("quoteUnits"));
   }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-  
-  
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
@@ -128,12 +166,17 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   }
 
   private VolatilityCubeKey(
-      Currency currency,
-      String name) {
-    JodaBeanUtils.notNull(currency, "currency");
-    JodaBeanUtils.notNull(name, "name");
-    this._currency = currency;
+      UniqueId target,
+      String name,
+      String instrumentType,
+      String quoteType,
+      String quoteUnits) {
+    JodaBeanUtils.notNull(target, "target");
+    this._target = target;
     this._name = name;
+    this._instrumentType = instrumentType;
+    this._quoteType = quoteType;
+    this._quoteUnits = quoteUnits;
   }
 
   @Override
@@ -153,20 +196,47 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the currency.
+   * Gets the target.
    * @return the value of the property, not null
    */
-  public Currency getCurrency() {
-    return _currency;
+  public UniqueId getTarget() {
+    return _target;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the curve name.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public String getName() {
     return _name;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instrument type.
+   * @return the value of the property
+   */
+  public String getInstrumentType() {
+    return _instrumentType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the quote type.
+   * @return the value of the property
+   */
+  public String getQuoteType() {
+    return _quoteType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the quote units.
+   * @return the value of the property
+   */
+  public String getQuoteUnits() {
+    return _quoteUnits;
   }
 
   //-----------------------------------------------------------------------
@@ -190,8 +260,11 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       VolatilityCubeKey other = (VolatilityCubeKey) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
+      return JodaBeanUtils.equal(getTarget(), other.getTarget()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getInstrumentType(), other.getInstrumentType()) &&
+          JodaBeanUtils.equal(getQuoteType(), other.getQuoteType()) &&
+          JodaBeanUtils.equal(getQuoteUnits(), other.getQuoteUnits());
     }
     return false;
   }
@@ -199,9 +272,25 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTarget());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInstrumentType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuoteUnits());
     return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("VolatilityCubeKey{");
+    buf.append("target").append('=').append(getTarget()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("instrumentType").append('=').append(getInstrumentType()).append(',').append(' ');
+    buf.append("quoteType").append('=').append(getQuoteType()).append(',').append(' ');
+    buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(getQuoteUnits()));
+    buf.append('}');
+    return buf.toString();
   }
 
   //-----------------------------------------------------------------------
@@ -215,22 +304,40 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code target} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofImmutable(
-        this, "currency", VolatilityCubeKey.class, Currency.class);
+    private final MetaProperty<UniqueId> _target = DirectMetaProperty.ofImmutable(
+        this, "target", VolatilityCubeKey.class, UniqueId.class);
     /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofImmutable(
         this, "name", VolatilityCubeKey.class, String.class);
     /**
+     * The meta-property for the {@code instrumentType} property.
+     */
+    private final MetaProperty<String> _instrumentType = DirectMetaProperty.ofImmutable(
+        this, "instrumentType", VolatilityCubeKey.class, String.class);
+    /**
+     * The meta-property for the {@code quoteType} property.
+     */
+    private final MetaProperty<String> _quoteType = DirectMetaProperty.ofImmutable(
+        this, "quoteType", VolatilityCubeKey.class, String.class);
+    /**
+     * The meta-property for the {@code quoteUnits} property.
+     */
+    private final MetaProperty<String> _quoteUnits = DirectMetaProperty.ofImmutable(
+        this, "quoteUnits", VolatilityCubeKey.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "currency",
-        "name");
+        "target",
+        "name",
+        "instrumentType",
+        "quoteType",
+        "quoteUnits");
 
     /**
      * Restricted constructor.
@@ -241,10 +348,16 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return _currency;
+        case -880905839:  // target
+          return _target;
         case 3373707:  // name
           return _name;
+        case 1956846529:  // instrumentType
+          return _instrumentType;
+        case -1482972202:  // quoteType
+          return _quoteType;
+        case 1273091667:  // quoteUnits
+          return _quoteUnits;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -266,11 +379,11 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code currency} property.
+     * The meta-property for the {@code target} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Currency> currency() {
-      return _currency;
+    public MetaProperty<UniqueId> target() {
+      return _target;
     }
 
     /**
@@ -281,14 +394,44 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
       return _name;
     }
 
+    /**
+     * The meta-property for the {@code instrumentType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> instrumentType() {
+      return _instrumentType;
+    }
+
+    /**
+     * The meta-property for the {@code quoteType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> quoteType() {
+      return _quoteType;
+    }
+
+    /**
+     * The meta-property for the {@code quoteUnits} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> quoteUnits() {
+      return _quoteUnits;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          return ((VolatilityCubeKey) bean).getCurrency();
+        case -880905839:  // target
+          return ((VolatilityCubeKey) bean).getTarget();
         case 3373707:  // name
           return ((VolatilityCubeKey) bean).getName();
+        case 1956846529:  // instrumentType
+          return ((VolatilityCubeKey) bean).getInstrumentType();
+        case -1482972202:  // quoteType
+          return ((VolatilityCubeKey) bean).getQuoteType();
+        case 1273091667:  // quoteUnits
+          return ((VolatilityCubeKey) bean).getQuoteUnits();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -310,8 +453,11 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
    */
   public static final class Builder extends DirectFieldsBeanBuilder<VolatilityCubeKey> {
 
-    private Currency _currency;
+    private UniqueId _target;
     private String _name;
+    private String _instrumentType;
+    private String _quoteType;
+    private String _quoteUnits;
 
     /**
      * Restricted constructor.
@@ -324,19 +470,31 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(VolatilityCubeKey beanToCopy) {
-      this._currency = beanToCopy.getCurrency();
+      this._target = beanToCopy.getTarget();
       this._name = beanToCopy.getName();
+      this._instrumentType = beanToCopy.getInstrumentType();
+      this._quoteType = beanToCopy.getQuoteType();
+      this._quoteUnits = beanToCopy.getQuoteUnits();
     }
 
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 575402001:  // currency
-          this._currency = (Currency) newValue;
+        case -880905839:  // target
+          this._target = (UniqueId) newValue;
           break;
         case 3373707:  // name
           this._name = (String) newValue;
+          break;
+        case 1956846529:  // instrumentType
+          this._instrumentType = (String) newValue;
+          break;
+        case -1482972202:  // quoteType
+          this._quoteType = (String) newValue;
+          break;
+        case 1273091667:  // quoteUnits
+          this._quoteUnits = (String) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -371,40 +529,75 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     @Override
     public VolatilityCubeKey build() {
       return new VolatilityCubeKey(
-          _currency,
-          _name);
+          _target,
+          _name,
+          _instrumentType,
+          _quoteType,
+          _quoteUnits);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value, not null
+     * Sets the {@code target} property in the builder.
+     * @param target  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this._currency = currency;
+    public Builder target(UniqueId target) {
+      JodaBeanUtils.notNull(target, "target");
+      this._target = target;
       return this;
     }
 
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not null
+     * @param name  the new value
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
       this._name = name;
+      return this;
+    }
+
+    /**
+     * Sets the {@code instrumentType} property in the builder.
+     * @param instrumentType  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder instrumentType(String instrumentType) {
+      this._instrumentType = instrumentType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code quoteType} property in the builder.
+     * @param quoteType  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder quoteType(String quoteType) {
+      this._quoteType = quoteType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code quoteUnits} property in the builder.
+     * @param quoteUnits  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder quoteUnits(String quoteUnits) {
+      this._quoteUnits = quoteUnits;
       return this;
     }
 
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("VolatilityCubeKey.Builder{");
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(_currency)).append(',').append(' ');
-      buf.append("name").append('=').append(JodaBeanUtils.toString(_name));
+      buf.append("target").append('=').append(JodaBeanUtils.toString(_target)).append(',').append(' ');
+      buf.append("name").append('=').append(JodaBeanUtils.toString(_name)).append(',').append(' ');
+      buf.append("instrumentType").append('=').append(JodaBeanUtils.toString(_instrumentType)).append(',').append(' ');
+      buf.append("quoteType").append('=').append(JodaBeanUtils.toString(_quoteType)).append(',').append(' ');
+      buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(_quoteUnits));
       buf.append('}');
       return buf.toString();
     }

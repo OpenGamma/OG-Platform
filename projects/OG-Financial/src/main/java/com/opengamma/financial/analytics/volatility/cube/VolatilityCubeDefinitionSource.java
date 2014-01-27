@@ -19,20 +19,20 @@ import com.opengamma.util.money.Currency;
 public interface VolatilityCubeDefinitionSource {
 
   /**
-   * Gets a cube definition for a currency and name.
-   * @param currency  the currency, not null
-   * @param name  the name, not null
-   * @return the definition, null if not found
-   */
-  VolatilityCubeDefinition getDefinition(Currency currency, String name);
+  * Gets a cube definition for a name and instrument type.
+  * @param name  the name, not null
+  * @param instrumentType  the instrument type, not null
+  * @return the definition, null if not found
+  */
+  VolatilityCubeDefinition<?, ?, ?> getDefinition(final String name, final String instrumentType);
 
   /**
-   * Gets a cube definition for a currency, name and version.
-   * @param currency  the currency, not null
-   * @param name  the name, not null
-   * @param versionCorrection  the version correction, not null
-   * @return the definition, null if not found
-   */
-  VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection);
+  * Gets a cube definition for a name, instrument type and version.
+  * @param name  the name, not null
+  * @param instrumentType  the instrument type, not null
+  * @param versionCorrection  the version correction, not null
+  * @return the definition, null if not found
+  */
+  VolatilityCubeDefinition<?, ?, ?> getDefinition(final String name, final String instrumentType, VersionCorrection versionCorrection);
 
 }

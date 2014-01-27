@@ -17,8 +17,10 @@ import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.cube.VolatilityCube;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.math.cube.Cube;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -84,7 +86,9 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
       throw new OpenGammaRuntimeException("Could not get volatility cube data");
     }
     final VolatilityCubeData volatilityCubeData = (VolatilityCubeData) objectCubeData;
-    final SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData.getSmiles();
+    final Cube cube = new StaticDoublesCube(volatilityCubeData);
+    final VolatilityCube volatilityCube = new VolatilityCube(cube);
+    final SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = volatilityCubeData. new VolatilityCube(volatilityCubeData.getC).
     final SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = volatilityCubeData.getSmileIds();
     final SortedMap<Tenor, SortedMap<Tenor, Double[]>> smileRelativeStrikes = volatilityCubeData.getSmileRelativeStrikes();
     final DoubleArrayList swapMaturitiesList = new DoubleArrayList();

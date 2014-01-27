@@ -30,20 +30,20 @@ public class RemoteVolatilityCubeDefinitionSource extends AbstractRemoteClient i
 
   //-------------------------------------------------------------------------
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name) {
-    ArgumentChecker.notNull(currency, "currency");
+  public VolatilityCubeDefinition getDefinition(String instrumentType, String name) {
+    ArgumentChecker.notNull(instrumentType, "instrumentType");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, null);
+    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), instrumentType, name, null);
     return accessRemote(uri).get(VolatilityCubeDefinition.class);
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection) {
-    ArgumentChecker.notNull(currency, "currency");
+  public VolatilityCubeDefinition getDefinition(String instrumentType, String name, VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(instrumentType, "instrumentType");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionCorrection.getVersionAsOf());
+    URI uri = DataVolatilityCubeDefinitionSourceResource.uriSearchSingle(getBaseUri(), instrumentType, name, versionCorrection.getVersionAsOf());
     return accessRemote(uri).get(VolatilityCubeDefinition.class);
   }
 

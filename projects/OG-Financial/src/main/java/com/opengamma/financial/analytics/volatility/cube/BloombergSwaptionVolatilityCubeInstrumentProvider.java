@@ -28,6 +28,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * Generates Bloomberg instrument codes for volatilities given points.
@@ -116,9 +117,9 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
     return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, ticker);
   }
 
-  public Set<ExternalId> getInstruments(final Currency currency, final VolatilityPoint point) {
-    if ((point.getRelativeStrike() == 0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
-      final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
+  public Set<ExternalId> getInstruments(final Currency currency, final Triple<Tenor, Tenor, Double> point) {
+    if ((point.getThird() == 0.0) && currency.equals(ATM_INSTRUMENT_PROVIDER_CURRENCY)) {
+      final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getFirst(), point.getSecond());
       return Sets.newHashSet(instrument);
     } else {
       return _idsByPoint.get(Pairs.of(currency, point));
@@ -143,8 +144,8 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
     return ret;
   }
 
-  public ExternalId getStrikeInstrument(final Currency currency, final VolatilityPoint point) {
-    return getStrikeInstrument(currency, point.getSwapTenor(), point.getOptionExpiry());
+  public ExternalId getStrikeInstrument(final Currency currency, final Triple<Tenor, Tenor, Double> point) {
+    return getStrikeInstrument(currency, point.getFirst(), point.getSecond());
   }
 
   public ExternalId getStrikeInstrument(final Currency currency, final Tenor swapTenor, final Tenor optionExpiry) {

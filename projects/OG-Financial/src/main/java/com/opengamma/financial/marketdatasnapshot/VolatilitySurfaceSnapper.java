@@ -36,7 +36,7 @@ public class VolatilitySurfaceSnapper extends
   VolatilitySurfaceKey getKey(ValueSpecification spec) {
     UniqueId uniqueId = spec.getTargetSpecification().getUniqueId();
     String surface = getSingleProperty(spec, ValuePropertyNames.SURFACE);
-    String instrumentType = getSingleProperty(spec, "InstrumentType"); //TODO constant
+    String instrumentType = getSingleProperty(spec, SurfaceAndCubePropertyNames.INSTRUMENT_TYPE);
     String quoteType = getSingleProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
     String quoteUnits = getSingleProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
     return VolatilitySurfaceKey.of(uniqueId, surface, instrumentType, quoteType, quoteUnits);

@@ -28,13 +28,13 @@ public class BloombergVolatilityCubeDefinitionSource implements VolatilityCubeDe
   private final BloombergSwaptionVolatilityCubeInstrumentProvider _instrumentProvider = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG;
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {
+  public VolatilityCubeDefinition<Tenor, Tenor, Double> getDefinition(final String name, final String instrumentType) {
     if (!DEFINITION_NAME.equals(name)) {
       return null;
     }
-    final Set<Tenor> optionExpiries = new HashSet<Tenor>();
-    final Set<Tenor> swapTenors = new HashSet<Tenor>();
-    final Set<Double> relativeStrikes = new HashSet<Double>();
+    final Set<Tenor> optionExpiries = new HashSet<>();
+    final Set<Tenor> swapTenors = new HashSet<>();
+    final Set<Double> relativeStrikes = new HashSet<>();
 
     final Set<VolatilityPoint> allPoints = _instrumentProvider.getAllPoints(currency);
 
@@ -44,18 +44,16 @@ public class BloombergVolatilityCubeDefinitionSource implements VolatilityCubeDe
       relativeStrikes.add(volatilityPoint.getRelativeStrike());
     }
 
-    final VolatilityCubeDefinition ret = new VolatilityCubeDefinition();
-    ret.setOptionExpiries(Lists.newArrayList(optionExpiries));
-    ret.setSwapTenors(Lists.newArrayList(swapTenors));
-    ret.setRelativeStrikes(Lists.newArrayList(relativeStrikes));
-
-    ret.setUniqueId(UniqueId.of("BLOOMBERG_VOLATILITY_CUBE_DEFINITION", currency.getCode()));
-    return ret;
+    Tenor[] maturities = optionExpiries.toArray(new Tenor[0]);
+    Tenor[] expires = swapTenors.toArray(new Tenor[0]);
+    Double[] strikes = relativeStrikes.toArray(new Double[0]);
+    UniqueId uid = UniqueId.of("BLOOMBERG_VOLATILITY_CUBE_DEFINITION", currency.getCode());
+    return new VolatilityCubeDefinition<>(name, uid, maturities, expires, strikes);
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final VersionCorrection versionCorrection) {
-    return getDefinition(currency, name);
+  public VolatilityCubeDefinition getDefinition(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
+    return getDefinition(name, instrumentType);
   }
 
 }

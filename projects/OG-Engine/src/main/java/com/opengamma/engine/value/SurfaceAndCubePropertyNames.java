@@ -35,4 +35,6 @@ public class SurfaceAndCubePropertyNames {
   public static final String PROPERTY_CUBE_UNITS = "CubeUnits";
   /** The name of the cube quote units property */
   public static final String PROPERTY_EXERCISE_TYPE = "ExerciseType";
+  /** The type of the cube instrument */
+  public static final String INSTRUMENT_TYPE = "InstrumentType";
 }

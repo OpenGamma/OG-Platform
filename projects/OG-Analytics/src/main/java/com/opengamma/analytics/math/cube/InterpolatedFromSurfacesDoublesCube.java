@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.math.Plane;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.surface.Surface;
@@ -32,7 +33,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false);
   }
@@ -45,7 +46,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false);
   }
@@ -58,7 +59,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false);
   }
@@ -70,7 +71,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, false);
   }
@@ -84,7 +85,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param name The name of the cube
    * @return A cube 
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
@@ -98,11 +99,11 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param name The name of the cube
    * @return A cube 
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
-  
+
   /**
    * @param plane The plane in which the surfaces lie
    * @param points A list of points of intersection of the surfaces on the remaining axis (e.g. if the surfaces are in the <i>x-y</i> plane, the points indicate where
@@ -110,9 +111,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces A list of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param name The name of the cube
-   * @return A cube 
+   * @return A cube
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
@@ -123,9 +124,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * the surfaces cross the <i>z</i> axis) to surfaces. Not null
    * @param interpolator The interpolator
    * @param name The name of the cube
-   * @return A cube 
+   * @return A cube
    */
-  public static InterpolatedFromSurfacesDoublesCube from(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube from(final Plane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, false, name);
   }
@@ -138,7 +139,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true);
   }
@@ -151,7 +152,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true);
   }
@@ -164,7 +165,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true);
   }
@@ -176,7 +177,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param interpolator The interpolator
    * @return A cube with an automatically-generated name
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, true);
   }
@@ -188,9 +189,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces An array of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param name The name of the cube
-   * @return A cube 
+   * @return A cube
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, true, name);
   }
@@ -202,9 +203,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces An array of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param name The name of the cube
-   * @return A cube 
+   * @return A cube
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
@@ -216,9 +217,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces A list of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param name The name of the cube
-   * @return A cube 
+   * @return A cube
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, points, surfaces, interpolator, false, name);
   }
@@ -229,24 +230,14 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * the surfaces cross the <i>z</i> axis) to surfaces. The points of intersection are assume to be sorted ascending. Not null
    * @param interpolator The interpolator
    * @param name The name of the cube
-   * @return A cube 
+   * @return A cube
    */
-  public static InterpolatedFromSurfacesDoublesCube fromSorted(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
+  public static InterpolatedFromSurfacesDoublesCube fromSorted(final Plane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final String name) {
     return new InterpolatedFromSurfacesDoublesCube(plane, surfaces, interpolator, false, name);
   }
 
-  /** Enum describing the plane of the surfaces used to construct the cube */
-  public enum SurfacePlane {
-    /** Surfaces in the x-y plane */
-    XY,
-    /** Surfaces in the x-z plane */
-    XZ,
-    /** Surfaces in the y-z plane */
-    YZ
-  }
-
-  private final SurfacePlane _plane;
+  private final Plane _plane;
   private final double[] _points;
   private final Surface<Double, Double, Double>[] _surfaces;
   private final int _nSurfaces;
@@ -258,9 +249,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * the surfaces cross the <i>z</i> axis). Not null
    * @param surfaces An array of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
-   * @param isSorted Is the intersection point data sorted 
+   * @param isSorted Is the intersection point data sorted
    */
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
@@ -287,10 +278,10 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * the surfaces cross the <i>z</i> axis). Not null
    * @param surfaces An array of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
-   * @param isSorted Is the intersection point data sorted 
+   * @param isSorted Is the intersection point data sorted
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
@@ -322,10 +313,10 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * the surfaces cross the <i>z</i> axis). Not null
    * @param surfaces A list of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
-   * @param isSorted Is the intersection point data sorted 
+   * @param isSorted Is the intersection point data sorted
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
@@ -356,10 +347,10 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces A map of points of intersection of the surfaces on the remaining axis (e.g. if the surfaces are in the <i>x-y</i> plane, the points indicate where
    * the surfaces cross the <i>z</i> axis) to surfaces. Not null
    * @param interpolator The interpolator
-   * @param isSorted Is the intersection point data sorted 
+   * @param isSorted Is the intersection point data sorted
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final boolean isSorted) {
     super();
     Validate.notNull(plane, "plane");
@@ -392,9 +383,9 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces An array of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param isSorted Is the intersection point data sorted
-   * @param name The name of the cube 
+   * @param name The name of the cube
    */
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
@@ -414,7 +405,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
       ParallelArrayBinarySort.parallelBinarySort(_points, _surfaces);
     }
   }
-  
+
   /**
    * @param plane The plane in which the surfaces lie
    * @param points An array of points of intersection of the surfaces on the remaining axis (e.g. if the surfaces are in the <i>x-y</i> plane, the points indicate where
@@ -422,10 +413,10 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces An array of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param isSorted Is the intersection point data sorted
-   * @param name The name of the cube 
+   * @param name The name of the cube
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final Double[] points, final Surface<Double, Double, Double>[] surfaces,
       final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
@@ -458,10 +449,10 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * @param surfaces A list of surfaces, not null, must be the same length as the array of points of intersection
    * @param interpolator The interpolator
    * @param isSorted Is the intersection point data sorted
-   * @param name The name of the cube 
+   * @param name The name of the cube
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final List<Double> points, final List<Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
@@ -493,10 +484,10 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
    * the surfaces cross the <i>z</i> axis) to surfaces. Not null
    * @param interpolator The interpolator
    * @param isSorted Is the intersection point data sorted
-   * @param name The name of the cube 
+   * @param name The name of the cube
    */
   @SuppressWarnings("unchecked")
-  public InterpolatedFromSurfacesDoublesCube(final SurfacePlane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
+  public InterpolatedFromSurfacesDoublesCube(final Plane plane, final Map<Double, Surface<Double, Double, Double>> surfaces,
       final Interpolator1D interpolator, final boolean isSorted, final String name) {
     super(name);
     Validate.notNull(plane, "plane");
@@ -581,7 +572,7 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
         y1 = y;
         z1 = z;
         break;
-      case XZ:
+      case ZX:
         x1 = x;
         y1 = z;
         z1 = y;
@@ -610,11 +601,11 @@ public class InterpolatedFromSurfacesDoublesCube extends Cube<Double, Double, Do
     return getValue(xyz.getFirst(), xyz.getSecond(), xyz.getThird());
   }
 
-  
+
   /**
    * @return The plane of the surfaces
    */
-  public SurfacePlane getPlane() {
+  public Plane getPlane() {
     return _plane;
   }
 

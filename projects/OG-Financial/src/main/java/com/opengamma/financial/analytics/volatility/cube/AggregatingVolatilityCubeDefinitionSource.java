@@ -23,9 +23,9 @@ public class AggregatingVolatilityCubeDefinitionSource implements VolatilityCube
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {
+  public VolatilityCubeDefinition getDefinition(final String name, final String instrumentType) {
     for (VolatilityCubeDefinitionSource source : _sources) {
-      VolatilityCubeDefinition definition = source.getDefinition(currency, name);
+      VolatilityCubeDefinition definition = source.getDefinition(name, name);
       if (definition != null) {
         return definition;
       }
@@ -34,9 +34,9 @@ public class AggregatingVolatilityCubeDefinitionSource implements VolatilityCube
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name, VersionCorrection versionCorrection) {
+  public VolatilityCubeDefinition getDefinition(final String name, final String instrumentType, VersionCorrection versionCorrection) {
     for (VolatilityCubeDefinitionSource source : _sources) {
-      VolatilityCubeDefinition definition = source.getDefinition(currency, name, versionCorrection);
+      VolatilityCubeDefinition definition = source.getDefinition(name, instrumentType, versionCorrection);
       if (definition != null) {
         return definition;
       }

@@ -19,7 +19,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
-import com.opengamma.core.marketdatasnapshot.VolatilityPoint;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -35,6 +34,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.SwaptionVolatilityCubeSpecificationSource;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
 import com.opengamma.financial.analytics.volatility.cube.CubeInstrumentProvider;
@@ -43,9 +43,9 @@ import com.opengamma.financial.analytics.volatility.cube.SyntheticSwaptionVolati
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 
@@ -71,15 +71,16 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification named " + fullSpecificationName);
     }
-    final VolatilityCubeDefinition definition = definitionSource.getDefinition(currency, fullDefinitionName);
+    final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = (VolatilityCubeDefinition<Tenor, Tenor, Double>) definitionSource.getDefinition(fullDefinitionName,
+        InstrumentTypeProperties.SWAPTION_ATM);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition named " + fullDefinitionName);
     }
     final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for (final Tenor swapTenor : definition.getSwapTenors()) {
-      for (final Tenor swaptionExpiry : definition.getOptionExpiries()) {
-        for (final Double relativeStrike : definition.getRelativeStrikes()) {
+    final Set<ValueRequirement> result = new HashSet<>();
+    for (final Tenor swapTenor : definition.getXs()) {
+      for (final Tenor swaptionExpiry : definition.getYs()) {
+        for (final Double relativeStrike : definition.getZs()) {
           final ExternalId identifier = provider.getInstrument(swapTenor, swaptionExpiry, relativeStrike);
           result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
         }
@@ -108,35 +109,33 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         if (specification == null) {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube specification named " + fullSpecificationName);
         }
-        final VolatilityCubeDefinition definition = _volatilityCubeDefinitionSource.getDefinition(currency, fullDefinitionName);
+        final VolatilityCubeDefinition<Tenor, Tenor, Double> definition = _volatilityCubeDefinitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.SWAPTION_ATM);
         if (definition == null) {
           throw new OpenGammaRuntimeException("Could not get swaption volatility cube definition named " + fullDefinitionName);
         }
         final CubeInstrumentProvider<Tenor, Tenor, Double> provider = (CubeInstrumentProvider<Tenor, Tenor, Double>) specification.getCubeInstrumentProvider();
-        final Map<VolatilityPoint, Double> data = new HashMap<VolatilityPoint, Double>();
-        final Map<VolatilityPoint, ExternalIdBundle> ids = new HashMap<VolatilityPoint, ExternalIdBundle>();
-        for (final Tenor x : definition.getSwapTenors()) {
-          for (final Tenor y : definition.getOptionExpiries()) {
-            for (final Double z : definition.getRelativeStrikes()) {
+        final Map<Triple<Tenor, Tenor, Double>, Double> data = new HashMap<>();
+        for (final Tenor x : definition.getXs()) {
+          for (final Tenor y : definition.getYs()) {
+            for (final Double z : definition.getZs()) {
               final ExternalId id = provider.getInstrument(x, y, z);
               final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, id);
               final Object volatilityObject = inputs.getValue(requirement);
               if (volatilityObject != null) {
                 final Double volatility = (Double) volatilityObject;
-                final VolatilityPoint coordinate = new VolatilityPoint(x, y, z);
+                final Triple<Tenor, Tenor, Double> coordinate = Triple.of(x, y, z);
                 data.put(coordinate, volatility);
-                ids.put(coordinate, id.toBundle());
               }
             }
           }
         }
-        final VolatilityCubeData volatilityCubeData = new VolatilityCubeData();
-        volatilityCubeData.setDataPoints(data);
-        volatilityCubeData.setDataIds(ids);
+        final VolatilityCubeData<Tenor, Tenor, Double> volatilityCubeData = new VolatilityCubeData<>(cubeName, specificationName, target.getUniqueId(), data);
+
         final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CUBE, cubeName).with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_DEFINITION, definitionName)
             .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_SPECIFICATION, specificationName).with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, specification.getCubeQuoteType())
             .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS, specification.getQuoteUnits()).get();
-        return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties), volatilityCubeData));
+        return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, target.toSpecification(), properties),
+            volatilityCubeData));
       }
 
       @Override
