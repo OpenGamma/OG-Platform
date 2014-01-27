@@ -214,7 +214,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the unadjusted start date of the annuity.
    */
   protected ZonedDateTime getStartDate() {
-    ZonedDateTime startDate = _startDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault());
+    ZonedDateTime startDate = _startDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
     return startDate;
   }
   
@@ -223,7 +223,7 @@ public abstract class AbstractAnnuityDefinitionBuilder<T extends AbstractAnnuity
    * @return the unadjusted end date of the annuity.
    */
   protected ZonedDateTime getEndDate() {
-    ZonedDateTime endDate = _endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault());
+    ZonedDateTime endDate = _endDate.atTime(LocalTime.MIN).atZone(ZoneId.systemDefault());
     return endDate;
   }
   
