@@ -12,6 +12,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -32,8 +34,11 @@ import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
  */
 public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(GoldenCopyCreationTool.class);
   
   private static final ImmutableSet<CharSequence> UNSUPPORTED_CHAR_SEQUENCES = ImmutableSet.<CharSequence>of("/");
+  
+  
   
   public static void main(String[] args) {
     try {
@@ -61,13 +66,17 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
     for (int i = 0; i < viewSnapshotPairs.length; i += 2) {
       String viewName = viewSnapshotPairs[i];
       String snapshotName = viewSnapshotPairs[i + 1];
+      s_logger.info("Executing {} against snapshot {}", viewName, snapshotName);
       GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, "Base");
+      s_logger.info("Persisting golden copy for {} against snapshot {}", viewName, snapshotName);
       new GoldenCopyPersistenceHelper(new File(regressionDirectory)).save(goldenCopy);
+      s_logger.info("Persisted golden copy for {} against snapshot {}", viewName, snapshotName);
     }
     
     ToolContext tc = getToolContext();
     
     RegressionIO io = ZipFileRegressionIO.createWriter(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat());
+    
     
     GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
         (DataTrackingSecurityMaster) tc.getSecurityMaster(),
@@ -80,6 +89,7 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
         (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster(),
         (DataTrackingOrganizationMaster) tc.getOrganizationMaster());
     
+    s_logger.info("Persisting db dump with tracked data");
     goldenCopyDumpCreator.execute();
     
   }
