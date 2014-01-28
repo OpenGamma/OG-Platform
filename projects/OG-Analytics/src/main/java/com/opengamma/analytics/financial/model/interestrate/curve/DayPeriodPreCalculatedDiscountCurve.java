@@ -55,7 +55,7 @@ public class DayPeriodPreCalculatedDiscountCurve extends DiscountCurve {
    * @param discountFactorCurve The underlying curve.
    * @param daysPerYear the days per year, used to convert a time as a double to a whole number of days.
    */
-  public DayPeriodPreCalculatedDiscountCurve(final String name, final DoublesCurve discountFactorCurve, double daysPerYear) {
+  public DayPeriodPreCalculatedDiscountCurve(final String name, final DoublesCurve discountFactorCurve, final double daysPerYear) {
     super(name, discountFactorCurve);
     _daysPerYear = daysPerYear;
   }

@@ -62,8 +62,8 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     double forwardRatei;
     final List<Double> tmpRateArr = new ArrayList<>();
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forwardRatei = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]) - 1.0d) /
-          coupon.getFixingPeriodAccrualFactorsActAct()[i];
+      forwardRatei = Math.pow(forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]),
+          coupon.getFixingPeriodAccrualFactors()[i]) - 1.0d;
       forwardRatei = Math.pow(((Math.exp(1.0 / 365.0 * forwardRatei) - 1.0) * 365.0 / 252.0 + 1.0), 252.0) - 1.0;
       tmpRateArr.add(forwardRatei);
       ratio *= Math.pow(1 + forwardRatei, coupon.getFixingPeriodAccrualFactors()[i]);
@@ -99,7 +99,8 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       discountFactorsStart[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]);
       discountFactorsEnd[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]);
-      forwardRates[i] = (discountFactorsStart[i] / discountFactorsEnd[i] - 1) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
+      forwardRates[i] = Math.pow(forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]),
+          coupon.getFixingPeriodAccrualFactors()[i]) - 1.0d;
       ratio *= Math.pow(1 + forwardRates[i], coupon.getFixingPeriodAccrualFactors()[i]);
     }
     // Backward sweep
