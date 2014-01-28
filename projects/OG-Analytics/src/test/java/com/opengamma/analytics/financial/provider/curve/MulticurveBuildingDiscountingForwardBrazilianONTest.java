@@ -338,7 +338,7 @@ public class MulticurveBuildingDiscountingForwardBrazilianONTest {
     if (instrument instanceof CashDefinition) {
       return ((CashDefinition) instrument).getRate();
     }
-    return 0.01;
+    return 0.1;
   }
 
   private static double initialGuess() {

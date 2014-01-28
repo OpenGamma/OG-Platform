@@ -60,12 +60,9 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
     double ratio = 1.0;
     double forwardRatei;
-    final List<Double> tmpRateArr = new ArrayList<>();
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forwardRatei = Math.pow(forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]),
-          coupon.getFixingPeriodAccrualFactors()[i]) - 1.0d;
-      forwardRatei = Math.pow(((Math.exp(1.0 / 365.0 * forwardRatei) - 1.0) * 365.0 / 252.0 + 1.0), 252.0) - 1.0;
-      tmpRateArr.add(forwardRatei);
+      forwardRatei = 1 / coupon.getFixingPeriodAccrualFactors()[i] *
+          (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]) - 1.0d);
       ratio *= Math.pow(1 + forwardRatei, coupon.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
@@ -155,7 +152,7 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       discountFactorsStart[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]);
       discountFactorsEnd[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]);
-      forwardRates[i] = (discountFactorsStart[i] / discountFactorsEnd[i] - 1) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
+      forwardRates[i] = (discountFactorsStart[i] / discountFactorsEnd[i] - 1) / coupon.getFixingPeriodAccrualFactors()[i];
       ratio *= Math.pow(1 + forwardRates[i], coupon.getFixingPeriodAccrualFactors()[i]);
     }
     // Backward sweep
@@ -166,8 +163,8 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     final double[] forwardBar = new double[coupon.getFixingPeriodAccrualFactors().length];
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       forwardBar[i] = ratio * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forwardRates[i]);
-      discountFactorStartBar[i] = forwardBar[i] / (discountFactorsEnd[i] * coupon.getFixingPeriodAccrualFactorsActAct()[i]);
-      discountFactorEndBar[i] = -forwardBar[i] * discountFactorsStart[i] / (discountFactorsEnd[i] * discountFactorsEnd[i]) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
+      discountFactorStartBar[i] = forwardBar[i] / (discountFactorsEnd[i] * coupon.getFixingPeriodAccrualFactors()[i]);
+      discountFactorEndBar[i] = -forwardBar[i] * discountFactorsStart[i] / (discountFactorsEnd[i] * discountFactorsEnd[i]) / coupon.getFixingPeriodAccrualFactors()[i];
     }
     final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
