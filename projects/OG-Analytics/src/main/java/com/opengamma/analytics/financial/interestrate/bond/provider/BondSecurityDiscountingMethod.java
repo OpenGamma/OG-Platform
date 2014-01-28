@@ -727,6 +727,8 @@ public final class BondSecurityDiscountingMethod {
   public double accruedInterestFromCurves(final BondFixedSecurity bond, final IssuerProviderInterface curves) {
     ArgumentChecker.notNull(bond, "bond");
     ArgumentChecker.notNull(curves, "curves");
+    final Object temp1 = dirtyPriceFromCurves(bond, curves);
+    final Object temp2 = cleanPriceFromCurves(bond, curves);
     return dirtyPriceFromCurves(bond, curves) - cleanPriceFromCurves(bond, curves);
   }
 }
