@@ -35,6 +35,7 @@ public class BeanCompareTest {
   private static final String NAME = "name";
 
   @Test
+  @SuppressWarnings("deprecation")
   public void equalIgnoring() {
     UniqueId uid1 = UniqueId.of("uid", "123");
     UniqueId uid2 = UniqueId.of("uid", "124");
