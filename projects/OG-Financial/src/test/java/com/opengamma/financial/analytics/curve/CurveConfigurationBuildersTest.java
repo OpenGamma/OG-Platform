@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -27,6 +26,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -106,7 +106,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     filterSet.add(new LegalEntityShortName());
     assertEquals(new IssuerCurveTypeConfiguration(keys, filterSet), cycleObject(IssuerCurveTypeConfiguration.class, DEPRECATED_ISSUER_CONFIG));
     assertEquals(ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, ISSUER_CONFIG));
-    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(ISSUER_CONFIG));
+    System.err.println(JodaBeanSerialization.serializer(true).xmlWriter().write(ISSUER_CONFIG));
   }
 
   @Test

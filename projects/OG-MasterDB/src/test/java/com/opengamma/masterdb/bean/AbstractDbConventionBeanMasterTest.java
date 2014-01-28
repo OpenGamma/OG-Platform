@@ -28,6 +28,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.convention.ConventionDocument;
 import com.opengamma.masterdb.convention.DbConventionBeanMaster;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.ZipUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractDbTest;
@@ -143,7 +144,7 @@ public abstract class AbstractDbConventionBeanMasterTest extends AbstractDbTest 
 
   private Object blob(String name, ExternalIdBundle bundle) {
     MockConvention value = new MockConvention(name, bundle, Currency.GBP);
-    String xml = JodaBeanSer.COMPACT.xmlWriter().write(value);
+    String xml = JodaBeanSerialization.serializer(false).xmlWriter().write(value);
     byte[] bytes = ZipUtils.deflateString(xml);
     SqlLobValue lob = new SqlLobValue(bytes, getDbConnector().getDialect().getLobHandler());
     return new SqlParameterValue(Types.BLOB, lob);

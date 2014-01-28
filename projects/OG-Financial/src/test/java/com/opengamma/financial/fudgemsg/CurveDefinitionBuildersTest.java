@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
@@ -27,6 +26,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 
@@ -98,6 +98,6 @@ public class CurveDefinitionBuildersTest extends AnalyticsTestBase {
   @Test
   public void test() {
     final SpreadCurveDefinition temp = new SpreadCurveDefinition("Name", "Test1", "Test2", "+");
-    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(temp));
+    System.err.println(JodaBeanSerialization.serializer(true).xmlWriter().write(temp));
   }
 }

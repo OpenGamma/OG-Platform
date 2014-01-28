@@ -13,7 +13,6 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.joda.beans.Bean;
-import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -120,7 +120,7 @@ public class SingleConfigLoader {
   }
   
   public <T> void loadConfig(InputStream is, Class<T> hintType) {
-    T config = JodaBeanSer.PRETTY.xmlReader().read(is, hintType);
+    T config = JodaBeanSerialization.deserializer().xmlReader().read(is, hintType);
     if (config instanceof ManageableConvention) {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
@@ -159,7 +159,7 @@ public class SingleConfigLoader {
   }
   
   public void loadConfig(InputStream is) {
-    Object config = JodaBeanSer.PRETTY.xmlReader().read(is);
+    Object config = JodaBeanSerialization.deserializer().xmlReader().read(is);
     if (config instanceof ManageableConvention) {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
