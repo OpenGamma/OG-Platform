@@ -270,8 +270,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       }
       if (resultCurrency.equals(baseCurrency)) {
         final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
-        final LocalDateDoubleTimeSeries convertedSeries = conversionTS.reciprocal().multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
-        final LocalDateDoubleTimeSeries pnlSeries = fxSpotReturnSeries.multiply(convertedSeries); // The P/L time series is in the base currency
+        final LocalDateDoubleTimeSeries pnlSeries = fxSpotReturnSeries.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
         return Collections.singleton(new ComputedValue(spec, pnlSeries));
       }
       final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
