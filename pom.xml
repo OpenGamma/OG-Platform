@@ -1226,7 +1226,7 @@
     <maven.buildNumber.getRevisionOnlyOnce>true</maven.buildNumber.getRevisionOnlyOnce>
     <!-- Version properties -->
     <joda-beans.version>0.9.3</joda-beans.version>
-    <fudge-java.version>0.3.9.16</fudge-java.version>
+    <fudge-java.version>0.3.9.18</fudge-java.version>
     <fudge-proto.version>0.3.9.7</fudge-proto.version>
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>
