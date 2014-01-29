@@ -22,13 +22,13 @@ public class ShapePreservingCubicSplineInterpolator1D extends PiecewisePolynomia
   private static final long serialVersionUID = 1L;
 
   private static final PiecewisePolynomialFunction1D FUNC = new PiecewisePolynomialFunction1D();
-  private final PiecewisePolynomialInterpolator _baseMethod = new ShapePreservingCubicSplineInterpolator();
+  private static final PiecewisePolynomialInterpolator BASE_METHOD = new ShapePreservingCubicSplineInterpolator();
 
   /**
    * Default constructor where the interpolation method is fixed
    */
   public ShapePreservingCubicSplineInterpolator1D() {
-    super(new ShapePreservingCubicSplineInterpolator());
+    super(BASE_METHOD);
   }
 
   @Override
@@ -73,11 +73,11 @@ public class ShapePreservingCubicSplineInterpolator1D extends PiecewisePolynomia
 
   @Override
   public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
-    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, false), this._baseMethod);
+    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, false), BASE_METHOD);
   }
 
   @Override
   public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
-    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), this._baseMethod);
+    return new Interpolator1DPiecewisePoynomialWithExtraKnotsDataBundle(new ArrayInterpolator1DDataBundle(x, y, true), BASE_METHOD);
   }
 }
