@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -86,10 +86,10 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
 
     private int _timeout = 10000; // Default 10s timeout
     private volatile Client _client;
-    private final ExecutorService _executor;
+    private final Executor _executor;
     private final URI _baseURI;
 
-    private Validater(final ExecutorService executorService, final URI baseURI) {
+    private Validater(final Executor executorService, final URI baseURI) {
       _executor = executorService;
       _baseURI = baseURI;
     }
@@ -223,7 +223,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    * @param baseURI the base URL that the original end point was described by (e.g. if it contains a relative reference)
    * @return the validater
    */
-  public static Validater validater(final ExecutorService executorService, final URI baseURI) {
+  public static Validater validater(final Executor executorService, final URI baseURI) {
     return new Validater(executorService, baseURI);
   }
 
@@ -235,7 +235,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    * @param endPoint the end point description message
    * @return a URI that responds, or null if there is none
    */
-  public static URI getAccessibleURI(final ExecutorService executorService, final URI baseURI, final FudgeMsg endPoint) {
+  public static URI getAccessibleURI(final Executor executorService, final URI baseURI, final FudgeMsg endPoint) {
     return validater(executorService, baseURI).getAccessibleURI(endPoint);
   }
 
@@ -248,7 +248,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    * @param endPointProvider the end point description provider
    * @return a URI that responds, or null if there is none
    */
-  public static URI getAccessibleURI(final ExecutorService executorService, final FudgeContext fudgeContext, final URI baseURI, final EndPointDescriptionProvider endPointProvider) {
+  public static URI getAccessibleURI(final Executor executorService, final FudgeContext fudgeContext, final URI baseURI, final EndPointDescriptionProvider endPointProvider) {
     ArgumentChecker.notNull(endPointProvider, "endPointProvider");
     return getAccessibleURI(executorService, baseURI, endPointProvider.getEndPointDescription(fudgeContext));
   }
@@ -261,7 +261,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    * @param endPointProvider the end point description provider
    * @return a URI that responds, or null if there is none
    */
-  public static URI getAccessibleURI(final ExecutorService executorService, final FudgeContext fudgeContext, final RemoteEndPointDescriptionProvider endPointProvider) {
+  public static URI getAccessibleURI(final Executor executorService, final FudgeContext fudgeContext, final RemoteEndPointDescriptionProvider endPointProvider) {
     ArgumentChecker.notNull(endPointProvider, "endPointProvider");
     return getAccessibleURI(executorService, fudgeContext, endPointProvider.getUri(), endPointProvider);
   }
