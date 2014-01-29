@@ -52,7 +52,7 @@ public final class SimulationUtils {
   static {
     //new enums to register with aliases can be added here:
     registerEnumAliases(BucketedShiftType.class);
-    registerEnumAliases(CurveShiftType.class);
+    registerEnumAliases(ScenarioShiftType.class);
   }
 
   private static <T extends Enum<T> & GroovyAliasable> void registerEnumAliases(Class<? extends T> enumClazz) {  // CSIGNORE (CS doesn't support funky syntax here)
@@ -221,6 +221,17 @@ public final class SimulationUtils {
 
   public static YieldCurvePointShift pointShift(Period tenor, double shift) {
     return new YieldCurvePointShift(tenor, shift);
+  }
+
+  /**
+   * Helper method for creating {@link VolatilitySurfaceShift} instances in the Java API with less code
+   * @param x The x location of the point to shift
+   * @param y The y location of the point to shift
+   * @param shift The shift amount
+   * @return A {@link VolatilitySurfaceShift} instance built from the arguments
+   */
+  public static VolatilitySurfaceShift volShift(Object x, Object y, Number shift) {
+    return new VolatilitySurfaceShift(x, y, shift);
   }
 
   /* package */ static CurrencyPair getCurrencyPair(ValueSpecification valueSpec) {

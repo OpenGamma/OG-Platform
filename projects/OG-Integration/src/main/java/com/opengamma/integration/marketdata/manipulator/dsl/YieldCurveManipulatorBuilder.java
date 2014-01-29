@@ -72,7 +72,7 @@ public class YieldCurveManipulatorBuilder {
    * @param shiftType The type of shift
    * @return the bucketed shift builder
    */
-  public final YieldCurveManipulatorBuilder bucketedShifts(CurveShiftType shiftType, YieldCurveBucketedShift... shifts) {
+  public final YieldCurveManipulatorBuilder bucketedShifts(ScenarioShiftType shiftType, YieldCurveBucketedShift... shifts) {
     ArgumentChecker.notNull(shiftType, "shiftType");
     ArgumentChecker.notEmpty(shifts, "shifts");
     YieldCurveBucketedShiftManipulator manipulator = new YieldCurveBucketedShiftManipulator(shiftType, Arrays.asList(shifts));
@@ -87,7 +87,7 @@ public class YieldCurveManipulatorBuilder {
    * @return the point shifts builder
    * @param shiftType The type of shift
    */
-  public final YieldCurveManipulatorBuilder pointShifts(CurveShiftType shiftType, YieldCurvePointShift... shifts) {
+  public final YieldCurveManipulatorBuilder pointShifts(ScenarioShiftType shiftType, YieldCurvePointShift... shifts) {
     ArgumentChecker.notNull(shiftType, "shiftType");
     ArgumentChecker.notEmpty(shifts, "shifts");
     YieldCurvePointShiftManipulator manipulator = new YieldCurvePointShiftManipulator(shiftType, Arrays.asList(shifts));

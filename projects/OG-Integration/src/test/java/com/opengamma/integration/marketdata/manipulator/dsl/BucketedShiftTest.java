@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.SimpleFunctionParameters;
 import com.opengamma.engine.function.StructureManipulationFunction;
@@ -43,7 +42,7 @@ public class BucketedShiftTest {
         ImmutableList.of(
             new YieldCurveBucketedShift(Period.ofMonths(3), Period.ofMonths(6), 0.001),
             new YieldCurveBucketedShift(Period.ofYears(1), Period.ofYears(2), 0.002));
-    YieldCurveBucketedShiftManipulator expected = new YieldCurveBucketedShiftManipulator(CurveShiftType.ABSOLUTE, shifts);
+    YieldCurveBucketedShiftManipulator expected = new YieldCurveBucketedShiftManipulator(ScenarioShiftType.ABSOLUTE, shifts);
     assertEquals(expected, manipulators.get(0));
   }
 

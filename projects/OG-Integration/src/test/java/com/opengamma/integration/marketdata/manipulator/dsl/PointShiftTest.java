@@ -42,7 +42,7 @@ public class PointShiftTest {
         ImmutableList.of(
             new YieldCurvePointShift(Period.ofMonths(3), 0.1),
             new YieldCurvePointShift(Period.ofYears(1), 0.2));
-    YieldCurvePointShiftManipulator expected = new YieldCurvePointShiftManipulator(CurveShiftType.RELATIVE, shifts);
+    YieldCurvePointShiftManipulator expected = new YieldCurvePointShiftManipulator(ScenarioShiftType.RELATIVE, shifts);
     assertEquals(expected, manipulators.get(0));
   }
 

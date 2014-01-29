@@ -46,7 +46,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
    * Shift type
    */
   @PropertyDefinition
-  private final CurveShiftType _shiftType;
+  private final ScenarioShiftType _shiftType;
 
   /**
    * Shifts to apply
@@ -60,7 +60,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
    * @param shifts the list of shifts
    */
   @ImmutableConstructor
-  public YieldCurveBucketedShiftManipulator(CurveShiftType shiftType, List<YieldCurveBucketedShift> shifts) {
+  public YieldCurveBucketedShiftManipulator(ScenarioShiftType shiftType, List<YieldCurveBucketedShift> shifts) {
     _shiftType = shiftType;
     _shifts = ImmutableList.copyOf(ArgumentChecker.notEmpty(shifts, "shifts"));
   }
@@ -136,7 +136,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
    * Gets shift type
    * @return the value of the property
    */
-  public CurveShiftType getShiftType() {
+  public ScenarioShiftType getShiftType() {
     return _shiftType;
   }
 
@@ -207,8 +207,8 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
     /**
      * The meta-property for the {@code shiftType} property.
      */
-    private final MetaProperty<CurveShiftType> _shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", YieldCurveBucketedShiftManipulator.class, CurveShiftType.class);
+    private final MetaProperty<ScenarioShiftType> _shiftType = DirectMetaProperty.ofImmutable(
+        this, "shiftType", YieldCurveBucketedShiftManipulator.class, ScenarioShiftType.class);
     /**
      * The meta-property for the {@code shifts} property.
      */
@@ -260,7 +260,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
      * The meta-property for the {@code shiftType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveShiftType> shiftType() {
+    public MetaProperty<ScenarioShiftType> shiftType() {
       return _shiftType;
     }
 
@@ -301,7 +301,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
    */
   public static final class Builder extends DirectFieldsBeanBuilder<YieldCurveBucketedShiftManipulator> {
 
-    private CurveShiftType _shiftType;
+    private ScenarioShiftType _shiftType;
     private List<YieldCurveBucketedShift> _shifts;
 
     /**
@@ -325,7 +325,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
-          this._shiftType = (CurveShiftType) newValue;
+          this._shiftType = (ScenarioShiftType) newValue;
           break;
         case -903338959:  // shifts
           this._shifts = (List<YieldCurveBucketedShift>) newValue;
@@ -373,7 +373,7 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
      * @param shiftType  the new value
      * @return this, for chaining, not null
      */
-    public Builder shiftType(CurveShiftType shiftType) {
+    public Builder shiftType(ScenarioShiftType shiftType) {
       this._shiftType = shiftType;
       return this;
     }

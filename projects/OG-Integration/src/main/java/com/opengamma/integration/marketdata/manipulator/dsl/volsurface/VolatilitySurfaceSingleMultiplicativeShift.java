@@ -16,10 +16,12 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.integration.marketdata.manipulator.dsl.VolatilitySurfaceShiftManipulator;
 
 /**
-*
-*/
+ * @deprecated Replaced by {@link VolatilitySurfaceShiftManipulator}.
+ */
+@Deprecated
 public class VolatilitySurfaceSingleMultiplicativeShift implements StructureManipulator<VolatilitySurface> {
 
   private static final String SHIFT = "shift";

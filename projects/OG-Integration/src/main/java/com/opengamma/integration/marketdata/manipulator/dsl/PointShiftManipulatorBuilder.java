@@ -19,11 +19,11 @@ public class PointShiftManipulatorBuilder {
 
   private final Scenario _scenario;
   private final YieldCurveSelector _selector;
-  private final CurveShiftType _shiftType;
+  private final ScenarioShiftType _shiftType;
   
   private final List<YieldCurvePointShift> _shiftList = Lists.newArrayList();
   
-  /* package */ PointShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, CurveShiftType shiftType) {
+  /* package */ PointShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, ScenarioShiftType shiftType) {
     _selector = ArgumentChecker.notNull(selector, "selector");
     _scenario = ArgumentChecker.notNull(scenario, "scenario");
     _shiftType = ArgumentChecker.notNull(shiftType, "shiftType");
@@ -46,6 +46,7 @@ public class PointShiftManipulatorBuilder {
   /**
    * Adds the configured shifts to the scenario.
    * Should only be called once per {@link PointShiftManipulatorBuilder}.
+   * TODO rename build() to make it clear it's not related to the apply() methods on the selector builders
    */
   public void apply() {
     YieldCurvePointShiftManipulator pointShifts = new YieldCurvePointShiftManipulator(_shiftType, _shiftList);

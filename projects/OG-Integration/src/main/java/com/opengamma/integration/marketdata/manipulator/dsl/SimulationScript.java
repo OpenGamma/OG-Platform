@@ -202,7 +202,7 @@ public abstract class SimulationScript extends Script {
 
     @SuppressWarnings("unused")
     public void apply(Closure<?> body) {
-      VolatilitySurfaceManipulatorBuilder builder = new VolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
+      GroovyVolatilitySurfaceManipulatorBuilder builder = new GroovyVolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
@@ -273,7 +273,7 @@ public abstract class SimulationScript extends Script {
     }
 
     @SuppressWarnings("unused")
-    public void bucketedShifts(CurveShiftType shiftType, Closure<?> body) {
+    public void bucketedShifts(ScenarioShiftType shiftType, Closure<?> body) {
       BucketedShiftManipulatorBuilder builder =
           new BucketedShiftManipulatorBuilder(getSelector(), getScenario()/*, type*/, shiftType);
       body.setDelegate(builder);
@@ -283,14 +283,28 @@ public abstract class SimulationScript extends Script {
     }
 
     @SuppressWarnings("unused")
-    public void pointShifts(CurveShiftType shiftType, Closure<?> body) {
+    public void pointShifts(ScenarioShiftType shiftType, Closure<?> body) {
       PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
       builder.apply();
     }
-    
   }
-  
+
+  private static final class GroovyVolatilitySurfaceManipulatorBuilder extends VolatilitySurfaceManipulatorBuilder {
+
+    /* package */ GroovyVolatilitySurfaceManipulatorBuilder(Scenario scenario, VolatilitySurfaceSelector selector) {
+      super(scenario, selector);
+    }
+
+    public void shifts(ScenarioShiftType shiftType, Closure<?> body) {
+      VolatilitySurfaceShiftManipulatorBuilder builder =
+          new VolatilitySurfaceShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
+      body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
+      body.call();
+      builder.build();
+    }
+  }
 }

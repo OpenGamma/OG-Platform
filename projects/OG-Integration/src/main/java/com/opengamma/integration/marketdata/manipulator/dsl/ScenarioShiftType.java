@@ -17,7 +17,7 @@ import com.opengamma.analytics.ShiftType;
  * The type of shift. Relative will scale the curve by a percentage value; Absolute
  * will add an absolute number of basis points.
  */
-public enum CurveShiftType implements GroovyAliasable {
+public enum ScenarioShiftType implements GroovyAliasable {
 
   /**
    * Relative shift.
@@ -52,7 +52,7 @@ public enum CurveShiftType implements GroovyAliasable {
   
   private final String _groovyAlias;
   
-  private CurveShiftType(String groovyAlias) {
+  private ScenarioShiftType(String groovyAlias) {
     _groovyAlias = groovyAlias;
   }
 

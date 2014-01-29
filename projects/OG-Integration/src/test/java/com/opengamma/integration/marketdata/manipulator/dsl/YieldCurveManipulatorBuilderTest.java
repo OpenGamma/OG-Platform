@@ -42,7 +42,7 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(CurveShiftType.ABSOLUTE, bucketedShift(Period.ofYears(1), Period.ofYears(2), 3));
+    _builder.bucketedShifts(ScenarioShiftType.ABSOLUTE, bucketedShift(Period.ofYears(1), Period.ofYears(2), 3));
     
     YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator) _manipulatorResult;
     
@@ -59,7 +59,7 @@ public class YieldCurveManipulatorBuilderTest {
 
   @Test
   public void pointShifts() {
-    _builder.pointShifts(CurveShiftType.ABSOLUTE, pointShift(Period.ofYears(1), 2));
+    _builder.pointShifts(ScenarioShiftType.ABSOLUTE, pointShift(Period.ofYears(1), 2));
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     

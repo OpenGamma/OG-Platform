@@ -26,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -45,7 +44,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
    * Shift type
    */
   @PropertyDefinition(validate = "notNull")
-  private final CurveShiftType _shiftType;
+  private final ScenarioShiftType _shiftType;
 
   /**
    * The list of point shifts to apply
@@ -54,7 +53,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
   private final ImmutableList<YieldCurvePointShift> _pointShifts;
 
   @ImmutableConstructor
-  /* package */ YieldCurvePointShiftManipulator(CurveShiftType shiftType, List<YieldCurvePointShift> pointShifts) {
+  /* package */ YieldCurvePointShiftManipulator(ScenarioShiftType shiftType, List<YieldCurvePointShift> pointShifts) {
     _shiftType = ArgumentChecker.notNull(shiftType, "shiftType");
     _pointShifts = ImmutableList.copyOf(ArgumentChecker.notNull(pointShifts, "pointShifts"));
   }
@@ -122,7 +121,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
    * Gets shift type
    * @return the value of the property, not null
    */
-  public CurveShiftType getShiftType() {
+  public ScenarioShiftType getShiftType() {
     return _shiftType;
   }
 
@@ -193,8 +192,8 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
     /**
      * The meta-property for the {@code shiftType} property.
      */
-    private final MetaProperty<CurveShiftType> _shiftType = DirectMetaProperty.ofImmutable(
-        this, "shiftType", YieldCurvePointShiftManipulator.class, CurveShiftType.class);
+    private final MetaProperty<ScenarioShiftType> _shiftType = DirectMetaProperty.ofImmutable(
+        this, "shiftType", YieldCurvePointShiftManipulator.class, ScenarioShiftType.class);
     /**
      * The meta-property for the {@code pointShifts} property.
      */
@@ -246,7 +245,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
      * The meta-property for the {@code shiftType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<CurveShiftType> shiftType() {
+    public MetaProperty<ScenarioShiftType> shiftType() {
       return _shiftType;
     }
 
@@ -287,7 +286,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
    */
   public static final class Builder extends DirectFieldsBeanBuilder<YieldCurvePointShiftManipulator> {
 
-    private CurveShiftType _shiftType;
+    private ScenarioShiftType _shiftType;
     private List<YieldCurvePointShift> _pointShifts = new ArrayList<YieldCurvePointShift>();
 
     /**
@@ -311,7 +310,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 893345500:  // shiftType
-          this._shiftType = (CurveShiftType) newValue;
+          this._shiftType = (ScenarioShiftType) newValue;
           break;
         case 244906465:  // pointShifts
           this._pointShifts = (List<YieldCurvePointShift>) newValue;
@@ -359,7 +358,7 @@ public final class YieldCurvePointShiftManipulator implements ImmutableBean, Str
      * @param shiftType  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder shiftType(CurveShiftType shiftType) {
+    public Builder shiftType(ScenarioShiftType shiftType) {
       JodaBeanUtils.notNull(shiftType, "shiftType");
       this._shiftType = shiftType;
       return this;

@@ -24,11 +24,11 @@ public class BucketedShiftManipulatorBuilder {
   private final Scenario _scenario;
 
   /** The type of shift to apply. */
-  private final CurveShiftType _shiftType;
+  private final ScenarioShiftType _shiftType;
 
   private final List<YieldCurveBucketedShift> _shiftList = Lists.newArrayList();
 
-  /* package */ BucketedShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, CurveShiftType shiftType) {
+  /* package */ BucketedShiftManipulatorBuilder(YieldCurveSelector selector, Scenario scenario, ScenarioShiftType shiftType) {
     _selector = selector;
     _scenario = scenario;
     _shiftType = shiftType;
@@ -52,6 +52,7 @@ public class BucketedShiftManipulatorBuilder {
   /**
    * Apply shifts to the scenario.
    * Should only be called once per {@link BucketedShiftManipulatorBuilder}.
+   * TODO rename build() to make it clear it's not related to the apply() methods on the selector builders
    */
   public void apply() {
     YieldCurveBucketedShiftManipulator shifts =
