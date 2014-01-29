@@ -141,9 +141,13 @@ To 2.1.19
 ---------
 	[PLAT-5502] Further change to apply the correct spot lag for ImpliedDepositCurveSeriesFunction. Look up lag from FXSpotConvention.
 	
-To 2.1.19
+To 2.1.20
 ---------
 	[PLAT-5502] Brought implied depo curve function in line with the curve series function
+
+To 2.1.21
+---------
+	[PLAT-5679] MultiYieldCurveParRateMethodSeriesFunction does not infer the YCHTS correctly
 
 OpenGamma Platform 2.1
 ---------------------------------
