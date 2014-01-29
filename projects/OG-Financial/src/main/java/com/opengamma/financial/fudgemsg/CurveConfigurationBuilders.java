@@ -328,13 +328,9 @@ import com.opengamma.util.time.Tenor;
       for (final FudgeField field : curveTypeFields) {
         curveTypes.add(deserializer.fieldValueToObject(CurveGroupConfiguration.class, field));
       }
-      List<String> exogenousConfigurations = null;
-      final List<FudgeField> exogenousConfigFields = message.getAllByName(EXOGENOUS_CONFIGURATION_FIELD);
-      if (!exogenousConfigFields.isEmpty()) {
-        exogenousConfigurations = new ArrayList<>();
-        for (final FudgeField field : exogenousConfigFields) {
-          exogenousConfigurations.add((String) field.getValue());
-        }
+      List<String> exogenousConfigurations = new ArrayList<>();
+      for (final FudgeField field : message.getAllByName(EXOGENOUS_CONFIGURATION_FIELD)) {
+        exogenousConfigurations.add((String) field.getValue());
       }
       final CurveConstructionConfiguration configuration = new CurveConstructionConfiguration(name, curveTypes, exogenousConfigurations);
       setUniqueId(deserializer, message, configuration);
