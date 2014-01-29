@@ -8,8 +8,6 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.joda.beans.BeanDefinition;
-
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -18,7 +16,6 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-@BeanDefinition
 public final class YieldCurveDataSelector extends Selector {
 
   /* package */ YieldCurveDataSelector(Set<String> calcConfigNames,

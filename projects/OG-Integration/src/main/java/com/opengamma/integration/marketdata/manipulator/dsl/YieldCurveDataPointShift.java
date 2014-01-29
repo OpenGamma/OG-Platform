@@ -10,6 +10,6 @@ import org.joda.beans.ImmutableBean;
 /**
  *
  */
-public final class YieldCurveDataPointShift implements ImmutableBean {
+public final class YieldCurveDataPointShift /*implements ImmutableBean */{
 
 }

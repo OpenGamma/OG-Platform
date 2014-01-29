@@ -22,10 +22,14 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
@@ -40,6 +44,12 @@ import com.opengamma.util.tuple.DoublesPair;
 public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurveData> {
 
   /**
+   * Shift type
+   */
+  @PropertyDefinition
+  private final ScenarioShiftType _shiftType;
+
+  /**
    * Shifts to apply
    */
   @PropertyDefinition
@@ -47,30 +57,36 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
 
   /**
    * Creates a new YieldCurveBucketedShifts object
+   *
    * @param shifts the list of shifts
+   * @param shiftType
    * @return a new YieldCurveBucketedShifts object
    */
-  public static YieldCurveDataBucketedShiftManipulator create(ImmutableList<YieldCurveBucketedShift> shifts) {
-    return new YieldCurveDataBucketedShiftManipulator(shifts);
+  public static YieldCurveDataBucketedShiftManipulator create(ScenarioShiftType shiftType,
+                                                              ImmutableList<YieldCurveBucketedShift> shifts) {
+    return new YieldCurveDataBucketedShiftManipulator(shiftType, shifts);
   }
 
-
   @Override
-  public YieldCurveData execute(YieldCurveData curveData, ValueSpecification valueSpec) {
-    final List<DoublesPair> buckets = new ArrayList<>();
-    final List<Double> shifts = new ArrayList<>();
-    ShiftType shiftType = null;
-    for (YieldCurveBucketedShift bucketedShift : _shifts) {
-      buckets.add(DoublesPair.of(bucketedShift.getStartYears(), bucketedShift.getEndYears()));
-      shifts.add(bucketedShift.getShift());
-      if (shiftType == null) {
-        shiftType = bucketedShift.getCurveShiftType().toAnalyticsType();
+  public YieldCurveData execute(YieldCurveData structure,
+                                ValueSpecification valueSpecification,
+                                FunctionExecutionContext executionContext) {
+    List<DoublesPair> buckets = new ArrayList<>();
+    List<Double> shifts = new ArrayList<>();
+    ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
+    ShiftType shiftType = _shiftType.toAnalyticsType();
+    for (YieldCurveBucketedShift shift : _shifts) {
+      double start = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getStart()));
+      double end = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getEnd()));
+      buckets.add(DoublesPair.of(start, end));
+      if (shiftType == ShiftType.RELATIVE) {
+        // add shifts to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
+        shifts.add(shift.getShift() + 1);
+      } else {
+        shifts.add(shift.getShift());
       }
     }
-    InterpolatedYieldCurveSpecificationWithSecurities curveSpec = curveData.getCurveSpecification();
-    for (FixedIncomeStripWithSecurity strip : curveSpec.getStrips()) {
-
-    }
+    //return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, shiftType);
     throw new UnsupportedOperationException();
   }
 
@@ -102,7 +118,9 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   }
 
   private YieldCurveDataBucketedShiftManipulator(
+      ScenarioShiftType shiftType,
       List<YieldCurveBucketedShift> shifts) {
+    this._shiftType = shiftType;
     this._shifts = (shifts != null ? ImmutableList.copyOf(shifts) : null);
   }
 
@@ -119,6 +137,15 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   @Override
   public Set<String> propertyNames() {
     return metaBean().metaPropertyMap().keySet();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets shift type
+   * @return the value of the property
+   */
+  public ScenarioShiftType getShiftType() {
+    return _shiftType;
   }
 
   //-----------------------------------------------------------------------
@@ -151,7 +178,8 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       YieldCurveDataBucketedShiftManipulator other = (YieldCurveDataBucketedShiftManipulator) obj;
-      return JodaBeanUtils.equal(getShifts(), other.getShifts());
+      return JodaBeanUtils.equal(getShiftType(), other.getShiftType()) &&
+          JodaBeanUtils.equal(getShifts(), other.getShifts());
     }
     return false;
   }
@@ -159,14 +187,16 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getShiftType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getShifts());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(96);
     buf.append("YieldCurveDataBucketedShiftManipulator{");
+    buf.append("shiftType").append('=').append(getShiftType()).append(',').append(' ');
     buf.append("shifts").append('=').append(JodaBeanUtils.toString(getShifts()));
     buf.append('}');
     return buf.toString();
@@ -183,6 +213,11 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code shiftType} property.
+     */
+    private final MetaProperty<ScenarioShiftType> _shiftType = DirectMetaProperty.ofImmutable(
+        this, "shiftType", YieldCurveDataBucketedShiftManipulator.class, ScenarioShiftType.class);
+    /**
      * The meta-property for the {@code shifts} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -193,6 +228,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "shiftType",
         "shifts");
 
     /**
@@ -204,6 +240,8 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 893345500:  // shiftType
+          return _shiftType;
         case -903338959:  // shifts
           return _shifts;
       }
@@ -227,6 +265,14 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code shiftType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ScenarioShiftType> shiftType() {
+      return _shiftType;
+    }
+
+    /**
      * The meta-property for the {@code shifts} property.
      * @return the meta-property, not null
      */
@@ -238,6 +284,8 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case 893345500:  // shiftType
+          return ((YieldCurveDataBucketedShiftManipulator) bean).getShiftType();
         case -903338959:  // shifts
           return ((YieldCurveDataBucketedShiftManipulator) bean).getShifts();
       }
@@ -261,6 +309,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
    */
   public static final class Builder extends DirectFieldsBeanBuilder<YieldCurveDataBucketedShiftManipulator> {
 
+    private ScenarioShiftType _shiftType;
     private List<YieldCurveBucketedShift> _shifts;
 
     /**
@@ -274,6 +323,7 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
      * @param beanToCopy  the bean to copy from, not null
      */
     private Builder(YieldCurveDataBucketedShiftManipulator beanToCopy) {
+      this._shiftType = beanToCopy.getShiftType();
       this._shifts = (beanToCopy.getShifts() != null ? new ArrayList<YieldCurveBucketedShift>(beanToCopy.getShifts()) : null);
     }
 
@@ -282,6 +332,9 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
+        case 893345500:  // shiftType
+          this._shiftType = (ScenarioShiftType) newValue;
+          break;
         case -903338959:  // shifts
           this._shifts = (List<YieldCurveBucketedShift>) newValue;
           break;
@@ -318,10 +371,21 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     @Override
     public YieldCurveDataBucketedShiftManipulator build() {
       return new YieldCurveDataBucketedShiftManipulator(
+          _shiftType,
           _shifts);
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * Sets the {@code shiftType} property in the builder.
+     * @param shiftType  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder shiftType(ScenarioShiftType shiftType) {
+      this._shiftType = shiftType;
+      return this;
+    }
+
     /**
      * Sets the {@code shifts} property in the builder.
      * @param shifts  the new value
@@ -335,8 +399,9 @@ public final class YieldCurveDataBucketedShiftManipulator implements ImmutableBe
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
+      StringBuilder buf = new StringBuilder(96);
       buf.append("YieldCurveDataBucketedShiftManipulator.Builder{");
+      buf.append("shiftType").append('=').append(JodaBeanUtils.toString(_shiftType)).append(',').append(' ');
       buf.append("shifts").append('=').append(JodaBeanUtils.toString(_shifts));
       buf.append('}');
       return buf.toString();

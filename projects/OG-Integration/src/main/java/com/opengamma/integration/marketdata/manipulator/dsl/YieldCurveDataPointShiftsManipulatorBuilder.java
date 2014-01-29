@@ -11,6 +11,6 @@ package com.opengamma.integration.marketdata.manipulator.dsl;
 /* package */ class YieldCurveDataPointShiftsManipulatorBuilder {
 
   /* package */ YieldCurveDataBucketedShift build() {
-
+    throw new UnsupportedOperationException();
   }
 }
