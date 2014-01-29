@@ -55,11 +55,11 @@ public class VolatilityCubeDataTest {
     }
     final String name = "test";
     final UniqueIdentifiable target = Currency.USD;
-    final VolatilityCubeData<Double, Double, Double> data = new VolatilityCubeData<>(name, name, target, xs, ys, zs, values);
+    final VolatilityCubeData<Double, Double, Double> data = new VolatilityCubeData<>(name, name, target, values);
     final String xLabel = "time";
     final String yLabel = "strike";
     final String zLabel = "maturity";
-    final VolatilityCubeData<Double, Double, Double> dataWithLabels = new VolatilityCubeData<>(name, name, target, xs, xLabel, ys, yLabel, zs, zLabel, values);
+    final VolatilityCubeData<Double, Double, Double> dataWithLabels = new VolatilityCubeData<>(name, name, target, xLabel, yLabel, zLabel, values);
     assertArrayEquals(xs, data.getXs());
     assertArrayEquals(ys, data.getYs());
     assertArrayEquals(zs, data.getZs());
@@ -103,7 +103,7 @@ public class VolatilityCubeDataTest {
     }
     final String name = "test";
     final UniqueIdentifiable target = Currency.USD;
-    final VolatilityCubeData<Double, Double, Double> data = new VolatilityCubeData<>(name, name, target, xs, ys, zs, values);
+    final VolatilityCubeData<Double, Double, Double> data = new VolatilityCubeData<>(name, name, target, values);
     assertArrayEquals(xs, data.getXs());
     assertArrayEquals(ys, data.getYs());
     assertArrayEquals(zs, data.getZs());

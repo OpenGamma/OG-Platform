@@ -161,7 +161,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       ys.add(entry.getKey().getSecond());
       zs.add(entry.getKey().getThird());
     }
-    return new VolatilityCubeData<>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getTarget(), xs.toArray(), ys.toArray(), zs.toArray(), values);
+    return new VolatilityCubeData<>(marketDataKey.getName(), "UNKNOWN", marketDataKey.getTarget(), values);
   }
 
   // AbstractMarketDataSnapshot

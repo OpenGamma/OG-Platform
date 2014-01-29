@@ -27,29 +27,29 @@ public class VolatilityCubeFunctionHelper {
 
   private static final Logger s_logger = LoggerFactory.getLogger(VolatilityCubeFunctionHelper.class);
 
-  private final Currency _currency;
+  private final String _instrumentType;
   private final String _definitionName;
   private VolatilityCubeDefinition _definition;
 
-  public VolatilityCubeFunctionHelper(final Currency currency, final String definitionName) {
+  public VolatilityCubeFunctionHelper(final String instrumentType, final String definitionName) {
     _definitionName = definitionName;
-    _currency = currency;
+    _instrumentType = instrumentType;
   }
 
   public VolatilityCubeDefinition init(final FunctionCompilationContext context, final FunctionDefinition defnToReInit) {
-    _definition = ConfigSourceQuery.init(context, defnToReInit, VolatilityCubeDefinition.class).get(_definitionName + "_" + _currency);
+    _definition = ConfigSourceQuery.init(context, defnToReInit, VolatilityCubeDefinition.class).get(_definitionName + "_" + _instrumentType);
     if (_definition == null) {
-      s_logger.warn("No cube definition for {} on {}", _definitionName, _currency);
+      s_logger.warn("No cube definition for {} on {}", _definitionName, _instrumentType);
     }
     return _definition;
   }
 
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return _currency.equals(target.getValue());
+    return _instrumentType.equals(target.getValue());
   }
 
-  public Currency getCurrency() {
-    return _currency;
+  public String getInstrumentType() {
+    return _instrumentType;
   }
 
   public String getDefinitionName() {

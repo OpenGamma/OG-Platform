@@ -207,7 +207,7 @@ public class AnalyticsParameterProviderBuildersTest extends AnalyticsTestBase {
     overnight.put(new IndexON("NAME2", Currency.EUR, DayCounts.ACT_360, 0), new YieldCurve("F", ConstantDoublesCurve.from(0.006, "f")));
     final MulticurveProviderDiscount provider = new MulticurveProviderDiscount(discounting, ibor, overnight, matrix);
     final Map<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> curves = new HashMap<>();
-    curves.put(Pairs.<Object, LegalEntityFilter<LegalEntity>>of(Currency.USD, new LegalEntityRegion(true, false, Collections.<Country>emptySet(), true, Collections.singleton(Currency.USD))), new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
+    curves.put(Pairs.<Object, LegalEntityFilter<LegalEntity>>of(Collections.singleton(Currency.USD), new LegalEntityRegion(true, false, Collections.<Country>emptySet(), true, Collections.singleton(Currency.USD))), new YieldCurve("L", ConstantDoublesCurve.from(0.1234, "l")));
     final Set<String> classifications = new HashSet<>();
     classifications.add("C");
     classifications.add("E");

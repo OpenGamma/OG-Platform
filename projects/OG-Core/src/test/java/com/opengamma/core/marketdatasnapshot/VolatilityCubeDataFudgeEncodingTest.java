@@ -47,7 +47,7 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
     }
     final String name = "test";
     final UniqueIdentifiable target = Currency.USD;
-    return new VolatilityCubeData<>(name, name, target, xs, ys, zs, values);
+    return new VolatilityCubeData<>(name, name, target, values);
   }
 
   private static VolatilityCubeData<Double, Double, Double> getNullData() {
@@ -55,9 +55,6 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
     return new VolatilityCubeData<>("test",
         "test",
         Currency.USD,
-        new Double[] {},
-        new Double[] {},
-        new Double[] {},
         map);
   }
 

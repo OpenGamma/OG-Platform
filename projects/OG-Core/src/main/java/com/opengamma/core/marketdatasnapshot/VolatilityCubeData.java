@@ -7,14 +7,12 @@ package com.opengamma.core.marketdatasnapshot;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -70,13 +68,26 @@ public class VolatilityCubeData<X, Y, Z> {
   //}
 
   public VolatilityCubeData(final String definitionName,
-                            final String specificationName,
-                            final UniqueIdentifiable target,
-                            final Map<Triple<X, Y, Z>, Double> values) {
+      final String specificationName,
+      final UniqueIdentifiable target,
+      final Map<Triple<X, Y, Z>, Double> values) {
+    this(definitionName, specificationName, target, DEFAULT_X_LABEL, DEFAULT_Y_LABEL, DEFAULT_Z_LABEL, values);
+  }
+
+  public VolatilityCubeData(final String definitionName,
+      final String specificationName,
+      final UniqueIdentifiable target,
+      final String xLabel,
+      final String yLabel,
+      final String zLabel,
+      final Map<Triple<X, Y, Z>, Double> values) {
     ArgumentChecker.notNull(definitionName, "Definition Name");
     ArgumentChecker.notNull(specificationName, "Specification Name");
     ArgumentChecker.notNull(target, "Target");
     ArgumentChecker.notNull(values, "Volatility Values Map");
+    ArgumentChecker.notNull(xLabel, "xLabel");
+    ArgumentChecker.notNull(yLabel, "yLabel");
+    ArgumentChecker.notNull(zLabel, "zLabel");
     _definitionName = definitionName;
     _specificationName = specificationName;
     _target = target;
@@ -106,11 +117,11 @@ public class VolatilityCubeData<X, Y, Z> {
       _strips.get(entries.getKey().getFirst()).get(entries.getKey().getSecond()).add(ObjectsPair.of(entries.getKey().getThird(), entries.getValue()));
     }
     _xs = (X[]) xs.toArray();
-    _xLabel = DEFAULT_X_LABEL;
+    _xLabel = xLabel;
     _ys = (Y[]) ys.toArray();
-    _yLabel = DEFAULT_Y_LABEL;
+    _yLabel = yLabel;
     _zs = (Z[]) zs.toArray();
-    _zLabel = DEFAULT_Z_LABEL;
+    _zLabel = zLabel;
     _vs = (Double[]) vs.toArray();
   }
 

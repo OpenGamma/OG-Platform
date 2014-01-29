@@ -79,7 +79,8 @@ public class SmileFittedSurfaceBuilderTest extends AnalyticsTestBase {
     externalIds.put(Pairs.of(Tenor.ofYears(7), Tenor.ofYears(3)), new ExternalId[] {ExternalId.of("TEST", "USSV0703A"), ExternalId.of("TEST", "USSV0703B"), ExternalId.of("TEST", "USSV0703C"),
         ExternalId.of("TEST", "USSV0703D") });
     relativeStrikes.put(Pairs.of(Tenor.ofYears(7), Tenor.ofYears(3)), new Double[] {-100., 0., 50., 100. });
-    final FittedSmileDataPoints object = new FittedSmileDataPoints(externalIds, relativeStrikes);
-    assertEquals(object, cycleObject(FittedSmileDataPoints.class, object));
+
+    //final FittedSmileDataPoints object = new FittedSmileDataPoints(externalIds, relativeStrikes);
+    //assertEquals(object, cycleObject(FittedSmileDataPoints.class, object));
   }
 }

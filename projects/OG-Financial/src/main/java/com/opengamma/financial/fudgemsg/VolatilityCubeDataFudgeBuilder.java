@@ -219,9 +219,9 @@ public class VolatilityCubeDataFudgeBuilder implements FudgeBuilder<VolatilityCu
         final Double value = subMessage.getDouble(VALUE_FIELD);
         values.put(Triple.of(x, y, z), value);
       }
-      return new VolatilityCubeData<>(definitionName, specificationName, target, xsArray, xLabel, ysArray, yLabel, zsArray, zLabel, values);
+      return new VolatilityCubeData<>(definitionName, specificationName, target, xLabel, yLabel, zLabel, values);
     }
-    return new VolatilityCubeData<>(definitionName, specificationName, target, xsArray, xLabel, ysArray, yLabel, zsArray, zLabel, Collections.<Triple<Object, Object, Object>, Double>emptyMap());
+    return new VolatilityCubeData<>(definitionName, specificationName, target, xLabel, yLabel, zLabel, Collections.<Triple<Object, Object, Object>, Double>emptyMap());
   }
 
 }
