@@ -56,9 +56,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -105,6 +103,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventions;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -280,7 +279,6 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
         final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
         final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
         final DepositConvention convention = conventionSource.getSingle(ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)), DepositConvention.class);
-        final DayCount dayCount = DayCounts.ACT_365; //TODO
         final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
         final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName, _rightExtrapolatorName);
         final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
@@ -309,6 +307,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
           final double[] t = new double[n];
           final double[] r = new double[n];
           int i = 0;
+          final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO: Get the convention from the curve.
           final List<InstrumentDerivative> derivatives = new ArrayList<>();
           for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
             final Tenor tenor = strip.getCurveNodePointTime();
@@ -320,7 +319,7 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
             }
             final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
             final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
-            final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
+            final double accrualFactor = dayCount.getDayCountFraction(spotDate, paymentDate, calendar);
             final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
             final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
             final Cash cashDepositCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, impliedDepositCurveName);
@@ -337,23 +336,15 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
           final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
           final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
           final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
-
-          final double[] fittedYields;
           try {
-            fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(r)).getData();
-            final YieldCurve impliedCurve = new YieldCurve("Name", InterpolatedDoublesCurve.from(t, fittedYields, interpolator));
-
-            final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
-
             impliedRateDates.add(valuationDate);
-
             i = 0;
             for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
               if (results.containsKey(strip)) {
-                results.get(strip).add(fittedYields[i++]);
+                results.get(strip).add(r[i++]);
               } else {
                 final List<Double> value = new ArrayList<>();
-                value.add(fittedYields[i++]);
+                value.add(r[i++]);
                 results.put(strip, value);
               }
             }
