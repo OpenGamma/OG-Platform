@@ -181,7 +181,7 @@ public class InflationProviderDiscountingFunction extends
         int j = 0;
         final int nCurves = group.getTypesForCurves().size();
         final SingleCurveBundle<GeneratorPriceIndexCurve>[] singleCurves = new SingleCurveBundle[nCurves];
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
           final List<IndexPrice> inflation = new ArrayList<>();
           final String curveName = entry.getKey();
           final ValueProperties properties = ValueProperties.builder().with(CURVE, curveName).get();

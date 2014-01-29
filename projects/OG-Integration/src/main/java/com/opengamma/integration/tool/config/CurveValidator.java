@@ -192,7 +192,7 @@ public class CurveValidator {
   
   private void checkCurveConstructionConfiguration(CurveConstructionConfiguration curveConstructionConfig, ValidationNode validationNode) {
     for (CurveGroupConfiguration curveGroupConfig : curveConstructionConfig.getCurveGroups()) {
-      for (Entry<String, List<CurveTypeConfiguration>> curveForTypeEntry : curveGroupConfig.getTypesForCurves().entrySet()) {
+      for (Entry<String, List<? extends CurveTypeConfiguration>> curveForTypeEntry : curveGroupConfig.getTypesForCurves().entrySet()) {
         if (!curveDefinitionOrSubclassExists(curveForTypeEntry.getKey())) {
           validationNode.getErrors().add("Could not find CurveDefinition or subclass called " + curveForTypeEntry.getKey() + " in type for curves entry");
           validationNode.setError(true);
@@ -202,7 +202,7 @@ public class CurveValidator {
     }    
   }
   
-  private void validateCurveTypeConfigrations(String name, List<CurveTypeConfiguration> curveTypeConfigurations, ValidationNode parentNode) {
+  private void validateCurveTypeConfigrations(String name, List<? extends CurveTypeConfiguration> curveTypeConfigurations, ValidationNode parentNode) {
     for (CurveTypeConfiguration curveTypeConfig : curveTypeConfigurations) {
       ValidationNode curveTypeConfigNode = new ValidationNode();
       curveTypeConfigNode.setName(name);

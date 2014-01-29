@@ -291,7 +291,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     private static Set<Class<? extends CurveTypeConfiguration>> extractCurveTypeConfigurationClasses(final CurveConstructionConfiguration config) {
       final Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = new HashSet<>();
       for (final CurveGroupConfiguration group : config.getCurveGroups()) {
-        for (final List<CurveTypeConfiguration> curveTypeConfigs : group.getTypesForCurves().values()) {
+        for (final List<? extends CurveTypeConfiguration> curveTypeConfigs : group.getTypesForCurves().values()) {
           for (final CurveTypeConfiguration curveTypeConfig : curveTypeConfigs) {
             allCurveTypeConfigs.add(curveTypeConfig.getClass());
           }

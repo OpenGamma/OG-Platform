@@ -73,7 +73,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
     for (final CurveGroupConfiguration group : groups) {
       //TODO do we want to put information in about whether or not to use fixing time series?
       //TODO do we want to exclude node types that definitely don't need fixing data?
-      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         final String curveName = entry.getKey();
         final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
         final ValueRequirement bundleRequirement = new ValueRequirement(ValueRequirementNames.CURVE_HISTORICAL_TIME_SERIES, targetSpec, properties);
@@ -149,7 +149,7 @@ public class CurveConfigurationHistoricalTimeSeriesFunction extends AbstractFunc
     for (final CurveGroupConfiguration group : groups) {
       //TODO do we want to put information in about whether or not to use fixing time series?
       //TODO do we want to exclude node types that definitely don't need fixing data?
-      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         final String curveName = entry.getKey();
         final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
         requirements.add(new ValueRequirement(ValueRequirementNames.CURVE_HISTORICAL_TIME_SERIES, targetSpec, properties));
