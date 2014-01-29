@@ -128,7 +128,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * Gets the the {@code typesForCurves} property.
    * @return the property, not null
    */
-  public final Property<Map<String, List<CurveTypeConfiguration>>> typesForCurves() {
+  public final Property<Map<String, List<? extends CurveTypeConfiguration>>> typesForCurves() {
     return metaBean().typesForCurves().createProperty(this);
   }
 
@@ -206,7 +206,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
      * The meta-property for the {@code typesForCurves} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<String, List<CurveTypeConfiguration>>> _typesForCurves = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Map<String, List<? extends CurveTypeConfiguration>>> _typesForCurves = DirectMetaProperty.ofReadWrite(
         this, "typesForCurves", CurveGroupConfiguration.class, (Class) Map.class);
     /**
      * The meta-properties.
@@ -261,7 +261,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
      * The meta-property for the {@code typesForCurves} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Map<String, List<CurveTypeConfiguration>>> typesForCurves() {
+    public final MetaProperty<Map<String, List<? extends CurveTypeConfiguration>>> typesForCurves() {
       return _typesForCurves;
     }
 
