@@ -31,7 +31,6 @@ import com.opengamma.util.PublicSPI;
  * The {@link ConfigSource} interface provides securities to the engine via a narrow API. This class provides the source on top of a standard {@link ConfigMaster}.
  */
 @PublicSPI
-@SuppressWarnings("deprecation")
 public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements ConfigSource {
 
   /**

@@ -317,19 +317,20 @@ public abstract class SimulationScript extends Script {
     /* package */ GroovyYieldCurveManipulatorBuilder(YieldCurveSelector selector, Scenario scenario) {
       super(selector, scenario);
     }
-
+    
     @SuppressWarnings("unused")
-    public void bucketedShifts(/*BucketedShiftType type, */Closure<?> body) {
-      BucketedShiftManipulatorBuilder builder = new BucketedShiftManipulatorBuilder(getSelector(), getScenario()/*, type*/);
+    public void bucketedShifts(ScenarioShiftType shiftType, Closure<?> body) {
+      BucketedShiftManipulatorBuilder builder =
+          new BucketedShiftManipulatorBuilder(getSelector(), getScenario()/*, type*/, shiftType);
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
       builder.apply();
     }
-
+    
     @SuppressWarnings("unused")
-    public void pointShifts(Closure<?> body) {
-      PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario());
+    public void pointShifts(ScenarioShiftType shiftType, Closure<?> body) {
+      PointShiftManipulatorBuilder builder = new PointShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
       body.setDelegate(builder);
       body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
@@ -337,5 +338,20 @@ public abstract class SimulationScript extends Script {
     }
     
   }
-  
+
+  private static final class GroovyVolatilitySurfaceManipulatorBuilder extends VolatilitySurfaceManipulatorBuilder {
+
+    /* package */ GroovyVolatilitySurfaceManipulatorBuilder(Scenario scenario, VolatilitySurfaceSelector selector) {
+      super(scenario, selector);
+    }
+
+    public void shifts(ScenarioShiftType shiftType, Closure<?> body) {
+      VolatilitySurfaceShiftManipulatorBuilder builder =
+          new VolatilitySurfaceShiftManipulatorBuilder(getSelector(), getScenario(), shiftType);
+      body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
+      body.call();
+      builder.build();
+    }
+  }
 }

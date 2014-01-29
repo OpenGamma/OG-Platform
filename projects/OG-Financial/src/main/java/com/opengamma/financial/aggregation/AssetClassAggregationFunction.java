@@ -36,8 +36,10 @@ import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
@@ -67,6 +69,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -125,6 +128,9 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
   /* package */static final String INFLATION_SWAPS = "Inflation Swaps";
   /* package */static final String FX_VOLATILITY_SWAPS = "FX Volatility Swaps";
+  /* package */static final String EXCHANGE_TRADED_FUNDS = "Exchange-Traded Funds";
+  /* package */static final String ADRS = "American Depositary Receipts";
+  /* package */static final String EQUITY_WARRANTS = "Equity Warrants";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -133,7 +139,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
       SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS, FX_VOLATILITY_SWAPS,
-      UNKNOWN);
+      EXCHANGE_TRADED_FUNDS, ADRS, EQUITY_WARRANTS, UNKNOWN);
 
   private final boolean _includeEmptyCategories;
 
@@ -482,6 +488,21 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
           return FX_VOLATILITY_SWAPS;
+        }
+
+        @Override
+        public String visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+          return EXCHANGE_TRADED_FUNDS;
+        }
+
+        @Override
+        public String visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+          return ADRS;
+        }
+
+        @Override
+        public String visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+          return EQUITY_WARRANTS;
         }
       });
     } else {

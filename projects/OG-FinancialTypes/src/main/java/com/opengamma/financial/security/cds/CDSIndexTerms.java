@@ -112,7 +112,7 @@ public final class CDSIndexTerms
   private CDSIndexTerms(
       SortedSet<Tenor> tenors) {
     JodaBeanUtils.notNull(tenors, "tenors");
-    this._tenors = ImmutableSortedSet.copyOf(tenors);
+    this._tenors = ImmutableSortedSet.copyOfSorted(tenors);
   }
 
   @Override

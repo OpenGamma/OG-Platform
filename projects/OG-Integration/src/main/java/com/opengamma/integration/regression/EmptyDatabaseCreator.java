@@ -21,6 +21,8 @@ import com.opengamma.util.db.tool.DbTool;
  */
 public class EmptyDatabaseCreator {
 
+  private static final String s_managerInclude = "MANAGER.INCLUDE";
+
   private static final Logger s_logger = LoggerFactory.getLogger(EmptyDatabaseCreator.class);
 
   /** Shared database URL. */
@@ -46,8 +48,17 @@ public class EmptyDatabaseCreator {
   }
 
   public static void createForConfig(String configFile) {
-    Properties properties = createProperties(configFile);
-    createDatabases(properties);
+    
+    Properties allProperties = createProperties(configFile);
+    
+    //loosely adds support for includes:
+    for (Properties lastProperties = allProperties; lastProperties.containsKey(s_managerInclude); ) {
+      Properties properties = createProperties(lastProperties.getProperty(s_managerInclude));
+      allProperties.putAll(properties);
+      lastProperties = properties;
+    };
+    
+    createDatabases(allProperties);
   }
   
 

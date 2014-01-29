@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterIssuerProviderInterface;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
@@ -106,7 +107,7 @@ public class BondFutureConstantSpreadHorizonCalculatorTest {
   /** Present value calculator */
   private static final InstrumentDerivativeVisitor<ParameterIssuerProviderInterface, MultipleCurrencyAmount> PV_CALCULATOR = PresentValueIssuerCalculator.getInstance();
   /** Horizon calculator */
-  private static final HorizonCalculator<BondFuturesTransactionDefinition, IssuerProviderDiscount, Double> CALCULATOR = BondFutureConstantSpreadHorizonCalculator.getInstance();
+  private static final HorizonCalculator<BondFuturesTransactionDefinition, IssuerProviderInterface, Double> CALCULATOR = BondFutureConstantSpreadHorizonCalculator.getInstance();
   /** Constant issuer and discounting curves */
   private static final IssuerProviderDiscount FLAT_ISSUER_MULTICURVES;
   /** Accuracy */

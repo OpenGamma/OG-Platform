@@ -306,7 +306,6 @@ public final class FailureResult<T> implements Result<T>, ImmutableBean {
     }
 
     //-----------------------------------------------------------------------
-    @SuppressWarnings("unchecked")
     @Override
     public Builder<T> set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {

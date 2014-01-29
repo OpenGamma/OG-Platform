@@ -62,7 +62,7 @@ public class GoldenCopyCreator {
     searchRequest.setName(snapshotName);
     searchRequest.setVersionCorrection(VersionCorrection.LATEST);
     List<MarketDataSnapshotDocument> documents = snapshotMaster.search(searchRequest).getDocuments();
-    Preconditions.checkArgument(documents.size() == 1, "Only one snapshot should exist for given name '%s'. Found %s records: %s", snapshotName, documents.size(), documents);
+    Preconditions.checkArgument(documents.size() == 1, "One (and only one) snapshot should exist for given name '%s'. Found %s records: %s", snapshotName, documents.size(), documents);
     return Iterables.getOnlyElement(documents).getValue().getValuationTime();
   }
   

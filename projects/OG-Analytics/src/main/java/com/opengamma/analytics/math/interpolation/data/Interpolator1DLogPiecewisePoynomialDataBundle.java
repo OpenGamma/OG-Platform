@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.interpolation.PiecewisePolynomialResultsWith
  * Since this data bundle possesses the information on f(x) via _poly of {@link PiecewisePolynomialResultsWithSensitivity}, 
  * any values computed by {@link PiecewisePolynomialWithSensitivityFunction1D} should be exponentiated.
  * 
- * yValues of the brealpoint information are transformed by this class. 
+ * yValues of the breakpoint information are transformed by this class. 
  */
 public class Interpolator1DLogPiecewisePoynomialDataBundle extends Interpolator1DPiecewisePoynomialDataBundle {
 

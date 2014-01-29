@@ -146,6 +146,8 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(SwaptionBlackValueDeltaFunction.class));
     functions.add(functionConfiguration(SwaptionBlackValueGammaFunction.class));
     functions.add(functionConfiguration(SwaptionBlackValueThetaFunction.class));
+    functions.add(functionConfiguration(SwaptionBlackForwardFunction.class));
+    functions.add(functionConfiguration(SwaptionBlackGammaPV01Function.class));
   }
 
 }

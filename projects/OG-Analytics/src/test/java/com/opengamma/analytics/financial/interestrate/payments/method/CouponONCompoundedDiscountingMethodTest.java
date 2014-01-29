@@ -23,11 +23,17 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.test.TestGroup;
@@ -70,46 +76,46 @@ public class CouponONCompoundedDiscountingMethodTest {
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2;
 
-//  @Test
-//  public void presentValue() {
-//    @SuppressWarnings("deprecation")
-//    final CurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(CPN_ON_COMPOUNDED, CURVES);
-//
-//    double ratio = 1.0;
-//    double forwardRatei;
-//    final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(CPN_ON_COMPOUNDED.getForwardCurveName());
-//    for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length; i++) {
-//      forwardRatei = (forwardCurve.getDiscountFactor(CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i]) - 1.0d) /
-//          CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactorsActAct()[i];
-//      ratio *= Math.pow(1 + forwardRatei, CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]);
-//    }
-//    final double df = CURVES.getCurve(CPN_ON_COMPOUNDED.getFundingCurveName()).getDiscountFactor(CPN_ON_COMPOUNDED.getPaymentTime());
-//    final double pvExpected = df * CPN_ON_COMPOUNDED.getNotionalAccrued() * ratio;
-//    assertEquals("CouponONCompoundedDiscountingMethod: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
-//  }
+  @Test
+  public void presentValue() {
+    @SuppressWarnings("deprecation")
+    final CurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(CPN_ON_COMPOUNDED, CURVES);
 
-//  @Test
-//  public void presentValueStarted() {
-//    final double fixing = 0.0015;
-//    final ZonedDateTimeDoubleTimeSeries TS_ON = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23) }, new double[] {
-//      0.0010, fixing });
-//    final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, 1, TARGET);
-//    final CouponONCompounded cpnONCompoundedStarted = (CouponONCompounded) CPN_ON_COMPOUNDED_DEFINITION.toDerivative(referenceDate, TS_ON, CURVES_NAMES);
-//    final double notionalAccrued = NOTIONAL * Math.pow(1 + fixing, CPN_ON_COMPOUNDED_DEFINITION.getFixingPeriodAccrualFactors()[0]);
-//    assertEquals("CouponONCompoundedDiscountingMethod: present value", notionalAccrued, cpnONCompoundedStarted.getNotionalAccrued(), TOLERANCE_PV);
-//    final CurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(cpnONCompoundedStarted, CURVES);
-//    double ratio = 1.0;
-//    double forwardRatei;
-//    final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(cpnONCompoundedStarted.getForwardCurveName());
-//    for (int i = 0; i < cpnONCompoundedStarted.getFixingPeriodAccrualFactors().length; i++) {
-//      forwardRatei = (forwardCurve.getDiscountFactor(cpnONCompoundedStarted.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(cpnONCompoundedStarted.getFixingPeriodEndTimes()[i]) - 1.0d) /
-//          cpnONCompoundedStarted.getFixingPeriodAccrualFactorsActAct()[i];
-//      ratio *= Math.pow(1 + forwardRatei, cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
-//    }
-//    final double df = CURVES.getCurve(cpnONCompoundedStarted.getFundingCurveName()).getDiscountFactor(cpnONCompoundedStarted.getPaymentTime());
-//    final double pvExpected = cpnONCompoundedStarted.getNotionalAccrued() * ratio * df;
-//    assertEquals("CouponONCompoundedDiscountingMethod: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
-//  }
+    double ratio = 1.0;
+    double forwardRatei;
+    final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(CPN_ON_COMPOUNDED.getForwardCurveName());
+    for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length; i++) {
+      forwardRatei = (forwardCurve.getDiscountFactor(CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[i]) - 1.0d) /
+          CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i];
+      ratio *= Math.pow(1 + forwardRatei, CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors()[i]);
+    }
+    final double df = CURVES.getCurve(CPN_ON_COMPOUNDED.getFundingCurveName()).getDiscountFactor(CPN_ON_COMPOUNDED.getPaymentTime());
+    final double pvExpected = df * CPN_ON_COMPOUNDED.getNotionalAccrued() * ratio;
+    assertEquals("CouponONCompoundedDiscountingMethod: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
+  }
+
+  @Test
+  public void presentValueStarted() {
+    final double fixing = 0.0015;
+    final ZonedDateTimeDoubleTimeSeries TS_ON = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23) }, new double[] {
+      0.0010, fixing });
+    final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, 1, TARGET);
+    final CouponONCompounded cpnONCompoundedStarted = (CouponONCompounded) CPN_ON_COMPOUNDED_DEFINITION.toDerivative(referenceDate, TS_ON, CURVES_NAMES);
+    final double notionalAccrued = NOTIONAL * Math.pow(1 + fixing, CPN_ON_COMPOUNDED_DEFINITION.getFixingPeriodAccrualFactors()[0]);
+    assertEquals("CouponONCompoundedDiscountingMethod: present value", notionalAccrued, cpnONCompoundedStarted.getNotionalAccrued(), TOLERANCE_PV);
+    final CurrencyAmount pvComputed = METHOD_CPN_ON.presentValue(cpnONCompoundedStarted, CURVES);
+    double ratio = 1.0;
+    double forwardRatei;
+    final YieldAndDiscountCurve forwardCurve = CURVES.getCurve(cpnONCompoundedStarted.getForwardCurveName());
+    for (int i = 0; i < cpnONCompoundedStarted.getFixingPeriodAccrualFactors().length; i++) {
+      forwardRatei = (forwardCurve.getDiscountFactor(cpnONCompoundedStarted.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(cpnONCompoundedStarted.getFixingPeriodEndTimes()[i]) - 1.0d) /
+          cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i];
+      ratio *= Math.pow(1 + forwardRatei, cpnONCompoundedStarted.getFixingPeriodAccrualFactors()[i]);
+    }
+    final double df = CURVES.getCurve(cpnONCompoundedStarted.getFundingCurveName()).getDiscountFactor(cpnONCompoundedStarted.getPaymentTime());
+    final double pvExpected = cpnONCompoundedStarted.getNotionalAccrued() * ratio * df;
+    assertEquals("CouponONCompoundedDiscountingMethod: present value", pvExpected, pvComputed.getAmount(), TOLERANCE_PV);
+  }
 
   @Test
   public void presentValueMethodVsCalculator() {
@@ -118,53 +124,33 @@ public class CouponONCompoundedDiscountingMethodTest {
     assertEquals("CouponONCompoundedDiscountingMethod: present value", pvMethod.getAmount(), pvCalculator, TOLERANCE_PV);
   }
 
-//  @Test
-//  /**
-//    * Tests present value curve sensitivity when the valuation date is on trade date.
-//    */
-//  public void presentValueCurveSensitivity() {
-//    final InterestRateCurveSensitivity pvMethod = METHOD_CPN_ON.presentValueCurveSensitivity(CPN_ON_COMPOUNDED, CURVES);
-//    final double deltaTolerancePrice = 1.0E+2;
-//    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
-//    final double deltaShift = 1.0E-6;
-//    //    // 1. Forward curve sensitivity
-//    final String bumpedCurveName = "Bumped Curve";
-//    final Payment couponBumpedForward = CPN_ON_COMPOUNDED_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAMES[0], bumpedCurveName });
-//    final double[] nodeTimesForward = new double[CPN_ON_COMPOUNDED.getFixingPeriodStartTimes().length + 1];
-//    for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodStartTimes().length; i++) {
-//      nodeTimesForward[i] = CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i];
-//    }
-//
-//    nodeTimesForward[CPN_ON_COMPOUNDED.getFixingPeriodStartTimes().length] = CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length - 1];
-//
-//    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD_CPN_ON);
-//    AssertJUnit.assertEquals("Sensitivity finite difference method: number of node", 67, sensiForwardMethod.length);
-//    final List<DoublesPair> sensiPvForward = pvMethod.getSensitivities().get(CURVES_NAMES[1]);
-//    final List<DoublesPair> sensiPvDiscount = pvMethod.getSensitivities().get(CURVES_NAMES[0]);
-//    for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
-//      final DoublesPair pairPv = sensiPvForward.get(loopnode);
-//      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
-//      AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
-//
-//    }
-//
-//  }
-
   @Test
-  /**
-    * Tests present value curve sensitivity when the valuation date is on trade date.
-    */
-  public void presentValueCurveSensitivity2() {
-    final InterestRateCurveSensitivity pvMethod = METHOD_CPN_ON.presentValueCurveSensitivity(CPN_ON_COMPOUNDED, CURVES).cleaned();
-    final InterestRateCurveSensitivity pvMethod2 = METHOD_CPN_ON.presentValueCurveSensitivity2(CPN_ON_COMPOUNDED, CURVES).cleaned();
+  /* 
+   * Tests present value curve sensitivity when the valuation date is on trade date.
+   */
+  public void presentValueCurveSensitivity() {
+    final InterestRateCurveSensitivity pvMethod = METHOD_CPN_ON.presentValueCurveSensitivity(CPN_ON_COMPOUNDED, CURVES);
     final double deltaTolerancePrice = 1.0E+2;
+    //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
+    final double deltaShift = 1.0E-6;
+    //    // 1. Forward curve sensitivity
+    final String bumpedCurveName = "Bumped Curve";
+    final Payment couponBumpedForward = CPN_ON_COMPOUNDED_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVES_NAMES[0], bumpedCurveName });
+    final double[] nodeTimesForward = new double[CPN_ON_COMPOUNDED.getFixingPeriodStartTimes().length + 1];
+    for (int i = 0; i < CPN_ON_COMPOUNDED.getFixingPeriodStartTimes().length; i++) {
+      nodeTimesForward[i] = CPN_ON_COMPOUNDED.getFixingPeriodStartTimes()[i];
+    }
+
+    nodeTimesForward[CPN_ON_COMPOUNDED.getFixingPeriodStartTimes().length] = CPN_ON_COMPOUNDED.getFixingPeriodEndTimes()[CPN_ON_COMPOUNDED.getFixingPeriodAccrualFactors().length - 1];
+
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(couponBumpedForward, CURVES, CURVES_NAMES[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD_CPN_ON);
+    AssertJUnit.assertEquals("Sensitivity finite difference method: number of node", 67, sensiForwardMethod.length);
     final List<DoublesPair> sensiPvForward = pvMethod.getSensitivities().get(CURVES_NAMES[1]);
-    final List<DoublesPair> sensiPvForward2 = pvMethod2.getSensitivities().get(CURVES_NAMES[1]);
-    for (int loopnode = 0; loopnode < sensiPvForward.size(); loopnode++) {
+    final List<DoublesPair> sensiPvDiscount = pvMethod.getSensitivities().get(CURVES_NAMES[0]);
+    for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
-      final DoublesPair pairPv2 = sensiPvForward2.get(loopnode);
-      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, pairPv.getFirst(), pairPv2.getFirst(), 1E-8);
-      AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, pairPv2.second, deltaTolerancePrice);
+      assertEquals("Sensitivity coupon pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
+      AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
 
     }
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention;
 
+import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * The type of the stub.
  */
@@ -58,6 +60,16 @@ public enum StubType {
     @Override
     public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
       return com.opengamma.analytics.financial.credit.isdastandardmodel.StubType.BACKLONG;
+    }
+  },
+  /**
+   * Stubs at the both start and end of the schedule.
+   */
+  BOTH {
+
+    @Override
+    public com.opengamma.analytics.financial.credit.isdastandardmodel.StubType toAnalyticsType() {
+      throw new OpenGammaRuntimeException("Unsupported ISDA stub type of BOTH");
     }
   };
 

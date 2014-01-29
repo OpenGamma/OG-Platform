@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -54,6 +55,26 @@ public final class CouponONSpreadDiscountingMethod {
     ArgumentChecker.notNull(multicurve, "Market");
     final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
         * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
+    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double pv = (coupon.getNotionalAccrued() * ratio + coupon.getSpreadAmount() - coupon.getNotional()) * df;
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
+  }
+  
+  /**
+   * Computes the present value.
+   * @param coupon the coupon.
+   * @param multicurve the multi-curve provider.
+   * @param forwardRateProvider the forward rate provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(
+      final CouponONSpread coupon,
+      final MulticurveProviderInterface multicurve,
+      final ForwardRateProvider<IndexON> forwardRateProvider) {
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(multicurve, "Market");
+    final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
+        * forwardRateProvider.getRate(multicurve, coupon, coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = (coupon.getNotionalAccrued() * ratio + coupon.getSpreadAmount() - coupon.getNotional()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);

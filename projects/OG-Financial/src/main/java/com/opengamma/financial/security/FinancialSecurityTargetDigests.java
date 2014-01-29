@@ -31,8 +31,10 @@ import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
@@ -62,6 +64,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -554,6 +557,7 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
 
   private final Digests _fxVolatilitySwapSecurity = new Digests("Security");
 
+  @Override
   public Object visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
     return _fxVolatilitySwapSecurity.get(security.getCurrency());
   }
@@ -588,6 +592,21 @@ public class FinancialSecurityTargetDigests extends SecurityTypeTargetDigests im
   @Override
   public Object visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     throw new UnsupportedOperationException("Cannot handle year-on-year inflation swap securities");
+  }
+
+  @Override
+  public Object visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+    throw new UnsupportedOperationException("Cannot handle exchange traded fund securities");
+  }
+
+  @Override
+  public Object visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+    throw new UnsupportedOperationException("Cannot handle ADR securities");
+  }
+
+  @Override
+  public Object visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+    throw new UnsupportedOperationException("Cannot handle equity warrant securities");
   }
 
 }

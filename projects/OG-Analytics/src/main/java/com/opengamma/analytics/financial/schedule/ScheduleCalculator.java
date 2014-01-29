@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
@@ -20,14 +21,21 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.util.time.TenorUtils;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
+import com.opengamma.financial.convention.businessday.ModifiedFollowingBusinessDayConvention;
+import com.opengamma.financial.convention.businessday.NoAdjustBusinessDayConvention;
 import com.opengamma.financial.convention.businessday.PrecedingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.convention.rolldate.EndOfMonthRollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.EndOfMonthTemporalAdjuster;
+import com.opengamma.financial.convention.rolldate.GeneralRollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
@@ -200,6 +208,49 @@ public final class ScheduleCalculator {
   }
 
   /**
+   * Compute the end date of a period from the start date, period, conventions and roll date adjuster. If the roll date 
+   * adjuster is end of month, then only apply when the start date is last business day of the month and the period is a
+   * number of months or years, not days or weeks.
+   * 
+   * @param startDate the start date
+   * @param period the period between the start and end date.
+   * @param convention the business day convention used to adjust the end date.
+   * @param calendar the calendar used to adjust the end date.
+   * @param rollDateAdjuster the roll date adjuster used to adjust the end date, before the conventions are applied.
+   * @return The end date.
+   */
+  public static ZonedDateTime getAdjustedDate(
+      final ZonedDateTime startDate,
+      final Period period,
+      final BusinessDayConvention convention,
+      final Calendar calendar,
+      final RollDateAdjuster rollDateAdjuster) {
+    ArgumentChecker.notNull(startDate, "Start date");
+    ArgumentChecker.notNull(convention, "Convention");
+    ArgumentChecker.notNull(calendar, "Calendar");
+    ArgumentChecker.notNull(period, "Tenor");
+    ZonedDateTime endDate = startDate.plus(period); // Unadjusted date.
+    // Adjusted to month-end: when start date is last business day of the month, the end date is the last business day of the month.
+    if (rollDateAdjuster instanceof EndOfMonthRollDateAdjuster) {
+      final boolean isStartDateEOM = (startDate.getMonth() != getAdjustedDate(startDate, 1, calendar).getMonth());
+      if ((period.getDays() == 0) && isStartDateEOM) {
+        final BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
+        return preceding.adjustDate(calendar, endDate.with(TemporalAdjusters.lastDayOfMonth()));
+      }
+    } else if (rollDateAdjuster != null) {
+      /*
+       * If we are rolling forward with a positive period and we have a day of month adjuster, we don't want to roll 
+       * backwards.
+       */
+      ZonedDateTime rolledEndDate = endDate.with(rollDateAdjuster);
+      if (!period.isNegative() && rolledEndDate.isAfter(endDate)) {
+        endDate = rolledEndDate;
+      }
+    }
+    return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
+  }
+
+  /**
    * Compute the end date of a period from the start date, the tenor and the conventions.
    * @param startDate The period start date.
    * @param tenor The tenor.
@@ -296,8 +347,8 @@ public final class ScheduleCalculator {
     ArgumentChecker.notNull(endDate, "End date");
     ArgumentChecker.notNull(tenorPeriod, "Period tenor");
     ArgumentChecker.isTrue(startDate.isBefore(endDate), "Start date should be strictly before end date");
-    final boolean stubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
-    final boolean fromEnd = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
+    final boolean stubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START) || stub.equals(StubType.NONE) || stub.equals(StubType.BOTH);
+    final boolean fromEnd = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); //  || stub.equals(StubType.NONE); // Implementation note: dates computed from the end.
     final List<ZonedDateTime> dates = new ArrayList<>();
     int nbPeriod = 0;
     if (!fromEnd) { // Add the periods from the start date
@@ -414,7 +465,9 @@ public final class ScheduleCalculator {
         result[loopdate] = convention.adjustDate(calendar, dates[loopdate]);
       }
     }
-    return result;
+    // TODO workaround for PLAT-5695
+    ZonedDateTime[] treeSetResult = new TreeSet<>(Arrays.asList(result)).toArray(new ZonedDateTime[] {});
+    return treeSetResult;
   }
 
   /**
@@ -466,6 +519,32 @@ public final class ScheduleCalculator {
     final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
     final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
+  }
+  
+  public static ZonedDateTime[] getAdjustedDateSchedule(
+      ZonedDateTime startDate,
+      ZonedDateTime endDate,
+      Period schedulePeriod,
+      StubType stub,
+      BusinessDayConvention convention,
+      Calendar calendar,
+      RollDateAdjuster adjuster) {
+    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stub);
+    final boolean eomApply = (RollDateAdjusterFactory.END_OF_MONTH_ROLL_STRING.equals(adjuster) && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply, adjuster);
+  }
+  
+  public static ZonedDateTime[] getAdjustedDateSchedule(
+      ZonedDateTime[] startDates,
+      Period schedulePeriod,
+      BusinessDayConvention businessDayConvention,
+      Calendar calendar,
+      RollDateAdjuster adjuster) {
+    ZonedDateTime[] endDates = new ZonedDateTime[startDates.length];
+    for (int i = 0; i < startDates.length; i++) {
+      endDates[i] = getAdjustedDate(startDates[i], schedulePeriod, businessDayConvention, calendar, adjuster);
+    }
+    return endDates;
   }
 
   /**
@@ -721,6 +800,30 @@ public final class ScheduleCalculator {
     }
     return result;
   }
+  
+  public static ZonedDateTime getAdjustedDate(ZonedDateTime originalDate, BusinessDayConvention convention, Calendar calendar, int offset) {
+    ArgumentChecker.notNull(originalDate, "date");
+    ArgumentChecker.notNull(convention, "convention");
+    ArgumentChecker.notNull(calendar, "calendar");
+
+    ZonedDateTime date = convention.adjustDate(calendar, originalDate);
+    if (offset > 0) {
+      for (int loopday = 0; loopday < offset; loopday++) {
+        date = date.plusDays(1);
+        while (!calendar.isWorkingDay(date.toLocalDate())) {
+          date = date.plusDays(1);
+        }
+      }
+    } else {
+      for (int loopday = 0; loopday < -offset; loopday++) {
+        date = date.minusDays(1);
+        while (!calendar.isWorkingDay(date.toLocalDate())) {
+          date = date.minusDays(1);
+        }
+      }
+    }
+    return date;
+  }
 
   /**
    * Construct an array of dates according the a start date, an end date, the period between dates and the conventions.
@@ -967,5 +1070,18 @@ public final class ScheduleCalculator {
       result[i] = dayCount.getDayCountFraction(dates[i - 1], dates[i]);
     }
     return result;
+  }
+  
+  /**
+   * Generates the start dates from the specified start date and set of end dates.
+   * @param startDate the first start date.
+   * @param endDates the set of end dates to generate start dates from.
+   * @return the start dates relative to the end dates.
+   */
+  public static ZonedDateTime[] getStartDates(ZonedDateTime startDate, ZonedDateTime[] endDates) {
+    ZonedDateTime[] startDates = new ZonedDateTime[endDates.length];
+    startDates[0] = startDate;
+    System.arraycopy(endDates, 0, startDates, 1, endDates.length - 1);
+    return startDates;
   }
 }

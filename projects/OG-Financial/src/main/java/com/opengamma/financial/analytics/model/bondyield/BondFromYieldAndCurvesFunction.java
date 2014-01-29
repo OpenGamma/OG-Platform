@@ -55,7 +55,7 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
   private static final Logger s_logger = LoggerFactory.getLogger(BondFromYieldAndCurvesFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
-
+  /** The instrument exposures provider */
   private InstrumentExposuresProvider _instrumentExposuresProvider;
 
   /**
@@ -72,8 +72,8 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
-      throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints();
     final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -132,14 +132,14 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
       }
       return requirements;
     } catch (final Exception e) {
-      s_logger.error(e.getMessage(), e);
+      s_logger.error(e.getMessage());
       return null;
     }
   }
 
   /**
    * Gets the value properties of the result
-   * 
+   *
    * @param target The computation target
    * @return The properties
    */
@@ -150,7 +150,7 @@ public abstract class BondFromYieldAndCurvesFunction extends AbstractFunction.No
 
   /**
    * Calculates the result.
-   * 
+   *
    * @param inputs The function inputs
    * @param bond The bond transaction
    * @param issuerCurves The issuer and discounting curves

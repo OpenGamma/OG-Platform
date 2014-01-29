@@ -13,10 +13,10 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.TestGroup;
 
@@ -28,7 +28,7 @@ public class SecuritiesJodaBeanCompactXmlTest extends SecurityTestCase {
 
   @Override
   protected <T extends ManageableSecurity> void assertSecurity(Class<T> securityClass, T security) {
-    String xml = JodaBeanSer.COMPACT.xmlWriter().write(security);
+    String xml = JodaBeanSerialization.serializer(false).xmlWriter().write(security);
 //    System.out.println(xml);
     
     StringWriter writer = new StringWriter();
@@ -43,7 +43,7 @@ public class SecuritiesJodaBeanCompactXmlTest extends SecurityTestCase {
 //    System.out.println(xml.length() + " vs " + writerXml.length());
 //    System.out.println("");
     
-    T readIn = securityClass.cast(JodaBeanSer.COMPACT.xmlReader().read(xml));
+    T readIn = securityClass.cast(JodaBeanSerialization.deserializer().xmlReader().read(xml));
     assertEquals(security, readIn);
   }
 

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -45,15 +46,37 @@ public final class CouponONDiscountingMethod {
 
   /**
    * Computes the present value.
-   * @param coupon The coupon.
-   * @param multicurve The multi-curve provider.
+   * @param coupon The coupon, not null.
+   * @param multicurve The multi-curve provider, not null.
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponON coupon, final MulticurveProviderInterface multicurve) {
-    ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurve, "Market");
+//    ArgumentChecker.notNull(coupon, "Coupon");
+//    ArgumentChecker.notNull(multicurve, "Market");
+//    final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
+//        * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
+//    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+//    final double pv = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * df;
+//    return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
+    return presentValue(coupon, multicurve, OvernightForwardRateProvider.getInstance());
+  }
+
+  /**
+   * Computes the present value.
+   * @param coupon The coupon, not null.
+   * @param multicurve The multi-curve provider, not null.
+   * @param forwardRateProvider The forward rate provider, not null.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(
+      final CouponON coupon,
+      final MulticurveProviderInterface multicurve,
+      final ForwardRateProvider<IndexON> forwardRateProvider) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(multicurve, "multicurve");
+    ArgumentChecker.notNull(forwardRateProvider, "forwardRateProvider");
     final double ratio = 1.0 + coupon.getFixingPeriodAccrualFactor()
-        * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
+        * forwardRateProvider.getRate(multicurve, coupon, coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingPeriodAccrualFactor());
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double pv = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);

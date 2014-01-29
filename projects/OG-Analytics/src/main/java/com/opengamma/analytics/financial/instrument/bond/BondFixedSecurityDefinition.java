@@ -28,6 +28,7 @@ import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.daycount.DayCounts;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
@@ -677,7 +678,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     final AnnuityPaymentFixed nominalStandard = nominal.trimBefore(settleTime);
     final double factor;
     if (getYieldConvention().equals(SimpleYieldConvention.AUSTRALIA_EX_DIVIDEND) && (couponStandard.getNumberOfPayments() == 1)) {
-      final DayCount dayCountDiscFactLastPeriod = DayCountFactory.of("Actual/365");
+      final DayCount dayCountDiscFactLastPeriod = DayCounts.ACT_365;
       factor = dayCountDiscFactLastPeriod.getAccruedInterest(settlementDate, couponDefinition.getNthPayment(0).getAccrualEndDate(),
           couponDefinition.getNthPayment(0).getAccrualEndDate(), 1.0, _couponPerYear) * _couponPerYear;
     } else {

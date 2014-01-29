@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
@@ -27,6 +26,7 @@ import com.opengamma.analytics.financial.legalentity.LegalEntityShortName;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -69,15 +69,15 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     filters.add(new LegalEntitySector(true, false, Collections.<String>emptySet()));
     filters.add(new LegalEntityRegion(true, true, Collections.singleton(Country.US), true, Collections.singleton(Currency.USD)));
     ISSUER_CONFIG = new IssuerCurveTypeConfiguration(keys, filters);
-    final Map<String, List<CurveTypeConfiguration>> group1Map = new HashMap<>();
+    final Map<String, List<? extends CurveTypeConfiguration>> group1Map = new HashMap<>();
     group1Map.put(DISCOUNTING_NAME, Arrays.asList(DISCOUNTING_CONFIG, OVERNIGHT_CONFIG));
     GROUP1 = new CurveGroupConfiguration(1, group1Map);
-    final Map<String, List<CurveTypeConfiguration>> group2Map = new HashMap<>();
-    group2Map.put(LIBOR_3M_NAME, Arrays.asList((CurveTypeConfiguration) LIBOR_3M_CONFIG));
-    group2Map.put(LIBOR_6M_NAME, Arrays.asList((CurveTypeConfiguration) LIBOR_6M_CONFIG));
+    final Map<String, List<? extends CurveTypeConfiguration>> group2Map = new HashMap<>();
+    group2Map.put(LIBOR_3M_NAME, Arrays.asList(LIBOR_3M_CONFIG));
+    group2Map.put(LIBOR_6M_NAME, Arrays.asList(LIBOR_6M_CONFIG));
     GROUP2 = new CurveGroupConfiguration(2, group2Map);
-    final Map<String, List<CurveTypeConfiguration>> group3Map = new HashMap<>();
-    group3Map.put(BOND_CURVE_NAME, Arrays.asList((CurveTypeConfiguration) ISSUER_CONFIG));
+    final Map<String, List<? extends CurveTypeConfiguration>> group3Map = new HashMap<>();
+    group3Map.put(BOND_CURVE_NAME, Arrays.asList(ISSUER_CONFIG));
     GROUP3 = new CurveGroupConfiguration(3, group3Map);
     CONSTRUCTION = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), null);
     CONSTRUCTION.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "678"));
@@ -106,7 +106,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     filterSet.add(new LegalEntityShortName());
     assertEquals(new IssuerCurveTypeConfiguration(keys, filterSet), cycleObject(IssuerCurveTypeConfiguration.class, DEPRECATED_ISSUER_CONFIG));
     assertEquals(ISSUER_CONFIG, cycleObject(IssuerCurveTypeConfiguration.class, ISSUER_CONFIG));
-    System.err.println(JodaBeanSer.PRETTY.xmlWriter().write(ISSUER_CONFIG));
+    System.err.println(JodaBeanSerialization.serializer(true).xmlWriter().write(ISSUER_CONFIG));
   }
 
   @Test

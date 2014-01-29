@@ -14,6 +14,7 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -22,13 +23,17 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.analytics.ShiftType;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurveUtils;
+import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -38,17 +43,11 @@ import com.opengamma.util.tuple.DoublesPair;
 public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, StructureManipulator<YieldCurve> {
 
   /**
-   * 
-   */
-  private static final long serialVersionUID = 4722638152564212872L;
-
-  /**
    * Shift type
    */
   @PropertyDefinition
-  private final GroovyAliasable _bucketedShiftType;
+  private final ScenarioShiftType _shiftType;
 
-  
   /**
    * Shifts to apply
    */
@@ -57,26 +56,32 @@ public final class YieldCurveBucketedShiftManipulator implements ImmutableBean, 
   
   /**
    * Creates a new YieldCurveBucketedShifts object
-   * @param bucketedShiftType bucketed shift type
+   * @param shiftType bucketed shift type
    * @param shifts the list of shifts
-   * @return a new YieldCurveBucketedShifts object
    */
-  public static YieldCurveBucketedShiftManipulator create(/*GroovyAliasable bucketedShiftType, */
-                                                          ImmutableList<YieldCurveBucketedShift> shifts) {
-    return new YieldCurveBucketedShiftManipulator(/*bucketedShiftType, */null, shifts);
+  @ImmutableConstructor
+  public YieldCurveBucketedShiftManipulator(ScenarioShiftType shiftType, List<YieldCurveBucketedShift> shifts) {
+    _shiftType = shiftType;
+    _shifts = ImmutableList.copyOf(ArgumentChecker.notEmpty(shifts, "shifts"));
   }
-  
-  
+
   @Override
-  public YieldCurve execute(YieldCurve structure, ValueSpecification valueSpecification) {
-    final List<DoublesPair> buckets = new ArrayList<>();
-    final List<Double> shifts = new ArrayList<>();
-    ShiftType shiftType = null;
-    for (YieldCurveBucketedShift bucketedShift : _shifts) {
-      buckets.add(DoublesPair.of(bucketedShift.getStartYears(), bucketedShift.getEndYears()));
-      shifts.add(bucketedShift.getShift());      
-      if (shiftType == null) {
-        shiftType = bucketedShift.getCurveShiftType().toAnalyticsType();
+  public YieldCurve execute(YieldCurve structure,
+                            ValueSpecification valueSpecification,
+                            FunctionExecutionContext executionContext) {
+    List<DoublesPair> buckets = new ArrayList<>();
+    List<Double> shifts = new ArrayList<>();
+    ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
+    ShiftType shiftType = _shiftType.toAnalyticsType();
+    for (YieldCurveBucketedShift shift : _shifts) {
+      double start = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getStart()));
+      double end = TimeCalculator.getTimeBetween(valuationTime, valuationTime.plus(shift.getEnd()));
+      buckets.add(DoublesPair.of(start, end));
+      if (shiftType == ShiftType.RELATIVE) {
+        // add shifts to 1. i.e. 10.pc actualy means 'value * 1.1' and -10.pc means 'value * 0.9'
+        shifts.add(shift.getShift() + 1);
+      } else {
+        shifts.add(shift.getShift());
       }
     }
     return YieldCurveUtils.withBucketedShifts(structure, buckets, shifts, shiftType);

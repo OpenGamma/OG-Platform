@@ -13,10 +13,13 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
@@ -24,7 +27,9 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -98,6 +103,42 @@ public class AnalyticsViewManager {
     // TODO something more sophisticated / configurable here
     _portfolioResolutionExecutor = Executors.newFixedThreadPool(4);
   }
+  
+  public ViewRequest createViewRequest(UniqueId webId, List<String> aggregators,
+      List<MarketDataSpecification> marketDataSpecs, Instant valuationTime, VersionCorrection portfolioVersionCorrection, boolean blotter) {
+    if (isViewDefinitionId(webId)) {
+      return new ViewRequest(webId, null, aggregators, marketDataSpecs, valuationTime, portfolioVersionCorrection, blotter);
+    } else if (isViewProcessId(webId)) {
+      // NOTE jonathan 2014-01-21 -- this is a hidden debugging feature. Parts of the UI make no sense in conjunction
+      // with this, such as the ability to customise the aggregation.
+      if (!aggregators.isEmpty()) {
+        throw new OpenGammaRuntimeException("Cannot customise aggregation when attaching to an existing view process");
+      }
+      ViewProcess viewProcess = _viewProcessor.getViewProcess(webId);
+      UniqueId viewDefinitionId = viewProcess.getDefinitionId();        
+      return new ViewRequest(viewDefinitionId, webId, ImmutableList.<String>of(), marketDataSpecs, valuationTime, portfolioVersionCorrection, blotter);
+    } else {
+      throw new OpenGammaRuntimeException("Unknown identifier " + webId);
+    }
+  }
+
+  private boolean isViewDefinitionId(UniqueId webId) {
+    try {
+      _configSource.get(webId);
+      return true;
+    } catch (IllegalArgumentException iae) {
+      return false;
+    }
+  }
+  
+  private boolean isViewProcessId(UniqueId webId) {
+    try {
+      _viewProcessor.getViewProcess(webId);
+      return true;
+    } catch (DataNotFoundException e) {
+      return false;
+    }
+  }
 
   /**
    * Creates a new view.
@@ -118,8 +159,16 @@ public class AnalyticsViewManager {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
     AggregatedViewDefinition aggregatedViewDef = new AggregatedViewDefinition(_aggregatedViewDefManager, request);
-    ViewDefinition viewDef = (ViewDefinition) _configSource.get(aggregatedViewDef.getUniqueId()).getValue();
-    VersionCorrection versionCorrection = request.getPortfolioVersionCorrection();
+    ViewDefinition viewDef;
+    VersionCorrection versionCorrection;
+    if (request.getViewProcessId() == null) {
+      viewDef = (ViewDefinition) _configSource.get(aggregatedViewDef.getUniqueId()).getValue();
+      versionCorrection = request.getPortfolioVersionCorrection();
+    } else {
+      ViewProcess viewProcess = _viewProcessor.getViewProcess(request.getViewProcessId());
+      viewDef = viewProcess.getLatestViewDefinition();
+      versionCorrection = VersionCorrection.LATEST;
+    }
     // this can be null for a primitives-only view
     UniqueId portfolioId = viewDef.getPortfolioId();
     Supplier<Portfolio> portfolioSupplier;

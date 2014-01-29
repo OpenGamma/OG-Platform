@@ -180,7 +180,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         final int nCurves = group.getTypesForCurves().size();
         @SuppressWarnings("unchecked")
         final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
           final List<IborIndex> iborIndex = new ArrayList<>();
           final List<IndexON> overnightIndex = new ArrayList<>();
           final String curveName = entry.getKey();

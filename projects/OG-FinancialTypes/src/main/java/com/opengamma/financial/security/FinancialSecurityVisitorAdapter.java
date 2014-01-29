@@ -25,8 +25,10 @@ import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.equity.AmericanDepositaryReceiptSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.ExchangeTradedFundSecurity;
 import com.opengamma.financial.security.forward.AgricultureForwardSecurity;
 import com.opengamma.financial.security.forward.EnergyForwardSecurity;
 import com.opengamma.financial.security.forward.MetalForwardSecurity;
@@ -56,6 +58,7 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityWarrantSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
@@ -350,6 +353,21 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+
+  @Override
+  public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -1490,6 +1508,35 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> exchangeTradedFundSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> americanDepositaryReceiptSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> equityWarrantSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
     public Builder<T> futureSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override
@@ -1838,6 +1885,22 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         public T visitFXVolatilitySwapSecurity(final FXVolatilitySwapSecurity security) {
           return value;
         }
+
+        @Override
+        public T visitExchangeTradedFundSecurity(final ExchangeTradedFundSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitAmericanDepositaryReceiptSecurity(final AmericanDepositaryReceiptSecurity security) {
+          return value;
+        }
+
+        @Override
+        public T visitEquityWarrantSecurity(final EquityWarrantSecurity security) {
+          return value;
+        }
+
       };
       return this;
     }

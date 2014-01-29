@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -30,7 +32,8 @@ import com.opengamma.util.tuple.Pair;
  * Class describing a provider with multi-curves and issuer-specific curves.
  */
 public class IssuerProvider implements IssuerProviderInterface {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(IssuerProvider.class);
+  
   /**
    * The multicurve provider.
    */
@@ -163,6 +166,10 @@ public class IssuerProvider implements IssuerProviderInterface {
         return entry.getValue().getDiscountFactor(time);
       }
     }
+    s_logger.error("Could not find issuer discounting curve for {}. There are {} curve available", issuer, _issuerCurves.size());
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      s_logger.error("matching key = {}, filter {} matches = {}", entry.getKey().getFirst(), issuer, entry.getKey().getSecond().getFilteredData(issuer));
+    }
     throw new IllegalArgumentException("Issuer discounting curve not found for " + issuer);
   }
 
@@ -178,6 +185,10 @@ public class IssuerProvider implements IssuerProviderInterface {
         return entry.getValue().getName();
       }
     }
+    s_logger.error("Could not find issuer discounting curve for {}. There are {} curve available", issuer, _issuerCurves.size());
+    for (final Map.Entry<Pair<Object, LegalEntityFilter<LegalEntity>>, YieldAndDiscountCurve> entry : _issuerCurves.entrySet()) {
+      s_logger.error("matching key = {}, filter {} matches = {}", entry.getKey().getFirst(), issuer, entry.getKey().getSecond().getFilteredData(issuer));
+    }   
     throw new IllegalArgumentException("Issuer discounting curve not found: " + issuer);
   }
 

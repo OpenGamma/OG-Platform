@@ -8,6 +8,7 @@ package com.opengamma.engine.view.impl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.Instant;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -65,6 +67,27 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final ViewProcessorImpl _viewProcessor;
 
   /**
+   * Interval (in seconds) at which to check permissions for market
+   * data. Permissions are checked on view compilation. Then, when
+   * each cycle is run, a check is made to see if a further permission
+   * check should be undertaken. A zero value indicates that no
+   * additional permission checks should be done.
+   */
+  private final int _permissionCheckInterval;
+
+  /**
+   * The time that a market data permission check was last done (on the market data server).
+   */
+  private final AtomicReference<Instant> _lastPermissionCheck = new AtomicReference<>();
+
+  /**
+   * Indicates whether a user is entitled to the market data. This is maintained
+   * across cycles and is updated each time the entitlement check is made on the
+   * market data server.
+   */
+  private Map<UserPrincipal, Boolean> _userPermissions = new ConcurrentHashMap<>();
+
+  /**
    * Manages access to critical regions of the process. Note that the use of {@link Semaphore} rather than, for example, {@link ReentrantLock} allows one thread to acquire the lock and another thread
    * to release it as part of the same sequence of operations. This could be important for {@link #suspend()} and {@link #resume()}.
    */
@@ -96,7 +119,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private volatile Object _description;
 
   /**
-   * Indicates if this view process should be run persistently. If true, then even if all clients detach, the process will be kept running.
+   * Indicates if this view process should be run persistently. If true, then even if all
+   * clients detach, the process will be kept running.
    */
   private final boolean _isPersistentViewProcess;
 
@@ -111,28 +135,36 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // END TEMPORARY CODE
 
   /**
-   * Constructs an instance. Note that if runPersistently is true, the view process will start calculating immediately rather than waiting for a listener to attach. It will continue running regardless
-   * of the number of attached listeners.
-   * 
-   * @param viewDefinitionId the identifier of the view definition, not null. If this is versioned the process will be locked to the specific instance. If this is an object identifier at "latest" then
-   *          changes to the view definition will be watched for and the process updated when the view definition changes.
+   * Constructs an instance. Note that if runPersistently is true, the view process will
+   * start calculating immediately rather than waiting for a listener to attach. It will
+   * continue running regardless of the number of attached listeners.
+   *
+   * @param viewDefinitionId the identifier of the view definition, not null. If this is
+   * versioned the process will be locked to the specific instance. If this is an object
+   * identifier at "latest" then changes to the view definition will be watched for and
+   * the process updated when the view definition changes.
    * @param executionOptions the view execution options, not null
    * @param viewProcessContext the process context, not null
    * @param viewProcessor the parent view processor, not null
-   * @param runPersistently if true, then the process will start running and continue running, regardless of the number of attached listeners
-   * @throws DataNotFoundException if the view definition identifier is invalid
+   * @param permissionCheckInterval the interval (in seconds) at which to check permissions
+   * for market data
+   * @param runPersistently if true, then the process will start running and continue running,
+   * regardless of the number of attached listeners  @throws DataNotFoundException if the
+   * view definition identifier is invalid
    */
-  public ViewProcessImpl(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions, final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor,
-      boolean runPersistently) {
-    ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
-    ArgumentChecker.notNull(executionOptions, "executionOptions");
-    ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
-    ArgumentChecker.notNull(viewProcessor, "viewProcessor");
-    _viewDefinitionId = viewDefinitionId;
-    _executionOptions = executionOptions;
-    _viewProcessContext = viewProcessContext;
-    _viewProcessor = viewProcessor;
+  public ViewProcessImpl(final UniqueId viewDefinitionId,
+                         final ViewExecutionOptions executionOptions,
+                         final ViewProcessContext viewProcessContext,
+                         final ViewProcessorImpl viewProcessor,
+                         int permissionCheckInterval,
+                         boolean runPersistently) {
+    _viewDefinitionId = ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
+    _executionOptions = ArgumentChecker.notNull(executionOptions, "executionOptions");
+    _viewProcessContext = ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
+    _viewProcessor = ArgumentChecker.notNull(viewProcessor, "viewProcessor");
+    _permissionCheckInterval = permissionCheckInterval;
     _isPersistentViewProcess = runPersistently;
+
     if (_viewDefinitionId.isVersioned()) {
       _viewDefinitionChangeListener = null;
     } else {
@@ -368,12 +400,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     for (final ViewResultListener listener : listeners) {
       try {
         final UserPrincipal listenerUser = listener.getUser();
-        final boolean hasMarketDataPermissions = permissionProvider.checkMarketDataPermissions(listenerUser, marketData).isEmpty();
+        // todo - response to a failed permission check is handled by the client rather than here. Is there a reason for this (cf cycleCompleted method)
+        final boolean hasMarketDataPermissions = userIsPermitted(true, listenerUser, permissionProvider, marketData);
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
+    _lastPermissionCheck.set(Instant.now());
     getExecutionLogModeSource().viewDefinitionCompiled(compiledViewDefinition);
   }
 
@@ -402,11 +436,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   @Override
   public void cycleCompleted(final ViewCycle cycle) {
+
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} completed on view process {}", cycle.getUniqueId(), getUniqueId());
     final ViewComputationResultModel result;
     ViewDeltaResultModel deltaResult = null;
     final ViewResultListener[] listeners;
+    Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider> latest;
     lock();
     try {
       result = cycle.getResultModel();
@@ -417,19 +453,55 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
       }
       listeners = getListenerArray();
+      latest = _latestCompiledViewDefinition.get();
     } finally {
       unlock();
     }
     // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
     // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
     // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    boolean isPermissionCheckDue = isPermissionCheckDue();
     for (final ViewResultListener listener : listeners) {
       try {
-        listener.cycleCompleted(result, deltaResult);
+        UserPrincipal user = listener.getUser();
+        final MarketDataPermissionProvider permissionProvider = latest.getValue();
+        final Set<ValueSpecification> marketDataRequirements = latest.getKey().getMarketDataRequirements();
+        if (userIsPermitted(isPermissionCheckDue, user, permissionProvider, marketDataRequirements)) {
+          listener.cycleCompleted(result, deltaResult);
+        } else {
+          listener.cycleExecutionFailed(cycle.getExecutionOptions(),
+                                        new Exception("User: " + user + " does not have permission for data in this view"));
+        }
       } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
+    if (isPermissionCheckDue) {
+      _lastPermissionCheck.set(Instant.now());
+    }
+  }
+
+  private boolean userIsPermitted(boolean isPermissionCheckDue,
+                                  UserPrincipal user,
+                                  MarketDataPermissionProvider permissionProvider,
+                                  Set<ValueSpecification> marketDataRequirements) {
+
+    if (user == null) {
+      // No permissions checking if we're not logging in
+      return true;
+    } else if (isPermissionCheckDue || !_userPermissions.containsKey(user)) {
+      s_logger.info("Performing permissions check for market data");
+      final boolean allowed = permissionProvider.checkMarketDataPermissions(user, marketDataRequirements).isEmpty();
+      _userPermissions.put(user, allowed);
+      return allowed;
+    } else {
+      return _userPermissions.get(user);
+    }
+  }
+
+  private boolean isPermissionCheckDue() {
+    return _permissionCheckInterval > 0 &&
+        Instant.now().isAfter(_lastPermissionCheck.get().plus(_permissionCheckInterval, ChronoUnit.SECONDS));
   }
 
   @Override
@@ -639,11 +711,17 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         final CompiledViewDefinitionWithGraphs compiledViewDefinition = latestCompilation.getFirst();
         final MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
         final Set<ValueSpecification> marketData = compiledViewDefinition.getMarketDataRequirements();
-        final Set<ValueSpecification> deniedRequirements = permissionProvider.checkMarketDataPermissions(listener.getUser(), marketData);
-        final boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
+        final UserPrincipal user = listener.getUser();
+        final boolean hasMarketDataPermissions = userIsPermitted(true, user, permissionProvider, marketData);
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+
         if (latestResult != null) {
-          listener.cycleCompleted(latestResult, null);
+          if (hasMarketDataPermissions) {
+            listener.cycleCompleted(latestResult, null);
+          } else {
+            listener.cycleExecutionFailed(latestResult.getViewCycleExecutionOptions(),
+                                          new Exception("User: " + user + " does not have permission for data in this view"));
+          }
         }
       } catch (final Exception e) {
         s_logger.error("Failed to push initial state to listener during attachment");
@@ -805,5 +883,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // There is no need to slow things down by attempting to join the job.
     setWorker(null);
   }
+
 
 }

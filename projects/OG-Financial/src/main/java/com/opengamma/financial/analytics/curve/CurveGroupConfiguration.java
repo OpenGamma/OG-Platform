@@ -44,7 +44,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * The types for each curve.
    */
   @PropertyDefinition(validate = "notNull")
-  private Map<String, List<CurveTypeConfiguration>> _typesForCurves;
+  private Map<String, List<? extends CurveTypeConfiguration>> _typesForCurves;
 
   /**
    * For the builder.
@@ -56,7 +56,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * @param order The order of this configuration, not negative
    * @param curveTypes The curve types for a name, not null
    */
-  public CurveGroupConfiguration(final int order, final Map<String, List<CurveTypeConfiguration>> curveTypes) {
+  public CurveGroupConfiguration(final int order, final Map<String, List<? extends CurveTypeConfiguration>> curveTypes) {
     ArgumentChecker.notNegative(order, "order");
     setOrder(order);
     setTypesForCurves(curveTypes);
@@ -111,7 +111,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * Gets the types for each curve.
    * @return the value of the property, not null
    */
-  public Map<String, List<CurveTypeConfiguration>> getTypesForCurves() {
+  public Map<String, List<? extends CurveTypeConfiguration>> getTypesForCurves() {
     return _typesForCurves;
   }
 
@@ -119,7 +119,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
    * Sets the types for each curve.
    * @param typesForCurves  the new value of the property, not null
    */
-  public void setTypesForCurves(Map<String, List<CurveTypeConfiguration>> typesForCurves) {
+  public void setTypesForCurves(Map<String, List<? extends CurveTypeConfiguration>> typesForCurves) {
     JodaBeanUtils.notNull(typesForCurves, "typesForCurves");
     this._typesForCurves = typesForCurves;
   }
@@ -285,7 +285,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
           ((CurveGroupConfiguration) bean).setOrder((Integer) newValue);
           return;
         case -1976018156:  // typesForCurves
-          ((CurveGroupConfiguration) bean).setTypesForCurves((Map<String, List<CurveTypeConfiguration>>) newValue);
+          ((CurveGroupConfiguration) bean).setTypesForCurves((Map<String, List<? extends CurveTypeConfiguration>>) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);

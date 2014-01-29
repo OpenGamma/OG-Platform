@@ -12,20 +12,44 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.integration.tool.DataTrackingToolContext;
+import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.master.config.impl.DataTrackingConfigMaster;
+import com.opengamma.master.exchange.impl.DataTrackingExchangeMaster;
+import com.opengamma.master.historicaltimeseries.impl.DataTrackingHistoricalTimeSeriesMaster;
+import com.opengamma.master.holiday.impl.DataTrackingHolidayMaster;
+import com.opengamma.master.marketdatasnapshot.impl.DataTrackingMarketDataSnapshotMaster;
+import com.opengamma.master.organization.impl.DataTrackingOrganizationMaster;
+import com.opengamma.master.portfolio.impl.DataTrackingPortfolioMaster;
+import com.opengamma.master.position.impl.DataTrackingPositionMaster;
+import com.opengamma.master.security.impl.DataTrackingSecurityMaster;
 
 /**
  * 
  */
-public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext> {
+public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(GoldenCopyCreationTool.class);
+  
+  private static final ImmutableSet<CharSequence> UNSUPPORTED_CHAR_SEQUENCES = ImmutableSet.<CharSequence>of("/");
+  
+  /**
+   * The version name to use against calculation results in the golden copy.
+   */
+  public static final String GOLDEN_COPY_VERSION_NAME = "Golden Copy";
+  
   
   public static void main(String[] args) {
-    new GoldenCopyCreationTool().initAndRun(args, DataTrackingToolContext.class);
-    System.exit(0);
+    try {
+      new GoldenCopyCreationTool().initAndRun(args, ToolContext.class);
+    } finally {
+      System.exit(0);
+    }
   }
 
   @Override
@@ -38,30 +62,38 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
     GoldenCopyCreator goldenCopyCreator = new GoldenCopyCreator(getToolContext());
     
     String[] viewSnapshotPairs = commandLine.getArgs();
+    
+    validateAsFilesystemNames(viewSnapshotPairs);
+    
     Preconditions.checkArgument(viewSnapshotPairs.length % 2 == 0, "Should be an even number of view/snapshot pairs. Found %s", Arrays.toString(viewSnapshotPairs));
     
     for (int i = 0; i < viewSnapshotPairs.length; i += 2) {
       String viewName = viewSnapshotPairs[i];
       String snapshotName = viewSnapshotPairs[i + 1];
-      GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, "Base");
+      s_logger.info("Executing {} against snapshot {}", viewName, snapshotName);
+      GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, GOLDEN_COPY_VERSION_NAME);
+      s_logger.info("Persisting golden copy for {} against snapshot {}", viewName, snapshotName);
       new GoldenCopyPersistenceHelper(new File(regressionDirectory)).save(goldenCopy);
+      s_logger.info("Persisted golden copy for {} against snapshot {}", viewName, snapshotName);
     }
     
-    DataTrackingToolContext tc = getToolContext();
+    ToolContext tc = getToolContext();
     
     RegressionIO io = ZipFileRegressionIO.createWriter(new File(regressionDirectory, GoldenCopyDumpCreator.DB_DUMP_ZIP), new FudgeXMLFormat());
     
-    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
-        tc.getSecurityMaster(),
-        tc.getPositionMaster(),
-        tc.getPortfolioMaster(),
-        tc.getConfigMaster(),
-        tc.getHistoricalTimeSeriesMaster(),
-        tc.getHolidayMaster(),
-        tc.getExchangeMaster(),
-        tc.getMarketDataSnapshotMaster(),
-        tc.getOrganizationMaster());
     
+    GoldenCopyDumpCreator goldenCopyDumpCreator = new GoldenCopyDumpCreator(io, 
+        (DataTrackingSecurityMaster) tc.getSecurityMaster(),
+        (DataTrackingPositionMaster) tc.getPositionMaster(),
+        (DataTrackingPortfolioMaster) tc.getPortfolioMaster(),
+        (DataTrackingConfigMaster) tc.getConfigMaster(),
+        (DataTrackingHistoricalTimeSeriesMaster) tc.getHistoricalTimeSeriesMaster(),
+        (DataTrackingHolidayMaster) tc.getHolidayMaster(),
+        (DataTrackingExchangeMaster) tc.getExchangeMaster(),
+        (DataTrackingMarketDataSnapshotMaster) tc.getMarketDataSnapshotMaster(),
+        (DataTrackingOrganizationMaster) tc.getOrganizationMaster());
+    
+    s_logger.info("Persisting db dump with tracked data");
     goldenCopyDumpCreator.execute();
     
   }
@@ -82,6 +114,14 @@ public class GoldenCopyCreationTool extends AbstractTool<DataTrackingToolContext
         .withDescription("Where to write the golden copy(ies) and the corresponding dump.")
         .withLongOpt("db-dump-output-dir")
         .create("o");
+  }
+  
+  private void validateAsFilesystemNames(String[] names) {
+    for (String name : names) {
+      for (CharSequence unsupportedCharSequence : UNSUPPORTED_CHAR_SEQUENCES) {
+        Preconditions.checkArgument(!name.contains(unsupportedCharSequence), "Unsupported char sequence '%s' found in string '%s'", unsupportedCharSequence, name);
+      }
+    }
   }
   
 }

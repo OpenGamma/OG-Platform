@@ -101,6 +101,7 @@ public class DoubleTimeSeriesFudgeBuilder implements FudgeBuilder<DoubleTimeSeri
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static <T> T value(final FudgeMsg message, final String field, final T indicator) {
     final Object value = message.getValue(field);
     if (value == null) {

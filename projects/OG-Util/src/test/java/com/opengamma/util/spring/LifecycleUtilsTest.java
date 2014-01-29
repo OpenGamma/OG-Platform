@@ -12,10 +12,12 @@ import org.mockito.Mockito;
 import org.springframework.context.Lifecycle;
 import org.testng.annotations.Test;
 
+import com.opengamma.util.test.TestGroup;
+
 /**
  * Tests the {@link LifecycleUtils} class
  */
-@Test
+@Test(groups = TestGroup.UNIT)
 public class LifecycleUtilsTest {
 
   public void testStart() {

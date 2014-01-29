@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.sql.Types;
 
-import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -29,6 +28,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.masterdb.security.DbSecurityBeanMaster;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.ZipUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.AbstractDbTest;
@@ -146,7 +146,7 @@ public abstract class AbstractDbSecurityBeanMasterTest extends AbstractDbTest {
     EquitySecurity value = new EquitySecurity("LONDON", "LON", "LSE", Currency.GBP);
     value.setName(name);
     value.setExternalIdBundle(bundle);
-    String xml = JodaBeanSer.COMPACT.xmlWriter().write(value);
+    String xml = JodaBeanSerialization.serializer(false).xmlWriter().write(value);
     byte[] bytes = ZipUtils.deflateString(xml);
     SqlLobValue lob = new SqlLobValue(bytes, getDbConnector().getDialect().getLobHandler());
     return new SqlParameterValue(Types.BLOB, lob);

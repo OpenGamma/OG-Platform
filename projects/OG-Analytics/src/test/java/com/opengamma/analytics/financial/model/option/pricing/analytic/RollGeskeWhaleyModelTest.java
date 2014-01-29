@@ -18,10 +18,12 @@ import com.opengamma.analytics.financial.model.option.pricing.tree.LatticeSpecif
 import com.opengamma.analytics.financial.model.option.pricing.tree.LeisenReimerLatticeSpecification;
 import com.opengamma.analytics.financial.model.option.pricing.tree.OptionFunctionProvider1D;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
+import com.opengamma.util.test.TestGroup;
 
 /**
  * 
  */
+@Test(groups = TestGroup.UNIT)
 public class RollGeskeWhaleyModelTest {
   private static final double TIME_TO_EXPIRY = 1.;
   private static final double SPOT = 100.;
@@ -67,6 +69,50 @@ public class RollGeskeWhaleyModelTest {
           assertEquals(bsMod, price, Math.max(eps, Math.abs(bs) * eps));
           assertEquals(bs, priceZeroDiv, 1.e-14);
           assertEquals(priceSmallTime, priceZeroTime, Math.max(eps, Math.abs(priceZeroTime) * eps));
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void noDividendTest() {
+    final int nStrikes = STRIKES_INPUT.length;
+    final int nVols = VOLS.length;
+    final int nInt = INTEREST_RATES.length;
+    final double eps = 1.e-5;
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        for (int k = 0; k < nInt; ++k) {
+
+          /*
+           * For the stability of the root-finder for sStar we shall take the limit in dividendTime as well.
+           */
+          final double dividendTimes = TIME_TO_EXPIRY + eps;
+          final double dividend = 0.1 * SPOT;
+
+          //            System.out.println(i + "\t" + j + "\t" + k);
+          final double[] greeks = MODEL.getPriceAdjoint(SPOT, STRIKES_INPUT[i], INTEREST_RATES[k], TIME_TO_EXPIRY, VOLS[j], new double[] {dividend }, new double[] {dividendTimes });
+
+          final double price = BlackScholesFormulaRepository.price(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
+          final double delta = BlackScholesFormulaRepository.delta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
+          final double dualDelta = BlackScholesFormulaRepository.dualDelta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
+          final double theta = BlackScholesFormulaRepository.theta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
+          final double rho = BlackScholesFormulaRepository.rho(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k], true);
+          final double vega = BlackScholesFormulaRepository.vega(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k]);
+          final double gamma = BlackScholesFormulaRepository.gamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], INTEREST_RATES[k]);
+
+          assertEquals(price, greeks[0], Math.max(eps, Math.abs(price) * 1.e-14));
+          assertEquals(delta, greeks[1], Math.max(eps, Math.abs(price) * 1.e-14));
+          assertEquals(dualDelta, greeks[2], Math.max(eps, Math.abs(price) * 1.e-14));
+          assertEquals(rho, greeks[3], Math.max(eps, Math.abs(price) * 1.e-14));
+          assertEquals(-theta, greeks[4], Math.max(eps, Math.abs(price) * 1.e-14));
+          assertEquals(0., greeks[5]);
+          assertEquals(vega, greeks[6], Math.max(eps, Math.abs(price) * 1.e-14));
+          assertEquals(gamma, greeks[7], Math.max(eps, Math.abs(price) * 1.e-14));
         }
       }
     }
@@ -459,18 +505,20 @@ public class RollGeskeWhaleyModelTest {
    */
   @Test
   public void errorMultiTest() {
-    final double[] params = new double[] {100., 100., 0.5, 0.2, 20., 0.8 };
+    final double[] params = new double[] {100., 100., 0.9, 0.2, 20., 0.8 };
     final int nParams = params.length;
 
-    for (int i = 0; i < nParams; ++i) {
+    for (int i = 0; i < nParams - 2; ++i) {
       params[i] *= -1.;
       try {
         MODEL.price(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] });
+        throw new RuntimeException();
       } catch (Exception e) {
         assertTrue(e instanceof IllegalArgumentException);
       }
       try {
         MODEL.getPriceAdjoint(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] });
+        throw new RuntimeException();
       } catch (Exception e) {
         assertTrue(e instanceof IllegalArgumentException);
       }
@@ -479,43 +527,51 @@ public class RollGeskeWhaleyModelTest {
 
     try {
       MODEL.price(params[0], params[1], 0.05, params[2], params[3], new double[] {params[0] + params[4] }, new double[] {params[5] });
+      throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
       MODEL.getPriceAdjoint(params[0], params[1], 0.05, params[2], params[3], new double[] {params[0] + params[4] }, new double[] {params[5] });
+      throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
-    try {
-      MODEL.price(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] + params[2] });
-    } catch (Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
-    }
-    try {
-      MODEL.getPriceAdjoint(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] + params[2] });
-    } catch (Exception e) {
-      assertTrue(e instanceof IllegalArgumentException);
-    }
+    //    try {
+    //      MODEL.price(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] + params[2] });
+    //      throw new RuntimeException();
+    //    } catch (Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
+    //    try {
+    //      MODEL.getPriceAdjoint(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] + params[2] });
+    //      throw new RuntimeException();
+    //    } catch (Exception e) {
+    //      assertTrue(e instanceof IllegalArgumentException);
+    //    }
     try {
       MODEL.impliedVolatility(params[0] / 10., params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5] + params[2] });
+      throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
 
     try {
       MODEL.price(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5], params[2] });
+      throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
       MODEL.getPriceAdjoint(params[0], params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5], params[2] });
+      throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }
     try {
       MODEL.impliedVolatility(params[0] / 10., params[1], 0.05, params[2], params[3], new double[] {params[4] }, new double[] {params[5], params[2] });
+      throw new RuntimeException();
     } catch (Exception e) {
       assertTrue(e instanceof IllegalArgumentException);
     }

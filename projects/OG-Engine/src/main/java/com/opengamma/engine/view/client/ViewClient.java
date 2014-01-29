@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -153,6 +154,14 @@ public interface ViewClient extends UniqueIdentifiable {
   // reference view definitions by unique identifier, these would attach to a specific version rather than the latest
   // version. At the moment, we only support attaching to the latest version.
   ViewDefinition getLatestViewDefinition();
+  
+  /**
+   * Gets the view process to which this client is attached.
+   * 
+   * @return the view process to which this client is attached, not null
+   * @throws IllegalStateException if the view client is not attached to a view process
+   */
+  ViewProcess getViewProcess();
 
   //-------------------------------------------------------------------------
   /**

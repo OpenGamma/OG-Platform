@@ -202,6 +202,106 @@ public class CouponIborCompoundingSpreadDefinitionTest {
     assertEquals("CouponIborCompoundedSpreadDefinition: toDerivatives", cpnExpected, cpnConverted);
   }
 
+  @Test
+  public void toDerivativeAfter1FixingInitialRate() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 28);
+    double initialRate = 0.002;
+    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, CPN_FROM_INDEX_DEFINITION.getPaymentDate());
+    final double accruedNotional = (1.0 + PAYMENT_ACCRUAL_FACTORS[0] * (initialRate + SPREAD)) * NOTIONAL;
+    final double[] paymentAccrualFactorsLeft = new double[NB_SUB_PERIOD - 1];
+    System.arraycopy(PAYMENT_ACCRUAL_FACTORS, 1, paymentAccrualFactorsLeft, 0, NB_SUB_PERIOD - 1);
+    final double[] fixingTimesLeft = new double[NB_SUB_PERIOD - 1];
+    System.arraycopy(TimeCalculator.getTimeBetween(referenceDate, FIXING_DATES), 1, fixingTimesLeft, 0, NB_SUB_PERIOD - 1);
+    final double[] fixingPeriodStartTimesLeft = new double[NB_SUB_PERIOD - 1];
+    System.arraycopy(TimeCalculator.getTimeBetween(referenceDate, ACCRUAL_START_DATES), 1, fixingPeriodStartTimesLeft, 0, NB_SUB_PERIOD - 1);
+    final double[] fixingPeriodEndTimesLeft = new double[NB_SUB_PERIOD - 1];
+    System.arraycopy(TimeCalculator.getTimeBetween(referenceDate, FIXING_PERIOD_END_DATES), 1, fixingPeriodEndTimesLeft, 0, NB_SUB_PERIOD - 1);
+    final double[] fixingPeriodAccrualFactorsLeft = new double[NB_SUB_PERIOD - 1];
+    System.arraycopy(FIXING_ACCRUAL_FACTORS, 1, fixingPeriodAccrualFactorsLeft, 0, NB_SUB_PERIOD - 1);
+    final Coupon cpnConverted = CouponIborCompoundingSpreadDefinition.from(
+        CPN_FROM_INDEX_DEFINITION.getCurrency(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentDate(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualStartDate(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualEndDate(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentYearFraction(),
+        CPN_FROM_INDEX_DEFINITION.getNotional(),
+        CPN_FROM_INDEX_DEFINITION.getIndex(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualStartDates(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualEndDates(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentAccrualFactors(),
+        CPN_FROM_INDEX_DEFINITION.getFixingDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodStartDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodEndDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodAccrualFactors(),
+        CPN_FROM_INDEX_DEFINITION.getSpread(),
+        initialRate).toDerivative(referenceDate, FIXING_TS);
+    final CouponIborCompoundingSpread cpnExpected = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), paymentTime, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, accruedNotional, USDLIBOR1M,
+        paymentAccrualFactorsLeft, fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, SPREAD);
+    assertEquals("CouponIborCompoundedSpreadDefinition: toDerivatives", cpnExpected, cpnConverted);
+  }
+
+  @Test
+  public void toDerivativeAfter2FixingInitialRate() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 9, 20);
+    double initialRate = 0.002;
+    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, CPN_FROM_INDEX_DEFINITION.getPaymentDate());
+    final double accruedNotional = (1.0 + PAYMENT_ACCRUAL_FACTORS[0] * (initialRate + SPREAD)) * (1.0 + PAYMENT_ACCRUAL_FACTORS[1] * (FIXING_RATES[2] + SPREAD)) * NOTIONAL;
+    final double[] paymentAccrualFactorsLeft = new double[] {PAYMENT_ACCRUAL_FACTORS[2] };
+    final double[] fixingTimesLeft = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATES[2]) };
+    final double[] fixingPeriodStartTimesLeft = new double[] {TimeCalculator.getTimeBetween(referenceDate, ACCRUAL_START_DATES[2]) };
+    final double[] fixingPeriodEndTimesLeft = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_PERIOD_END_DATES[2]) };
+    final double[] fixingPeriodAccrualFactorsLeft = new double[] {FIXING_ACCRUAL_FACTORS[2] };
+    final Coupon cpnConverted = CouponIborCompoundingSpreadDefinition.from(
+        CPN_FROM_INDEX_DEFINITION.getCurrency(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentDate(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualStartDate(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualEndDate(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentYearFraction(),
+        CPN_FROM_INDEX_DEFINITION.getNotional(),
+        CPN_FROM_INDEX_DEFINITION.getIndex(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualStartDates(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualEndDates(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentAccrualFactors(),
+        CPN_FROM_INDEX_DEFINITION.getFixingDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodStartDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodEndDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodAccrualFactors(),
+        CPN_FROM_INDEX_DEFINITION.getSpread(),
+        initialRate).toDerivative(referenceDate, FIXING_TS);
+    final CouponIborCompoundingSpread cpnExpected = new CouponIborCompoundingSpread(USDLIBOR1M.getCurrency(), paymentTime, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, accruedNotional, USDLIBOR1M,
+        paymentAccrualFactorsLeft, fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, SPREAD);
+    assertEquals("CouponIborCompoundedSpreadDefinition: toDerivatives", cpnExpected, cpnConverted);
+  }
+
+  @Test
+  public void toDerivativeAfterLastFixingInitialRate() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 10, 25);
+    double initialRate = 0.002;
+    final Coupon cpnConverted = CouponIborCompoundingSpreadDefinition.from(
+        CPN_FROM_INDEX_DEFINITION.getCurrency(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentDate(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualStartDate(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualEndDate(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentYearFraction(),
+        CPN_FROM_INDEX_DEFINITION.getNotional(),
+        CPN_FROM_INDEX_DEFINITION.getIndex(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualStartDates(),
+        CPN_FROM_INDEX_DEFINITION.getAccrualEndDates(),
+        CPN_FROM_INDEX_DEFINITION.getPaymentAccrualFactors(),
+        CPN_FROM_INDEX_DEFINITION.getFixingDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodStartDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodEndDates(),
+        CPN_FROM_INDEX_DEFINITION.getFixingPeriodAccrualFactors(),
+        CPN_FROM_INDEX_DEFINITION.getSpread(),
+        initialRate).toDerivative(referenceDate, FIXING_TS);
+    final double rate = ((1.0 + PAYMENT_ACCRUAL_FACTORS[0] * (initialRate + SPREAD)) * (1.0 + PAYMENT_ACCRUAL_FACTORS[1] * (FIXING_RATES[2] + SPREAD))
+        * (1.0 + PAYMENT_ACCRUAL_FACTORS[2] * (FIXING_RATES[3] + SPREAD)) - 1.0)
+        / PAYMENT_ACCRUAL_FACTOR;
+    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, CPN_FROM_INDEX_DEFINITION.getPaymentDate());
+    final CouponFixed cpnExpected = new CouponFixed(USDLIBOR1M.getCurrency(), paymentTime, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, rate, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1]);
+    assertEquals("CouponIborCompoundedSpreadDefinition: toDerivatives", cpnExpected, cpnConverted);
+  }
+
   @SuppressWarnings("deprecation")
   public void toDerivativeNoTSDeprecated() {
     final CouponIborCompoundingSpread cpnConverted = CPN_FROM_INDEX_DEFINITION.toDerivative(REFERENCE_DATE, new String[0]);

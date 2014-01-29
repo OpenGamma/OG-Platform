@@ -93,7 +93,7 @@ public class CurveUtils {
     ArgumentChecker.notNull(configuration, "configuration");
     final List<String> names = new ArrayList<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
-      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         names.add(entry.getKey());
       }
     }
@@ -117,7 +117,7 @@ public class CurveUtils {
     ArgumentChecker.notNull(curveNodeCurrencyVisitor, "curve node currency visitor");
     final Set<Currency> currencies = new TreeSet<>();
     for (final CurveGroupConfiguration group : configuration.getCurveGroups()) {
-      for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
+      for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
         final String curveName = entry.getKey();
         final AbstractCurveDefinition curveDefinition = curveDefinitionSource.getDefinition(curveName);
         if (curveDefinition == null) {

@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.1.7</version>
+    <version>1.1.8</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
@@ -56,6 +56,7 @@
 
   <!-- ==================================================================== -->
   <modules>
+    <module>deployment-template</module>
     <module>examples</module>
     <module>projects</module>
   </modules>
@@ -289,7 +290,7 @@
       <dependency>
         <groupId>org.joda</groupId>
         <artifactId>joda-convert</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
       </dependency>
       <dependency>
         <groupId>org.joda</groupId>
@@ -797,10 +798,10 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
           </exclusion>
-	        <exclusion>
-	          <groupId>org.slf4j</groupId>
-	          <artifactId>slf4j-api</artifactId>
-	        </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -1224,14 +1225,12 @@
     <!-- Properties for buildnumber-maven-plugin -->
     <maven.buildNumber.getRevisionOnlyOnce>true</maven.buildNumber.getRevisionOnlyOnce>
     <!-- Version properties -->
-    <joda-beans.version>0.9.0</joda-beans.version>
-    <fudge-java.version>0.3.9.13</fudge-java.version>
+    <joda-beans.version>0.9.3</joda-beans.version>
+    <fudge-java.version>0.3.9.18</fudge-java.version>
     <fudge-proto.version>0.3.9.7</fudge-proto.version>
-    <jacoco-maven-plugin.version>0.6.3.201306030806</jacoco-maven-plugin.version>
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>
     <jersey.version>1.17.1</jersey.version>
-    <maven-checkstyle-plugin.version>2.10</maven-checkstyle-plugin.version><!-- downgrade to fix site plugin -->
     <!-- Testing properties -->
     <tests.testng.maxheap>2G</tests.testng.maxheap>
     <tests.testng.logback>com/opengamma/util/warn-logback.xml</tests.testng.logback>

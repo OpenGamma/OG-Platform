@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -36,7 +38,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class UserEntitlementCheckerTest {
 
-  public void basicPermissionCheck() {
+  private DistributionSpecification _aaplOnBloomberg;
+  private DistributionSpecification _aaplOnBloombergWithNormalization;
+  private DistributionSpecification _bondOnBloomberg;
+  private DistributionSpecification _bondOnBloombergWithNormalization;
+  private DistributionSpecification _fxOnBloomberg;
+  private DistributionSpecification _fxOnBloombergWithNormalization;
+  private UserPrincipal _john;
+  private UserPrincipal _mike;
+  private LiveDataEntitlementChecker _userEntitlementChecker;
+
+  @BeforeMethod
+  public void setup() {
     Set<UserGroup> userGroups = new HashSet<UserGroup>();
 
     UserGroup group1 = new UserGroup(0L, "group1");
@@ -56,68 +69,124 @@ public class UserEntitlementCheckerTest {
     
     UserManager userManager = mock(UserManager.class);
     when(userManager.getUser("john")).thenReturn(user);
-    
-    DistributionSpecification aaplOnBloomberg = new DistributionSpecification(
+
+    _aaplOnBloomberg = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "EQ12345"),
         StandardRules.getNoNormalization(),
-        "LiveData.Bloomberg.Equity.AAPL"); 
-    
-    DistributionSpecification aaplOnBloombergWithNormalization = new DistributionSpecification(
+        "LiveData.Bloomberg.Equity.AAPL");
+
+    _aaplOnBloombergWithNormalization = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "EQ12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
-        "LiveData.Bloomberg.Equity.AAPL.MyWeirdNormalizationRule"); 
-    
-    DistributionSpecification bondOnBloomberg = new DistributionSpecification(
+        "LiveData.Bloomberg.Equity.AAPL.MyWeirdNormalizationRule");
+
+    _bondOnBloomberg = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "BOND12345"),
         StandardRules.getNoNormalization(),
-        "LiveData.Bloomberg.Bond.IBMBOND123"); 
-    
-    DistributionSpecification bondOnBloombergWithNormalization = new DistributionSpecification(
+        "LiveData.Bloomberg.Bond.IBMBOND123");
+
+    _bondOnBloombergWithNormalization = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "BOND12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Bond.IBMBOND123.MyWeirdNormalizationRule");
-    
-    DistributionSpecification fxOnBloomberg = new DistributionSpecification(
+
+    _fxOnBloomberg = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "FX12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.FX.EURUSD");
-    
-    DistributionSpecification fxOnBloombergWithNormalization = new DistributionSpecification(
+
+    _fxOnBloombergWithNormalization = new DistributionSpecification(
         ExternalId.of("BLOOMBERG_BUID", "FX12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.FX.EURUSD.MyWeirdNormalizationRule");
     
     Map<LiveDataSpecification, DistributionSpecification> fixes = new HashMap<LiveDataSpecification, DistributionSpecification>();
-    fixes.put(aaplOnBloomberg.getFullyQualifiedLiveDataSpecification(), aaplOnBloomberg);
-    fixes.put(aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(), aaplOnBloombergWithNormalization);
-    fixes.put(bondOnBloomberg.getFullyQualifiedLiveDataSpecification(), bondOnBloomberg);
-    fixes.put(bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(), bondOnBloombergWithNormalization);
-    fixes.put(fxOnBloomberg.getFullyQualifiedLiveDataSpecification(), fxOnBloomberg);
-    fixes.put(fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(), fxOnBloombergWithNormalization);
+    fixes.put(_aaplOnBloomberg.getFullyQualifiedLiveDataSpecification(), _aaplOnBloomberg);
+    fixes.put(_aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(),
+              _aaplOnBloombergWithNormalization);
+    fixes.put(_bondOnBloomberg.getFullyQualifiedLiveDataSpecification(), _bondOnBloomberg);
+    fixes.put(_bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(),
+              _bondOnBloombergWithNormalization);
+    fixes.put(_fxOnBloomberg.getFullyQualifiedLiveDataSpecification(), _fxOnBloomberg);
+    fixes.put(_fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification(),
+              _fxOnBloombergWithNormalization);
     
     FixedDistributionSpecificationResolver resolver = new FixedDistributionSpecificationResolver(fixes);
-    
-    LiveDataEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(userManager, resolver);
-    
-    UserPrincipal john = new UserPrincipal("john", "127.0.0.1");
-    
-    AssertJUnit.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    AssertJUnit.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
-    AssertJUnit.assertTrue(userEntitlementChecker.isEntitled(john, bondOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, bondOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
-    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloombergWithNormalization.getFullyQualifiedLiveDataSpecification()));
-    
+
+    _userEntitlementChecker = new UserEntitlementChecker(userManager, resolver);
+
+    _john = new UserPrincipal("john", "127.0.0.1");
+
     // non-existent user
-    UserPrincipal mike = new UserPrincipal("mike", "127.0.0.1");
-    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg.getFullyQualifiedLiveDataSpecification())); 
-    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg.getFullyQualifiedLiveDataSpecification()));
-    
-    // bogus spec
-    AssertJUnit.assertFalse(userEntitlementChecker.isEntitled(john, 
-        new LiveDataSpecification(
-            StandardRules.getOpenGammaRuleSetId(), 
-            ExternalId.of("RIC", "bar"))));
+    _mike = new UserPrincipal("mike", "127.0.0.1");
+  }
+
+  @Test
+  public void equityWithoutNormalizationForAuthorizedUser() {
+    checkUserIsEntitled(_john, _aaplOnBloomberg);
+  }
+
+  @Test
+  public void equityWithNormalizationForAuthorizedUser() {
+    checkUserIsEntitled(_john, _aaplOnBloombergWithNormalization);
+  }
+
+  @Test
+  public void bondWithoutNormalizationForAuthorizedUser() {
+    checkUserIsEntitled(_john, _bondOnBloomberg);
+  }
+
+  @Test
+  public void bondWithNormalizationForAuthorizedUser() {
+    checkUserIsNotEntitled(_john, _bondOnBloombergWithNormalization);
+  }
+
+  @Test
+  public void fxWithoutNormalizationForAuthorizedUser() {
+    checkUserIsNotEntitled(_john, _fxOnBloomberg);
+  }
+
+  @Test
+  public void fxWithNormalizationForAuthorizedUser() {
+    checkUserIsNotEntitled(_john, _fxOnBloombergWithNormalization);
+  }
+
+  @Test
+  public void equityWithoutNormalizationForUnauthorizedUser() {
+    checkUserIsNotEntitled(_mike, _aaplOnBloomberg);
+  }
+
+  @Test
+  public void fxWithoutNormalizationForUnauthorizedUser() {
+    checkUserIsNotEntitled(_mike, _fxOnBloomberg);
+  }
+
+  @Test
+  public void nonExistentSpecIsPermissioned() {
+
+    final LiveDataSpecification bogusSpec =
+        new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), ExternalId.of("RIC", "bar"));
+    checkUserIsEntitled(_john, bogusSpec);
+  }
+
+  private void checkUserIsEntitled(UserPrincipal user, DistributionSpecification spec) {
+    checkEntitlement(user, spec, true);
+  }
+
+  private void checkUserIsEntitled(UserPrincipal user, LiveDataSpecification spec) {
+    checkEntitlement(user, spec, true);
+  }
+
+  private void checkUserIsNotEntitled(UserPrincipal user, DistributionSpecification spec) {
+    checkEntitlement(user, spec, false);
+  }
+
+  private void checkEntitlement(UserPrincipal user, DistributionSpecification spec, boolean isEntitled) {
+    checkEntitlement(user, spec.getFullyQualifiedLiveDataSpecification(), isEntitled);
+  }
+
+  private void checkEntitlement(UserPrincipal user, LiveDataSpecification spec, boolean isEntitled) {
+    assertThat(_userEntitlementChecker.isEntitled(user, spec), is(isEntitled));
   }
 
 }

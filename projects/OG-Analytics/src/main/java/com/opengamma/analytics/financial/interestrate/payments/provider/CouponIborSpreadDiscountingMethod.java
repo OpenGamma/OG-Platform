@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -50,9 +51,29 @@ public final class CouponIborSpreadDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponIborSpread coupon, final MulticurveProviderInterface multicurves) {
-    ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurves, "Multi-curves");
-    final double forward = multicurves.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    return presentValue(coupon, multicurves, IborForwardRateProvider.getInstance());
+  }
+
+  /**
+   * Compute the present value of a Ibor coupon with spread using a specific forward rate provider by discounting.
+   * @param coupon The coupon.
+   * @param multicurves The multi-curve provider.
+   * @param forwardRateProvider The forward rate provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(
+      final CouponIborSpread coupon,
+      final MulticurveProviderInterface multicurves,
+      final ForwardRateProvider<IborIndex> forwardRateProvider) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(multicurves, "multicurves");
+    ArgumentChecker.notNull(forwardRateProvider, "forwardRateProvider");
+    final double forward = forwardRateProvider.getRate(
+        multicurves,
+        coupon,
+        coupon.getFixingPeriodStartTime(),
+        coupon.getFixingPeriodEndTime(),
+        coupon.getFixingAccrualFactor());
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double value = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), value);

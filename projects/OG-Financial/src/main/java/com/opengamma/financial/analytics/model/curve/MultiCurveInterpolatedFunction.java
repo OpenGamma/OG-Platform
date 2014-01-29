@@ -153,7 +153,7 @@ public class MultiCurveInterpolatedFunction extends
       int n = 0;
       // These loops are here because the market data snapshot might not contain all of the required information
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
           final String curveName = entry.getKey();
           final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
           final InterpolatedCurveSpecification specification =
@@ -168,10 +168,10 @@ public class MultiCurveInterpolatedFunction extends
       int totalNodes = 0;
       for (final CurveGroupConfiguration group: _curveConstructionConfiguration.getCurveGroups()) {
 
-        for (final Map.Entry<String, List<CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
+        for (final Map.Entry<String, List<? extends CurveTypeConfiguration>> entry: group.getTypesForCurves().entrySet()) {
 
           final String curveName = entry.getKey();
-          final List<CurveTypeConfiguration> types = entry.getValue();
+          final List<? extends CurveTypeConfiguration> types = entry.getValue();
 
           final ValueProperties curveProperties = ValueProperties.builder().with(CURVE, curveName).get();
 

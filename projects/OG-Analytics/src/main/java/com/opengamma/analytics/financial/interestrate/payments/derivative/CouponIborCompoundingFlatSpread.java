@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * dates used to compute the coupon accrual factors.
  * <p> Reference: Mengle, D. (2009). Alternative compounding methods for over-the-counter derivative transactions. ISDA.
  */
-public class CouponIborCompoundingFlatSpread extends Coupon {
+public class CouponIborCompoundingFlatSpread extends Coupon implements DepositIndexCompoundingCoupon<IborIndex> {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
@@ -129,25 +129,58 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
   /**
    * Gets the fixing period start times (in years).
    * @return The times.
+   * 
+   * @deprecated use {@link #getFixingPeriodStartTimes()}.
    */
   public double[] getFixingSubperiodsStartTimes() {
     return _fixingSubperiodsStartTimes;
   }
 
   /**
+   * Gets the fixing period start times (in years).
+   * @return The times.
+   */
+  @Override
+  public double[] getFixingPeriodStartTimes() {
+    return _fixingSubperiodsStartTimes;
+  }
+
+  /**
    * Gets the fixing period end times (in years).
    * @return The times.
+   * 
+   * @deprecated use {@link #getFixingPeriodEndTimes()}.
    */
   public double[] getFixingSubperiodsEndTimes() {
     return _fixingSubperiodsEndTimes;
   }
 
   /**
+   * Gets the fixing period start times (in years).
+   * @return The times.
+   */
+  @Override
+  public double[] getFixingPeriodEndTimes() {
+    return _fixingSubperiodsEndTimes;
+  }
+
+  /**
    * Returns the fixing period accrual factors for each sub-period.
    * @return The factors.
+   * @deprecated use {@link #getFixingPeriodAccrualFactors()}.
    */
   public double[] getFixingSubperiodsAccrualFactors() {
     return _fixingSubperiodsAccrualFactors;
+  }
+
+  /**
+   * Returns the fixing period accrual factors for each sub-period.
+   * @return The factors.
+   */
+  @Override
+  public double[] getFixingPeriodAccrualFactors() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   /**

@@ -70,7 +70,7 @@ public class DiscreteDividendFunction extends AbstractFunction.NonCompiledInvoke
     // The frequency sets up an interval 
     Double nDividendsPerYear = (Double) inputs.getValue(MarketDataRequirementNames.DIVIDEND_FREQUENCY);
     if (nDividendsPerYear == null) {
-      s_logger.warn("No dividend frequency - defaulting to 4 per year");
+      s_logger.debug("No dividend frequency - defaulting to 4 per year");
       nDividendsPerYear = 4.0;
     }
     final double dividendInterval = 1.0 / nDividendsPerYear;

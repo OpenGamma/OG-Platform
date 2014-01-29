@@ -5,12 +5,15 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.bucketedShift;
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.pointShift;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.engine.marketdata.manipulator.DistinctMarketDataSelector;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
@@ -39,19 +42,16 @@ public class YieldCurveManipulatorBuilderTest {
   
   @Test
   public void bucketedShifts() {
-    _builder.bucketedShifts(/*BucketedShiftType.FORWARD*/)
-      .shift(1, 2, 3, CurveShiftType.ABSOLUTE)
-      .apply();
+    _builder.bucketedShifts(ScenarioShiftType.ABSOLUTE, bucketedShift(Period.ofYears(1), Period.ofYears(2), 3));
     
-    YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator)_manipulatorResult;
+    YieldCurveBucketedShiftManipulator result = (YieldCurveBucketedShiftManipulator) _manipulatorResult;
     
     assertTrue("One shift expected", 1 == result.getShifts().size());
-    //assertEquals(BucketedShiftType.FORWARD, result.getBucketedShiftType());
-    
+
     YieldCurveBucketedShift shift = result.getShifts().get(0);
     
-    assertEquals(1., shift.getStartYears());
-    assertEquals(2., shift.getEndYears());
+    assertEquals(Period.ofYears(1), shift.getStart());
+    assertEquals(Period.ofYears(2), shift.getEnd());
     assertEquals(3., shift.getShift());
     
     
@@ -59,10 +59,7 @@ public class YieldCurveManipulatorBuilderTest {
 
   @Test
   public void pointShifts() {
-    
-    _builder.pointShifts()
-      .shift(1, 2, CurveShiftType.ABSOLUTE)
-      .apply();
+    _builder.pointShifts(ScenarioShiftType.ABSOLUTE, pointShift(Period.ofYears(1), 2));
     
     YieldCurvePointShiftManipulator result = (YieldCurvePointShiftManipulator)_manipulatorResult;
     
@@ -70,8 +67,7 @@ public class YieldCurveManipulatorBuilderTest {
     
     YieldCurvePointShift shift = result.getPointShifts().get(0);
     
-    assertEquals(1., shift.getYear());
+    assertEquals(Period.ofYears(1), shift.getTenor());
     assertEquals(2., shift.getShift());
-    assertEquals(CurveShiftType.ABSOLUTE, shift.getShiftType());
   }
 }

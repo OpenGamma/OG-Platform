@@ -70,9 +70,7 @@ public abstract class AbstractDataTrackingMaster<D extends AbstractDocument, M e
     }
     for (D doc : docs) {
       UniqueId uniqueId = doc.getUniqueId();
-      if (uniqueId != null) {
-        _ids.add(doc.getUniqueId());
-      }
+      trackId(uniqueId);
     }
     return docs;
   }
@@ -88,15 +86,13 @@ public abstract class AbstractDataTrackingMaster<D extends AbstractDocument, M e
       return null;
     }
     for (UniqueId id : ids) {
-      if (id != null) {
-        _ids.add(id);
-      }
+      trackId(id);
     }
     return ids;
   }
   
   /**
-   * Track access to the given id
+   * Track access to the given id.
    * @param id the id to track
    * @return the id passed
    */
@@ -104,7 +100,7 @@ public abstract class AbstractDataTrackingMaster<D extends AbstractDocument, M e
     if (id == null) {
       return null;
     }
-    trackIds(Collections.singleton(id));
+    _ids.add(id);
     return id;
   }
   

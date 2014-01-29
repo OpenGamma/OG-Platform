@@ -82,9 +82,9 @@ public class ResultGenerator {
    * @param <T> the required type of the new result object
    * @return the new function result object
    */
-  public static <T> Result<T> propagateFailure(Result result) {
+  public static <T> Result<T> propagateFailure(Result<?> result) {
     // todo remove the cast
-    FailureResult failureFunctionResult = (FailureResult) result;
+    FailureResult<?> failureFunctionResult = (FailureResult<?>) result;
     return new FailureResult<>(failureFunctionResult.getStatus(), failureFunctionResult.getErrorMessage());
   }
 
@@ -128,7 +128,7 @@ public class ResultGenerator {
     List<Result<?>> failures = Lists.newArrayList();
     for (Result<?> result : resultList) {
       if (result instanceof FailureResult) {
-        failures.add((FailureResult) result);
+        failures.add((FailureResult<?>) result);
       }
     }
     if (failures.isEmpty()) {

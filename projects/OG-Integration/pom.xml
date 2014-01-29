@@ -42,17 +42,17 @@
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
     </dependency>
-		<dependency>
-		  <groupId>org.apache.commons</groupId>
-		  <artifactId>commons-compress</artifactId>
-		  <version>1.0</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.ant</groupId>
-		    <artifactId>ant-compress</artifactId>
-		    <version>1.2</version>
-		</dependency>    
-		<dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-compress</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
       <groupId>com.opengamma.platform</groupId>
       <artifactId>og-bloomberg</artifactId>
       <version>${project.version}</version>
@@ -75,13 +75,11 @@
       <groupId>org.jdesktop</groupId>
       <artifactId>appframework</artifactId>
       <version>1.0.3</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.swinglabs.swingx</groupId>
       <artifactId>swingx-core</artifactId>
       <version>1.6.5</version>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
@@ -111,7 +109,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
         <reportSets>
           <reportSet>
             <id>single</id>
@@ -132,6 +130,7 @@
                 <licenseMerge>New BSD License|BSD 3-clause</licenseMerge>
               </licenseMerges>
               <useMissingFile>true</useMissingFile>
+              <useRepositoryMissingFiles>false</useRepositoryMissingFiles>
             </configuration>
           </reportSet>
         </reportSets>

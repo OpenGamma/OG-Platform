@@ -28,6 +28,8 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
  */
 public class DataTrackingHistoricalTimeSeriesMaster extends AbstractDataTrackingMaster<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster> implements HistoricalTimeSeriesMaster {
   
+  private static final String DATA_POINT_PREFIX = "DP";
+
   public DataTrackingHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster delegate) {
     super(delegate);
   }
@@ -54,7 +56,7 @@ public class DataTrackingHistoricalTimeSeriesMaster extends AbstractDataTracking
   @Override
   public ManageableHistoricalTimeSeries getTimeSeries(UniqueId uniqueId) {
     ManageableHistoricalTimeSeries timeSeries = delegate().getTimeSeries(uniqueId);
-    trackId(timeSeries.getUniqueId());
+    //trackId(timeSeries.getUniqueId());
     return timeSeries;
   }
 
@@ -95,6 +97,23 @@ public class DataTrackingHistoricalTimeSeriesMaster extends AbstractDataTracking
   public UniqueId removeTimeSeriesDataPoints(ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
     UniqueId id = delegate().removeTimeSeriesDataPoints(objectId, fromDateInclusive, toDateInclusive);
     return trackId(id);
+  }
+  
+  
+  /**
+   * DP ids (internal to HTSMaster) should be ignored.
+   * @param id the id
+   * @return the id
+   */
+  protected synchronized UniqueId trackId(UniqueId id) {
+    if (!isDPId(id)) {
+      return super.trackId(id);
+    }
+    return id;
+  }
+
+  private boolean isDPId(UniqueId id) {
+    return id != null && id.getValue().startsWith(DATA_POINT_PREFIX);
   }
   
   

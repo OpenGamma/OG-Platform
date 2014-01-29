@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
@@ -52,12 +53,32 @@ public final class CouponIborCompoundingFlatSpreadDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
-    ArgumentChecker.notNull(coupon, "Coupon");
-    ArgumentChecker.notNull(multicurve, "Multi-curve provider");
+    return presentValue(coupon, multicurve, IborForwardRateProvider.getInstance());
+  }
+  
+  /**
+   * Compute the present value of a Ibor compounded coupon with compounding type "Flat Compounding" using the specified
+   * forward rate provider by discounting.
+   * @param coupon The coupon.
+   * @param multicurve The multi-curve provider.
+   * @param forwardRateProvider The forward rate provider.
+   * @return The present value.
+   */
+  public MultipleCurrencyAmount presentValue(
+      final CouponIborCompoundingFlatSpread coupon,
+      final MulticurveProviderInterface multicurve,
+      final ForwardRateProvider<IborIndex> forwardRateProvider) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    ArgumentChecker.notNull(multicurve, "multicurve");
+    ArgumentChecker.notNull(forwardRateProvider, "forwardRateProvider");
     final int nbSubPeriod = coupon.getFixingTimes().length;
     double cpaAccumulated = coupon.getCompoundingPeriodAmountAccumulated();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      final double forward = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingSubperiodsStartTimes()[loopsub], coupon.getFixingSubperiodsEndTimes()[loopsub],
+      final double forward = forwardRateProvider.getRate(
+          multicurve,
+          coupon,
+          coupon.getFixingSubperiodsStartTimes()[loopsub],
+          coupon.getFixingSubperiodsEndTimes()[loopsub],
           coupon.getFixingSubperiodsAccrualFactors()[loopsub]);
       cpaAccumulated += cpaAccumulated * forward * coupon.getSubperiodsAccrualFactors()[loopsub]; // Additional Compounding Period Amount
       cpaAccumulated += coupon.getNotional() * (forward + coupon.getSpread()) * coupon.getSubperiodsAccrualFactors()[loopsub]; // Basic Compounding Period Amount

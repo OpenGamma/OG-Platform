@@ -33,6 +33,8 @@ import com.opengamma.util.ArgumentChecker;
  * An example of this might be a function calling several other functions when there is no market data available,
  * causing them all to fail. If all underlying results have the same status this result will use that status.
  * If they have different statues the status of this result will be {@link FailureStatus#MULTIPLE}.
+ *
+ * @param <T> the type of the underlying result for a successful invocation
  */
 @BeanDefinition
 public class MultipleFailureResult<T> implements Result<T>, ImmutableBean {

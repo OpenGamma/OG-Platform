@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -47,8 +48,10 @@ public final class SpotRateShift implements StructureManipulator<Double>, Immuta
   }
 
   @Override
-  public Double execute(Double spotRate, ValueSpecification valueSpecification) {
-    CurrencyPair currencyPair = SpotRateUtils.getCurrencyPair(valueSpecification);
+  public Double execute(Double spotRate,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
+    CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
     if (_currencyPairs.contains(currencyPair)) {
       return spotRate + _shiftAmount.doubleValue();
     } else if (_currencyPairs.contains(currencyPair.inverse())) {

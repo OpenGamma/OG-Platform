@@ -225,17 +225,13 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
-    final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1];
     //    DayCount dayCount = _index.getDayCount();
     for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
-      fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i]);
-      fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1]);
-      //      fixingPeriodStartTimes[i] = dayCount.getDayCountFraction(date, _fixingPeriodDates[i], _calendar);
-      //      fixingPeriodEndTimes[i] = dayCount.getDayCountFraction(date, _fixingPeriodDates[i + 1], _calendar);
-      fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i], _fixingPeriodDates[i + 1]);
+      fixingPeriodStartTimes[i] = _index.getDayCount().getDayCountFraction(date, _fixingPeriodDates[i], _calendar);
+      fixingPeriodEndTimes[i] = _index.getDayCount().getDayCountFraction(date, _fixingPeriodDates[i + 1], _calendar);
     }
     final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, fixingPeriodAccrualFactorsActAct, getNotional(), yieldCurveNames[1]);
+        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, getNotional(), yieldCurveNames[1]);
     return cpn;
   }
 
@@ -248,15 +244,13 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
-    final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1];
     for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
-      fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i]);
-      fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1]);
-      fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i], _fixingPeriodDates[i + 1]);
+      fixingPeriodStartTimes[i] = _index.getDayCount().getDayCountFraction(date, _fixingPeriodDates[i], _calendar);
+      fixingPeriodEndTimes[i] = _index.getDayCount().getDayCountFraction(date, _fixingPeriodDates[i + 1], _calendar);
     }
 
     final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, fixingPeriodAccrualFactorsActAct, getNotional());
+        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, getNotional());
     return cpn;
   }
 
@@ -322,18 +316,16 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
-        final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         for (int i = 0; i < _fixingPeriodDates.length - 1 - fixedPeriod; i++) {
-          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod]);
-          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod]);
-          fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i + fixedPeriod], _fixingPeriodDates[i + 1 + fixedPeriod]);
+          fixingPeriodStartTimes[i] = _index.getDayCount().getDayCountFraction(valZdt, _fixingPeriodDates[i + fixedPeriod], _calendar);
+          fixingPeriodEndTimes[i] = _index.getDayCount().getDayCountFraction(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod], _calendar);
         }
 
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
           fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod + fixedPeriod];
         }
         final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-            fixingPeriodEndTimes, fixingAccrualFactorsLeft, fixingPeriodAccrualFactorsActAct, accruedNotional, yieldCurveNames[1]);
+            fixingPeriodEndTimes, fixingAccrualFactorsLeft, accruedNotional, yieldCurveNames[1]);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)
@@ -390,18 +382,16 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodAccrualFactors.length - fixedPeriod];
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
-        final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         for (int i = 0; i < _fixingPeriodDates.length - 1 - fixedPeriod; i++) {
-          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod]);
-          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod]);
-          fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i + fixedPeriod], _fixingPeriodDates[i + 1 + fixedPeriod]);
+          fixingPeriodStartTimes[i] = _index.getDayCount().getDayCountFraction(valZdt, _fixingPeriodDates[i + fixedPeriod], _calendar);
+          fixingPeriodEndTimes[i] = _index.getDayCount().getDayCountFraction(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod], _calendar);
         }
 
         for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
           fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod + fixedPeriod];
         }
         final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-            fixingPeriodEndTimes, fixingAccrualFactorsLeft, fixingPeriodAccrualFactorsActAct, accruedNotional);
+            fixingPeriodEndTimes, fixingAccrualFactorsLeft, accruedNotional);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)

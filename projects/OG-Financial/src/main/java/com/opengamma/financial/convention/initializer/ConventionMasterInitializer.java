@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.convention.initializer;
 
+import org.joda.beans.JodaBeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,6 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.master.convention.ManageableConvention;
-import com.opengamma.util.beancompare.BeanCompare;
 
 /**
  * A tool that allows a convention master to be initialized.
@@ -49,7 +49,7 @@ public abstract class ConventionMasterInitializer {
           master.add(new ConventionDocument(convention));
           break;
         case 1:
-          if (BeanCompare.equalIgnoring(convention, result.getFirstConvention(), ManageableConvention.meta().uniqueId()) == false) {
+          if (JodaBeanUtils.equalIgnoring(convention, result.getFirstConvention(), ManageableConvention.meta().uniqueId()) == false) {
             ConventionDocument doc = result.getFirstDocument();
             doc.setConvention(convention);
             master.update(doc);
@@ -59,7 +59,7 @@ public abstract class ConventionMasterInitializer {
           // these are supposed to be unique by name in the database
           s_logger.warn("Multiple conventions with the same name in database: " + convention.getName());
           for (ManageableConvention similar : result.getConventions()) {
-            if (BeanCompare.equalIgnoring(convention, similar, ManageableConvention.meta().uniqueId())) {
+            if (JodaBeanUtils.equalIgnoring(convention, similar, ManageableConvention.meta().uniqueId())) {
               return;  // already in database
             }
           }

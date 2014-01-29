@@ -13,13 +13,13 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.joda.beans.Bean;
-import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -28,10 +28,12 @@ import com.opengamma.master.convention.ConventionMaster;
 import com.opengamma.master.convention.ConventionSearchRequest;
 import com.opengamma.master.convention.ConventionSearchResult;
 import com.opengamma.master.convention.ManageableConvention;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.util.JodaBeanSerialization;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -47,6 +49,8 @@ public class SingleConfigLoader {
   private ConfigSource _configSource;
 
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
+  private static final String DEFAULT_HTS_RATING_NAME = "DEFAULT_TSS_CONFIG";
+  private static final String DEFAULT_CURRENCY_MATRIX_NAME = "BloombergLiveData";
 
   public SingleConfigLoader(ConfigMaster configMaster, ConfigSource configSource, ConventionMaster conventionMaster, MarketDataSnapshotMaster marketDataSnapshotMaster, boolean doNotUpdateExisting) {
     _configMaster = configMaster;
@@ -116,11 +120,32 @@ public class SingleConfigLoader {
   }
   
   public <T> void loadConfig(InputStream is, Class<T> hintType) {
-    T config = JodaBeanSer.PRETTY.xmlReader().read(is, hintType);
+    T config = JodaBeanSerialization.deserializer().xmlReader().read(is, hintType);
     if (config instanceof ManageableConvention) {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
       addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
+    } else if (config instanceof CurrencyPairs) {
+      ConfigItem<?> item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }
+    } else if (config instanceof HistoricalTimeSeriesRating) {
+      ConfigItem<?> item = ConfigItem.of(config, DEFAULT_HTS_RATING_NAME);
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }  
+    } else if (config instanceof CurrencyMatrix) {
+      ConfigItem<?> item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME);
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }
     } else if (config instanceof Bean) {
       ConfigItem<T> item = ConfigItem.of(config);
       if (_doNotUpdateExisting  && configExists(item)) {
@@ -134,14 +159,32 @@ public class SingleConfigLoader {
   }
   
   public void loadConfig(InputStream is) {
-    Object config = JodaBeanSer.PRETTY.xmlReader().read(is);
+    Object config = JodaBeanSerialization.deserializer().xmlReader().read(is);
     if (config instanceof ManageableConvention) {
       addOrUpdateConvention((ManageableConvention) config);
     } else if (config instanceof ManageableMarketDataSnapshot) {
       addOrUpdateSnapshot((ManageableMarketDataSnapshot) config);
     } else if (config instanceof CurrencyPairs) {
       ConfigItem<?> item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-      ConfigMasterUtils.storeByName(_configMaster, item);          
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }
+    } else if (config instanceof HistoricalTimeSeriesRating) {
+      ConfigItem<?> item = ConfigItem.of(config, DEFAULT_HTS_RATING_NAME);
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }  
+    } else if (config instanceof CurrencyMatrix) {
+      ConfigItem<?> item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME);
+      if (_doNotUpdateExisting  && configExists(item)) {
+        s_logger.info("Existing config present, skipping");
+      } else {
+        ConfigMasterUtils.storeByName(_configMaster, item);          
+      }
     } else if (config instanceof Bean) {
       ConfigItem<?> item = ConfigItem.of(config);
       if (_doNotUpdateExisting  && configExists(item)) {
@@ -163,6 +206,10 @@ public class SingleConfigLoader {
     ConfigItem<?> item;
     if (config instanceof CurrencyPairs) {
       item = ConfigItem.of(config, CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    } else if (config instanceof HistoricalTimeSeriesRating) {
+      item = ConfigItem.of(config, DEFAULT_HTS_RATING_NAME);
+    } else if (config instanceof CurrencyMatrix) {
+      item = ConfigItem.of(config, DEFAULT_CURRENCY_MATRIX_NAME);
     } else {
       item = ConfigItem.of(config);
     }

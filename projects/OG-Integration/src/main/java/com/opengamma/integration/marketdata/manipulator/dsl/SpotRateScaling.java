@@ -13,6 +13,7 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.PropertyDefinition;
 
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.manipulator.function.StructureManipulator;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -47,13 +48,17 @@ public final class SpotRateScaling implements StructureManipulator<Double>, Immu
   }
 
   @Override
-  public Double execute(Double spotRate, ValueSpecification valueSpecification) {
-    CurrencyPair currencyPair = SpotRateUtils.getCurrencyPair(valueSpecification);
+  public Double execute(Double spotRate,
+                        ValueSpecification valueSpecification,
+                        FunctionExecutionContext executionContext) {
+    CurrencyPair currencyPair = SimulationUtils.getCurrencyPair(valueSpecification);
+    // add 1 to scaling factor o be consistent with curves and allow shits to be specified as 10.pc instead of 1.1
+    double scalingFactor = 1.0 + _scalingFactor.doubleValue();
     if (_currencyPairs.contains(currencyPair)) {
-      return spotRate * _scalingFactor.doubleValue();
+      return spotRate * scalingFactor;
     } else if (_currencyPairs.contains(currencyPair.inverse())) {
       double inverseRate = 1 / spotRate;
-      double scaledRate = inverseRate * _scalingFactor.doubleValue();
+      double scaledRate = inverseRate * scalingFactor;
       return 1 / scaledRate;
     } else {
       throw new IllegalArgumentException("Currency pair " + currencyPair + " shouldn't match " + _currencyPairs);

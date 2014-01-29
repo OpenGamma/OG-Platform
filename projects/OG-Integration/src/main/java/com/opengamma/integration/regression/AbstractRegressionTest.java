@@ -8,10 +8,15 @@ package com.opengamma.integration.regression;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collections;
 
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.test.TestGroup;
 
@@ -21,11 +26,14 @@ import com.opengamma.util.test.TestGroup;
 public abstract class AbstractRegressionTest {
   
   
+  private static final String LATEST_BUILD_VERSION = "Latest build";
+
   private static final double s_defaultAcceptableDelta = 0.0000001;
   
   private RegressionTestToolContextManager _contextManager;
   private GoldenCopyPersistenceHelper _goldenCopyPersistenceHelper;
   
+  private static final String s_defaultRegressionToolContext = "classpath:regression/regression-toolcontext.properties";
   
   /**
    * Initializes the test. A valid tool context properties file is required - this cut down context is used to
@@ -42,6 +50,10 @@ public abstract class AbstractRegressionTest {
   public AbstractRegressionTest(File regressionRoot, String toolContextPropertiesFile, String regressionPropertiesFile) {
     _contextManager = new RegressionTestToolContextManager(new File(regressionRoot, GoldenCopyDumpCreator.DB_DUMP_ZIP), toolContextPropertiesFile, regressionPropertiesFile);
     _goldenCopyPersistenceHelper = new GoldenCopyPersistenceHelper(regressionRoot);
+  }
+  
+  public AbstractRegressionTest(File regressionRoot, String regressionPropertiesFile) {
+    this(regressionRoot, s_defaultRegressionToolContext, regressionPropertiesFile);
   }
   
   
@@ -73,14 +85,42 @@ public abstract class AbstractRegressionTest {
         toolContext.getSecuritySource(),
         toolContext.getMarketDataSnapshotMaster());
 
-    CalculationResults thisRun = viewRunner.run("Test", viewName, snapshotName, original.getValuationTime());
+    CalculationResults thisRun = viewRunner.run(LATEST_BUILD_VERSION, viewName, snapshotName, original.getValuationTime());
     
-    evaluateDifferences(original, thisRun);
+    CalculationDifference differences = evaluateDifferences(original, thisRun);
+    
+    String baseVersion = original.getCalculationResults().getVersion();
+    
+    if (isWriteDifferencesReport()) {
+      writeReport(viewName, snapshotName, baseVersion, differences);
+    }
+    
+    assertTrue("Found results only in base", differences.getOnlyBase().isEmpty());
+    assertTrue("Found results only in test", differences.getOnlyTest().isEmpty());
+    assertTrue("Found differing results", differences.getDifferent().isEmpty());
+    assertTrue("Found differing result properties", differences.getDifferentProperties().isEmpty());
     
   }
 
 
-  private void evaluateDifferences(GoldenCopy original, CalculationResults thisRun) {
+  private void writeReport(String viewName, String snapshotName, String baseVersion, CalculationDifference differences) {
+    RegressionTestResults testResults = new RegressionTestResults(baseVersion, LATEST_BUILD_VERSION, Collections.singleton(differences));
+    File file;
+    FileWriter fileWriter;
+    try {
+      file = getDifferencesReportFile(viewName, snapshotName);
+      fileWriter = new FileWriter(getDifferencesReportFile(viewName, snapshotName));
+    } catch (IOException ex) {
+      throw Throwables.propagate(ex);
+    }
+    ReportGenerator.generateReport(testResults, ReportGenerator.Format.TEXT, fileWriter);
+    
+    System.out.println("Differences report written to " + file.getAbsolutePath());
+    
+  }
+
+  
+  private CalculationDifference evaluateDifferences(GoldenCopy original, CalculationResults thisRun) {
     CalculationDifference result = CalculationDifference.generatorWithDelta(getAcceptableDelta()).
                                                         compareValueProperties(compareValueProperties()).
                                                         between(original.getCalculationResults(), thisRun);
@@ -96,10 +136,8 @@ public abstract class AbstractRegressionTest {
     System.out.println("Only base: " + result.getOnlyBase().size());
     System.out.println("Only test: " + result.getOnlyTest().size());
     
-    assertTrue("Found results only in base", result.getOnlyBase().isEmpty());
-    assertTrue("Found results only in test", result.getOnlyTest().isEmpty());
-    assertTrue("Found differing results", result.getDifferent().isEmpty());
-    assertTrue("Found differing result properties", result.getDifferentProperties().isEmpty());
+    
+    return result;
   }
   
   
@@ -122,6 +160,33 @@ public abstract class AbstractRegressionTest {
    */
   protected boolean compareValueProperties() {
     return false;
+  }
+
+  
+  /**
+   * If true, a report with the differences will be written to
+   * the location specified by {@link #getDifferencesReportFile(String, String)}.
+   * @return false by default
+   */
+  protected boolean isWriteDifferencesReport() {
+    return false;
+  }
+  
+  /**
+   * A {@link File} giving the location to write the difference
+   * report to.
+   * @param viewName the view which ran
+   * @param snapshotName the snapshot which was run against
+   * @return the location to write the differences report to
+   * @throws IOException 
+   */
+  protected File getDifferencesReportFile(String viewName, String snapshotName) throws IOException {
+    String tempDir = System.getProperty("java.io.tmpdir");  
+    File regressionDir = new File(tempDir, "regression-report");
+    if (!regressionDir.exists()) {
+      Preconditions.checkState(regressionDir.mkdirs(), "Unable to mkdir " + regressionDir.getPath());
+    }
+    return new File(regressionDir, viewName + "-" + snapshotName + ".txt");
   }
   
 }

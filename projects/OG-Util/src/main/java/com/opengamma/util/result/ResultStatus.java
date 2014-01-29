@@ -18,4 +18,5 @@ public interface ResultStatus {
    * @return true if the Result has its return value populated
    */
   boolean isResultAvailable();
+
 }

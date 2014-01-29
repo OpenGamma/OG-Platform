@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class describing a single currency Ibor-like coupon.
  */
-public class CouponIbor extends CouponFloating {
+public class CouponIbor extends CouponFloating implements DepositIndexCoupon<IborIndex> {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the index currency.

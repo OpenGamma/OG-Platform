@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.marketdata.MarketDataInjector;
@@ -30,6 +31,7 @@ import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
@@ -128,14 +130,23 @@ public class ViewClientImpl implements ViewClient {
 
         PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
-        // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
-        // pass to downstream listeners? Some special perm denied message in place of results on each computation
-        // cycle?
-        CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
-
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+
+          if (_canAccessComputationResults) {
+
+            CompiledViewDefinition replacementViewDef = createFilteredViewDefinition(compiledViewDefinition, filter);
+            listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
+          } else {
+            // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
+            // pass to downstream listeners? Some special perm denied message in place of results on each computation
+            // cycle?
+
+            // In order to do something, we'll tell listeners that the compilation failed. Clearly
+            // in the future this wants to be more fine grained
+            listener.viewDefinitionCompilationFailed(
+                Instant.now(), new Exception("User: " + _user + " does not have permission for data in this view"));
+          }
         }
       }
 
@@ -363,6 +374,17 @@ public class ViewClientImpl implements ViewClient {
   @Override
   public ViewDefinition getLatestViewDefinition() {
     return getViewProcessor().getLatestViewDefinition(getUniqueId());
+  }
+  
+  @Override
+  public ViewProcess getViewProcess() {
+    _clientLock.lock();
+    try {
+      checkAttached();
+      return getViewProcessor().getViewProcessForClient(getUniqueId());
+    } finally {
+      _clientLock.unlock();
+    }
   }
 
   //-------------------------------------------------------------------------

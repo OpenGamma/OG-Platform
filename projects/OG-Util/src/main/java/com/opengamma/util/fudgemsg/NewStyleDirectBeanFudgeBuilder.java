@@ -7,13 +7,8 @@ package com.opengamma.util.fudgemsg;
 
 import static org.fudgemsg.mapping.FudgeSerializer.addClassHeader;
 
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import org.fudgemsg.FudgeField;
@@ -23,19 +18,15 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.types.IndicatorType;
-import org.fudgemsg.wire.types.FudgeWireType;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectBean;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 
 /**
  * Builder to convert DirectBean to and from Fudge.
@@ -106,11 +97,11 @@ public final class NewStyleDirectBeanFudgeBuilder<T extends Bean> implements Fud
                 // the automatically resolved type is not compatible with the bean expected property type.
                 // let's see if we can convert the value to desired type
                 if (mp.propertyType().equals(ImmutableSet.class) && value instanceof Set) {
-                  value = ImmutableSet.copyOf((Set) value);
+                  value = ImmutableSet.copyOf((Set<?>) value);
                 } else if (mp.propertyType().equals(ImmutableList.class) && value instanceof List) {
-                  value = ImmutableList.copyOf((List) value);
+                  value = ImmutableList.copyOf((List<?>) value);
                 } else if (mp.propertyType().equals(ImmutableMap.class) && value instanceof Map) {
-                  value = ImmutableMap.copyOf((Map) value);
+                  value = ImmutableMap.copyOf((Map<?, ?>) value);
                 }
 
                 if (!mp.propertyType().isAssignableFrom(value.getClass())) {

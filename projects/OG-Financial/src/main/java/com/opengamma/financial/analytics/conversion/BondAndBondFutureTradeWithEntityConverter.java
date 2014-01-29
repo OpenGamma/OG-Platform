@@ -120,24 +120,16 @@ public class BondAndBondFutureTradeWithEntityConverter {
     if (tradeDate == null) {
       throw new OpenGammaRuntimeException("Trade date should not be null");
     }
-    final OffsetTime tradeTime = trade.getTradeTime();
-    if (tradeTime == null) {
-      throw new OpenGammaRuntimeException("Trade time should not be null");
-    }
-    OffsetTime settleTime = trade.getPremiumTime();
-    if (settleTime == null) {
-      settleTime = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC); //TODO get the real time zone
-    }
-    if (trade.getPremium() == null) {
-      throw new OpenGammaRuntimeException("Trade premium should not be null.");
-    }
-    if (trade.getPremiumDate() == null) {
-      throw new OpenGammaRuntimeException("Trade premium date should not be null");
-    }
-    final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
     final int quantity = trade.getQuantity().intValue(); // MH - 9-May-2013: changed from 1. // TODO REVIEW: The quantity mechanism should be reviewed.
-    final double price = trade.getPremium().doubleValue();
     if (security instanceof BondFutureSecurity) {
+      final OffsetTime tradeTime = trade.getTradeTime();
+      if (tradeTime == null) {
+        throw new OpenGammaRuntimeException("Trade time should not be null");
+      }
+      if (trade.getPremium() == null) {
+        throw new OpenGammaRuntimeException("Trade premium should not be null.");
+      }
+      final double price = trade.getPremium().doubleValue();
       final ZonedDateTime tradeDateTime = tradeDate.atTime(tradeTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondFutureSecurity bondFutureSecurity = (BondFutureSecurity) security;
       final BondFuturesSecurityDefinition bondFuture = getBondFuture(bondFutureSecurity);
@@ -145,29 +137,47 @@ public class BondAndBondFutureTradeWithEntityConverter {
     }
     final BondSecurity bondSecurity = (BondSecurity) security;
     final LegalEntity legalEntity = getLegalEntityForBond(trade.getAttributes(), bondSecurity);
+    final InstrumentDefinition<?> underlying = getFixedCouponBond(bondSecurity, legalEntity);
+    if (underlying instanceof PaymentFixedDefinition) {
+      return underlying;
+    }
+    if (trade.getPremium() == null) {
+      throw new OpenGammaRuntimeException("Trade premium should not be null.");
+    }
+    final double price = trade.getPremium().doubleValue();
+    OffsetTime settleTime = trade.getPremiumTime();
+    if (settleTime == null) {
+      settleTime = OffsetTime.of(LocalTime.NOON, ZoneOffset.UTC); //TODO get the real time zone
+    }
+    if (trade.getPremiumDate() == null) {
+      throw new OpenGammaRuntimeException("Trade premium date should not be null");
+    }
     if (FLOATING_RATE_STRINGS.contains(bondSecurity.getCouponType())) {
+      final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
       final BondIborSecurityDefinition bond = (BondIborSecurityDefinition) getIborBond(bondSecurity, legalEntity);
       return new BondIborTransactionDefinition(bond, quantity, settlementDate, price);
     }
-    final InstrumentDefinition<?> underlying = getFixedCouponBond(bondSecurity, legalEntity);
-    if (!(underlying instanceof BondFixedSecurityDefinition)) {
-      return underlying;
-    }
+    final ZonedDateTime settlementDate = trade.getPremiumDate().atTime(settleTime).atZoneSameInstant(ZoneOffset.UTC);
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }
 
   /**
    * Constructs a legal entity for a {@link BondSecurity}
-   * @param attributes The trade attributes
+   * @param tradeAttributes The trade attributes
    * @param security The bond security
    * @return A legal entity
    */
   private static LegalEntity getLegalEntityForBond(final Map<String, String> tradeAttributes, final BondSecurity security) {
     final Map<String, String> securityAttributes = security.getAttributes();
     final ExternalIdBundle identifiers = security.getExternalIdBundle();
-    final String isin = identifiers.getValue(ExternalSchemes.ISIN);
-    final String ticker = isin == null ? null : isin;
+    final String ticker;
+    if (identifiers != null) {
+      final String isin = identifiers.getValue(ExternalSchemes.ISIN);
+      ticker = isin == null ? null : isin;
+    } else {
+      ticker = null;
+    }
     final String shortName = security.getIssuerName();
     Set<CreditRating> creditRatings = null;
     for (final String ratingString : RATING_STRINGS) {
@@ -251,6 +261,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
         }
         final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
         final Currency currency = bond.getCurrency();
+        if (bond.getInterestAccrualDate() == null) {
+          throw new OpenGammaRuntimeException("Bond first interest accrual date was null");
+        }
         final ZoneId zone = bond.getInterestAccrualDate().getZone();
         final ZonedDateTime firstAccrualDate = ZonedDateTime.of(bond.getInterestAccrualDate().toLocalDate().atStartOfDay(), zone);
         final ZonedDateTime maturityDate = ZonedDateTime.of(bond.getLastTradeDate().getExpiry().toLocalDate().atStartOfDay(), zone);
@@ -375,6 +388,9 @@ public class BondAndBondFutureTradeWithEntityConverter {
     for (int i = 0; i < n; i++) {
       final BondFutureDeliverable deliverable = basket.get(i);
       final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSingle(deliverable.getIdentifiers());
+      if (bondSecurity == null) {
+        throw new OpenGammaRuntimeException("Security with identifier bundle " + deliverable.getIdentifiers() + " not in security source");
+      }
       final LegalEntity issuer = getLegalEntityForBond(new HashMap<String, String>(), bondSecurity);
       final InstrumentDefinition<?> definition = getFixedCouponBond(bondSecurity, issuer);
       if (!(definition instanceof BondFixedSecurityDefinition)) {

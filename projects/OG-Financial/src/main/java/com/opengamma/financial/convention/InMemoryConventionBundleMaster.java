@@ -117,6 +117,19 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     addHUTreasuryBondConvention();
     addHUCorporateBondConvention();
 
+    addDummyTreasuryBondConvention("MX");
+    addDummyCorporateBondConvention("DK");
+    addDummyCorporateBondConvention("KY");
+    addDummyCorporateBondConvention("AU");
+    addDummyCorporateBondConvention("BM");
+    addDummyCorporateBondConvention("NO");
+    addDummyCorporateBondConvention("SNAT");
+    addDummyCorporateBondConvention("MX");
+    addDummyCorporateBondConvention("IE");
+    addDummyCorporateBondConvention("SG");
+    addDummyCorporateBondConvention("BE");
+    addDummyCorporateBondConvention("NZ");
+
     ExchangeConventions.addExchangeFutureOptionConventions(this);
   }
 
@@ -452,10 +465,20 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, "SE_CORPORATE_BOND_CONVENTION")), "SE_CORPORATE_BOND_CONVENTION", true, true, 4, 3, true);
   }
 
+  private void addDummyTreasuryBondConvention(final String domicile) {
+    final String name = domicile + "_TREASURY_BOND_CONVENTION";
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, name)), name, true, true, 0, 3, true);
+  }
+
+  private void addDummyCorporateBondConvention(final String domicile) {
+    final String name = domicile + "_CORPORATE_BOND_CONVENTION";
+    _utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(SIMPLE_NAME_SCHEME, name)), name, true, true, 0, 3, true);
+  }
+
   /**
    * Creates a simple name security Id.
    * <p>
-   * 
+   *
    * @param securityId the simple name security id, not null
    * @return the security identifier, not null
    */
@@ -470,7 +493,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   /**
    * Creates a simple exchange name id.
    * <p>
-   * 
+   *
    * @param exchangeName the simple exchange name, not null
    * @return the exchange identifier, not null
    */
