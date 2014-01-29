@@ -22,9 +22,9 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundin
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONArithmeticAverageSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.InterpolatedStubCouponDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
@@ -531,7 +531,7 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
 //          _adjustedResetDateParameters.getCalendar(),
 //          _spread);
     } else {
-      coupon = new CouponONDefinition(
+      coupon = new CouponONArithmeticAverageDefinition(
           getCurrency(),
           paymentDate,
           accrualStartDate,
