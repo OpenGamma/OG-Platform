@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.legalentity.LegalEntity;
 import com.opengamma.analytics.financial.legalentity.LegalEntityFilter;
@@ -79,7 +80,7 @@ public class CurveConfigurationBuildersTest extends AnalyticsTestBase {
     final Map<String, List<? extends CurveTypeConfiguration>> group3Map = new HashMap<>();
     group3Map.put(BOND_CURVE_NAME, Arrays.asList(ISSUER_CONFIG));
     GROUP3 = new CurveGroupConfiguration(3, group3Map);
-    CONSTRUCTION = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), null);
+    CONSTRUCTION = new CurveConstructionConfiguration("Config", Arrays.asList(GROUP1, GROUP2, GROUP3), ImmutableList.<String>of());
     CONSTRUCTION.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "678"));
   }
 
