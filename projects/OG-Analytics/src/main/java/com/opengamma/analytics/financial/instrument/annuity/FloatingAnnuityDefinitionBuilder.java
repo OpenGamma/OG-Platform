@@ -395,30 +395,6 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
     }
     return coupons;
   }
-  
-//  private ZonedDateTime getSt
-
-  private CouponDefinition getFixedStubCoupon(
-      double notional,
-      ZonedDateTime paymentDate,
-      ZonedDateTime accrualStartDate,
-      ZonedDateTime accrualEndDate,
-      CouponStub couponStub) {
-    CouponDefinition coupon;
-//    if (couponStub.hasStubRate()) {
-      coupon = new CouponFixedDefinition(
-          getCurrency(),
-          paymentDate,
-          accrualStartDate,
-          accrualEndDate,
-          getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate, getPaymentDateAdjustmentParameters().getCalendar()),
-          notional, // flatNotional ? initialNotional : notionalSchedule[c + couponOffset],
-          couponStub.getStubRate() + (hasSpread() ? _spread : 0));
-//    } else {
-//      
-//    }
-    return coupon;
-  }
 
   private CouponDefinition[] generateZeroCouponFlows(int exchangeNotionalCouponCount) {
     CouponDefinition[] coupons;
@@ -714,7 +690,14 @@ public class FloatingAnnuityDefinitionBuilder extends AbstractAnnuityDefinitionB
       }
     } else {
       if (couponStub != null && !Double.isNaN(couponStub.getStubRate())) {
-        coupon = getFixedStubCoupon(notional, paymentDate, adjustedAccrualStartDate, adjustedAccrualEndDate, couponStub);
+        coupon = new CouponFixedDefinition(
+            getCurrency(),
+            paymentDate,
+            adjustedAccrualStartDate,
+            adjustedAccrualEndDate,
+            getDayCount().getDayCountFraction(adjustedAccrualStartDate, adjustedAccrualEndDate, getPaymentDateAdjustmentParameters().getCalendar()),
+            notional,
+            couponStub.getStubRate() + (hasSpread() ? _spread : 0));
       } else {
         ZonedDateTime fixingPeriodStartDate = adjustedAccrualStartDate;
         if (isFirstCoupon) {
