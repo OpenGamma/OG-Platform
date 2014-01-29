@@ -23,6 +23,10 @@ import com.opengamma.util.money.Currency;
  */
 public enum FloatingIndex {
   /**
+   * The AUD-AONIA-OIS-COMPOUND index.
+   */
+  AUD_AONIA_OIS_COMPOUND(Currency.AUD, "AONIA", "AUD-AONIA-OIS-COMPOUND"),
+  /**
    * The AUD-BBR-BBSW ISDA index.
    */
   AUD_BBR_BBSW(Currency.AUD, "BBR", "AUD-BBR-BBSW"),
