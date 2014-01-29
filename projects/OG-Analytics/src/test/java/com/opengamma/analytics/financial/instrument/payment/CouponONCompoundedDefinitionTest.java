@@ -141,7 +141,7 @@ public class CouponONCompoundedDefinitionTest {
       FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT[i] = TimeCalculator.getTimeBetween(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, NOTIONAL, curveNames[1]);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL, curveNames[1]);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -164,7 +164,7 @@ public class CouponONCompoundedDefinitionTest {
       FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT[i] = TimeCalculator.getTimeBetween(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, NOTIONAL);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -190,7 +190,7 @@ public class CouponONCompoundedDefinitionTest {
       FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT[i] = TimeCalculator.getTimeBetween(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, NOTIONAL, curveNames[1]);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL, curveNames[1]);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -215,7 +215,7 @@ public class CouponONCompoundedDefinitionTest {
       FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT[i] = TimeCalculator.getTimeBetween(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, NOTIONAL);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -244,7 +244,7 @@ public class CouponONCompoundedDefinitionTest {
       FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT[i] = TimeCalculator.getTimeBetween(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, NOTIONAL, curveNames[1]);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL, curveNames[1]);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -272,7 +272,7 @@ public class CouponONCompoundedDefinitionTest {
       FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT[i] = TimeCalculator.getTimeBetween(ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i], ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 1]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, NOTIONAL);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, NOTIONAL);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -302,7 +302,7 @@ public class CouponONCompoundedDefinitionTest {
           ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 2]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, notionalAccrued, curveNames[1]);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, notionalAccrued, curveNames[1]);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -331,7 +331,7 @@ public class CouponONCompoundedDefinitionTest {
           ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 2]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, notionalAccrued);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, notionalAccrued);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -362,7 +362,7 @@ public class CouponONCompoundedDefinitionTest {
           ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 3]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, notionalAccrued, curveNames[1]);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, notionalAccrued, curveNames[1]);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -392,7 +392,7 @@ public class CouponONCompoundedDefinitionTest {
           ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 3]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, notionalAccrued);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, notionalAccrued);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -424,7 +424,7 @@ public class CouponONCompoundedDefinitionTest {
           ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 4]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, curveNames[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, notionalAccrued, curveNames[1]);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, notionalAccrued, curveNames[1]);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
@@ -455,7 +455,7 @@ public class CouponONCompoundedDefinitionTest {
           ON_COMPOUNDED_COUPON_DEFINITION.getFixingPeriodDates()[i + 4]);
     }
     final CouponONCompounded cpnExpected = new CouponONCompounded(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, FIXING_PERIOD_START_TIMES,
-        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, FIXING_PERIOD_ACCRUAL_FACTOR_ACT_ACT, notionalAccrued);
+        FIXING_PERIOD_END_TIMES, FIXING_PERIOD_ACCRUAL_FACTOR, notionalAccrued);
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 

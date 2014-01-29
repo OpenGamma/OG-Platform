@@ -77,69 +77,13 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
   }
 
   /**
-   * Compute the present value sensitivity to rates of a OIS coupon by discounting.
-   * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated.
-   * @return The present value curve sensitivities.
-   */
-
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponONCompounded coupon, final YieldCurveBundle curves) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(curves, "Curves");
-    final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
-    final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
-    final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
-    double ratio = 1.0;
-    final double[] discountFactorsStart = new double[coupon.getFixingPeriodAccrualFactors().length];
-    final double[] discountFactorsEnd = new double[coupon.getFixingPeriodAccrualFactors().length];
-    final double[] forwardRates = new double[coupon.getFixingPeriodAccrualFactors().length];
-    for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      discountFactorsStart[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]);
-      discountFactorsEnd[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]);
-      forwardRates[i] = Math.pow(forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]),
-          coupon.getFixingPeriodAccrualFactors()[i]) - 1.0d;
-      ratio *= Math.pow(1 + forwardRates[i], coupon.getFixingPeriodAccrualFactors()[i]);
-    }
-    // Backward sweep
-    final double pvBar = 1.0;
-    final double ratioBar = coupon.getNotionalAccrued() * df * pvBar;
-    final double[] discountFactorStartBar = new double[coupon.getFixingPeriodAccrualFactors().length];
-    final double[] discountFactorEndBar = new double[coupon.getFixingPeriodAccrualFactors().length];
-    final double[] forwardBar = new double[coupon.getFixingPeriodAccrualFactors().length];
-    for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forwardBar[i] = ratio * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forwardRates[i]);
-      discountFactorStartBar[i] = forwardBar[i] / (discountFactorsEnd[i] * coupon.getFixingPeriodAccrualFactorsActAct()[i]);
-      discountFactorEndBar[i] = -forwardBar[i] * discountFactorsStart[i] / (discountFactorsEnd[i] * discountFactorsEnd[i]) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
-    }
-    final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
-    final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
-    mapDsc.put(coupon.getFundingCurveName(), listDiscounting);
-    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(mapDsc);
-    final Map<String, List<DoublesPair>> mapFwd = new HashMap<>();
-    final List<DoublesPair> listForward = new ArrayList<>();
-    listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[0], -coupon.getFixingPeriodStartTimes()[0] * discountFactorsStart[0] * discountFactorStartBar[0]));
-    for (int i = 1; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[i], -coupon.getFixingPeriodStartTimes()[i] * discountFactorsStart[i] *
-          (discountFactorStartBar[i] + discountFactorEndBar[i - 1])));
-    }
-    listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTimes()[coupon.getFixingPeriodAccrualFactors().length - 1],
-        -coupon.getFixingPeriodEndTimes()[coupon.getFixingPeriodAccrualFactors().length - 1] *
-            discountFactorsEnd[coupon.getFixingPeriodAccrualFactors().length - 1] * discountFactorEndBar[coupon.getFixingPeriodAccrualFactors().length - 1]));
-    mapFwd.put(coupon.getForwardCurveName(), listForward);
-    result = result.plus(new InterestRateCurveSensitivity(mapFwd));
-    return result;
-  }
-
-  /**
        * Compute the present value sensitivity to rates of a OIS coupon by discounting.
        * @param coupon The coupon.
        * @param curves The yield curves. Should contain the discounting and forward curves associated.
        * @return The present value curve sensitivities.
        */
 
-  public InterestRateCurveSensitivity presentValueCurveSensitivity2(final CouponONCompounded coupon, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponONCompounded coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
@@ -163,7 +107,7 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     final double[] forwardBar = new double[coupon.getFixingPeriodAccrualFactors().length];
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       forwardBar[i] = ratio * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forwardRates[i]);
-      discountFactorStartBar[i] = forwardBar[i] / (discountFactorsEnd[i] * coupon.getFixingPeriodAccrualFactors()[i]);
+      discountFactorStartBar[i] = forwardBar[i] / discountFactorsEnd[i] / coupon.getFixingPeriodAccrualFactors()[i];
       discountFactorEndBar[i] = -forwardBar[i] * discountFactorsStart[i] / (discountFactorsEnd[i] * discountFactorsEnd[i]) / coupon.getFixingPeriodAccrualFactors()[i];
     }
     final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
@@ -174,10 +118,15 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(mapDsc);
     final Map<String, List<DoublesPair>> mapFwd = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[i], -coupon.getFixingPeriodStartTimes()[i] * discountFactorsStart[i] * discountFactorStartBar[i]));
-      listForward.add(DoublesPair.of(coupon.getFixingPeriodEndTimes()[i], -coupon.getFixingPeriodEndTimes()[i] * discountFactorsEnd[i] * discountFactorEndBar[i]));
+    listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[0], -coupon.getFixingPeriodStartTimes()[0] * discountFactorsStart[0] * discountFactorStartBar[0]));
+    for (int i = 1; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
+      listForward.add(DoublesPair.of(coupon.getFixingPeriodStartTimes()[i], -coupon.getFixingPeriodStartTimes()[i] *
+          (discountFactorsStart[i] * discountFactorStartBar[i] + discountFactorsEnd[i - 1] * discountFactorEndBar[i - 1])));
     }
+    listForward.add(DoublesPair.of(
+        coupon.getFixingPeriodEndTimes()[coupon.getFixingPeriodAccrualFactors().length - 1],
+        -coupon.getFixingPeriodEndTimes()[coupon.getFixingPeriodAccrualFactors().length - 1] * discountFactorsEnd[coupon.getFixingPeriodAccrualFactors().length - 1] *
+            discountFactorEndBar[coupon.getFixingPeriodAccrualFactors().length - 1]));
     mapFwd.put(coupon.getForwardCurveName(), listForward);
     result = result.plus(new InterestRateCurveSensitivity(mapFwd));
     return result;
