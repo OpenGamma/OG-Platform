@@ -1358,7 +1358,7 @@
       <viewDefinitionName type="string">Futures View</viewDefinitionName>
       <snapshotName type="string">Futures Snapshot</snapshotName>
       <valuationTime type="datetime">2013-12-13T16:29:38.409Z</valuationTime>
-      <version type="string">Base</version>
+      <version type="string">Golden Copy</version>
    </calculationResults>
 </fudgeEnvelope>
 

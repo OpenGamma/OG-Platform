@@ -38,6 +38,10 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
   
   private static final ImmutableSet<CharSequence> UNSUPPORTED_CHAR_SEQUENCES = ImmutableSet.<CharSequence>of("/");
   
+  /**
+   * The version name to use against calculation results in the golden copy.
+   */
+  public static final String GOLDEN_COPY_VERSION_NAME = "Golden Copy";
   
   
   public static void main(String[] args) {
@@ -67,7 +71,7 @@ public class GoldenCopyCreationTool extends AbstractTool<ToolContext> {
       String viewName = viewSnapshotPairs[i];
       String snapshotName = viewSnapshotPairs[i + 1];
       s_logger.info("Executing {} against snapshot {}", viewName, snapshotName);
-      GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, "Base");
+      GoldenCopy goldenCopy = goldenCopyCreator.run(viewName, snapshotName, GOLDEN_COPY_VERSION_NAME);
       s_logger.info("Persisting golden copy for {} against snapshot {}", viewName, snapshotName);
       new GoldenCopyPersistenceHelper(new File(regressionDirectory)).save(goldenCopy);
       s_logger.info("Persisted golden copy for {} against snapshot {}", viewName, snapshotName);
