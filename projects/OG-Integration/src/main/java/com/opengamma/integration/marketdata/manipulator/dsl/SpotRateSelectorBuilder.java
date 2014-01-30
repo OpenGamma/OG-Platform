@@ -43,6 +43,10 @@ public class SpotRateSelectorBuilder {
     return this;
   }
 
+  public SpotRateManipulatorBuilder apply() {
+    return new SpotRateManipulatorBuilder(_scenario, getSelector());
+  }
+
   /**
    * Parses a string as a currency pair, accepts formats 'EUR/USD' and 'EURUSD'.
    * @param currencyPair A currency pair as a string

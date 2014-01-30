@@ -88,6 +88,10 @@ public class Scenario {
     return new VolatilitySurfaceSelector.Builder(this);
   }
 
+  public SpotRateSelectorBuilder spotRate() {
+    return new SpotRateSelectorBuilder(this);
+  }
+
   /**
    * Updates this scenario to apply to the specified calculation configuration.
    * @param configNames The calculation configuration name

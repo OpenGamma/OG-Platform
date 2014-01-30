@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.integration.marketdata.manipulator.dsl;
+package com.opengamma.integration.marketdata.manipulator;
+
+import static com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils.volShift;
 
 import java.util.List;
 import java.util.Set;
@@ -11,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -23,13 +26,16 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.marketdata.manipulator.dsl.Scenario;
+import com.opengamma.integration.marketdata.manipulator.dsl.ScenarioShiftType;
+import com.opengamma.integration.marketdata.manipulator.dsl.Simulation;
+import com.opengamma.integration.marketdata.manipulator.dsl.SimulationUtils;
 import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Demonstration of the most straightforward way to run a simulation.
  * Assumes the examples-simulated server is running locally with the default configuration and data.
- * TODO move to examples-simulated?
  */
 /* package */ class ExampleSimulation {
 
@@ -61,7 +67,10 @@ import com.opengamma.livedata.UserPrincipal;
           scenario.marketDataPoint().id("OG_SYNTHETIC_TICKER", currencyPair).apply().scaling(scalingFactor);
         }
         scenario.curve().named("foo").currencies("USD").apply().parallelShift(0.1);
-        scenario.surface().named("bar").quoteTypes("CallPutStrike").apply().singleAdditiveShift(1, 2, 3);
+        scenario.surface().named("bar").apply().shifts(ScenarioShiftType.ABSOLUTE,
+                                                       volShift(Period.ofMonths(6), 3.5, 0.1),
+                                                       volShift(Period.ofYears(1), 4.5, 0.2));
+        scenario.spotRate().currencyPair("EURUSD").apply().scaling(0.1);
       }
 
       // run the simulation --------------------------------------------------------------------------------------------

@@ -33,18 +33,18 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public final class SpotRateReplace implements StructureManipulator<Double>, ImmutableBean {
 
   @PropertyDefinition(validate = "notNull")
-  private final Number _value;
+  private final Double _value;
 
   @ImmutableConstructor
   /* package */ SpotRateReplace(Number value) {
-    _value = ArgumentChecker.notNull(value, "value");
+    _value = ArgumentChecker.notNull(value, "value").doubleValue();
   }
 
   @Override
   public Double execute(Double spotRate,
                         ValueSpecification valueSpecification,
                         FunctionExecutionContext executionContext) {
-    return _value.doubleValue();
+    return _value;
   }
 
   @Override
