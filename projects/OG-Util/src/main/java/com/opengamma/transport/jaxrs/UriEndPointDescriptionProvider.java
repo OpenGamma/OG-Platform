@@ -84,14 +84,50 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
 
     private static final URI NULL_URI = URI.create("null:0");
 
-    private final Client _client = Client.create();
+    private int _timeout = 10000; // Default 10s timeout
+    private volatile Client _client;
     private final ExecutorService _executor;
     private final URI _baseURI;
 
     private Validater(final ExecutorService executorService, final URI baseURI) {
       _executor = executorService;
       _baseURI = baseURI;
-      _client.setReadTimeout(10000);
+    }
+
+    // Caller must hold the monitor
+    private void configureClient(final Client client) {
+      client.setReadTimeout(_timeout);
+      client.setConnectTimeout(_timeout);
+    }
+
+    private Client getClient() {
+      Client client = _client;
+      if (client == null) {
+        synchronized (this) {
+          client = _client;
+          if (client == null) {
+            client = Client.create();
+            configureClient(client);
+            _client = client;
+          }
+        }
+      }
+      return client;
+    }
+
+    // Caller must hold the monitor
+    private void createOrConfigureClient() {
+      final Client client = _client;
+      if (client == null) {
+        getClient();
+      } else {
+        configureClient(client);
+      }
+    }
+
+    public synchronized void setTimeout(final int timeout) {
+      _timeout = timeout;
+      createOrConfigureClient();
     }
 
     private boolean validateType(final FudgeMsg endPoint) {
@@ -107,7 +143,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
       try {
         final String uriString = endPoint.getFieldValue(String.class, uriField);
         final URI uri = (_baseURI != null) ? _baseURI.resolve(uriString) : new URI(uriString);
-        final int status = _client.resource(uri).head().getStatus();
+        final int status = getClient().resource(uri).head().getStatus();
         s_logger.debug("{} returned {}", uri, status);
         switch (status) {
           case 200:
@@ -141,7 +177,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
         }
         do {
           try {
-            uri = result.poll(10000, TimeUnit.MILLISECONDS);
+            uri = result.poll(_timeout * 2, TimeUnit.MILLISECONDS);
           } catch (final InterruptedException ex) {
             throw new OpenGammaRuntimeException("Interrupted", ex);
           }
